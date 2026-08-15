@@ -77,6 +77,18 @@
     return fn ? fn(mood).replace('<svg', '<svg width="' + (size || 76) + '" height="' + (size || 76) + '"') : '';
   }
 
+  /* one avatar chip, graded by rarity */
+  function chip(id, size) {
+    var r = window.IND_RARITY_OF ? window.IND_RARITY_OF(id) : 'free';
+    var meta = (window.IND_RARITY || {})[r] || {};
+    return '<button class="avchip' + (S.buddy === id ? ' on' : '') + '" data-rar="' + r +
+      '" data-act="pick" data-id="' + id + '" title="' + esc(meta.label || '') + '">' +
+      art(id, size) +
+      '<span>' + esc((window.IND_AVATAR_NAMES || {})[id] || id) + '</span>' +
+      (r !== 'free' ? '<span class="rarlabel">' + esc(meta.label || r) + '</span>' : '') +
+      '</button>';
+  }
+
   /* stories live in two files now: the core set and the regional set */
   function allStories() {
     return (window.IND_STORIES || []).concat(window.IND_STORIES_REGIONAL || []);
@@ -179,8 +191,7 @@
         packs.map(function (p) {
           return '<div class="tiny muted" style="margin:14px 0 8px;font-weight:700">' + esc(p.name) + '</div>' +
             '<div class="grid g4">' + p.ids.map(function (id) {
-              return '<button class="avchip' + (S.buddy === id ? ' on' : '') + '" data-act="pick" data-id="' + id + '">' +
-                art(id, 76) + '<span>' + esc((window.IND_AVATAR_NAMES || {})[id] || id) + '</span></button>';
+              return chip(id, 76);
             }).join('') + '</div>';
         }).join('') +
         '<button class="btn lg block" style="margin-top:24px" data-act="start">Start the yatra →</button>' +
@@ -627,8 +638,7 @@
       '<div class="card"><h3>Who travels with you</h3>' + packs.map(function (p) {
         return '<div class="tiny muted" style="margin:14px 0 8px;font-weight:700">' + esc(p.name) + ' — ' + esc(p.note) + '</div>' +
           '<div class="grid g4">' + p.ids.map(function (id) {
-            return '<button class="avchip' + (S.buddy === id ? ' on' : '') + '" data-act="pick" data-id="' + id + '">' +
-              art(id, 74) + '<span>' + esc((window.IND_AVATAR_NAMES || {})[id] || id) + '</span></button>';
+            return chip(id, 74);
           }).join('') + '</div>';
       }).join('') + '</div>' +
       '<div class="card"><h3>Grown-ups</h3><div class="row">' +

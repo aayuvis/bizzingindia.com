@@ -593,6 +593,55 @@ window.IND_AVATAR_NAMES = {
   kalpana:'Kalpana Chawla', sarojini:'Sarojini Naidu'
 };
 
+
+/* ---------------------------------------------------------------- RARITY */
+/* Tiers, labels, colours and prices lifted from Bizzing Bee's RAR table so the
+   two apps grade collections identically:
+     free #7B8794 · rare #3D7DF0 · epic #B14FC4 · legendary #F0B429
+
+   NOTE (docs/05): tiering sacred figures makes them read as collectible loot
+   and implies a ranking between deities. Bizzing Bee already does this, so we
+   match it for consistency — but the deity pack is worth a second look before
+   launch, and IND_RARITY_SACRED_FLAT below lets you switch that pack to a
+   single uniform grade without touching anything else. */
+window.IND_RARITY = {
+  free:      { label: 'Starter',   c: '#7B8794', price: 0,   sell: 0 },
+  rare:      { label: 'Rare',      c: '#3D7DF0', price: 120, sell: 60 },
+  epic:      { label: 'Epic',      c: '#B14FC4', price: 250, sell: 125 },
+  legendary: { label: 'Legendary', c: '#F0B429', price: 500, sell: 250 }
+};
+window.IND_RARITY_SACRED_FLAT = false;
+
+window.IND_AVATAR_RARITY = {
+  /* Devas — matched to Bizzing Bee's own grading of the same figures */
+  ganesha:'legendary', krishna:'legendary', shiva:'legendary', durga:'legendary',
+  saraswati:'legendary', rama:'legendary', hanuman:'epic', lakshmi:'epic',
+  buddha:'legendary', mahavira:'epic', khanda:'legendary', harmandir:'epic',
+  /* Panchatantra — the tricksters and the leads grade higher */
+  pt_lion:'epic', pt_jackal:'rare', pt_bull:'free', pt_crow:'rare',
+  pt_tortoise:'rare', pt_mouse:'free', pt_deer:'rare', pt_crocodile:'epic',
+  pt_monkey:'epic', pt_rabbit:'legendary', pt_heron:'free', pt_elephant:'rare',
+  /* Darbar */
+  akbar:'legendary', birbal:'legendary', tansen:'epic', courtier:'free',
+  guard:'free', royal_elephant:'epic',
+  /* Great Indians */
+  ashoka:'legendary', chanakya:'epic', shivaji:'legendary', lakshmibai:'legendary',
+  gandhi:'legendary', ambedkar:'legendary', bhagat:'epic', kalam:'legendary',
+  aryabhata:'epic', tagore:'epic', kalpana:'epic', sarojini:'rare',
+  /* Mascots — always yours */
+  gattu:'free', gattu_happy:'free', gattu_think:'free', gattu_wow:'free',
+  mithu:'free', vismriti:'rare'
+};
+
+window.IND_RARITY_OF = function (id) {
+  var r = window.IND_AVATAR_RARITY[id] || 'free';
+  if (window.IND_RARITY_SACRED_FLAT) {
+    var devas = (window.IND_AVATAR_PACKS || []).filter(function (p) { return p.id === 'devas'; })[0];
+    if (devas && devas.ids.indexOf(id) >= 0) return 'epic';
+  }
+  return r;
+};
+
 window.IND_AVATAR = function (id, size) {
   var art = window.IND_AVATAR_ART[id];
   if (!art) return '';

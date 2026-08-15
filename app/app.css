@@ -422,3 +422,47 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
+
+/* ------------------------------------------------------------------ RARITY
+   Tier colours come from Bizzing Bee's RAR table (avatars.js) so both apps
+   grade a collection the same way. Epic and legendary glow; the glow breathes
+   only for legendary, and stops entirely under prefers-reduced-motion. */
+.avchip { position: relative; }
+.avchip[data-rar="rare"]      { --rc: #3D7DF0; }
+.avchip[data-rar="epic"]      { --rc: #B14FC4; }
+.avchip[data-rar="legendary"] { --rc: #F0B429; }
+
+.avchip[data-rar="rare"]      { border-color: color-mix(in srgb, var(--rc) 40%, transparent); }
+.avchip[data-rar="epic"] {
+  border-color: color-mix(in srgb, var(--rc) 55%, transparent);
+  background: radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--rc) 16%, transparent), var(--card2) 70%);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--rc) 28%, transparent);
+}
+.avchip[data-rar="legendary"] {
+  border-color: var(--rc);
+  background: radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--rc) 26%, transparent), var(--card2) 72%);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--rc) 45%, transparent);
+  animation: rarPulse 2.8s ease-in-out infinite;
+}
+@keyframes rarPulse {
+  50% { box-shadow: 0 0 34px color-mix(in srgb, var(--rc) 70%, transparent); }
+}
+/* the art itself catches the light */
+.avchip[data-rar="epic"] img, .avchip[data-rar="epic"] svg,
+.avchip[data-rar="legendary"] img, .avchip[data-rar="legendary"] svg {
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--rc) 65%, transparent));
+}
+/* corner tier dot */
+.avchip[data-rar]::after {
+  content: ''; position: absolute; top: 7px; right: 7px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--rc); box-shadow: 0 0 7px var(--rc);
+}
+.avchip[data-rar="free"]::after { display: none; }
+
+.rarlabel {
+  display: inline-block; padding: 2px 9px; border-radius: var(--radius-pill);
+  font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+  color: #fff; background: var(--rc, #7B8794);
+}
+@media (prefers-reduced-motion: reduce) { .avchip[data-rar="legendary"] { animation: none; } }

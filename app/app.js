@@ -180,53 +180,109 @@
   };
 
   /* -------------------------------------------------------------- DASHBOARD */
+  /* rotating nuggets — a word and a subhashita, picked by the hour so the page
+     changes through the day without any server */
+  var SHABD = [
+    ['नमस्ते', 'namaste', 'hello — "I bow to you"', 'hi/w-namaste'],
+    ['दोस्त', 'dost', 'friend', 'hi/w-dost'],
+    ['समुद्र', 'samudra', 'the sea', 'hi/w-samudra'],
+    ['कहानी', 'kahani', 'a story', 'hi/w-kahani'],
+    ['याद', 'yaad', 'memory — the thing this whole app is about', 'hi/w-yaad'],
+    ['रोशनी', 'roshni', 'light', 'hi/w-roshni']
+  ];
+  var SUBHASHITA = [
+    ['A book, a mind and a friend are three things that grow only by being opened.', 'Sanskrit subhashita tradition'],
+    ['Drop by drop, the pot is filled.', 'Hindi proverb — बूँद बूँद से घड़ा भरता है'],
+    ['The one who walks slowly still arrives.', 'Tamil proverb'],
+    ['A guest is God.', 'Taittiriya Upanishad — अतिथि देवो भव']
+  ];
+
   V.home = function () {
     var lit = Object.keys(S.lit).length, readN = Object.keys(S.read).length;
     var lv = level(), pct = Math.min(100, Math.round(((S.xp % 60) / 60) * 100));
-    var goalPct = Math.min(100, Math.round((S.todayCount / S.goal) * 100));
     var hour = new Date().getHours();
     var greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    var wordsN = Object.keys(S.lang).reduce(function (n, k) { return n + (S.lang[k].correct || 0); }, 0);
+    var w = SHABD[hour % SHABD.length], q = SUBHASHITA[hour % SUBHASHITA.length];
+    var hello = ['“Chalo — one story and a whole state wakes up.”',
+                 '“I remember every single thing. Come and see.”',
+                 '“The mist is thinner than yesterday. That was you.”'][new Date().getDate() % 3];
 
-    return '<div class="grid g2" style="grid-template-columns:1.1fr 1fr 1.2fr;margin-bottom:var(--space-lg)">' +
-      /* greeting */
-      '<div class="card" style="margin:0"><div class="row" style="flex-wrap:nowrap">' +
-        art(S.buddy, 76) +
-        '<div><div class="tiny muted">' + greet + ',</div>' +
-        '<h2 style="margin:0 0 8px">' + esc(S.name || 'Yatri') + '</h2>' +
-        '<span class="pill stat">🪔 ' + S.streak.count + '-day streak</span> ' +
-        '<span class="pill stat">' + esc(rank()) + ' · Lv ' + (lv + 1) + '</span>' +
-        '</div></div></div>' +
-      /* daily goal */
-      '<div class="card center" style="margin:0">' +
-        '<div class="mono">Today’s goal</div>' +
-        '<div style="font-family:var(--display);font-size:38px;font-weight:900;line-height:1.1;margin:6px 0">' +
-          S.todayCount + '<span class="muted" style="font-size:20px">/' + S.goal + '</span></div>' +
-        '<div class="bar" style="margin:10px 0"><i style="width:' + goalPct + '%"></i></div>' +
-        '<button class="btn block" data-act="go" data-v="stories">Continue →</button>' +
+    function metric(colour, label, now, of) {
+      return '<div class="metric"><i style="background:' + colour + '"></i>' + label +
+        '<b>' + now + '<span class="muted">/' + of + '</span></b></div>';
+    }
+
+    return '<div class="statrow" style="margin-bottom:var(--space-lg)">' +
+      /* greeting + the buddy actually says something */
+      '<div class="card notch" style="margin:0"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
+        art(S.buddy, 72) +
+        '<div style="flex:1"><div class="tiny muted">' + greet + ',</div>' +
+        '<h2 style="margin:0 0 10px">' + esc(S.name || 'Yatri') + '</h2>' +
+        '<div class="bubble">' + esc(hello) + '</div></div></div></div>' +
+
+      /* daily goal, several metrics at once */
+      '<div class="card notch" style="margin:0">' +
+        '<h3 style="margin:0 0 12px">Today’s goal</h3>' +
+        metric('var(--accent3)', 'Stories', S.todayCount, S.goal) +
+        metric('var(--good)', 'Places lit', lit, 34) +
+        metric('var(--accent)', 'Words', wordsN, 20) +
+        '<div class="bar" style="margin-top:12px"><i style="width:' +
+          Math.min(100, Math.round(S.todayCount / S.goal * 100)) + '%"></i></div>' +
+        '<div class="tiny muted" style="margin-top:8px">🪔 ' + S.streak.count + '-day streak · ' +
+        esc(rank()) + ' · Lv ' + (lv + 1) + '</div>' +
       '</div>' +
-      /* streak */
-      '<div class="card" style="margin:0">' +
-        '<div class="spread"><div><div class="mono">Diya streak</div>' +
-        '<h2 style="margin:2px 0 0">' + S.streak.count + ' day' + (S.streak.count === 1 ? '' : 's') + '</h2></div>' +
-        '<div class="tiny muted center">Next reward<br><b>7 days</b></div></div>' +
-        '<div class="streak" style="margin-top:12px">' +
-          Array.apply(null, Array(7)).map(function (_, i) {
-            return '<i class="' + (i < Math.min(7, S.streak.count) ? 'lit' : '') + '">🪔</i>';
-          }).join('') + '</div>' +
+
+      /* shabd of the hour — our version of "word of the hour" */
+      '<div class="card tint notch" style="margin:0">' +
+        '<div class="mono">Shabd of the hour</div>' +
+        '<div class="deva" style="font-family:var(--deva);font-size:34px;font-weight:700;line-height:1.3">' + esc(w[0]) + '</div>' +
+        '<div class="mono" style="text-transform:none">/ ' + esc(w[1]) + ' /</div>' +
+        '<p class="tiny" style="margin:8px 0 10px">' + esc(w[2]) + '</p>' +
+        '<button class="pill" data-act="say" data-k="' + esc(w[3]) + '">' + icon('sound', 16) + ' hear it</button>' +
       '</div></div>' +
 
-      /* keep going */
-      '<h3 style="margin:22px 0 12px">Keep going</h3>' +
-      '<div class="grid g2">' +
-        [['stories', 'The Story Tree', readN + ' of 11 read', 'Panchatantra, Akbar &amp; Birbal, and the great stories — told with a choice in the middle.', Math.round(readN / 11 * 100)],
-         ['map', 'The Living Map', lit + ' of 34 lit', 'Every story you finish lifts the mist off the place it came from.', Math.round(lit / 34 * 100)],
-         ['bhasha', 'Bhasha', 'Hindi · Punjabi', 'Real script from day one, on one engine that will take every Indian language.', 0],
-         ['mela', 'The Mela', '4 stalls open', 'Rangoli Rush, State Hunt, Festival Frenzy and Jataka Jump.', 0]]
+      /* the two big illustrated journeys */
+      '<div class="grid g2" style="grid-template-columns:1fr 1fr">' +
+        '<button class="journey" data-act="go" data-v="stories">' +
+          '<div class="banner" style="background-image:url(art/banner/stories.jpg)">' +
+            '<span class="chip">' + icon('tree', 20) + '</span>' +
+            '<span class="tag">' + readN + ' of 11 told</span></div>' +
+          '<div class="body"><div class="tiny muted">Next on your yatra</div>' +
+          '<h2 style="margin:2px 0 6px">Under the Banyan</h2>' +
+          '<p class="tiny" style="margin:0 0 14px">Panchatantra · Akbar &amp; Birbal · the great stories — each one with a choice to make in the middle.</p>' +
+          '<span class="btn">' + icon('play', 18) + ' Tell me one</span></div></button>' +
+
+        '<button class="journey" data-act="go" data-v="map">' +
+          '<div class="banner" style="background-image:url(art/banner/map.jpg)">' +
+            '<span class="chip">' + icon('map', 20) + '</span>' +
+            '<span class="tag">' + lit + ' of 34 remembered</span></div>' +
+          '<div class="body"><div class="tiny muted">Your long journey</div>' +
+          '<h2 style="margin:2px 0 6px">The Great Forgetting</h2>' +
+          '<p class="tiny" style="margin:0 0 14px">Vismriti is eating India’s memory. Every story you finish pushes the grey back off one more place.</p>' +
+          '<div class="bar"><i style="width:' + Math.round(lit / 34 * 100) + '%"></i></div></div></button>' +
+      '</div>' +
+
+      /* the two nugget cards */
+      '<div class="grid g2" style="grid-template-columns:1fr 1fr;margin-top:var(--space-lg)">' +
+        '<div class="card notch"><div class="mono">Today’s tip from Mithu</div>' +
+          '<div class="row" style="flex-wrap:nowrap;margin-top:8px">' +
+          '<p class="tiny" style="flex:1;margin:0">Ask a grown-up which of these stories <i>they</i> were told as a child. ' +
+          'Nearly every family tells them a little differently — and their version is the one worth knowing.</p>' +
+          mascot('mithu', 'talk', 62) + '</div></div>' +
+        '<div class="card tint notch"><div class="mono">Subhashita of the hour</div>' +
+          '<p style="font-family:var(--display);font-size:18px;font-style:italic;margin:8px 0 6px">“' + esc(q[0]) + '”</p>' +
+          '<div class="tiny muted">— ' + esc(q[1]) + '</div></div>' +
+      '</div>' +
+
+      /* the rest of the map */
+      '<div class="grid g2" style="margin-top:var(--space-lg)">' +
+        [['bhasha', 'Bhasha', 'Hindi · Punjabi', 'Real script from day one, on one engine that will take every Indian language.'],
+         ['mela', 'The Mela', '4 stalls open', 'Rangoli Rush, State Hunt, Festival Frenzy and Jataka Jump.']]
         .map(function (c) {
           return '<button class="tile" data-act="go" data-v="' + c[0] + '">' +
             '<div class="spread"><h3 style="margin:0">' + c[1] + '</h3><span class="pill stat tiny">' + c[2] + '</span></div>' +
-            '<p class="tiny" style="margin:8px 0 12px">' + c[3] + '</p>' +
-            '<div class="bar"><i style="width:' + c[4] + '%"></i></div></button>';
+            '<p class="tiny" style="margin:8px 0 0">' + c[3] + '</p></button>';
         }).join('') +
       '</div>' +
 

@@ -201,6 +201,61 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line2); }
 .dots i.on { background: var(--accent); }
 
+/* ----------------------------------------------------- dashboard cards */
+/* the small status row */
+.statrow { display: grid; grid-template-columns: 1.15fr 1fr 1.25fr; gap: var(--space-lg); }
+@media (max-width: 900px) { .statrow { grid-template-columns: 1fr; } }
+
+/* a warm-tinted card, for the nugget slots */
+.tint { background: linear-gradient(180deg, #fdf6e8, var(--card)); border-color: #f0e0bd; }
+[data-mode="night"] .tint { background: var(--card2); border-color: var(--line2); }
+
+/* the corner notch — Bizzing Bee uses a honeycomb; ours is a marigold dot */
+.notch { position: relative; overflow: visible; }
+.notch::after {
+  content: ''; position: absolute; top: -7px; right: 20px;
+  width: 16px; height: 16px; border-radius: 50% 50% 50% 0;
+  background: var(--accent2); transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgba(30,20,70,.18);
+}
+
+/* speech bubble from the buddy */
+.bubble {
+  position: relative; background: var(--card2); border: 1px solid var(--line);
+  border-radius: var(--radius-md); padding: 11px 14px; font-size: 14px; font-style: italic; color: var(--text2);
+}
+.bubble::before {
+  content: ''; position: absolute; left: -7px; top: 16px; width: 12px; height: 12px;
+  background: var(--card2); border-left: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  transform: rotate(45deg);
+}
+
+/* multi-metric goal rows */
+.metric { display: flex; align-items: center; gap: 9px; font-size: 13.5px; margin-bottom: 7px; }
+.metric b { margin-left: auto; font-variant-numeric: tabular-nums; }
+.metric i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+/* the big journey cards with a painted header */
+.journey {
+  display: block; width: 100%; text-align: left; padding: 0; overflow: hidden;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow); cursor: pointer; transition: transform .15s, box-shadow .15s;
+}
+.journey:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.journey .banner { position: relative; height: 172px; background: var(--card2); background-size: cover; background-position: center; }
+.journey .banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.02)); }
+.journey .tag {
+  position: absolute; top: 14px; right: 14px; z-index: 2;
+  background: rgba(20,12,45,.82); color: #fff; font-size: 12px; font-weight: 700;
+  padding: 6px 13px; border-radius: var(--radius-pill);
+}
+.journey .chip {
+  position: absolute; top: 14px; left: 14px; z-index: 2;
+  width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--accent); color: #fff;
+}
+.journey .body { padding: var(--space-lg) var(--space-xl) var(--space-xl); }
+
 /* --------------------------------------------------------------- ladder */
 .ladder { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
 .ladder::-webkit-scrollbar { display: none; }

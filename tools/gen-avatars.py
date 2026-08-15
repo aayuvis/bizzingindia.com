@@ -68,17 +68,33 @@ def call_api(prompt, key):
 
 # ------------------------------------------------------------------ images
 
-def to_tile(png_bytes):
-    """Square, white-matted, 256x256, palette-optimised PNG bytes."""
-    im = Image.open(io.BytesIO(png_bytes))
-    im = im.convert("RGBA")
+MARGIN = 0.05        # share of the tile left as white air around the subject
 
-    # square it off on white (the source is normally already square)
-    side = max(im.size)
-    canvas = Image.new("RGBA", (side, side), (255, 255, 255, 255))
-    canvas.paste(im, ((side - im.width) // 2, (side - im.height) // 2), im)
-    flat = Image.new("RGB", (side, side), (255, 255, 255))
-    flat.paste(canvas, (0, 0), canvas)
+
+def to_tile(png_bytes):
+    """Square, white-matted, auto-trimmed, 256x256, palette-optimised PNG bytes.
+
+    The model leaves an unpredictable amount of white air around the subject, which
+    makes the set look ragged in a grid. Trimming to the ink and re-matting with a
+    fixed margin is what makes every tile sit at the same visual weight.
+    """
+    im = Image.open(io.BytesIO(png_bytes)).convert("RGBA")
+    flat = Image.new("RGB", im.size, (255, 255, 255))
+    flat.paste(im, (0, 0), im)
+
+    # trim the white surround (245 keeps soft shadows and pale sparkles in)
+    mask = flat.convert("L").point(lambda v: 255 if v < 245 else 0)
+    box = mask.getbbox()
+    if box:
+        w, h = box[2] - box[0], box[3] - box[1]
+        # ignore a degenerate trim (a stray speck, or an image that is nearly all ink)
+        if w > im.width * 0.2 and h > im.height * 0.2:
+            flat = flat.crop(box)
+
+    side = int(max(flat.size) * (1 + 2 * MARGIN))
+    canvas = Image.new("RGB", (side, side), (255, 255, 255))
+    canvas.paste(flat, ((side - flat.width) // 2, (side - flat.height) // 2))
+    flat = canvas
 
     flat = flat.resize((SIZE, SIZE), Image.LANCZOS)
     pal = flat.quantize(colors=192, method=Image.MEDIANCUT, dither=Image.NONE)
@@ -140,7 +156,22 @@ def main():
     ap.add_argument("prompts", help="JSON file of {id: prompt}")
     ap.add_argument("--only", default="", help="comma-separated ids")
     ap.add_argument("--force", action="store_true", help="regenerate existing")
+    ap.add_argument("--reprocess", action="store_true",
+                    help="rebuild tiles from the cached raws, no API calls")
     args = ap.parse_args()
+
+    if args.reprocess:
+        n = 0
+        for f in sorted(os.listdir(RAW_DIR)):
+            if not f.endswith(".png"):
+                continue
+            with open(os.path.join(RAW_DIR, f), "rb") as fh:
+                tile = to_tile(fh.read())
+            with open(os.path.join(OUT_DIR, f), "wb") as fh:
+                fh.write(tile)
+            n += 1
+        print("reprocessed %d tiles" % n)
+        return 0
 
     key = os.environ.get("GEMKEY") or os.environ.get("GEMINI_API_KEY")
     if not key:

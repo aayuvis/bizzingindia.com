@@ -16,7 +16,7 @@ Bizzing India has **three jobs**, and every feature should serve at least one:
 | # | Job | How the product does it |
 |---|---|---|
 | 1 | **Be the growth engine for the Bizzing family** | Free, shareable, emotionally irresistible cultural content that diaspora parents pass to other diaspora parents. Cross-sells Bizzing Bee (English spelling) to the same household. |
-| 2 | **Sell a language subscription** | Hindi is the paid pillar — a real, structured, Devanagari-first program that replaces or supports weekend Hindi school. |
+| 2 | **Sell a language subscription** | Language is the paid pillar — a real, structured, script-first program that replaces or supports weekend language school. Hindi ships first; the engine is built to take every Indian language ([`docs/09`](docs/09-language-engine.md)). |
 | 3 | **Sell books** | Every story in the app has a printed counterpart. Plus a print-on-demand *Yatra Yearbook* generated from the child's own year of learning. |
 
 The strategic insight: **culture pulls, language pays, books compound.** Give the culture
@@ -57,14 +57,20 @@ profile creation from age and can be switched by the parent.
 | Pillar | Hindi name | Free / Paid | What it is |
 |---|---|---|---|
 | History | **Itihaas** | Free core, Premium depth | Indus Valley → Vedic → Mahajanapadas → Maurya → Gupta → the Souths (Chola, Pallava, Vijayanagara) → Sultanates → Mughals → Marathas & Sikhs → colonial era → freedom movement → modern India |
-| Faiths | **Dharma** | Free | Hinduism, Buddhism, Jainism in depth — beliefs, festivals, texts, places, people, ideas. Sikhism and India's other living faiths covered respectfully at survey level |
+| Faiths | **Dharma** | Free | Hinduism, Buddhism, Jainism and Sikhism in depth — beliefs, festivals, texts, places, people, ideas. India's other living faiths (Islam, Christianity, Judaism, Zoroastrianism) covered respectfully at survey level |
 | Mythology | **Kathayein** | Free | Ramayana, Mahabharata, Puranic tales, Jataka tales, Jain legends, Panchatantra, and regional folk tales |
 | Geography | **Bhugol** | Free core, Premium depth | States & capitals, rivers, mountains, monsoon, wildlife, monuments, food, festivals, language map |
-| **Hindi** | **Bhasha** | **Premium only** | Varnamala → matras → reading → vocabulary → conversation → writing Devanagari |
+| **Language** | **Bhasha** | **Premium only** | A **language platform**, not one language: script → matras → reading → vocabulary → conversation → writing. **Hindi (Devanagari) is pack #1**; Punjabi (Gurmukhi) is #2, then Gujarati, Telugu, Tamil, Bengali, Malayalam |
 
 **Mythology is deliberately the front door.** A 5-year-old will sit still for Hanuman
 leaping to Lanka; nobody's 5-year-old asks for the Gupta empire. Stories earn the attention
 that history, geography and language then spend.
+
+**Bhasha is built language-agnostic from day one.** The ambition is *Duolingo for Indian
+languages*, aimed at the learner Duolingo serves worst: the heritage child whose ear is
+already ahead of their eye. Almost every Indian script is an abugida, so the barakhadi engine
+is built once and fed script data; a new language is a content project, not an engineering
+one. The whole argument: [`docs/09-language-engine.md`](docs/09-language-engine.md).
 
 Full scope & sequence: [`docs/02-curriculum.md`](docs/02-curriculum.md).
 
@@ -130,7 +136,7 @@ Bizzing India reuses Bizzing Bee's proven shape. The mapping is close to 1:1:
 | Saga: *Bizzy & the Great Unspelling* | **Saga: *Gattu & the Great Forgetting*** |
 | Arcade (6 games) | **The Mela** (carnival of mini-games) |
 | Concepts (121 in 11 chapters) | **Gyan Cards** — illustrated concept decks per pillar |
-| Word Coach | **Bhasha Coach** — the Hindi trainer (Premium) |
+| Word Coach | **Bhasha Coach** — the language trainer, one shell per pack (Premium) |
 | Theme Journeys (50+ themes) | **Trails** — rivers, dynasties, festivals, monuments, animals, foods |
 | Coins 🪙 + Shop | **Kauris** 🐚 + the **Bazaar** |
 | Themes / worlds | Folk-art worlds (above) |
@@ -180,13 +186,23 @@ handled at 11–12 with care, not erased. Sourcing, review board and the full po
 first act, two folk-art worlds, the Mela. Enough that a parent would recommend it having
 never paid.
 
-**Bizzing India Plus** — the Hindi program in full, mastery ladders and Levels past 5 on
+**Bizzing India Plus** — the language program in full, mastery ladders and Levels past 5 on
 every pillar, all folk-art worlds, offline downloads, printables, and the parent report.
+
+**One subscription, every language.** Plus includes **every language pack, present and
+future** — never per-language. Diaspora families are routinely multilingual, so per-language
+pricing would tax exactly the households most committed to language learning; and it turns
+each new pack into a retention event for the whole base rather than an upsell to a slice of
+it. Nobody else can say *"every Indian language your family speaks, one price."*
+Reasoning: [`docs/09-language-engine.md`](docs/09-language-engine.md#7-pricing-one-subscription-every-language).
 
 | Market | Monthly | Annual (family, up to 4 kids) |
 |---|---|---|
 | Diaspora (US/CA/UK/AU/AE/SG) | $7.99 | **$59** — includes one printed book shipped |
 | India | ₹299 | **₹1,999** |
+
+Price does not move as packs ship; the value of the annual plan roughly doubles each time one
+does.
 
 **Bizzing Family Pass** — Bizzing India + Bizzing Bee, one price, one login, one parent
 dashboard. This is the cross-sell, and it is the reason both apps should share an account
@@ -211,11 +227,17 @@ roadmap is this app's day-one architecture:
   car rides, flights to India, and patchy connections.
 - **Supabase** (Postgres + Auth + RLS) — parent-only accounts, children as non-authenticating
   profiles. **Stripe** for subscriptions.
-- **Content as versioned JSON + CDN**, so stories, chapters and Hindi lessons ship without a
-  redeploy. Content is the product here; the pipeline matters more than it did for word lists.
+- **Content as versioned JSON + CDN**, so stories, chapters and language lessons ship without
+  a redeploy. Content is the product here; the pipeline matters more than it did for word lists.
+- **The language layer is a platform, not a Hindi feature.** Script modules (Devanagari,
+  Gurmukhi, Tamil…) are separate from language packs (Hindi, Punjabi, Marathi…), one script
+  module serving several languages; the ladder, spaced repetition, exercise types and coach
+  shell are shared. Build the abugida grid engine once and feed it script data. This is the
+  single highest-leverage technical decision in the product —
+  [`docs/09-language-engine.md`](docs/09-language-engine.md).
 - **Shared design-system package** with Bizzing Bee (`ds-src` — tokens, icons, avatars).
-- **Audio is a first-class asset**: English narration (US + UK), Hindi narration by human
-  voice for anything a child will imitate, TTS only for bulk vocabulary.
+- **Audio is a first-class asset**: English narration (US + UK), human voice per language for
+  anything a child will imitate, TTS only for bulk vocabulary.
 - **Child-privacy law is a design constraint, not a footnote**: COPPA (US), GDPR-K (EU/UK),
   and India's DPDP Act 2023 — which requires verifiable parental consent for under-18s and
   bars behavioural tracking and targeted advertising at children. No ads, ever. Minimal child
@@ -268,3 +290,4 @@ That's the gap. The map is the product.
 | [06 — Commerce & Books](docs/06-commerce-and-books.md) | Pricing, paywall design, the book funnel, cross-sell |
 | [07 — Tech Architecture](docs/07-tech-architecture.md) | Stack, content pipeline, data model, offline, privacy |
 | [08 — Roadmap](docs/08-roadmap.md) | Phases, MVP, metrics, risks |
+| [09 — The Bhasha Engine](docs/09-language-engine.md) | The language platform: script modules vs packs, the heritage learner, sequencing, one-price pricing |

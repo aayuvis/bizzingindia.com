@@ -171,11 +171,41 @@ Heavier than Bizzing Bee, because half the audience cannot read.
 - **The time slider** swaps a historical-boundaries overlay group per era. Pre-modern
   boundaries are drawn as **soft, fuzzy zones of influence**, never crisp modern-style borders
   — that is both historically honest and diplomatically wise.
-- **Political sensitivity:** international boundaries — particularly Jammu & Kashmir, Ladakh,
-  Aksai Chin and Arunachal Pradesh — are legally regulated in India and contested
-  internationally. Use the Survey of India depiction for users in India, keep depictions
-  consistent and undramatised elsewhere, never animate or gamify a disputed boundary, and
-  have this reviewed before launch. Getting it wrong is an app-store-removal-in-India risk.
+
+### Boundary depiction — decided
+
+**The app uses the Survey of India depiction everywhere.** Not "for users in India" — there
+is one map, and this is it. **Jammu & Kashmir is shown whole**, as India depicts it. No
+region-varying geometry, no per-locale swap, no dotted "disputed" hatching: a single
+depiction is simpler to build, simpler to review, and the only version that is legal in the
+largest market this product will ever have.
+
+The rules that follow from it:
+
+1. One geometry set, shipped to every user, in every locale.
+2. **Pre-modern boundaries on the time slider stay soft zones of influence**, never crisp
+   modern borders. An empire's reach is a gradient, and drawing it as a hard line is both bad
+   history and an invitation to argument.
+3. **Never animate or gamify a boundary.** No borders that draw themselves, pulse, get
+   conquered, get captured, or move as a reward. Boundaries are undramatised background, not
+   a mechanic.
+4. The depiction is reviewed before launch, and the reviewer's sign-off is recorded.
+
+### Known geometry gaps *(in the shipped data, needing better source geometry before launch)*
+
+The current SVG geometry predates several changes and has one placeholder. These are data
+problems, not policy problems, and they are all visible to any Indian parent in about four
+seconds:
+
+| Gap | Why | Fix |
+|---|---|---|
+| **Telangana is still inside Andhra Pradesh** | The source geometry predates the 2014 bifurcation | Source or cut a boundary between Telangana and Andhra Pradesh; Hyderabad's tagging follows |
+| **Ladakh is not split out of J&K** | The source geometry predates the 2019 reorganisation | Split Ladakh as its own UT while keeping J&K whole per the depiction above |
+| **Lakshadweep is drawn as a marker** | No island geometry in the source | Real island geometry, or an inset panel — small islands are not legible at national zoom either way |
+
+Until these are fixed, the states-and-UTs count in [02](02-curriculum.md#pillar-4--bhugol--geography)
+(28 + 8) is not what the map actually draws. Fixing them is a Phase 0/1 content-data task,
+not a rendering task.
 
 ## 8. Privacy & compliance
 

@@ -58,10 +58,13 @@ The short version:
 - **Child data is minimal by construction**: first name and an *age band*, never a birthdate,
   no child email, photo, location or free text. COPPA + GDPR-K + India's DPDP Act 2023 (which
   covers under-18s and bars behavioural tracking and targeted ads at children). No ads, ever.
-- **Map boundaries** — international boundaries, especially J&K, Ladakh, Aksai Chin and
-  Arunachal Pradesh, are legally regulated in India and contested elsewhere. Use the Survey
-  of India depiction for users in India, keep it consistent and undramatised, never animate
-  or gamify a disputed boundary, and get it reviewed before shipping.
+- **Map boundaries** — the app uses the **Survey of India depiction everywhere**, for every
+  user in every locale. **J&K is shown whole**, as India depicts it. There is no
+  region-varying geometry. Pre-modern boundaries on the time slider are **soft zones of
+  influence**, never crisp modern borders. **Never animate or gamify a boundary** — no
+  border draws itself, pulses, gets conquered or moves as a reward. Reviewed before shipping.
+  Known geometry gaps to fix before launch (Telangana, Ladakh, Lakshadweep) are listed in
+  [docs/07-tech-architecture.md](docs/07-tech-architecture.md#7-the-living-map-technically).
 - **Devanagari is set correctly or not at all** — real Devanagari face (Mukta / Noto Sans
   Devanagari), unbroken shirorekha, ~10–15% larger than Latin, line-height ≥ 1.7, never
   letter-spaced, never faked with a Latin "Sanskrit-look" font, never decorative squiggle.

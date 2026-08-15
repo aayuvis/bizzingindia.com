@@ -73,9 +73,34 @@ Ahimsa as a whole way of living (the idea a 6-year-old grasps fastest and rememb
 a *Jain* parable · Jain diet and why · Paryushan and Michhami Dukkadam · Shravanabelagola,
 Palitana, Ranakpur, Dilwara · Jain manuscript painting · Jains today.
 
+### Sikhism
+Taught at the same depth as the three above, because a very large share of the diaspora
+audience *is* Sikh and an app called Bizzing India that skips the Gurus will be noticed.
+
+**Ik Onkar** — one God, the opening words of the Guru Granth Sahib and the idea everything
+else hangs off · the **ten Gurus**, from Guru Nanak's travels to Guru Gobind Singh · the
+**Guru Granth Sahib as the living Guru** — not a book *about* the faith but the Guru itself,
+which is why it is carried, seated and attended the way it is · **langar and seva** — the
+free kitchen where everyone sits in one row and eats the same food, and service as worship,
+which is the fastest idea in this pillar for a child to grasp and act on · the **Khalsa** and
+the **five Ks** (kesh, kangha, kara, kachhera, kirpan) — what each one means to the person
+wearing it, which is also the answer to the playground question a Sikh child gets asked ·
+**Harmandir Sahib**, the Golden Temple at Amritsar — four doors, the sarovar, its langar ·
+**Baisakhi** and the **Gurpurabs** — the Guru anniversaries the household
+year is built around · the **gurdwara** and how to be in one.
+
+**Sikh diaspora history** gets real space, because for most of this audience it is family
+history: Punjab → Canada, the UK, the US and Australia, and the gurdwara as the first
+institution a new community builds. A Sikh child in Surrey, Southall or Yuba City should be
+able to find their own grandparents' route on the map. Dates, routes and numbers here are
+Itihaas, not Katha — sourced and badged like any other history ([05](05-editorial-policy.md)).
+
+**The Gurmukhi connection.** Gurmukhi is the script of the Guru Granth Sahib, which makes
+this pillar and the language platform reinforce each other directly — Punjabi is language
+pack #2 ([09](09-language-engine.md#6-language-sequencing)), and it ships alongside this
+pillar so faith and language land as one story.
+
 ### The wider weave *(survey level, and it matters)*
-Sikhism — the ten Gurus, the Guru Granth Sahib, langar, Golden Temple, the five Ks — gets
-close to pillar depth, because a very large share of the diaspora audience *is* Sikh. Then
 Islam, Christianity, Judaism and Zoroastrianism in India, each as an Indian story: Sufi
 dargahs, Kerala's St Thomas churches and Cochin's synagogue, Parsis and Mumbai. India is a
 place where these have lived side by side for centuries, and a child in Edison or Slough
@@ -138,20 +163,28 @@ comprehension beat, a **Katha** badge, place/time tags, and a "read it in print"
 
 ---
 
-## Pillar 5 · Bhasha — Hindi *(Premium)*
+## Pillar 5 · Bhasha — language *(Premium)*
 
 The paid pillar. Must be a **real language program**, not vocabulary flashcards, because
 it's competing with a human tutor. It is also the pillar with the most careful audio
 requirements.
 
+**Bhasha is a platform, and [09 — The Bhasha Engine](09-language-engine.md) is the document
+for it** — script modules vs language packs, the heritage learner, typing-free exercise
+design, language sequencing, per-pack cost and pricing. The stage ladder below is the shared
+curriculum shape; **Hindi/Devanagari is pack #1**, Punjabi/Gurmukhi is #2, and every pack runs
+the same stages against its own script and lexicon. Don't duplicate 09 here — extend it there.
+
 **Design commitments**
-- **Devanagari from day one** (not romanised-forever). Script literacy is the outcome
-  parents actually want and can see.
+- **Script from day one** (not romanised-forever) — Devanagari for Hindi, Gurmukhi for
+  Punjabi, and so on. Script literacy is the outcome parents actually want and can see.
 - **Two entry paths**: heritage learner (understands some spoken Hindi, can't read) and
   true beginner. The heritage path is the diaspora default and almost nobody builds it.
 - **Speaking is the goal**, so speech practice and family voice matter more than typing.
 - **Human voice** for every letter, matra and core word. Nothing a child will imitate gets
   synthesised.
+
+The ladder, with pack #1 (Hindi) as the worked example:
 
 | Stage | Content | Outcome |
 |---|---|---|
@@ -169,10 +202,11 @@ list, Revise and Practice tabs, a live heatmap, a Level ladder, spaced repetitio
 child's own misses, and printable worksheets — the last being a direct bridge to the
 workbook business.
 
-**Architecture note:** build the language layer **language-agnostic**. The diaspora is
-Tamil, Telugu, Gujarati, Punjabi, Bengali and Marathi too, and "Bizzing Tamil" should be a
-content pack against the same engine, not a rewrite. This is the single highest-leverage
-technical decision in the product.
+**Architecture note:** the language layer is **language-agnostic from day one** — the single
+highest-leverage technical decision in the product. The diaspora is Tamil, Telugu, Gujarati,
+Punjabi, Bengali and Marathi too, and a second language must be a content pack against the
+same engine, not a rewrite. The specs, the sequencing and the gate that proves it:
+[09 — The Bhasha Engine](09-language-engine.md).
 
 ---
 
@@ -183,7 +217,7 @@ technical decision in the product.
 | Kathayein | 30 stories | 200+ |
 | Bhugol | Map + 28 states + 10 rivers | + monuments, wildlife, food, festivals, monsoon |
 | Itihaas | 6 eras, light | 12 eras + 150 anchors |
-| Dharma | 3 traditions, survey | 3 in depth + Sikh depth + the wider weave |
+| Dharma | 4 traditions, survey | 4 in depth + the wider weave |
 | Bhasha | Stages 0–2 | Stages 0–7 |
 | Saga | Act 1 (5 chapters) | 6 acts (~30 chapters) |
 | Mela games | 4 | 12 |

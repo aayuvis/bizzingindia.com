@@ -33,17 +33,19 @@ Then, by depth:
 | [06 — Commerce & Books](docs/06-commerce-and-books.md) | Free/paid split, pricing, paywall design, the book funnel, cross-sell |
 | [07 — Tech Architecture](docs/07-tech-architecture.md) | Stack, module map, content pipeline, data model, offline, privacy law |
 | [08 — Roadmap](docs/08-roadmap.md) | Phases, MVP, gates, metrics, risks |
+| [09 — The Bhasha Engine](docs/09-language-engine.md) | The language platform: script modules vs language packs, the heritage learner, exercise design, sequencing, one-price pricing |
 
 ## The shape of it, in one table
 
 | | |
 |---|---|
 | **Audience** | Primary: Indian diaspora kids 4–12 (US, CA, UK, AU, AE, SG). Secondary: India |
-| **Pillars** | Itihaas (history) · Dharma (faiths) · Kathayein (mythology) · Bhugol (geography) · **Bhasha (Hindi — paid)** |
+| **Pillars** | Itihaas (history) · Dharma (faiths — Hinduism, Buddhism, Jainism, Sikhism in depth) · Kathayein (mythology) · Bhugol (geography) · **Bhasha (language — paid)** |
+| **Bhasha** | A **language platform**, not one language — *Duolingo for Indian languages*, built for the heritage learner. Script modules are separate from language packs; **Hindi is pack #1**, Punjabi/Gurmukhi #2. One subscription covers every pack, present and future ([09](docs/09-language-engine.md)) |
 | **Signature** | The **Living Map** — India starts grey under the Forgetting's mist and fills with colour as the child learns |
 | **Narrative** | *Gattu & the Great Forgetting* — a six-act saga across the map and the centuries |
 | **Look** | Real Indian folk-art traditions as unlockable worlds: Madhubani, Warli, Pattachitra, Gond, Kalamkari, Phad, Mughal miniature, Tanjore, Kalighat |
-| **Business** | Culture free (it's the marketing) · Hindi subscription paid · books as the third leg |
+| **Business** | Culture free (it's the marketing) · language subscription paid, one price for every pack · books as the third leg |
 | **Growth loop** | **Nani-Nana Stories** — grandparents anywhere record stories in their own voice, straight into the child's app |
 | **Three jobs** | Grow the Bizzing family · sell a language subscription · sell books |
 

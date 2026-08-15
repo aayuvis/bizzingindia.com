@@ -23,7 +23,8 @@ The rule from the concept: **culture pulls, language pays.**
 - Festival units, published free the week before each festival
 
 ### Bizzing India Plus
-- **The entire Hindi program** — the only pillar that is Premium-only, end to end
+- **The entire language program, every pack** — Bhasha is the only pillar that is
+  Premium-only, end to end, and Plus carries all of it ([09](09-language-engine.md))
 - Levels past 5 on every ladder; Padav Challenges
 - All folk-art worlds
 - Saga Acts 2–6
@@ -47,6 +48,17 @@ free tier feels like a demo, loop 1 dies and so does the business.
 
 **Bizzing Family Pass** — Bizzing India + Bizzing Bee: **$99/year** (India: ₹2,999). One
 account, one parent dashboard, all children.
+
+**One subscription, every language.** Plus includes **every language pack, present and
+future** — Hindi, then Punjabi, then Gujarati, Telugu, Tamil, Bengali, Malayalam and the rest.
+Never per-language, never a per-pack upgrade, never a bundle tier. Diaspora families are
+routinely multilingual (Punjabi at home and Hindi for films; Tamil from one parent, Gujarati
+from the other), so per-language pricing taxes exactly the households most committed to
+language learning — and it converts every new pack from an upsell to a slice of the base into
+a **retention event for all of it**. It is also the cleanest differentiator available:
+*"every Indian language your family speaks, one price."* Price does not move as packs ship;
+the value of the annual plan roughly doubles each time one does. Full argument:
+[09](09-language-engine.md#7-pricing-one-subscription-every-language).
 
 Notes on the shape:
 - **Annual is the product.** Monthly exists to lower the first commitment; every surface
@@ -102,6 +114,9 @@ Illustrated story books straight from the app's mythology pillar, in the folk-ar
 Diaspora parents **already buy these**. This is the lowest-risk revenue in the plan.
 - *Hindi Varnamala Writing Workbook* — stroke order, tracing, dictation
 - *Matras & Barakhadi Practice*
+- *Gurmukhi Writing Workbook* and *Punjabi Matras & Barakhadi Practice* — the same two
+  titles against pack #2's script. One workbook pair per language pack, generated from the
+  same stroke-path data the app traces with; the print list grows with the language list
 - *My Map of India* — colouring, labelling, sticker activity book
 - *Monuments of India* activity book
 - *Festival Craft Book* — one craft per festival, per month

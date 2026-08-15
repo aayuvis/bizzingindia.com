@@ -66,16 +66,28 @@ family does India wrong. Practise this concretely:
 ### Reverence in depiction
 Deities are depicted only in named folk-art idioms, never in comic-grotesque, never as
 game-collectible loot, never as an antagonist, never customised as a player avatar. Sacred
-texts are quoted accurately with citation, never paraphrased into a slogan.
+texts are quoted accurately with citation, never paraphrased into a slogan. The **Sikh Gurus
+are not depicted at all** — see the rule below.
 
-### The three named traditions, plus the honest weave
-The commissioned scope is Hinduism, Buddhism and Jainism in depth. **Sikhism should be
-carried close to that depth too** — a large share of the diaspora target audience is Sikh,
-and an app called Bizzing India that skips the Gurus will be noticed and resented. Islam,
-Christianity, Judaism and Zoroastrianism in India get respectful survey treatment as
-*Indian* stories: the Sufi dargah, Kerala's ancient churches, Cochin's synagogue, Mumbai's
-Parsis. This is not political balance-seeking; it is accuracy about what India is, and it is
-what makes the app safe to recommend inside a mixed classroom.
+### The four named traditions, plus the honest weave
+The commissioned scope is **Hinduism, Buddhism, Jainism and Sikhism in depth** — Sikhism was
+promoted from survey level to a named tradition because a large share of the diaspora target
+audience is Sikh, and an app called Bizzing India that skips the Gurus will be noticed and
+resented. Scope for the Sikh pillar is in
+[02](02-curriculum.md#pillar-2--dharma--the-faiths-of-india). Islam, Christianity, Judaism
+and Zoroastrianism in India get respectful survey treatment as *Indian* stories: the Sufi
+dargah, Kerala's ancient churches, Cochin's synagogue, Mumbai's Parsis. This is not political
+balance-seeking; it is accuracy about what India is, and it is what makes the app safe to
+recommend inside a mixed classroom.
+
+**Policy: the Sikh Gurus are never depicted.** No illustration, no avatar, no folk-art
+rendering, no silhouette, in the app or in any book, printable or marketing asset. Many Sikhs
+regard pictorial depiction of the Gurus as improper, and a children's product has no business
+adjudicating that. Where Hindu, Buddhist and Jain content uses figurative art in a named folk
+idiom, Sikh content uses the **Khanda**, the **Ik Onkar** in Gurmukhi, **Harmandir Sahib**,
+the gurdwara, the nishan sahib, the langar hall and the Guru Granth Sahib on its palki —
+places, symbols and objects, drawn with the same care as everything else. This is a hard
+rule, not a default, and it applies to commissioned artists as a brief term.
 
 ---
 

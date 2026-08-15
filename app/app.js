@@ -446,6 +446,58 @@
       '<div class="card flat tiny"><b>Where this comes from.</b> ' + esc(st.source || '') + '</div>';
   };
 
+
+  /* -------------------------------------------------------------- ITIHAAS */
+  /* Age-gated: nothing above the child's band is rendered at all (docs/05 §3). */
+  function ageOK(gate) { return (S.age || 8) >= (gate || 4); }
+
+  V.itihaas = function () {
+    var I = window.IND_ITIHAAS;
+    if (!I) return '<div class="card"><h1>Itihaas</h1><p>Not loaded.</p></div>';
+    var eras = I.eras.filter(function (e) { return ageOK(e.gate); });
+    var hidden = I.eras.length - eras.length;
+    return '<div class="card"><h1>The River of Time</h1><p>' + esc(I.intro) + '</p>' +
+      '<div class="row" style="margin-top:6px">' +
+      '<span class="badge itihaas">itihaas — what evidence shows</span>' +
+      '<span class="badge katha">katha — a story as it is told</span></div></div>' +
+      '<div class="river">' + eras.map(function (e, i) {
+        return '<button class="bend" data-act="era" data-id="' + e.id + '">' +
+          '<span class="yr">' + esc(e.when) + '</span>' +
+          '<span class="node">' + art(e.avatar, 54) + '</span>' +
+          '<span class="ttl">' + esc(e.title) + '</span>' +
+          '<span class="tiny muted">' + esc(e.hook) + '</span></button>';
+      }).join('') + '</div>' +
+      (hidden ? '<div class="card flat tiny"><b>' + hidden + ' more further down the river.</b> ' +
+        'Some of what happened to India is hard, and we show it when a reader is a bit older. ' +
+        'A grown-up can change the age in Me.</div>' : '');
+  };
+
+  V.era = function (id) {
+    var I = window.IND_ITIHAAS;
+    var e = I && I.eras.filter(function (x) { return x.id === id; })[0];
+    if (!e) return '<div class="card">Not found.</div>';
+    if (!ageOK(e.gate)) return '<div class="card"><p>This part of the river is for a bit older. ' +
+      'Ask a grown-up.</p><button class="btn" data-act="go" data-v="itihaas">Back</button></div>';
+    var big = (S.age || 8) >= 9;
+    return '<button class="backlink" data-act="go" data-v="itihaas">' + icon('back', 18) + ' The River of Time</button>' +
+      '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(e.avatar, 92) +
+      '<div style="flex:1"><span class="badge itihaas">itihaas</span>' +
+      '<h1 style="margin:8px 0 2px">' + esc(e.title) + '</h1>' +
+      '<div class="mono">' + esc(e.when) + '</div></div></div>' +
+      '<p style="font-size:17px;margin-top:14px">' + esc(e.hook) + '</p></div>' +
+      '<div class="card"><p>' + esc(e.kid) + '</p>' +
+      (big ? '<div class="card flat"><b>If you want the longer version.</b> ' + esc(e.big) + '</div>' : '') +
+      '</div>' +
+      '<div class="card tint"><div class="mono">Worth stopping on</div><p style="margin:8px 0 0">' + esc(e.wonder) + '</p></div>' +
+      '<div class="card"><h3>Things you can actually go and see</h3><div class="row">' +
+      e.objects.map(function (o) { return '<span class="pill stat">' + esc(o) + '</span>'; }).join('') + '</div></div>' +
+      '<div class="card flat tiny"><b>How we know.</b><ul style="margin:8px 0 0;padding-left:20px">' +
+      e.sources.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' +
+      (e.needs_review ? '<p style="margin-top:10px"><b>This one needs a historian\u2019s eye before launch.</b> ' +
+        'It touches things that are still argued about, and docs/05 says a human writes those.</p>' : '') +
+      '</div>';
+  };
+
   /* --------------------------------------------------------------- DHARMA */
   V.dharma = function () {
     var D = window.IND_DHARMA;
@@ -653,7 +705,7 @@
 
   /* ================================================================== SHELL */
   var TABS = [['home', 'Home', 'chart'], ['map', 'Map', 'map'], ['stories', 'Stories', 'tree'],
-              ['bhasha', 'Bhasha', 'script'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
+              ['bhasha', 'Bhasha', 'script'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
 
   function chrome() {
     return '<header class="topbar"><div class="bar">' +
@@ -688,6 +740,8 @@
       case 'pack': h = V.pack(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'game': h = V.game(); break;
+      case 'itihaas': h = V.itihaas(); break;
+      case 'era': h = V.era(view.arg); break;
       case 'dharma': h = V.dharma(); break;
       case 'faith': h = V.faith(view.arg); break;
       case 'worlds': h = V.worlds(); break;
@@ -697,7 +751,7 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma' };
+    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
@@ -735,6 +789,7 @@
     if (a === 'go')     return go(t.getAttribute('data-v'));
     if (a === 'state')  return go('state', t.getAttribute('data-code'));
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
+    if (a === 'era')    return go('era', t.getAttribute('data-id'));
     if (a === 'story') {
       var id = t.getAttribute('data-id');
       play = { story: null, i: 0, answered: false }; go('story', id);

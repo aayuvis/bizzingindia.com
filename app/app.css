@@ -466,3 +466,35 @@ button, input, select, textarea { font: inherit; color: inherit; }
   color: #fff; background: var(--rc, #7B8794);
 }
 @media (prefers-reduced-motion: reduce) { .avchip[data-rar="legendary"] { animation: none; } }
+
+/* ------------------------------------------------------- the River of Time */
+.river { position: relative; padding: var(--space-lg) 0 var(--space-2xl); }
+.river::before {
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 5px;
+  transform: translateX(-50%); border-radius: 99px;
+  background: linear-gradient(180deg, var(--accent2), var(--accent), var(--accent3));
+  opacity: .32;
+}
+.bend {
+  position: relative; display: grid; gap: 3px; width: min(560px, 100%);
+  text-align: left; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-xl); padding: var(--space-lg) var(--space-xl);
+  box-shadow: var(--shadow); cursor: pointer; margin: 0 0 var(--space-lg) auto;
+  transition: transform .15s, border-color .15s;
+}
+.bend:nth-child(odd) { margin: 0 auto var(--space-lg) 0; }
+.bend:hover { transform: translateY(-3px); border-color: var(--accent); }
+.bend .yr { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.bend .ttl { font-family: var(--display); font-weight: 800; font-size: 19px; }
+.bend .node {
+  position: absolute; top: 50%; width: 62px; height: 62px; border-radius: 50%;
+  display: grid; place-items: center; transform: translateY(-50%);
+  background: var(--card); border: 3px solid var(--accent2); box-shadow: var(--shadow);
+}
+.bend:nth-child(odd) .node { right: -86px; }
+.bend:nth-child(even) .node { left: -86px; }
+@media (max-width: 760px) {
+  .river::before { left: 26px; }
+  .bend, .bend:nth-child(odd) { width: 100%; margin: 0 0 var(--space-lg) 0; padding-left: 74px; }
+  .bend .node, .bend:nth-child(odd) .node, .bend:nth-child(even) .node { left: -4px; right: auto; width: 54px; height: 54px; }
+}

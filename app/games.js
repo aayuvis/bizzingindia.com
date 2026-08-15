@@ -46,8 +46,8 @@
 
     '.mela-stage{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-lg);position:relative;overflow:hidden}',
     '.mela-stage:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2));opacity:.5}',
-    '.mela-art{display:flex;justify-content:center;margin:2px 0 6px}',
-    '.mela-art svg{display:block;max-width:min(100%,150px);max-height:150px;height:auto;width:auto}',
+    '.mela-art{display:flex;justify-content:center;width:min(100%,148px);margin:2px auto 6px}',
+    '.mela-art svg{display:block;width:100%;height:auto}',
     '.mela-q{font:700 20px/1.3 var(--display,Georgia,serif);margin:2px 0 4px;text-align:center}',
     '.mela-tale{font-size:16px;line-height:1.65;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-lg);margin:6px 0 10px}',
     '.mela-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:10px 0 0}',
@@ -267,6 +267,13 @@
     };
   }
 
+  /* A shell may throw the host away without calling teardown (a plain back
+     button does exactly that). The engines notice and clean themselves up
+     rather than leaving a document-level key handler behind. */
+  function detached(host) {
+    return !!(D && D.body && host && host.nodeType === 1 && !D.body.contains(host));
+  }
+
   function teardownOf(sc, extra) {
     var fn = function () { sc.kill(); if (extra) { try { extra(); } catch (e) {} } };
     fn.destroy = fn;   /* saga callers use .destroy() */
@@ -430,6 +437,7 @@
 
     sc.on(D, 'keydown', function (e) {
       if (sc.dead || !ref.stage) return;
+      if (detached(host)) { sc.kill(); return; }
       var tag = (e.target && e.target.tagName || '').toLowerCase();
       if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); moveFocus(1); return; }
@@ -565,6 +573,7 @@
       var el = ref.stage.querySelector('[data-role="count"]');
       if (el) el.textContent = 'Blows away in ' + left + '…';
       var tick = sc.every(function () {
+        if (detached(host)) { sc.kill(); return; }
         left--;
         var e2 = ref.stage.querySelector('[data-role="count"]');
         if (e2) e2.textContent = left > 0 ? 'Blows away in ' + left + '…' : '';
@@ -714,6 +723,7 @@
 
     sc.on(D, 'keydown', function (e) {
       if (sc.dead || !ref.stage) return;
+      if (detached(host)) { sc.kill(); return; }
       var t = e.target;
       var d = t && t.classList && t.classList.contains('mela-dot') ? t : null;
       if (d && phase === 'draw') {
@@ -790,19 +800,43 @@
               'Mawsynram and Cherrapunji here are among the rainiest places on Earth.'] }
   ];
 
+  /* Boundaries that are legally regulated in India and contested elsewhere are
+     never a game token — see the map rule in CLAUDE.md. Kept out of the pool. */
+  var GEO_SKIP = { JK: 1, LA: 1 };
+
+  function leaksName(text, name) {
+    var words = String(name).split(/[^A-Za-z]+/), i;
+    for (i = 0; i < words.length; i++) {
+      if (words[i].length < 4) continue;
+      if (new RegExp('\\b' + words[i] + '\\b', 'i').test(String(text))) return true;
+    }
+    return false;
+  }
+
+  /* The app's own geography table (window.IND_GEO.states, keyed by the state
+     codes in map-data.js) is the source of truth when it is loaded; the built-in
+     list above is the standalone fallback, and lends its second clue where the
+     codes match so the teach panel never repeats the question. */
   function stateData() {
-    var src = W.IND_GEO;
-    if (src && src.length) {
-      var out = [], i;
-      for (i = 0; i < src.length; i++) {
-        var s = src[i];
-        if (!s || !s.name || !s.capital) continue;
-        var clues = s.clues || (s.fact ? [s.fact] : []);
+    var geo = W.IND_GEO && W.IND_GEO.states;
+    if (geo) {
+      var extra = {}, claimed = {}, list = [], i, code, g;
+      for (i = 0; i < STATES.length; i++) extra[STATES[i].code] = STATES[i];
+      for (code in geo) {
+        if (!geo.hasOwnProperty(code)) continue;
+        g = geo[code];
+        if (!g || !g.name || !g.capital || !g.fact) continue;
+        if (g.type && g.type !== 'state') continue;   /* "which state" must mean a state */
+        if (g.pending || GEO_SKIP[code]) continue;
+        var clues = extra[code] ? extra[code].clues.slice() : [];
+        if (!leaksName(g.fact, g.name)) clues.push(g.fact);
         if (!clues.length) continue;
-        out.push({ code: s.code || '', name: s.name, capital: s.capital,
-                   capQ: s.capQ !== false, clues: clues });
+        claimed[g.capital] = (claimed[g.capital] || 0) + 1;
+        list.push({ code: code, name: g.name, capital: g.capital, capQ: true, clues: clues });
       }
-      if (out.length >= 6) return out;
+      /* a capital two states share (Chandigarh) can never be a fair question */
+      for (i = 0; i < list.length; i++) if (claimed[list[i].capital] > 1) list[i].capQ = false;
+      if (list.length >= 8) return list;
     }
     return STATES;
   }

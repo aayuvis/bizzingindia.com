@@ -568,14 +568,26 @@
     if (view.name === 'game') mountGame(view.arg);
   }
 
-  function go(name, arg) { stopAudio(); view = { name: name, arg: arg }; render(); }
+  /* a running game owns document-level key handlers and timers, so it must be torn
+     down on navigation — not just when it finishes */
+  var gameTeardown = null;
+  function killGame() {
+    if (!gameTeardown) return;
+    try {
+      if (typeof gameTeardown === 'function') gameTeardown();
+      else if (typeof gameTeardown.destroy === 'function') gameTeardown.destroy();
+    } catch (e) {}
+    gameTeardown = null;
+  }
+
+  function go(name, arg) { stopAudio(); killGame(); view = { name: name, arg: arg }; render(); }
 
   function mountGame(id) {
     var g = (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0];
     var host = $('#gamehost');
     if (!g || !host) return;
     try {
-      g.engine(host, {}, function (res) {
+      gameTeardown = g.engine(host, {}, function (res) {
         res = res || {};
         var k = res.kauris || (res.win ? 10 : 4);
         earn(k, g.name);

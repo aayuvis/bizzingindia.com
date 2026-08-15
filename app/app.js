@@ -635,7 +635,9 @@
       '<button class="pill' + (soundOn ? ' on' : '') + '" data-act="sound">' + icon('sound', 18) + ' Sound</button>' +
       '<button class="pill' + (night ? ' on' : '') + '" data-act="night">Night mode</button>' +
       '<button class="pill" data-act="reset">Start again</button></div>' +
-      '<p class="tiny muted" style="margin-top:12px">This demo keeps everything on this device. No account, ' +
+      '<p class="tiny muted" style="margin-top:12px">Build <b>' + esc(window.IND_BUILD || 'dev') + '</b>' +
+      ' — if something looks wrong, quote this number so we know which version you are on.</p>' +
+      '<p class="tiny muted">This demo keeps everything on this device. No account, ' +
       'no child data leaves the browser — which is also how the real product is designed (docs/07).</p></div>';
   };
 

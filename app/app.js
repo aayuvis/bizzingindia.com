@@ -360,64 +360,100 @@
       'imitate these sounds, and TTS teaches errors a native-speaker parent hears instantly.</div>';
   };
 
-  var quiz = { packId: null, q: null, done: 0 };
+  var quiz = { packId: null, stage: null, q: null, done: 0, right: 0 };
 
   Views.pack = function (packId) {
     var p = window.IND_PACKS[packId];
     if (!p) return '<div class="card">Pack not found.</div>';
     var sc = window.IND_SCRIPTS[p.script];
-    if (quiz.packId !== packId) { quiz.packId = packId; quiz.q = null; quiz.done = 0; }
+    if (quiz.packId !== packId) { quiz.packId = packId; quiz.stage = null; quiz.q = null; quiz.done = 0; quiz.right = 0; }
 
-    if (!quiz.q) {
-      /* letter chart until they start */
-      return '<button class="backlink" data-act="go" data-v="bhasha">' + icon('back', 18) + ' Bhasha</button>' +
-        '<div class="card"><h1>' + esc(p.name.native) + ' <span class="muted" style="font-size:16px">' + esc(p.name.en) + '</span></h1>' +
-        '<p class="muted tiny">Script · ' + esc(sc.name) + ' · tap any letter to hear it</p>' +
-        '<h3 style="margin-top:14px">Vowels</h3>' +
-        '<div class="gridscript">' + (sc.vowels || []).map(function (v, i) {
-          return '<button class="glyph" data-act="say" data-k="' + esc(v.audio || '') + '">' + esc(v.char) +
-            '<small>' + esc(v.name) + '</small></button>';
-        }).join('') + '</div>' +
-        '<h3 style="margin-top:14px">Consonants</h3>' +
-        '<div class="gridscript">' + (sc.consonants || []).map(function (c) {
-          return '<button class="glyph" data-act="say" data-k="' + esc(c.audio || '') + '">' + esc(c.char) +
-            '<small>' + esc(c.name) + '</small></button>';
-        }).join('') + '</div>' +
-        '<button class="btn block lg" style="margin-top:16px" data-act="quiz">Practise →</button>' +
-        '</div>';
+    if (quiz.q) {
+      return '<button class="backlink" data-act="pack" data-id="' + packId + '">' + icon('back', 18) + ' ' + esc(p.name.en) + '</button>' +
+        Views.question(quiz.q);
     }
-    return '<button class="backlink" data-act="pack" data-id="' + packId + '">' + icon('back', 18) + ' ' + esc(p.name.en) + '</button>' +
-      Views.question(quiz.q);
+
+    /* letter chart + the stage ladder */
+    return '<button class="backlink" data-act="go" data-v="bhasha">' + icon('back', 18) + ' Bhasha</button>' +
+      '<div class="card"><h1 class="deva">' + esc(p.name.native) + ' <span class="muted" style="font-size:16px;font-family:var(--body)">' + esc(p.name.en) + '</span></h1>' +
+      '<p class="muted tiny">Script · ' + esc(sc.name) + ' · tap any letter to hear it</p>' +
+      '<h3 style="margin-top:14px">Vowels</h3>' +
+      '<div class="gridscript">' + (sc.vowels || []).map(function (v) {
+        return '<button class="glyph" data-act="say" data-k="' + esc(v.audio || '') + '">' + esc(v.char) +
+          '<small>' + esc(v.name) + '</small></button>';
+      }).join('') + '</div>' +
+      '<h3 style="margin-top:14px">Consonants</h3>' +
+      '<div class="gridscript">' + (sc.consonants || []).map(function (c) {
+        return '<button class="glyph" data-act="say" data-k="' + esc(c.audio || '') + '">' + esc(c.char) +
+          '<small>' + esc(c.name) + '</small></button>';
+      }).join('') + '</div></div>' +
+      '<div class="card"><h3>The ladder</h3>' +
+      '<p class="tiny muted">Same ladder in every language — that is the point of the engine.</p>' +
+      (p.stages || []).map(function (st) {
+        return '<button class="tile" style="margin-bottom:8px" data-act="quiz" data-s="' + esc(st.id) + '">' +
+          '<b>' + esc(st.name) + '</b>' +
+          (st.desc ? '<div class="tiny muted">' + esc(st.desc) + '</div>' : '') + '</button>';
+      }).join('') + '</div>';
   };
 
+  /* one renderer for every exercise type the engine emits — options are objects
+     ({char}/{word}/{sign}/{en}) or bare strings, so pull the first that fits */
+  function optLabel(o) {
+    if (o == null) return '';
+    if (typeof o === 'string') return o;
+    return o.char || o.word || o.sign || o.syllable || o.en || o.roman || '';
+  }
+  function optSub(o) {
+    if (!o || typeof o === 'string') return '';
+    if (o.word && o.en) return o.en;
+    return o.name || o.roman || '';
+  }
+
   Views.question = function (q) {
-    var body = '';
-    if (q.type === 'soundMatch') {
-      body = '<h3>Which letter makes this sound?</h3>' +
-        '<button class="btn ghost block" data-act="say" data-k="' + esc(q.audio || '') + '">' + icon('sound', 20) + ' Play again</button>' +
-        '<div class="gridscript" style="margin-top:12px">' + q.options.map(function (o, i) {
-          return '<button class="glyph" data-act="ans" data-i="' + i + '">' + esc(o.char || o) + '</button>';
-        }).join('') + '</div>';
-    } else if (q.type === 'matraAttach') {
-      body = '<h3>Add <span class="deva">' + esc(q.matra) + '</span> to <span class="deva">' + esc(q.base) + '</span></h3>' +
-        '<p class="tiny muted">Which one is right?</p>' +
-        '<div class="gridscript">' + q.options.map(function (o, i) {
-          return '<button class="glyph" data-act="ans" data-i="' + i + '">' + esc(o) + '</button>';
-        }).join('') + '</div>';
-    } else if (q.type === 'wordBuild') {
-      body = '<h3>Build this word</h3><div class="bigglyph">' + esc(q.word) + '</div>' +
-        '<p class="center muted">' + esc(q.en || '') + '</p>' +
-        '<div class="gridscript">' + q.tiles.map(function (t, i) {
-          return '<button class="glyph" data-act="ans" data-i="' + i + '">' + esc(t) + '</button>';
-        }).join('') + '</div>';
-    } else {
-      body = '<h3>' + esc(q.prompt || 'Pick the right one') + '</h3>' +
-        (q.options || []).map(function (o, i) {
-          return '<button class="opt deva" data-act="ans" data-i="' + i + '">' + esc(o.char || o) + '</button>';
-        }).join('');
+    var opts = q.options || q.tiles || [];
+    var prompt, hint = '', big = '';
+
+    switch (q.type) {
+      case 'listenPoint':
+        prompt = 'Listen — which one is it?'; break;
+      case 'soundMatch':
+        prompt = 'Which letter makes this sound?'; break;
+      case 'matraAttach':
+        prompt = 'Add this matra to the letter';
+        big = '<div class="bigglyph"><span class="deva">' + esc(q.base) + '</span>' +
+              ' <span style="color:var(--accent)">+</span> <span class="deva">' + esc(q.matra) + '</span></div>';
+        hint = 'It goes ' + esc(q.position || 'somewhere') + '.'; break;
+      case 'wordBuild':
+        prompt = 'Which piece starts this word?';
+        big = '<div class="bigglyph deva">' + esc(q.word || '') + '</div>';
+        hint = esc(q.en || q.roman || ''); break;
+      case 'oddOneOut':
+        prompt = 'Which one does not belong?'; break;
+      case 'conjunctSplit':
+        prompt = 'This letter is two letters squashed together. Which two?';
+        big = '<div class="bigglyph deva">' + esc(q.conjunct || '') + '</div>';
+        hint = q.word ? 'As in ' + esc(q.word) : ''; break;
+      default:
+        prompt = q.prompt || 'Pick the right one';
     }
-    return '<div class="card">' + body +
-      '<div class="tiny muted" style="margin-top:12px">' + quiz.done + ' done · no timer, no lives</div></div>';
+
+    var useGrid = ['soundMatch', 'matraAttach', 'oddOneOut', 'conjunctSplit', 'wordBuild'].indexOf(q.type) >= 0;
+    var choices = opts.map(function (o, i) {
+      var lab = esc(optLabel(o)), sub = esc(optSub(o));
+      return useGrid
+        ? '<button class="glyph" data-act="ans" data-i="' + i + '">' + lab + (sub ? '<small>' + sub + '</small>' : '') + '</button>'
+        : '<button class="opt" data-act="ans" data-i="' + i + '"><span class="deva" style="font-size:22px">' + lab +
+          '</span>' + (sub ? ' <span class="muted tiny">' + sub + '</span>' : '') + '</button>';
+    }).join('');
+
+    return '<div class="card">' +
+      '<h3>' + esc(prompt) + '</h3>' + big +
+      (q.audio ? '<button class="btn ghost block" style="margin-bottom:12px" data-act="say" data-k="' + esc(q.audio) + '">' +
+        icon('sound', 20) + ' Play it again</button>' : '') +
+      (hint ? '<p class="tiny muted">' + hint + '</p>' : '') +
+      (useGrid ? '<div class="gridscript">' + choices + '</div>' : choices) +
+      '<div class="tiny muted" style="margin-top:12px">' + quiz.right + ' right of ' + quiz.done +
+      ' · no timer, no lives — have a go</div></div>';
   };
 
   /* ------------------------------------------------------------------ MELA */
@@ -623,27 +659,34 @@
       if (m) toast(m.name + ' — ' + m.fact);
       return;
     }
-    if (a === 'pack')   { quiz = { packId: null, q: null, done: 0 }; return go('pack', t.getAttribute('data-id')); }
+    if (a === 'pack')   { quiz = { packId: null, stage: null, q: null, done: 0, right: 0 }; return go('pack', t.getAttribute('data-id')); }
     if (a === 'game')   return go('game', t.getAttribute('data-id'));
     if (a === 'quiz')   {
-      quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, null, Date.now());
+      quiz.stage = t.getAttribute('data-s') || quiz.stage;
+      quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now());
       if (quiz.q && quiz.q.audio) speak(quiz.q.audio);
       return render();
     }
     if (a === 'ans') {
       var q = quiz.q, idx = +t.getAttribute('data-i');
-      var ok = (idx === q.answer);
+      /* the engine reports answerIndex; `answer` is the value, not the position */
+      var want = (typeof q.answerIndex === 'number') ? q.answerIndex : q.answer;
+      var ok = (idx === want);
       var rec = S.lang[quiz.packId] || (S.lang[quiz.packId] = { asked: 0, correct: 0, seen: {} });
       rec.asked++; if (ok) rec.correct++;
       save();
       t.classList.add(ok ? 'right' : 'wrong');
-      if (ok) earn(2, 'correct');
+      if (!ok && typeof want === 'number') {
+        var right = document.querySelector('[data-act="ans"][data-i="' + want + '"]');
+        if (right) right.classList.add('right');
+      }
+      if (ok) { earn(2, 'correct'); quiz.right++; }
       quiz.done++;
       setTimeout(function () {
-        quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, null, Date.now() + quiz.done);
+        quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now() + quiz.done);
         if (quiz.q && quiz.q.audio) speak(quiz.q.audio);
         render();
-      }, 650);
+      }, ok ? 620 : 1200);
       return;
     }
   });

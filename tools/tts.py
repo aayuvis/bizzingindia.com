@@ -1,46 +1,170 @@
-import json, os, base64, urllib.request, time, sys
+"""Bizzing India narration generator.
+
+    python3 tools/tts.py clips.json [--force] [--print-ssml]
+
+clips.json is a list of {key, text, lang}. Audio lands at app/voice/<key>.mp3 and
+app/voice-manifest.js is rewritten from whatever is actually on disk afterwards.
+
+English clips go out as SSML, not plain text. The narrator is a US English voice
+(the audience is the diaspora, so the English accent is right) but she anglicises
+Indian names — "Hanuman" comes out HAN-yuh-man. So every term in
+tools/pron-lexicon.json is wrapped in <phoneme alphabet="ipa"> on the way out,
+which pins the pronunciation deterministically. Hindi and Punjabi clips are left
+on the plain-text path: those voices are already native.
+
+Two things to know about Google's <phoneme>:
+  * an IPA symbol outside the voice's own language is NOT an error — the tag is
+    silently dropped and the spelling is read instead. Every ipa in the lexicon
+    was checked against the live API for exactly this.
+  * text must be XML-escaped BEFORE the tags go in, or a story containing "&"
+    produces invalid SSML and the whole request 400s.
+"""
+import json, os, base64, urllib.request, time, sys, re
+
 KEY = os.environ['GKEY']
-OUT = '/home/user/bizzingindia.com/app/voice'
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(ROOT, 'app', 'voice')
+LEXICON = os.path.join(ROOT, 'tools', 'pron-lexicon.json')
+SSML_LANGS = ('en-US',)          # languages that get the pronunciation lexicon
 VOICE = {
   'en-US': ('en-US-Neural2-F', 0.95),   # matches Bizzing Bee's word voice exactly
   'hi-IN': ('hi-IN-Neural2-A', 0.88),   # slower: children imitate these
   'pa-IN': ('pa-IN-Standard-A', 0.88),
 }
-clips = json.load(open(sys.argv[1]))
-done = fail = skip = 0
-manifest = []
-for c in clips:
-    path = os.path.join(OUT, c['key'] + '.mp3')
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    if os.path.exists(path) and os.path.getsize(path) > 500:
-        skip += 1; manifest.append(c['key']); continue
-    name, rate = VOICE[c['lang']]
+
+# ---------------------------------------------------------------- SSML ------
+
+def load_lexicon(path=LEXICON):
+    """term (lowercased, whitespace-collapsed) -> ipa. `_`-prefixed keys are docs."""
+    raw = json.load(open(path, encoding='utf-8'))
+    return {' '.join(k.split()).lower(): v['ipa']
+            for k, v in raw.items() if not k.startswith('_')}
+
+LEX = load_lexicon()
+
+# Longest term first so "Kisa Gotami" wins over "Gotami" and "Andhra Pradesh"
+# over "Pradesh". Interior spaces match any run of whitespace.
+_APOS = "(?:&#39;|&apos;|'|’)"
+_TERMS = '|'.join(r'\s+'.join(re.escape(w) for w in t.split())
+                  for t in sorted(LEX, key=lambda t: (-len(t), t)))
+# The lookbehind also refuses & and # so a term can never be matched inside an
+# XML entity such as &amp; once the text has been escaped.
+TERM_RE = re.compile(r'(?<![&#A-Za-z0-9])(' + _TERMS + r')(' + _APOS + r's)?(?![A-Za-z0-9])',
+                     re.IGNORECASE)
+
+_SIBILANT = ('s', 'z', 'ʃ', 'ʒ', 'ʂ', 'tʃ', 'dʒ')
+_VOICELESS = ('p', 't', 'k', 'f', 'θ', 'ʈ')
+
+
+def escape(text):
+    """XML-escape. Runs BEFORE any tag is inserted."""
+    return (text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                .replace('"', '&quot;').replace("'", '&#39;'))
+
+
+def possessive_suffix(ipa):
+    """The 's of "Hanuman's" has to be spoken too, so it joins the phoneme."""
+    core = ipa.rstrip('ː')
+    if core.endswith(_SIBILANT):
+        return 'ɪz'
+    if core.endswith(_VOICELESS):
+        return 's'
+    return 'z'
+
+
+def _wrap(m):
+    ipa = LEX[' '.join(m.group(1).split()).lower()]
+    if m.group(2):
+        ipa += possessive_suffix(ipa)
+    # m.group(0) is the already-escaped source text: the spelling stays on screen
+    # and in the fallback path, only the pronunciation is pinned.
+    return '<phoneme alphabet="ipa" ph="%s">%s</phoneme>' % (escape(ipa), m.group(0))
+
+
+def to_ssml(text):
+    return '<speak>' + TERM_RE.sub(_wrap, escape(text)) + '</speak>'
+
+
+# ---------------------------------------------------------------- main ------
+
+def synthesize(text, lang):
+    name, rate = VOICE[lang]
+    inp = {'ssml': to_ssml(text)} if lang in SSML_LANGS else {'text': text}
     body = json.dumps({
-        'input': {'text': c['text']},
-        'voice': {'languageCode': c['lang'], 'name': name},
+        'input': inp,
+        'voice': {'languageCode': lang, 'name': name},
         'audioConfig': {'audioEncoding': 'MP3', 'speakingRate': rate, 'sampleRateHertz': 24000}
     }).encode()
     req = urllib.request.Request(
         'https://texttospeech.googleapis.com/v1/text:synthesize?key=' + KEY,
         data=body, headers={'Content-Type': 'application/json'})
-    for attempt in range(4):
-        try:
-            r = json.load(urllib.request.urlopen(req, timeout=60))
-            open(path, 'wb').write(base64.b64decode(r['audioContent']))
-            done += 1; manifest.append(c['key']); break
-        except Exception as e:
-            if attempt == 3:
-                fail += 1
-                print('FAIL', c['key'], str(e)[:90], flush=True)
-            else:
-                time.sleep(2 ** attempt)
-    if (done + skip) % 25 == 0:
-        print('  ...', done + skip, '/', len(clips), flush=True)
+    r = json.load(urllib.request.urlopen(req, timeout=60))
+    return base64.b64decode(r['audioContent'])
 
-with open(os.path.join(OUT, '..', 'voice-manifest.js'), 'w') as f:
-    f.write('/* Bizzing India - bundled narration index. Generated by tools/tts.py.\n'
-            '   English story narration: en-IN-Neural2-A. Hindi/Punjabi letters and words are\n'
-            '   TTS placeholders - per docs/09 these MUST be replaced with human voice before\n'
-            '   launch, because children imitate them. */\n')
-    f.write('window.IND_VOICE = ' + json.dumps(sorted(manifest), ensure_ascii=False) + ';\n')
-print('DONE new=%d cached=%d failed=%d total=%d' % (done, skip, fail, len(clips)))
+
+def write_manifest():
+    """Index every clip that actually exists, not just the ones this run touched —
+       otherwise an English-only run would drop hi/ and pa/ out of the manifest and
+       silence them in the app."""
+    keys = []
+    for dirpath, _, files in os.walk(OUT):
+        for f in files:
+            if f.endswith('.mp3'):
+                rel = os.path.relpath(os.path.join(dirpath, f), OUT)
+                keys.append(rel[:-4].replace(os.sep, '/'))
+    with open(os.path.join(OUT, '..', 'voice-manifest.js'), 'w') as f:
+        f.write('/* Bizzing India - bundled narration index. Generated by tools/tts.py.\n'
+                '   English story narration: en-US-Neural2-F, synthesised from SSML with\n'
+                '   <phoneme> tags out of tools/pron-lexicon.json so Indian names are said\n'
+                '   properly. Hindi/Punjabi letters and words are TTS placeholders - per\n'
+                '   docs/09 these MUST be replaced with human voice before launch, because\n'
+                '   children imitate them. */\n')
+        f.write('window.IND_VOICE = ' + json.dumps(sorted(keys), ensure_ascii=False) + ';\n')
+    return len(keys)
+
+
+def main(argv):
+    force = '--force' in argv
+    args = [a for a in argv if not a.startswith('-')]
+    clips = json.load(open(args[0]))
+
+    if '--print-ssml' in argv:
+        for c in clips:
+            print(c['key'])
+            print(to_ssml(c['text']) if c['lang'] in SSML_LANGS else c['text'])
+            print()
+        return
+
+    done = fail = skip = 0
+    for c in clips:
+        path = os.path.join(OUT, c['key'] + '.mp3')
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        if not force and os.path.exists(path) and os.path.getsize(path) > 500:
+            skip += 1
+            continue
+        for attempt in range(4):
+            try:
+                open(path, 'wb').write(synthesize(c['text'], c['lang']))
+                done += 1
+                break
+            except Exception as e:
+                if attempt == 3:
+                    fail += 1
+                    detail = ''
+                    try:
+                        detail = e.read().decode()[:120]
+                    except Exception:
+                        detail = str(e)[:120]
+                    print('FAIL', c['key'], detail, flush=True)
+                else:
+                    time.sleep(2 ** attempt)
+        if (done + skip) % 25 == 0:
+            print('  ...', done + skip, '/', len(clips), flush=True)
+
+    total = write_manifest()
+    print('DONE new=%d cached=%d failed=%d total=%d manifest=%d'
+          % (done, skip, fail, len(clips), total))
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

@@ -58,16 +58,16 @@
   "prompt": "Pingalaka the lion king of the Panchatantra: a friendly chibi lion with warm golden-orange fur, a big soft rounded mane, a small gold crown with one red jewel, standing upright on two stubby legs, kind and gentle rather than fierce."
  },
  "pt_jackal": {
-  "prompt": "Damanaka the clever jackal minister of the Panchatantra: a chibi jackal with sandy-grey fur, a cream muzzle, large pointed ears, a bushy tail, a small red sash, standing upright on two stubby legs, a quick clever smile."
+  "prompt": "Damanaka the clever jackal minister of the Panchatantra: a chibi Indian jackal with warm sandy-gold and tan fur (golden brown, definitely not grey and not white, he must not look like a wolf or a husky), a cream muzzle and cream tummy, large upright pointed ears with pink insides, a slim bushy tail with a dark tip, a small red minister's sash across his chest, standing upright on two stubby legs, with a quick clever smile."
  },
  "pt_bull": {
   "prompt": "Sanjivaka the gentle bull of the Panchatantra: a chibi Indian bull with creamy white hide, a soft rounded shoulder hump, short blunt horns tipped with gold, and a red cord round his neck with one small gold bell, standing on four stubby legs, calm and friendly."
  },
  "pt_crow": {
-  "prompt": "Laghupatanaka the crow of the Panchatantra: a chibi crow with glossy blue-black feathers, a very big round head, a short grey beak, small round wings and two little orange feet, perched upright, cheerful and clever."
+  "prompt": "Laghupatanaka the crow of the Panchatantra: a chibi crow with a very big round head, deep blue-black feathers with clear lighter cornflower-blue highlights across the top of the head, the wings and the tail, a soft pale grey-cream chest patch, huge bright eyes with strong white highlights and pale cream eye rings so the face reads clearly against the dark feathers, a short grey beak, small round wings and two little orange feet, perched upright, cheerful and clever. Put a warm pale cream glow disc behind him so the dark bird separates cleanly from the white background."
  },
  "pt_tortoise": {
-  "prompt": "Kambugriva the tortoise of the Panchatantra: a chibi tortoise with a rounded olive-green shell marked with a simple gold-edged pattern, a small friendly head reaching out, four short stubby legs, slow and kind."
+  "prompt": "Kambugriva the tortoise of the Panchatantra: a chibi tortoise whose large rounded shell is deep olive-green and warm brown and covers most of his body, marked with a simple bold pattern of hexagon plates outlined in gold; a friendly yellow-green head with big eyes reaching out in front, four short stubby yellow-green legs and a tiny tail. Slow and kind. Make the shell big, dark and clearly patterned so it reads at small sizes."
  },
  "pt_mouse": {
   "prompt": "Hiranyaka the mouse of the Panchatantra: a chibi mouse with soft grey fur, a cream tummy, very big round ears, a tiny pink nose and a thin curled tail, standing upright on two stubby legs, bright and helpful."
@@ -85,7 +85,7 @@
   "prompt": "The clever rabbit of the Panchatantra: a chibi rabbit with soft white-grey fur, a cream tummy, long upright ears with pink insides and a round fluffy tail, standing upright on two stubby legs, bright-eyed and quick-witted."
  },
  "pt_heron": {
-  "prompt": "The heron of the Panchatantra: a chibi heron with soft white plumage, a big round head, a long straight orange beak, a short chibi neck, small folded grey wings and two thin orange legs, standing upright, calm and watchful."
+  "prompt": "The heron of the Panchatantra: a chibi heron with a very big round head, soft white plumage clearly shaded with pale blue-grey on the back, the folded wings and the crown of the head, a long straight orange beak, a short chibi neck and two thin orange legs, standing upright, calm and watchful. Keep enough grey-blue shading that the bird's shape reads clearly against the white background."
  },
  "pt_elephant": {
   "prompt": "The elephant herd leader of the Panchatantra: a chibi wild elephant with soft grey skin, very big ears, a curled trunk, two tiny white tusks and a small tuft of a tail, standing on four stubby legs, wise and kindly. No blanket, no ornaments, no crown."
@@ -130,7 +130,7 @@
   "prompt": "Dr A. P. J. Abdul Kalam: a chibi man, completely clean-shaven with no beard and no moustache, silver-white hair swept back long over his ears, a pale blue shirt, holding one small white and orange toy rocket, a very warm kind smile. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
  },
  "tagore": {
-  "prompt": "Rabindranath Tagore: a chibi poet with a long flowing white beard and long white hair, a cream robe with a soft brown shawl, holding one small open book, gentle and thoughtful. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  "prompt": "Rabindranath Tagore: a chibi poet with a long flowing white beard and long white hair, a cream robe with a soft brown shawl, holding one small open book in both hands in front of him, with a single slim quill pen tucked in the crook of his arm, gentle and thoughtful, a poet. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
  },
  "kalpana": {
   "prompt": "Kalpana Chawla the astronaut: a chibi astronaut in a white spacesuit with a clear round bubble helmet, her dark curly hair and smiling face plainly visible inside the helmet, a small blue and white patch on her chest, one small blue Earth floating beside her. She is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
@@ -150,7 +150,7 @@
   ]
  },
  "gattu_think": {
-  "prompt": "Gattu the baby elephant, the app's mascot: a chibi elephant calf with soft lavender-purple skin, pale pink inner ears, big floppy ears, a short curled trunk, tiny white toenails and a small tufted tail, wearing one small round gold bell hung on a short red cord around his NECK just under his chin, standing upright facing the viewer. He is thinking hard: head tilted to one side, eyes looking up and to the side, one front foot resting against his cheek, mouth a small thoughtful squiggle.",
+  "prompt": "The THIRD reference image is Gattu, this app's mascot. Redraw exactly that same lavender-purple baby elephant - same design, same colours, same face, same little gold bell on a red cord round his neck, same style and line weight - but CHANGE HIS POSE AND EXPRESSION so he is thinking hard about a puzzle. Tilt his head well over to one side. Roll his eyes up towards the top corner so he is looking away from the viewer, and push his eyebrows together into a small curious frown. Curl the tip of his trunk up so it taps his own chin. Rest his other front foot on his hip. Replace the happy smile with a tiny wavy thoughtful line. The new pose must be obviously different from the smiling forward-facing pose in the reference.",
   "refs": [
    "ganesha.png",
    "hanuman.png",
@@ -169,6 +169,6 @@
   "prompt": "Mithu the parrot: a chibi Indian ring-necked parakeet with bright leaf-green feathers, a paler green tummy, a short curved red-orange beak, big friendly eyes, small rounded wings, a long green tail and two little pink feet, perched upright facing the viewer. He has the parakeet's distinctive collar: one thin rose-pink and black ring that goes right around the NECK, immediately below the head and above the shoulders, like a narrow necklace circling the throat. The ring is on the neck only, never on the chest or the tummy."
  },
  "vismriti": {
-  "prompt": "Vismriti, the Forgetting: a soft faceless little mist cloud, a rounded puffy cloud body of pale grey and pale lavender with wispy trailing tails at the bottom that fade away, and two small wispy arm-like curls. It has NO face at all: no eyes, no mouth, no expression. It looks lonely, drooping and sad rather than scary; soft and gentle, never a monster, never a ghost, never frightening, no teeth, no claws, no glowing eyes. A few tiny grey dust motes drift around it."
+  "prompt": "Vismriti, the Forgetting: a soft faceless little mist spirit. A rounded puffy cloud body in clearly visible dove-grey and muted lavender-grey, distinctly darker than the white background so its shape reads at small sizes, with soft violet-grey shading underneath, drooping and sagging as if tired, wispy trailing tails at the bottom that fade away and two small wispy arm-like curls that hang down. It has NO face at all: no eyes, no mouth, no expression, no features of any kind. It looks lonely and sad, never scary: no teeth, no claws, no glowing eyes, not a monster, not a ghost. A few tiny grey dust motes drift around it, and a soft pale lavender glow sits behind it."
  }
 }

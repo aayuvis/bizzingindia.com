@@ -237,8 +237,9 @@ pt_jackal: _rg('pj', '#E0B45A', '#B8822A') +
   '<path d="M60 91q-8 6-14 2M60 91q8 6 14 2" stroke="#6B4A1A" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
 
 pt_bull: _rg('pb', '#B4BECA', '#7E8A98') +
-  '<path d="M18 44Q0 22 12 8q16 10 22 22z" fill="#F7F0E0"/><path d="M102 44Q120 22 108 8q-16 10-22 22z" fill="#F7F0E0"/>' +
-  '<path d="M18 44Q6 26 14 16q10 8 14 20z" fill="#DDD6C4"/><path d="M102 44q12-18 4-28-10 8-14 20z" fill="#DDD6C4"/>' +
+  /* big curved horns sweeping up and out — the whole silhouette of a bull */
+  '<path d="M26 46Q2 40 6 18q2-12 12-10 6 2 3 10-4 12 12 18z" fill="#F7F0E0" stroke="#C9C0A8" stroke-width="1.6"/>' +
+  '<path d="M94 46q24-6 20-28-2-12-12-10-6 2-3 10 4 12-12 18z" fill="#F7F0E0" stroke="#C9C0A8" stroke-width="1.6"/>' +
   '<circle cx="60" cy="64" r="38" fill="url(#pb)"/>' +
   '<ellipse cx="60" cy="82" rx="26" ry="19" fill="#DCE4EC"/>' +
   '<path d="M22 44q38-16 76 0" stroke="#E9A13B" stroke-width="5" fill="none" stroke-linecap="round"/>' +
@@ -247,15 +248,19 @@ pt_bull: _rg('pb', '#B4BECA', '#7E8A98') +
   '<ellipse cx="51" cy="80" rx="4.4" ry="3.4" fill="#5A6472"/><ellipse cx="69" cy="80" rx="4.4" ry="3.4" fill="#5A6472"/>' +
   _smile(92, 18, '#5A6472'),
 
-pt_crow: _rg('pc', '#4A5064', '#232838') +
-  '<circle cx="60" cy="62" r="40" fill="url(#pc)"/>' +
-  '<path d="M18 58q-10 20 2 40 16 8 26-4 4-22-8-36z" fill="#39405400"/>' +
-  '<path d="M22 62q-8 20 4 36 14 6 22-6 2-20-10-30z" fill="#454B5C"/>' +
-  '<path d="M92 56q22 2 22 10 0 8-21 9z" fill="#E9A13B"/>' +
-  '<path d="M92 66q12 2 18-1" stroke="#C97A1A" stroke-width="2" fill="none"/>' +
-  _eyes(52, 15, 10, '#111') +
-  '<path d="M34 30q10-8 20-4M66 26q10-4 20 4" stroke="#232838" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-  _spark([[16, 22, 4], [102, 100, 4]], '#8FA8C8'),
+pt_crow: _rg('pc', '#525873', '#232838') +
+  /* body low and left, head high and right, so the silhouette reads as a bird */
+  '<ellipse cx="48" cy="82" rx="36" ry="30" fill="url(#pc)"/>' +
+  '<path d="M22 74q-10 20 2 34 16 6 26-6 2-20-10-28z" fill="#5A6178"/>' +
+  '<path d="M26 84q10 2 16 8M24 94q11 1 18 6" stroke="#39405A" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+  '<path d="M8 96q-6 16-2 22 14-2 18-14z" fill="#454B5C"/>' +
+  '<circle cx="76" cy="40" r="28" fill="url(#pc)"/>' +
+  /* the beak: big, wedge-shaped, unmissable */
+  '<path d="M100 32q20 4 20 11 0 8-19 8l-6-10z" fill="#E9A13B"/>' +
+  '<path d="M101 43q11 1 17-2" stroke="#C97A1A" stroke-width="2.4" fill="none"/>' +
+  _eyes(36, 9, 8.5, '#111') +
+  '<path d="M56 16q10-6 18 0M84 14q10-2 16 6" stroke="#232838" stroke-width="3.4" fill="none" stroke-linecap="round"/>' +
+  _spark([[16, 26, 4], [106, 88, 4]], '#8FA8C8'),
 
 pt_tortoise: _rg('pt', '#7FB05A', '#4F7A3A') +
   '<ellipse cx="66" cy="72" rx="50" ry="38" fill="#3E6630"/>' +
@@ -264,10 +269,13 @@ pt_tortoise: _rg('pt', '#7FB05A', '#4F7A3A') +
   '<path d="M66 39v62M24 70h84M38 48l56 44M94 48L38 92"/></g>' +
   '<g fill="#9ACB6C"><circle cx="66" cy="70" r="10"/><circle cx="44" cy="58" r="6"/><circle cx="88" cy="58" r="6"/>' +
   '<circle cx="44" cy="84" r="6"/><circle cx="88" cy="84" r="6"/></g>' +
-  '<circle cx="22" cy="52" r="20" fill="#7AA85C"/>' +
-  _eyes(48, 8, 6.5, '#223') +
-  '<path d="M14 60q9 5 17 0" stroke="#4F7A3A" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
-  '<g fill="#7AA85C"><ellipse cx="40" cy="108" rx="12" ry="7"/><ellipse cx="94" cy="108" rx="12" ry="7"/></g>',
+  /* head big enough to carry a face — this is a talking tortoise */
+  '<path d="M30 46q-16-4-22 6" stroke="#7AA85C" stroke-width="14" fill="none" stroke-linecap="round"/>' +
+  '<circle cx="24" cy="42" r="22" fill="#8ABB6A"/>' +
+  _eyes(38, 9, 8, '#223') +
+  '<ellipse cx="12" cy="48" rx="3" ry="2.2" fill="#4F7A3A"/>' +
+  '<path d="M14 54q10 7 20 1" stroke="#4F7A3A" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+  '<g fill="#7AA85C"><ellipse cx="44" cy="108" rx="13" ry="8"/><ellipse cx="96" cy="108" rx="13" ry="8"/></g>',
 
 pt_mouse: _rg('pm', '#C6BED4', '#8E86A0') +
   '<circle cx="22" cy="34" r="22" fill="#A89FBC"/><circle cx="22" cy="34" r="13" fill="#F0B6C8"/>' +
@@ -279,8 +287,9 @@ pt_mouse: _rg('pm', '#C6BED4', '#8E86A0') +
   '<g stroke="#6B6478" stroke-width="1.8"><path d="M40 86l-16-5M40 92l-16 3M80 86l16-5M80 92l16 3"/></g>',
 
 pt_deer: _rg('pd', '#DFA872', '#B57C46') +
-  '<path d="M32 26Q20 6 24 0q10 4 14 16M32 14Q18 10 12 2M88 26Q100 6 96 0q-10 4-14 16M88 14q14-4 20-12"' +
-  ' stroke="#8A5A2A" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+  /* antlers: one bold main beam each side, two clean tines — reads at 40px */
+  '<path d="M34 30q-6-16-2-28M32 16q-10-2-14-10M32 6q-8-2-10-8M86 30q6-16 2-28M88 16q10-2 14-10M88 6q8-2 10-8"' +
+  ' stroke="#8A5A2A" stroke-width="6" fill="none" stroke-linecap="round"/>' +
   '<ellipse cx="16" cy="52" rx="12" ry="16" fill="#C98A5A"/><ellipse cx="104" cy="52" rx="12" ry="16" fill="#C98A5A"/>' +
   '<circle cx="60" cy="64" r="38" fill="url(#pd)"/>' +
   '<path d="M60 68q-19 3-21 18 9 13 21 13t21-13q-2-15-21-18z" fill="#F4DCC0"/>' +
@@ -320,15 +329,19 @@ pt_rabbit: _rg('pr', '#F2EEF8', '#C8C0D8') +
   '<path d="M60 84v5M60 89q-8 6-13 1M60 89q8 6 13 1" stroke="#A89AB8" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
   '<g stroke="#B8B0C4" stroke-width="1.8"><path d="M40 84l-16-4M40 90l-16 4M80 84l16-4M80 90l16 4"/></g>',
 
-pt_heron: _rg('ph', '#FFFFFF', '#D8D4C8') +
-  '<ellipse cx="52" cy="82" rx="34" ry="30" fill="url(#ph)"/>' +
-  '<path d="M30 72q-12 18 0 36 14 6 20-4 4-16-8-32z" fill="#DCD8CC"/>' +
-  '<path d="M66 60q8-32 20-40" stroke="#F2F0E8" stroke-width="15" fill="none" stroke-linecap="round"/>' +
-  '<circle cx="88" cy="22" r="16" fill="#F2F0E8"/>' +
-  '<path d="M102 18q20 2 20 7 0 5-19 6z" fill="#E9A13B"/>' +
-  _eyes(18, 0, 7.5, '#223') +
-  '<path d="M88 6q10-8 16-6" stroke="#2F3340" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-  '<path d="M46 112v8M60 112v8" stroke="#E9A13B" stroke-width="4" stroke-linecap="round"/>',
+pt_heron: _rg('ph', '#FFFFFF', '#CFC9BC') +
+  '<ellipse cx="46" cy="84" rx="36" ry="30" fill="url(#ph)"/>' +
+  /* wing, drawn with visible feather lines so it isn't a white blob */
+  '<path d="M20 74q-12 20 0 38 16 6 24-6 4-18-10-32z" fill="#E4DFD2"/>' +
+  '<path d="M24 82q12 2 18 9M22 92q13 1 20 7M24 101q11 0 17 5" stroke="#BEB7A6" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+  /* the long S-neck is the whole silhouette of a heron */
+  '<path d="M62 68q22-14 20-34" stroke="#F2F0E8" stroke-width="16" fill="none" stroke-linecap="round"/>' +
+  '<circle cx="80" cy="26" r="19" fill="#F2F0E8"/>' +
+  '<path d="M98 20q22 3 22 9 0 6-21 7z" fill="#E9A13B"/>' +
+  '<path d="M99 30q12 1 18-2" stroke="#C97A1A" stroke-width="2.4" fill="none"/>' +
+  _eyes(22, 0, 8, '#223') +
+  '<path d="M80 6q12-6 20 0" stroke="#2F3340" stroke-width="3.4" fill="none" stroke-linecap="round"/>' +
+  '<path d="M40 112v8M56 112v8" stroke="#E9A13B" stroke-width="4.4" stroke-linecap="round"/>',
 
 pt_elephant: _rg('pe', '#B4AEC8', '#807A96') +
   '<ellipse cx="12" cy="58" rx="18" ry="26" fill="#8E8AA0"/><ellipse cx="12" cy="58" rx="10" ry="17" fill="#B0AAC0" opacity=".6"/>' +

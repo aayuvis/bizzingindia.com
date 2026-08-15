@@ -9,12 +9,113 @@ body {
   font: 15.5px/1.6 var(--body);
   color: var(--text);
   background-color: var(--ground);
-  background-image:
-    radial-gradient(var(--dot) 1px, transparent 1px),
-    linear-gradient(180deg, var(--ground2), var(--ground) 420px);
-  background-size: 22px 22px, 100% 100%;
+  background-image: linear-gradient(180deg, var(--ground2), var(--ground) 420px);
   background-attachment: fixed;
   min-height: 100vh;
+  position: relative;
+}
+
+/* ---------------------------------------------------------- WORLD MOTIFS
+   Each world paints its own folk-art pattern behind everything, the way
+   Bizzing Bee gives every theme a background motif. The layer drifts slowly;
+   it is decoration, so it never takes pointer events and stops dead for
+   anyone who asked for reduced motion. */
+body::before {
+  content: ''; position: fixed; inset: -60px; z-index: 0;
+  pointer-events: none; opacity: .5;
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+  animation: drift 90s linear infinite;
+}
+#app { position: relative; z-index: 1; }
+
+/* the swatch inside a Worlds card, painted with that world's own motif */
+.wpreview {
+  height: 84px; border-radius: 14px; margin-bottom: 12px;
+  border: 1px solid var(--line); overflow: hidden;
+  display: flex; align-items: center; gap: 8px; padding: 0 14px;
+  background-color: var(--ground);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.wpreview b { width: 28px; height: 28px; border-radius: 50%; flex: none; }
+.wpreview .aa { margin-left: auto; font-family: var(--display); font-weight: 800; font-size: 19px; color: var(--text); }
+
+@keyframes drift { to { transform: translate3d(60px, 60px, 0); } }
+@keyframes sway  { 50% { transform: translate3d(28px, -22px, 0); } }
+
+/* Madhubani — dense double-line lattice and dots */
+[data-world="madhubani"] body::before, .wpreview[data-world="madhubani"] {
+  background-image:
+    repeating-linear-gradient(45deg, var(--dot) 0 1.5px, transparent 1.5px 16px),
+    repeating-linear-gradient(-45deg, var(--dot) 0 1.5px, transparent 1.5px 16px),
+    radial-gradient(var(--dot) 2px, transparent 2.4px);
+  background-size: 46px 46px, 46px 46px, 46px 46px;
+  animation: sway 70s ease-in-out infinite;
+}
+/* Warli — rows of tiny triangles, the dancing figures abstracted */
+[data-world="warli"] body::before, .wpreview[data-world="warli"] {
+  background-image:
+    conic-gradient(from 45deg at 50% 60%, var(--dot) 0 90deg, transparent 90deg),
+    radial-gradient(circle at 50% 20%, var(--dot) 1.6px, transparent 2px);
+  background-size: 34px 34px, 34px 34px;
+  animation: drift 120s linear infinite;
+}
+/* Pattachitra — fine floral border rhythm */
+[data-world="pattachitra"] body::before, .wpreview[data-world="pattachitra"] {
+  background-image:
+    repeating-linear-gradient(0deg, var(--dot) 0 1px, transparent 1px 26px),
+    radial-gradient(circle, var(--dot) 2.6px, transparent 3px);
+  background-size: 26px 26px, 52px 52px;
+  animation: sway 80s ease-in-out infinite;
+}
+/* Gond — the signature dot-and-dash fill */
+[data-world="gond"] body::before, .wpreview[data-world="gond"] {
+  background-image:
+    radial-gradient(var(--dot) 2px, transparent 2.4px),
+    radial-gradient(var(--dot) 1.2px, transparent 1.6px);
+  background-size: 30px 30px, 30px 30px;
+  background-position: 0 0, 15px 15px;
+  animation: drift 60s linear infinite;
+}
+/* Kalamkari — narrative panels */
+[data-world="kalamkari"] body::before, .wpreview[data-world="kalamkari"] {
+  background-image:
+    repeating-linear-gradient(90deg, var(--dot) 0 1.5px, transparent 1.5px 64px),
+    repeating-linear-gradient(0deg, var(--dot) 0 1.5px, transparent 1.5px 64px);
+  background-size: 64px 64px;
+  animation: sway 100s ease-in-out infinite;
+}
+/* Phad — the long continuous scroll, read left to right */
+[data-world="phad"] body::before, .wpreview[data-world="phad"] {
+  background-image:
+    repeating-linear-gradient(0deg, var(--dot) 0 2px, transparent 2px 40px),
+    radial-gradient(circle at 20% 50%, var(--dot) 2px, transparent 2.6px);
+  background-size: 40px 40px, 40px 40px;
+  animation: drift 55s linear infinite;
+}
+/* Mughal — garden geometry, the charbagh grid */
+[data-world="mughal"] body::before, .wpreview[data-world="mughal"] {
+  background-image:
+    repeating-linear-gradient(45deg, var(--dot) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(-45deg, var(--dot) 0 1px, transparent 1px 28px);
+  background-size: 56px 56px;
+  animation: sway 110s ease-in-out infinite;
+}
+/* Tanjore — gem inlay */
+[data-world="tanjore"] body::before, .wpreview[data-world="tanjore"] {
+  background-image:
+    conic-gradient(var(--dot) 90deg, transparent 90deg 180deg, var(--dot) 180deg 270deg, transparent 270deg),
+    radial-gradient(var(--dot) 1.6px, transparent 2px);
+  background-size: 40px 40px, 20px 20px;
+  animation: drift 100s linear infinite;
+}
+/* Kalighat — big sweeping brushstrokes */
+[data-world="kalighat"] body::before, .wpreview[data-world="kalighat"] {
+  background-image:
+    repeating-linear-gradient(20deg, var(--dot) 0 3px, transparent 3px 44px);
+  background-size: 88px 88px;
+  animation: sway 75s ease-in-out infinite;
 }
 h1, h2, h3 { font-family: var(--display); font-weight: 800; margin: 0 0 var(--space-sm); line-height: 1.14; letter-spacing: -.01em; }
 h1 { font-size: clamp(30px, 6vw, 46px); }
@@ -39,10 +140,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--ground2);           /* solid: color-mix + blur rendered badly on some browsers */
   border-bottom: 1px solid var(--line);
 }
-.topbar .bar { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: var(--space-md); padding: 11px var(--space-lg); }
-.brand { display: flex; align-items: center; gap: 9px; font-family: var(--display); font-weight: 800; font-size: 19px; margin-right: auto; }
+.topbar .bar { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: var(--space-md); padding: 14px var(--space-lg) 12px; }
+.brand {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  font-family: var(--display); font-weight: 800; font-size: 20px; margin-right: auto;
+}
 .brand em { font-style: italic; color: var(--accent); }
-.brand img, .brand svg { width: 34px; height: 34px; border-radius: 9px; }
+/* flex:none or the mascot gets squeezed flat when the bar is tight */
+.brand img, .brand svg { flex: none; width: 40px; height: 40px; border-radius: 11px; object-fit: contain; }
+@media (max-width: 430px) {
+  .brand { font-size: 17px; gap: 8px; }
+  .brand img, .brand svg { width: 34px; height: 34px; }
+}
 
 /* horizontal nav — the Bizzing Bee pattern. Wraps rather than scrolls, so no
    tab is ever hidden off the edge on a phone. */

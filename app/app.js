@@ -256,7 +256,7 @@
         '<button class="journey" data-act="go" data-v="stories">' +
           '<div class="banner" style="background-image:url(art/banner/stories.jpg)">' +
             '<span class="chip">' + icon('tree', 20) + '</span>' +
-            '<span class="tag">' + readN + ' of 11 told</span></div>' +
+            '<span class="tag">' + readN + ' of ' + totalStories + ' told</span></div>' +
           '<div class="body"><div class="tiny muted">Next on your yatra</div>' +
           '<h2 style="margin:2px 0 6px">Under the Banyan</h2>' +
           '<p class="tiny" style="margin:0 0 14px">Panchatantra · Akbar &amp; Birbal · the great stories — each one with a choice to make in the middle.</p>' +
@@ -507,13 +507,11 @@
       'They are not decoration; they are part of what you are learning.</p></div>' +
       '<div class="grid g2">' + WORLDS.map(function (w) {
         return '<button class="tile' + (S.world === w.id ? ' on' : '') + '" data-act="world" data-w="' + w.id + '">' +
-          '<div data-world="' + w.id + '" style="height:74px;border-radius:14px;margin-bottom:12px;' +
-            'background-color:var(--ground);background-image:radial-gradient(var(--dot) 1.5px,transparent 1.5px);background-size:14px 14px;' +
-            'border:1px solid var(--line);display:flex;align-items:center;gap:7px;padding:0 14px">' +
-            '<span style="width:26px;height:26px;border-radius:50%;background:var(--accent)"></span>' +
-            '<span style="width:22px;height:22px;border-radius:50%;background:var(--accent2)"></span>' +
-            '<span style="width:18px;height:18px;border-radius:50%;background:var(--accent3)"></span>' +
-            '<span style="margin-left:auto;font-family:var(--display);font-weight:800;color:var(--text)">Aa</span>' +
+          '<div class="wpreview" data-world="' + w.id + '">' +
+            '<b style="background:var(--accent)"></b>' +
+            '<b style="background:var(--accent2);width:24px;height:24px"></b>' +
+            '<b style="background:var(--accent3);width:19px;height:19px"></b>' +
+            '<span class="aa">आ Aa</span>' +
           '</div>' +
           '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3>' +
           (S.world === w.id ? '<span class="badge aaj">on</span>' : '') + '</div>' +

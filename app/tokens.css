@@ -12,7 +12,7 @@
 :root {
   --ground:#efecfa;         /* page ground */
   --ground2:#f7f5fd;        /* top of the page gradient */
-  --dot: rgba(109,90,232,.13);  /* the dotted texture */
+  --dot: rgba(109,90,232,.22);  /* the dotted texture */
   --card:#ffffff;           /* card surface */
   --card2:#faf9ff;          /* inset / secondary surface */
   --line: rgba(30,20,70,.10);
@@ -49,7 +49,7 @@
 
 /* Madhubani — Bihar. Deep red, ochre, black line, white fill. */
 [data-world="madhubani"] {
-  --ground:#fdf1e6; --ground2:#fff8f1; --dot: rgba(198,60,40,.14);
+  --ground:#fdf1e6; --ground2:#fff8f1; --dot: rgba(198,60,40,.30);
   --card:#fffdfa; --card2:#fdf3e9;
   --text:#3a1410; --text2:#6b2c22; --muted:#98705f;
   --accent:#c63c28; --accent-soft: rgba(198,60,40,.10);
@@ -58,7 +58,7 @@
 }
 /* Warli — Maharashtra. Terracotta ground, white line. */
 [data-world="warli"] {
-  --ground:#f2e3d5; --ground2:#faf0e6; --dot: rgba(140,70,40,.16);
+  --ground:#f2e3d5; --ground2:#faf0e6; --dot: rgba(140,70,40,.32);
   --card:#fffaf4; --card2:#f6e8da;
   --text:#3d2115; --text2:#6b4028; --muted:#9a7860;
   --accent:#a8542a; --accent-soft: rgba(168,84,42,.10);
@@ -67,7 +67,7 @@
 }
 /* Pattachitra — Odisha. Black, white, red, yellow. No green. */
 [data-world="pattachitra"] {
-  --ground:#faf0dc; --ground2:#fdf8ec; --dot: rgba(120,80,20,.16);
+  --ground:#faf0dc; --ground2:#fdf8ec; --dot: rgba(120,80,20,.30);
   --card:#fffdf6; --card2:#f8eed6;
   --text:#2a1e08; --text2:#5a4415; --muted:#8c7440;
   --accent:#b8341f; --accent-soft: rgba(184,52,31,.10);
@@ -76,7 +76,7 @@
 }
 /* Gond — Madhya Pradesh. Bright multicolour, dot-and-dash. */
 [data-world="gond"] {
-  --ground:#e6f4f2; --ground2:#f3faf9; --dot: rgba(20,120,110,.16);
+  --ground:#e6f4f2; --ground2:#f3faf9; --dot: rgba(20,120,110,.30);
   --card:#ffffff; --card2:#eaf7f5;
   --text:#0d2b28; --text2:#1d4d47; --muted:#5d8b85;
   --accent:#128b7e; --accent-soft: rgba(18,139,126,.10);
@@ -85,7 +85,7 @@
 }
 /* Kalamkari — Andhra. Natural dye: indigo, madder, mustard, cream. */
 [data-world="kalamkari"] {
-  --ground:#eaeef6; --ground2:#f5f8fc; --dot: rgba(30,60,120,.14);
+  --ground:#eaeef6; --ground2:#f5f8fc; --dot: rgba(30,60,120,.26);
   --card:#fffefb; --card2:#eef2f8;
   --text:#131f3a; --text2:#2d3f66; --muted:#6b7a99;
   --accent:#27467f; --accent-soft: rgba(39,70,127,.10);
@@ -94,7 +94,7 @@
 }
 /* Phad — Rajasthan. Flat red, yellow, orange. */
 [data-world="phad"] {
-  --ground:#fdeee2; --ground2:#fff7ef; --dot: rgba(200,80,20,.15);
+  --ground:#fdeee2; --ground2:#fff7ef; --dot: rgba(200,80,20,.30);
   --card:#fffaf5; --card2:#fdeada;
   --text:#3a1a08; --text2:#6d3413; --muted:#9d7554;
   --accent:#d2531c; --accent-soft: rgba(210,83,28,.10);
@@ -103,7 +103,7 @@
 }
 /* Mughal Miniature — jewel tones and gold leaf. */
 [data-world="mughal"] {
-  --ground:#eaf0ee; --ground2:#f5f9f7; --dot: rgba(30,80,70,.14);
+  --ground:#eaf0ee; --ground2:#f5f9f7; --dot: rgba(30,80,70,.26);
   --card:#fffef9; --card2:#edf3f0;
   --text:#12231f; --text2:#28453d; --muted:#63807a;
   --accent:#1f6f5c; --accent-soft: rgba(31,111,92,.10);
@@ -112,7 +112,7 @@
 }
 /* Tanjore — Tamil Nadu. Gold, deep red, emerald. */
 [data-world="tanjore"] {
-  --ground:#fbeee2; --ground2:#fdf7f0; --dot: rgba(150,40,60,.14);
+  --ground:#fbeee2; --ground2:#fdf7f0; --dot: rgba(150,40,60,.26);
   --card:#fffdf7; --card2:#faeade;
   --text:#3a1020; --text2:#6b2436; --muted:#9c6b75;
   --accent:#9c2742; --accent-soft: rgba(156,39,66,.10);
@@ -121,7 +121,7 @@
 }
 /* Kalighat — Bengal. Bold sweeping brush, limited palette. */
 [data-world="kalighat"] {
-  --ground:#f4efe8; --ground2:#faf7f3; --dot: rgba(120,80,50,.14);
+  --ground:#f4efe8; --ground2:#faf7f3; --dot: rgba(120,80,50,.26);
   --card:#fffcf8; --card2:#f3ece3;
   --text:#2b1f16; --text2:#4f3a2a; --muted:#8a7563;
   --accent:#b45a26; --accent-soft: rgba(180,90,38,.10);

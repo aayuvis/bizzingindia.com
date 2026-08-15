@@ -10,6 +10,17 @@ Resumable: any id that already has an output PNG is skipped unless --force / --o
   python3 tools/gen-avatars.py tools/avatar-prompts.json
   python3 tools/gen-avatars.py tools/avatar-prompts.json --only ganesha,mithu --force
 
+Style is held by IMAGE REFERENCE, not by adjectives. Keys in the prompt file that begin
+with "_" are settings rather than ids:
+
+  "_refs":   ["ganesha.png", ...]   tiles under app/art sent as style references with
+                                    every request (a spec may override with "refs")
+  "_prefix": "..."                  text prepended to every prompt (the style paragraph)
+  "_suffix": "..."                  text appended to every prompt (the framing rules)
+
+Sending two or three finished tiles alongside the words is what keeps 48 avatars looking
+like one artist drew them; the words alone drift.
+
 Requires: pillow.
 """
 
@@ -41,10 +52,25 @@ TIMEOUT = 180
 
 # --------------------------------------------------------------------- api
 
-def call_api(prompt, key):
-    """POST one prompt. Returns (png_bytes, text). png_bytes is None if refused."""
+_REF_CACHE = {}
+
+
+def ref_part(name):
+    """One inline_data part for a style-reference tile under app/art."""
+    if name not in _REF_CACHE:
+        with open(os.path.join(OUT_DIR, name), "rb") as f:
+            _REF_CACHE[name] = base64.b64encode(f.read()).decode()
+    return {"inline_data": {"mime_type": "image/png", "data": _REF_CACHE[name]}}
+
+
+def call_api(prompt, key, refs=()):
+    """POST one prompt. Returns (png_bytes, text). png_bytes is None if refused.
+
+    refs are filenames under app/art sent ahead of the text as style references.
+    """
+    parts = [ref_part(r) for r in refs] + [{"text": prompt}]
     body = json.dumps({
-        "contents": [{"parts": [{"text": prompt}]}],
+        "contents": [{"parts": parts}],
         "generationConfig": {"responseModalities": ["IMAGE"]},
     }).encode()
     req = urllib.request.Request(
@@ -106,17 +132,20 @@ def to_tile(png_bytes):
 
 # -------------------------------------------------------------------- main
 
-def generate(aid, spec, key, log):
+def generate(aid, spec, key, log, style=None):
     """Generate one id. Returns 'ok' | 'refused' | 'error'."""
+    style = style or {}
     prompt = spec["prompt"] if isinstance(spec, dict) else spec
     alt = spec.get("alt") if isinstance(spec, dict) else None
-    attempts = [prompt] + ([alt] if alt else [])
+    refs = (spec.get("refs") if isinstance(spec, dict) else None) or style.get("refs") or []
+    pre, suf = style.get("prefix", ""), style.get("suffix", "")
+    attempts = [pre + p + suf for p in ([prompt] + ([alt] if alt else []))]
 
     for which, text in enumerate(attempts):
         label = "prompt" if which == 0 else "reworded prompt"
         for attempt in range(1, MAX_TRIES + 1):
             try:
-                png, note = call_api(text, key)
+                png, note = call_api(text, key, refs)
             except urllib.error.HTTPError as e:
                 detail = e.read().decode()[:200]
                 png, note = None, "HTTP %s %s" % (e.code, detail)
@@ -178,7 +207,11 @@ def main():
         sys.exit("GEMKEY is not set")
 
     with open(args.prompts) as f:
-        prompts = json.load(f)
+        raw = json.load(f)
+
+    style = {"refs": raw.get("_refs") or [], "prefix": raw.get("_prefix", ""),
+             "suffix": raw.get("_suffix", "")}
+    prompts = {k: v for k, v in raw.items() if not k.startswith("_")}
 
     only = [s.strip() for s in args.only.split(",") if s.strip()]
     ids = only or list(prompts)
@@ -196,11 +229,13 @@ def main():
             continue
         todo.append(aid)
 
-    log("%d to generate, %d already present" % (len(todo), skipped))
+    log("%d to generate, %d already present%s" % (
+        len(todo), skipped,
+        ("  (style refs: " + ", ".join(style["refs"]) + ")") if style["refs"] else ""))
     results = {}
     for i, aid in enumerate(todo, 1):
         log("[%d/%d] %s" % (i, len(todo), aid))
-        results[aid] = generate(aid, prompts[aid], key, log)
+        results[aid] = generate(aid, prompts[aid], key, log, style)
         if i < len(todo):
             time.sleep(SLEEP)
 

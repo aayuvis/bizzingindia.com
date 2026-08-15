@@ -77,6 +77,14 @@
     return fn ? fn(mood).replace('<svg', '<svg width="' + (size || 76) + '" height="' + (size || 76) + '"') : '';
   }
 
+  /* stories live in two files now: the core set and the regional set */
+  function allStories() {
+    return (window.IND_STORIES || []).concat(window.IND_STORIES_REGIONAL || []);
+  }
+  function allCollections() {
+    return (window.IND_COLLECTIONS || []).concat(window.IND_COLLECTIONS_REGIONAL || []);
+  }
+
   function toast(m) {
     var t = document.createElement('div'); t.className = 'toast'; t.textContent = m;
     document.body.appendChild(t); setTimeout(function () { t.remove(); }, 2300);
@@ -199,6 +207,7 @@
 
   V.home = function () {
     var lit = Object.keys(S.lit).length, readN = Object.keys(S.read).length;
+    var totalStories = allStories().length || 1;
     var lv = level(), pct = Math.min(100, Math.round(((S.xp % 60) / 60) * 100));
     var hour = new Date().getHours();
     var greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
@@ -335,7 +344,7 @@
   V.state = function (code) {
     var G = window.IND_GEO, s = G && G.states[code];
     if (!s) return '<div class="card">Nothing here yet.</div>';
-    var stories = (window.IND_STORIES || []).filter(function (t) { return (t.place || []).indexOf('IN-' + code) >= 0; });
+    var stories = allStories().filter(function (t) { return (t.place || []).indexOf('IN-' + code) >= 0; });
     var mons = (G.monuments || []).filter(function (m) { return m.state === code; });
     var pend = (G.pending || []).filter(function (p) { return p.inside === code; });
     return '<button class="backlink" data-act="go" data-v="map">' + icon('back', 18) + ' Map</button>' +
@@ -361,7 +370,7 @@
 
   /* --------------------------------------------------------------- STORIES */
   V.stories = function () {
-    var cols = window.IND_COLLECTIONS || [], all = window.IND_STORIES || [];
+    var cols = allCollections(), all = allStories();
     return '<div class="card"><h1>The Story Tree</h1>' +
       '<p>Every story you finish lifts the mist off the place it came from.</p></div>' +
       cols.map(function (c) {
@@ -382,7 +391,7 @@
   var play = { story: null, i: 0, answered: false };
 
   V.story = function (id) {
-    var st = (window.IND_STORIES || []).filter(function (s) { return s.id === id; })[0];
+    var st = allStories().filter(function (s) { return s.id === id; })[0];
     if (!st) return '<div class="card">Story not found.</div>';
     if (!play.story || play.story.id !== id) { play.story = st; play.i = 0; play.answered = false; }
     if (play.i >= st.scenes.length) return V.storyEnd(st);
@@ -424,6 +433,71 @@
             '<div class="mono">' + esc(w[1]) + '</div><div class="tiny">' + esc(w[2]) + '</div></button>';
         }).join('') + '</div></div>' : '') +
       '<div class="card flat tiny"><b>Where this comes from.</b> ' + esc(st.source || '') + '</div>';
+  };
+
+  /* --------------------------------------------------------------- DHARMA */
+  V.dharma = function () {
+    var D = window.IND_DHARMA;
+    if (!D) return '<div class="card"><h1>Dharma</h1><p>Not loaded.</p></div>';
+    return '<div class="card"><h1>Dharma</h1><p>' + D.intro + '</p></div>' +
+      '<div class="grid g2">' + D.faiths.map(function (f) {
+        return '<button class="tile" data-act="faith" data-id="' + f.id + '">' +
+          '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(f.avatar, 66) +
+          '<div style="flex:1"><h3 style="margin:0">' + esc(f.name) + '</h3>' +
+          '<div class="tiny muted" style="margin:4px 0 8px">' + esc(f.tag) + '</div>' +
+          '<p class="tiny" style="margin:0">' + f.blurb + '</p></div></div></button>';
+      }).join('') + '</div>' +
+      '<div class="card"><h3>' + esc(D.shared.title) + '</h3>' +
+      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px">' +
+      '<tr><th style="text-align:left;padding:8px 10px"></th>' +
+      D.faiths.map(function (f) { return '<th style="text-align:left;padding:8px 10px;font-family:var(--display)">' + esc(f.name) + '</th>'; }).join('') + '</tr>' +
+      D.shared.rows.map(function (r) {
+        return '<tr style="border-top:1px solid var(--line)">' +
+          '<td style="padding:10px;font-weight:800">' + esc(r.idea) + '</td>' +
+          '<td style="padding:10px;color:var(--text2)">' + esc(r.hindu) + '</td>' +
+          '<td style="padding:10px;color:var(--text2)">' + esc(r.buddhist) + '</td>' +
+          '<td style="padding:10px;color:var(--text2)">' + esc(r.jain) + '</td>' +
+          '<td style="padding:10px;color:var(--text2)">' + esc(r.sikh) + '</td></tr>';
+      }).join('') + '</table></div>' +
+      '<p class="tiny muted" style="margin-top:12px">' + esc(D.shared.caveat) + '</p></div>' +
+      '<div class="card tint"><h3>' + esc(D.weave.title) + '</h3><p class="tiny" style="margin:0">' + esc(D.weave.text) + '</p></div>';
+  };
+
+  V.faith = function (id) {
+    var D = window.IND_DHARMA;
+    var f = D && D.faiths.filter(function (x) { return x.id === id; })[0];
+    if (!f) return '<div class="card">Not found.</div>';
+    var stories = (allStories() || []).filter(function (s) { return (f.stories || []).indexOf(s.id) >= 0; });
+    return '<button class="backlink" data-act="go" data-v="dharma">' + icon('back', 18) + ' Dharma</button>' +
+      '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(f.avatar, 96) +
+      '<div style="flex:1"><h1 style="margin:0">' + esc(f.name) + '</h1>' +
+      '<div class="mono" style="margin:6px 0 10px">' + esc(f.tag) + '</div>' +
+      '<p style="margin:0">' + f.blurb + '</p></div></div></div>' +
+
+      '<div class="card"><h3>The big ideas</h3>' + f.ideas.map(function (i) {
+        return '<div class="card flat tight" style="margin-bottom:9px"><b>' + i.term + '</b>' +
+          (i.say ? ' <span class="mono" style="text-transform:none">/ ' + esc(i.say) + ' /</span>' : '') +
+          '<div class="tiny" style="margin-top:5px">' + i.kid + '</div></div>';
+      }).join('') + '</div>' +
+
+      '<div class="card tint"><span class="badge ' + f.lesson.badge + '">' + f.lesson.badge + '</span>' +
+      '<h2 style="margin:10px 0 8px">' + esc(f.lesson.title) + '</h2>' +
+      '<p>' + f.lesson.text + '</p>' +
+      '<div class="card flat tight" style="margin:0"><b>The lesson.</b> ' + esc(f.lesson.moral) + '</div></div>' +
+
+      (stories.length ? '<div class="card"><h3>Stories from this tradition</h3>' + stories.map(function (s) {
+        return '<button class="tile" style="margin-bottom:9px" data-act="story" data-id="' + s.id + '"><b>' +
+          esc(s.title) + '</b><div class="tiny muted">' + esc(s.hook) + '</div></button>';
+      }).join('') + '</div>' : '') +
+
+      '<div class="card"><h3>Books it keeps</h3><ul class="tiny" style="margin:0;padding-left:20px">' +
+      f.texts.map(function (t) { return '<li style="margin-bottom:6px">' + t + '</li>'; }).join('') + '</ul></div>' +
+
+      '<div class="card"><h3>Through the year</h3><div class="row">' +
+      f.festivals.map(function (x) { return '<span class="pill stat">' + x + '</span>'; }).join('') + '</div></div>' +
+
+      '<div class="card flat"><b>In many families it is different.</b> <span class="tiny">' + esc(f.variety) + '</span></div>' +
+      (f.note ? '<div class="card flat tiny"><b>A note on the pictures.</b> ' + esc(f.note) + '</div>' : '');
   };
 
   /* --------------------------------------------------------------- WORLDS */
@@ -569,7 +643,7 @@
 
   /* ================================================================== SHELL */
   var TABS = [['home', 'Home', 'chart'], ['map', 'Map', 'map'], ['stories', 'Stories', 'tree'],
-              ['bhasha', 'Bhasha', 'script'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'temple'], ['me', 'Me', 'parent']];
+              ['bhasha', 'Bhasha', 'script'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
 
   function chrome() {
     return '<header class="topbar"><div class="bar">' +
@@ -604,6 +678,8 @@
       case 'pack': h = V.pack(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'game': h = V.game(); break;
+      case 'dharma': h = V.dharma(); break;
+      case 'faith': h = V.faith(view.arg); break;
       case 'worlds': h = V.worlds(); break;
       case 'me': h = V.me(); break;
       default: h = V.home();
@@ -611,7 +687,7 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela' };
+    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
@@ -648,10 +724,11 @@
     if (a === 'begin')  { view = { name: 'onboard' }; return render(); }
     if (a === 'go')     return go(t.getAttribute('data-v'));
     if (a === 'state')  return go('state', t.getAttribute('data-code'));
+    if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
     if (a === 'story') {
       var id = t.getAttribute('data-id');
       play = { story: null, i: 0, answered: false }; go('story', id);
-      var s = (window.IND_STORIES || []).filter(function (x) { return x.id === id; })[0];
+      var s = allStories().filter(function (x) { return x.id === id; })[0];
       if (s) speak('st/' + slug(s.id) + '-0');
       return;
     }

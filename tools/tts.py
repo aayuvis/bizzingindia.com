@@ -2,7 +2,7 @@ import json, os, base64, urllib.request, time, sys
 KEY = os.environ['GKEY']
 OUT = '/home/user/bizzingindia.com/app/voice'
 VOICE = {
-  'en-IN': ('en-IN-Neural2-A', 0.92),   # warm Indian-English storyteller
+  'en-US': ('en-US-Neural2-F', 0.95),   # matches Bizzing Bee's word voice exactly
   'hi-IN': ('hi-IN-Neural2-A', 0.88),   # slower: children imitate these
   'pa-IN': ('pa-IN-Standard-A', 0.88),
 }

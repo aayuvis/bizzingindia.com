@@ -36,8 +36,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .topbar {
   position: sticky; top: 0; z-index: 40;
-  background: color-mix(in srgb, var(--ground2) 92%, transparent);
-  backdrop-filter: blur(8px);
+  background: var(--ground2);           /* solid: color-mix + blur rendered badly on some browsers */
   border-bottom: 1px solid var(--line);
 }
 .topbar .bar { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: var(--space-md); padding: 11px var(--space-lg); }
@@ -45,13 +44,26 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .brand em { font-style: italic; color: var(--accent); }
 .brand img, .brand svg { width: 34px; height: 34px; border-radius: 9px; }
 
-/* horizontal nav — the Bizzing Bee pattern */
-.nav { max-width: 1120px; margin: 0 auto; display: flex; gap: 2px; padding: 0 var(--space-lg) 8px; overflow-x: auto; scrollbar-width: none; }
-.nav::-webkit-scrollbar { display: none; }
+/* horizontal nav — the Bizzing Bee pattern. Wraps rather than scrolls, so no
+   tab is ever hidden off the edge on a phone. */
+.nav {
+  max-width: 1120px; margin: 0 auto;
+  display: flex; flex-wrap: wrap; gap: 2px;
+  padding: 0 var(--space-lg) 8px;
+}
 .navtab {
   display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
   padding: 9px 14px; min-height: 40px; border: 0; border-radius: var(--radius-pill);
   background: none; color: var(--text2); font-weight: 700; font-size: 14.5px; cursor: pointer;
+}
+/* on narrow screens shrink the chrome before anything is allowed to overflow */
+@media (max-width: 820px) {
+  .nav { gap: 0; padding-left: var(--space-sm); padding-right: var(--space-sm); }
+  .navtab { padding: 8px 10px; font-size: 13.5px; gap: 5px; }
+}
+@media (max-width: 430px) {
+  .navtab { padding: 8px; font-size: 12.5px; }
+  .navtab .ic { width: 17px; height: 17px; }
 }
 .navtab:hover { background: var(--accent-soft); color: var(--accent); }
 .navtab.active { background: var(--accent); color: #fff; }

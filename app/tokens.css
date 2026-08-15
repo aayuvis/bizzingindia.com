@@ -1,0 +1,126 @@
+/* ============================================================
+   Bizzing India — Design Tokens
+   Default identity: Chitrakatha (a painted scroll unrolling).
+   Worlds re-map the SAME token names; switch via <html data-world="…">.
+   Components reference only var(--token) — never a literal colour.
+   Contract matches Bizzing Bee's spellbound-tokens.css so the shared
+   design-system package works across both apps.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Mukta:wght@400;500;600;700&family=Baloo+2:wght@500;600;700;800&display=swap');
+
+/* Chitrakatha — default */
+:root {
+  --bg1:#1b1226;
+  --bg2:#261a33;
+  --bg3:#120b1a;
+  --surface:  rgba(255,255,255,.045);
+  --surface2: rgba(255,255,255,.075);
+  --line:     rgba(240,180,60,.18);
+  --text:#f6efe1;
+  --muted:#b6a68c;
+  --accent:#e9a13b;      /* turmeric */
+  --accent2:#f2c46a;     /* marigold */
+  --accent3:#d94f3d;     /* vermilion */
+  --good:#4fbf8b;
+  --bad:#d2544f;
+  --chip: rgba(233,161,59,.14);
+  --glow: 0 14px 50px rgba(0,0,0,.5);
+
+  /* specific to this product: the two states of every map territory */
+  --mist: rgba(150,150,165,.55);
+  --lit:  rgba(233,161,59,.22);
+
+  --display:'Fraunces', Georgia, serif;
+  --body:'Hanken Grotesk','Segoe UI',sans-serif;
+  --deva:'Mukta','Noto Sans Devanagari','Noto Sans Gurmukhi',sans-serif;
+
+  --radius-sm:8px; --radius-md:12px; --radius-lg:14px; --radius-xl:16px; --radius-pill:999px;
+  --space-xs:4px; --space-sm:8px; --space-md:12px; --space-lg:14px; --space-xl:18px; --space-2xl:24px;
+}
+
+/* Madhubani — Bihar. Deep red ground, black outline, white fill. */
+[data-world="madhubani"] {
+  --bg1:#2a1010; --bg2:#3a1a17; --bg3:#1a0a0a;
+  --line: rgba(255,210,150,.2);
+  --text:#fdf3e3; --muted:#c8a58c;
+  --accent:#e2542f; --accent2:#f0a03c; --accent3:#f7e7c8;
+  --chip: rgba(226,84,47,.16);
+  --display:'Baloo 2', cursive;
+}
+/* Warli — Maharashtra. Terracotta ground, white line. */
+[data-world="warli"] {
+  --bg1:#3a2118; --bg2:#4a2c20; --bg3:#251309;
+  --line: rgba(255,240,225,.22);
+  --text:#fff6ec; --muted:#d0b3a0;
+  --accent:#f7f0e6; --accent2:#e9c9a8; --accent3:#d97b4f;
+  --chip: rgba(255,246,236,.14);
+}
+/* Pattachitra — Odisha. Black, white, red, yellow. No green. */
+[data-world="pattachitra"] {
+  --bg1:#191410; --bg2:#241c15; --bg3:#0e0b08;
+  --line: rgba(240,200,90,.24);
+  --text:#fdf6e4; --muted:#bda887;
+  --accent:#e8b93a; --accent2:#f3d67c; --accent3:#c62f26;
+  --chip: rgba(232,185,58,.16);
+}
+/* Gond — Madhya Pradesh. Bright multicolour on dark. */
+[data-world="gond"] {
+  --bg1:#0d1a1c; --bg2:#12262a; --bg3:#071114;
+  --line: rgba(90,230,220,.2);
+  --text:#eafaf8; --muted:#8fb8b4;
+  --accent:#2fd0c0; --accent2:#f5d54a; --accent3:#f2617a;
+  --chip: rgba(47,208,192,.15);
+  --display:'Baloo 2', cursive;
+}
+/* Kalamkari — Andhra. Natural dye: indigo, madder, mustard, cream. */
+[data-world="kalamkari"] {
+  --bg1:#111b2e; --bg2:#1a2740; --bg3:#0a1120;
+  --line: rgba(230,200,140,.2);
+  --text:#f6efdc; --muted:#a4b0c4;
+  --accent:#d9a441; --accent2:#e8c887; --accent3:#a8402f;
+  --chip: rgba(217,164,65,.15);
+}
+/* Phad — Rajasthan. Flat red, yellow, orange, bold outline. */
+[data-world="phad"] {
+  --bg1:#2c1108; --bg2:#3d1a0c; --bg3:#190803;
+  --line: rgba(255,200,90,.22);
+  --text:#fff3e0; --muted:#cbab92;
+  --accent:#f2a02c; --accent2:#f7cf6b; --accent3:#e04524;
+  --chip: rgba(242,160,44,.16);
+}
+/* Mughal Miniature — jewel tones and gold leaf. */
+[data-world="mughal"] {
+  --bg1:#101c2c; --bg2:#17293f; --bg3:#0a1220;
+  --line: rgba(212,175,55,.28);
+  --text:#f4f0e2; --muted:#a3aec2;
+  --accent:#d4af37; --accent2:#e8cf7a; --accent3:#2f7f6f;
+  --chip: rgba(212,175,55,.15);
+}
+/* Tanjore — Tamil Nadu. Gold, deep red, emerald. */
+[data-world="tanjore"] {
+  --bg1:#200d14; --bg2:#301420; --bg3:#12060b;
+  --line: rgba(240,200,80,.26);
+  --text:#fdf2e0; --muted:#c8a99a;
+  --accent:#eec24a; --accent2:#f6dc92; --accent3:#1f8a6a;
+  --chip: rgba(238,194,74,.16);
+}
+/* Kalighat — Bengal. Bold sweeping brush, limited palette. */
+[data-world="kalighat"] {
+  --bg1:#1a1614; --bg2:#26201c; --bg3:#0f0c0a;
+  --line: rgba(240,180,120,.2);
+  --text:#f8f0e6; --muted:#bfae9c;
+  --accent:#e07a3c; --accent2:#efb075; --accent3:#3f7f8c;
+  --chip: rgba(224,122,60,.16);
+}
+
+/* Light mode — a single alternate ground for daytime / print-ish reading */
+[data-mode="light"] {
+  --bg1:#f7f1e4; --bg2:#fffaf0; --bg3:#eadfca;
+  --surface: rgba(0,0,0,.03); --surface2: rgba(0,0,0,.06);
+  --line: rgba(120,80,20,.2);
+  --text:#2a1e12; --muted:#7a6a54;
+  --mist: rgba(120,120,135,.35);
+  --lit: rgba(233,161,59,.3);
+  --glow: 0 10px 34px rgba(90,60,20,.16);
+}

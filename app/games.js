@@ -47,7 +47,7 @@
     '.mela-stage{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-lg);position:relative;overflow:hidden}',
     '.mela-stage:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2));opacity:.5}',
     '.mela-art{display:flex;justify-content:center;margin:2px 0 6px}',
-    '.mela-art svg{display:block;max-width:100%;height:auto}',
+    '.mela-art svg{display:block;max-width:min(100%,150px);max-height:150px;height:auto;width:auto}',
     '.mela-q{font:700 20px/1.3 var(--display,Georgia,serif);margin:2px 0 4px;text-align:center}',
     '.mela-tale{font-size:16px;line-height:1.65;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-lg);margin:6px 0 10px}',
     '.mela-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:10px 0 0}',
@@ -621,6 +621,10 @@
       score += pts; kauris += earned;
 
       var last = idx >= RG_ROUNDS.length - 1;
+      var kEl = ref.stage.querySelector('.mela-kicker');
+      if (kEl) kEl.textContent = 'Rangoli ' + (idx + 1) + ' of ' + RG_ROUNDS.length + ' · how it lined up';
+      var qEl = ref.stage.querySelector('.mela-q');
+      if (qEl) qEl.textContent = perfect ? 'Exactly right' : 'Here is the rangoli again';
       var msg = perfect
         ? 'Perfect. Every dot back where it belonged.'
         : hit + ' of ' + need.length + ' dots landed right' + (extra ? ', and ' + extra + ' extra crept in' : '') + '. Look at the dotted line — that is the mirror.';
@@ -811,6 +815,14 @@
       '<path class="hit" d="' + M.paths[code] + '"/></svg>';
   }
 
+  /* The map still under the mist — no state picked out, so nothing leaks. */
+  function blankMap() {
+    var M = W.IND_MAP;
+    if (!M || !M.outline) return motifHTML('lotus');
+    return '<svg class="mela-mini" viewBox="' + esc(M.viewBox || '0 0 1000 1100') + '" aria-hidden="true">' +
+      '<path class="land" d="' + M.outline + '"/></svg>';
+  }
+
   function statehunt(host, opts, done) {
     var pool = stateData();
     var COUNT = Math.min(6, pool.length);
@@ -829,9 +841,12 @@
         var optList = [];
         for (k = 0; k < options.length; k++) optList.push({ t: options[k].name });
 
-        var clue = one(s.clues);
+        /* one clue asks, a different clue teaches — never the same sentence twice */
+        var ci = Math.floor(Math.random() * s.clues.length);
+        var clue = s.clues[ci];
+        var other = s.clues.length > 1 ? s.clues[(ci + 1) % s.clues.length] : clue;
         rounds.push({
-          artHTML: '',
+          artHTML: blankMap(),
           kicker: 'Stop ' + (i + 1) + ' of ' + picks.length,
           question: kind === 'capital'
             ? 'Which state has its capital at ' + s.capital + '?'
@@ -841,7 +856,7 @@
           answer: answer,
           speakText: kind === 'capital' ? 'Which state has its capital at ' + s.capital + '?' : clue,
           teachHTML: '<b>' + esc(s.name) + '</b> — capital <b>' + esc(s.capital) + '</b>.<br>' +
-                     esc(kind === 'capital' ? one(s.clues) : (s.clues[1] || s.clues[0])) +
+                     esc(kind === 'capital' ? clue : other) +
                      miniMap(s.code)
         });
       }
@@ -877,7 +892,7 @@
       where: 'Across the north — the Braj towns are famous for it', whereQ: false,
       why: 'Colour, water and sweets to welcome the spring', whyKey: 'spring',
       teach: 'The night before is Holika Dahan, a bonfire; the next morning is all colour, water balloons and gujiya. Playing gently, and only with people who want to play, is part of the fun.',
-      motif: '' },
+      motif: 'warli' },
     { id: 'pongal', name: 'Pongal',
       when: 'Mid-January', months: ['january'],
       where: 'Tamil Nadu', whereQ: true,
@@ -889,37 +904,37 @@
       where: 'Kerala', whereQ: true,
       why: 'The harvest, and a much-loved old king’s yearly visit home', whyKey: 'harvest',
       teach: 'Families lay pookalam carpets of flower petals at the door, race long snake boats, and share a sadya feast served on a banana leaf, welcoming King Mahabali back for the day.',
-      motif: '' },
+      motif: 'lotus' },
     { id: 'navratri', name: 'Navratri',
       when: 'September or October', months: ['september', 'october'],
       where: 'Gujarat dances garba for it; Bengal keeps the same days as Durga Puja', whereQ: false,
       why: 'Nine nights for the Goddess', whyKey: 'goddess',
       teach: 'Nine nights, nine forms of the Goddess. In Gujarat everyone dances garba and dandiya in circles; in Bengal the same days are Durga Puja, with enormous decorated pandals.',
-      motif: '' },
+      avatar: 'durga' },
     { id: 'baisakhi', name: 'Baisakhi (Vaisakhi)',
       when: '13 or 14 April', months: ['april'],
       where: 'Punjab', whereQ: true,
       why: 'The spring harvest — and for Sikhs, the founding of the Khalsa', whyKey: 'khalsa',
       teach: 'Farmers cut the rabi harvest and dance bhangra and gidda. For Sikhs it is also the day Guru Gobind Singh founded the Khalsa at Anandpur Sahib in 1699.',
-      motif: '' },
+      avatar: 'khanda' },
     { id: 'gurunanak', name: 'Guru Nanak Gurpurab',
       when: 'Usually November', months: ['november'],
       where: 'Punjab, and Sikh sangats everywhere', whereQ: false,
       why: 'The birthday of Guru Nanak, the first Sikh Guru', whyKey: 'birthday',
       teach: 'Gurdwaras hold an unbroken reading of the Guru Granth Sahib, a nagar kirtan walks singing through the streets, and langar — a free meal that anybody at all may eat — is served to everyone.',
-      motif: '' },
+      avatar: 'harmandir' },
     { id: 'buddha', name: 'Buddha Purnima',
       when: 'April or May, on the full moon', months: ['april', 'may'],
       where: 'Bodh Gaya, Sikkim, Ladakh and Buddhist communities everywhere', whereQ: false,
       why: 'The Buddha’s birth, his awakening and his passing — all on one full-moon day', whyKey: 'buddha',
       teach: 'Monasteries are washed and hung with flags, people bring flowers and lamps, and many families eat only vegetarian food and give to those who need it.',
-      motif: '' },
+      avatar: 'buddha' },
     { id: 'mahavir', name: 'Mahavir Jayanti',
       when: 'March or April', months: ['march', 'april'],
       where: 'Jain communities, especially in Gujarat, Rajasthan and Bihar', whereQ: false,
       why: 'The birth of Mahavira, who taught ahimsa — never harming any living thing', whyKey: 'ahimsa',
       teach: 'Jain families visit the temple, join a gentle procession and listen to Mahavira’s teaching. Many spend the day doing something kind for animals.',
-      motif: '' },
+      avatar: 'mahavira' },
     { id: 'eid', name: 'Eid al-Fitr',
       when: 'It moves every year — it follows the moon', months: [],
       where: 'All over India — Delhi, Hyderabad, Lucknow, Kerala and everywhere else', whereQ: false,
@@ -939,7 +954,7 @@
       where: 'All over India; the big parade is in New Delhi', whereQ: false,
       why: 'The day India’s Constitution came into force', whyKey: 'constitution',
       teach: 'On 26 January 1950 the Constitution came into force and India became a republic. Schools raise the flag, and a parade of every state’s tableau rolls through New Delhi.',
-      motif: '' }
+      motif: 'peacock' }
   ];
 
   var FEST_PLACES = ['Tamil Nadu', 'Kerala', 'Punjab', 'Goa', 'Assam', 'Rajasthan', 'West Bengal', 'Sikkim'];
@@ -1004,8 +1019,11 @@
         }
         speakText = q;
 
+        /* Art only where it is genuinely apt. Eid, Christmas and Pongal get
+           none rather than a borrowed symbol that means nothing. */
+        var art = f.avatar ? avatarHTML(f.avatar, 88) : (f.motif ? motifHTML(f.motif) : '');
         rounds.push({
-          artHTML: f.motif ? motifHTML(f.motif) : '',
+          artHTML: art,
           kicker: 'Festival ' + (i + 1) + ' of ' + picks.length,
           question: q,
           taleHTML: '',

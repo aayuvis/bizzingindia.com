@@ -364,5 +364,17 @@
   "neem": { "ipa": "niːm", "note": "NEEM" },
   "brahmin": { "ipa": "ˈbrɑːmɪn", "note": "BRAAH-min" },
   "dal": { "ipa": "dɑːl", "note": "DAAL, the lentils - not the English 'dal'" },
-  "pedas": { "ipa": "ˈpeːɽɑːz", "note": "PAY-raaz" }
+  "pedas": { "ipa": "ˈpeːɽɑːz", "note": "PAY-raaz" },
+
+  "Chandkaushik": { "ipa": "tʃəɳɖəˈkɔːʃɪk", "note": "chun-da-KOW-shik" },
+  "Gonu Jha": { "ipa": "ˈɡoːnuː dʒɑː", "note": "GO-noo JHAA (jh comes out plain j)" },
+  "Mithila": { "ipa": "ˈmɪtɪlɑː", "note": "MITH-i-laa" },
+  "Punyakoti": { "ipa": "pʊɳjəˈkoːʈiː", "note": "pun-ya-KOH-tee" },
+  "Ramakrishna": { "ipa": "rɑːməˈkrɪʂɳə", "note": "raa-ma-KRISH-na" },
+  "Shravanabelagola": { "ipa": "ʃrəvəɳəbeːləˈɡoːlə", "note": "shra-va-na-bay-la-GO-la" },
+  "Dharani mandala madhyadolage": { "ipa": "dərəˈɳiː ˈmʌɳɖələ mədjəˈdoːləɡeː", "note": "dha-ra-NEE MUN-da-la ma-dhya-DOH-la-gay - the opening of the Kannada song of Punyakoti; a Kannada speaker should check this one", "unsure": true },
+  "Chakli": { "ipa": "ˈtʃʌkliː", "note": "CHUK-lee - Gujarati for the sparrow", "unsure": true },
+  "Kagdo": { "ipa": "ˈkɑːɡdoː", "note": "KAAG-doh - Gujarati for the crow", "unsure": true },
+  "Kesar": { "ipa": "ˈkeːsər", "note": "KAY-sar", "unsure": true },
+  "Kalmi": { "ipa": "ˈkʌlmiː", "note": "KUL-mee", "unsure": true }
 }

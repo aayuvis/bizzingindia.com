@@ -424,17 +424,31 @@
         'shelf, your state glows on the map, and the grandparent words become your own. Nothing is ' +
         'hidden either way — skip it or change it whenever you like.</p>' +
         tongueChips() +
-        '<h3 style="margin-top:22px">Does anyone speak ' + (tg ? esc(tg.en) : 'it') + ' at home?</h3>' +
-        '<p class="tiny muted" style="margin:4px 0 0">This decides where the language path starts. A child ' +
-        'who already understands the spoken words skips straight to reading them.</p>' +
-        placeChips('home', [['yes', 'Yes'], ['no', 'Not really']]) +
-        (obPlace.home === 'yes'
-          ? '<h3 style="margin-top:18px">Does your child answer back?</h3>' +
-            placeChips('back', [['yes', 'Yes'], ['some', 'A little'], ['no', 'Not yet']]) +
-            (!S.tongue
-              ? '<h3 style="margin-top:18px">In which language?</h3>' + tongueChips()
-              : '')
-          : '') +
+        /* The placement is its own block, not three more headings in a long
+           form: it is the one answer that changes where the child starts, so
+           it is framed as a step and it says out loud what it decided. */
+        '<div class="placebox">' +
+          '<div class="mono">Where the language starts</div>' +
+          '<h3 style="margin:6px 0 0">Does anyone speak ' + (tg ? esc(tg.en) : 'it') + ' at home?</h3>' +
+          '<p class="tiny muted" style="margin:4px 0 0">A child who already understands the spoken ' +
+          'words does not need to be taught what they mean — they need to read them.</p>' +
+          placeChips('home', [['yes', 'Yes'], ['no', 'Not really']]) +
+          (obPlace.home === 'yes'
+            ? '<h3 style="margin:18px 0 0">Does your child answer back?</h3>' +
+              placeChips('back', [['yes', 'Yes'], ['some', 'A little'], ['no', 'Not yet']]) +
+              (!S.tongue
+                ? '<h3 style="margin:18px 0 0">In which language?</h3>' + tongueChips()
+                : '')
+            : '') +
+          /* the routing, said plainly the moment it is decided */
+          (obPlace.home
+            ? '<p class="placeout">' + (obPlace.home === 'yes'
+                ? 'Then ' + (tg ? esc(tg.en) : 'the language') + ' starts at the <b>script</b> — the ear is ' +
+                  'already ahead of the eye. Listening stays there to test out of.'
+                : 'Then it starts with the <b>ear</b> — sounds and meanings first, letters right after.') +
+              '</p>'
+            : '') +
+        '</div>' +
         '<h3 style="margin-top:22px">Pick who travels with you</h3>' +
         packs.map(function (p) {
           return '<div class="tiny muted" style="margin:14px 0 8px;font-weight:700">' + esc(p.name) + '</div>' +
@@ -2819,11 +2833,17 @@
      water finding its way, then a bird up on the wind, then the mountain. */
   var BAND_LABELS = ['Naya yatri', 'Chalta hua', 'Behta paani', 'Udta panchhi', 'Parvat'];
 
-  /* the per-stage readiness chips, straight off the SRS boxes */
+  /* The per-stage readiness chips, straight off the SRS boxes. Two rules of
+     restraint, both learned from the first screenshot: a stage nobody has
+     opened yet gets NO chips (readiness is a readout, and before you start
+     there is nothing to read — "498 new" on the word stage was a wall, not
+     information), and the new count is capped so a 500-word lexicon never
+     shouts its size at a seven-year-old. */
   function readinessChips(r) {
     if (!r || !r.total) return '';
+    if (r.unseen >= r.total) return '';          /* untouched: say nothing */
     var bits = [];
-    if (r.unseen) bits.push('<i class="rc rc-new">' + r.unseen + ' new</i>');
+    if (r.unseen) bits.push('<i class="rc rc-new">' + (r.unseen > 99 ? '99+' : r.unseen) + ' new</i>');
     if (r.learning) bits.push('<i class="rc rc-learn">' + r.learning + ' learning</i>');
     if (r.review) bits.push('<i class="rc rc-rev">' + r.review + ' review</i>');
     if (r.mastered) bits.push('<i class="rc rc-mast">' + r.mastered + ' mastered</i>');
@@ -2884,11 +2904,14 @@
       '<div class="card"><div class="spread">' +
         '<div><h1 class="deva" style="margin:0">' + esc(p.name.native) + '</h1>' +
         '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc.name) + '</div></div>' +
-        '<div style="text-align:right"><span class="pill stat">' + doneN + ' / ' + stages.length + '</span> ' +
-        /* the band as a warm travel name — never a grade, never a number */
-        '<span class="pill stat bandlbl">' + esc(BAND_LABELS[Math.max(0, Math.min(4, (rec.band || 1) - 1))]) + '</span></div></div>' +
+        '<span class="pill stat" style="flex:none">' + doneN + ' / ' + stages.length + '</span></div>' +
         '<div class="meter" style="margin-top:14px"><i style="width:' +
-          Math.round(doneN / Math.max(1, stages.length) * 100) + '%"></i></div></div>' +
+          Math.round(doneN / Math.max(1, stages.length) * 100) + '%"></i></div>' +
+        /* The band gets its own quiet strip rather than crowding the header —
+           and it is worn as a place on a journey, never a grade or a number. */
+        '<div class="bandrow"><span class="mono">where you are</span>' +
+        '<span class="pill stat bandlbl">' +
+        esc(BAND_LABELS[Math.max(0, Math.min(4, (rec.band || 1) - 1))]) + '</span></div></div>' +
 
       offerCard + overCard +
 
@@ -2915,8 +2938,10 @@
               '<span class="pdisc">' + icon('lock', 14) + '</span>' +
               '<span class="pbody"><b>' + esc(s.name) + '</b>' +
               '<span class="tiny muted">' + esc(s.outcome || '') + '</span>' +
-              '<span class="tiny totlink">Opens after ' + esc(stages[i - 1].name) +
-              ' — or test out with six questions</span>' + chips + '</span></button>';
+              /* quiet, not loud: a locked rung should not out-shout the open
+                 one above it. The only accented word is the way through. */
+              '<span class="tiny muted">Opens after ' + esc(stages[i - 1].name) +
+              ' — <b class="totlink">or test out</b></span>' + chips + '</span></button>';
           }
           var state = done ? 'done' : (s.id === nxt.id ? 'now' : 'ahead');
           var node = '<button class="pnode ' + state + '" data-act="quiz" data-s="' + esc(s.id) + '">' +
@@ -2971,6 +2996,23 @@
      options carry no roman labels (the label would name the sound being
      asked for); and why sentenceBuild shows only the English until after the
      answer. */
+  /* THE ARC STRIP — one tick per beat of the planned session, so a lesson has
+     a visible shape and an end. Introductions are the short pale ticks, drills
+     the plain ones, the closing review its own colour; everything behind the
+     pointer is filled. This is the honest opposite of a Duolingo heart row: it
+     shows how much is left, never how much you have to lose. */
+  function arcStrip() {
+    var pl = quiz.plan, specs = pl && pl.specs;
+    if (!specs || specs.length < 2) return '';
+    var out = '', i, k;
+    for (i = 0; i < specs.length; i++) {
+      k = specs[i].kind === 'introduce' ? 'a-int' : specs[i].kind === 'review' ? 'a-rev' : 'a-dr';
+      out += '<i class="' + k + (i < quiz.pi ? ' done' : (i === quiz.pi ? ' at' : '')) + '"></i>';
+    }
+    return '<div class="arcbar" role="img" aria-label="beat ' + (quiz.pi + 1) +
+      ' of ' + specs.length + ' in this session">' + out + '</div>';
+  }
+
   V.question = function (q) {
     var qfb = '<div id="qfb" class="qfb' + (quiz.fb ? ' show ' + (quiz.fb.ok ? 'good' : 'bad') : '') + '">' +
       (quiz.fb ? quiz.fb.html : '') + '</div>';
@@ -2988,8 +3030,10 @@
     if (q.type === 'introduce') {
       var isent = q.char ? exampleSentence(q.char) : null;
       return '<div class="card introcard' + (q.small ? ' smallglyph' : '') + '">' +
+        arcStrip() +
         '<div class="mono">Something new</div>' +
-        '<div class="bigglyph deva">' + esc(q.char || '') + '</div>' +
+        /* the glyph sits on its own soft plate — the one thing on the card */
+        '<div class="introplate"><div class="bigglyph deva">' + esc(q.char || '') + '</div></div>' +
         (q.sub ? '<p class="introsub">' + esc(q.sub) + '</p>' : '') +
         (q.en ? '<p class="introen">' + esc(q.en) + '</p>' : '') +
         (isent ? '<p class="tiny" style="margin:4px 0 10px"><span class="deva">' + esc(isent.s) + '</span><br>' +
@@ -3004,7 +3048,7 @@
       var inner = window.IND_LIKHNA
         ? window.IND_LIKHNA.render(q.letter)
         : '<p class="muted">The tracing tool did not load.</p>';
-      return '<div class="card">' +
+      return '<div class="card">' + arcStrip() +
         '<h3 style="margin-bottom:4px">Likhna — trace <span class="deva">' + esc(q.letter.char) + '</span></h3>' +
         '<p class="tiny muted" style="margin-top:0">“' + esc(q.letter.name) + '”</p>' +
         inner + qfb + meta + '</div>';
@@ -3050,7 +3094,7 @@
           (used || quiz.lock ? ' disabled' : '') + ' aria-label="tile ' + esc(tileChar(q.tiles[i])) + '">' +
           '<span class="deva">' + esc(tileChar(q.tiles[i])) + '</span>' + sub + '</button>';
       }
-      return '<div class="card">' + head +
+      return '<div class="card">' + arcStrip() + head +
         '<div class="slots' + (quiz.reveal ? ' shake' : '') + '">' + slots + '</div>' +
         '<div class="btiles">' + tiles + '</div>' +
         '<p class="tiny muted">Tap a tile to place it, tap a filled slot to take it back. ' +
@@ -3116,7 +3160,7 @@
         : '<button class="opt" data-act="ans" data-i="' + i + '"><span class="deva" style="font-size:22px">' + l + '</span>' +
           (s ? ' <span class="muted tiny">' + s + '</span>' : '') + '</button>';
     }).join('');
-    return '<div class="card"><h3>' + prompt + '</h3>' + lead + big + hear +
+    return '<div class="card">' + arcStrip() + '<h3>' + prompt + '</h3>' + lead + big + hear +
       (grid ? '<div class="gridscript">' + choices + '</div>' : choices) +
       qfb + meta + '</div>';
   };
@@ -3305,7 +3349,10 @@
           '</button>'
         : '') +
       '<button class="iconbtn" data-act="sound" aria-label="sound">' + icon('sound', 20) + '</button>' +
-      '<button class="iconbtn" data-act="deck" aria-label="Your companions" style="overflow:hidden;padding:0">' +
+      /* This chip is the door to You — Worlds, sound, night mode all live behind
+         it. It briefly opened the deck instead, which stranded Worlds; the deck
+         has its own door on the big buddy on Home. */
+      '<button class="iconbtn" data-act="go" data-v="me" aria-label="You and your settings" style="overflow:hidden;padding:0">' +
       art(S.buddy, 40) + '</button>' +
       '</div><nav class="nav">' + TABS.map(function (t) {
         return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 19) + '<span>' + t[1] + '</span></button>';

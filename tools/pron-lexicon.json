@@ -3,609 +3,2410 @@
     "what": "Indian proper nouns and loanwords -> IPA, injected as <phoneme alphabet=\"ipa\"> into the en-US story narration by tools/tts.py. Hindi/Punjabi clips do NOT use this file: those voices are already native.",
     "goal": "The narrator keeps her English (diaspora) accent; the Indian names are said the way an Indian family says them. Not Sanskrit-pedantic, not anglicised.",
     "engine_limits": [
-      "Google's en-US phoneme set is the American English one. Symbols outside it are not an error - the API silently drops the <phoneme> tag and reads the spelling instead. Every entry here was verified against the live API to be accepted (see the checker in the report).",
-      "ASPIRATION CANNOT BE RENDERED. bh dh gh kh ph th chh jh and breathy voice (bʱ dʱ tʰ kʰ ...) are all rejected. They are written unaspirated, so Bhasuraka starts as a plain b and dharma as a plain d. This is the one class of sound the phoneme approach cannot fix.",
-      "PRIMARY STRESS MAY NOT FALL ON ə. English defines schwa as unstressed, so ˈə is rejected. A stressed short Indian 'a' is therefore written ʌ (the 'cup' vowel), which is the closest American English has.",
-      "Retroflexes ʈ ɖ ɳ ɽ ʂ are accepted and kept where they change the word; the American voice renders them as its nearest alveolar/post-alveolar, which still beats the dental default.",
+      "Google's en-US phoneme set is the American English one. Symbols outside it are not an error - the API silently drops the <phoneme> tag and reads the spelling instead. Every entry here was verified against the live API on a decoy spelling, which is the only test that can tell 'honoured' from 'thrown away'. Run tools/tts.py --check-lexicon to redo it.",
+      "ASPIRATION IS RENDERABLE, and an earlier pass was wrong to say it was not. That mistake is why every Indian name in the narration was anglicised: Bhima came out 'Beema', Bharata 'Burrutuh'. Probed and accepted: bʰ ɡʰ kʰ dʒʰ tʃʰ ʈʰ ɖʰ, and the DENTAL pair d̪ʰ t̪ʰ. Do not 'simplify' d̪ʰ to dʰ or t̪ʰ to tʰ: bare dʰ and tʰ are REJECTED, and the dental diacritic U+032A is what makes the API accept them. The aspiration mark itself must be U+02B0 ʰ; the breathy-voice sign U+02B1 ʱ is rejected.",
+      "Two aspirates still have no accepted form and are written plain, with a note on the entry saying so: pʰ (so phad is pəɖ) and ɽʰ (so the -garh of Chandigarh is ɡəɽ).",
+      "Aspiration is realised as ENGLISH allophonic aspiration, so it is suppressed after a sibilant exactly as in English 'star'. Yudhishthira and Vasishtha keep their ʈʰ - the tag is honoured, the puff simply does not survive the ʂ. Nothing to fix; do not remove the mark.",
+      "PRIMARY STRESS MAY NOT FALL ON ə - probed and confirmed, ˈə is rejected outright. This is the trap that produced the old file: rather than move the stress, it changed the vowel to ʌ, the 'cup' vowel, and that single substitution is most of what made the names sound English. The rule now is the other way round - short Indian 'a' is ALWAYS ə, and the stress mark goes. Indian languages do not carry an English-shaped accent on a short a anyway, so nothing is lost.",
+      "Retroflexes ʈ ɖ ɳ ɽ ʂ are accepted and kept where they change the word. ʋ is accepted and is used for both v and w, which are one sound in most of India.",
       "Long vowels are written with ː. Indian monophthongs are written eː / oː rather than the American diphthongs eɪ / oʊ where the difference is audible."
     ],
-    "format": "\"Term\": { \"ipa\": \"...\", \"note\": \"plain-English respelling, CAPS = stress\", \"unsure\": true (only where the reading is genuinely in doubt) }",
+    "format": "\"Term\": { \"ipa\": \"...\", \"note\": \"plain-English respelling, CAPS = the syllable leaned on\", \"unsure\": true (only where the reading is genuinely in doubt) }. The respelling is DERIVED from the ipa, not written by hand, so it cannot drift away from what the file actually asks the voice to say.",
     "unpinned": "\"ipa\": null with \"needs_native_speaker\": true means nobody here could transcribe it honestly. tools/tts.py drops those terms from the matcher entirely, so the voice reads the spelling as it would anyway. That is deliberate: a confidently wrong <phoneme> sounds authoritative and nobody ever re-checks it, whereas an obviously anglicised reading is something a parent will report. Do not fill these in by guessing - get a speaker.",
     "matching": "tools/tts.py matches case-insensitively, longest term first, on word boundaries, and handles a following possessive 's itself - do not add possessive forms here. Plural forms that actually occur in the stories are listed separately."
   },
-
-  "Hanuman": { "ipa": "hənʊˈmɑːn", "note": "hun-oo-MAAN" },
-  "Ganesha": { "ipa": "ɡəˈɳeːʃə", "note": "guh-NAY-sha" },
-  "Ganesh": { "ipa": "ɡəˈɳeːʃ", "note": "guh-NAYSH" },
-  "Krishna": { "ipa": "ˈkrɪʂɳə", "note": "KRISH-na, final -a a light schwa, not '-nuh' drawn out" },
-  "Rama": { "ipa": "ˈrɑːmə", "note": "RAA-ma" },
-  "Sita": { "ipa": "ˈsiːtɑː", "note": "SEE-taa" },
-  "Shiva": { "ipa": "ˈʃɪvə", "note": "SHI-va (short i, as in 'shiver'), not SHEE-va" },
-  "Durga": { "ipa": "ˈdʊrɡɑː", "note": "DOOR-gaa" },
-  "Lakshmi": { "ipa": "ˈlʌkʂmiː", "note": "LUKSH-mee" },
-  "Saraswati": { "ipa": "səˈrʌsvətiː", "note": "suh-RUSS-wuh-tee" },
-  "Parvati": { "ipa": "ˈpɑːrvətiː", "note": "PAAR-vuh-tee" },
-  "Kartikeya": { "ipa": "kɑːrtɪˈkeːjə", "note": "kaar-ti-KAY-ya" },
-  "Mahavira": { "ipa": "məhɑːˈviːrə", "note": "muh-haa-VEE-ra" },
-  "Mahavir": { "ipa": "məhɑːˈviːr", "note": "muh-haa-VEER" },
-  "Siddhartha": { "ipa": "sɪˈdɑːrtə", "note": "sid-DHAAR-ta; both aspirates (dh, th) are lost - the engine cannot make them" },
-  "Ashoka": { "ipa": "əˈʃoːkə", "note": "uh-SHOH-ka" },
-  "Ashok": { "ipa": "əˈʃoːk", "note": "uh-SHOHK" },
-  "Chanakya": { "ipa": "tʃɑːˈɳʌkjə", "note": "chaa-NUK-ya" },
-  "Chandragupta": { "ipa": "tʃəndrəˈɡʊptə", "note": "chun-druh-GOOP-ta" },
-  "Shivaji": { "ipa": "ʃɪˈvɑːdʒiː", "note": "shi-VAA-jee (Maharashtrian speakers often stress the first syllable; VAA is the common pan-Indian reading)" },
-  "Birbal": { "ipa": "ˈbiːrbəl", "note": "BEER-bul" },
-  "Akbar": { "ipa": "ˈʌkbər", "note": "UK-bur, not AK-bahr" },
-  "Tansen": { "ipa": "ˈtɑːnseːn", "note": "TAAN-sen" },
-  "Jambavan": { "ipa": "dʒɑːmbəˈvɑːn", "note": "jaam-buh-VAAN" },
-  "Kisa Gotami": { "ipa": "kɪˈsɑː ɡoːtəˈmiː", "note": "ki-SAA go-tuh-MEE (Pali Kisagotami)" },
-  "Gotami": { "ipa": "ɡoːtəˈmiː", "note": "go-tuh-MEE" },
-  "Kisa": { "ipa": "kɪˈsɑː", "note": "ki-SAA" },
-  "Bahubali": { "ipa": "bɑːhʊbəˈliː", "note": "baa-hu-buh-LEE" },
-  "Valmiki": { "ipa": "vɑːlˈmiːkɪ", "note": "vaal-MEE-ki" },
-  "Tulsidas": { "ipa": "tʊlsiːˈdɑːs", "note": "tul-see-DAAS" },
-  "Buddha": { "ipa": "ˈbʊdə", "note": "BUD-dha, u as in 'put'; the dh is unaspirated here" },
-  "Buddhist": { "ipa": "ˈbʊdɪst", "note": "BUD-dhist, not BOO-dist" },
-  "Jain": { "ipa": "dʒeːn", "note": "JAIN rhymes with 'lane', never with 'line'" },
-  "Jains": { "ipa": "dʒeːnz", "note": "JAINS, rhymes with 'lanes'" },
-  "Jainism": { "ipa": "ˈdʒeːnɪzəm", "note": "JAY-nizm" },
-  "Gandhi": { "ipa": "ˈɡɑːndiː", "note": "GAAN-dhee, not GAN-dee" },
-  "Ambedkar": { "ipa": "ˈʌmbeːdkər", "note": "UM-bayd-kar" },
-  "Aryabhata": { "ipa": "ɑːrjəˈbʌtə", "note": "aar-ya-BHUT-a (bh comes out plain b)" },
-  "Kalam": { "ipa": "kəˈlɑːm", "note": "kuh-LAAM" },
-  "Kalpana": { "ipa": "ˈkʌlpənɑː", "note": "KULP-uh-naa" },
-  "Lakshmibai": { "ipa": "ləkʂmiːˈbaɪ", "note": "luksh-mee-BAI" },
-  "Bhagat": { "ipa": "ˈbʌɡət", "note": "BHUG-ut (bh comes out plain b)" },
-  "Singh": { "ipa": "sɪŋ", "note": "SING, no hard g at the end" },
-  "Mithu": { "ipa": "ˈmɪʈuː", "note": "MIT-thoo (the parrot's name)" },
-  "Gattu": { "ipa": "ˈɡʌʈuː", "note": "GUT-too" },
-  "Vismriti": { "ipa": "ˈvɪsmrɪtiː", "note": "VISM-ri-tee" },
-
-  "Bhasuraka": { "ipa": "ˈbɑːsʊrəkə", "note": "BHAA-su-ru-ka; the initial bh is unavoidably a plain b" },
-  "Chandarava": { "ipa": "tʃəɳɖəˈrʌvə", "note": "chun-duh-RUH-va (the blue jackal)" },
-  "Kambugriva": { "ipa": "kəmbʊˈɡriːvə", "note": "kum-boo-GREE-va" },
-  "Pingalaka": { "ipa": "ˈpɪŋɡələkə", "note": "PING-uh-luh-ka" },
-  "Damanaka": { "ipa": "ˈdʌmənəkə", "note": "DUM-uh-nuh-ka" },
-  "Karataka": { "ipa": "ˈkʌrətəkə", "note": "KUR-uh-tuh-ka (Damanaka's fellow jackal)" },
-  "Sanjivaka": { "ipa": "sənˈdʒiːvəkə", "note": "sun-JEE-vuh-ka" },
-  "Laghupatanaka": { "ipa": "ləɡʊpəˈtʌnəkə", "note": "luh-ghu-puh-TUH-nuh-ka (gh comes out plain g)" },
-  "Hiranyaka": { "ipa": "hɪˈrʌɳjəkə", "note": "hi-RUN-ya-ka" },
-  "Chitranga": { "ipa": "tʃɪˈtrɑːŋɡə", "note": "chi-TRAANG-ga" },
-  "Mandara": { "ipa": "ˈmʌndərə", "note": "MUN-duh-ra" },
-  "Ujjain": { "ipa": "ʊˈdʒeːn", "note": "oo-JAIN, second syllable like 'Jane'" },
-  "Kailash": { "ipa": "keːˈlɑːʃ", "note": "kay-LAASH" },
-  "Lanka": { "ipa": "ˈlʌŋkɑː", "note": "LUNG-kaa" },
-  "Ayodhya": { "ipa": "əˈjoːdjɑː", "note": "a-YODH-yaa (dh comes out plain d)" },
-  "Kishkindha": { "ipa": "kɪʂˈkɪndɑː", "note": "kish-KIN-dhaa", "unsure": true },
-  "Ravana": { "ipa": "ˈrɑːvəɳə", "note": "RAA-va-na" },
-  "Lakshmana": { "ipa": "ˈlʌkʂməɳə", "note": "LUKSH-ma-na" },
-  "Bharata": { "ipa": "ˈbʌrətə", "note": "BHUR-uh-ta (bh comes out plain b)" },
-  "Draupadi": { "ipa": "ˈdrɔːpədiː", "note": "DROW-puh-dee" },
-  "Arjuna": { "ipa": "ˈʌrdʒʊnə", "note": "UR-ju-na" },
-  "Yudhishthira": { "ipa": "jʊˈdɪʂʈɪrə", "note": "yu-DHISH-thi-ra; both aspirates lost", "unsure": true },
-  "Bhima": { "ipa": "ˈbiːmə", "note": "BHEE-ma (bh comes out plain b)" },
-  "Nala": { "ipa": "ˈnʌlə", "note": "NUL-a" },
-  "Sudama": { "ipa": "sʊˈdɑːmə", "note": "su-DAA-ma" },
-  "Savitri": { "ipa": "ˈsɑːvɪtriː", "note": "SAA-vi-tree" },
-  "Shakuntala": { "ipa": "ʃəˈkʊntəlɑː", "note": "sha-KUN-ta-laa" },
-  "Nachiketa": { "ipa": "nətʃɪˈkeːtə", "note": "na-chi-KAY-ta" },
-  "Ekalavya": { "ipa": "eːkəˈlʌvjə", "note": "ay-ka-LUV-ya" },
-  "Prahlada": { "ipa": "prəˈlɑːdə", "note": "pruh-LAA-da" },
-  "Meera": { "ipa": "ˈmiːrɑː", "note": "MEE-raa" },
-  "Kabir": { "ipa": "kəˈbiːr", "note": "ka-BEER" },
-  "Nanak": { "ipa": "ˈnɑːnək", "note": "NAA-nuk" },
-  "Guru": { "ipa": "ˈɡʊrʊ", "note": "GU-ru, both vowels short - not 'guh-ROO'" },
-  "Gobind": { "ipa": "ɡoːˈbɪnd", "note": "go-BIND" },
-  "Nalanda": { "ipa": "nɑːˈlʌndɑː", "note": "naa-LUN-daa" },
-
-  "Panchatantra": { "ipa": "pəntʃəˈtʌntrə", "note": "pun-chuh-TUN-tra" },
-  "Ramayana": { "ipa": "rɑːˈmɑːjəɳə", "note": "raa-MAA-ya-na, not ra-may-AH-na" },
-  "Mahabharata": { "ipa": "məhɑːˈbɑːrətə", "note": "muh-haa-BHAA-ru-ta (bh comes out plain b)" },
-  "Jataka": { "ipa": "ˈdʒɑːtəkə", "note": "JAA-tuh-ka" },
-  "Jatakas": { "ipa": "ˈdʒɑːtəkəz", "note": "JAA-tuh-kaz" },
-  "Upanishad": { "ipa": "ʊˈpʌnɪʂəd", "note": "u-PUN-i-shad" },
-  "Vedas": { "ipa": "ˈveːdəz", "note": "VAY-daz" },
-  "Veda": { "ipa": "ˈveːdə", "note": "VAY-da" },
-  "ahimsa": { "ipa": "əˈhɪnsɑː", "note": "a-HIN-saa" },
-  "anekantavada": { "ipa": "əneːkɑːntəˈvɑːdə", "note": "a-nay-kaan-ta-VAA-da" },
-  "syat": { "ipa": "sjɑːt", "note": "syaat - one syllable, sy- glides straight into aa" },
-  "dharma": { "ipa": "ˈdʌrmə", "note": "DHUR-ma, not DAR-ma (dh comes out plain d)" },
-  "karma": { "ipa": "ˈkʌrmə", "note": "KUR-ma, not KAR-ma" },
-  "moksha": { "ipa": "ˈmoːkʂə", "note": "MOHK-sha" },
-  "khichdi": { "ipa": "ˈkɪtʃɽiː", "note": "KHICH-ree; kh comes out plain k and the -di is the retroflex flap, as in Hindi" },
-  "jamun": { "ipa": "ˈdʒɑːmʊn", "note": "JAA-mun" },
-  "jamuns": { "ipa": "ˈdʒɑːmʊnz", "note": "JAA-munz" },
-  "sarson": { "ipa": "ˈsʌrsoːn", "note": "SUR-sohn (mustard)" },
-  "stupa": { "ipa": "ˈstuːpə", "note": "STOO-pa" },
-  "sangha": { "ipa": "ˈsʌŋɡə", "note": "SUNG-ga (gh comes out plain g)" },
-  "Jahanpanah": { "ipa": "dʒəhɑːnpəˈnɑːh", "note": "juh-haan-puh-NAAH ('refuge of the world', how a courtier addresses the Emperor)" },
-  "vanara": { "ipa": "ˈvɑːnərə", "note": "VAA-nu-ra" },
-  "vanaras": { "ipa": "ˈvɑːnərəz", "note": "VAA-nu-raz" },
-  "gada": { "ipa": "ɡəˈdɑː", "note": "gu-DAA (the mace)" },
-  "trishul": { "ipa": "trɪˈʃuːl", "note": "tri-SHOOL" },
-  "veena": { "ipa": "ˈviːɳɑː", "note": "VEE-naa" },
-  "modak": { "ipa": "ˈmoːdək", "note": "MOH-duk" },
-  "rangoli": { "ipa": "rəŋˈɡoːliː", "note": "rung-GO-lee" },
-  "kolam": { "ipa": "ˈkoːləm", "note": "KOH-lum (the Tamil floor drawing)" },
-  "kauri": { "ipa": "ˈkɔːɽiː", "note": "KOW-ree - read as Hindi kaudi, the cowrie shell used as a coin", "unsure": true },
-  "diya": { "ipa": "ˈdiːjɑː", "note": "DEE-yaa" },
-  "yatra": { "ipa": "ˈjɑːtrɑː", "note": "YAA-traa" },
-  "katha": { "ipa": "kəˈtɑː", "note": "ku-THAA (the badge word: a story as it is told); th comes out plain t" },
-  "itihaas": { "ipa": "ɪtɪˈhɑːs", "note": "i-ti-HAAS (the badge word: what evidence shows)" },
-  "aaj": { "ipa": "ɑːdʒ", "note": "AAJ (the badge word: how it lives today)" },
-  "subhashita": { "ipa": "sʊˈbɑːʂɪtə", "note": "su-BHAA-shi-ta (bh comes out plain b)" },
-  "puja": { "ipa": "ˈpuːdʒɑː", "note": "POO-jaa" },
-  "mela": { "ipa": "ˈmeːlɑː", "note": "MAY-laa" },
-  "bhasha": { "ipa": "ˈbɑːʂɑː", "note": "BHAA-shaa (bh comes out plain b)" },
-  "namaste": { "ipa": "nəməsˈteː", "note": "nuh-muhs-TAY" },
-  "chapati": { "ipa": "tʃəˈpɑːtiː", "note": "chuh-PAA-tee" },
-  "biryani": { "ipa": "bɪrjɑːˈniː", "note": "bir-yaa-NEE" },
-  "chaat": { "ipa": "tʃɑːʈ", "note": "CHAAT, one syllable" },
-  "akhara": { "ipa": "əˈkɑːɽɑː", "note": "a-KHAA-raa (wrestling ground); kh comes out plain k" },
-
-  "Bengaluru": { "ipa": "beŋɡəˈluːruː", "note": "beng-guh-LOO-roo" },
-  "Thiruvananthapuram": { "ipa": "tɪrʊvənəntəˈpʊrəm", "note": "ti-ru-va-nan-tha-PUR-am; the Malayalam th is unaspirated here" },
-  "Bhubaneswar": { "ipa": "bʊbəˈneːʃvər", "note": "bhu-ba-NAYSH-war (bh comes out plain b)" },
-  "Amaravati": { "ipa": "əməˈrɑːvətiː", "note": "a-ma-RAA-va-tee" },
-  "Andaman": { "ipa": "ˈʌndəmən", "note": "UN-duh-mun" },
-  "Nicobar": { "ipa": "ˈnɪkoːbɑːr", "note": "NIK-oh-baar" },
-  "Andhra": { "ipa": "ˈɑːndrə", "note": "AAN-dhra (dh comes out plain d)" },
-  "Pradesh": { "ipa": "prəˈdeːʃ", "note": "pra-DAYSH" },
-  "Arunachal": { "ipa": "ərʊˈnɑːtʃəl", "note": "a-ru-NAA-chal" },
-  "Itanagar": { "ipa": "iːtɑːˈnʌɡər", "note": "ee-taa-NUG-ar" },
-  "Assam": { "ipa": "əˈsɑːm", "note": "uh-SAAM" },
-  "Dispur": { "ipa": "ˈdɪspuːr", "note": "DIS-poor" },
-  "Bihar": { "ipa": "bɪˈhɑːr", "note": "bi-HAAR" },
-  "Patna": { "ipa": "ˈpʌʈnɑː", "note": "PUT-naa" },
-  "Chandigarh": { "ipa": "ˈtʃʌɳɖiːɡəɽ", "note": "CHUN-dee-garh" },
-  "Chhattisgarh": { "ipa": "tʃəˈtiːsɡəɽ", "note": "chhat-TEES-garh (chh comes out plain ch)" },
-  "Raipur": { "ipa": "ˈraɪpuːr", "note": "RYE-poor" },
-  "Daman": { "ipa": "dəˈmɑːn", "note": "duh-MAAN" },
-  "Diu": { "ipa": "ˈdiːuː", "note": "DEE-oo" },
-  "Dadra": { "ipa": "ˈdɑːdrɑː", "note": "DAAD-raa" },
-  "Nagar Haveli": { "ipa": "ˈnʌɡər həˈveːliː", "note": "NUG-ar ha-VAY-lee" },
-  "Silvassa": { "ipa": "sɪlˈvɑːsɑː", "note": "sil-VAA-saa" },
-  "Delhi": { "ipa": "ˈdɪliː", "note": "DIL-lee, not DEL-ee" },
-  "Goa": { "ipa": "ˈɡoːɑː", "note": "GO-aa" },
-  "Panaji": { "ipa": "pəˈnɑːdʒiː", "note": "puh-NAA-jee; Konkani speakers say Ponnji, which is further from the spelling", "unsure": true },
-  "Gujarat": { "ipa": "ɡʊdʒəˈrɑːt", "note": "gu-ja-RAAT" },
-  "Gandhinagar": { "ipa": "ɡɑːndiːˈnʌɡər", "note": "gaan-dhee-NUG-ar" },
-  "Himachal": { "ipa": "hɪˈmɑːtʃəl", "note": "hi-MAA-chal" },
-  "Shimla": { "ipa": "ˈʃɪmlɑː", "note": "SHIM-laa" },
-  "Haryana": { "ipa": "hərɪˈjɑːɳɑː", "note": "ha-ri-YAA-naa" },
-  "Kurukshetra": { "ipa": "kʊrʊˈkʂeːtrə", "note": "ku-ru-KSHAY-tra" },
-  "Jharkhand": { "ipa": "ˈdʒɑːrkəɳɖ", "note": "JHAAR-khand (jh and kh come out plain j and k)" },
-  "Ranchi": { "ipa": "ˈrɑːntʃiː", "note": "RAAN-chee" },
-  "Jammu": { "ipa": "ˈdʒʌmuː", "note": "JUM-moo" },
-  "Kashmir": { "ipa": "kəʃˈmiːr", "note": "kash-MEER" },
-  "Srinagar": { "ipa": "sriːˈnʌɡər", "note": "sree-NUG-ar" },
-  "Karnataka": { "ipa": "kərˈɳɑːtəkə", "note": "kar-NAA-ta-ka" },
-  "Hampi": { "ipa": "ˈhʌmpiː", "note": "HUM-pee" },
-  "Kerala": { "ipa": "ˈkeːrələ", "note": "KAY-ra-la, not ke-RAH-la" },
-  "Lakshadweep": { "ipa": "ləkʂəˈdviːp", "note": "luk-sha-DWEEP" },
-  "Kavaratti": { "ipa": "kəvəˈrʌʈiː", "note": "ka-va-RUT-tee" },
-  "Maharashtra": { "ipa": "məhɑːˈrɑːʂʈrə", "note": "muh-haa-RAASH-tra" },
-  "Mumbai": { "ipa": "mʊmˈbaɪ", "note": "mum-BYE" },
-  "Ajanta": { "ipa": "əˈdʒʌɳʈɑː", "note": "a-JUN-taa" },
-  "Ellora": { "ipa": "eːˈloːrɑː", "note": "ay-LOH-raa" },
-  "Meghalaya": { "ipa": "meːɡəˈlʌjɑː", "note": "may-gha-LUY-aa (gh comes out plain g)" },
-  "Shillong": { "ipa": "ʃɪˈlɔːŋ", "note": "shi-LONG" },
-  "Manipur": { "ipa": "məɳɪˈpuːr", "note": "ma-ni-POOR" },
-  "Imphal": { "ipa": "ˈɪmfɑːl", "note": "IM-faal" },
-  "Loktak": { "ipa": "ˈloːktək", "note": "LOHK-tak" },
-  "Madhya": { "ipa": "ˈmʌdjə", "note": "MUDH-ya (dh comes out plain d)" },
-  "Bhopal": { "ipa": "boːˈpɑːl", "note": "bho-PAAL (bh comes out plain b)" },
-  "Sanchi": { "ipa": "ˈsɑːntʃiː", "note": "SAAN-chee" },
-  "Khajuraho": { "ipa": "kədʒʊˈrɑːhoː", "note": "kha-ju-RAA-ho (kh comes out plain k)" },
-  "Mizoram": { "ipa": "mɪˈzoːrəm", "note": "mi-ZOH-ram" },
-  "Aizawl": { "ipa": "aɪˈzɔːl", "note": "eye-ZAWL", "unsure": true },
-  "Nagaland": { "ipa": "ˈnɑːɡɑːlænd", "note": "NAA-gaa-land" },
-  "Kohima": { "ipa": "koːˈhiːmɑː", "note": "ko-HEE-maa", "unsure": true },
-  "Odisha": { "ipa": "oːˈɖiːʃɑː", "note": "o-DEE-shaa" },
-  "Konark": { "ipa": "ˈkoːnɑːrk", "note": "KOH-naark" },
-  "Pattachitra": { "ipa": "pəʈəˈtʃɪtrə", "note": "pat-ta-CHI-tra" },
-  "Punjab": { "ipa": "pʊnˈdʒɑːb", "note": "pun-JAAB, not pun-JAB" },
-  "Punjabi": { "ipa": "pʊnˈdʒɑːbiː", "note": "pun-JAA-bee" },
-  "Amritsar": { "ipa": "əmˈrɪtsər", "note": "um-RIT-sar" },
-  "Puducherry": { "ipa": "pʊdʊˈtʃeriː", "note": "pu-du-CHE-rry" },
-  "Rajasthan": { "ipa": "rɑːdʒəˈstɑːn", "note": "raa-ja-STHAAN (th comes out plain t)" },
-  "Jaipur": { "ipa": "ˈdʒaɪpuːr", "note": "JYE-poor" },
-  "Aravalli": { "ipa": "ərɑːˈvʌliː", "note": "a-raa-VUL-lee" },
-  "Ranakpur": { "ipa": "ˈrɑːɳəkpuːr", "note": "RAA-nuk-poor" },
-  "Sikkim": { "ipa": "ˈsɪkɪm", "note": "SIK-kim" },
-  "Gangtok": { "ipa": "ˈɡɑːŋtɔːk", "note": "GAANG-tok" },
-  "Kanchenjunga": { "ipa": "kɑːntʃənˈdʒʊŋɡɑː", "note": "kaan-chen-JUNG-gaa" },
-  "Tamil": { "ipa": "ˈtʌmɪl", "note": "TUM-il, not TAM-ill" },
-  "Nadu": { "ipa": "ˈnɑːɖuː", "note": "NAA-doo" },
-  "Chennai": { "ipa": "ˈtʃenaɪ", "note": "CHEN-nye" },
-  "Chola": { "ipa": "ˈtʃoːlə", "note": "CHOH-la" },
-  "Meenakshi": { "ipa": "miːˈnɑːkʂiː", "note": "mee-NAAK-shee" },
-  "Tirupati": { "ipa": "tɪrʊˈpʌtiː", "note": "ti-ru-PUT-ee" },
-  "Tripura": { "ipa": "ˈtrɪpʊrɑː", "note": "TRI-pu-raa" },
-  "Agartala": { "ipa": "əɡərˈtʌlɑː", "note": "a-gar-TUL-aa" },
-  "Ujjayanta": { "ipa": "ʊdʒəˈjʌntɑː", "note": "uj-ja-YUN-taa", "unsure": true },
-  "Uttarakhand": { "ipa": "ʊtəˈrɑːkəɳɖ", "note": "u-ta-RAA-khand (kh comes out plain k)" },
-  "Dehradun": { "ipa": "deːrɑːˈduːn", "note": "day-raa-DOON" },
-  "Uttar": { "ipa": "ˈʊtər", "note": "UT-tar" },
-  "Lucknow": { "ipa": "lʊkˈnaʊ", "note": "luck-NOW" },
-  "Varanasi": { "ipa": "vɑːˈrɑːɳəsiː", "note": "vaa-RAA-na-see" },
-  "Bengal": { "ipa": "beŋˈɡɔːl", "note": "beng-GAWL" },
-  "Kolkata": { "ipa": "koːlˈkɑːtɑː", "note": "kol-KAA-taa" },
-  "Sundarbans": { "ipa": "ˈsʊndərbənz", "note": "SUN-dar-bans" },
-  "Telangana": { "ipa": "teːləŋˈɡɑːɳɑː", "note": "tay-la-NGAA-naa" },
-  "Hyderabad": { "ipa": "ˈhaɪdərəbɑːd", "note": "HY-der-a-baad" },
-  "Charminar": { "ipa": "tʃɑːrmɪˈnɑːr", "note": "chaar-mi-NAAR" },
-  "Golconda": { "ipa": "ɡoːlˈkʊɳɖɑː", "note": "gol-KUN-daa" },
-  "Ladakh": { "ipa": "ləˈdɑːk", "note": "la-DAAKH (kh comes out plain k)" },
-  "Leh": { "ipa": "leː", "note": "LAY" },
-  "Ganga": { "ipa": "ˈɡʌŋɡɑː", "note": "GUNG-gaa" },
-  "Gangotri": { "ipa": "ɡəŋˈɡoːtriː", "note": "gang-GO-tree" },
-  "Yamuna": { "ipa": "jəˈmʊnɑː", "note": "ya-MU-naa" },
-  "Yamunotri": { "ipa": "jəmʊˈnoːtriː", "note": "ya-mu-NO-tree" },
-  "Brahmaputra": { "ipa": "brəməˈpʊtrə", "note": "brah-ma-PUT-ra" },
-  "Godavari": { "ipa": "ɡoːˈdɑːvəriː", "note": "go-DAA-va-ree" },
-  "Trimbakeshwar": { "ipa": "trɪmbəˈkeːʃvər", "note": "trim-ba-KAYSH-war" },
-  "Kaveri": { "ipa": "kɑːˈveːriː", "note": "kaa-VAY-ree" },
-  "Talakaveri": { "ipa": "tɑːləkɑːˈveːriː", "note": "taa-la-kaa-VAY-ree" },
-  "Narmada": { "ipa": "ˈnʌrmədɑː", "note": "NUR-ma-daa" },
-  "Amarkantak": { "ipa": "əmərˈkʌɳʈək", "note": "a-mar-KUN-tak" },
-  "Prayagraj": { "ipa": "prəjɑːɡˈrɑːdʒ", "note": "pra-yaag-RAAJ" },
-  "Harappan": { "ipa": "həˈrʌpən", "note": "ha-RUP-pan" },
-  "Dakshina": { "ipa": "ˈdʌkʂɪɳɑː", "note": "DUK-shi-naa" },
-  "Kaziranga": { "ipa": "kɑːzɪˈrʌŋɡɑː", "note": "kaa-zi-RUNG-gaa" },
-  "Dharamshala": { "ipa": "dərəmˈʃɑːlɑː", "note": "dha-ram-SHAA-laa (dh comes out plain d)" },
-  "Himalaya": { "ipa": "hɪˈmɑːləjə", "note": "hi-MAA-la-ya, not hi-ma-LAY-a" },
-  "Taj Mahal": { "ipa": "tɑːdʒ məˈhʌl", "note": "taaj muh-HULL, not tahj muh-HAAL" },
-  "Shah Jahan": { "ipa": "ʃɑː dʒəˈhɑːn", "note": "shaah ja-HAAN" },
-  "Mumtaz": { "ipa": "mʊmˈtɑːz", "note": "mum-TAAZ" },
-  "Qutub": { "ipa": "ˈkʊtʊb", "note": "KUT-ub; the Arabic q is a plain k here" },
-  "Minar": { "ipa": "mɪˈnɑːr", "note": "mi-NAAR" },
-  "Vijayanagara": { "ipa": "vɪdʒəjəˈnʌɡərə", "note": "vi-ja-ya-NUG-a-ra" },
-  "Harmandir": { "ipa": "hərˈmʌndɪr", "note": "har-MUN-dir" },
-  "Sahib": { "ipa": "ˈsɑːhɪb", "note": "SAA-hib" },
-  "Warli": { "ipa": "ˈvɑːrliː", "note": "WAAR-lee" },
-  "Madhubani": { "ipa": "mədʊˈbʌniː", "note": "ma-dhu-BUN-ee (dh comes out plain d)" },
-  "Gir": { "ipa": "ɡɪr", "note": "GIR, short i - the forest in Gujarat" },
-  "Bodh Gaya": { "ipa": "boːd ɡəˈjɑː", "note": "bohdh ga-YAA (dh comes out plain d)" },
-
-  "Pulihora": { "ipa": "pʊlɪˈhoːrɑː", "note": "pu-li-HO-raa", "unsure": true },
-  "Thukpa": { "ipa": "ˈtʊkpɑː", "note": "THUK-paa (th comes out plain t)" },
-  "Litti": { "ipa": "ˈlɪʈiː", "note": "LIT-tee" },
-  "chokha": { "ipa": "ˈtʃoːkɑː", "note": "CHOH-khaa (kh comes out plain k)" },
-  "Chole": { "ipa": "ˈtʃoːleː", "note": "CHOH-lay" },
-  "bhature": { "ipa": "bəˈtuːreː", "note": "bha-TOO-ray (bh comes out plain b)" },
-  "Chila": { "ipa": "ˈtʃiːlɑː", "note": "CHEE-laa", "unsure": true },
-  "Ubadiyu": { "ipa": "ʊˈbɑːɖɪjuː", "note": "u-BAA-di-yoo", "unsure": true },
-  "Dhokla": { "ipa": "ˈdoːklɑː", "note": "DHOHK-laa (dh comes out plain d)" },
-  "Siddu": { "ipa": "ˈsɪɖʊ", "note": "SID-du", "unsure": true },
-  "Bajra": { "ipa": "ˈbɑːdʒrɑː", "note": "BAAJ-raa" },
-  "Dhuska": { "ipa": "ˈdʊskɑː", "note": "DHUS-kaa (dh comes out plain d)", "unsure": true },
-  "Rogan": { "ipa": "ˈroːɡən", "note": "ROH-gan" },
-  "josh": { "ipa": "dʒoːʃ", "note": "JOHSH - only in 'rogan josh'; the plain English word josh is spelled the same, so this entry is deliberately about the dish" },
-  "Bisi bele bath": { "ipa": "ˈbɪsiː ˈbeːleː bɑːt", "note": "BI-si BAY-lay baath", "unsure": true },
-  "Sadya": { "ipa": "ˈsʌdjə", "note": "SAAD-ya" },
-  "Puran poli": { "ipa": "ˈpuːrəɳ ˈpoːliː", "note": "POO-ran POH-lee" },
-  "Jadoh": { "ipa": "ˈdʒɑːdoː", "note": "JAA-doh - Khasi dish; the Khasi vowels are only approximated here", "unsure": true },
-  "Eromba": { "ipa": "eːˈroːmbɑː", "note": "ay-ROHM-baa - Meitei dish; approximate", "unsure": true },
-  "Poha": { "ipa": "ˈpoːhɑː", "note": "POH-haa" },
-  "Dalma": { "ipa": "ˈdɑːlmɑː", "note": "DAAL-maa", "unsure": true },
-  "Dosa": { "ipa": "ˈdoːsɑː", "note": "DOH-saa" },
-  "Idli": { "ipa": "ˈɪɖliː", "note": "ID-lee" },
-  "sambar": { "ipa": "ˈsɑːmbɑːr", "note": "SAAM-baar" },
-  "baati": { "ipa": "ˈbɑːʈiː", "note": "BAA-tee" },
-  "churma": { "ipa": "ˈtʃuːrmɑː", "note": "CHOOR-maa" },
-  "Momos": { "ipa": "ˈmoːmoːz", "note": "MOH-mohz" },
-  "Macher jhol": { "ipa": "ˈmɑːtʃer dʒoːl", "note": "MAA-cher johl (jh comes out plain j)", "unsure": true },
-  "Mui borok": { "ipa": "ˈmuːiː ˈboːroːk", "note": "MOO-ee BOH-rok - Kokborok; approximate", "unsure": true },
-  "Kafuli": { "ipa": "kəˈfuːliː", "note": "ka-FOO-lee", "unsure": true },
-  "Tunday": { "ipa": "ˈtʊndeː", "note": "TUN-day", "unsure": true },
-  "peda": { "ipa": "ˈpeːɽɑː", "note": "PAY-raa, with the retroflex flap" },
-  "Masor tenga": { "ipa": "ˈmɑːsoːr ˈteːŋɡɑː", "note": "MAA-sor TAYNG-gaa - Assamese; approximate", "unsure": true },
-  "Bai": { "ipa": "ˈbɑːiː", "note": "BAA-ee - Mizo dish; approximate", "unsure": true },
-
-  "Kiranmala": { "ipa": "kɪrənˈmɑːlɑː", "note": "ki-run-MAA-laa" },
-  "Arun": { "ipa": "əˈrʊɳ", "note": "a-RUN" },
-  "Barun": { "ipa": "bəˈrʊɳ", "note": "ba-RUN" },
-  "thakuma": { "ipa": "ˈʈɑːkʊmɑː", "note": "THAA-ku-maa - Bengali for father's mother" },
-  "dida": { "ipa": "ˈdiːdɑː", "note": "DEE-daa - Bengali for mother's mother" },
-  "Gopal": { "ipa": "ɡoːˈpɑːl", "note": "go-PAAL" },
-  "Bhar": { "ipa": "bɑːɽ", "note": "BHAARH - Bengali bhand, a jester; the retroflex flap ending is approximate", "unsure": true },
-  "Krishnachandra": { "ipa": "krɪʂɳəˈtʃʌndrə", "note": "krish-na-CHUN-dra" },
-  "Tenali": { "ipa": "təˈnɑːliː", "note": "tuh-NAA-lee" },
-  "Raman": { "ipa": "ˈrɑːmən", "note": "RAA-mun (Tenali Raman); not the physicist's RAH-mun" },
-  "Krishnadevaraya": { "ipa": "krɪʂɳədeːvəˈrɑːjə", "note": "krish-na-day-va-RAA-ya" },
-  "Sambhaji": { "ipa": "səmˈbɑːdʒiː", "note": "sum-BHAA-jee (bh comes out plain b)" },
-  "Pabuji": { "ipa": "pɑːˈbuːdʒiː", "note": "paa-BOO-jee" },
-  "Deval": { "ipa": "deːˈvʌl", "note": "day-VUL", "unsure": true },
-  "bhopa": { "ipa": "ˈboːpɑː", "note": "BHOH-paa - the singer of the Pabuji phad (bh comes out plain b)", "unsure": true },
-  "phad": { "ipa": "pʌɖ", "note": "PHUD - the painted scroll (ph comes out plain p)", "unsure": true },
-  "Kolu": { "ipa": "ˈkoːluː", "note": "KOH-loo", "unsure": true },
-  "Kesar Kalmi": { "ipa": "ˈkeːsər ˈkʌlmiː", "note": "KAY-sar KUL-mee - Pabuji's mare", "unsure": true },
-  "Jagannath": { "ipa": "dʒəɡəˈnɑːt", "note": "ju-guh-NAATH (th comes out plain t)" },
-  "Balabhadra": { "ipa": "bələˈbʌdrə", "note": "ba-la-BHUD-ra (bh comes out plain b)" },
-  "Subhadra": { "ipa": "sʊˈbʌdrɑː", "note": "su-BHUD-raa (bh comes out plain b)" },
-  "Indradyumna": { "ipa": "ɪndrəˈdjʊmnə", "note": "in-dra-DYUM-na", "unsure": true },
-  "Gundicha": { "ipa": "ˈɡʊɳɖɪtʃɑː", "note": "GUN-di-chaa", "unsure": true },
-  "Puri": { "ipa": "ˈpʊriː", "note": "PU-ree, short u - the town in Odisha" },
-  "Mahabali": { "ipa": "məhɑːˈbʌliː", "note": "muh-haa-BUL-ee" },
-  "Maveli": { "ipa": "mɑːˈveːliː", "note": "maa-VAY-lee" },
-  "Onam": { "ipa": "ˈoːɳəm", "note": "OH-num" },
-  "pookalam": { "ipa": "ˈpuːkələm", "note": "POO-ka-lum - the Onam flower carpet", "unsure": true },
-  "Malayali": { "ipa": "mələˈjɑːliː", "note": "ma-la-YAA-lee" },
-  "Chakli ane Kagdo": { "ipa": "ˈtʃʌkliː əˈneː ˈkɑːɡdoː", "note": "CHUK-lee a-NAY KAAG-doh - Gujarati for 'the sparrow and the crow'", "unsure": true },
-  "Chhan": { "ipa": "tʃɑːn", "note": "CHHAAN - the sound of coins (chh comes out plain ch)" },
-  "Sacha Sauda": { "ipa": "ˈsʌtʃɑː ˈsɔːdɑː", "note": "SUCH-aa SOW-daa - the true bargain" },
-  "khara": { "ipa": "ˈkʌrɑː", "note": "KHUR-aa - genuine (kh comes out plain k)" },
-  "sauda": { "ipa": "ˈsɔːdɑː", "note": "SOW-daa - a bargain" },
-  "Amar Das": { "ipa": "ˈʌmər dɑːs", "note": "UM-ur DAAS" },
-  "Goindval": { "ipa": "ˈɡoːɪndvɑːl", "note": "GO-ind-vaal", "unsure": true },
-  "Kalu": { "ipa": "ˈkɑːluː", "note": "KAA-loo" },
-  "Mehta": { "ipa": "ˈmeːtɑː", "note": "MAY-taa" },
-  "Khanda": { "ipa": "ˈkʌɳɖɑː", "note": "KHUN-daa (kh comes out plain k)" },
-  "langar": { "ipa": "ˈlʌŋɡər", "note": "LUNG-gar - the free kitchen" },
-  "gurdwara": { "ipa": "ɡʊrˈdvɑːrɑː", "note": "gur-DWAA-raa" },
-  "sevadar": { "ipa": "seːvɑːˈdɑːr", "note": "say-vaa-DAAR", "unsure": true },
-  "sevadars": { "ipa": "seːvɑːˈdɑːrz", "note": "say-vaa-DAARS", "unsure": true },
-  "Sikh": { "ipa": "sɪk", "note": "SIK, short i - not 'seek'" },
-  "Sikhs": { "ipa": "sɪks", "note": "SIKS, short i" },
-  "Beas": { "ipa": "ˈbiːɑːs", "note": "BEE-aas - the Punjab river", "unsure": true },
-  "Agra": { "ipa": "ˈɑːɡrɑː", "note": "AAG-raa" },
-  "Deccan": { "ipa": "ˈdekən", "note": "DEK-un" },
-  "Thar": { "ipa": "tɑːr", "note": "THAAR (th comes out plain t)" },
-  "Saurashtra": { "ipa": "sɔːˈrɑːʂʈrə", "note": "sow-RAASH-tra" },
-  "Khasi": { "ipa": "ˈkɑːsiː", "note": "KHAA-see (kh comes out plain k)" },
-  "Sngi": { "ipa": "ˈsʊŋiː", "note": "SUNG-ee - Khasi Ka Sngi, the sun; English cannot begin a word with the Khasi sng- cluster, so this is an approximation", "unsure": true },
-  "Naga": { "ipa": "ˈnɑːɡɑː", "note": "NAA-gaa" },
-  "Bengali": { "ipa": "beŋˈɡɔːliː", "note": "beng-GAW-lee" },
-  "Raja": { "ipa": "ˈrɑːdʒɑː", "note": "RAA-jaa" },
-  "Maharaj": { "ipa": "məhɑːˈrɑːdʒ", "note": "muh-haa-RAAJ" },
-  "jalebi": { "ipa": "dʒəˈleːbiː", "note": "ju-LAY-bee" },
-  "roti": { "ipa": "ˈroːʈiː", "note": "ROH-tee" },
-  "ghee": { "ipa": "ɡiː", "note": "GHEE (gh comes out plain g)" },
-  "neem": { "ipa": "niːm", "note": "NEEM" },
-  "brahmin": { "ipa": "ˈbrɑːmɪn", "note": "BRAAH-min" },
-  "dal": { "ipa": "dɑːl", "note": "DAAL, the lentils - not the English 'dal'" },
-  "pedas": { "ipa": "ˈpeːɽɑːz", "note": "PAY-raaz" },
-
-  "Chandkaushik": { "ipa": "tʃəɳɖəˈkɔːʃɪk", "note": "chun-da-KOW-shik" },
-  "Gonu Jha": { "ipa": "ˈɡoːnuː dʒɑː", "note": "GO-noo JHAA (jh comes out plain j)" },
-  "Mithila": { "ipa": "ˈmɪtɪlɑː", "note": "MITH-i-laa" },
-  "Punyakoti": { "ipa": "pʊɳjəˈkoːʈiː", "note": "pun-ya-KOH-tee" },
-  "Ramakrishna": { "ipa": "rɑːməˈkrɪʂɳə", "note": "raa-ma-KRISH-na" },
-  "Shravanabelagola": { "ipa": "ʃrəvəɳəbeːləˈɡoːlə", "note": "shra-va-na-bay-la-GO-la" },
-  "Dharani mandala madhyadolage": { "ipa": "dərəˈɳiː ˈmʌɳɖələ mədjəˈdoːləɡeː", "note": "dha-ra-NEE MUN-da-la ma-dhya-DOH-la-gay - the opening of the Kannada song of Punyakoti; a Kannada speaker should check this one", "unsure": true },
-  "Chakli": { "ipa": "ˈtʃʌkliː", "note": "CHUK-lee - Gujarati for the sparrow", "unsure": true },
-  "Kagdo": { "ipa": "ˈkɑːɡdoː", "note": "KAAG-doh - Gujarati for the crow", "unsure": true },
-  "Kesar": { "ipa": "ˈkeːsər", "note": "KAY-sar", "unsure": true },
-  "Kalmi": { "ipa": "ˈkʌlmiː", "note": "KUL-mee", "unsure": true },
-  "Vishnu": {"ipa": "ˈvɪʂɳʊ", "note": "VISH-nu"},
-  "Indra": {"ipa": "ˈɪndrə", "note": "IN-dra"},
-  "Yama": {"ipa": "ˈjʌmə", "note": "YUM-a"},
-  "Kurma": {"ipa": "ˈkuːrmə", "note": "KOOR-ma - Vishnu as the tortoise"},
-  "Purana": {"ipa": "pʊˈrɑːɳə", "note": "pu-RAA-na"},
-  "Puranas": {"ipa": "pʊˈrɑːɳəz", "note": "pu-RAA-nas"},
-  "deva": {"ipa": "ˈdeːvə", "note": "DAY-va"},
-  "devas": {"ipa": "ˈdeːvəz", "note": "DAY-vas"},
-  "asura": {"ipa": "ˈʌsʊrə", "note": "US-u-ra"},
-  "asuras": {"ipa": "ˈʌsʊrəz", "note": "US-u-ras"},
-  "amrita": {"ipa": "ˈʌmrɪtə", "note": "UM-ri-ta, the nectar; the t is unaspirated anyway"},
-  "halahala": {"ipa": "hɑːləˈhɑːlə", "note": "haa-la-HAA-la - the poison from the churning"},
-  "Vasuki": {"ipa": "ˈvɑːsʊkiː", "note": "VAA-su-kee"},
-  "Nilakantha": {"ipa": "niːləˈkʌɳʈə", "note": "nee-la-KUN-tha, the blue-throated one (th comes out plain t)"},
-  "Samudra Manthan": {"ipa": "səˈmʊdrə ˈmʌntən", "note": "sa-MU-dra MUN-than - the churning of the ocean (th plain t)"},
-  "Mahishasura": {"ipa": "məhɪˈʂɑːsʊrə", "note": "ma-hi-SHAA-su-ra"},
-  "Narasimha": {"ipa": "nərəˈsɪmhə", "note": "na-ra-SIM-ha"},
-  "Prahlad": {"ipa": "prəˈlɑːd", "note": "pruh-LAAD; the fuller form Prahlada is listed separately"},
-  "Hiranyakashipu": {"ipa": "hɪrəɳjəˈkʌʃɪpʊ", "note": "hi-run-ya-KUSH-i-pu"},
-  "Ahobilam": {"ipa": "əhoːˈbɪləm", "note": "a-hoh-BI-lam"},
-  "Dhruva": {"ipa": "ˈdrʊvə", "note": "DHRU-va (dh comes out plain d)"},
-  "Dhruva Tara": {"ipa": "ˈdrʊvə ˈtɑːrɑː", "note": "DHRU-va TAA-raa - the Pole Star"},
-  "Suniti": {"ipa": "sʊˈniːtiː", "note": "su-NEE-tee"},
-  "Uttanapada": {"ipa": "ʊtɑːnəˈpɑːdə", "note": "ut-taa-na-PAA-da"},
-  "Markandeya": {"ipa": "mɑːrˈkʌɳɖeːjə", "note": "maar-KUN-day-ya"},
-  "Mrikandu": {"ipa": "mrɪˈkʌɳɖʊ", "note": "mri-KUN-du - Markandeya's father"},
-  "chiranjivi": {"ipa": "tʃɪrənˈdʒiːviː", "note": "chi-run-JEE-vee - the long-living ones"},
-  "Kaliya": {"ipa": "ˈkɑːlɪjə", "note": "KAA-li-ya"},
-  "Vrindavan": {"ipa": "ˈvrɪndɑːvən", "note": "VRIN-daa-van"},
-  "kadamba": {"ipa": "kəˈdʌmbə", "note": "ka-DUM-ba - the tree Krishna climbs"},
-  "Govardhan": {"ipa": "ɡoːˈvʌrdən", "note": "go-VUR-dhan (dh comes out plain d)"},
-  "Bhagiratha": {"ipa": "bəɡiːˈrʌtə", "note": "buh-gee-RUH-tha (bh plain b, th plain t)"},
-  "Bhagirathi": {"ipa": "bəɡiːˈrʌtiː", "note": "buh-gee-RUH-thee - the Ganga named after him"},
-  "bhagirath prayatna": {"ipa": "bəɡiːrət prəˈjʌtnə", "note": "buh-gee-rath pruh-YUT-na - an enormous patient effort"},
-  "prayatna": {"ipa": "prəˈjʌtnə", "note": "pruh-YUT-na - effort"},
-  "Parashurama": {"ipa": "pərəʃʊˈrɑːmə", "note": "pa-ra-shu-RAA-ma"},
-  "Parashuram": {"ipa": "pərəʃʊˈrɑːm", "note": "pa-ra-shu-RAAM"},
-  "Ghatotkacha": {"ipa": "ɡəˈʈoːtkətʃə", "note": "gha-TOAT-ka-cha (gh comes out plain g)"},
-  "Kunti": {"ipa": "ˈkʊntiː", "note": "KUN-tee"},
-  "Pandavas": {"ipa": "ˈpɑːɳɖəvəz", "note": "PAAN-da-vas"},
-  "Hidimba": {"ipa": "hɪˈɖɪmbɑː", "note": "hi-DIM-baa - the Mahabharata spelling"},
-  "Hadimba": {"ipa": "həˈɖɪmbɑː", "note": "ha-DIM-baa - the Kullu valley spelling of the same name"},
-  "Hadimba Devi": {"ipa": "həˈɖɪmbɑː ˈdeːviː", "note": "ha-DIM-baa DAY-vee"},
-  "Devi": {"ipa": "ˈdeːviː", "note": "DAY-vee"},
-  "Chamundeshwari": {"ipa": "tʃɑːmʊɳˈɖeːʃvəriː", "note": "chaa-mun-DAY-shwa-ree"},
-  "Mysuru": {"ipa": "ˈmaɪsʊrʊ", "note": "MY-su-ru"},
-  "Diwali": {"ipa": "dɪˈvɑːliː", "note": "di-VAA-lee, not dee-WAH-lee"},
-  "Dussehra": {"ipa": "dʊˈseːrɑː", "note": "du-SAY-raa"},
-  "Kullu Dussehra": {"ipa": "ˈkʊluː dʊˈseːrɑː", "note": "KOO-loo du-SAY-raa"},
-  "Guttila": {"ipa": "ɡʊˈtɪlə", "note": "gut-TI-la - the veena master"},
-  "Musila": {"ipa": "mʊˈsiːlə", "note": "mu-SEE-la - his student"},
-  "Benares": {"ipa": "bəˈnɑːrəs", "note": "buh-NAA-rus, not buh-NAIR-eez"},
-  "Nandivisala": {"ipa": "nəndɪvɪˈsɑːlə", "note": "nun-di-vi-SAA-la - the great ox"},
-  "Rukkhadhamma": {"ipa": "rʊkəˈdʌmə", "note": "ruk-ka-DHUM-ma, 'the law of the tree' (dh comes out plain d)"},
-  "Lambakarna": {"ipa": "ləmbəˈkʌrɳə", "note": "lum-ba-KUR-na - 'long-ears', the rabbit"},
-  "Chaturdanta": {"ipa": "tʃətʊrˈdʌntə", "note": "cha-tur-DUN-ta - the elephant king"},
-  "Gomaya": {"ipa": "ˈɡoːməjə", "note": "GO-ma-ya - the jackal and the war drum"},
-  "Mantharaka": {"ipa": "mənˈtʌrəkə", "note": "mun-THUR-a-ka - the tortoise (th comes out plain t)"},
-  "Bharunda": {"ipa": "bəˈrʊɳɖə", "note": "bha-RUN-da - the two-headed bird (bh comes out plain b)"},
-  "Uddhata": {"ipa": "ˈʊdətə", "note": "UD-dha-ta - the singing donkey (dh comes out plain d)"},
-  "Chandra-sarovar": {"ipa": "tʃəndrə səˈroːvər", "note": "chun-dra sa-ROH-var - Moon Lake"},
-  "Karaikal": {"ipa": "kɑːraɪˈkɑːl", "note": "kaa-rye-KAAL"},
-  "Karaikal Ammaiyar": {"ipa": "kɑːraɪˈkɑːl əˈmaɪjɑːr", "note": "kaa-rye-KAAL a-MY-yaar"},
-  "Ammaiyar": {"ipa": "əˈmaɪjɑːr", "note": "a-MY-yaar - 'the mother'"},
-  "Punitavati": {"ipa": "pʊnɪtəˈvʌtiː", "note": "pu-ni-ta-VUT-ee"},
-  "Paramadattan": {"ipa": "pərəməˈdʌtən", "note": "pa-ra-ma-DUT-tan"},
-  "Nayanmars": {"ipa": "nɑːjənˈmɑːrz", "note": "naa-yan-MAARS - the Tamil Shaiva saints"},
-  "Nayanmar": {"ipa": "nɑːjənˈmɑːr", "note": "naa-yan-MAAR"},
-  "Shaiva": {"ipa": "ˈʃaɪvə", "note": "SHY-va"},
-  "Tirukkadaiyur": {"ipa": "tɪrʊkədaɪˈjuːr", "note": "ti-ru-ka-dye-YOOR"},
-  "Sahyadri": {"ipa": "sɑːˈhjɑːdriː", "note": "saah-YAA-dree - the Western Ghats"},
-  "Ghats": {"ipa": "ɡɑːʈs", "note": "GHAATS, not 'gats'"},
-  "Konkan": {"ipa": "ˈkoːŋkəɳ", "note": "KOHN-kun"},
-  "Konkani": {"ipa": "koːŋˈkʌɳiː", "note": "kohn-KUN-ee"},
-  "Manali": {"ipa": "məˈnɑːliː", "note": "ma-NAA-lee"},
-  "Kullu": {"ipa": "ˈkʊluː", "note": "KOO-loo"},
-  "Bhekuli Biya": {"ipa": "beːkʊliː ˈbɪjɑː", "note": "bay-ku-lee BI-yaa - Assamese, the frog wedding (bh comes out plain b)"},
-  "bhekuli": {"ipa": "beːˈkʊliː", "note": "bay-KU-lee - Assamese for frog"},
-  "Junaki": {"ipa": "dʒʊˈnɑːkiː", "note": "ju-NAA-kee - Assamese girl's name, 'firefly'"},
-  "namghar": {"ipa": "ˈnɑːmɡər", "note": "NAAM-ghar - the Assamese prayer house (gh comes out plain g)"},
-  "pandal": {"ipa": "ˈpʌɳɖəl", "note": "PUN-dal"},
-  "Santhal": {"ipa": "ˈsɑːntɑːl", "note": "SAAN-taal (th comes out plain t)"},
-  "Santhals": {"ipa": "ˈsɑːntɑːlz", "note": "SAAN-taals"},
-  "Thakur Jiu": {"ipa": "ˈʈɑːkʊr ˈdʒiːʊ", "note": "TAA-kur JEE-oo - Santali, the great one (th comes out plain t)"},
-  "Pilchu Haram": {"ipa": "ˈpɪltʃuː ˈhɑːrəm", "note": "PIL-choo HAA-ram - Santali, the first man"},
-  "Pilchu Budhi": {"ipa": "ˈpɪltʃuː ˈbʊdiː", "note": "PIL-choo BU-dhee - Santali, the first woman (dh comes out plain d)"},
-  "Pilchu": {"ipa": "ˈpɪltʃuː", "note": "PIL-choo"},
-  "Sohrai": {"ipa": "soːˈraɪ", "note": "soh-RYE - the Santhal harvest festival"},
-  "Pebet": {"ipa": "ˈpeːbet", "note": "PAY-bet - the Meitei tale of the small bird"},
-  "Hojagiri": {"ipa": "hoːdʒɑːˈɡiriː", "note": "hoh-jaa-GI-ree - the Reang dance of Tripura"},
-  "Reang": {"ipa": "riˈɑːŋ", "note": "ree-AANG"},
-  "Bru": {"ipa": "bruː", "note": "BROO - what the Reang call themselves"},
-  "Kwrwi": {"ipa": null, "note": "Kokborok spelling: the letter w stands for a vowel this transcriber cannot pin (kraw-ee? kuh-ROO-ee?). NEEDS A NATIVE SPEAKER - left unpinned rather than guessed.", "needs_native_speaker": true},
-  "Mailuma": {"ipa": null, "note": "Kokborok, the paddy goddess of the Reang. The first vowel and the stress are both guesses from the romanisation. NEEDS A NATIVE SPEAKER.", "needs_native_speaker": true},
-  "Lepcha": {"ipa": "ˈleːptʃɑː", "note": "LAYP-chaa"},
-  "Mutanchi": {"ipa": null, "note": "Lepcha autonym, romanised inconsistently across sources. NEEDS A NATIVE SPEAKER.", "needs_native_speaker": true},
-  "Rongkup": {"ipa": null, "note": "Lepcha autonym ('children of the peak'), romanised inconsistently across sources. NEEDS A NATIVE SPEAKER.", "needs_native_speaker": true},
-  "Biliku": {"ipa": null, "note": "Great Andamanese. The spelling comes from early-twentieth-century ethnographic transcription (also written Bilik, and confused with Puluga) and cannot be read off reliably. NEEDS A NATIVE SPEAKER.", "needs_native_speaker": true},
-  "Abo Tani": {"ipa": "ˈɑːboː ˈtɑːniː", "note": "AA-boh TAA-nee - the first man of the Tani peoples"},
-  "Abo": {"ipa": "ˈɑːboː", "note": "AA-boh - 'father' in the Tani languages"},
-  "Tani": {"ipa": "ˈtɑːniː", "note": "TAA-nee"},
-  "Adi": {"ipa": "ˈɑːdiː", "note": "AA-dee - one of the Tani peoples"},
-  "Nyishi": {"ipa": "ˈnjiːʃiː", "note": "NYEE-shee (the ny is a single sound; the engine has no palatal nasal so it is written nj)"},
-  "Apatani": {"ipa": "ɑːpəˈtɑːniː", "note": "aa-pa-TAA-nee"},
-  "Galo": {"ipa": "ˈɡɑːloː", "note": "GAA-loh"},
-  "Tagin": {"ipa": "ˈtɑːɡɪn", "note": "TAA-gin"},
-  "Solung": {"ipa": "ˈsoːlʊŋ", "note": "SOH-lung - an Adi festival"},
-  "Mopin": {"ipa": "ˈmoːpɪn", "note": "MOH-pin - a Galo festival"},
-  "Nyokum": {"ipa": "ˈnjoːkʊm", "note": "NYOH-kum - a Nyishi festival"},
-  "Dree": {"ipa": "driː", "note": "DREE - an Apatani festival"},
-  "mithun": {"ipa": "ˈmɪtʊn", "note": "MI-thun - the great half-wild cattle of the north-east (th comes out plain t)"},
-  "wiyus": {"ipa": null, "note": "Tani spirits; romanised as wiyu / uyu / ui depending on the language and the writer. NEEDS A NATIVE SPEAKER.", "needs_native_speaker": true},
-
-  "Dasharatha": {"ipa": "dəʃəˈrʌtə", "note": "da-sha-RUT-a (th comes out plain t)"},
-  "Kausalya": {"ipa": "kɔːˈsʌljɑː", "note": "kow-SUL-yaa"},
-  "Kaikeyi": {"ipa": "kɛːˈkeːjiː", "note": "kay-KAY-yee; the ai is the vowel of 'bed', held, not the 'eye' of 'kite'"},
-  "Sumitra": {"ipa": "sʊˈmɪtrɑː", "note": "su-MIT-raa"},
-  "Shatrughna": {"ipa": "ʃəˈtrʊɡnə", "note": "sha-TRUG-na (gh comes out plain g)"},
-  "Urmila": {"ipa": "ˈuːrmɪlɑː", "note": "OOR-mi-laa"},
-  "Mandavi": {"ipa": "ˈmɑːɳɖəviː", "note": "MAAN-da-vee"},
-  "Shrutakirti": {"ipa": "ʃrʊtəˈkiːrtɪ", "note": "shru-ta-KEER-ti"},
-  "Janaka": {"ipa": "ˈdʒʌnəkə", "note": "JUN-a-ka"},
-  "Janaki": {"ipa": "dʒɑːnəˈkiː", "note": "jaa-na-KEE - Sita named as Janaka's daughter"},
-  "Maithili": {"ipa": "ˈmɛːtɪliː", "note": "MAY-thi-lee (th comes out plain t) - Sita named as the woman of Mithila"},
-  "Manthara": {"ipa": "ˈmʌntərɑː", "note": "MUN-tha-raa (th comes out plain t)"},
-  "Sumantra": {"ipa": "sʊˈmʌntrə", "note": "su-MUN-tra"},
-  "Guha": {"ipa": "ˈɡʊhə", "note": "GU-ha"},
-  "Vishwamitra": {"ipa": "vɪʃvɑːˈmɪtrə", "note": "vish-vaa-MIT-ra"},
-  "Vishvamitra": {"ipa": "vɪʃvɑːˈmɪtrə", "note": "vish-vaa-MIT-ra - the other common romanisation of the same name"},
-  "Vasishtha": {"ipa": "vəˈsɪʂʈə", "note": "va-SISH-ta; both aspirates are lost"},
-  "Agastya": {"ipa": "əˈɡʌstjə", "note": "a-GUST-ya"},
-  "Rishyashringa": {"ipa": "rɪʃjəˈʃrɪŋɡə", "note": "rish-ya-SHRING-ga"},
-  "Ahalya": {"ipa": "əˈhʌljɑː", "note": "a-HUL-yaa"},
-  "Gautama": {"ipa": "ˈɡɔːtəmə", "note": "GOW-ta-ma"},
-  "Tataka": {"ipa": "ˈtɑːʈəkɑː", "note": "TAA-ta-kaa"},
-  "Shabari": {"ipa": "ˈʃʌbəriː", "note": "SHUB-a-ree"},
-  "Jatayu": {"ipa": "dʒəˈʈɑːjʊ", "note": "ja-TAA-yu"},
-  "Sampati": {"ipa": "ˈsʌmpətiː", "note": "SUM-pa-tee"},
-  "Sugriva": {"ipa": "sʊˈɡriːvə", "note": "su-GREE-va"},
-  "Vali": {"ipa": "ˈvɑːliː", "note": "VAA-lee - Sugriva's brother; Bali in many tellings"},
-  "Angada": {"ipa": "ˈʌŋɡədə", "note": "UNG-a-da"},
-  "Sushena": {"ipa": "sʊˈʂeːɳə", "note": "su-SHAY-na"},
-  "Surasa": {"ipa": "ˈsʊrəsɑː", "note": "SU-ra-saa"},
-  "Mainaka": {"ipa": "mɛːˈnɑːkə", "note": "may-NAA-ka"},
-  "Shurpanakha": {"ipa": "ʃuːrpəˈɳʌkɑː", "note": "shoor-pa-NUK-haa (kh comes out plain k)"},
-  "Maricha": {"ipa": "mɑːˈriːtʃə", "note": "maa-REE-cha"},
-  "Kumbhakarna": {"ipa": "kʊmbəˈkʌrɳə", "note": "kum-bha-KUR-na (bh comes out plain b)"},
-  "Vibhishana": {"ipa": "vɪˈbiːʂəɳə", "note": "vi-BHEE-sha-na (bh comes out plain b)"},
-  "Mandodari": {"ipa": "mənˈdoːdəriː", "note": "man-DOH-da-ree"},
-  "Indrajit": {"ipa": "ˈɪndrədʒɪt", "note": "IN-dra-jit"},
-  "Trijata": {"ipa": "trɪˈdʒʌʈɑː", "note": "tri-JUT-aa"},
-  "Matali": {"ipa": "ˈmɑːtəliː", "note": "MAA-ta-lee"},
-  "Garuda": {"ipa": "ˈɡʌrʊɖə", "note": "GUR-u-da"},
-  "Agni": {"ipa": "ˈʌɡnɪ", "note": "UG-ni"},
-  "Kali": {"ipa": "ˈkɑːliː", "note": "KAA-lee - the goddess"},
-  "Tara": {"ipa": "ˈtɑːrɑː", "note": "TAA-raa - Vali's queen; the same word as the Tara of Dhruva Tara, a star"},
-  "Kusha": {"ipa": "ˈkʊʃə", "note": "KU-sha - Rama and Sita's son"},
-  "Sarayu": {"ipa": "sərəˈjuː", "note": "sa-ra-YOO"},
-  "Chitrakuta": {"ipa": "tʃɪtrəˈkuːʈə", "note": "chi-tra-KOO-ta"},
-  "Panchavati": {"ipa": "pʌntʃəˈvʌʈiː", "note": "pun-cha-VUT-ee"},
-  "Rishyamukha": {"ipa": "rɪʃjəˈmuːkə", "note": "rish-ya-MOO-ka"},
-  "Pampa": {"ipa": "ˈpʌmpɑː", "note": "PUM-paa"},
-  "Trikuta": {"ipa": "trɪˈkuːʈə", "note": "tri-KOO-ta"},
-  "Dronagiri": {"ipa": "droːɳəˈɡɪrɪ", "note": "drow-na-GI-ri"},
-  "Nandigram": {"ipa": "ˈnʌndɪɡrɑːm", "note": "NUN-di-graam"},
-  "Setu": {"ipa": "ˈseːtʊ", "note": "SAY-tu"},
-  "Pushpaka": {"ipa": "ˈpʊʂpəkə", "note": "PUSH-pa-ka"},
-  "Kanda": {"ipa": "ˈkɑːɳɖə", "note": "KAAN-da - one book of the Ramayana"},
-  "payasam": {"ipa": "ˈpɑːjəsəm", "note": "PAA-ya-sam - the rice pudding"},
-  "rakshasa": {"ipa": "ˈrɑːkʂəsə", "note": "RAAK-sha-sa"},
-  "rakshasas": {"ipa": "ˈrɑːkʂəsəz", "note": "RAAK-sha-sas"},
-  "Ramayanas": {"ipa": "rɑːˈmɑːjəɳəz", "note": "raa-MAA-ya-nas"},
-  "Kamban": {"ipa": "ˈkʌmbən", "note": "KUM-ban - the Tamil poet of the Iramavataram"},
-
-  "Vyasa": {"ipa": "ˈvjɑːsə", "note": "VYAA-sa"},
-  "Shantanu": {"ipa": "ˈʃɑːntənʊ", "note": "SHAAN-ta-nu"},
-  "Satyavati": {"ipa": "sətjəˈvʌtiː", "note": "sat-ya-VUT-ee"},
-  "Devavrata": {"ipa": "deːvəˈvrʌtə", "note": "day-va-VRUT-a - Bhishma's first name"},
-  "Bhishma": {"ipa": "ˈbiːʂmə", "note": "BHEESH-ma (bh comes out plain b)"},
-  "Dhritarashtra": {"ipa": "drɪtəˈrɑːʂʈrə", "note": "dhri-ta-RAASH-tra (dh comes out plain d)"},
-  "Pandu": {"ipa": "ˈpɑːɳɖʊ", "note": "PAAN-du"},
-  "Vidura": {"ipa": "ˈvɪdʊrə", "note": "VI-du-ra"},
-  "Gandhari": {"ipa": "ɡɑːnˈdɑːriː", "note": "gaan-DHAA-ree (dh comes out plain d)"},
-  "Madri": {"ipa": "ˈmɑːdriː", "note": "MAAD-ree"},
-  "Pritha": {"ipa": "ˈprɪtɑː", "note": "PRI-thaa (th comes out plain t) - Kunti's first name"},
-  "Nakula": {"ipa": "ˈnʌkʊlə", "note": "NUK-u-la"},
-  "Sahadeva": {"ipa": "səhəˈdeːvə", "note": "sa-ha-DAY-va"},
-  "Duryodhana": {"ipa": "dʊrˈjoːdənə", "note": "dur-YOH-da-na (dh comes out plain d)"},
-  "Duhshasana": {"ipa": "dʊˈʃɑːsənə", "note": "du-SHAA-sa-na"},
-  "Vikarna": {"ipa": "vɪˈkʌrɳə", "note": "vi-KUR-na"},
-  "Shakuni": {"ipa": "ˈʃʌkʊnɪ", "note": "SHUK-u-ni"},
-  "Karna": {"ipa": "ˈkʌrɳə", "note": "KUR-na"},
-  "Adhiratha": {"ipa": "ədɪˈrʌtə", "note": "a-dhi-RUT-a; both aspirates are lost"},
-  "Radha": {"ipa": "ˈrɑːdɑː", "note": "RAA-dhaa (dh comes out plain d)"},
-  "Anga": {"ipa": "ˈʌŋɡə", "note": "UNG-a - the kingdom Karna is given"},
-  "Drona": {"ipa": "ˈdroːɳə", "note": "DROH-na"},
-  "Kripa": {"ipa": "ˈkrɪpə", "note": "KRI-pa"},
-  "Ashwatthama": {"ipa": "əʃvəˈtɑːmɑː", "note": "ash-wa-THAA-maa (th comes out plain t)"},
-  "Drupada": {"ipa": "ˈdrʊpədə", "note": "DRU-pa-da"},
-  "Shikhandi": {"ipa": "ʃɪˈkʌɳɖiː", "note": "shi-KHUN-dee (kh comes out plain k)"},
-  "Abhimanyu": {"ipa": "əbɪˈmʌnjʊ", "note": "a-bhi-MUN-yu (bh comes out plain b)"},
-  "Balarama": {"ipa": "bʌləˈrɑːmə", "note": "bal-a-RAA-ma"},
-  "Virata": {"ipa": "vɪˈrɑːʈə", "note": "vi-RAA-ta"},
-  "Uttara": {"ipa": "ˈʊtərɑː", "note": "UT-ta-raa - Virata's daughter, and the last book of the Ramayana"},
-  "Brihannala": {"ipa": "brɪˈhʌnəlɑː", "note": "bri-HUN-a-laa - Arjuna's name in the year of hiding"},
-  "Ballava": {"ipa": "ˈbʌləvə", "note": "BUL-la-va - Bhima's name in the year of hiding"},
-  "Kanka": {"ipa": "ˈkʌŋkə", "note": "KUNG-ka - Yudhishthira's name in the year of hiding"},
-  "Sairandhri": {"ipa": "sɛːˈrʌndriː", "note": "say-RUN-dree - Draupadi's name in the year of hiding"},
-  "Purochana": {"ipa": "pʊˈroːtʃənə", "note": "pu-ROH-cha-na"},
-  "Sanjaya": {"ipa": "ˈsʌndʒəjə", "note": "SUN-ja-ya"},
-  "Jayadratha": {"ipa": "dʒəjəˈdrʌtə", "note": "ja-ya-DRUT-a (th comes out plain t)"},
-  "Hastinapura": {"ipa": "həstɪˈnɑːpʊrə", "note": "has-ti-NAA-pu-ra"},
-  "Indraprastha": {"ipa": "ɪndrəˈprʌstə", "note": "in-dra-PRUST-a (th comes out plain t)"},
-  "Varanavata": {"ipa": "vɑːrəˈɳɑːvətə", "note": "vaa-ra-NAA-va-ta - the town with the lac house"},
-  "Dwaraka": {"ipa": "ˈdvɑːrəkɑː", "note": "DWAA-ra-kaa"},
-  "Panchala": {"ipa": "ˈpɑːntʃɑːlə", "note": "PAAN-chaa-la"},
-  "Matsya": {"ipa": "ˈmʌtsjə", "note": "MUTS-ya - Virata's kingdom"},
-  "Kaurava": {"ipa": "ˈkɔːrəvə", "note": "KOW-ra-va"},
-  "Kauravas": {"ipa": "ˈkɔːrəvəz", "note": "KOW-ra-vas"},
-  "Gita": {"ipa": "ˈɡiːtɑː", "note": "GEE-taa"},
-  "Bhagavad": {"ipa": "ˈbʌɡəvəd", "note": "BHUG-a-vad (bh comes out plain b)"},
-  "Bhagavad Gita": {"ipa": "ˈbʌɡəvəd ˈɡiːtɑː", "note": "BHUG-a-vad GEE-taa"},
-  "Parva": {"ipa": "ˈpʌrvə", "note": "PUR-va - one book of the Mahabharata"},
-  "Sabha": {"ipa": "səˈbɑː", "note": "sa-BHAA (bh comes out plain b)"},
-  "Vana": {"ipa": "ˈvʌnə", "note": "VUN-a - forest; the Vana Parva"},
-  "Mahabharatas": {"ipa": "məhɑːˈbɑːrətəz", "note": "muh-haa-BHAA-ru-tas"},
-  "Odia": {"ipa": "ˈoːɽiɑː", "note": "OH-ri-aa"},
-  "Telugu": {"ipa": "ˈteːlʊɡʊ", "note": "TAY-lu-gu"},
-  "Lava": {"ipa": "ˈlʌvə", "note": "LUV-a - Rama and Sita's son, NOT the vowel of molten lava", "case_sensitive": true},
-  "simsupa": {"ipa": null, "needs_native_speaker": true, "note": "the tree Sita sits under in the Ashoka grove. Sanskrit shimshapa / simsupa is romanised both ways and the sibilants and the second vowel are both genuinely in doubt here. NEEDS A NATIVE SPEAKER."}
+  "Hanuman": {
+    "ipa": "hənʊˈmɑːn",
+    "note": "huh-nu-MAAN"
+  },
+  "Ganesha": {
+    "ipa": "ɡəˈɳeːʃə",
+    "note": "guh-NAY-shuh"
+  },
+  "Ganesh": {
+    "ipa": "ɡəˈɳeːʃ",
+    "note": "guh-NAYSH"
+  },
+  "Krishna": {
+    "ipa": "ˈkrɪʂɳə",
+    "note": "KRISH-nuh, final -a a light schwa, not '-nuh' drawn out"
+  },
+  "Rama": {
+    "ipa": "ˈrɑːmə",
+    "note": "RAA-muh"
+  },
+  "Sita": {
+    "ipa": "ˈsiːtɑː",
+    "note": "SEE-taa"
+  },
+  "Shiva": {
+    "ipa": "ˈʃɪʋə",
+    "note": "SHI-vuh (short i, as in 'shiver'), not SHEE-va"
+  },
+  "Durga": {
+    "ipa": "ˈdʊrɡɑː",
+    "note": "DUR-gaa"
+  },
+  "Lakshmi": {
+    "ipa": "ləkʂmiː",
+    "note": "luhksh-mee"
+  },
+  "Saraswati": {
+    "ipa": "sərəsʋətiː",
+    "note": "suh-ruh-svuh-tee"
+  },
+  "Parvati": {
+    "ipa": "ˈpɑːrʋətiː",
+    "note": "PAAR-vuh-tee"
+  },
+  "Kartikeya": {
+    "ipa": "kɑːrtɪˈkeːjə",
+    "note": "kaar-ti-KAY-yuh"
+  },
+  "Mahavira": {
+    "ipa": "məhɑːˈʋiːrə",
+    "note": "muh-haa-VEE-ruh"
+  },
+  "Mahavir": {
+    "ipa": "məhɑːˈʋiːr",
+    "note": "muh-haa-VEER"
+  },
+  "Siddhartha": {
+    "ipa": "sɪˈd̪ʰɑːrt̪ʰə",
+    "note": "si-DHAAR-thuh - both aspirates are now rendered: d̪ʰ and t̪ʰ"
+  },
+  "Ashoka": {
+    "ipa": "əˈʃoːkə",
+    "note": "uh-SHOH-kuh"
+  },
+  "Ashok": {
+    "ipa": "əˈʃoːk",
+    "note": "uh-SHOHK"
+  },
+  "Chanakya": {
+    "ipa": "tʃɑːɳəkjə",
+    "note": "chaa-nuh-kyuh"
+  },
+  "Chandragupta": {
+    "ipa": "tʃəndrəˈɡʊptə",
+    "note": "chuhn-druh-GUP-tuh"
+  },
+  "Shivaji": {
+    "ipa": "ʃɪˈʋɑːdʒiː",
+    "note": "shi-VAA-jee (Maharashtrian speakers often stress the first syllable; VAA is the common pan-Indian reading)"
+  },
+  "Birbal": {
+    "ipa": "ˈbiːrbəl",
+    "note": "BEER-buhl"
+  },
+  "Akbar": {
+    "ipa": "əkbər",
+    "note": "uhk-buhr, not AK-bahr"
+  },
+  "Tansen": {
+    "ipa": "ˈtɑːnseːn",
+    "note": "TAAN-sayn"
+  },
+  "Jambavan": {
+    "ipa": "dʒɑːmbəˈʋɑːn",
+    "note": "jaam-buh-VAAN"
+  },
+  "Kisa Gotami": {
+    "ipa": "kɪˈsɑː ɡoːtəˈmiː",
+    "note": "ki-SAA goh-tuh-MEE (Pali Kisagotami)"
+  },
+  "Gotami": {
+    "ipa": "ɡoːtəˈmiː",
+    "note": "goh-tuh-MEE"
+  },
+  "Kisa": {
+    "ipa": "kɪˈsɑː",
+    "note": "ki-SAA"
+  },
+  "Bahubali": {
+    "ipa": "bɑːhʊbəˈliː",
+    "note": "baa-hu-buh-LEE"
+  },
+  "Valmiki": {
+    "ipa": "ʋɑːlˈmiːkɪ",
+    "note": "vaal-MEE-ki"
+  },
+  "Tulsidas": {
+    "ipa": "tʊlsiːˈdɑːs",
+    "note": "tul-see-DAAS"
+  },
+  "Buddha": {
+    "ipa": "ˈbʊd̪ʰə",
+    "note": "BU-dhuh, u as in 'put'; the dh is the dental aspirate, written d̪ʰ"
+  },
+  "Buddhist": {
+    "ipa": "ˈbʊd̪ʰɪst",
+    "note": "BU-dhist, not BOO-dist"
+  },
+  "Jain": {
+    "ipa": "dʒeːn",
+    "note": "jayn, never with 'line'"
+  },
+  "Jains": {
+    "ipa": "dʒeːnz",
+    "note": "jaynz, rhymes with 'lanes'"
+  },
+  "Jainism": {
+    "ipa": "ˈdʒeːnɪzəm",
+    "note": "JAY-ni-zuhm"
+  },
+  "Gandhi": {
+    "ipa": "ˈɡɑːnd̪ʰiː",
+    "note": "GAAN-dhee, not GAN-dee"
+  },
+  "Ambedkar": {
+    "ipa": "əmbeːdkər",
+    "note": "uhm-bayd-kuhr"
+  },
+  "Aryabhata": {
+    "ipa": "ɑːrjəbʰəʈə",
+    "note": "aar-yuh-bhuh-tuh - the -bhata is भट, with a retroflex ट"
+  },
+  "Kalam": {
+    "ipa": "kəˈlɑːm",
+    "note": "kuh-LAAM"
+  },
+  "Kalpana": {
+    "ipa": "kəlpənɑː",
+    "note": "kuhl-puh-naa"
+  },
+  "Lakshmibai": {
+    "ipa": "ləkʂmiːˈbaɪ",
+    "note": "luhksh-mee-BY"
+  },
+  "Bhagat": {
+    "ipa": "bʰəɡət",
+    "note": "bhuh-guht"
+  },
+  "Singh": {
+    "ipa": "sɪŋ",
+    "note": "sing, no hard g at the end; सिंह is ŋ + h, not an aspirated g"
+  },
+  "Mithu": {
+    "ipa": "ˈmɪʈʰuː",
+    "note": "MI-thoo (the parrot's name)"
+  },
+  "Gattu": {
+    "ipa": "ɡəʈuː",
+    "note": "guh-too"
+  },
+  "Vismriti": {
+    "ipa": "ˈʋɪsmrɪtiː",
+    "note": "VIS-mri-tee"
+  },
+  "Bhasuraka": {
+    "ipa": "ˈbʰɑːsʊrəkə",
+    "note": "BHAA-su-ruh-kuh"
+  },
+  "Chandarava": {
+    "ipa": "tʃəɳɖərəʋə",
+    "note": "chuhn-duh-ruh-vuh (the blue jackal)"
+  },
+  "Kambugriva": {
+    "ipa": "kəmbʊˈɡriːʋə",
+    "note": "kuhm-bu-GREE-vuh"
+  },
+  "Pingalaka": {
+    "ipa": "ˈpɪŋɡələkə",
+    "note": "PING-guh-luh-kuh"
+  },
+  "Damanaka": {
+    "ipa": "dəmənəkə",
+    "note": "duh-muh-nuh-kuh"
+  },
+  "Karataka": {
+    "ipa": "kərətəkə",
+    "note": "kuh-ruh-tuh-kuh (Damanaka's fellow jackal)"
+  },
+  "Sanjivaka": {
+    "ipa": "sənˈdʒiːʋəkə",
+    "note": "suhn-JEE-vuh-kuh"
+  },
+  "Laghupatanaka": {
+    "ipa": "ləɡʰʊpətənəkə",
+    "note": "luh-ghu-puh-tuh-nuh-kuh"
+  },
+  "Hiranyaka": {
+    "ipa": "hɪrəɳjəkə",
+    "note": "hi-ruh-nyuh-kuh"
+  },
+  "Chitranga": {
+    "ipa": "tʃɪˈtrɑːŋɡə",
+    "note": "chi-TRAANG-guh"
+  },
+  "Mandara": {
+    "ipa": "məndərə",
+    "note": "muhn-duh-ruh"
+  },
+  "Ujjain": {
+    "ipa": "ʊˈdʒeːn",
+    "note": "u-JAYN, second syllable like 'Jane'"
+  },
+  "Kailash": {
+    "ipa": "keːˈlɑːʃ",
+    "note": "kay-LAASH"
+  },
+  "Lanka": {
+    "ipa": "ləŋkɑː",
+    "note": "luhng-kaa"
+  },
+  "Ayodhya": {
+    "ipa": "əˈjoːd̪ʰjɑː",
+    "note": "uh-YOH-dhyaa"
+  },
+  "Kishkindha": {
+    "ipa": "kɪʂˈkɪnd̪ʰɑː",
+    "note": "kish-KIN-dhaa",
+    "unsure": true
+  },
+  "Ravana": {
+    "ipa": "ˈrɑːʋəɳə",
+    "note": "RAA-vuh-nuh"
+  },
+  "Lakshmana": {
+    "ipa": "ləkʂməɳə",
+    "note": "luhksh-muh-nuh"
+  },
+  "Bharata": {
+    "ipa": "bʰərətə",
+    "note": "bhuh-ruh-tuh"
+  },
+  "Draupadi": {
+    "ipa": "ˈdrɔːpədiː",
+    "note": "DRAW-puh-dee"
+  },
+  "Arjuna": {
+    "ipa": "ərdʒʊnə",
+    "note": "uhr-ju-nuh"
+  },
+  "Yudhishthira": {
+    "ipa": "jʊˈd̪ʰɪʂʈʰɪrə",
+    "note": "yu-DHISH-thi-ruh - the ʈʰ is tagged but comes out unaspirated: like English, this voice drops aspiration after a sibilant",
+    "unsure": true
+  },
+  "Bhima": {
+    "ipa": "ˈbʰiːmɑː",
+    "note": "BHEE-maa - the final -a is long here"
+  },
+  "Nala": {
+    "ipa": "nələ",
+    "note": "nuh-luh"
+  },
+  "Sudama": {
+    "ipa": "sʊˈdɑːmə",
+    "note": "su-DAA-muh"
+  },
+  "Savitri": {
+    "ipa": "ˈsɑːʋɪtriː",
+    "note": "SAA-vi-tree"
+  },
+  "Shakuntala": {
+    "ipa": "ʃəˈkʊntəlɑː",
+    "note": "shuh-KUN-tuh-laa"
+  },
+  "Nachiketa": {
+    "ipa": "nətʃɪˈkeːtə",
+    "note": "nuh-chi-KAY-tuh"
+  },
+  "Ekalavya": {
+    "ipa": "eːkələʋjə",
+    "note": "ay-kuh-luhv-yuh"
+  },
+  "Prahlada": {
+    "ipa": "prəhˈlɑːdə",
+    "note": "pruh-HLAA-duh"
+  },
+  "Meera": {
+    "ipa": "ˈmiːrɑː",
+    "note": "MEE-raa"
+  },
+  "Kabir": {
+    "ipa": "kəˈbiːr",
+    "note": "kuh-BEER"
+  },
+  "Nanak": {
+    "ipa": "ˈnɑːnək",
+    "note": "NAA-nuhk"
+  },
+  "Guru": {
+    "ipa": "ˈɡʊrʊ",
+    "note": "GU-ru, both vowels short - not 'guh-ROO'"
+  },
+  "Gobind": {
+    "ipa": "ɡoːˈbɪnd",
+    "note": "goh-BIND"
+  },
+  "Nalanda": {
+    "ipa": "nɑːləndɑː",
+    "note": "naa-luhn-daa"
+  },
+  "Panchatantra": {
+    "ipa": "pəntʃətəntrə",
+    "note": "puhn-chuh-tuhn-truh"
+  },
+  "Ramayana": {
+    "ipa": "rɑːˈmɑːjəɳə",
+    "note": "raa-MAA-yuh-nuh, not ra-may-AH-na"
+  },
+  "Mahabharata": {
+    "ipa": "məhɑːˈbʰɑːrətə",
+    "note": "muh-haa-BHAA-ruh-tuh"
+  },
+  "Jataka": {
+    "ipa": "ˈdʒɑːtəkə",
+    "note": "JAA-tuh-kuh"
+  },
+  "Jatakas": {
+    "ipa": "ˈdʒɑːtəkəz",
+    "note": "JAA-tuh-kuhz"
+  },
+  "Upanishad": {
+    "ipa": "ʊpənɪʂəd",
+    "note": "u-puh-ni-shuhd"
+  },
+  "Vedas": {
+    "ipa": "ˈʋeːdəz",
+    "note": "VAY-duhz"
+  },
+  "Veda": {
+    "ipa": "ˈʋeːdə",
+    "note": "VAY-duh"
+  },
+  "ahimsa": {
+    "ipa": "əˈhɪnsɑː",
+    "note": "uh-HIN-saa"
+  },
+  "anekantavada": {
+    "ipa": "əneːkɑːntəˈʋɑːdə",
+    "note": "uh-nay-kaan-tuh-VAA-duh"
+  },
+  "syat": {
+    "ipa": "sjɑːt",
+    "note": "syaat - one syllable, sy- glides straight into aa"
+  },
+  "dharma": {
+    "ipa": "d̪ʰərmə",
+    "note": "dhuhr-muh, not DAR-ma"
+  },
+  "karma": {
+    "ipa": "kərmə",
+    "note": "kuhr-muh, not KAR-ma"
+  },
+  "moksha": {
+    "ipa": "ˈmoːkʂə",
+    "note": "MOHK-shuh"
+  },
+  "khichdi": {
+    "ipa": "ˈkʰɪtʃɽiː",
+    "note": "KHI-chree"
+  },
+  "jamun": {
+    "ipa": "ˈdʒɑːmʊn",
+    "note": "JAA-mun"
+  },
+  "jamuns": {
+    "ipa": "ˈdʒɑːmʊnz",
+    "note": "JAA-munz"
+  },
+  "sarson": {
+    "ipa": "sərsoːn",
+    "note": "suhr-sohn (mustard)"
+  },
+  "stupa": {
+    "ipa": "ˈstuːpə",
+    "note": "STOO-puh"
+  },
+  "sangha": {
+    "ipa": "səŋɡʰə",
+    "note": "suhng-ghuh"
+  },
+  "Jahanpanah": {
+    "ipa": "dʒəhɑːnpəˈnɑːh",
+    "note": "juh-haan-puh-NAAH ('refuge of the world', how a courtier addresses the Emperor)"
+  },
+  "vanara": {
+    "ipa": "ˈʋɑːnərə",
+    "note": "VAA-nuh-ruh"
+  },
+  "vanaras": {
+    "ipa": "ˈʋɑːnərəz",
+    "note": "VAA-nuh-ruhz"
+  },
+  "gada": {
+    "ipa": "ɡəˈdɑː",
+    "note": "guh-DAA (the mace)"
+  },
+  "trishul": {
+    "ipa": "trɪˈʃuːl",
+    "note": "tri-SHOOL"
+  },
+  "veena": {
+    "ipa": "ˈʋiːɳɑː",
+    "note": "VEE-naa"
+  },
+  "modak": {
+    "ipa": "ˈmoːdək",
+    "note": "MOH-duhk"
+  },
+  "rangoli": {
+    "ipa": "rəŋˈɡoːliː",
+    "note": "ruhng-GOH-lee"
+  },
+  "kolam": {
+    "ipa": "ˈkoːləm",
+    "note": "KOH-luhm (the Tamil floor drawing)"
+  },
+  "kauri": {
+    "ipa": "ˈkɔːɽiː",
+    "note": "KAW-ree - read as Hindi kaudi, the cowrie shell used as a coin",
+    "unsure": true
+  },
+  "diya": {
+    "ipa": "ˈdiːjɑː",
+    "note": "DEE-yaa"
+  },
+  "yatra": {
+    "ipa": "ˈjɑːtrɑː",
+    "note": "YAA-traa"
+  },
+  "katha": {
+    "ipa": "kəˈt̪ʰɑː",
+    "note": "kuh-THAA (the badge word: a story as it is told)"
+  },
+  "itihaas": {
+    "ipa": "ɪtɪˈhɑːs",
+    "note": "i-ti-HAAS (the badge word: what evidence shows)"
+  },
+  "aaj": {
+    "ipa": "ɑːdʒ",
+    "note": "aaj (the badge word: how it lives today)"
+  },
+  "subhashita": {
+    "ipa": "sʊˈbʰɑːʂɪtə",
+    "note": "su-BHAA-shi-tuh"
+  },
+  "puja": {
+    "ipa": "ˈpuːdʒɑː",
+    "note": "POO-jaa"
+  },
+  "mela": {
+    "ipa": "ˈmeːlɑː",
+    "note": "MAY-laa"
+  },
+  "bhasha": {
+    "ipa": "ˈbʰɑːʂɑː",
+    "note": "BHAA-shaa"
+  },
+  "namaste": {
+    "ipa": "nəməsˈteː",
+    "note": "nuh-muhs-TAY"
+  },
+  "chapati": {
+    "ipa": "tʃəˈpɑːtiː",
+    "note": "chuh-PAA-tee"
+  },
+  "biryani": {
+    "ipa": "bɪrjɑːˈniː",
+    "note": "bir-yaa-NEE"
+  },
+  "chaat": {
+    "ipa": "tʃɑːʈ",
+    "note": "chaat, one syllable"
+  },
+  "akhara": {
+    "ipa": "əˈkʰɑːɽɑː",
+    "note": "uh-KHAA-raa (wrestling ground)"
+  },
+  "Bengaluru": {
+    "ipa": "beŋɡəˈluːruː",
+    "note": "beng-guh-LOO-roo"
+  },
+  "Thiruvananthapuram": {
+    "ipa": "tɪrʊʋənəntəˈpʊrəm",
+    "note": "ti-ru-vuh-nuhn-tuh-PU-ruhm; the Malayalam th is unaspirated here"
+  },
+  "Bhubaneswar": {
+    "ipa": "bʰʊbəˈneːʃʋər",
+    "note": "bhu-buh-NAY-shvuhr"
+  },
+  "Amaravati": {
+    "ipa": "əməˈrɑːʋətiː",
+    "note": "uh-muh-RAA-vuh-tee"
+  },
+  "Andaman": {
+    "ipa": "əndəmən",
+    "note": "uhn-duh-muhn"
+  },
+  "Nicobar": {
+    "ipa": "ˈnɪkoːbɑːr",
+    "note": "NI-koh-baar"
+  },
+  "Andhra": {
+    "ipa": "ˈɑːnd̪ʰrə",
+    "note": "AAN-dhruh"
+  },
+  "Pradesh": {
+    "ipa": "prəˈdeːʃ",
+    "note": "pruh-DAYSH"
+  },
+  "Arunachal": {
+    "ipa": "ərʊˈnɑːtʃəl",
+    "note": "uh-ru-NAA-chuhl"
+  },
+  "Itanagar": {
+    "ipa": "iːtɑːnəɡər",
+    "note": "ee-taa-nuh-guhr"
+  },
+  "Assam": {
+    "ipa": "əˈsɑːm",
+    "note": "uh-SAAM"
+  },
+  "Dispur": {
+    "ipa": "ˈdɪspuːr",
+    "note": "DIS-poor"
+  },
+  "Bihar": {
+    "ipa": "bɪˈhɑːr",
+    "note": "bi-HAAR"
+  },
+  "Patna": {
+    "ipa": "pəʈnɑː",
+    "note": "puht-naa"
+  },
+  "Chandigarh": {
+    "ipa": "tʃəɳɖiːɡəɽ",
+    "note": "chuhn-dee-guhr - the -garh is ढ़, an aspirated retroflex flap; ɽʰ is rejected, so it is written ɽ"
+  },
+  "Chhattisgarh": {
+    "ipa": "tʃʰəˈtiːsɡəɽ",
+    "note": "chhuh-TEES-guhr - the -garh is ढ़, an aspirated retroflex flap; ɽʰ is rejected, so it is written ɽ"
+  },
+  "Raipur": {
+    "ipa": "ˈraɪpuːr",
+    "note": "RY-poor"
+  },
+  "Daman": {
+    "ipa": "dəˈmɑːn",
+    "note": "duh-MAAN"
+  },
+  "Diu": {
+    "ipa": "ˈdiːuː",
+    "note": "DEEOO"
+  },
+  "Dadra": {
+    "ipa": "ˈdɑːdrɑː",
+    "note": "DAA-draa"
+  },
+  "Nagar Haveli": {
+    "ipa": "nəɡər həˈʋeːliː",
+    "note": "nuh-guhr huh-VAY-lee"
+  },
+  "Silvassa": {
+    "ipa": "sɪlˈʋɑːsɑː",
+    "note": "sil-VAA-saa"
+  },
+  "Delhi": {
+    "ipa": "ˈdɪliː",
+    "note": "DI-lee, not DEL-ee"
+  },
+  "Goa": {
+    "ipa": "ˈɡoːɑː",
+    "note": "GOHAA"
+  },
+  "Panaji": {
+    "ipa": "pəˈnɑːdʒiː",
+    "note": "puh-NAA-jee; Konkani speakers say Ponnji, which is further from the spelling",
+    "unsure": true
+  },
+  "Gujarat": {
+    "ipa": "ɡʊdʒəˈrɑːt",
+    "note": "gu-juh-RAAT"
+  },
+  "Gandhinagar": {
+    "ipa": "ɡɑːnd̪ʰiːnəɡər",
+    "note": "gaan-dhee-nuh-guhr"
+  },
+  "Himachal": {
+    "ipa": "hɪˈmɑːtʃəl",
+    "note": "hi-MAA-chuhl"
+  },
+  "Shimla": {
+    "ipa": "ˈʃɪmlɑː",
+    "note": "SHI-mlaa"
+  },
+  "Haryana": {
+    "ipa": "hərɪˈjɑːɳɑː",
+    "note": "huh-ri-YAA-naa"
+  },
+  "Kurukshetra": {
+    "ipa": "kʊrʊˈkʂeːtrə",
+    "note": "ku-ruk-SHAY-truh"
+  },
+  "Jharkhand": {
+    "ipa": "ˈdʒʰɑːrkʰəɳɖ",
+    "note": "JHAAR-khuhnd"
+  },
+  "Ranchi": {
+    "ipa": "ˈrɑːntʃiː",
+    "note": "RAAN-chee"
+  },
+  "Jammu": {
+    "ipa": "dʒəmuː",
+    "note": "juh-moo"
+  },
+  "Kashmir": {
+    "ipa": "kəʃˈmiːr",
+    "note": "kuhsh-MEER"
+  },
+  "Srinagar": {
+    "ipa": "sriːnəɡər",
+    "note": "sree-nuh-guhr"
+  },
+  "Karnataka": {
+    "ipa": "kərˈɳɑːtəkə",
+    "note": "kuhr-NAA-tuh-kuh"
+  },
+  "Hampi": {
+    "ipa": "həmpiː",
+    "note": "huhm-pee"
+  },
+  "Kerala": {
+    "ipa": "ˈkeːrələ",
+    "note": "KAY-ruh-luh, not ke-RAH-la"
+  },
+  "Lakshadweep": {
+    "ipa": "ləkʂəˈdʋiːp",
+    "note": "luhk-shuh-DVEEP"
+  },
+  "Kavaratti": {
+    "ipa": "kəʋərəʈiː",
+    "note": "kuh-vuh-ruh-tee"
+  },
+  "Maharashtra": {
+    "ipa": "məhɑːˈrɑːʂʈrə",
+    "note": "muh-haa-RAASH-truh"
+  },
+  "Mumbai": {
+    "ipa": "mʊmˈbaɪ",
+    "note": "mum-BY"
+  },
+  "Ajanta": {
+    "ipa": "ədʒəɳʈɑː",
+    "note": "uh-juhn-taa"
+  },
+  "Ellora": {
+    "ipa": "eːˈloːrɑː",
+    "note": "ay-LOH-raa"
+  },
+  "Meghalaya": {
+    "ipa": "meːɡʰələjɑː",
+    "note": "may-ghuh-luh-yaa"
+  },
+  "Shillong": {
+    "ipa": "ʃɪˈlɔːŋ",
+    "note": "shi-LAWNG"
+  },
+  "Manipur": {
+    "ipa": "məɳɪˈpuːr",
+    "note": "muh-ni-POOR"
+  },
+  "Imphal": {
+    "ipa": "ˈɪmfɑːl",
+    "note": "IM-faal - the ph of इंफाल is [f], not an aspirated p"
+  },
+  "Loktak": {
+    "ipa": "ˈloːktək",
+    "note": "LOHK-tuhk"
+  },
+  "Madhya": {
+    "ipa": "məd̪ʰjə",
+    "note": "muh-dhyuh"
+  },
+  "Bhopal": {
+    "ipa": "bʰoːˈpɑːl",
+    "note": "bhoh-PAAL"
+  },
+  "Sanchi": {
+    "ipa": "ˈsɑːntʃiː",
+    "note": "SAAN-chee"
+  },
+  "Khajuraho": {
+    "ipa": "kʰədʒʊˈrɑːhoː",
+    "note": "khuh-ju-RAA-hoh"
+  },
+  "Mizoram": {
+    "ipa": "mɪˈzoːrəm",
+    "note": "mi-ZOH-ruhm"
+  },
+  "Aizawl": {
+    "ipa": "aɪˈzɔːl",
+    "note": "y-ZAWL",
+    "unsure": true
+  },
+  "Nagaland": {
+    "ipa": "ˈnɑːɡɑːlænd",
+    "note": "NAA-gaa-land"
+  },
+  "Kohima": {
+    "ipa": "koːˈhiːmɑː",
+    "note": "koh-HEE-maa",
+    "unsure": true
+  },
+  "Odisha": {
+    "ipa": "oːˈɖiːʃɑː",
+    "note": "oh-DEE-shaa"
+  },
+  "Konark": {
+    "ipa": "ˈkoːnɑːrk",
+    "note": "KOH-naark"
+  },
+  "Pattachitra": {
+    "ipa": "pəʈəˈtʃɪtrə",
+    "note": "puh-tuh-CHI-truh"
+  },
+  "Punjab": {
+    "ipa": "pʊnˈdʒɑːb",
+    "note": "pun-JAAB, not pun-JAB"
+  },
+  "Punjabi": {
+    "ipa": "pʊnˈdʒɑːbiː",
+    "note": "pun-JAA-bee"
+  },
+  "Amritsar": {
+    "ipa": "əmˈrɪtsər",
+    "note": "uh-MRIT-suhr"
+  },
+  "Puducherry": {
+    "ipa": "pʊdʊˈtʃeːriː",
+    "note": "pu-du-CHAY-ree"
+  },
+  "Rajasthan": {
+    "ipa": "rɑːdʒəˈst̪ʰɑːn",
+    "note": "raa-juhs-THAAN"
+  },
+  "Jaipur": {
+    "ipa": "ˈdʒaɪpuːr",
+    "note": "JY-poor"
+  },
+  "Aravalli": {
+    "ipa": "ərɑːʋəliː",
+    "note": "uh-raa-vuh-lee"
+  },
+  "Ranakpur": {
+    "ipa": "ˈrɑːɳəkpuːr",
+    "note": "RAA-nuhk-poor"
+  },
+  "Sikkim": {
+    "ipa": "ˈsɪkɪm",
+    "note": "SI-kim"
+  },
+  "Gangtok": {
+    "ipa": "ˈɡɑːŋtɔːk",
+    "note": "GAANG-tawk"
+  },
+  "Kanchenjunga": {
+    "ipa": "kɑːntʃənˈdʒʊŋɡɑː",
+    "note": "kaan-chuhn-JUNG-gaa"
+  },
+  "Tamil": {
+    "ipa": "təmɪl",
+    "note": "tuh-mil, not TAM-ill"
+  },
+  "Nadu": {
+    "ipa": "ˈnɑːɖuː",
+    "note": "NAA-doo"
+  },
+  "Chennai": {
+    "ipa": "ˈtʃenaɪ",
+    "note": "CHE-ny"
+  },
+  "Chola": {
+    "ipa": "ˈtʃoːlə",
+    "note": "CHOH-luh"
+  },
+  "Meenakshi": {
+    "ipa": "miːˈnɑːkʂiː",
+    "note": "mee-NAAK-shee"
+  },
+  "Tirupati": {
+    "ipa": "tɪrʊpətiː",
+    "note": "ti-ru-puh-tee"
+  },
+  "Tripura": {
+    "ipa": "ˈtrɪpʊrɑː",
+    "note": "TRI-pu-raa"
+  },
+  "Agartala": {
+    "ipa": "əɡərtəlɑː",
+    "note": "uh-guhr-tuh-laa"
+  },
+  "Ujjayanta": {
+    "ipa": "ʊdʒəjəntɑː",
+    "note": "u-juh-yuhn-taa",
+    "unsure": true
+  },
+  "Uttarakhand": {
+    "ipa": "ʊtəˈrɑːkʰəɳɖ",
+    "note": "u-tuh-RAA-khuhnd"
+  },
+  "Dehradun": {
+    "ipa": "deːrɑːˈduːn",
+    "note": "day-raa-DOON"
+  },
+  "Uttar": {
+    "ipa": "ˈʊtər",
+    "note": "U-tuhr"
+  },
+  "Lucknow": {
+    "ipa": "lʊkˈnaʊ",
+    "note": "luk-NOW"
+  },
+  "Varanasi": {
+    "ipa": "ʋɑːˈrɑːɳəsiː",
+    "note": "vaa-RAA-nuh-see"
+  },
+  "Bengal": {
+    "ipa": "beŋˈɡɔːl",
+    "note": "beng-GAWL"
+  },
+  "Kolkata": {
+    "ipa": "koːlˈkɑːtɑː",
+    "note": "kohl-KAA-taa"
+  },
+  "Sundarbans": {
+    "ipa": "ˈsʊndərbənz",
+    "note": "SUN-duhr-buhnz"
+  },
+  "Telangana": {
+    "ipa": "teːləŋˈɡɑːɳɑː",
+    "note": "tay-luhng-GAA-naa"
+  },
+  "Hyderabad": {
+    "ipa": "ˈhaɪdərəbɑːd",
+    "note": "HY-duh-ruh-baad"
+  },
+  "Charminar": {
+    "ipa": "tʃɑːrmɪˈnɑːr",
+    "note": "chaar-mi-NAAR"
+  },
+  "Golconda": {
+    "ipa": "ɡoːlˈkʊɳɖɑː",
+    "note": "gohl-KUN-daa"
+  },
+  "Ladakh": {
+    "ipa": "ləˈdɑːkʰ",
+    "note": "luh-DAAKH"
+  },
+  "Leh": {
+    "ipa": "leː",
+    "note": "lay"
+  },
+  "Ganga": {
+    "ipa": "ɡəŋɡɑː",
+    "note": "guhng-gaa"
+  },
+  "Gangotri": {
+    "ipa": "ɡəŋˈɡoːtriː",
+    "note": "guhng-GOH-tree"
+  },
+  "Yamuna": {
+    "ipa": "jəˈmʊnɑː",
+    "note": "yuh-MU-naa"
+  },
+  "Yamunotri": {
+    "ipa": "jəmʊˈnoːtriː",
+    "note": "yuh-mu-NOH-tree"
+  },
+  "Brahmaputra": {
+    "ipa": "brəhməˈpʊtrə",
+    "note": "bruhh-muh-PU-truh"
+  },
+  "Godavari": {
+    "ipa": "ɡoːˈdɑːʋəriː",
+    "note": "goh-DAA-vuh-ree"
+  },
+  "Trimbakeshwar": {
+    "ipa": "trɪmbəˈkeːʃʋər",
+    "note": "trim-buh-KAY-shvuhr"
+  },
+  "Kaveri": {
+    "ipa": "kɑːˈʋeːriː",
+    "note": "kaa-VAY-ree"
+  },
+  "Talakaveri": {
+    "ipa": "tɑːləkɑːˈʋeːriː",
+    "note": "taa-luh-kaa-VAY-ree"
+  },
+  "Narmada": {
+    "ipa": "nərmədɑː",
+    "note": "nuhr-muh-daa"
+  },
+  "Amarkantak": {
+    "ipa": "əmərkəɳʈək",
+    "note": "uh-muhr-kuhn-tuhk"
+  },
+  "Prayagraj": {
+    "ipa": "prəjɑːɡˈrɑːdʒ",
+    "note": "pruh-yaa-GRAAJ"
+  },
+  "Harappan": {
+    "ipa": "hərəpən",
+    "note": "huh-ruh-puhn"
+  },
+  "Dakshina": {
+    "ipa": "dəkʂɪɳɑː",
+    "note": "duhk-shi-naa"
+  },
+  "Kaziranga": {
+    "ipa": "kɑːzɪrəŋɡɑː",
+    "note": "kaa-zi-ruhng-gaa"
+  },
+  "Dharamshala": {
+    "ipa": "d̪ʰərəmˈʃɑːlɑː",
+    "note": "dhuh-ruhm-SHAA-laa"
+  },
+  "Himalaya": {
+    "ipa": "hɪˈmɑːləjə",
+    "note": "hi-MAA-luh-yuh, not hi-ma-LAY-a"
+  },
+  "Taj Mahal": {
+    "ipa": "tɑːdʒ məhəl",
+    "note": "taaj muh-huhl, not tahj muh-HAAL"
+  },
+  "Shah Jahan": {
+    "ipa": "ʃɑː dʒəˈhɑːn",
+    "note": "shaa juh-HAAN"
+  },
+  "Mumtaz": {
+    "ipa": "mʊmˈtɑːz",
+    "note": "mum-TAAZ"
+  },
+  "Qutub": {
+    "ipa": "ˈkʊtʊb",
+    "note": "KU-tub; the Arabic q is a plain k here"
+  },
+  "Minar": {
+    "ipa": "mɪˈnɑːr",
+    "note": "mi-NAAR"
+  },
+  "Vijayanagara": {
+    "ipa": "ʋɪdʒəjənəɡərə",
+    "note": "vi-juh-yuh-nuh-guh-ruh"
+  },
+  "Harmandir": {
+    "ipa": "hərməndɪr",
+    "note": "huhr-muhn-dir"
+  },
+  "Sahib": {
+    "ipa": "ˈsɑːhɪb",
+    "note": "SAA-hib"
+  },
+  "Warli": {
+    "ipa": "ˈʋɑːrliː",
+    "note": "VAAR-lee"
+  },
+  "Madhubani": {
+    "ipa": "məd̪ʰʊbəniː",
+    "note": "muh-dhu-buh-nee"
+  },
+  "Gir": {
+    "ipa": "ɡɪr",
+    "note": "gir, short i - the forest in Gujarat"
+  },
+  "Bodh Gaya": {
+    "ipa": "boːd̪ʰ ɡəˈjɑː",
+    "note": "bohdh guh-YAA"
+  },
+  "Pulihora": {
+    "ipa": "pʊlɪˈhoːrɑː",
+    "note": "pu-li-HOH-raa",
+    "unsure": true
+  },
+  "Thukpa": {
+    "ipa": "ˈt̪ʰʊkpɑː",
+    "note": "THUK-paa"
+  },
+  "Litti": {
+    "ipa": "ˈlɪʈiː",
+    "note": "LI-tee"
+  },
+  "chokha": {
+    "ipa": "ˈtʃoːkʰɑː",
+    "note": "CHOH-khaa"
+  },
+  "Chole": {
+    "ipa": "ˈtʃoːleː",
+    "note": "CHOH-lay"
+  },
+  "bhature": {
+    "ipa": "bʰəˈtuːreː",
+    "note": "bhuh-TOO-ray"
+  },
+  "Chila": {
+    "ipa": "ˈtʃiːlɑː",
+    "note": "CHEE-laa",
+    "unsure": true
+  },
+  "Ubadiyu": {
+    "ipa": "ʊˈbɑːɖɪjuː",
+    "note": "u-BAA-di-yoo",
+    "unsure": true
+  },
+  "Dhokla": {
+    "ipa": "ˈɖʰoːklɑː",
+    "note": "DHOH-klaa"
+  },
+  "Siddu": {
+    "ipa": "ˈsɪɖʊ",
+    "note": "SI-du",
+    "unsure": true
+  },
+  "Bajra": {
+    "ipa": "ˈbɑːdʒrɑː",
+    "note": "BAA-jraa"
+  },
+  "Dhuska": {
+    "ipa": "ˈd̪ʰʊskɑː",
+    "note": "DHUS-kaa",
+    "unsure": true
+  },
+  "Rogan": {
+    "ipa": "ˈroːɡən",
+    "note": "ROH-guhn"
+  },
+  "josh": {
+    "ipa": "dʒoːʃ",
+    "note": "johsh - only in 'rogan josh'; the plain English word josh is spelled the same, so this entry is deliberately about the dish"
+  },
+  "Bisi bele bath": {
+    "ipa": "ˈbɪsiː ˈbeːleː bɑːt̪ʰ",
+    "note": "BI-see BAY-lay baath",
+    "unsure": true
+  },
+  "Sadya": {
+    "ipa": "sədjə",
+    "note": "suh-dyuh"
+  },
+  "Puran poli": {
+    "ipa": "ˈpuːrəɳ ˈpoːliː",
+    "note": "POO-ruhn POH-lee"
+  },
+  "Jadoh": {
+    "ipa": "ˈdʒɑːdoː",
+    "note": "JAA-doh - Khasi dish; the Khasi vowels are only approximated here",
+    "unsure": true
+  },
+  "Eromba": {
+    "ipa": "eːˈroːmbɑː",
+    "note": "ay-ROHM-baa - Meitei dish; approximate",
+    "unsure": true
+  },
+  "Poha": {
+    "ipa": "ˈpoːhɑː",
+    "note": "POH-haa"
+  },
+  "Dalma": {
+    "ipa": "ˈdɑːlmɑː",
+    "note": "DAAL-maa",
+    "unsure": true
+  },
+  "Dosa": {
+    "ipa": "ˈdoːsɑː",
+    "note": "DOH-saa"
+  },
+  "Idli": {
+    "ipa": "ˈɪɖliː",
+    "note": "I-dlee"
+  },
+  "sambar": {
+    "ipa": "ˈsɑːmbɑːr",
+    "note": "SAAM-baar"
+  },
+  "baati": {
+    "ipa": "ˈbɑːʈiː",
+    "note": "BAA-tee"
+  },
+  "churma": {
+    "ipa": "ˈtʃuːrmɑː",
+    "note": "CHOOR-maa"
+  },
+  "Momos": {
+    "ipa": "ˈmoːmoːz",
+    "note": "MOH-mohz"
+  },
+  "Macher jhol": {
+    "ipa": "ˈmɑːtʃʰeːr dʒʰoːl",
+    "note": "MAA-chhayr jhohl",
+    "unsure": true
+  },
+  "Mui borok": {
+    "ipa": "ˈmuːiː ˈboːroːk",
+    "note": "MOOEE BOH-rohk - Kokborok; approximate",
+    "unsure": true
+  },
+  "Kafuli": {
+    "ipa": "kəˈfuːliː",
+    "note": "kuh-FOO-lee",
+    "unsure": true
+  },
+  "Tunday": {
+    "ipa": "ˈtʊndeː",
+    "note": "TUN-day",
+    "unsure": true
+  },
+  "peda": {
+    "ipa": "ˈpeːɽɑː",
+    "note": "PAY-raa, with the retroflex flap"
+  },
+  "Masor tenga": {
+    "ipa": "ˈmɑːsoːr ˈteːŋɡɑː",
+    "note": "MAA-sohr TAYNG-gaa - Assamese; approximate",
+    "unsure": true
+  },
+  "Bai": {
+    "ipa": "ˈbɑːiː",
+    "note": "BAAEE - Mizo dish; approximate",
+    "unsure": true
+  },
+  "Kiranmala": {
+    "ipa": "kɪrənˈmɑːlɑː",
+    "note": "ki-ruhn-MAA-laa"
+  },
+  "Arun": {
+    "ipa": "əˈrʊɳ",
+    "note": "uh-RUN"
+  },
+  "Barun": {
+    "ipa": "bəˈrʊɳ",
+    "note": "buh-RUN"
+  },
+  "thakuma": {
+    "ipa": "ˈʈʰɑːkʊmɑː",
+    "note": "THAA-ku-maa - Bengali for father's mother"
+  },
+  "dida": {
+    "ipa": "ˈdiːdɑː",
+    "note": "DEE-daa - Bengali for mother's mother"
+  },
+  "Gopal": {
+    "ipa": "ɡoːˈpɑːl",
+    "note": "goh-PAAL"
+  },
+  "Bhar": {
+    "ipa": "bʰɑːɽ",
+    "note": "bhaar - Bengali bhand, a jester; the retroflex flap ending is approximate",
+    "unsure": true
+  },
+  "Krishnachandra": {
+    "ipa": "krɪʂɳətʃəndrə",
+    "note": "krish-nuh-chuhn-druh"
+  },
+  "Tenali": {
+    "ipa": "təˈnɑːliː",
+    "note": "tuh-NAA-lee"
+  },
+  "Raman": {
+    "ipa": "ˈrɑːmən",
+    "note": "RAA-muhn (Tenali Raman); not the physicist's RAH-mun"
+  },
+  "Krishnadevaraya": {
+    "ipa": "krɪʂɳədeːʋəˈrɑːjə",
+    "note": "krish-nuh-day-vuh-RAA-yuh"
+  },
+  "Sambhaji": {
+    "ipa": "səmˈbʰɑːdʒiː",
+    "note": "suhm-BHAA-jee"
+  },
+  "Pabuji": {
+    "ipa": "pɑːˈbuːdʒiː",
+    "note": "paa-BOO-jee"
+  },
+  "Deval": {
+    "ipa": "deːʋəl",
+    "note": "day-vuhl",
+    "unsure": true
+  },
+  "bhopa": {
+    "ipa": "ˈbʰoːpɑː",
+    "note": "BHOH-paa - the singer of the Pabuji phad",
+    "unsure": true
+  },
+  "phad": {
+    "ipa": "pəɖ",
+    "note": "puhd - the painted scroll; the ph is an aspirated p; this voice rejects pʰ outright, so it is written plain",
+    "unsure": true
+  },
+  "Kolu": {
+    "ipa": "ˈkoːluː",
+    "note": "KOH-loo",
+    "unsure": true
+  },
+  "Kesar Kalmi": {
+    "ipa": "ˈkeːsər kəlmiː",
+    "note": "KAY-suhr kuhl-mee - Pabuji's mare",
+    "unsure": true
+  },
+  "Jagannath": {
+    "ipa": "dʒəɡəˈnɑːt̪ʰ",
+    "note": "juh-guh-NAATH"
+  },
+  "Balabhadra": {
+    "ipa": "bələbʰədrə",
+    "note": "buh-luh-bhuh-druh"
+  },
+  "Subhadra": {
+    "ipa": "sʊbʰədrɑː",
+    "note": "su-bhuh-draa"
+  },
+  "Indradyumna": {
+    "ipa": "ɪndrəˈdjʊmnə",
+    "note": "in-druh-DYUM-nuh",
+    "unsure": true
+  },
+  "Gundicha": {
+    "ipa": "ˈɡʊɳɖɪtʃɑː",
+    "note": "GUN-di-chaa",
+    "unsure": true
+  },
+  "Puri": {
+    "ipa": "ˈpʊriː",
+    "note": "PU-ree, short u - the town in Odisha"
+  },
+  "Mahabali": {
+    "ipa": "məhɑːbəliː",
+    "note": "muh-haa-buh-lee"
+  },
+  "Maveli": {
+    "ipa": "mɑːˈʋeːliː",
+    "note": "maa-VAY-lee"
+  },
+  "Onam": {
+    "ipa": "ˈoːɳəm",
+    "note": "OH-nuhm"
+  },
+  "pookalam": {
+    "ipa": "ˈpuːkələm",
+    "note": "POO-kuh-luhm - the Onam flower carpet",
+    "unsure": true
+  },
+  "Malayali": {
+    "ipa": "mələˈjɑːliː",
+    "note": "muh-luh-YAA-lee"
+  },
+  "Chakli ane Kagdo": {
+    "ipa": "tʃəkliː əˈneː ˈkɑːɡdoː",
+    "note": "chuh-klee uh-NAY KAAG-doh - Gujarati for 'the sparrow and the crow'",
+    "unsure": true
+  },
+  "Chhan": {
+    "ipa": "tʃʰɑːn",
+    "note": "chhaan - the sound of coins"
+  },
+  "Sacha Sauda": {
+    "ipa": "sətʃɑː ˈsɔːdɑː",
+    "note": "suh-chaa SAW-daa - the true bargain"
+  },
+  "khara": {
+    "ipa": "kʰərɑː",
+    "note": "khuh-raa - genuine"
+  },
+  "sauda": {
+    "ipa": "ˈsɔːdɑː",
+    "note": "SAW-daa - a bargain"
+  },
+  "Amar Das": {
+    "ipa": "əmər dɑːs",
+    "note": "uh-muhr daas"
+  },
+  "Goindval": {
+    "ipa": "ˈɡoːɪndʋɑːl",
+    "note": "GOHIN-dvaal",
+    "unsure": true
+  },
+  "Kalu": {
+    "ipa": "ˈkɑːluː",
+    "note": "KAA-loo"
+  },
+  "Mehta": {
+    "ipa": "ˈmeːtɑː",
+    "note": "MAY-taa"
+  },
+  "Khanda": {
+    "ipa": "kʰəɳɖɑː",
+    "note": "khuhn-daa"
+  },
+  "langar": {
+    "ipa": "ləŋɡər",
+    "note": "luhng-guhr - the free kitchen"
+  },
+  "gurdwara": {
+    "ipa": "ɡʊrˈdʋɑːrɑː",
+    "note": "gur-DVAA-raa"
+  },
+  "sevadar": {
+    "ipa": "seːʋɑːˈdɑːr",
+    "note": "say-vaa-DAAR",
+    "unsure": true
+  },
+  "sevadars": {
+    "ipa": "seːʋɑːˈdɑːrz",
+    "note": "say-vaa-DAARZ",
+    "unsure": true
+  },
+  "Sikh": {
+    "ipa": "sɪkʰ",
+    "note": "sikh, short i - not 'seek'"
+  },
+  "Sikhs": {
+    "ipa": "sɪkʰs",
+    "note": "sikhs, short i"
+  },
+  "Beas": {
+    "ipa": "ˈbiːɑːs",
+    "note": "BEEAAS - the Punjab river",
+    "unsure": true
+  },
+  "Agra": {
+    "ipa": "ˈɑːɡrɑː",
+    "note": "AA-graa"
+  },
+  "Deccan": {
+    "ipa": "ˈdekən",
+    "note": "DE-kuhn"
+  },
+  "Thar": {
+    "ipa": "t̪ʰɑːr",
+    "note": "thaar"
+  },
+  "Saurashtra": {
+    "ipa": "sɔːˈrɑːʂʈrə",
+    "note": "saw-RAASH-truh"
+  },
+  "Khasi": {
+    "ipa": "ˈkʰɑːsiː",
+    "note": "KHAA-see"
+  },
+  "Sngi": {
+    "ipa": "ˈsʊŋiː",
+    "note": "SU-ngee - Khasi Ka Sngi, the sun; English cannot begin a word with the Khasi sng- cluster, so this is an approximation",
+    "unsure": true
+  },
+  "Naga": {
+    "ipa": "ˈnɑːɡɑː",
+    "note": "NAA-gaa"
+  },
+  "Bengali": {
+    "ipa": "beŋˈɡɔːliː",
+    "note": "beng-GAW-lee"
+  },
+  "Raja": {
+    "ipa": "ˈrɑːdʒɑː",
+    "note": "RAA-jaa"
+  },
+  "Maharaj": {
+    "ipa": "məhɑːˈrɑːdʒ",
+    "note": "muh-haa-RAAJ"
+  },
+  "jalebi": {
+    "ipa": "dʒəˈleːbiː",
+    "note": "juh-LAY-bee"
+  },
+  "roti": {
+    "ipa": "ˈroːʈiː",
+    "note": "ROH-tee"
+  },
+  "ghee": {
+    "ipa": "ɡʰiː",
+    "note": "ghee"
+  },
+  "neem": {
+    "ipa": "niːm",
+    "note": "neem"
+  },
+  "brahmin": {
+    "ipa": "ˈbrɑːhmɪn",
+    "note": "BRAAH-min"
+  },
+  "dal": {
+    "ipa": "dɑːl",
+    "note": "daal, the lentils - not the English 'dal'"
+  },
+  "pedas": {
+    "ipa": "ˈpeːɽɑːz",
+    "note": "PAY-raaz"
+  },
+  "Chandkaushik": {
+    "ipa": "tʃəɳɖəˈkɔːʃɪk",
+    "note": "chuhn-duh-KAW-shik"
+  },
+  "Gonu Jha": {
+    "ipa": "ˈɡoːnuː dʒʰɑː",
+    "note": "GOH-noo jhaa"
+  },
+  "Mithila": {
+    "ipa": "ˈmɪt̪ʰɪlɑː",
+    "note": "MI-thi-laa"
+  },
+  "Punyakoti": {
+    "ipa": "pʊɳjəˈkoːʈiː",
+    "note": "pu-nyuh-KOH-tee"
+  },
+  "Ramakrishna": {
+    "ipa": "rɑːməˈkrɪʂɳə",
+    "note": "raa-muh-KRISH-nuh"
+  },
+  "Shravanabelagola": {
+    "ipa": "ʃrəʋəɳəbeːləˈɡoːlə",
+    "note": "shruh-vuh-nuh-bay-luh-GOH-luh"
+  },
+  "Dharani mandala madhyadolage": {
+    "ipa": "d̪ʰərəˈɳiː məɳɖələ məd̪ʰjəˈdoːləɡeː",
+    "note": "dhuh-ruh-NEE muhn-duh-luh muh-dhyuh-DOH-luh-gay - the opening of the Kannada song of Punyakoti; a Kannada speaker should check this one",
+    "unsure": true
+  },
+  "Chakli": {
+    "ipa": "tʃəkliː",
+    "note": "chuh-klee - Gujarati for the sparrow",
+    "unsure": true
+  },
+  "Kagdo": {
+    "ipa": "ˈkɑːɡdoː",
+    "note": "KAAG-doh - Gujarati for the crow",
+    "unsure": true
+  },
+  "Kesar": {
+    "ipa": "ˈkeːsər",
+    "note": "KAY-suhr",
+    "unsure": true
+  },
+  "Kalmi": {
+    "ipa": "kəlmiː",
+    "note": "kuhl-mee",
+    "unsure": true
+  },
+  "Vishnu": {
+    "ipa": "ˈʋɪʂɳʊ",
+    "note": "VISH-nu"
+  },
+  "Indra": {
+    "ipa": "ˈɪndrə",
+    "note": "IN-druh"
+  },
+  "Yama": {
+    "ipa": "jəmə",
+    "note": "yuh-muh"
+  },
+  "Kurma": {
+    "ipa": "ˈkuːrmə",
+    "note": "KOOR-muh - Vishnu as the tortoise"
+  },
+  "Purana": {
+    "ipa": "pʊˈrɑːɳə",
+    "note": "pu-RAA-nuh"
+  },
+  "Puranas": {
+    "ipa": "pʊˈrɑːɳəz",
+    "note": "pu-RAA-nuhz"
+  },
+  "deva": {
+    "ipa": "ˈdeːʋə",
+    "note": "DAY-vuh"
+  },
+  "devas": {
+    "ipa": "ˈdeːʋəz",
+    "note": "DAY-vuhz"
+  },
+  "asura": {
+    "ipa": "əsʊrə",
+    "note": "uh-su-ruh"
+  },
+  "asuras": {
+    "ipa": "əsʊrəz",
+    "note": "uh-su-ruhz"
+  },
+  "amrita": {
+    "ipa": "əmrɪtə",
+    "note": "uh-mri-tuh, the nectar; the t is unaspirated anyway"
+  },
+  "halahala": {
+    "ipa": "hɑːləˈhɑːlə",
+    "note": "haa-luh-HAA-luh - the poison from the churning"
+  },
+  "Vasuki": {
+    "ipa": "ˈʋɑːsʊkiː",
+    "note": "VAA-su-kee"
+  },
+  "Nilakantha": {
+    "ipa": "niːləkəɳʈʰə",
+    "note": "nee-luh-kuhn-thuh, the blue-throated one"
+  },
+  "Samudra Manthan": {
+    "ipa": "səˈmʊdrə mənt̪ʰən",
+    "note": "suh-MU-druh muhn-thuhn - the churning of the ocean (th plain t)"
+  },
+  "Mahishasura": {
+    "ipa": "məhɪˈʂɑːsʊrə",
+    "note": "muh-hi-SHAA-su-ruh"
+  },
+  "Narasimha": {
+    "ipa": "nərəˈsɪmhə",
+    "note": "nuh-ruh-SIM-huh"
+  },
+  "Prahlad": {
+    "ipa": "prəhˈlɑːd",
+    "note": "pruh-HLAAD; the fuller form Prahlada is listed separately"
+  },
+  "Hiranyakashipu": {
+    "ipa": "hɪrəɳjəkəʃɪpʊ",
+    "note": "hi-ruh-nyuh-kuh-shi-pu"
+  },
+  "Ahobilam": {
+    "ipa": "əhoːˈbɪləm",
+    "note": "uh-hoh-BI-luhm"
+  },
+  "Dhruva": {
+    "ipa": "ˈd̪ʰrʊʋə",
+    "note": "DHRU-vuh"
+  },
+  "Dhruva Tara": {
+    "ipa": "ˈd̪ʰrʊʋə ˈtɑːrɑː",
+    "note": "DHRU-vuh TAA-raa - the Pole Star"
+  },
+  "Suniti": {
+    "ipa": "sʊˈniːtiː",
+    "note": "su-NEE-tee"
+  },
+  "Uttanapada": {
+    "ipa": "ʊtɑːnəˈpɑːdə",
+    "note": "u-taa-nuh-PAA-duh"
+  },
+  "Markandeya": {
+    "ipa": "mɑːrkəɳɖeːjə",
+    "note": "maar-kuhn-day-yuh"
+  },
+  "Mrikandu": {
+    "ipa": "mrɪkəɳɖʊ",
+    "note": "mri-kuhn-du - Markandeya's father"
+  },
+  "chiranjivi": {
+    "ipa": "tʃɪrənˈdʒiːʋiː",
+    "note": "chi-ruhn-JEE-vee - the long-living ones"
+  },
+  "Kaliya": {
+    "ipa": "ˈkɑːlɪjə",
+    "note": "KAA-li-yuh"
+  },
+  "Vrindavan": {
+    "ipa": "ˈʋrɪndɑːʋən",
+    "note": "VRIN-daa-vuhn"
+  },
+  "kadamba": {
+    "ipa": "kədəmbə",
+    "note": "kuh-duhm-buh - the tree Krishna climbs"
+  },
+  "Govardhan": {
+    "ipa": "ɡoːʋərd̪ʰən",
+    "note": "goh-vuhr-dhuhn"
+  },
+  "Bhagiratha": {
+    "ipa": "bʰəɡiːrət̪ʰə",
+    "note": "bhuh-gee-ruh-thuh (bh plain b, th plain t)"
+  },
+  "Bhagirathi": {
+    "ipa": "bʰəɡiːrət̪ʰiː",
+    "note": "bhuh-gee-ruh-thee - the Ganga named after him"
+  },
+  "bhagirath prayatna": {
+    "ipa": "bʰəɡiːrət̪ʰ prəjətnə",
+    "note": "bhuh-gee-ruhth pruh-yuht-nuh - an enormous patient effort"
+  },
+  "prayatna": {
+    "ipa": "prəjətnə",
+    "note": "pruh-yuht-nuh - effort"
+  },
+  "Parashurama": {
+    "ipa": "pərəʃʊˈrɑːmə",
+    "note": "puh-ruh-shu-RAA-muh"
+  },
+  "Parashuram": {
+    "ipa": "pərəʃʊˈrɑːm",
+    "note": "puh-ruh-shu-RAAM"
+  },
+  "Ghatotkacha": {
+    "ipa": "ɡʰəˈʈoːtkətʃə",
+    "note": "ghuh-TOHT-kuh-chuh"
+  },
+  "Kunti": {
+    "ipa": "ˈkʊntiː",
+    "note": "KUN-tee"
+  },
+  "Pandavas": {
+    "ipa": "ˈpɑːɳɖəʋəz",
+    "note": "PAAN-duh-vuhz"
+  },
+  "Hidimba": {
+    "ipa": "hɪˈɖɪmbɑː",
+    "note": "hi-DIM-baa - the Mahabharata spelling"
+  },
+  "Hadimba": {
+    "ipa": "həˈɖɪmbɑː",
+    "note": "huh-DIM-baa - the Kullu valley spelling of the same name"
+  },
+  "Hadimba Devi": {
+    "ipa": "həˈɖɪmbɑː ˈdeːʋiː",
+    "note": "huh-DIM-baa DAY-vee"
+  },
+  "Devi": {
+    "ipa": "ˈdeːʋiː",
+    "note": "DAY-vee"
+  },
+  "Chamundeshwari": {
+    "ipa": "tʃɑːmʊɳˈɖeːʃʋəriː",
+    "note": "chaa-mun-DAY-shvuh-ree"
+  },
+  "Mysuru": {
+    "ipa": "ˈmaɪsʊrʊ",
+    "note": "MY-su-ru"
+  },
+  "Diwali": {
+    "ipa": "dɪˈʋɑːliː",
+    "note": "di-VAA-lee, not dee-WAH-lee"
+  },
+  "Dussehra": {
+    "ipa": "dʊˈseːrɑː",
+    "note": "du-SAY-raa"
+  },
+  "Kullu Dussehra": {
+    "ipa": "ˈkʊluː dʊˈseːrɑː",
+    "note": "KU-loo du-SAY-raa"
+  },
+  "Guttila": {
+    "ipa": "ɡʊˈtɪlə",
+    "note": "gu-TI-luh - the veena master"
+  },
+  "Musila": {
+    "ipa": "mʊˈsiːlə",
+    "note": "mu-SEE-luh - his student"
+  },
+  "Benares": {
+    "ipa": "bəˈnɑːrəs",
+    "note": "buh-NAA-ruhs, not buh-NAIR-eez"
+  },
+  "Nandivisala": {
+    "ipa": "nəndɪʋɪˈsɑːlə",
+    "note": "nuhn-di-vi-SAA-luh - the great ox"
+  },
+  "Rukkhadhamma": {
+    "ipa": "rʊkkʰəd̪ʰəmə",
+    "note": "ruk-khuh-dhuh-muh, 'the law of the tree'"
+  },
+  "Lambakarna": {
+    "ipa": "ləmbəkərɳə",
+    "note": "luhm-buh-kuhr-nuh - 'long-ears', the rabbit"
+  },
+  "Chaturdanta": {
+    "ipa": "tʃətʊrdəntə",
+    "note": "chuh-tur-duhn-tuh - the elephant king"
+  },
+  "Gomaya": {
+    "ipa": "ˈɡoːməjə",
+    "note": "GOH-muh-yuh - the jackal and the war drum"
+  },
+  "Mantharaka": {
+    "ipa": "mənt̪ʰərəkə",
+    "note": "muhn-thuh-ruh-kuh - the tortoise"
+  },
+  "Bharunda": {
+    "ipa": "bʰəˈrʊɳɖə",
+    "note": "bhuh-RUN-duh - the two-headed bird"
+  },
+  "Uddhata": {
+    "ipa": "ˈʊd̪ʰətə",
+    "note": "U-dhuh-tuh - the singing donkey"
+  },
+  "Chandra-sarovar": {
+    "ipa": "tʃəndrə səˈroːʋər",
+    "note": "chuhn-druh suh-ROH-vuhr - Moon Lake"
+  },
+  "Karaikal": {
+    "ipa": "kɑːraɪˈkɑːl",
+    "note": "kaa-ry-KAAL"
+  },
+  "Karaikal Ammaiyar": {
+    "ipa": "kɑːraɪˈkɑːl əˈmaɪjɑːr",
+    "note": "kaa-ry-KAAL uh-MY-yaar"
+  },
+  "Ammaiyar": {
+    "ipa": "əˈmaɪjɑːr",
+    "note": "uh-MY-yaar - 'the mother'"
+  },
+  "Punitavati": {
+    "ipa": "pʊnɪtəʋətiː",
+    "note": "pu-ni-tuh-vuh-tee"
+  },
+  "Paramadattan": {
+    "ipa": "pərəmədətən",
+    "note": "puh-ruh-muh-duh-tuhn"
+  },
+  "Nayanmars": {
+    "ipa": "nɑːjənˈmɑːrz",
+    "note": "naa-yuhn-MAARZ - the Tamil Shaiva saints"
+  },
+  "Nayanmar": {
+    "ipa": "nɑːjənˈmɑːr",
+    "note": "naa-yuhn-MAAR"
+  },
+  "Shaiva": {
+    "ipa": "ˈʃaɪʋə",
+    "note": "SHY-vuh"
+  },
+  "Tirukkadaiyur": {
+    "ipa": "tɪrʊkədaɪˈjuːr",
+    "note": "ti-ru-kuh-dy-YOOR"
+  },
+  "Sahyadri": {
+    "ipa": "sɑːˈhjɑːdriː",
+    "note": "saa-HYAA-dree - the Western Ghats"
+  },
+  "Ghats": {
+    "ipa": "ɡʰɑːʈs",
+    "note": "ghaats, not 'gats'"
+  },
+  "Konkan": {
+    "ipa": "ˈkoːŋkəɳ",
+    "note": "KOHNG-kuhn"
+  },
+  "Konkani": {
+    "ipa": "koːŋkəɳiː",
+    "note": "kohng-kuh-nee"
+  },
+  "Manali": {
+    "ipa": "məˈnɑːliː",
+    "note": "muh-NAA-lee"
+  },
+  "Kullu": {
+    "ipa": "ˈkʊluː",
+    "note": "KU-loo"
+  },
+  "Bhekuli Biya": {
+    "ipa": "bʰeːkʊliː ˈbɪjɑː",
+    "note": "bhay-ku-lee BI-yaa - Assamese, the frog wedding"
+  },
+  "bhekuli": {
+    "ipa": "bʰeːˈkʊliː",
+    "note": "bhay-KU-lee - Assamese for frog"
+  },
+  "Junaki": {
+    "ipa": "dʒʊˈnɑːkiː",
+    "note": "ju-NAA-kee - Assamese girl's name, 'firefly'"
+  },
+  "namghar": {
+    "ipa": "ˈnɑːmɡʰər",
+    "note": "NAAM-ghuhr - the Assamese prayer house"
+  },
+  "pandal": {
+    "ipa": "pəɳɖəl",
+    "note": "puhn-duhl"
+  },
+  "Santhal": {
+    "ipa": "ˈsɑːntɑːl",
+    "note": "SAAN-taal - no aspirate: the autonym is Santal and the h is romanisation noise"
+  },
+  "Santhals": {
+    "ipa": "ˈsɑːntɑːlz",
+    "note": "SAAN-taalz - no aspirate: the autonym is Santal and the h is romanisation noise"
+  },
+  "Thakur Jiu": {
+    "ipa": "ˈʈʰɑːkʊr ˈdʒiːʊ",
+    "note": "THAA-kur JEEU - Santali, the great one"
+  },
+  "Pilchu Haram": {
+    "ipa": "ˈpɪltʃuː ˈhɑːrəm",
+    "note": "PIL-choo HAA-ruhm - Santali, the first man"
+  },
+  "Pilchu Budhi": {
+    "ipa": "ˈpɪltʃuː ˈbʊd̪ʰiː",
+    "note": "PIL-choo BU-dhee - Santali, the first woman"
+  },
+  "Pilchu": {
+    "ipa": "ˈpɪltʃuː",
+    "note": "PIL-choo"
+  },
+  "Sohrai": {
+    "ipa": "soːˈraɪ",
+    "note": "soh-RY - the Santhal harvest festival"
+  },
+  "Pebet": {
+    "ipa": "ˈpeːbet",
+    "note": "PAY-bet - the Meitei tale of the small bird"
+  },
+  "Hojagiri": {
+    "ipa": "hoːdʒɑːˈɡiriː",
+    "note": "hoh-jaa-GI-ree - the Reang dance of Tripura"
+  },
+  "Reang": {
+    "ipa": "riˈɑːŋ",
+    "note": "riaang"
+  },
+  "Bru": {
+    "ipa": "bruː",
+    "note": "broo - what the Reang call themselves"
+  },
+  "Kwrwi": {
+    "ipa": null,
+    "note": "Kokborok spelling: the letter w stands for a vowel this transcriber cannot pin (kraw-ee? kuh-ROO-ee?). NEEDS A NATIVE SPEAKER - left unpinned rather than guessed.",
+    "needs_native_speaker": true
+  },
+  "Mailuma": {
+    "ipa": null,
+    "note": "Kokborok, the paddy goddess of the Reang. The first vowel and the stress are both guesses from the romanisation. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Lepcha": {
+    "ipa": "ˈleːptʃɑː",
+    "note": "LAYP-chaa"
+  },
+  "Mutanchi": {
+    "ipa": null,
+    "note": "Lepcha autonym, romanised inconsistently across sources. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Rongkup": {
+    "ipa": null,
+    "note": "Lepcha autonym ('children of the peak'), romanised inconsistently across sources. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Biliku": {
+    "ipa": null,
+    "note": "Great Andamanese. The spelling comes from early-twentieth-century ethnographic transcription (also written Bilik, and confused with Puluga) and cannot be read off reliably. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Abo Tani": {
+    "ipa": "ˈɑːboː ˈtɑːniː",
+    "note": "AA-boh TAA-nee - the first man of the Tani peoples"
+  },
+  "Abo": {
+    "ipa": "ˈɑːboː",
+    "note": "AA-boh - 'father' in the Tani languages"
+  },
+  "Tani": {
+    "ipa": "ˈtɑːniː",
+    "note": "TAA-nee"
+  },
+  "Adi": {
+    "ipa": "ˈɑːdiː",
+    "note": "AA-dee - one of the Tani peoples"
+  },
+  "Nyishi": {
+    "ipa": "ˈnjiːʃiː",
+    "note": "NYEE-shee (the ny is a single sound; the engine has no palatal nasal so it is written nj)"
+  },
+  "Apatani": {
+    "ipa": "ɑːpəˈtɑːniː",
+    "note": "aa-puh-TAA-nee"
+  },
+  "Galo": {
+    "ipa": "ˈɡɑːloː",
+    "note": "GAA-loh"
+  },
+  "Tagin": {
+    "ipa": "ˈtɑːɡɪn",
+    "note": "TAA-gin"
+  },
+  "Solung": {
+    "ipa": "ˈsoːlʊŋ",
+    "note": "SOH-lung - an Adi festival"
+  },
+  "Mopin": {
+    "ipa": "ˈmoːpɪn",
+    "note": "MOH-pin - a Galo festival"
+  },
+  "Nyokum": {
+    "ipa": "ˈnjoːkʊm",
+    "note": "NYOH-kum - a Nyishi festival"
+  },
+  "Dree": {
+    "ipa": "driː",
+    "note": "dree - an Apatani festival"
+  },
+  "mithun": {
+    "ipa": "ˈmɪt̪ʰʊn",
+    "note": "MI-thun - the great half-wild cattle of the north-east"
+  },
+  "wiyus": {
+    "ipa": null,
+    "note": "Tani spirits; romanised as wiyu / uyu / ui depending on the language and the writer. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Dasharatha": {
+    "ipa": "dəʃərət̪ʰə",
+    "note": "duh-shuh-ruh-thuh"
+  },
+  "Kausalya": {
+    "ipa": "kɔːsəljɑː",
+    "note": "kaw-suhl-yaa"
+  },
+  "Kaikeyi": {
+    "ipa": "kɛːˈkeːjiː",
+    "note": "kay-KAY-yee; the ai is the vowel of 'bed', held, not the 'eye' of 'kite'"
+  },
+  "Sumitra": {
+    "ipa": "sʊˈmɪtrɑː",
+    "note": "su-MI-traa"
+  },
+  "Shatrughna": {
+    "ipa": "ʃəˈtrʊɡʰnə",
+    "note": "shuh-TRUGH-nuh"
+  },
+  "Urmila": {
+    "ipa": "ˈuːrmɪlɑː",
+    "note": "OOR-mi-laa"
+  },
+  "Mandavi": {
+    "ipa": "ˈmɑːɳɖəʋiː",
+    "note": "MAAN-duh-vee"
+  },
+  "Shrutakirti": {
+    "ipa": "ʃrʊtəˈkiːrtɪ",
+    "note": "shru-tuh-KEER-ti"
+  },
+  "Janaka": {
+    "ipa": "dʒənəkə",
+    "note": "juh-nuh-kuh"
+  },
+  "Janaki": {
+    "ipa": "dʒɑːnəˈkiː",
+    "note": "jaa-nuh-KEE - Sita named as Janaka's daughter"
+  },
+  "Maithili": {
+    "ipa": "ˈmɛːt̪ʰɪliː",
+    "note": "MAY-thi-lee - Sita named as the woman of Mithila"
+  },
+  "Manthara": {
+    "ipa": "mənt̪ʰərɑː",
+    "note": "muhn-thuh-raa"
+  },
+  "Sumantra": {
+    "ipa": "sʊməntrə",
+    "note": "su-muhn-truh"
+  },
+  "Guha": {
+    "ipa": "ˈɡʊhə",
+    "note": "GU-huh"
+  },
+  "Vishwamitra": {
+    "ipa": "ʋɪʃʋɑːˈmɪtrə",
+    "note": "vi-shvaa-MI-truh"
+  },
+  "Vishvamitra": {
+    "ipa": "ʋɪʃʋɑːˈmɪtrə",
+    "note": "vi-shvaa-MI-truh - the other common romanisation of the same name"
+  },
+  "Vasishtha": {
+    "ipa": "ʋəˈsɪʂʈʰə",
+    "note": "vuh-SISH-thuh - the ʈʰ is tagged but comes out unaspirated after the sibilant"
+  },
+  "Agastya": {
+    "ipa": "əɡəstjə",
+    "note": "uh-guhs-tyuh"
+  },
+  "Rishyashringa": {
+    "ipa": "rɪʃjəˈʃrɪŋɡə",
+    "note": "ri-shyuh-SHRING-guh"
+  },
+  "Ahalya": {
+    "ipa": "əhəljɑː",
+    "note": "uh-huhl-yaa"
+  },
+  "Gautama": {
+    "ipa": "ˈɡɔːtəmə",
+    "note": "GAW-tuh-muh"
+  },
+  "Tataka": {
+    "ipa": "ˈtɑːʈəkɑː",
+    "note": "TAA-tuh-kaa"
+  },
+  "Shabari": {
+    "ipa": "ʃəbəriː",
+    "note": "shuh-buh-ree"
+  },
+  "Jatayu": {
+    "ipa": "dʒəˈʈɑːjʊ",
+    "note": "juh-TAA-yu"
+  },
+  "Sampati": {
+    "ipa": "səmpətiː",
+    "note": "suhm-puh-tee"
+  },
+  "Sugriva": {
+    "ipa": "sʊˈɡriːʋə",
+    "note": "su-GREE-vuh"
+  },
+  "Vali": {
+    "ipa": "ˈʋɑːliː",
+    "note": "VAA-lee - Sugriva's brother; Bali in many tellings"
+  },
+  "Angada": {
+    "ipa": "əŋɡədə",
+    "note": "uhng-guh-duh"
+  },
+  "Sushena": {
+    "ipa": "sʊˈʂeːɳə",
+    "note": "su-SHAY-nuh"
+  },
+  "Surasa": {
+    "ipa": "ˈsʊrəsɑː",
+    "note": "SU-ruh-saa"
+  },
+  "Mainaka": {
+    "ipa": "mɛːˈnɑːkə",
+    "note": "may-NAA-kuh"
+  },
+  "Shurpanakha": {
+    "ipa": "ʃuːrpəɳəkʰɑː",
+    "note": "shoor-puh-nuh-khaa"
+  },
+  "Maricha": {
+    "ipa": "mɑːˈriːtʃə",
+    "note": "maa-REE-chuh"
+  },
+  "Kumbhakarna": {
+    "ipa": "kʊmbʰəkərɳə",
+    "note": "kum-bhuh-kuhr-nuh"
+  },
+  "Vibhishana": {
+    "ipa": "ʋɪˈbʰiːʂəɳə",
+    "note": "vi-BHEE-shuh-nuh"
+  },
+  "Mandodari": {
+    "ipa": "mənˈdoːdəriː",
+    "note": "muhn-DOH-duh-ree"
+  },
+  "Indrajit": {
+    "ipa": "ˈɪndrədʒɪt",
+    "note": "IN-druh-jit"
+  },
+  "Trijata": {
+    "ipa": "trɪdʒəʈɑː",
+    "note": "tri-juh-taa"
+  },
+  "Matali": {
+    "ipa": "ˈmɑːtəliː",
+    "note": "MAA-tuh-lee"
+  },
+  "Garuda": {
+    "ipa": "ɡərʊɖə",
+    "note": "guh-ru-duh"
+  },
+  "Agni": {
+    "ipa": "əɡnɪ",
+    "note": "uhg-ni"
+  },
+  "Kali": {
+    "ipa": "ˈkɑːliː",
+    "note": "KAA-lee - the goddess"
+  },
+  "Tara": {
+    "ipa": "ˈtɑːrɑː",
+    "note": "TAA-raa - Vali's queen; the same word as the Tara of Dhruva Tara, a star"
+  },
+  "Kusha": {
+    "ipa": "ˈkʊʃə",
+    "note": "KU-shuh - Rama and Sita's son"
+  },
+  "Sarayu": {
+    "ipa": "sərəˈjuː",
+    "note": "suh-ruh-YOO"
+  },
+  "Chitrakuta": {
+    "ipa": "tʃɪtrəˈkuːʈə",
+    "note": "chi-truh-KOO-tuh"
+  },
+  "Panchavati": {
+    "ipa": "pəntʃəʋəʈiː",
+    "note": "puhn-chuh-vuh-tee"
+  },
+  "Rishyamukha": {
+    "ipa": "rɪʃjəˈmuːkʰə",
+    "note": "ri-shyuh-MOO-khuh - spelled with kh here, though the hill is often Rishyamuka with a plain k"
+  },
+  "Pampa": {
+    "ipa": "pəmpɑː",
+    "note": "puhm-paa"
+  },
+  "Trikuta": {
+    "ipa": "trɪˈkuːʈə",
+    "note": "tri-KOO-tuh"
+  },
+  "Dronagiri": {
+    "ipa": "droːɳəˈɡɪrɪ",
+    "note": "droh-nuh-GI-ri"
+  },
+  "Nandigram": {
+    "ipa": "nəndɪɡrɑːm",
+    "note": "nuhn-di-graam"
+  },
+  "Setu": {
+    "ipa": "ˈseːtʊ",
+    "note": "SAY-tu"
+  },
+  "Pushpaka": {
+    "ipa": "ˈpʊʂpəkə",
+    "note": "PUSH-puh-kuh"
+  },
+  "Kanda": {
+    "ipa": "ˈkɑːɳɖə",
+    "note": "KAAN-duh - one book of the Ramayana"
+  },
+  "payasam": {
+    "ipa": "ˈpɑːjəsəm",
+    "note": "PAA-yuh-suhm - the rice pudding"
+  },
+  "rakshasa": {
+    "ipa": "ˈrɑːkʂəsə",
+    "note": "RAAK-shuh-suh"
+  },
+  "rakshasas": {
+    "ipa": "ˈrɑːkʂəsəz",
+    "note": "RAAK-shuh-suhz"
+  },
+  "Ramayanas": {
+    "ipa": "rɑːˈmɑːjəɳəz",
+    "note": "raa-MAA-yuh-nuhz"
+  },
+  "Kamban": {
+    "ipa": "kəmbən",
+    "note": "kuhm-buhn - the Tamil poet of the Iramavataram"
+  },
+  "Vyasa": {
+    "ipa": "ˈʋjɑːsə",
+    "note": "VYAA-suh"
+  },
+  "Shantanu": {
+    "ipa": "ˈʃɑːntənʊ",
+    "note": "SHAAN-tuh-nu"
+  },
+  "Satyavati": {
+    "ipa": "sətjəʋətiː",
+    "note": "suh-tyuh-vuh-tee"
+  },
+  "Devavrata": {
+    "ipa": "deːʋəʋrətə",
+    "note": "day-vuhv-ruh-tuh - Bhishma's first name"
+  },
+  "Bhishma": {
+    "ipa": "ˈbʰiːʂmə",
+    "note": "BHEESH-muh"
+  },
+  "Dhritarashtra": {
+    "ipa": "d̪ʰrɪtəˈrɑːʂʈrə",
+    "note": "dhri-tuh-RAASH-truh"
+  },
+  "Pandu": {
+    "ipa": "ˈpɑːɳɖʊ",
+    "note": "PAAN-du"
+  },
+  "Vidura": {
+    "ipa": "ˈʋɪdʊrə",
+    "note": "VI-du-ruh"
+  },
+  "Gandhari": {
+    "ipa": "ɡɑːnˈd̪ʰɑːriː",
+    "note": "gaan-DHAA-ree"
+  },
+  "Madri": {
+    "ipa": "ˈmɑːdriː",
+    "note": "MAA-dree"
+  },
+  "Pritha": {
+    "ipa": "ˈprɪt̪ʰɑː",
+    "note": "PRI-thaa - Kunti's first name"
+  },
+  "Nakula": {
+    "ipa": "nəkʊlə",
+    "note": "nuh-ku-luh"
+  },
+  "Sahadeva": {
+    "ipa": "səhəˈdeːʋə",
+    "note": "suh-huh-DAY-vuh"
+  },
+  "Duryodhana": {
+    "ipa": "dʊrˈjoːd̪ʰənə",
+    "note": "dur-YOH-dhuh-nuh"
+  },
+  "Duhshasana": {
+    "ipa": "dʊˈʃɑːsənə",
+    "note": "du-SHAA-suh-nuh"
+  },
+  "Vikarna": {
+    "ipa": "ʋɪkərɳə",
+    "note": "vi-kuhr-nuh"
+  },
+  "Shakuni": {
+    "ipa": "ʃəkʊnɪ",
+    "note": "shuh-ku-ni"
+  },
+  "Karna": {
+    "ipa": "kərɳə",
+    "note": "kuhr-nuh"
+  },
+  "Adhiratha": {
+    "ipa": "əd̪ʰɪrət̪ʰə",
+    "note": "uh-dhi-ruh-thuh"
+  },
+  "Radha": {
+    "ipa": "ˈrɑːd̪ʰɑː",
+    "note": "RAA-dhaa"
+  },
+  "Anga": {
+    "ipa": "əŋɡə",
+    "note": "uhng-guh - the kingdom Karna is given"
+  },
+  "Drona": {
+    "ipa": "ˈdroːɳə",
+    "note": "DROH-nuh"
+  },
+  "Kripa": {
+    "ipa": "ˈkrɪpə",
+    "note": "KRI-puh"
+  },
+  "Ashwatthama": {
+    "ipa": "əʃʋəˈt̪ʰɑːmɑː",
+    "note": "uh-shvuh-THAA-maa"
+  },
+  "Drupada": {
+    "ipa": "ˈdrʊpədə",
+    "note": "DRU-puh-duh"
+  },
+  "Shikhandi": {
+    "ipa": "ʃɪkʰəɳɖiː",
+    "note": "shi-khuhn-dee"
+  },
+  "Abhimanyu": {
+    "ipa": "əbʰɪmənjʊ",
+    "note": "uh-bhi-muh-nyu"
+  },
+  "Balarama": {
+    "ipa": "bələˈrɑːmə",
+    "note": "buh-luh-RAA-muh"
+  },
+  "Virata": {
+    "ipa": "ʋɪˈrɑːʈə",
+    "note": "vi-RAA-tuh"
+  },
+  "Uttara": {
+    "ipa": "ˈʊtərɑː",
+    "note": "U-tuh-raa - Virata's daughter, and the last book of the Ramayana"
+  },
+  "Brihannala": {
+    "ipa": "brɪhənəlɑː",
+    "note": "bri-huh-nuh-laa - Arjuna's name in the year of hiding"
+  },
+  "Ballava": {
+    "ipa": "bələʋə",
+    "note": "buh-luh-vuh - Bhima's name in the year of hiding"
+  },
+  "Kanka": {
+    "ipa": "kəŋkə",
+    "note": "kuhng-kuh - Yudhishthira's name in the year of hiding"
+  },
+  "Sairandhri": {
+    "ipa": "sɛːrənd̪ʰriː",
+    "note": "say-ruhn-dhree - Draupadi's name in the year of hiding"
+  },
+  "Purochana": {
+    "ipa": "pʊˈroːtʃənə",
+    "note": "pu-ROH-chuh-nuh"
+  },
+  "Sanjaya": {
+    "ipa": "səndʒəjə",
+    "note": "suhn-juh-yuh"
+  },
+  "Jayadratha": {
+    "ipa": "dʒəjədrət̪ʰə",
+    "note": "juh-yuh-druh-thuh"
+  },
+  "Hastinapura": {
+    "ipa": "həstɪˈnɑːpʊrə",
+    "note": "huhs-ti-NAA-pu-ruh"
+  },
+  "Indraprastha": {
+    "ipa": "ɪndrəprəst̪ʰə",
+    "note": "in-druh-pruhs-thuh"
+  },
+  "Varanavata": {
+    "ipa": "ʋɑːrəˈɳɑːʋətə",
+    "note": "vaa-ruh-NAA-vuh-tuh - the town with the lac house"
+  },
+  "Dwaraka": {
+    "ipa": "ˈdʋɑːrəkɑː",
+    "note": "DVAA-ruh-kaa"
+  },
+  "Panchala": {
+    "ipa": "ˈpɑːntʃɑːlə",
+    "note": "PAAN-chaa-luh"
+  },
+  "Matsya": {
+    "ipa": "mətsjə",
+    "note": "muht-syuh - Virata's kingdom"
+  },
+  "Kaurava": {
+    "ipa": "ˈkɔːrəʋə",
+    "note": "KAW-ruh-vuh"
+  },
+  "Kauravas": {
+    "ipa": "ˈkɔːrəʋəz",
+    "note": "KAW-ruh-vuhz"
+  },
+  "Gita": {
+    "ipa": "ˈɡiːtɑː",
+    "note": "GEE-taa"
+  },
+  "Bhagavad": {
+    "ipa": "bʰəɡəʋəd",
+    "note": "bhuh-guh-vuhd"
+  },
+  "Bhagavad Gita": {
+    "ipa": "bʰəɡəʋəd ˈɡiːtɑː",
+    "note": "bhuh-guh-vuhd GEE-taa"
+  },
+  "Parva": {
+    "ipa": "pərʋə",
+    "note": "puhr-vuh - one book of the Mahabharata"
+  },
+  "Sabha": {
+    "ipa": "səˈbʰɑː",
+    "note": "suh-BHAA"
+  },
+  "Vana": {
+    "ipa": "ʋənə",
+    "note": "vuh-nuh - forest; the Vana Parva"
+  },
+  "Mahabharatas": {
+    "ipa": "məhɑːˈbʰɑːrətəz",
+    "note": "muh-haa-BHAA-ruh-tuhz"
+  },
+  "Odia": {
+    "ipa": "ˈoːɽiɑː",
+    "note": "OH-riaa"
+  },
+  "Telugu": {
+    "ipa": "ˈteːlʊɡʊ",
+    "note": "TAY-lu-gu"
+  },
+  "Lava": {
+    "ipa": "ləʋə",
+    "note": "luh-vuh - Rama and Sita's son, NOT the vowel of molten lava",
+    "case_sensitive": true
+  },
+  "simsupa": {
+    "ipa": null,
+    "needs_native_speaker": true,
+    "note": "the tree Sita sits under in the Ashoka grove. Sanskrit shimshapa / simsupa is romanised both ways and the sibilants and the second vowel are both genuinely in doubt here. NEEDS A NATIVE SPEAKER."
+  }
 }

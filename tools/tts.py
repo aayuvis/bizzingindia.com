@@ -161,8 +161,11 @@ _TERMS = '|'.join(r'\s+'.join(re.escape(w) for w in t.split())
 TERM_RE = re.compile(r'(?<![&#A-Za-z0-9])(' + _TERMS + r')(' + _APOS + r's)?(?![A-Za-z0-9])',
                      re.IGNORECASE)
 
-_SIBILANT = ('s', 'z', 'ʃ', 'ʒ', 'ʂ', 'tʃ', 'dʒ')
-_VOICELESS = ('p', 't', 'k', 'f', 'θ', 'ʈ')
+# Aspirated finals count as their plain selves here: Ladakh's ends in a voiceless
+# k and takes an s, not a z. Listed explicitly because the check is endswith(),
+# and 'kʰ' does not end with 'k'.
+_SIBILANT = ('s', 'z', 'ʃ', 'ʒ', 'ʂ', 'tʃ', 'dʒ', 'tʃʰ', 'dʒʰ')
+_VOICELESS = ('p', 't', 'k', 'f', 'θ', 'ʈ', 'pʰ', 'kʰ', 'ʈʰ', 't̪ʰ')
 
 
 def escape(text):

@@ -2598,7 +2598,11 @@
         '<span class="tiny muted">' + esc(g.blurb || '') + '</span>' +
         '<span class="mono">' + (g.minutes || 2) + ' min</span></span></button>';
     }
-    var out = '<div class="card"><h1>The Mela</h1><p>The fairground. Some stalls are as old as ' +
+    /* nomenclature rule: the tab's word is the pillar's name; the Mela keeps its
+       proper name as the subtitle, the way the river does under Itihaas */
+    var out = '<div class="card"><h1 style="margin:0">Khel</h1>' +
+      '<div class="mono">The Mela — the fairground</div>' +
+      '<p style="margin:10px 0 0">Some stalls are as old as ' +
       'India, some are drills wearing a costume — every one plays with fingers and with keys.</p></div>';
     MELA_GROUPS.forEach(function (grp) {
       var list = grp[2].map(function (id) { used[id] = 1; return byId[id]; }).filter(Boolean);
@@ -2688,7 +2692,8 @@
      not a separate subject. A child holds a phone by the bottom half, so on a phone this
      bar moves to the bottom edge (see app.css). */
   var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['map', 'India', 'map'],
-              ['itihaas', 'Itihaas', 'clock'], ['neeti', 'Neeti', 'star'], ['bhasha', 'Bhasha', 'script']];
+              ['itihaas', 'Itihaas', 'clock'], ['neeti', 'Neeti', 'star'], ['bhasha', 'Bhasha', 'script'],
+              ['khel', 'Khel', 'game']];
 
   function chrome() {
     return '<header class="topbar"><div class="barrow">' +
@@ -2735,6 +2740,7 @@
       case 'pack': h = V.pack(view.arg); break;
       case 'chart': h = V.chart(view.arg); break;
       case 'mela': h = V.mela(); break;
+      case 'khel': h = V.mela(); break;   /* the games pillar got its own tab; Mela is its page */
       case 'game': h = V.game(); break;
       case 'learn': h = V.map(); break;   /* the Learn hub is gone; old links land on the map */
       case 'play': h = V.play(); break;
@@ -2781,7 +2787,7 @@
                   dharma: 'neeti', faith: 'neeti', utsav: 'neeti', festival: 'neeti',
                   gully: 'neeti', gullygame: 'neeti', geet: 'neeti', song: 'neeti',
                   story: 'stories', pack: 'bhasha', chart: 'bhasha',
-                  game: 'bhasha', mela: 'bhasha', play: 'bhasha', rishtey: 'bhasha', rishquiz: 'bhasha',
+                  game: 'khel', mela: 'khel', play: 'khel', rishtey: 'khel', rishquiz: 'khel',
                   nani: 'stories', shelf: 'stories', invite: 'stories', kahani: 'stories',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
                   worlds: 'me', tongue: 'home' };

@@ -984,7 +984,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (max-width: 700px) {
   .topbar .nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 0;
     background: var(--card); border-top: 1px solid var(--line);
     box-shadow: 0 -4px 24px rgba(30, 20, 70, .10);
     padding: 6px max(8px, env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom))
@@ -1000,3 +1000,57 @@ button, input, select, textarea { font: inherit; color: inherit; }
   /* room so the last card is never hidden behind the bar */
   .wrap { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 }
+
+/* -------------------------------------------------------------- the river
+   Each era is a painted bend: the state where its heart beats as the banner, its people
+   standing on it, the water alternating left and right so the page reads as a course
+   rather than a column. */
+.riverflow { display: grid; gap: var(--space-lg); position: relative; }
+.riverflow::before {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 3px;
+  background: linear-gradient(180deg, var(--accent-soft), var(--accent) 50%, var(--accent-soft));
+  border-radius: 2px; opacity: .5;
+}
+.erabend {
+  position: relative; width: min(560px, 92%); text-align: left; cursor: pointer;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl);
+  overflow: hidden; box-shadow: var(--shadow); padding: 0;
+  justify-self: start; transition: transform .15s, box-shadow .15s;
+}
+.erabend.alt { justify-self: end; }
+.erabend:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
+.erabanner {
+  height: 130px; background-size: cover; background-position: center;
+  background-color: var(--ground2);
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+}
+.erawhen {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.75);
+}
+.erafigs { display: flex; }
+.erafigs img, .erafigs svg { margin-left: -14px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.4)); }
+.erafigs > :first-child { margin-left: 0; }
+.erabody { display: grid; gap: 4px; padding: var(--space-md) var(--space-lg) var(--space-lg); }
+.erabody b { font-family: var(--display); font-size: 17.5px; line-height: 1.25; }
+@media (max-width: 640px) {
+  .riverflow::before { left: 10px; }
+  .erabend, .erabend.alt { width: 100%; justify-self: stretch; }
+}
+
+/* the timeline inside an era */
+.tline { display: grid; gap: 0; }
+.tmoment {
+  position: relative; padding: 0 0 var(--space-lg) 26px;
+}
+.tmoment::before {
+  content: ''; position: absolute; left: 6px; top: 7px; width: 9px; height: 9px;
+  border-radius: 50%; background: var(--accent2);
+}
+.tmoment::after {
+  content: ''; position: absolute; left: 10px; top: 20px; bottom: 2px; width: 1.5px;
+  background: var(--line2);
+}
+.tmoment:last-child::after { display: none; }
+.tmoment p { margin: 3px 0 0; font-size: 15px; }

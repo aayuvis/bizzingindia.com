@@ -163,12 +163,24 @@
   function allStories() {
     return (window.IND_STORIES || [])
       .concat(window.IND_STORIES_REGIONAL || [])
-      .concat(window.IND_STORIES_MORE || []);
+      .concat(window.IND_STORIES_MORE || [])
+      .concat(window.IND_STORIES_SOUTH || [])
+      .concat(window.IND_STORIES_NORTH || [])
+      .concat(window.IND_STORIES_EAST || [])
+      .concat(window.IND_STORIES_WEST || [])
+      .concat(window.IND_STORIES_NE_A || [])
+      .concat(window.IND_STORIES_NE_B || []);
   }
   function allCollections() {
     return (window.IND_COLLECTIONS || [])
       .concat(window.IND_COLLECTIONS_REGIONAL || [])
-      .concat(window.IND_COLLECTIONS_MORE || []);
+      .concat(window.IND_COLLECTIONS_MORE || [])
+      .concat(window.IND_COLLECTIONS_SOUTH || [])
+      .concat(window.IND_COLLECTIONS_NORTH || [])
+      .concat(window.IND_COLLECTIONS_EAST || [])
+      .concat(window.IND_COLLECTIONS_WEST || [])
+      .concat(window.IND_COLLECTIONS_NE_A || [])
+      .concat(window.IND_COLLECTIONS_NE_B || []);
   }
 
   function toast(m) {
@@ -1019,6 +1031,22 @@
      ageOK() is kept only to decide whether a heads-up is worth showing beside an item. */
   function needsGrownup(gate) { return (S.age || 8) < (gate || 4); }
 
+  /* ------------------------------------------------------------- ITIHAAS
+
+     Promoted back to a main tab, and rebuilt to earn it. The river used to be a bare list
+     of eleven text rows — the weakest surface in the app for the pillar with the grandest
+     name. It is now PAINTED: each era carries the painting of the state where its heart
+     beats (the Buddha age wears Bihar, the Mughal court wears Delhi), which costs nothing —
+     the state art exists — and swaps for dedicated era art the day it is generated. The
+     figures of the era stand on the bend, so a child scrolling the river watches the cast
+     of Indian history walk past before reading a word. */
+  /* Era banners are curated, not blindly inherited from the state: state paintings are
+     deliberately MODERN (Punjab's has a tractor in it), and a tractor on the Vedic age is
+     the kind of anachronism that costs the whole pillar its authority. Overrides point at
+     period-safe story paintings; eras without one fall back to their state's art. */
+  var ERA_BANNER = { vedic: 'art/story/pu-ganga-shiva.jpg' };
+  function eraArt(e) { return ERA_BANNER[e.id] || stateArt(e.place); }
+
   V.itihaas = function () {
     var I = window.IND_ITIHAAS;
     if (!I) return '<div class="card"><h1>Itihaas</h1><p>Not loaded.</p></div>';
@@ -1027,37 +1055,102 @@
       '<div class="row" style="margin-top:6px">' +
       '<span class="badge itihaas">itihaas — what evidence shows</span>' +
       '<span class="badge katha">katha — a story as it is told</span></div></div>' +
-      '<div class="river">' + eras.map(function (e, i) {
-        return '<button class="bend" data-act="era" data-id="' + e.id + '">' +
-          '<span class="yr">' + esc(e.when) + '</span>' +
-          '<span class="node">' + art(e.avatar, 54) + '</span>' +
-          '<span class="ttl">' + esc(e.title) + '</span>' +
-          '<span class="tiny muted">' + esc(e.hook) + '</span>' +
-          (needsGrownup(e.gate) ? '<span class="badge soft">has a hard part</span>' : '') +
-          '</button>';
+
+      '<div class="riverflow">' + eras.map(function (e, i) {
+        var img = eraArt(e);
+        var figs = (e.figures || []).filter(function (f) { return f.id; }).slice(0, 3);
+        return '<button class="erabend' + (i % 2 ? ' alt' : '') + '" data-act="era" data-id="' + e.id + '">' +
+          '<div class="erabanner"' + (img ? ' style="background-image:linear-gradient(180deg,rgba(20,12,50,.05) 30%,rgba(20,12,50,.62)),url(' + img + ')"' : '') + '>' +
+            '<span class="erawhen">' + esc(e.when) + '</span>' +
+            '<div class="erafigs">' +
+              (figs.length ? figs.map(function (f) { return art(f.id, 52); }).join('')
+                           : art(e.avatar, 52)) + '</div>' +
+          '</div>' +
+          '<div class="erabody">' +
+            '<b>' + esc(e.title) + '</b>' +
+            '<span class="tiny">' + esc(e.hook) + '</span>' +
+            (needsGrownup(e.gate) ? '<span class="badge soft">has a hard part</span>' : '') +
+          '</div></button>';
       }).join('') + '</div>' +
+
       '<div class="card flat tiny"><b>The whole river is here.</b> ' +
       'Some of what happened to India is hard, and none of it is hidden from you. ' +
       'A few stretches are marked so a grown-up knows to read them with you.</div>';
   };
 
+  /* One era, told in layers: the picture and the hook, the story of the age, its key
+     moments as a walkable timeline, the people, the places a family can still stand in
+     front of, the stories from that world, and — always last — how we know. Every section
+     is guarded, so the page renders on today's data and deepens as fields land. */
   V.era = function (id) {
     var I = window.IND_ITIHAAS;
     var e = I && I.eras.filter(function (x) { return x.id === id; })[0];
     if (!e) return '<div class="card">Not found.</div>';
     var big = (S.age || 8) >= 9;
+    var img = eraArt(e);
     return '<button class="backlink" data-act="go" data-v="itihaas">' + icon('back', 18) + ' The River of Time</button>' +
-      '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(e.avatar, 92) +
-      '<div style="flex:1"><span class="badge itihaas">itihaas</span>' +
-      '<h1 style="margin:8px 0 2px">' + esc(e.title) + '</h1>' +
-      '<div class="mono">' + esc(e.when) + '</div></div></div>' +
-      '<p style="font-size:17px;margin-top:14px">' + esc(e.hook) + '</p></div>' +
-      '<div class="card"><p>' + esc(e.kid) + '</p>' +
+
+      (img ? '<div class="statehero" style="background-image:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.6)),url(' + img + ')">' +
+        '<div class="cap"><span class="badge itihaas">itihaas</span>' +
+        '<h1 style="margin:6px 0 2px">' + esc(e.title) + '</h1>' +
+        '<div class="mono" style="color:#fff;opacity:.9">' + esc(e.when) + '</div></div></div>'
+      : '<div class="card"><span class="badge itihaas">itihaas</span>' +
+        '<h1 style="margin:8px 0 2px">' + esc(e.title) + '</h1>' +
+        '<div class="mono">' + esc(e.when) + '</div></div>') +
+
+      '<div class="card"><p style="font-size:17px;margin:0 0 var(--space-md)">' + esc(e.hook) + '</p>' +
+      '<p>' + esc(e.kid) + '</p>' +
       (big ? '<div class="card flat"><b>If you want the longer version.</b> ' + esc(e.big) + '</div>' : '') +
       '</div>' +
+
+      ((e.moments || []).length
+        ? '<div class="card"><h3 style="margin-top:0">What happened, step by step</h3>' +
+          '<div class="tline">' + e.moments.map(function (m) {
+            return '<div class="tmoment"><span class="mono">' + esc(m.when) + '</span>' +
+              '<p>' + esc(m.what) + '</p></div>';
+          }).join('') + '</div></div>'
+        : '') +
+
+      ((e.figures || []).length
+        ? '<div class="card"><h3 style="margin-top:0">Who lived then</h3><div class="grid g2">' +
+          e.figures.map(function (f) {
+            return '<div class="tile"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
+              (f.id ? art(f.id, 54) : '<span class="castmono" style="width:54px;height:54px">' + esc((f.name || '?').charAt(0)) + '</span>') +
+              '<div style="flex:1"><b>' + esc(f.name) + '</b>' +
+              '<p class="tiny" style="margin:4px 0 0">' + esc(f.line) + '</p></div></div></div>';
+          }).join('') + '</div></div>'
+        : '') +
+
+      ((e.today || []).length
+        ? '<div class="card"><h3 style="margin-top:0">Still standing</h3>' +
+          '<p class="tiny muted">From this age, and you can go.</p><div class="grid g2">' +
+          e.today.map(function (t) {
+            return '<button class="tile" data-act="peekgo" data-code="' + esc(t.state || '') + '">' +
+              '<b>' + esc(t.what) + '</b>' +
+              '<span class="tiny muted">' + esc(t.where) + '</span></button>';
+          }).join('') + '</div></div>'
+        : '<div class="card"><h3 style="margin-top:0">Things you can actually go and see</h3><div class="row">' +
+          (e.objects || []).map(function (o) { return '<span class="pill stat">' + esc(o) + '</span>'; }).join('') + '</div></div>') +
+
+      ((e.stories || []).length
+        ? (function () {
+            var byId = {};
+            allStories().forEach(function (st) { byId[st.id] = st; });
+            var hits = e.stories.map(function (sid) { return byId[sid]; }).filter(Boolean);
+            return hits.length
+              ? '<div class="card"><h3 style="margin-top:0">Stories from this world</h3><div class="rail">' +
+                hits.map(function (st) {
+                  var im = storyArt(st.id);
+                  return '<button class="scard" data-act="story" data-id="' + st.id + '">' +
+                    (im ? '<img src="' + im + '" alt="" loading="lazy">' : '') +
+                    '<b>' + esc(st.title) + '</b></button>';
+                }).join('') + '</div></div>'
+              : '';
+          })()
+        : '') +
+
       '<div class="card tint"><div class="mono">Worth stopping on</div><p style="margin:8px 0 0">' + esc(e.wonder) + '</p></div>' +
-      '<div class="card"><h3>Things you can actually go and see</h3><div class="row">' +
-      e.objects.map(function (o) { return '<span class="pill stat">' + esc(o) + '</span>'; }).join('') + '</div></div>' +
+
       '<div class="card flat tiny"><b>How we know.</b><ul style="margin:8px 0 0;padding-left:20px">' +
       e.sources.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' +
       (e.needs_review ? '<p style="margin-top:10px"><b>This one needs a historian\u2019s eye before launch.</b> ' +
@@ -2372,7 +2465,7 @@
      not a separate subject. A child holds a phone by the bottom half, so on a phone this
      bar moves to the bottom edge (see app.css). */
   var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['map', 'India', 'map'],
-              ['neeti', 'Neeti', 'star'], ['bhasha', 'Bhasha', 'script']];
+              ['itihaas', 'Itihaas', 'clock'], ['neeti', 'Neeti', 'star'], ['bhasha', 'Bhasha', 'script']];
 
   function chrome() {
     return '<header class="topbar"><div class="barrow">' +
@@ -2440,7 +2533,7 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'map', mon: 'map', learn: 'map', itihaas: 'map', era: 'map',
+    var alias = { state: 'map', mon: 'map', learn: 'map', era: 'itihaas',
                   dharma: 'neeti', faith: 'neeti', utsav: 'neeti', festival: 'neeti',
                   gully: 'neeti', gullygame: 'neeti', geet: 'neeti', song: 'neeti',
                   story: 'stories', pack: 'bhasha', chart: 'bhasha',

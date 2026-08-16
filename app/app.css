@@ -1459,27 +1459,44 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wcsent.masked { border-style: dashed; border-color: var(--line2); }
 .wcsent .mono { margin-bottom: 6px; }
 .wcs { font-size: 19px; line-height: 1.85; margin: 0; color: var(--text); }
-.wcsr { font-size: 13.5px; line-height: 1.6; margin: 6px 0 var(--space-md); color: var(--text2); }
+.wcsr { font-size: 13.5px; line-height: 1.65; margin: 6px 0 var(--space-md); color: var(--text2); }
+.wcsr .muted { display: block; font-family: var(--display); font-weight: 400; font-size: 15.5px; color: var(--text2); margin-top: 3px; }
 .wcsent .btn { margin-top: 2px; }
 
 /* THE GAP. Never a run of underscores — a slot the size of a word, dashed in
    the accent, so a child can see that something is missing rather than read
    punctuation. It is the same mark in the card and in the question. */
 .wcgap {
-  display: inline-block; width: 3.2em; height: .95em; vertical-align: -.08em;
-  margin: 0 .12em; border-bottom: 3px dashed var(--accent);
-  background: linear-gradient(180deg, transparent 55%, var(--accent-soft) 55%);
-  border-radius: 3px;
+  display: inline-block; width: 3.4em; height: 1.05em; vertical-align: -.22em;
+  margin: 0 .14em; border-bottom: 3px dashed var(--accent);
+  background: var(--accent-soft); border-radius: 6px 6px 3px 3px;
 }
 
-/* a word met inside a lesson: the card, with the Got-it under it */
+/* A word met inside a lesson: the same card, tightened — the Got-it has to be
+   in view under it or the beat looks like it has no way out. */
 .introcard.wordintro { text-align: center; }
-.introcard.wordintro .wcard { text-align: center; }
+.introcard.wordintro .wcword { font-size: clamp(34px, 10vw, 46px); padding: var(--space-sm) var(--space-sm); }
+.introcard.wordintro .wcroman { margin-top: var(--space-md); }
+.introcard.wordintro .wcen { font-size: 19px; margin: 3px 0 var(--space-md); }
+.introcard.wordintro .wchear { min-height: 44px; padding: 10px 18px; }
+.introcard.wordintro .wcsent { margin-top: var(--space-md); padding: 10px var(--space-md) var(--space-md); }
+.introcard.wordintro .wcs { font-size: 17px; }
+.introcard.wordintro .wcsr { font-size: 12.5px; margin-bottom: 10px; }
+.introcard.wordintro .wcsr .muted { font-size: 14px; }
+.introcard.wordintro .wcsent .btn { min-height: 36px; padding: 7px 14px; }
 
 /* ------------------------------------------------------------- SHABDKOSH
    शब्दकोश — the word-store. A reference, like the letter chart: rooms with a
    count on the door, and every word one tap from its card. */
-.koshtabs { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 var(--space-lg); }
+/* the rooms, as one scrolling row rather than eight wrapped lines: seventeen
+   themes stacked would push the first word off a phone screen entirely */
+.koshtabs {
+  display: flex; gap: 7px; margin: 0 0 var(--space-lg);
+  overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
+}
+.koshtabs::-webkit-scrollbar { display: none; }
+.koshtabs .pill { flex: none; white-space: nowrap; }
+.koshmore { margin-top: var(--space-md); width: 100%; }
 .koshtabs .pill { font-size: 12.5px; padding: 6px 13px; }
 .koshgrid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -1525,3 +1542,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
   opacity: .85;
 }
 .fbcard:hover { opacity: 1; }
+
+/* the covered card — the Bee's revise card: everything except the one thing
+   you are trying to remember. The plate keeps its size, so the card does not
+   jump when it flips face up. */
+.wcard .wcword.covered {
+  display: grid; place-items: center; min-height: 104px;
+  background: var(--card2); border: 1.5px dashed var(--line2); box-shadow: none;
+}
+.wcgap.big { width: 4.6em; height: 1.35em; font-size: 26px; }
+.wcard.covered .wcen { margin-top: var(--space-lg); }
+.wcflip { margin-top: var(--space-lg); }

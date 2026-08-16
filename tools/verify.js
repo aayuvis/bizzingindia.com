@@ -142,6 +142,34 @@ async function main() {
     if (len < 40) thin.push(`${where} rendered ${len} chars`);
   }
 
+  // THE WORD CARD NEVER SHOWS THE WORD WHEN IT IS COVERED (Phase 3, permanent).
+  //
+  // The card doubles as a flashcard: "Cover it up and test me" hides the word, its
+  // romanisation and its voice, and masks the word out of the example sentence. That is a
+  // leak rule of the same family as the quiz's, and the honest way to check it is on the
+  // rendered page — so this reads the real DOM text after the real click.
+  const leaks = [];
+  where = 'word card';
+  {
+    const words = await page.evaluate(() =>
+      (window.IND_PACKS.hi.lexicon || []).slice(0, 3).concat((window.IND_PACKS.hi.lexicon || []).slice(200, 203))
+        .map(w => w.word));
+    for (const w of words) {
+      await page.evaluate(x => window.BI.go('wordcard', 'hi:' + x), w);
+      await page.waitForTimeout(40);
+      const before = await page.evaluate(() => document.querySelector('#app').innerText);
+      if (before.indexOf(w) < 0) leaks.push(`face-up card for "${w}" does not show the word`);
+      const flipped = await page.evaluate(() => {
+        const b = document.querySelector('[data-act="wcflip"]'); if (!b) return false; b.click(); return true;
+      });
+      if (!flipped) { leaks.push(`word card for "${w}" cannot be covered`); continue; }
+      await page.waitForTimeout(40);
+      const after = await page.evaluate(() => document.querySelector('#app').innerText);
+      if (after.indexOf(w) >= 0) leaks.push(`covered card for "${w}" still prints it on screen`);
+      await page.evaluate(() => { const b = document.querySelector('[data-act="wcflip"]'); if (b) b.click(); });
+    }
+  }
+
   // NO DEAD ENDS (Phase 0, permanent). The audit that forced the Bhasha rebuild found three
   // stages that were mathematically uncompletable: the renderer drew ZERO buttons for some
   // question shapes and the grader could never accept others, so "12 right answers" was an
@@ -300,6 +328,7 @@ async function main() {
   bad += report('no missing assets', [...missing]);
   bad += report('no empty views', thin);
   bad += report('no registry promises nothing', registries);
+  bad += report('no leaks: a covered word card never shows its word', leaks);
   bad += report('no dead ends: every Bhasha stage renderable and winnable', deadEnds);
   process.exit(bad ? 1 : 0);
 }

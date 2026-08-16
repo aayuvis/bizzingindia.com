@@ -2754,9 +2754,11 @@
     quantity: 'The counting word comes before the noun.'
   };
   function exampleSentence(word) {
-    /* authored example-sentence seam — contract in data-bhasha-hi-sentences.js */
-    var Sx = window.IND_HI_SENTENCES;
-    return (quiz.packId === 'hi' && Sx && Sx[word]) ? Sx[word] : null;
+    /* the authored example-sentence seam, resolved through the engine
+       (IND_BHASHA.sentence) rather than off the global — one lookup, one
+       derived clip key, and packs beyond Hindi arrive without touching this */
+    var B = window.IND_BHASHA;
+    return (B && B.sentence) ? B.sentence(quiz.packId, word) : null;
   }
   function fbFor(q, ok, idx) {
     var head = ok ? CHEERS[quiz.done % CHEERS.length] : 'Not this one —';
@@ -3124,7 +3126,7 @@
     }
     return '<div class="wcsent"><div class="mono">in a sentence</div>' +
       '<p class="wcs deva">' + esc(e.s) + '</p>' +
-      '<p class="wcsr">' + esc(e.roman) + '<span class="muted"> — ' + esc(e.en) + '</span></p>' +
+      '<p class="wcsr">' + esc(e.roman) + '<span class="muted">' + esc(e.en) + '</span></p>' +
       '<button class="btn ghost sm" data-act="saysent" data-p="' + esc(packId) + '" data-w="' + esc(word) +
       '">' + icon('sound', 16) + ' Hear the sentence</button></div>';
   }
@@ -3135,17 +3137,26 @@
     var p = window.IND_PACKS[packId]; if (!p) return '';
     var w = lexWord(p, word); if (!w) return '';
     var th = themeOf(p, w.theme), st = WSTATE[wordState(packId, word)];
-    return '<div class="wcard' + (o.flat ? ' flat' : '') + '">' +
+    /* COVERED. The word, its romanisation and its voice all go at once —
+       covering the Devanagari while a "Hear it" button says it out loud, or
+       while the roman spells it in Latin underneath, would be a fig leaf. The
+       meaning stays, because the meaning is the cue you are answering from. */
+    return '<div class="wcard' + (o.flat ? ' flat' : '') + (o.mask ? ' covered' : '') + '">' +
       '<div class="wchead">' +
         (th ? '<button class="wctheme" data-act="kosh" data-id="' + esc(packId) + '" data-t="' + esc(th.id) + '">' +
           esc(th.icon) + ' ' + esc(th.en) + '</button>' : '<span></span>') +
         '<i class="rc ' + st[1] + '">' + st[0] + '</i></div>' +
-      '<div class="wcword deva" lang="' + esc(packId) + '">' + esc(w.word) + '</div>' +
-      '<div class="wcroman">' + esc(w.roman) + '</div>' +
+      (o.mask
+        ? '<div class="wcword covered" role="img" aria-label="the word, covered up">' +
+          '<span class="wcgap big"></span></div>'
+        : '<div class="wcword deva" lang="' + esc(packId) + '">' + esc(w.word) + '</div>' +
+          '<div class="wcroman">' + esc(w.roman) + '</div>') +
       '<div class="wcen">' + esc(w.en) + '</div>' +
-      '<button class="btn ghost block wchear" data-act="say" data-k="' + esc(window.IND_BHASHA.audioFor(w.audio, p) || '') +
-        '" data-t="' + esc(w.word) + '" data-l="' + esc(packId + '-IN') + '">' +
-        icon('sound', 18) + ' Hear it</button>' +
+      (o.mask ? ''
+        : '<button class="btn ghost block wchear" data-act="say" data-k="' +
+          esc(window.IND_BHASHA.audioFor(w.audio, p) || '') +
+          '" data-t="' + esc(w.word) + '" data-l="' + esc(packId + '-IN') + '">' +
+          icon('sound', 18) + ' Hear it</button>') +
       sentBlock(packId, word, !!o.mask) +
       (o.link ? '<button class="btn ghost block" style="margin-top:12px" data-act="wcard" data-id="' +
         esc(packId + ':' + word) + '">See the whole card →</button>' : '') +
@@ -3153,7 +3164,14 @@
   }
 
   /* The card on its own page. Reached from the Shabdkosh, from a lesson's
-     feedback and from anywhere a word is named. */
+     feedback and from anywhere a word is named.
+
+     COVER IT UP is the Bee's revise card, kept: a flashcard whose whole point
+     is that you can hide the answer and try to remember it. Covered, the card
+     shows the meaning, the theme and the sentence with the word cut out of
+     it, and will read the sentence around the gap — everything except the
+     one thing you are trying to recall. */
+  var wcardMask = false;
   V.wordcard = function (arg) {
     var bits = String(arg || '').split(':'), packId = bits[0], word = bits.slice(1).join(':');
     var p = window.IND_PACKS[packId], w = p ? lexWord(p, word) : null;
@@ -3165,7 +3183,9 @@
     var near = (p.lexicon || []).filter(function (x) { return x.theme === w.theme && x.word !== w.word; }).slice(0, 8);
     return '<button class="backlink" data-act="kosh" data-id="' + esc(packId) + '" data-t="' + esc(w.theme) + '">' +
       icon('back', 18) + ' Shabdkosh</button>' +
-      '<div class="card">' + wordCard(packId, word, { flat: true }) + '</div>' +
+      '<div class="card">' + wordCard(packId, word, { flat: true, mask: wcardMask }) +
+        '<button class="btn ghost block wcflip" data-act="wcflip">' +
+        (wcardMask ? 'Show me the word' : 'Cover it up and test me') + '</button></div>' +
       (near.length ? '<div class="card"><h3 style="margin:0 0 4px">More ' +
         esc(th ? th.en.toLowerCase() : 'words') + '</h3>' +
         '<p class="tiny muted">Words that keep the same company.</p>' +
@@ -3213,12 +3233,20 @@
         return '<button class="pill' + (open === t.id ? ' on' : '') + '" data-act="kosh" data-id="' + esc(id) +
           '" data-t="' + esc(t.id) + '">' + esc(t.icon) + ' ' + esc(t.en) + ' ' + n + '</button>';
       }).join('') + '</div>' +
+      /* Room by room. The front door shows every room with the first dozen
+         words in it, because a dictionary that opens on nothing but folders
+         is not browsable; opening a room shows the whole of it. A phone
+         should never be handed 507 rows it did not ask for. */
       (p.themes || []).map(function (t) {
         var list = byTheme[t.id] || [];
         if (!list.length || (open && open !== t.id)) return '';
+        var all = !!open || list.length <= 12, shown = all ? list : list.slice(0, 12);
         return '<div class="card"><div class="spread"><h3 style="margin:0">' + esc(t.icon) + ' ' + esc(t.en) + '</h3>' +
           '<span class="pill stat" style="flex:none">' + list.length + '</span></div>' +
-          '<div class="koshgrid">' + list.map(function (x) { return koshRow(id, x); }).join('') + '</div></div>';
+          '<div class="koshgrid">' + shown.map(function (x) { return koshRow(id, x); }).join('') + '</div>' +
+          (all ? '' : '<button class="btn ghost sm koshmore" data-act="kosh" data-id="' + esc(id) +
+            '" data-t="' + esc(t.id) + '">All ' + list.length + ' ' + esc(t.en.toLowerCase()) + ' words →</button>') +
+          '</div>';
       }).join('');
   };
 
@@ -3793,7 +3821,9 @@
     if (a === 'chart')  return go('chart', t.getAttribute('data-id'));
     /* the Shabdkosh, and one word's card out of it (Phase 3) */
     if (a === 'kosh')   { koshTheme = t.getAttribute('data-t') || null; return go('kosh', t.getAttribute('data-id')); }
-    if (a === 'wcard')  return go('wordcard', t.getAttribute('data-id'));
+    /* a card always opens face up; covering it is the child's own choice */
+    if (a === 'wcard')  { wcardMask = false; return go('wordcard', t.getAttribute('data-id')); }
+    if (a === 'wcflip') { wcardMask = !wcardMask; stopAudio(); return render(); }
     /* the sentence, spoken. Masked reads AROUND the missing word and never
        touches a clip; the whole thing plays its clip when one has been
        recorded and falls back to the device voice until then. */

@@ -2591,7 +2591,7 @@
       /* the mark is the peacock, not a mascot — Gattu still narrates, he just
          doesn't have to BE the logo (and the user said as much) */
       '<div class="brand">' + (window.IND_ART_IMG && window.IND_ART_IMG.indexOf('logo') >= 0
-        ? '<img src="art/logo.png" alt="" width="52" height="52">'
+        ? '<img src="art/logo.png" alt="" width="68" height="68">'
         : '') + 'Bizzing <em>India</em></div>' +
       '<span class="pill stat">🐚 <span id="kauriCount">' + S.kauris + '</span></span>' +
       /* the family-language chip: shows the tongue in its own script, opens the picker */

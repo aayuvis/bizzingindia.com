@@ -862,7 +862,10 @@
       '<div class="dots">' + st.scenes.map(function (_, i) { return '<i class="' + (i <= play.i ? 'on' : '') + '"></i>'; }).join('') + '</div></div>' +
       '<div class="stage"' + (img ? ' style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(' + img + ')"' : '') + '>' + (teller ? '<div class="speaking">' + mascot('mithu', 'talk', 128) + '</div>' :
         cast.map(function (c, i) { return '<div class="' + (i === 0 ? 'speaking' : '') + '">' + art(c, i === 0 ? 128 : 100) + '</div>'; }).join('')) + '</div>' +
-      '<div class="speech" style="margin-top:14px">' + (teller ? '<span class="who">Mithu</span>' : '') +
+      /* Bubble when somebody is talking, plain panel when the storyteller is. */
+      '<div class="speech' + (hasDialogue(sc.text) ? ' bubble' : '') + '" style="margin-top:14px">' +
+      (teller ? '<span class="who">Mithu</span>'
+              : (cast[0] && avatarName(cast[0]) ? '<span class="who">' + esc(avatarName(cast[0])) + '</span>' : '')) +
       esc(sc.text).replace(/\*(.+?)\*/g, '<i>$1</i>') + '</div>' +
       (sc.ask ? V.ask(sc.ask) :
         '<div class="row" style="margin-top:14px">' +
@@ -1573,6 +1576,35 @@
      if it has one. Matching is on whole words only, so "Rama" does not fire inside
      "Ramayana" and "Tara" does not fire inside "Tarachand". Capped at four: past that the
      strip stops being a cast list and becomes a wall. */
+  /* THE STAGE — the painting as the ground, the characters standing on it.
+     This is the story-card idiom and the epics now share it: a picture with the people of
+     the scene in front of it reads as a scene, where a picture with a caption underneath
+     reads as an illustrated paragraph. The speaker is the biggest and is the one that bobs.
+
+     Characters with no painting yet stand as an initial in a disc rather than being dropped,
+     because the whole point of the cast layer is that it works before the art does. */
+  function stageBlock(img, ids, speakerId) {
+    var who = ids.slice(0, 3);
+    var figs = who.map(function (id, i) {
+      var lead = id === speakerId || (!speakerId && i === 0);
+      var size = lead ? 128 : 96;
+      var face = art(id, size);
+      var nm = ((window.IND_EPIC_CAST || {})[id] || {}).name || avatarName(id) || id;
+      return '<div class="' + (lead ? 'speaking' : '') + '">' +
+        (face || '<span class="stagemono" style="width:' + size + 'px;height:' + size + 'px">' +
+          esc(nm.charAt(0)) + '</span>') +
+        '<span class="stagename">' + esc(nm) + '</span></div>';
+    }).join('');
+    return '<div class="stage"' +
+      (img ? ' style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(' + img + ')"' : '') +
+      '>' + figs + '</div>';
+  }
+
+  /* A card is somebody talking if it carries quoted speech. 121 of the Ramayana's 283 cards
+     do. Those get a bubble; the rest get the plain narration panel, because putting a tail
+     on the storyteller's own voice would attribute it to whoever happens to be on stage. */
+  function hasDialogue(t) { return /["“]/.test(t || ''); }
+
   function cardCast(text, speaker) {
     var REG = window.IND_EPIC_CAST || {}, seen = {}, found = [];
     Object.keys(REG).forEach(function (id) {
@@ -1683,35 +1715,29 @@
       '</div>' +
       '<div class="dots">' + ep.cards.map(function (_, i) { return '<i class="' + (i <= deck.i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
 
-      '<div class="deckcard' + (epArt ? ' hasart' : '') + '">' +
-        (epArt ? '<div class="deckart"><img src="' + epArt + '" alt="" loading="lazy"></div>' : '') +
-        (cast.length
-          ? '<div class="castrow">' + cast.map(function (id) {
-              var p = (window.IND_EPIC_CAST || {})[id] || {};
-              var face = art(id, 44);
-              return '<div class="castchip' + (id === who ? ' on' : '') + '">' +
-                /* No avatar yet for most of them, so an initial in a disc stands in. It is a
-                   placeholder that looks deliberate rather than a hole where a face should
-                   be, and it swaps for the painting the moment one exists. */
-                (face || '<span class="castmono">' + esc((p.name || id).charAt(0)) + '</span>') +
-                '<b>' + esc(p.name || avatarName(id) || id) + '</b>' +
-                (p.desc ? '<span>' + esc(p.desc) + '</span>' : '') +
-                '</div>';
-            }).join('') + '</div>'
-          : '') +
-        '<div class="deckbody">' +
-          '<p>' + esc(c.text) + '</p>' +
-          '<div class="deckbar">' +
-            (deck.i > 0 ? '<button class="iconbtn" data-act="cardback" aria-label="Back">' + icon('back', 20) + '</button>' : '') +
-            /* Always present. The app is audio-first on purpose — a four-year-old cannot read
-               a card and a nine-year-old still wants it read — so this never depends on
-               whether the recording has landed yet. */
-            '<button class="iconbtn" data-act="readcard" aria-label="Read it to me">' +
-              icon('sound', 20) + '</button>' +
-            '<button class="btn" style="flex:1" data-act="cardnext">' +
-              (deck.i === ep.cards.length - 1 ? 'End of episode →' : 'Turn the page →') + '</button>' +
-          '</div>' +
-        '</div>' +
+      /* The stage, then the words — the same shape as a story card. */
+      stageBlock(epArt, cast, speaker) +
+      '<div class="speech' + (hasDialogue(c.text) ? ' bubble' : '') + '" style="margin-top:14px">' +
+        (speakerLabel ? '<span class="who">' + esc(speakerLabel) + '</span>' : '') +
+        esc(c.text).replace(/\*(.+?)\*/g, '<i>$1</i>') +
+      '</div>' +
+
+      /* Who these people are. Under the words rather than over them, because the story comes
+         first and the who's-who is for when a name has just landed and meant nothing. */
+      (cast.length
+        ? '<div class="castrow">' + cast.map(function (id) {
+            var p = (window.IND_EPIC_CAST || {})[id] || {};
+            return '<div class="castchip' + (id === who ? ' on' : '') + '">' +
+              '<b>' + esc(p.name || avatarName(id) || id) + '</b>' +
+              (p.desc ? '<span>' + esc(p.desc) + '</span>' : '') + '</div>';
+          }).join('') + '</div>'
+        : '') +
+
+      '<div class="deckbar" style="margin-top:14px">' +
+        (deck.i > 0 ? '<button class="iconbtn" data-act="cardback" aria-label="Back">' + icon('back', 20) + '</button>' : '') +
+        '<button class="iconbtn" data-act="readcard" aria-label="Read it to me">' + icon('sound', 20) + '</button>' +
+        '<button class="btn" style="flex:1" data-act="cardnext">' +
+          (deck.i === ep.cards.length - 1 ? 'End of episode \u2192' : 'Turn the page \u2192') + '</button>' +
       '</div>';
   };
 

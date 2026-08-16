@@ -196,10 +196,31 @@
 
   /* ================================================================== AUDIO */
   var audio = null;
-  function speak(key) {
-    if (!soundOn || !key) return;
-    if (window.IND_VOICE && window.IND_VOICE.indexOf(key) < 0) return;
-    try { if (audio) audio.pause(); audio = new Audio('voice/' + key + '.mp3'); audio.play().catch(function () {}); } catch (e) {}
+  /* SPEAK, AND NEVER SILENTLY FAIL.
+     This used to return quietly when a key was not in the manifest, which is how 67 of the
+     74 Hindi words sat mute for weeks without anybody noticing: the button was there, the
+     tap registered, nothing happened and nothing complained. A recorded clip is always
+     preferred — it is a real voice with the vowel lengths right — but when one does not
+     exist yet, the device speaks the text instead, in the right language, so the child
+     always hears something and a missing clip is obvious rather than invisible. */
+  function speak(key, text, lang) {
+    if (!soundOn) return;
+    if (key && (!window.IND_VOICE || window.IND_VOICE.indexOf(key) >= 0)) {
+      try {
+        if (audio) audio.pause();
+        audio = new Audio('voice/' + key + '.mp3');
+        audio.play().catch(function () {});
+        return;
+      } catch (e) {}
+    }
+    if (!text || !window.speechSynthesis) return;
+    try {
+      stopAudio();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = lang || 'hi-IN';
+      u.rate = 0.8;                 /* slower: this is a word being taught, not narration */
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
   }
   function stopAudio() {
     if (audio) { audio.pause(); audio = null; }
@@ -1135,9 +1156,10 @@
       ((f.words || []).length
         ? '<div class="card"><h2 style="margin-top:0">Words for it</h2><div class="grid g3">' +
           f.words.map(function (w) {
-            return '<div class="tile center"><b lang="hi">' + esc(w.term) + '</b>' +
+            return '<button class="tile center" data-act="say" data-t="' + esc(w.term) +
+              '" data-l="hi-IN"><b lang="hi">' + esc(w.term) + '</b>' +
               '<span class="tiny">' + esc(w.roman) + '</span>' +
-              '<span class="tiny muted">' + esc(w.en) + '</span></div>'; }).join('') +
+              '<span class="tiny muted">' + esc(w.en) + '</span></button>'; }).join('') +
           '</div></div>'
         : '') +
       (f.ask ? '<div class="card"><h3 style="margin-top:0">Ask someone older</h3><p>' + esc(f.ask) + '</p></div>' : '') +
@@ -1209,9 +1231,10 @@
         ? '<div class="card"><h2 style="margin-top:0">What you shout</h2>' +
           '<p class="tiny muted">This is how the words go in without anybody teaching them.</p>' +
           '<div class="grid g3">' + g.words.map(function (w) {
-            return '<div class="tile center"><b lang="hi">' + esc(w.term) + '</b>' +
+            return '<button class="tile center" data-act="say" data-t="' + esc(w.term) +
+              '" data-l="hi-IN"><b lang="hi">' + esc(w.term) + '</b>' +
               '<span class="tiny">' + esc(w.roman) + '</span>' +
-              '<span class="tiny muted">' + esc(w.en) + '</span></div>'; }).join('') + '</div></div>'
+              '<span class="tiny muted">' + esc(w.en) + '</span></button>'; }).join('') + '</div></div>'
         : '') +
       ((g.variants || []).length
         ? '<div class="card"><h2 style="margin-top:0">Played differently elsewhere</h2>' +
@@ -1439,7 +1462,7 @@
           s.words.map(function (w) {
             return '<div class="tile center"><b lang="' + lang + '">' + esc(w.term) + '</b>' +
               '<span class="tiny">' + esc(w.roman) + '</span>' +
-              '<span class="tiny muted">' + esc(w.en) + '</span></div>'; }).join('') + '</div></div>'
+              '<span class="tiny muted">' + esc(w.en) + '</span></button>'; }).join('') + '</div></div>'
         : '') +
       ((s.actions || []).length
         ? '<div class="card"><h2 style="margin-top:0">What your hands do</h2><ul class="dolist">' +
@@ -1671,7 +1694,8 @@
           : '') +
         (ep.words_hi && ep.words_hi.length ? '<div class="card"><h3>Three words from this one</h3><div class="grid g3">' +
           ep.words_hi.map(function (w) {
-            return '<button class="tile center" data-act="say" data-k="hi/w-' + slug(w[1]) + '">' +
+            return '<button class="tile center" data-act="say" data-k="hi/w-' + slug(w[1]) +
+              '" data-t="' + esc(w[0]) + '" data-l="hi-IN">' +
               '<div class="deva" style="font-size:26px">' + esc(w[0]) + '</div>' +
               '<div class="mono">' + esc(w[1]) + '</div><div class="tiny">' + esc(w[2]) + '</div></button>';
           }).join('') + '</div></div>' : '');
@@ -2122,7 +2146,8 @@
     var sc = window.IND_SCRIPTS[p.script];
     var grid = function (list) {
       return '<div class="gridscript">' + (list || []).map(function (v) {
-        return '<button class="glyph" data-act="say" data-k="' + esc(v.audio || '') + '">' +
+        return '<button class="glyph" data-act="say" data-k="' + esc(v.audio || '') +
+          '" data-t="' + esc(v.char) + '" data-l="' + esc(sc.speechLang || 'hi-IN') + '">' +
           esc(v.char) + '<small>' + esc(v.name) + '</small></button>';
       }).join('') + '</div>';
     };
@@ -2513,7 +2538,8 @@
       if (S.favs[lid]) { delete S.favs[lid]; } else { S.favs[lid] = today(); toast('Kept. It will be waiting.'); }
       save(); return render();
     }
-    if (a === 'say')    return speak(t.getAttribute('data-k'));
+    if (a === 'say')    return speak(t.getAttribute('data-k'),
+                                     t.getAttribute('data-t'), t.getAttribute('data-l'));
     if (a === 'pick')   { S.buddy = t.getAttribute('data-id'); save(); return render(); }
     if (a === 'world')  { S.world = t.getAttribute('data-w'); save(); toast('World: ' + S.world); return render(); }
     if (a === 'start')  {

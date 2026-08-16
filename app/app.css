@@ -552,3 +552,31 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background-size: cover; background-position: center;
   border: 1px solid var(--line); box-shadow: var(--shadow);
 }
+
+/* ------------------------------------------------------------ STATE PAGE
+   The map is the anchor; this is where a place opens up. */
+.statehero {
+  position: relative; height: 300px; border-radius: var(--radius-xl);
+  background-size: cover; background-position: center;
+  border: 1px solid var(--line); box-shadow: var(--shadow);
+  margin-bottom: var(--space-lg); display: flex; align-items: flex-end;
+}
+.statehero .cap { padding: var(--space-xl); color: #fff; }
+.statehero h1 { color: #fff; margin: 0 0 10px; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+.statehero .pill { background: rgba(255,255,255,.92); border-color: transparent; color: var(--text); }
+@media (max-width: 560px) { .statehero { height: 220px; } }
+
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-md); }
+.fct { display: grid; gap: 2px; padding: 12px 14px; background: var(--card2); border-radius: var(--radius-md); }
+.fct b { font-family: var(--display); font-size: 17px; line-height: 1.25; }
+
+.triv { margin: 0; padding-left: 0; list-style: none; }
+.triv li {
+  position: relative; padding: 11px 0 11px 30px;
+  border-top: 1px solid var(--line); font-size: 15px;
+}
+.triv li:first-child { border-top: 0; }
+.triv li::before {
+  content: '◆'; position: absolute; left: 6px; top: 11px;
+  color: var(--accent2); font-size: 12px;
+}

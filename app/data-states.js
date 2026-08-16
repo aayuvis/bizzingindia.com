@@ -1,0 +1,1 @@
+window.IND_STATES={};

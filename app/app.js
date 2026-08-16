@@ -83,6 +83,10 @@
     return (window.IND_STORY_ART && window.IND_STORY_ART.indexOf(k) >= 0) ? 'art/story/' + k + '.jpg' : null;
   }
 
+  function stateArt(code) {
+    return (window.IND_STATE_ART && window.IND_STATE_ART.indexOf(code) >= 0) ? 'art/state/' + code + '.jpg' : null;
+  }
+
   /* one avatar chip, graded by rarity */
   function chip(id, size) {
     var r = window.IND_RARITY_OF ? window.IND_RARITY_OF(id) : 'free';
@@ -365,29 +369,124 @@
 
   V.state = function (code) {
     var G = window.IND_GEO, s = G && G.states[code];
+    var X = (window.IND_STATES || {})[code] || {};
     if (!s) return '<div class="card">Nothing here yet.</div>';
+    var img = stateArt(code);
     var stories = allStories().filter(function (t) { return (t.place || []).indexOf('IN-' + code) >= 0; });
     var mons = (G.monuments || []).filter(function (m) { return m.state === code; });
     var pend = (G.pending || []).filter(function (p) { return p.inside === code; });
-    return '<button class="backlink" data-act="go" data-v="map">' + icon('back', 18) + ' Map</button>' +
-      '<div class="card"><div class="spread"><h1 style="margin:0">' + esc(s.name) + '</h1>' +
-      (S.lit[code] ? '<span class="badge aaj">remembered</span>' : '<span class="badge">in the mist</span>') + '</div>' +
-      '<p class="mono" style="margin:6px 0 14px">' + esc(s.capital) + (s.food ? ' · ' + esc(s.food) : '') + '</p>' +
-      '<p>' + esc(s.fact) + '</p>' + (s.note ? '<p class="tiny muted">' + esc(s.note) + '</p>' : '') +
+    var lit = !!S.lit[code];
+
+    function fact(k, v) {
+      if (!v) return '';
+      return '<div class="fct"><span class="mono">' + esc(k) + '</span><b>' + esc(v) + '</b></div>';
+    }
+    function callout(title, note, body) {
+      if (!body) return '';
+      return '<div class="card"><h3 style="margin:0 0 3px">' + esc(title) + '</h3>' +
+        (note ? '<p class="tiny muted" style="margin:0 0 12px">' + esc(note) + '</p>' : '<div style="height:10px"></div>') +
+        body + '</div>';
+    }
+
+    return '<button class="backlink" data-act="go" data-v="map">' + icon('back', 18) + ' The map</button>' +
+      (img ? '<div class="statehero" style="background-image:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.55)),url(' + img + ')">' +
+        '<div class="cap"><h1>' + esc(s.name) + '</h1>' +
+        '<div class="row" style="gap:8px">' +
+        (X.hello ? '<span class="pill stat">' + esc(X.hello.word) + ' · ' + esc(X.hello.roman) + '</span>' : '') +
+        (lit ? '<span class="pill stat">remembered</span>' : '<span class="pill stat">in the mist</span>') +
+        '</div></div></div>'
+        : '<div class="card"><h1 style="margin:0">' + esc(s.name) + '</h1></div>') +
+
+      /* key facts */
+      '<div class="card"><div class="facts">' +
+        fact('Capital', X.capital || s.capital) +
+        fact('Formed', X.formed) +
+        (X.population ? fact('People (' + (X.population_year || 2011) + ' census)', X.population) : '') +
+        (X.area_km2 ? fact('Area', X.area_km2 + ' km²') : '') +
+        (X.languages && X.languages.length ? fact('Languages', X.languages.join(', ')) : '') +
+        (X.script ? fact('Script', X.script) : '') +
+      '</div>' +
+      (X.symbols ? '<div class="row" style="margin-top:14px">' +
+        Object.keys(X.symbols).map(function (k) {
+          return X.symbols[k] ? '<span class="pill stat">' + esc(k) + ' · ' + esc(X.symbols[k]) + '</span>' : '';
+        }).join('') + '</div>' : '') +
+      '<p style="margin:14px 0 0">' + esc(s.fact) + '</p>' +
+      (s.note ? '<p class="tiny muted">' + esc(s.note) + '</p>' : '') + '</div>' +
+
       pend.map(function (p) {
         return '<div class="card flat tight"><b>' + esc(p.name) + '</b> <span class="tiny muted">— its own ' +
           (p.type === 'ut' ? 'union territory' : 'state') + ' since ' + p.since + '. Our map still draws it inside ' +
           esc(s.name) + '; we are fixing that.</span><div class="tiny" style="margin-top:6px">' + esc(p.fact) + '</div></div>';
-      }).join('') + '</div>' +
-      (mons.length ? '<div class="card"><h3>Places to see</h3>' + mons.map(function (m) {
-        return '<div class="card flat tight" style="margin-bottom:9px"><span class="badge ' + m.badge + '">' + m.badge + '</span> <b>' +
-          esc(m.name) + '</b> <span class="tiny muted">· ' + esc(m.when) + '</span>' +
-          '<div class="tiny" style="margin-top:5px">' + esc(m.fact) + '</div></div>';
-      }).join('') + '</div>' : '') +
-      (stories.length ? '<div class="card"><h3>Stories from here</h3>' + stories.map(function (t) {
-        return '<button class="tile" style="margin-bottom:9px" data-act="story" data-id="' + t.id + '"><b>' + esc(t.title) +
-          '</b><div class="tiny muted">' + esc(t.hook) + '</div></button>';
-      }).join('') + '</div>' : '');
+      }).join('') +
+
+      /* stories — the point of the whole map */
+      callout('Stories from here', stories.length ? 'This is why the map matters — every one of these belongs to this place.' : '',
+        stories.length ? '<div class="rail">' + stories.map(function (x) {
+          var si = storyArt(x.id);
+          return '<button class="scard" data-act="story" data-id="' + x.id + '">' +
+            (si ? '<span class="pic" style="background-image:url(' + si + ')"></span>'
+                : '<span class="pic noart">' + art(x.hero, 74) + '</span>') +
+            '<span class="nm">' + esc(x.title) + '</span>' +
+            '<span class="hk">' + esc(x.hook) + '</span></button>';
+        }).join('') + '</div>'
+        : '<p class="tiny muted">No stories from here yet. There will be.</p>') +
+
+      /* mythology and folklore — regional, not flattened into a generic pan-Indian version */
+      callout('Its own gods, its own stories',
+        'Every place in India has these, and they are not the same everywhere. This is what a ' +
+        'generic version of "Indian mythology" flattens away.',
+        (X.myth && (X.myth.deities || X.myth.legend || X.myth.living)) ?
+        ((X.myth.deities && X.myth.deities.length ? '<div class="grid g2" style="margin-bottom:12px">' +
+          X.myth.deities.map(function (d) {
+            return '<div class="card flat tight" style="margin:0"><b>' + esc(d.name) + '</b>' +
+              '<div class="tiny" style="margin-top:4px">' + esc(d.what) + '</div></div>';
+          }).join('') + '</div>' : '') +
+         (X.myth.legend ? '<div class="card tint" style="margin:0 0 12px"><div class="mono">The one they tell here</div>' +
+          '<h3 style="margin:6px 0 6px">' + esc(X.myth.legend.name) + '</h3>' +
+          '<p style="margin:0">' + esc(X.myth.legend.tell) + '</p></div>' : '') +
+         (X.myth.living && X.myth.living.length ? '<div class="mono" style="margin-bottom:8px">Still happening</div>' +
+          '<div class="grid g2">' + X.myth.living.map(function (l) {
+            return '<div class="card flat tight" style="margin:0"><b>' + esc(l.name) + '</b>' +
+              '<div class="tiny" style="margin-top:4px">' + esc(l.what) + '</div></div>';
+          }).join('') + '</div>' : '')) : '') +
+
+      /* people */
+      callout('People from here', 'Real people, and what they actually did.',
+        (X.people && X.people.length) ? '<div class="grid g2">' + X.people.map(function (p) {
+          return '<div class="card flat tight" style="margin:0"><b>' + esc(p.name) + '</b>' +
+            '<div class="tiny muted">' + esc(p.what) + '</div>' +
+            '<div class="tiny" style="margin-top:5px">' + esc(p.why) + '</div></div>';
+        }).join('') + '</div>' : '') +
+
+      /* cuisine */
+      callout('What they eat', 'Ask a grown-up which of these they have actually had.',
+        (X.food && X.food.length) ? '<div class="grid g2">' + X.food.map(function (f) {
+          return '<div class="card flat tight" style="margin:0"><b>' + esc(f.dish) + '</b>' +
+            '<div class="tiny" style="margin-top:4px">' + esc(f.what) + '</div></div>';
+        }).join('') + '</div>' : (s.food ? '<span class="pill stat">' + esc(s.food) + '</span>' : '')) +
+
+      /* landmarks */
+      callout('Places to stand in', '',
+        (mons.length || (X.places && X.places.length)) ?
+        '<div class="grid g2">' +
+        mons.map(function (m) {
+          return '<div class="card flat tight" style="margin:0"><span class="badge ' + m.badge + '">' + m.badge + '</span> ' +
+            '<b>' + esc(m.name) + '</b> <span class="tiny muted">· ' + esc(m.when) + '</span>' +
+            '<div class="tiny" style="margin-top:5px">' + esc(m.fact) + '</div></div>';
+        }).join('') +
+        (X.places || []).map(function (pl) {
+          return '<div class="card flat tight" style="margin:0"><b>' + esc(pl.name) + '</b>' +
+            '<div class="tiny" style="margin-top:4px">' + esc(pl.what) + '</div></div>';
+        }).join('') + '</div>' : '') +
+
+      /* trivia */
+      callout('Things worth knowing', 'The kind you repeat at dinner.',
+        (X.trivia && X.trivia.length) ? '<ul class="triv">' + X.trivia.map(function (t) {
+          return '<li>' + esc(t) + '</li>';
+        }).join('') + '</ul>' : '') +
+
+      (X.unsure && X.unsure.length ? '<div class="card flat tiny"><b>Still checking.</b> ' +
+        esc(X.unsure.join(' · ')) + '</div>' : '');
   };
 
   /* --------------------------------------------------------------- STORIES */

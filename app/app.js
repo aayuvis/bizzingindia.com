@@ -1037,7 +1037,8 @@
   V.dharma = function () {
     var D = window.IND_DHARMA;
     if (!D) return '<div class="card"><h1>Dharma</h1><p>Not loaded.</p></div>';
-    return '<div class="card"><h1>Dharma</h1><p>' + D.intro + '</p></div>' +
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Neeti</button>' +
+      '<div class="card"><h1>Dharma</h1><p>' + D.intro + '</p></div>' +
       '<div class="grid g2">' + D.faiths.map(function (f) {
         return '<button class="tile" data-act="faith" data-id="' + f.id + '">' +
           '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(f.avatar, 66) +
@@ -1115,20 +1116,6 @@
       '<p class="tiny" style="margin:5px 0 0">' + esc(note) + '</p></div></div></button>';
   }
 
-  V.learn = function () {
-    var lit = Object.keys(S.lit).length;
-    return '<div class="card"><h1>Learn</h1>' +
-      '<p>The map, the centuries and the faiths. Take them in any order — none of it is a test.</p></div>' +
-      '<div class="grid g2">' +
-      hubCard('map', 'The Living Map', lit + ' of 34 places remembered. Stories light the place they came from.', 'map') +
-      hubCard('itihaas', 'Itihaas', 'The River of Time — eleven eras, from the Indus cities to a rocket to Mars.', 'clock') +
-      hubCard('dharma', 'Dharma', 'Hinduism, Buddhism, Jainism and Sikhi, each told from the inside.', 'temple') +
-      (window.IND_UTSAV
-        ? hubCard('utsav', 'Utsav', window.IND_UTSAV.festivals.length +
-            ' festivals across the whole country — and one thing to actually do on each of them.', 'lamp')
-        : '') +
-      '</div>';
-  };
 
   /* ------------------------------------------------------------------ UTSAV
 
@@ -1168,7 +1155,7 @@
     var now = utsavNow(), month = MONTHS[new Date().getMonth()];
     var rest = U.festivals.filter(function (f) { return now.indexOf(f) < 0; });
 
-    return '<button class="backlink" data-act="go" data-v="learn">' + icon('back', 18) + ' Learn</button>' +
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Neeti</button>' +
       '<div class="card"><h1>Utsav</h1><p>' + esc(U.intro) + '</p></div>' +
       (now.length
         ? '<div class="card"><h2 style="margin-top:0">This month</h2>' +
@@ -1888,10 +1875,37 @@
     var K = window.IND_NEETI;
     if (!K) return '<div class="card"><h1>Neeti</h1><p>Not loaded.</p></div>';
     var beads = (S.mala || []).length;
+    /* NEETI IS THE WHOLE PILLAR NOW — values, faiths, festivals, verses — because they are
+       one subject seen from four sides. A value is what a story leaves behind; the faiths
+       are where those stories are carried, each told from the inside and never ranked; the
+       festivals are the days a family actually lives them; the verses are how they are
+       remembered word for word. Splitting that across two tabs made each half look like a
+       module, and this app does not sell modules. */
+    var fest = (typeof utsavNow === 'function') ? utsavNow() : [];
     return '<div class="card"><h1>Neeti</h1><p>' + esc(K.intro) + '</p>' +
       '<p class="tiny muted">No levels here, and nothing to finish. You get a bead when you ' +
       '<b>do</b> one of these, not when you read about it.</p></div>' +
       (beads ? V.malaStrip() : '') +
+
+      '<div class="grid g2" style="margin-bottom:var(--space-lg)">' +
+        (window.IND_DHARMA
+          ? '<button class="tile" data-act="go" data-v="dharma">' +
+            '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art('buddha', 52) +
+            '<div style="flex:1"><h3 style="margin:0">Dharma — the faiths</h3>' +
+            '<p class="tiny" style="margin:5px 0 0">Hinduism, Buddhism, Jainism and Sikhi, each ' +
+            'told from the inside — where these values are carried.</p></div></div></button>'
+          : '') +
+        (window.IND_UTSAV
+          ? '<button class="tile" data-act="go" data-v="utsav">' +
+            '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + icon('lamp', 40) +
+            '<div style="flex:1"><h3 style="margin:0">Utsav — the festivals</h3>' +
+            '<p class="tiny" style="margin:5px 0 0">' +
+            (fest.length ? esc(fest[0].name) + ' falls this month. ' : '') +
+            window.IND_UTSAV.festivals.length + ' festivals — the days all of this is lived.' +
+            '</p></div></div></button>'
+          : '') +
+      '</div>' +
+
       '<button class="tile" style="margin-bottom:var(--space-lg)" data-act="go" data-v="shlok">' +
       '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art('saraswati', 52) +
       '<div style="flex:1"><h3 style="margin:0">Shlok — verses to carry</h3>' +
@@ -2293,8 +2307,13 @@
   };
 
   /* ================================================================== SHELL */
-  var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['neeti', 'Neeti', 'star'],
-              ['learn', 'Learn', 'map'], ['bhasha', 'Bhasha', 'script'], ['play', 'Play', 'game']];
+  /* Map and Itihaas earn bar placement: each is a destination a child returns to, not a
+     sub-page of a hub called Learn — a hub whose only job was to hold three doors. Dharma
+     and Utsav fold into Neeti, where they belong: the values, the faiths that carry them,
+     and the festivals where they are lived. */
+  var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['map', 'Map', 'map'],
+              ['itihaas', 'Itihaas', 'clock'], ['neeti', 'Neeti', 'star'],
+              ['bhasha', 'Bhasha', 'script'], ['play', 'Play', 'game']];
 
   function chrome() {
     return '<header class="topbar"><div class="barrow">' +
@@ -2331,7 +2350,7 @@
       case 'chart': h = V.chart(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'game': h = V.game(); break;
-      case 'learn': h = V.learn(); break;
+      case 'learn': h = V.map(); break;   /* the Learn hub is gone; old links land on the map */
       case 'play': h = V.play(); break;
       case 'epics': h = V.epics(); break;
       case 'epic': h = V.epic(view.arg); break;
@@ -2362,7 +2381,9 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'learn', map: 'learn', itihaas: 'learn', era: 'learn', dharma: 'learn', faith: 'learn',
+    var alias = { state: 'map', mon: 'map', learn: 'map',
+                  era: 'itihaas',
+                  dharma: 'neeti', faith: 'neeti', utsav: 'neeti', festival: 'neeti',
                   story: 'stories', pack: 'bhasha',
                   game: 'play', mela: 'play', rishtey: 'play', rishquiz: 'play',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',

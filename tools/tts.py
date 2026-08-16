@@ -147,10 +147,19 @@ def load_wordlist(path):
         return {w.strip().lower() for w in f if w.strip()}
 
 
-def audit(clips, words_path=None):
+def audit(clips, words_path=None, common_path=None):
     """Frequency-ranked report of clip words the lexicon does not pin and an
-       English wordlist does not know. Everything in it is a candidate entry."""
+       English wordlist does not know. Everything in it is a candidate entry.
+
+    TWO wordlists, and the reason matters. A big scrabble-grade English list is
+    useless on its own here: it contains duryodhana, drona, dhritarashtra,
+    nakula and sahadeva as headwords, which is precisely the class of word this
+    audit exists to catch, so filtering capitalised tokens through it hides the
+    epics' entire cast. So a Capitalised token is only forgiven if it is in the
+    small common-English list (a name at the start of a sentence), while an
+    all-lowercase token may use the big list too."""
     english = load_wordlist(words_path)
+    common = load_wordlist(common_path) or english
     known = set(LEX) | {t for term in LEX for t in term.split()}
     # ipa:null entries are deliberate — surface them separately, never as TODOs.
     raw = json.load(open(LEXICON, encoding='utf-8'))
@@ -161,9 +170,9 @@ def audit(clips, words_path=None):
         if c.get('lang', 'en-US') not in SSML_LANGS:
             continue
         for w, low in unwrapped_words(c['text']):
-            if low in english or low in known or low in flagged or len(low) < 3:
+            if low in known or low in flagged or len(low) < 3:
                 continue
-            if not w[0].isupper() and low in english:
+            if low in (common if w[0].isupper() else english):
                 continue
             counts[low] = counts.get(low, 0) + 1
             forms.setdefault(low, w)
@@ -265,8 +274,8 @@ def main(argv):
     clips = json.load(open(args[0]))
 
     if '--audit' in argv:
-        # tts.py --audit clips.json [wordlist.txt]
-        audit(clips, args[1] if len(args) > 1 else None)
+        # tts.py --audit clips.json [big-wordlist.txt [common-wordlist.txt]]
+        audit(clips, *args[1:3])
         return
 
     if '--print-ssml' in argv:

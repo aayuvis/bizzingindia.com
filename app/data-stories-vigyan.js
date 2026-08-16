@@ -364,6 +364,73 @@ window.IND_STORIES_VIGYAN = [
   ],
   moral: 'The distance from a small town to the sky is real — and it is crossed at dawn, one caught bundle at a time.',
   source: 'A. P. J. Abdul Kalam\'s own memoir Wings of Fire (1999) — the wartime newspapers, cousin Samsuddin, the first wages and the 1979 failure are his own telling, and the seashore bird-flight lesson is from his own recounted schooldays; ISRO records for the SLV-3 launch of Rohini, 18 July 1980; the presidency (2002–2007) is public record.'
+},
+
+/* ============================================================= ANNA MANI === */
+{
+  id: 'sci-annamani',
+  collection: 'vigyan',
+  badge: 'itihaas',
+  title: 'The Girl Who Refused the Earrings',
+  hook: 'On her eighth birthday, her family offered the customary gift of diamond earrings. She had a different request — and it ran her whole life.',
+  hero: 'annamani',
+  cast: ['annamani', 'mithu'],
+  minutes: 4,
+  place: ['IN-KL'],
+  words_hi: [['मौसम', 'mausam', 'weather'], ['हवा', 'hawa', 'wind'], ['जिज्ञासा', 'jigyasa','curiosity']],
+  scenes: [
+    { art: ['annamani'], who: null, mood: 'think',
+      text: 'Anna Mani was born in 1918 in Peermade, in the hills of Kerala, into a prosperous family with settled ideas about what girls were for. By eight she had read most of what her town could offer a child. Then came her eighth birthday, and with it the family custom: a gift of diamond earrings.',
+      ask: {
+        q: 'The earrings are offered — beautiful, expensive, the proper gift. What did Anna ask for instead?',
+        options: ['A bigger pair of earrings', 'A set of encyclopaedias', 'Nothing at all'],
+        answer: 1,
+        right: 'A set of encyclopaedias — instead of diamonds. She told this story herself, all her life, and it is the truest introduction she could have: a person who, offered sparkle, asked for the whole world in volumes.',
+        wrong: 'What she asked for — and she told this story herself, all her life — was a set of encyclopaedias. Offered sparkle, she asked for the whole world in volumes, and the family library never recovered.'
+      } },
+    { art: ['annamani'], who: null,
+      text: 'The reading girl became a physics student in Madras, and then a researcher in the laboratory of C. V. Raman himself — you have met him earlier on this shelf — where she spent years teasing out the secrets of light inside diamonds and rubies. She wrote five research papers of real quality. And here the record must be honest, because itihaas is honest: on a technicality of paperwork, the university never granted her the doctorate her work had earned. She shrugged, in her way, and got on with the science.' },
+    { art: ['annamani'], who: null, mood: 'think',
+      text: 'In 1948, after training in instrument-making in England, she joined the Meteorological Department of newly independent India — and found a quiet embarrassment: nearly every instrument India used to read its own weather, every barometer and thermometer and rain gauge, was imported. A country whose farms, ships and monsoon forecasts hung on the weather could not build the tools that measured it.' },
+    { art: ['annamani'], who: null, mood: 'wow',
+      text: 'Anna Mani made that her life\'s work. She gathered and standardised the drawings of about a hundred weather instruments and drove Indian workshops to manufacture them to her exacting standards — she was famously exacting — until the weather service of India ran on instruments made in India, and the importing stopped. Almost nothing in a museum will show you her work; it hangs instead, by the thousand, in every weather station in the country.' },
+    { art: ['annamani'], who: null,
+      text: 'She kept going where the air got thinner. She built and flew instruments to measure ozone — the fragile, invisible layer that shields all life from the sun\'s harshest rays — years before the world grew properly worried about it, and served on the international commission that watches it. And in her so-called retirement she turned to the wind: measuring stations across the country, handbooks of India\'s winds and sunshine — the quiet groundwork under the wind farms that turn on Indian ridges today.' },
+    { art: ['annamani'], who: 'mithu',
+      text: 'Diamond earrings sparkle for one person. A weather service, an ozone record and a wind atlas work for a billion. She knew the difference at eight years old — and never once changed her mind.' }
+  ],
+  moral: 'She spent her life measuring what cannot be seen — wind, ozone, the weight of air — and her trick was always the same: build the instrument yourself.',
+  source: 'The World Meteorological Organization\'s published tribute to Anna Mani; her documented interviews, retold in Abha Sur\'s "Dispersed Radiance", which carry the encyclopaedia-instead-of-earrings story in her own telling, and the Raman-laboratory years with the withheld doctorate; India Meteorological Department institutional history for the standardisation of some hundred weather instruments, the ozone work and International Ozone Commission membership, and the solar radiation and wind-energy handbooks and survey stations of her later years.'
+},
+
+/* =========================================================== TESSY THOMAS == */
+{
+  id: 'sci-tessy',
+  collection: 'vigyan',
+  badge: 'itihaas',
+  title: 'The Engineer Who Steered the Fire',
+  hook: 'A rocket is easy to light and very hard to steer. When India needed someone to lead its longest-flying missile, the record shows who got the job.',
+  hero: 'tessy',
+  cast: ['tessy', 'mithu'],
+  minutes: 4,
+  place: ['IN-KL'],
+  words_hi: [['अग्नि', 'agni', 'fire'], ['दिशा', 'disha', 'direction'], ['लक्ष्य', 'lakshya', 'aim']],
+  scenes: [
+    { art: ['tessy'], who: null,
+      text: 'Tessy Thomas was born in 1963 in Alappuzha, Kerala — a town of canals and coir — and named, her family has said, after Mother Teresa. She was a child of the same Kerala coast where, down at Thumba, India\'s first rockets were rising from a fishing village; you have read that story on this shelf. She grew up good at mathematics and better at not letting go of a problem.' },
+    { art: ['tessy'], who: null, mood: 'think',
+      text: 'She studied engineering, and in 1988 joined DRDO — the organisation that builds India\'s defence technology — where she was put to work on the Agni programme, the long-range missiles named for fire, in the years when A. P. J. Abdul Kalam led those corridors. Her specialism was the deep end of the field: guidance. Lighting a rocket is the loud part. The hard part is everything after — a machine that must know, every single second of a flight across thousands of kilometres, exactly where it is, where it is going, and how to correct itself, alone, at enormous speed, with nobody able to reach it.' },
+    { art: ['tessy'], who: null,
+      text: 'She spent twenty years mastering that art — guidance, trajectory, the fierce physics of re-entry, when a returning craft must survive its own meteor-hot plunge back through the air. She rose the way engineers respect most: flight by flight, problem by solved problem. Missile teams keep no polite fictions; the bird flies or it does not, and everyone knows whose work is aboard.' },
+    { art: ['tessy'], who: null, mood: 'wow',
+      text: 'In 2011, Agni-IV flew successfully with Tessy Thomas as its project director — the first woman ever to lead an Indian missile project. And on 19 April 2012 came the bigger day: the first flight of Agni-V, the longest-legged missile India had ever built, able to cross five thousand kilometres — a capability only a handful of nations possess. She was its programme director. The launch worked. The newspapers, reaching for a name equal to the moment, coined one: Agniputri — daughter of fire. The nickname is the press\'s invention, and she has worn it lightly; her own word for herself has always been simpler. Engineer.' },
+    { art: ['tessy'], who: null,
+      text: 'The work carried her on: she went on to head all of DRDO\'s aeronautical systems — thousands of engineers, everything that flies. Ask what mattered in her story and the record answers plainly: not that a woman finally led a missile programme, but that the missiles she led flew true — and that every girl in India doing her mathematics homework now knows, as a settled fact, that this door stands open.' },
+    { art: ['tessy'], who: 'mithu',
+      text: 'Anyone can light a fire. The rare skill is teaching it, second by second, exactly where to go — in a missile, and, if you think about it, in a life.' }
+  ],
+  moral: 'Lighting the fire is the easy part. Steering it — patiently, precisely, all the way to the far target — is the work of a lifetime.',
+  source: 'DRDO\'s record and contemporary press reporting: Tessy Thomas joined DRDO in 1988 and worked on the Agni programme; project director of Agni-IV (successful flight, 2011) and programme director for the first Agni-V flight of 19 April 2012 — the first woman to lead an Indian missile project — later Director General of Aeronautical Systems, DRDO. "Agniputri" is the Indian press\'s coinage from the Agni-V reporting and is attributed to the press here; no remark is invented for her or anyone else.'
 }
 ];
 

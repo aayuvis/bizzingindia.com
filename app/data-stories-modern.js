@@ -857,6 +857,146 @@ window.IND_STORIES_MODERN = [
   ],
   moral: 'Opportunities rarely look like opportunities. Mostly they look like problems everyone else has decided to live with.',
   source: 'The widely documented founding of OYO: Ritesh Agarwal, born 1993 in Bissam Cuttack, Odisha; his budget-guest-house travels; the 2012 first venture and 2013 pivot to OYO Rooms; and his selection for the international Thiel Fellowship in 2013 — from the company’s own accounts and contemporary reporting. The story deliberately stays on the founding moment.'
+},
+
+/* =========================================================== RAH ========== */
+/* Rah Banane Wale — the pathbreakers (2026-08). Four people who found a door
+   shut and opened it so it never quite shut again. All itihaas, all sourced.
+   Sensitive-topic gate: rah.savitribai borders caste history, which docs/05 §6
+   reserves for a human author with a named reviewer. That story stays at a
+   child's level — the door she opened, the courage of the walk — with the
+   cruelty acknowledged in one honest sentence, without caste vocabulary, and
+   is flagged needs_review: true. It does not publish without sign-off. */
+
+{
+  id: 'rah.kiran',
+  collection: 'rah',
+  badge: 'itihaas',
+  title: 'The Brewmaster Nobody Would Hire',
+  hook: 'She trained to run a brewery and finished top of her class. India’s breweries would not give a woman the job. So she used the same science to build something bigger.',
+  hero: 'kiran_shaw',
+  cast: ['kiran_shaw'],
+  minutes: 4,
+  place: ['IN-KA'],
+  words_hi: [['दरवाज़ा', 'darwaza', 'door'], ['ख़मीर', 'khameer', 'yeast'], ['दवा', 'dawa', 'medicine']],
+  scenes: [
+    { art: ['kiran_shaw'], who: null,
+      text: 'Kiran Mazumdar grew up in Bangalore in the 1950s and 60s, the daughter of a head brewmaster — and she fell in love not with beer but with the science underneath it: fermentation, the ancient trick by which invisible living things, yeasts and enzymes, quietly turn one substance into another. She went to Australia to study brewing properly, and finished at the top of her class.' },
+    { art: ['kiran_shaw'], who: null, mood: 'sad',
+      text: 'Then she came home with her qualification — and found every door in her field closed. Brewery after brewery told her, in the India of the 1970s, what she has retold ever since: the brewhouse was no place to put a woman in charge. Her marks did not matter. Her training did not matter. The answer was simply no.',
+      ask: {
+        q: 'Your training is real, your marks are the best, and every door in your field is shut. What is your training actually worth now?',
+        options: ['Nothing — the doors decide', 'Everything — fermentation science works in more places than breweries', 'Only what someone else can be persuaded to say it is worth'],
+        answer: 1,
+        right: 'That is the turn her life took. Brewing science is enzyme science — and enzymes have a thousand uses beyond beer. The skill was a key, and keys open more than one lock.',
+        wrong: 'It felt like nothing, she has said — for a while. But brewing science is enzyme science, and enzymes have a thousand uses beyond beer. The skill was a key, and keys open more than one lock.'
+      } },
+    { art: ['kiran_shaw'], who: null,
+      text: 'In 1978 an Irish company that made industrial enzymes went looking for an Indian partner, and found the brewmaster nobody would hire. Kiran, twenty-five, started Biocon India in the garage of her rented house in Bangalore, with about ten thousand rupees. The early days were a museum of refusals: banks would not lend to a young woman running a company built on a word — biotechnology — that no bank manager had ever heard.' },
+    { art: ['kiran_shaw'], who: null, mood: 'wow',
+      text: 'The garage got to work anyway, coaxing enzymes out of papaya fruit — and within a year, this tiny company was exporting enzymes to Europe and America, the first Indian company ever to do so. The science India’s breweries had turned away was now being shipped, in barrels, to the world.' },
+    { art: ['kiran_shaw'], who: null, mood: 'wow',
+      text: 'Then came the bigger idea: if enzymes, why not medicines? Biocon turned its fermenters toward pharmaceuticals — above all insulin, the daily medicine millions of Indians with diabetes cannot live without, made at Indian scale and Indian prices. The company from the garage grew into the biggest biotechnology company in India. The garage is the point of the story; the refusals are its fuel.' },
+    { art: ['kiran_shaw'], who: 'mithu',
+      text: 'They would not let her make beer, so she made medicine. When a door closes on you, check what your key really opens — it is usually more than the one lock you had in mind.' }
+  ],
+  moral: 'A closed door tells you about the door, not about you. Skills are keys — and most keys open more than one lock.',
+  source: 'Biocon’s own company history: founded 1978 in the garage of her rented Bangalore house, in partnership with Biocon Biochemicals of Ireland, on seed capital of about ₹10,000; the papain exports within the first year — the first Indian enzyme exports — and the later move into biopharmaceuticals and affordable insulin. Her brewmaster training in Australia and the refusals at Indian breweries and banks are her own oft-recorded telling, paraphrased here, never quoted.'
+},
+
+{
+  id: 'rah.hansa',
+  collection: 'rah',
+  badge: 'itihaas',
+  title: 'All Human Beings',
+  hook: 'After a terrible war, the world sat down to write its promises to every person. The first line began: all men are born free and equal. A teacher from Gujarat read it — and asked the question that fixed it.',
+  hero: 'hansa_mehta',
+  cast: ['hansa_mehta'],
+  minutes: 4,
+  place: ['IN-GJ'],
+  words_hi: [['शब्द', 'shabd', 'word'], ['इंसान', 'insaan', 'human being'], ['हक़', 'haq', 'right']],
+  scenes: [
+    { art: ['hansa_mehta'], who: null,
+      text: 'Hansa Mehta was born in 1897 into a scholarly family of Baroda, in Gujarat, and spent her life on education — she wrote and translated books for Gujarati children, Gulliver’s adventures among them, and built schools and colleges. She was one of just fifteen women in the assembly that wrote India’s Constitution; and at the midnight hour of independence, 14 August 1947, it was Hansa Mehta who presented the national flag to the assembly on behalf of the women of India. That is in the assembly’s own record.' },
+    { art: ['hansa_mehta'], who: null,
+      text: 'In 1947 she was sent to the United Nations, to the commission drafting something the world had never had: the Universal Declaration of Human Rights — a promise-list belonging to every person on Earth, written in the shadow of a war that had shown what happens when such promises do not exist. The chair was Eleanor Roosevelt of America. And the draft of the very first article began: “All men are born free and equal.”' },
+    { art: ['hansa_mehta'], who: null, mood: 'think',
+      text: 'To most of the room, that wording seemed fine. “All men”, everyone agreed, obviously meant everyone.',
+      ask: {
+        q: '“All men” means everyone — everybody knows that. Does the wording matter?',
+        options: ['No — everyone knows what is meant', 'Yes — words written for the whole world, for all time, should say exactly what they mean', 'Only lawyers care about such things'],
+        answer: 1,
+        right: 'That was Hansa Mehta’s argument, made patiently, meeting after meeting: somewhere, someday, someone would read “men” and use it to mean men only. A promise to everyone had to name everyone.',
+        wrong: 'Hansa Mehta thought otherwise, and said so, patiently, meeting after meeting: somewhere, someday, someone would read “men” and use it to mean men only. A promise to everyone had to name everyone.'
+      } },
+    { art: ['hansa_mehta'], who: null, mood: 'wow',
+      text: 'She won. When the Universal Declaration was adopted in December 1948, its first article read — and reads today, in over five hundred languages: “All human beings are born free and equal in dignity and rights.” The United Nations itself tells the story of who insisted on those words: Hansa Mehta of India. Two words, changed by one careful reader, in the sentence the whole world now begins with.' },
+    { art: ['hansa_mehta'], who: null,
+      text: 'Then she went home and kept building. When Baroda’s new university opened in 1949, Hansa Mehta led it as its first Vice-Chancellor — a scholar running a university at a time when that too was a door not yet open. She spent her life on exactly one conviction, applied everywhere: that every human being, and she did mean every, deserves the dignity of learning.' },
+    { art: ['hansa_mehta'], who: 'mithu',
+      text: 'Most people skim. She read. Next time you meet a rule, a form, a promise — read the small words. The whole world once hung on two of them, and somebody from Baroda was paying attention.' }
+  ],
+  moral: 'Check the small words. The whole world can hang on them — and somebody has to be the one reading carefully.',
+  source: 'United Nations records: the UN’s own published histories of the Universal Declaration of Human Rights credit Hansa Mehta of India with changing Article 1 from “all men” to “all human beings” (adopted 10 December 1948) — the Article 1 text is quoted from the document itself; the Constituent Assembly of India’s records for the flag presentation of 14–15 August 1947; the Maharaja Sayajirao University of Baroda, of which she was the first Vice-Chancellor from 1949.'
+},
+
+{
+  id: 'rah.savitribai',
+  collection: 'rah',
+  badge: 'itihaas',
+  needs_review: true,
+  title: 'The Teacher Who Carried a Spare Sari',
+  hook: 'In 1848, a seventeen-year-old opened a school door in Pune that had been shut to girls for centuries. Walking to that door each morning took more courage than opening it.',
+  hero: 'savitribai',
+  cast: ['savitribai'],
+  minutes: 4,
+  place: ['IN-MH'],
+  words_hi: [['पाठशाला', 'paathshala', 'school'], ['क़लम', 'qalam', 'pen'], ['राह', 'raah', 'path']],
+  scenes: [
+    { art: ['savitribai'], who: null,
+      text: 'Savitribai was born in 1831 in Naigaon, a village in Maharashtra, and married very young, as was the custom of the time, to Jyotirao Phule of Pune. Jyotirao believed something then considered strange: that his wife should read. He taught her letters at home — and Savitribai took to learning the way dry ground takes to rain. The first door of her life opened over a slate at her own kitchen floor.' },
+    { art: ['savitribai'], who: null, mood: 'wow',
+      text: 'She did not stop at reading. She trained as a teacher — proper training, at institutions in Ahmednagar and Pune — and in January 1848, she and Jyotirao opened a school for girls at Bhide Wada in Pune. Savitribai stood at the front of the class and taught: one of the first Indian women ever to do so, in one of the first schools for girls that Indians had ever run, teaching children whom no school had wanted.' },
+    { art: ['savitribai'], who: null, mood: 'sad',
+      text: 'Not everyone rejoiced. Many people were furious that these children should learn at all, and some showed their anger cruelly — jeering at Savitribai on her walk to school, and throwing mud and dung at her clothes. Her answer has been remembered for a hundred and seventy years: she carried a second sari in her bag, changed when she arrived, and began the day’s lessons. Then she came back the next morning. That was the whole of her argument, and it won.' },
+    { art: ['savitribai'], who: null,
+      text: 'Within three years there were three schools and about a hundred and fifty girls learning in them. Savitribai and Jyotirao kept opening doors all their lives — classes for grown-ups who had never been allowed to learn, a home for children no one else would take. At twenty-three she published a book of her own poems; their message, over and over, was the one she had lived: go, get education.' },
+    { art: ['savitribai'], who: null,
+      text: 'In 1897, when plague came to Pune, Savitribai — by then in her sixties — worked caring for the sick, and caught the illness herself. She died as she had lived, walking toward people everyone else avoided. Today the great university of Pune carries her name, and in Maharashtra her birthday, the third of January, is kept in honour of girls and the people who teach them.' },
+    { art: ['savitribai'], who: 'mithu',
+      text: 'A slate at a kitchen floor, a spare sari in a bag, a door held open for a hundred and fifty girls — and now for every girl reading this. Some doors are opened once, by one person who simply refuses to stop walking to them.' }
+  ],
+  moral: 'Courage is not always loud. Sometimes it is a teacher, walking the same hard road to school every morning, until the world gives way.',
+  source: 'Documented histories and biographies of Savitribai and Jyotirao Phule: the girls’ school at Bhide Wada, Pune, January 1848; her teacher training at Ahmednagar and Pune; the spare sari carried against the mud and dung flung at her, as recorded in standard accounts of her life; her poems (Kavya Phule, 1854); her death in the Pune plague of 1897; Savitribai Phule Pune University (renamed in her honour, 2014) and Maharashtra’s observance of 3 January. needs_review: this story borders caste history, kept here at a child’s level without caste vocabulary per docs/05 §6 — a named human reviewer must sign off before publish.'
+},
+
+{
+  id: 'rah.ela',
+  collection: 'rah',
+  badge: 'itihaas',
+  title: 'A Bank of Four Thousand Sisters',
+  hook: 'The banks said: these women cannot even sign their names. The women said: then we will build our own bank. And they did.',
+  hero: 'ela_bhatt',
+  cast: ['ela_bhatt'],
+  minutes: 4,
+  place: ['IN-GJ'],
+  words_hi: [['बहन', 'bahan', 'sister'], ['टोकरी', 'tokri', 'basket'], ['हुनर', 'hunar', 'skill']],
+  scenes: [
+    { art: ['ela_bhatt'], who: null,
+      text: 'Ela Bhatt was a young lawyer in Ahmedabad — soft-spoken, khadi-wearing, the gentlest person in most rooms — working for the textile workers’ union in the city Gandhi had made famous for exactly that kind of work. But the workers inside the mills had a union. Her eye kept catching the workers outside them: women carrying cloth bales on their heads, pulling handcarts, rolling papads at home before dawn, selling vegetables from baskets. They worked every daylight hour. And officially, they did not exist — no register counted them, no law protected them, because no factory owned them.' },
+    { art: ['ela_bhatt'], who: null, mood: 'think',
+      text: 'The rulebooks had a phrase for such women — self-employed — and treated it as a reason to do nothing. Ela Bhatt read it the other way: if they are self-employed, they are workers, and workers can have a union. In 1972 she founded SEWA, the Self-Employed Women’s Association — a trade union for women the rulebooks had never imagined. The membership card mattered as much as anything the union ever won: a piece of paper that said, for the first time in these women’s lives, I am a worker.' },
+    { art: ['ela_bhatt'], who: null, mood: 'sad',
+      text: 'Then came the money problem. The members earned coin by coin, daily, with no safe place to keep a paisa of it — and the banks would not have them. Some of the women could not sign their names; none had the papers and property a bank wanted; the queues and the counters were not built for a vegetable seller who loses a day’s income by standing in one. The banks were not going to change.' },
+    { art: ['ela_bhatt'], who: null, mood: 'wow',
+      text: 'So in 1974, about four thousand SEWA members did something almost cheeky in its simplicity: they put in ten rupees each — ten rupees, from women counted as too poor to bank — and founded their own bank. A cooperative, owned by its account holders, run for headloaders and papad rollers and cart pullers; and for members who could not sign, the bank used photographs instead of signatures. The problem was never that the women did not fit banking. It was that banking had not yet been built to fit them.' },
+    { art: ['ela_bhatt'], who: null,
+      text: 'The bank held, and the union grew — trade by trade, town by town, until SEWA counted its members in the millions, one of the largest organisations of working women anywhere on Earth. When Ela Bhatt finally wrote their story down, she gave the book a title that says everything this shelf could hope to: We Are Poor but So Many.' },
+    { art: ['ela_bhatt'], who: 'mithu',
+      text: 'Ten rupees is small. Four thousand tens is a bank. One woman with a basket is invisible; a million of them, holding membership cards, are impossible to un-see. Together is not just a nice word — it is arithmetic.' }
+  ],
+  moral: 'Alone, ten rupees is small; four thousand tens is a bank. Dignity is built the same way — together.',
+  source: 'SEWA’s own institutional history: founded by Ela Bhatt in Ahmedabad in 1972 as a trade union of self-employed women; the SEWA Cooperative Bank of 1974, capitalised by about four thousand members at ₹10 each, using photo identification for members who could not sign; Ela Bhatt’s memoir "We Are Poor but So Many" (2006).'
 }
 ];
 
@@ -866,5 +1006,8 @@ window.IND_COLLECTIONS_MODERN = [
     avatar: 'dhyanchand' },
   { id: 'naya', name: 'Naya India — The Builders',
     note: 'The people who built modern India’s everyday magic — the milk, the software, the rockets, the little payment square at the chai stall. The awe is in the making.',
-    avatar: 'rocket' }
+    avatar: 'rocket' },
+  { id: 'rah', name: 'Rah Banane Wale — The Pathbreakers',
+    note: 'Four people who found a door shut — a brewery, a bank, a school, a line in the world’s rulebook — and opened it so it never quite shut again.',
+    avatar: 'kiran_shaw' }
 ];

@@ -442,16 +442,16 @@
       return b.v === todayValue.id && b.on === today();
     });
 
-    return '<div class="card notch"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
+    /* one line: the greeting and the day's two invitations side by side,
+       wrapping only when the screen genuinely cannot hold them */
+    return '<div class="card notch"><div class="herorow">' +
+        '<div class="greetblk"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
         art(S.buddy, 72) +
-        '<div style="flex:1"><div class="tiny muted">' + greet + ',</div>' +
+        '<div style="flex:1"><div class="tiny muted">' + greet + ',' +
+        (S.streak.count ? ' <span style="white-space:nowrap">· 🪔 ' + S.streak.count + '-day streak</span>' : '') + '</div>' +
         '<h2 style="margin:0 0 10px">' + esc(S.name || 'Yatri') + '</h2>' +
-        '<div class="bubble">' + esc(hello) + '</div></div>' +
-        '<span class="tiny muted" style="white-space:nowrap">' + (S.streak.count
-          ? '🪔 ' + S.streak.count + '-day streak'
-          : '') + '</span></div>' +
+        '<div class="bubble">' + esc(hello) + '</div></div></div></div>' +
 
-        '<div class="today" style="margin-top:var(--space-lg)">' +
           (todayValue
             ? '<div class="td"><span class="mono">Do one</span>' +
               '<p><b>' + esc(todayValue.roman) + '</b> — ' + esc(todayValue.en) + '.<br>' +

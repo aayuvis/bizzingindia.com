@@ -401,6 +401,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* Today: three invitations side by side, one per way this app gets used. Each one ends in a
    button, because the point of this card is that something happens. */
 .today { display: grid; gap: var(--space-lg); grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+/* Home's first card: greeting, Do-one and Carry-one on ONE line, wrapping only
+   when the screen truly cannot hold them */
+.herorow { display: flex; gap: var(--space-lg); align-items: stretch; flex-wrap: wrap; }
+.herorow .greetblk { flex: 1.4 1 280px; min-width: 250px; }
+.herorow .td { flex: 1 1 200px; min-width: 190px; }
 .td {
   display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-sm);
   padding: var(--space-lg); background: var(--ground2);

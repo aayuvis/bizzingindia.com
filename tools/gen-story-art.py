@@ -113,11 +113,12 @@ PROMPTS = {
         "staring up at the impossible pot. Lanterns, moonlight, stone arches."),
 
     "ab.crows": p(
-        "a row of glossy black crows squabbling along the top of a red sandstone palace "
-        "wall against a rose-gold evening sky, a whole wheeling flock of them above the "
-        "white domes and minarets; on a marble balcony below, an emperor and his "
-        "minister lean on the railing watching the birds. Warm dusk, painted birds "
-        "everywhere, jali screens."),
+        "a long row of glossy black crows squabbling along the top of a red sandstone "
+        "palace wall at sunset, and many more crows scattered across the rose-gold sky "
+        "above the white domes and minarets — each single bird drawn clearly with its "
+        "wings open; on a marble balcony an emperor in a jewelled turban and his "
+        "minister lean on the railing counting them on their fingers. Warm dusk, jali "
+        "screens, flowering creepers, painted birds."),
 
     "ka.ganesha-race": p(
         "drawn reverently in a folk-art idiom: the elephant-headed Ganesha, round and "
@@ -127,12 +128,13 @@ PROMPTS = {
         "snow, lotus, moon, soft radiant light, ornamental painted borders of leaves."),
 
     "ka.hanuman-leap": p(
-        "drawn reverently in a folk-art idiom: Hanuman the mighty vanara, mace at his "
-        "side and a garland at his neck, launching in a great arc from a cracking "
-        "mountain top out over a bright sea, trees and blossom and leaves torn up and "
-        "swirling along in his wake; below him the sea flattens into a shining golden "
-        "road toward a distant island, and a small mountain rises out of the water. "
-        "Dawn light, spray, sweeping painted clouds."),
+        "drawn reverently in a folk-art idiom: Hanuman the monkey-faced vanara hero "
+        "with orange-red fur, a golden crown, a flower garland and a long tail curling "
+        "behind him, flying in a great soaring arc high above a bright blue sea, one "
+        "arm stretched forward; behind him a mountain top and a whirl of uprooted trees "
+        "and pink blossom tumbling along in his wake; far ahead across the shining "
+        "water a small green island, and a little mountain rising out of the waves "
+        "below. Banded dawn clouds of gold and rose, spray, sweeping painted sea."),
 
     "ka.buddha-mustard": p(
         "a village lane at dusk with a row of warm lit doorways: a woman in a simple "
@@ -167,11 +169,12 @@ PROMPTS = {
         "foreground. Warm lamplight, terracotta temple carving, alpona floor patterns."),
 
     "wt.tenali-thieves": p(
-        "a moonlit south Indian garden of broad plantain leaves around an old stone "
-        "well: four weary thieves hauling up dripping buckets and sloshing water out "
-        "across the vegetable beds, which are lush and thriving; at a shuttered window "
-        "of the tiled house behind, a man watches, thoroughly amused, with his wife "
-        "beside him. Silver moonlight, warm lamp glow at the window, coconut palms."),
+        "deep night in a south Indian garden of broad plantain leaves around an old "
+        "round stone well: four weary thieves in the blue darkness hauling dripping "
+        "buckets up on a rope and tipping the water out across rows of vegetables that "
+        "have grown thick and lush from it; behind them a tiled house with one small "
+        "shuttered window glowing warm gold, where a smiling man and his wife peep out "
+        "at the scene. Indigo night, big silver moon, fireflies, coconut palms."),
 
     "ep.squirrel-bridge": p(
         "a small striped palm squirrel, soaked and coated in wet sand, standing on a "
@@ -231,19 +234,22 @@ PROMPTS = {
 
     "fk.unfinished-hands": p(
         "a temple workshop room at Puri in Pattachitra idiom: a door standing newly "
-        "open with a shaft of daylight falling across the empty floor, and three great "
-        "carved wooden figures standing there — enormous round eyes, wide painted "
-        "smiles, brilliant black and white and yellow, and short unfinished arms; wood "
-        "shavings and a chisel on the ground, a queen at the doorway with her hand on "
-        "the frame; the sea and temple towers beyond. Bold Odia painted line and colour."),
+        "open with a shaft of daylight falling across the empty floor, and standing "
+        "together in the middle of the room a group of exactly three great carved "
+        "wooden figures side by side — one large and black, one large and white, and a "
+        "smaller yellow one between them — every one with enormous round eyes, a wide "
+        "painted smile and short unfinished arms; wood shavings and a chisel on the "
+        "ground, a queen at the doorway with her hand on the frame; the sea and temple "
+        "towers beyond. Bold Odia painted line and colour."),
 
     "fk.naga-brothers": p(
-        "a Naga hill village on a high ridge at dusk with cloud drifting in through the "
-        "doorways: a thatched wooden longhouse with carved beams and a fire glowing "
-        "inside, a man standing in the lit doorway, an old mother seated on the step "
-        "with her hand raised, and at the edge of the dark treeline a tiger pausing to "
-        "look back over his shoulder; a soft shape of mist among the rocks and tall "
-        "trees. Blue evening, terraced hills, warm fire glow, woven shawl patterns."),
+        "a Naga hill village on a high ridge at dusk, painted in warm ochre, deep red "
+        "and gold: a thatched longhouse with carved wooden beams and a big fire glowing "
+        "orange inside, a young man standing in the lit doorway, an old mother seated "
+        "on the step reaching one hand out toward the trees, and at the edge of the "
+        "dark forest a striped tiger pausing to look back over his shoulder at her; "
+        "terraced hillsides and cloud filling the valley beyond, red-and-black woven "
+        "shawl patterns everywhere. Warm firelight against a deep blue evening."),
 
     "fk.khasi-sun": p(
         "a rooster standing tall and bright at the mouth of a dark cave in the Khasi "
@@ -321,11 +327,13 @@ PROMPTS = {
         "pink and ochre pattern, a fire glowing."),
 
     "wt.vetala-tree": p(
-        "a moonless starry night in a forest: a calm crowned king walking steadily "
-        "along a path with a friendly folded bat-winged spirit riding comfortably on "
-        "his back, chattering away and gesturing with one long hand; behind them the "
-        "old gnarled tree it came down from, its branches full of fireflies. Deep "
-        "midnight blue and gold, whimsical rather than fearsome, painted stars."),
+        "a starlit forest at night, foliage and sky filling the whole width of the "
+        "picture: a calm crowned king striding along a winding path carrying a "
+        "friendly folded bat-winged spirit piggyback on his shoulders, the spirit "
+        "chattering away and gesturing with one long hand; behind them a huge gnarled "
+        "old tree whose branches are full of fireflies, and the path winding away "
+        "between more trees into the dark. Deep midnight blue and gold, painted stars "
+        "across the entire sky, whimsical and friendly."),
 
     "jt.banyan-deer": p(
         "a palace courtyard beside a huge spreading banyan tree at sunrise: a "

@@ -8,12 +8,28 @@ single most iconic moment, in the same house style as app/art/banner/*.jpg.
 Usage:
     export GEMKEY=...            # never hardcode, never print
     python3 tools/gen-story-art.py                 # resumable: skips what exists
+    python3 -u tools/gen-story-art.py --slice 3/4  # one worker's share (-u: live progress)
     python3 tools/gen-story-art.py --only pt.lion-rabbit,ka.ganesha-race   # regen
+    python3 tools/gen-story-art.py --print-prompt fk.tejimola   # no API call
     python3 tools/gen-story-art.py --manifest-only
 
 Output:
-    app/art/story/<slug>.jpg      900x600, JPEG q78
+    app/art/story/<slug>.jpg      900x600, JPEG q78 — what the app serves
+    masters/story/<slug>.jpg      near-native q92 — the digital book tier, like
+                                  masters/epic/. Outside app/, so deploy.sh never
+                                  ships it and gh-pages stays light.
     app/story-art-manifest.js     window.IND_STORY_ART = [...]
+
+HOW A PROMPT IS BUILT, at 283 stories. The first 78 paintings were made from the
+hand-written PROMPTS below, one prompt per story, and those stay exactly as they are —
+they are the overrides. Every story without an entry gets its prompt composed by
+build_prompt() from the story's own title, hook, scene texts and moral — the same move
+tools/gen-epic-art.py makes with build_card_prompt(), including the always-appended
+gentleness clause. The scene prose is written for a child and is already close to an
+ideal image prompt; the model picks the iconic moment out of it. Stories whose iconic
+moment must NOT be left to the model — a battle, a death, a Muslim religious subject,
+an indigenous community where depiction risks caricature — get a hand-written override
+added to PROMPTS instead (see the SIX-TRANCHE OVERRIDES block at the end of PROMPTS).
 
 Prompt rules that were learned the hard way in this repo:
   * style declaration FIRST, subject after — style drifts otherwise
@@ -37,6 +53,7 @@ import io
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 import urllib.error
@@ -48,8 +65,19 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "app", "art", "story")
 MANIFEST = os.path.join(ROOT, "app", "story-art-manifest.js")
 ENDPOINT = ("https://generativelanguage.googleapis.com/v1beta/models/"
-            "gemini-2.5-flash-image:generateContent")
+            "%s:generateContent")
+# gemini-3.1-flash-image returns 1408x768 natively — landscape, high enough to double as
+# a page in the digital book. The first 78 were made on gemini-2.5-flash-image (1024x1024);
+# the web tier stays 900x600 so all 283 stay consistent in the app.
+DEFAULT_MODEL = "gemini-3.1-flash-image"
 
+# The story data files, in the order the app merges them.
+DATA_FILES = ["data-stories.js", "data-stories-regional.js", "data-stories-more.js",
+              "data-stories-north.js", "data-stories-south.js", "data-stories-east.js",
+              "data-stories-west.js", "data-stories-ne-a.js", "data-stories-ne-b.js"]
+
+MASTER_DIR = os.path.join(ROOT, "masters", "story")
+MASTER_QUALITY = 92           # near-native; the book tier, same as masters/epic
 WIDTH, HEIGHT, QUALITY = 900, 600, 78
 
 # Two finished paintings from this same set, sent with every request so the model
@@ -743,27 +771,221 @@ PROMPTS = {
         "that rice out onto a green leaf on the top step before anyone has eaten. A "
         "great dark mithun stands quietly in the yard below, bamboo tubes, woven cane "
         "baskets, red and white Tani weaving patterns, mist in the valley, dawn gold."),
+
+    # ============================== SIX-TRANCHE OVERRIDES =====================
+    # The six regional tranches are prompted automatically by build_prompt() from their
+    # own text. These few are composed by hand instead, because their iconic moment must
+    # not be left to the model:
+    #   * Muslim religious subjects — the Prophet is never depicted in any form
+    #     (docs/05): architecture, sea, lamp and community carry the scene instead.
+    #   * stories whose climax is a death or a battle — painted as the moment before,
+    #     or the emblem, per the gen-epic-art.py war rule.
+    #   * indigenous communities where depiction risks caricature — the fk.andaman-fire
+    #     pattern: paint the place and the animals.
+
+    "fk.cheraman-moon": p(
+        "a Kerala coastal evening at Kodungallur, told through place and light: the old "
+        "Cheraman mosque in pure Kerala style — sloping tiled roofs, white walls, carved "
+        "dark wood, no domes — glowing warmly at dusk beside a temple spire and a small "
+        "church further down the same palm-lined street, while neighbours of every faith "
+        "walk up with small vessels of oil for the great brass lamp burning at its "
+        "threshold; above the sea beyond, an enormous serene full moon lays a silver "
+        "path on the water, and ships with lateen sails ride at anchor in the harbour. "
+        "Warm lamp gold against deep blue, coconut palms, painted waves, peaceful."),
+
+    "fk.cheraman-sails": p(
+        "wide open ocean in brilliant morning light: two graceful wooden sailing ships "
+        "with white lateen sails cresting a turquoise swell, sailors in Kerala dress "
+        "leaning from the rigging and pointing ahead in joy — and there on the horizon, "
+        "scattered like a handful of green beads, a string of tiny coral islands, each a "
+        "ring of white sand and coconut palms around a pale turquoise lagoon; flying "
+        "fish, gulls, dolphins in the bow wave. Banded blues and greens, painted spray, "
+        "airy and full of discovery."),
+
+    "fk.ubaidullah-lamp": p(
+        "a night sea and a dawn island in one painting: on the left, deep indigo ocean "
+        "under painted stars where a small wooden boat rides the swell carrying one "
+        "glowing oil lamp at its prow, its light laid along the water; and ahead on the "
+        "right, first light breaking over a low coral island — white sand, leaning "
+        "coconut palms, a small white island mosque with a lamp in its doorway, and "
+        "islanders coming down the beach to welcome the boat in. The traveller is a "
+        "small distant figure at the tiller, seen from far away. Rose-gold dawn against "
+        "deep night blue, painted waves, gentle and hopeful."),
+
+    "it.birsa-munda": p(
+        "the Chotanagpur plateau in first light, painted with love for the land: a Munda "
+        "village of red-tiled mud houses among old sal trees, smoke rising, and on a "
+        "green rise above it a boy in a plain white cloth sitting on a rock playing a "
+        "bamboo flute while his sheep graze around him; the sal forest rolls away in "
+        "ridge after ridge behind, a river catching the light in the valley. Red earth, "
+        "deep sal greens, warm dawn gold, small birds, dignified and quiet."),
+
+    "fk.lal-ded": p(
+        "a Kashmir valley lane in autumn, chinar trees turned copper and gold: a "
+        "dignified elderly woman in a simple woollen pheran walking the lane singing, "
+        "one hand lifted with the verse, her face open and shining; villagers of every "
+        "kind — a farmer, a boatman, a potter, women at doorways, children on a wall — "
+        "have all stopped to listen, drawn in warmly from both sides; snow peaks beyond "
+        "the rooftops, a samovar steaming on a step, fallen chinar leaves everywhere. "
+        "Warm russet and gold, soft valley light, papier-mache floral borders."),
+
+    "fk.kurukshetra-waters": p(
+        "the sacred flat land of Kurukshetra at dusk, painted as place and peace: the "
+        "great banyan of Jyotisar spreading over a small white shrine, and beyond it the "
+        "wide stone-stepped water of Brahma Sarovar reflecting a marigold sky, hundreds "
+        "of small oil lamps set floating on the still water and along the steps by "
+        "families with children; mustard fields in bloom at the edges, cranes flying "
+        "home in a line. One small stone chariot sculpture stands quiet under the "
+        "banyan. Deep gold and indigo, lamp flames doubled in the water, hushed."),
+
+    "it.amrita-devi": p(
+        "a Rajasthan desert village at golden hour, the moment held still: a woman in a "
+        "red and ochre Rajasthani ghagra and odhni standing with her arms wrapped "
+        "gently around the trunk of a green khejri tree, her cheek against the bark, "
+        "calm and resolute; the women and children of the village stand in a quiet ring "
+        "around the other trees, each with a hand or both arms on a trunk of their own; "
+        "blackbuck and chinkara graze unafraid beside the houses, and the desert rolls "
+        "away golden behind. Deep ochre and green, long warm light, painted sand "
+        "pattern, brave and tender."),
+
+    "fk.obavva-onake": p(
+        "the great granite fort of Chitradurga at midday — seven rings of wall climbing "
+        "over enormous rounded boulders: at a narrow crack between two vast stones "
+        "beside a small water channel, a Kannada village woman in a green sari stands "
+        "guard completely still, pressed to the warm rock, both hands holding a long "
+        "wooden pestle upright like a staff, her face steady and brave; her brass water "
+        "pot waits by the pond, and high on the walls tiny watchmen and fluttering "
+        "pennants. Hot gold light, deep rock shadow, painted granite pattern, "
+        "courage as stillness."),
+
+    "fk.kannagi-anklet": p(
+        "the pillared court of Madurai in the held-breath moment of truth: a young woman "
+        "in a plain travelling sari standing very straight and dignified before the "
+        "throne, one arm raised high with a broken golden anklet in her hand — and "
+        "bright red rubies scattered in an arc across the polished stone floor at her "
+        "feet, catching the light; the king half-risen from his throne with a hand at "
+        "his heart, the court frozen along the walls, a goldsmith shrinking behind a "
+        "pillar. Carved stone pillars, hanging lamps, deep red and gold, her dignity "
+        "filling the frame."),
+
+    "fk.tejimola": p(
+        "the wide Brahmaputra in soft morning mist: a single luminous pink lotus "
+        "blooming in the middle of the great river, glowing as though lit from within, "
+        "and a merchant's wooden trading boat drawn up beside it, the grey-bearded "
+        "merchant leaning far out with his open hand stretched toward the flower — "
+        "while a bright mynah bird flies up from the water toward his shoulder in a "
+        "spray of silver drops; on the far bank a gourd vine and a wild plum tree grow "
+        "impossibly green. Assamese river country, mist and gold, painted ripples, "
+        "tender and full of becoming."),
+
+    "fk.tree-that-counts": p(
+        "a Nicobar island painted as place and plenty: a curve of white beach where a "
+        "carved outrigger canoe is drawn up on the sand, and behind it groves of "
+        "coconut palms of every age — tall grandmother palms and small new ones freshly "
+        "planted, one with a little woven fence of its own; a stilt hut with a thatched "
+        "roof among the trees, pigs dozing in the shade, a pandanus tree heavy with "
+        "fruit, and the turquoise sea folding gently on the reef beyond. Deep greens "
+        "and blues, warm sand, painted palm pattern, generous and calm."),
 }
 
 
 # --------------------------------------------------------------------- utils --
+# ---------------------------------------------------------------- kill switch --
+# A fleet of workers re-runs this script on a loop, so "stop generating" cannot be done
+# by killing processes — they come straight back. Touch tools/.artstop and every run
+# exits immediately instead. Delete it to resume. (Shared with gen-epic-art.py.)
+STOP_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".artstop")
+
+
+def check_stop():
+    if os.path.exists(STOP_FILE):
+        print("tools/.artstop present — generation halted deliberately. "
+              "Delete that file to resume.", flush=True)
+        sys.exit(0)
+
+
 def slug(story_id):
     return re.sub(r"[^a-z0-9]+", "-", story_id, flags=re.I).lower().strip("-")
 
 
-def story_ids_from_data():
-    """Read the ids out of the two data files so we can assert full coverage."""
-    ids = []
-    for name in ("data-stories.js", "data-stories-regional.js", "data-stories-more.js"):
-        path = os.path.join(ROOT, "app", name)
-        with open(path, encoding="utf-8") as fh:
-            src = fh.read()
-        ids += re.findall(r"^\s*id:\s*'([^']+)'", src, flags=re.M)
-    return ids
+def load_stories():
+    """Every story in all nine data files, in order, as
+       {id, title, hook, moral, texts:[scene text, ...]}.
+
+       Reads the data through node rather than by regex: the prose is full of
+       apostrophes, commas and quoted dialogue, and a regex over it would silently
+       mis-split. node hands back exactly what the app sees."""
+    script = r"""
+      global.window = {};
+      var fs = require('fs');
+      %s.forEach(function (f) { eval(fs.readFileSync('app/' + f, 'utf8')); });
+      var out = [];
+      Object.keys(window).forEach(function (k) {
+        if (!/^IND_STORIES/.test(k)) return;
+        window[k].forEach(function (s) {
+          out.push({ id: s.id, title: s.title, hook: s.hook || '', moral: s.moral || '',
+                     texts: (s.scenes || []).map(function (sc) { return sc.text || ''; }) });
+        });
+      });
+      process.stdout.write(JSON.stringify(out));
+    """ % json.dumps(DATA_FILES)
+    res = subprocess.run(["node", "-e", script], cwd=ROOT,
+                         capture_output=True, text=True, check=True)
+    return json.loads(res.stdout)
 
 
-def to_jpeg(png_bytes, path):
+# The gentleness clause, appended to every composed prompt. Said every time rather than
+# once in STYLE, because — as gen-epic-art.py learned — it is the rule most easily lost
+# in a long prompt, and the tranches hold sieges, floods and vigils.
+GENTLE = (
+    " Paint one single warm moment from this story — where the story holds any danger "
+    "or grief, paint the calm moment before it or the peace after it — with every "
+    "figure calm, kind and dignified, gentle enough for a four-year-old. Any sacred "
+    "figure is drawn reverently in a folk-art idiom, warm and beloved. Every Indian "
+    "community and its dress is painted with warmth, accuracy and dignity, as its own "
+    "people would paint it. The picture tells the whole story purely through image — "
+    "every voice, song and name is expressed through gesture, light, painted birds and "
+    "ornament alone, exactly like the two reference pages above.")
+
+
+def build_prompt(story):
+    """One prompt per story, composed from the story's own words.
+
+       The hand-written PROMPTS entries stay as overrides — the 78 shipped paintings
+       were made from them, plus the sensitive-subject overrides above. Everything
+       else gets: the title (the icon in one phrase), the hook (written to tease the
+       most vivid image), a digest of the scene prose (written for a child, already
+       close to an ideal image prompt), and the moral (the feeling to land on). The
+       digest keeps the opening and the ending — the resolution is usually the
+       painting — and the model picks the iconic moment out of it."""
+    sid = story["id"]
+    if sid in PROMPTS:
+        return PROMPTS[sid]
+    digest = " ".join(t.strip() for t in story["texts"] if t.strip())
+    if len(digest) > 1900:
+        head = digest[:1300].rsplit(" ", 1)[0]
+        tail = digest[-550:].split(" ", 1)[-1]
+        digest = head + " … " + tail
+    bits = ["the single most iconic moment of the children's story “%s”. "
+            % story["title"].strip()]
+    if story["hook"].strip():
+        bits.append("The story in one breath: %s " % story["hook"].strip())
+    if digest:
+        bits.append("The story: %s " % digest)
+    if story["moral"].strip():
+        bits.append("The heart of it: %s" % story["moral"].strip())
+    return STYLE + "".join(bits) + GENTLE
+
+
+def to_jpeg(png_bytes, path, master_path=None):
+    """Write the web copy, and the near-native master the digital book will use."""
     im = Image.open(io.BytesIO(png_bytes)).convert("RGB")
+
+    if master_path:
+        os.makedirs(os.path.dirname(master_path), exist_ok=True)
+        im.save(master_path, "JPEG", quality=MASTER_QUALITY,
+                optimize=True, progressive=True)
+
     w, h = im.size
     target = WIDTH / HEIGHT
     if w / h > target:                       # too wide -> crop sides
@@ -792,15 +1014,15 @@ def ref_parts():
     return ref_parts.cache
 
 
-def generate(prompt, key):
-    """One call. Returns PNG bytes. Retries 3x with backoff on 429/5xx."""
+def generate(prompt, key, model):
+    """One call. Returns image bytes. Retries 3x with backoff on 429/5xx."""
     parts = list(ref_parts())
     parts.append({"text": (REF_NOTE if parts else "") + prompt})
     body = json.dumps({"contents": [{"parts": parts}]}).encode()
     last = None
     for attempt in range(3):
         req = urllib.request.Request(
-            ENDPOINT, data=body,
+            ENDPOINT % model, data=body,
             headers={"Content-Type": "application/json", "X-goog-api-key": key})
         try:
             with urllib.request.urlopen(req, timeout=180) as resp:
@@ -839,15 +1061,25 @@ def write_manifest(slugs):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", help="comma-separated story ids to (re)generate")
+    ap.add_argument("--slice", help="i/n — take every nth story starting at i, so several "
+                                    "workers can share the list without overlapping")
+    ap.add_argument("--limit", type=int, help="stop after this many generation calls")
+    ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--manifest-only", action="store_true")
+    ap.add_argument("--print-prompt", help="print one story's prompt and exit, no API call")
     args = ap.parse_args()
+    check_stop()
 
     os.makedirs(OUT_DIR, exist_ok=True)
-    known = story_ids_from_data()
-    missing_prompts = [i for i in known if i not in PROMPTS]
-    if missing_prompts:
-        print("WARNING no prompt for:", ", ".join(missing_prompts))
+    stories = load_stories()
+    by_id = {s["id"]: s for s in stories}
+    known = [s["id"] for s in stories]
 
+    if args.print_prompt:
+        print(build_prompt(by_id[args.print_prompt]))
+        return
+
+    calls = 0
     if not args.manifest_only:
         key = os.environ.get("GEMKEY")
         if not key:
@@ -858,25 +1090,33 @@ def main():
         if args.only:
             force = {s.strip() for s in args.only.split(",") if s.strip()}
             wanted = [i for i in known if i in force]
+        elif args.slice:
+            i, n = (int(x) for x in args.slice.split("/"))
+            wanted = [k for j, k in enumerate(known) if j % n == i]
 
         for sid in wanted:
+            if args.limit is not None and calls >= args.limit:
+                print("limit reached, stopping", flush=True)
+                break
             path = os.path.join(OUT_DIR, slug(sid) + ".jpg")
             if sid not in force and os.path.exists(path) and os.path.getsize(path) > 4000:
-                print("skip  ", sid)
                 continue
             try:
-                png = generate(PROMPTS[sid], key)
-                to_jpeg(png, path)
-                print("made  ", sid, "%.0f kB" % (os.path.getsize(path) / 1024))
+                calls += 1
+                raw = generate(build_prompt(by_id[sid]), key, args.model)
+                to_jpeg(raw, path, os.path.join(MASTER_DIR, slug(sid) + ".jpg"))
+                print("made  ", sid, "%.0f kB" % (os.path.getsize(path) / 1024),
+                      flush=True)
             except Exception as err:
-                print("FAIL  ", sid, err)
+                print("FAIL  ", sid, err, flush=True)
             time.sleep(1)
 
     have = [slug(i) for i in known
             if os.path.exists(os.path.join(OUT_DIR, slug(i) + ".jpg"))]
     write_manifest(have)
     total = sum(os.path.getsize(os.path.join(OUT_DIR, s + ".jpg")) for s in have)
-    print("\n%d/%d images, %.2f MB total" % (len(have), len(known), total / 1e6))
+    print("\n%d/%d images, %.2f MB total, %d generation calls this run"
+          % (len(have), len(known), total / 1e6, calls))
 
 
 if __name__ == "__main__":

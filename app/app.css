@@ -303,6 +303,22 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* the family's home state(s): a STATIC warm outline — never animated, never pulsing;
    the boundary rules in CLAUDE.md forbid any boundary that moves or performs */
 .mapsvg .terrg.home .terr { stroke: var(--accent2, var(--accent)); stroke-width: 2.2; }
+
+/* The Mela shelf — cover cards in the Bizzing Bee arcade idiom: gradient cover,
+   self-animating scene, tag chip, facts underneath. Scene motion lives inside
+   each game's own SVG; reduced-motion stills all of it at once here. */
+.gcover { display: flex; flex-direction: column; text-align: left; padding: 0; overflow: hidden;
+  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface);
+  cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
+.gcover:hover, .gcover:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
+.gart { position: relative; display: grid; place-items: center; height: 112px; color: #fff; }
+.gart svg { display: block; overflow: visible; filter: drop-shadow(0 3px 6px rgba(0,0,0,.22)); }
+.gtag { position: absolute; top: 10px; right: 10px; font: 700 10px/1 var(--mono);
+  letter-spacing: .12em; text-transform: uppercase; background: rgba(0,0,0,.28); color: #fff;
+  padding: 5px 8px; border-radius: 999px; }
+.gbody { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 14px; }
+.gbody b { font: 800 17px/1.2 var(--display); }
+@media (prefers-reduced-motion: reduce) { .gart * { animation: none !important; } }
 .mapsvg .terrg:focus-visible { outline: none; }
 
 .mapsvg .tlab {

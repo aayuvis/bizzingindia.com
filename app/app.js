@@ -2500,15 +2500,53 @@
   };
 
   /* ------------------------------------------------------------------ MELA */
+  /* The fairground shelf, in the Bizzing Bee arcade idiom: a loud gradient
+     cover per stall with a self-animating scene, a tag chip, the facts
+     underneath. New games carry their own cover data (tag/c/c2/scene) on the
+     registry entry; the founding four predate that contract and are dressed
+     here. Grouping is presentation, not data — a game the groups don't know
+     still shows up under More stalls, so nothing ever silently vanishes. */
+  var MELA_DRESS = {
+    rangoli:   { tag: 'Memory', c: '#E8458C', c2: '#B82C67' },
+    statehunt: { tag: 'Naksha', c: '#13A892', c2: '#0E8A78' },
+    festival:  { tag: 'Utsav',  c: '#E8A33D', c2: '#C8891B' },
+    jataka:    { tag: 'Katha',  c: '#7B52E0', c2: '#5E39C4' }
+  };
+  var MELA_GROUPS = [
+    ['Aangan ke khel', 'From India’s own courtyard — these were being played centuries before there were screens to play them on.', ['saapsidi', 'ludo', 'carrom']],
+    ['Quiz shows', 'Ladders, lifelines, streaks — the hot seat is yours.', ['gyanpati', 'triviamaster']],
+    ['Drills in costume', 'Secretly practice. Openly a fair.', ['shabd', 'rangoli', 'statehunt', 'festival', 'jataka']]
+  ];
   V.mela = function () {
     var G = window.IND_GAMES || [];
     if (!G.length) return '<div class="card"><h1>The Mela</h1><p>The games have not loaded.</p></div>';
-    return '<div class="card"><h1>The Mela</h1><p>The carnival. Every stall is a drill wearing a costume.</p></div>' +
-      '<div class="grid g2">' + G.map(function (g) {
-        return '<button class="tile" data-act="game" data-id="' + g.id + '"><h3 style="margin:0 0 6px">' + esc(g.name) + '</h3>' +
-          '<p class="tiny" style="margin:0 0 10px">' + esc(g.blurb || '') + '</p>' +
-          '<div class="mono">' + (g.minutes || 2) + ' min</div></button>';
-      }).join('') + '</div>';
+    var byId = {}, used = {};
+    G.forEach(function (g) { byId[g.id] = g; });
+    function cover(g) {
+      var d = MELA_DRESS[g.id] || {};
+      var c = g.c || d.c || 'var(--accent)', c2 = g.c2 || d.c2 || c;
+      var tag = g.tag || d.tag || '';
+      return '<button class="gcover" data-act="game" data-id="' + g.id + '">' +
+        '<span class="gart" style="background:linear-gradient(135deg,' + c + ',' + c2 + ')">' +
+          (g.scene || icon(g.icon || 'star', 46)) +
+          (tag ? '<span class="gtag">' + esc(tag) + '</span>' : '') + '</span>' +
+        '<span class="gbody"><b>' + esc(g.name) + '</b>' +
+        '<span class="tiny muted">' + esc(g.blurb || '') + '</span>' +
+        '<span class="mono">' + (g.minutes || 2) + ' min</span></span></button>';
+    }
+    var out = '<div class="card"><h1>The Mela</h1><p>The fairground. Some stalls are as old as ' +
+      'India, some are drills wearing a costume — every one plays with fingers and with keys.</p></div>';
+    MELA_GROUPS.forEach(function (grp) {
+      var list = grp[2].map(function (id) { used[id] = 1; return byId[id]; }).filter(Boolean);
+      if (!list.length) return;
+      out += '<h3 style="margin:26px 0 4px">' + grp[0] + '</h3>' +
+        '<p class="tiny muted" style="margin:0 0 12px">' + grp[1] + '</p>' +
+        '<div class="grid g3 gshelf">' + list.map(cover).join('') + '</div>';
+    });
+    var rest = G.filter(function (g) { return !used[g.id]; });
+    if (rest.length) out += '<h3 style="margin:26px 0 12px">More stalls</h3>' +
+      '<div class="grid g3 gshelf">' + rest.map(cover).join('') + '</div>';
+    return out;
   };
   V.game = function () {
     return '<button class="backlink" data-act="go" data-v="mela">' + icon('back', 18) + ' Mela</button>' +

@@ -2422,26 +2422,40 @@
   };
 
   /* --------------------------------------------------------------- WORLDS */
+  /* The picker reads worlds-art.js when it is loaded — that file owns the fifteen
+     worlds, their palettes, their animated tiles and their credit lines. The old
+     hardcoded WORLDS array stays only as the fallback for a build without it. */
+  function worldList() {
+    return (window.IND_WORLDS && window.IND_WORLDS.list) || WORLDS;
+  }
+
   V.worlds = function () {
+    var list = worldList(), live = 0;
+    list.forEach(function (w) { if (w.full) live++; });
     return '<div class="card"><h1>Worlds</h1>' +
-      '<p>Each world re-paints the whole app in a real Indian folk-art tradition — and tells you where it comes from. ' +
-      'They are not decoration; they are part of what you are learning.</p></div>' +
-      '<div class="grid g2">' + WORLDS.map(function (w) {
+      '<p>Each world re-paints the whole app — a street, a festival, a craft — and tells you where it comes from. ' +
+      'They are not decoration; they are part of what you are learning.</p>' +
+      (live ? '<p class="tiny muted" style="margin:8px 0 0">' + live + ' of ' + list.length +
+        ' are fully alive — their birds fly, their trains cross, their lamps flicker. The rest are painted ' +
+        'and waiting for their animation.</p>' : '') + '</div>' +
+      '<div class="grid g2">' + list.map(function (w) {
         return '<button class="tile' + (S.world === w.id ? ' on' : '') + '" data-act="world" data-w="' + w.id + '">' +
-          '<div class="wpreview" data-world="' + w.id + '">' +
-            '<b style="background:var(--accent)"></b>' +
-            '<b style="background:var(--accent2);width:24px;height:24px"></b>' +
-            '<b style="background:var(--accent3);width:19px;height:19px"></b>' +
-            '<span class="aa">आ Aa</span>' +
-          '</div>' +
+          (w.tile
+            ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>'
+            : '<div class="wpreview" data-world="' + w.id + '">' +
+              '<b style="background:var(--accent)"></b>' +
+              '<b style="background:var(--accent2);width:24px;height:24px"></b>' +
+              '<b style="background:var(--accent3);width:19px;height:19px"></b>' +
+              '<span class="aa">आ Aa</span></div>') +
           '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3>' +
-          (S.world === w.id ? '<span class="badge aaj">on</span>' : '') + '</div>' +
+          (S.world === w.id ? '<span class="badge aaj">on</span>'
+                            : (w.full ? '<span class="badge">alive</span>' : '')) + '</div>' +
           '<div class="mono">' + esc(w.region) + '</div>' +
           '<p class="tiny" style="margin:8px 0 0">' + esc(w.note) + '</p></button>';
       }).join('') + '</div>' +
-      '<div class="card flat tiny"><b>Credit.</b> These palettes are drawn from living traditions with living ' +
-      'practitioners. In the real product every world names the artist it was commissioned from — folk art is ' +
-      'somebody’s livelihood, not a free texture pack.</div>';
+      '<div class="card flat tiny"><b>Credit.</b> Every world names the tradition and the place it comes from, ' +
+      'and says when the art is ours: ' + esc((worldList()[0] || {}).credit || '') + ' In the real product a ' +
+      'commissioned world names its artist — folk art is somebody’s livelihood, not a free texture pack.</div>';
   };
 
   /* --------------------------------------------------------------- BHASHA */
@@ -3630,7 +3644,15 @@
       if ($('.topbar')) document.getElementById('app').innerHTML = chrome();
       return render();
     }
-    if (a === 'world')  { S.world = t.getAttribute('data-w'); save(); toast('World: ' + S.world); return render(); }
+    if (a === 'world')  {
+      S.world = t.getAttribute('data-w'); save();
+      var W = (window.IND_WORLDS && window.IND_WORLDS.get(S.world)) || null;
+      toast(W ? W.name + ' — ' + W.region : 'World: ' + S.world);
+      /* the ambient layer watches data-world itself, but nudge it so a world
+         picked from a page that does not re-render the topbar still swaps */
+      if (window.IND_WORLDS_ART && window.IND_WORLDS_ART.refresh) window.IND_WORLDS_ART.refresh();
+      return render();
+    }
     if (a === 'start')  {
       var nm = $('#nm'), ag = $('#ageIn');
       S.name = (nm && nm.value.trim()) || 'Yatri';

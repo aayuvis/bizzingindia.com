@@ -370,6 +370,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @keyframes avfloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @media (prefers-reduced-motion: reduce) { .avcard { animation: none; } }
 
+/* a world tile that carries its own animated scene (worlds-art.js supplies the SVG) */
+.wpreview.live { position: relative; overflow: hidden; padding: 0; display: block; height: 96px; }
+.wpreview.live svg { display: block; width: 100%; height: 100%; }
+
 /* THE DECK POPUP — your companions, as a deck you can flip through. Tapping
    the big buddy (or the topbar chip) opens it over whatever you were reading. */
 .buddybtn { border: none; background: none; padding: 0; cursor: pointer; flex: none;

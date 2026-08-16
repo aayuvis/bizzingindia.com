@@ -2408,5 +2408,3053 @@
     "ipa": null,
     "needs_native_speaker": true,
     "note": "the tree Sita sits under in the Ashoka grove. Sanskrit shimshapa / simsupa is romanised both ways and the sibilants and the second vowel are both genuinely in doubt here. NEEDS A NATIVE SPEAKER."
+  },
+  "Satisar": {
+    "ipa": "sətiːsər",
+    "note": "suh-tee-suhr - the primordial lake of Kashmir"
+  },
+  "Sati": {
+    "ipa": "sətiː",
+    "note": "suh-tee"
+  },
+  "Kashyapa": {
+    "ipa": "kəʃjəpə",
+    "note": "kuhsh-yuh-puh"
+  },
+  "Jhelum": {
+    "ipa": "ˈdʒeːləm",
+    "note": "JAY-luhm"
+  },
+  "Kalhana": {
+    "ipa": "kəlhəɳə",
+    "note": "kuhl-huh-nuh - Kashmir's first great historian"
+  },
+  "Kashmiri": {
+    "ipa": "kəʃˈmiːriː",
+    "note": "kuhsh-MEE-ree"
+  },
+  "Kashmiris": {
+    "ipa": "kəʃˈmiːriːz",
+    "note": "kuhsh-MEE-reez"
+  },
+  "Himal": {
+    "ipa": "hɪˈmɑːl",
+    "note": "hi-MAAL - heroine of the Kashmiri tale Himal-Nagrai"
+  },
+  "Nagrai": {
+    "ipa": "ˈnɑːɡraɪ",
+    "note": "NAAG-reye - the serpent prince"
+  },
+  "Lalla": {
+    "ipa": "ləlɑː",
+    "note": "luh-laa - Lal Ded"
+  },
+  "Lalleshwari": {
+    "ipa": "ləˈleːʃʋəriː",
+    "note": "luh-LAYSH-vuh-ree"
+  },
+  "Arifa": {
+    "ipa": "ɑːrɪfɑː",
+    "note": "aa-ri-faa"
+  },
+  "vakh": {
+    "ipa": "ʋɑːkʰ",
+    "note": "vaakh - a verse of Lal Ded"
+  },
+  "vakhs": {
+    "ipa": "ʋɑːkʰs",
+    "note": "vaakhs"
+  },
+  "Chillai": {
+    "ipa": "tʃɪˈlaɪ",
+    "note": "chi-LEYE - Chillai Kalan, the great cold"
+  },
+  "Kalan": {
+    "ipa": "kəˈlɑːn",
+    "note": "kuh-LAAN"
+  },
+  "pheran": {
+    "ipa": "ˈpeːrən",
+    "note": "PAY-ruhn - no accepted pʰ - plain p per the engine notes"
+  },
+  "harissa": {
+    "ipa": "həˈriːsɑː",
+    "note": "huh-REE-saa - the Kashmiri winter dish"
+  },
+  "Chinar": {
+    "ipa": "tʃɪˈnɑːr",
+    "note": "chi-NAAR"
+  },
+  "Boonyi": {
+    "ipa": "ˈbuːnjiː",
+    "note": "BOON-yee - the chinar, in Kashmiri"
+  },
+  "shikara": {
+    "ipa": "ʃɪˈkɑːrɑː",
+    "note": "shi-KAA-raa - the Dal lake boat"
+  },
+  "shikaras": {
+    "ipa": "ʃɪˈkɑːrɑːz",
+    "note": "shi-KAA-raaz"
+  },
+  "kangri": {
+    "ipa": "ˈkɑːŋɡriː",
+    "note": "KAANG-gree - the Kashmiri fire-pot"
+  },
+  "Spiti": {
+    "ipa": "ˈspɪtiː",
+    "note": "SPI-tee"
+  },
+  "Gaddi": {
+    "ipa": "ɡədiː",
+    "note": "guh-dee - the shepherd people of Himachal"
+  },
+  "Gaddis": {
+    "ipa": "ɡədiːz",
+    "note": "guh-deez"
+  },
+  "Kangra": {
+    "ipa": "ˈkɑːŋɡrɑː",
+    "note": "KAANG-graa"
+  },
+  "Dhauladhar": {
+    "ipa": "ˈd̪ʰɔːlɑːd̪ʰɑːr",
+    "note": "DHAW-laa-dhaar"
+  },
+  "Bharmour": {
+    "ipa": "bʰərˈmɔːr",
+    "note": "bhuhr-MAWR"
+  },
+  "devta": {
+    "ipa": "ˈdeːʋtɑː",
+    "note": "DAYV-taa - a village deity of the Kullu valley"
+  },
+  "devtas": {
+    "ipa": "ˈdeːʋtɑːz",
+    "note": "DAYV-taaz"
+  },
+  "Jamlu": {
+    "ipa": "dʒəmluː",
+    "note": "juhm-loo - the devta of Malana"
+  },
+  "Malana": {
+    "ipa": "məˈlɑːnɑː",
+    "note": "muh-LAA-naa"
+  },
+  "Kanashi": {
+    "ipa": "kəˈnɑːʃiː",
+    "note": "kuh-NAA-shee - Malana's own language"
+  },
+  "Rohtang": {
+    "ipa": "ˈroːtɑːŋ",
+    "note": "ROH-taang - the h of the romanisation is not a separate sound here"
+  },
+  "Vipasha": {
+    "ipa": "ʋɪˈpɑːʃɑː",
+    "note": "vi-PAA-shaa - the old name of the Beas"
+  },
+  "Vashishtha": {
+    "ipa": "ʋəˈʃɪʂʈʰə",
+    "note": "vuh-SHISH-thuh - spelling variant; see Vasishtha"
+  },
+  "Vyas": {
+    "ipa": "ʋjɑːs",
+    "note": "vyaas"
+  },
+  "Kinnaur": {
+    "ipa": "kɪˈnɔːr",
+    "note": "ki-NAWR"
+  },
+  "Kotgarh": {
+    "ipa": "ˈkoːʈɡəɽ",
+    "note": "KOHT-guhr - -garh is ɡəɽ: no accepted ɽʰ, per the engine notes"
+  },
+  "Sutlej": {
+    "ipa": "sətlədʒ",
+    "note": "suht-luhj"
+  },
+  "Himachali": {
+    "ipa": "hɪmɑːtʃəliː",
+    "note": "hi-maa-chuh-lee"
+  },
+  "Satyanand": {
+    "ipa": "sətjɑːnənd",
+    "note": "suht-yaa-nuhnd"
+  },
+  "Raghunath": {
+    "ipa": "rəɡʰʊˈnɑːt̪ʰ",
+    "note": "ruh-ghu-NAATH"
+  },
+  "bugyal": {
+    "ipa": "ˈbʊɡjɑːl",
+    "note": "BUG-yaal - a high Himalayan meadow"
+  },
+  "bugyals": {
+    "ipa": "ˈbʊɡjɑːlz",
+    "note": "BUG-yaalz"
+  },
+  "Garhwal": {
+    "ipa": "ɡəɽˈʋɑːl",
+    "note": "guhr-VAAL"
+  },
+  "Bedni": {
+    "ipa": "ˈbeːdniː",
+    "note": "BAYD-nee"
+  },
+  "Dayara": {
+    "ipa": "dəˈjɑːrɑː",
+    "note": "duh-YAA-raa"
+  },
+  "Auli": {
+    "ipa": "ˈɔːliː",
+    "note": "AW-lee"
+  },
+  "ali": {
+    "ipa": "ɑːˈliː",
+    "note": "aa-LEE - the bugyal, and the first element of Ali-Aye-Ligang"
+  },
+  "Nanda": {
+    "ipa": "nəndɑː",
+    "note": "nuhn-daa - Nanda Devi"
+  },
+  "Jat": {
+    "ipa": "dʒɑːt",
+    "note": "jaat - the Raj Jat pilgrimage; jaat"
+  },
+  "Raj": {
+    "ipa": "rɑːdʒ",
+    "note": "raaj"
+  },
+  "maika": {
+    "ipa": "ˈmaɪkɑː",
+    "note": "MEYE-kaa - a married woman's parental home"
+  },
+  "khadu": {
+    "ipa": "ˈkʰɑːduː",
+    "note": "KHAA-doo - the four-horned ram of the Raj Jat"
+  },
+  "chausingya": {
+    "ipa": "tʃɔːˈsɪŋɡjɑː",
+    "note": "chaw-SING-gyaa"
+  },
+  "vidaai": {
+    "ipa": "ʋɪˈdɑːiː",
+    "note": "vi-DAA-ee - farewell, of a daughter leaving home"
+  },
+  "Kumaon": {
+    "ipa": "kʊˈmaʊn",
+    "note": "ku-MOWN"
+  },
+  "Nainital": {
+    "ipa": "ˈnɛːniːtɑːl",
+    "note": "NAY-nee-taal"
+  },
+  "Haridwar": {
+    "ipa": "hərɪˈdʋɑːr",
+    "note": "huh-ri-DVAAR"
+  },
+  "Rishikesh": {
+    "ipa": "ˈrɪʂɪkeːʃ",
+    "note": "RI-shi-kaysh"
+  },
+  "Bandarpunch": {
+    "ipa": "bəndərpuːntʃ",
+    "note": "buhn-duhr-poonch - the mountain above Yamunotri"
+  },
+  "Sangam": {
+    "ipa": "səŋɡəm",
+    "note": "suhng-guhm - the meeting of rivers"
+  },
+  "Dhruv": {
+    "ipa": "d̪ʰrʊʋ",
+    "note": "dhruv - Dhruv Tara, the Pole Star"
+  },
+  "Dulla": {
+    "ipa": "ˈdʊlɑː",
+    "note": "DU-laa - Dulla Bhatti of the Lohri song"
+  },
+  "Bhatti": {
+    "ipa": "bʰəʈʈiː",
+    "note": "bhuht-tee"
+  },
+  "Lohri": {
+    "ipa": "ˈloːɽiː",
+    "note": "LOH-ree"
+  },
+  "Sundri": {
+    "ipa": "ˈsʊndriː",
+    "note": "SUN-dree"
+  },
+  "Mundri": {
+    "ipa": "ˈmʊndriː",
+    "note": "MUN-dree"
+  },
+  "mundriye": {
+    "ipa": "mʊndrɪˈjeː",
+    "note": "mun-dri-YAY - from the Lohri song's first line"
+  },
+  "Sundar": {
+    "ipa": "ˈsʊndər",
+    "note": "SUN-duhr"
+  },
+  "Tera": {
+    "ipa": "ˈteːrɑː",
+    "note": "TAY-raa - from the Lohri song"
+  },
+  "kaun": {
+    "ipa": "kɔːn",
+    "note": "kawn"
+  },
+  "vichara": {
+    "ipa": "ʋɪˈtʃɑːrɑː",
+    "note": "vi-CHAA-raa"
+  },
+  "wala": {
+    "ipa": "ˈʋɑːlɑː",
+    "note": "VAA-laa"
+  },
+  "shakkar": {
+    "ipa": "ʃəkər",
+    "note": "shuh-kuhr - jaggery sugar"
+  },
+  "Rasalu": {
+    "ipa": "rəˈsɑːluː",
+    "note": "ruh-SAA-loo - Raja Rasalu of the Punjabi ballads"
+  },
+  "Salvahan": {
+    "ipa": "səlˈʋɑːhən",
+    "note": "suhl-VAA-huhn"
+  },
+  "Sialkot": {
+    "ipa": "sɪɑːlˈkoːʈ",
+    "note": "si-aal-KOHT"
+  },
+  "Bhaunr": {
+    "ipa": "bʰɔːr",
+    "note": "bhawr - Rasalu's colt Bhaunr Iraqi; the aunr is a nasal aw"
+  },
+  "chiri": {
+    "ipa": "ˈtʃɪɽiː",
+    "note": "CHI-ree - sparrow, in the Punjabi rhyme"
+  },
+  "kaan": {
+    "ipa": "kɑːn",
+    "note": "kaan - crow, in the Punjabi rhyme"
+  },
+  "johad": {
+    "ipa": "ˈdʒoːhəɽ",
+    "note": "JOH-huhr - the village pond of Haryana"
+  },
+  "Chaudhary": {
+    "ipa": "ˈtʃɔːd̪ʰəriː",
+    "note": "CHAW-dhuh-ree"
+  },
+  "Ramphal": {
+    "ipa": "ˈrɑːmpəl",
+    "note": "RAAM-puhl - no accepted pʰ - plain p per the engine notes"
+  },
+  "Hukum": {
+    "ipa": "ˈhʊkʊm",
+    "note": "HU-kum"
+  },
+  "dheere": {
+    "ipa": "ˈd̪ʰiːreː",
+    "note": "DHEE-ray - slowly"
+  },
+  "pagri": {
+    "ipa": "pəɡɽiː",
+    "note": "puhg-ree - turban"
+  },
+  "Sheikh": {
+    "ipa": "ʃeːkʰ",
+    "note": "shaykh"
+  },
+  "Chilli": {
+    "ipa": "ˈtʃɪliː",
+    "note": "CHI-lee - Sheikh Chilli, the dreamer of Haryanvi tales"
+  },
+  "haveli": {
+    "ipa": "həˈʋeːliː",
+    "note": "huh-VAY-lee"
+  },
+  "Haryanvi": {
+    "ipa": "hərɪˈjɑːɳʋiː",
+    "note": "huh-ri-YAAN-vee"
+  },
+  "akharas": {
+    "ipa": "əˈkʰɑːɽɑːz",
+    "note": "uh-KHAA-raaz"
+  },
+  "baithak": {
+    "ipa": "ˈbɛːʈʰək",
+    "note": "BAY-thuhk - dand-baithak, the wrestler's squat"
+  },
+  "dangal": {
+    "ipa": "dəŋɡəl",
+    "note": "duhng-guhl - a wrestling tournament"
+  },
+  "Kushti": {
+    "ipa": "ˈkʊʃtiː",
+    "note": "KUSH-tee - traditional wrestling"
+  },
+  "pehelwan": {
+    "ipa": "pəhəlˈʋɑːn",
+    "note": "puh-huhl-VAAN - a wrestler"
+  },
+  "pehelwans": {
+    "ipa": "pəhəlˈʋɑːnz",
+    "note": "puh-huhl-VAANZ"
+  },
+  "Surajkund": {
+    "ipa": "ˈsuːrədʒkʊɳɖ",
+    "note": "SOO-ruhj-kund - the sun pool of Haryana"
+  },
+  "Surajpal": {
+    "ipa": "ˈsuːrədʒpɑːl",
+    "note": "SOO-ruhj-paal"
+  },
+  "Tomar": {
+    "ipa": "ˈtoːmər",
+    "note": "TOH-muhr"
+  },
+  "Faridabad": {
+    "ipa": "fəˈriːdɑːbɑːd",
+    "note": "fuh-REE-daa-baad"
+  },
+  "Phulkari": {
+    "ipa": "pʊlˈkɑːriː",
+    "note": "pul-KAA-ree - no accepted pʰ - plain p per the engine notes"
+  },
+  "Jyotisar": {
+    "ipa": "ˈdʒjoːtɪsər",
+    "note": "JYOH-ti-suhr"
+  },
+  "Sarovar": {
+    "ipa": "səˈroːʋər",
+    "note": "suh-ROH-vuhr - a sacred pool"
+  },
+  "Sannihit": {
+    "ipa": "sənɪhɪt",
+    "note": "suh-ni-hit"
+  },
+  "Brahma": {
+    "ipa": "brəhmɑː",
+    "note": "bruhh-maa"
+  },
+  "tirtha": {
+    "ipa": "ˈtiːrt̪ʰə",
+    "note": "TEER-thuh - a sacred bathing place"
+  },
+  "tirthas": {
+    "ipa": "ˈtiːrt̪ʰəz",
+    "note": "TEER-thuhz"
+  },
+  "Dharmakshetra": {
+    "ipa": "d̪ʰərməˈkʂeːtrə",
+    "note": "dhuhr-muh-KSHAYT-ruh"
+  },
+  "Rakhigarhi": {
+    "ipa": "ˈrɑːkʰiːɡəɽiː",
+    "note": "RAA-khee-guh-ree - -garhi with ɽ: no accepted ɽʰ, per the engine notes"
+  },
+  "Hisar": {
+    "ipa": "hɪˈsɑːr",
+    "note": "hi-SAAR"
+  },
+  "Harappa": {
+    "ipa": "hərəpɑː",
+    "note": "huh-ruh-paa"
+  },
+  "Mohenjo": {
+    "ipa": "moːˈhendʒoː",
+    "note": "moh-HEN-joh - Mohenjo-daro"
+  },
+  "daro": {
+    "ipa": "ˈdɑːroː",
+    "note": "DAA-roh"
+  },
+  "Chandi": {
+    "ipa": "tʃəɳɖiː",
+    "note": "chuhn-dee - the goddess Chandigarh is named for"
+  },
+  "garh": {
+    "ipa": "ɡəɽ",
+    "note": "guhr - fort; no accepted ɽʰ, per the engine notes"
+  },
+  "Mandir": {
+    "ipa": "məndɪr",
+    "note": "muhn-dir"
+  },
+  "Navratri": {
+    "ipa": "nəʋˈrɑːtriː",
+    "note": "nuhv-RAAT-ree"
+  },
+  "Sukhna": {
+    "ipa": "ˈsʊkʰnɑː",
+    "note": "SUKH-naa"
+  },
+  "Choe": {
+    "ipa": "tʃoː",
+    "note": "choh - a seasonal Shivalik stream"
+  },
+  "Shivalik": {
+    "ipa": "ʃɪˈʋɑːlɪk",
+    "note": "shi-VAA-lik"
+  },
+  "Shivaliks": {
+    "ipa": "ʃɪˈʋɑːlɪks",
+    "note": "shi-VAA-liks"
+  },
+  "Corbusier": {
+    "ipa": "kɔːrbuːzˈjeː",
+    "note": "kawr-booz-YAY - Le Corbusier"
+  },
+  "Nehru": {
+    "ipa": "ˈneːruː",
+    "note": "NAY-roo"
+  },
+  "maali": {
+    "ipa": "ˈmɑːliː",
+    "note": "MAA-lee - a gardener"
+  },
+  "Nek": {
+    "ipa": "neːk",
+    "note": "nayk - Nek Chand of the Rock Garden"
+  },
+  "Chand": {
+    "ipa": "tʃɑːnd",
+    "note": "chaand"
+  },
+  "Dhilli": {
+    "ipa": "ˈd̪ʰɪliː",
+    "note": "DHI-lee - from the killi-to-dhilli rhyme"
+  },
+  "Dilli": {
+    "ipa": "ˈdɪliː",
+    "note": "DI-lee"
+  },
+  "killi": {
+    "ipa": "ˈkɪliː",
+    "note": "KI-lee - the nail of the rhyme"
+  },
+  "bhai": {
+    "ipa": "bʰɑːiː",
+    "note": "bhaa-ee"
+  },
+  "Anangpal": {
+    "ipa": "ənəŋpɑːl",
+    "note": "uh-nuhng-paal"
+  },
+  "Mehrauli": {
+    "ipa": "mehˈrɔːliː",
+    "note": "meh-RAW-lee"
+  },
+  "Qutb": {
+    "ipa": "ˈkʊtʊb",
+    "note": "KU-tub - the Qutb Minar"
+  },
+  "Siri": {
+    "ipa": "ˈsiːriː",
+    "note": "SEE-ree - the second city of Delhi"
+  },
+  "Alauddin": {
+    "ipa": "əlɑːʊˈdiːn",
+    "note": "uh-laa-u-DEEN"
+  },
+  "Khalji": {
+    "ipa": "ˈkʰɪldʒiː",
+    "note": "KHIL-jee"
+  },
+  "Hauz": {
+    "ipa": "haʊz",
+    "note": "howz - Hauz Khas, the royal tank"
+  },
+  "Khas": {
+    "ipa": "kʰɑːs",
+    "note": "khaas"
+  },
+  "Alai": {
+    "ipa": "əˈlɑːiː",
+    "note": "uh-LAA-ee - the Hauz-i-Alai"
+  },
+  "madrasa": {
+    "ipa": "mədrəsɑː",
+    "note": "muhd-ruh-saa"
+  },
+  "Tughlaq": {
+    "ipa": "ˈtʊɡlək",
+    "note": "TUG-luhk"
+  },
+  "Tughlaqabad": {
+    "ipa": "tʊɡləkɑːbɑːd",
+    "note": "tug-luh-kaa-baad"
+  },
+  "Firoz": {
+    "ipa": "fɪˈroːz",
+    "note": "fi-ROHZ"
+  },
+  "Firozabad": {
+    "ipa": "fɪˈroːzɑːbɑːd",
+    "note": "fi-ROH-zaa-baad"
+  },
+  "kotla": {
+    "ipa": "ˈkoːʈlɑː",
+    "note": "KOHT-laa"
+  },
+  "Shahjahanabad": {
+    "ipa": "ʃɑːdʒəˈhɑːnɑːbɑːd",
+    "note": "shaa-juh-HAA-naa-baad"
+  },
+  "Jama": {
+    "ipa": "ˈdʒɑːmɑː",
+    "note": "JAA-maa - the Jama Masjid"
+  },
+  "Masjid": {
+    "ipa": "məsdʒɪd",
+    "note": "muhs-jid"
+  },
+  "Qila": {
+    "ipa": "ˈkiːlɑː",
+    "note": "KEE-laa - the Purana Qila"
+  },
+  "Jahanara": {
+    "ipa": "dʒəhɑːnˈɑːrɑː",
+    "note": "juh-haan-AA-raa"
+  },
+  "Chandni": {
+    "ipa": "ˈtʃɑːndniː",
+    "note": "CHAAN-dnee"
+  },
+  "Chowk": {
+    "ipa": "tʃɔːk",
+    "note": "chawk"
+  },
+  "jalebis": {
+    "ipa": "dʒəˈleːbiːz",
+    "note": "juh-LAY-beez"
+  },
+  "paratha": {
+    "ipa": "pəˈrɑːʈʰɑː",
+    "note": "puh-RAA-thaa"
+  },
+  "parathas": {
+    "ipa": "pəˈrɑːʈʰɑːz",
+    "note": "puh-RAA-thaaz"
+  },
+  "lehenga": {
+    "ipa": "ləˈheːŋɡɑː",
+    "note": "luh-HAYNG-gaa"
+  },
+  "Ballimaran": {
+    "ipa": "bəliːˈmɑːrɑːn",
+    "note": "buh-lee-MAA-raan - Ghalib's lane in Old Delhi"
+  },
+  "Mirza": {
+    "ipa": "ˈmɪrzɑː",
+    "note": "MIR-zaa"
+  },
+  "Ghalib": {
+    "ipa": "ˈɡʰɑːlɪb",
+    "note": "GHAA-lib"
+  },
+  "aao": {
+    "ipa": "ɑːˈoː",
+    "note": "aa-OH - the pigeon-flyer's call"
+  },
+  "kabootarbaz": {
+    "ipa": "kəˈbuːtərbɑːz",
+    "note": "kuh-BOO-tuhr-baaz - a pigeon-flyer"
+  },
+  "kabootarbazi": {
+    "ipa": "kəˈbuːtərbɑːziː",
+    "note": "kuh-BOO-tuhr-baa-zee"
+  },
+  "jhaanki": {
+    "ipa": "ˈdʒʰɑːnkiː",
+    "note": "JHAAN-kee - a Republic Day tableau"
+  },
+  "jhaankis": {
+    "ipa": "ˈdʒʰɑːnkiːz",
+    "note": "JHAAN-keez"
+  },
+  "Razia": {
+    "ipa": "rəˈziːjɑː",
+    "note": "ruh-ZEE-yaa - Razia Sultan"
+  },
+  "Iltutmish": {
+    "ipa": "ɪlˈtʊtmɪʃ",
+    "note": "il-TUT-mish"
+  },
+  "Minhaj": {
+    "ipa": "mɪnˈhɑːdʒ",
+    "note": "min-HAAJ - the chronicler"
+  },
+  "azaan": {
+    "ipa": "əˈzɑːn",
+    "note": "uh-ZAAN"
+  },
+  "Begum": {
+    "ipa": "ˈbeːɡəm",
+    "note": "BAY-guhm"
+  },
+  "Abhaneri": {
+    "ipa": "əbʰɑːˈneːriː",
+    "note": "uh-bhaa-NAY-ree"
+  },
+  "Baori": {
+    "ipa": "ˈbaʊriː",
+    "note": "BOW-ree - Chand Baori, the great stepwell"
+  },
+  "Chanda": {
+    "ipa": "tʃəndɑː",
+    "note": "chuhn-daa - the king the records credit with the well"
+  },
+  "Nikumbha": {
+    "ipa": "nɪˈkʊmbʰə",
+    "note": "ni-KUM-bhuh"
+  },
+  "Deshnoke": {
+    "ipa": "ˈdeːʃnoːk",
+    "note": "DAYSH-nohk"
+  },
+  "Karni": {
+    "ipa": "kərɳiː",
+    "note": "kuhr-nee - Karni Mata"
+  },
+  "Mata": {
+    "ipa": "ˈmɑːtɑː",
+    "note": "MAA-taa"
+  },
+  "kaba": {
+    "ipa": "ˈkɑːbɑː",
+    "note": "KAA-baa - the temple mice of Deshnoke"
+  },
+  "Charan": {
+    "ipa": "ˈtʃɑːrəɳ",
+    "note": "CHAA-ruhn"
+  },
+  "Charans": {
+    "ipa": "ˈtʃɑːrəɳz",
+    "note": "CHAA-ruhnz"
+  },
+  "Bikaner": {
+    "ipa": "biːkɑːˈneːr",
+    "note": "bee-kaa-NAYR"
+  },
+  "Jodhpur": {
+    "ipa": "ˈdʒoːd̪ʰpʊr",
+    "note": "JOHDH-pur"
+  },
+  "Khejarli": {
+    "ipa": "ˈkʰeːdʒərliː",
+    "note": "KHAY-juhr-lee"
+  },
+  "khejri": {
+    "ipa": "ˈkʰeːdʒriː",
+    "note": "KHAYJ-ree - the desert tree the Bishnoi died for"
+  },
+  "Jambheshwar": {
+    "ipa": "dʒɑːmˈbʰeːʃʋər",
+    "note": "jaam-BHAYSH-vuhr"
+  },
+  "Bishnoi": {
+    "ipa": "bɪʃˈnoːiː",
+    "note": "bish-NOH-ee"
+  },
+  "Chipko": {
+    "ipa": "ˈtʃɪpkoː",
+    "note": "CHIP-koh"
+  },
+  "Dhola": {
+    "ipa": "ˈd̪ʰoːlɑː",
+    "note": "DHOH-laa"
+  },
+  "Maru": {
+    "ipa": "ˈmɑːruː",
+    "note": "MAA-roo"
+  },
+  "Narwar": {
+    "ipa": "nərʋər",
+    "note": "nuhr-vuhr"
+  },
+  "Pugal": {
+    "ipa": "ˈpuːɡəl",
+    "note": "POO-guhl"
+  },
+  "Umra": {
+    "ipa": "ˈʊmrɑː",
+    "note": "UM-raa"
+  },
+  "Kelam": {
+    "ipa": "ˈkeːləm",
+    "note": "KAY-luhm - Pabuji's niece"
+  },
+  "Raika": {
+    "ipa": "ˈraɪkɑː",
+    "note": "REYE-kaa - the camel-herding people"
+  },
+  "Rebari": {
+    "ipa": "reːˈbɑːriː",
+    "note": "ray-BAA-ree"
+  },
+  "Prasad": {
+    "ipa": "prəˈsɑːd",
+    "note": "pruh-SAAD"
+  },
+  "Bastar": {
+    "ipa": "bəstər",
+    "note": "buhs-tuhr"
+  },
+  "Jagdalpur": {
+    "ipa": "dʒəɡdəlpʊr",
+    "note": "juhg-duhl-pur"
+  },
+  "Danteshwari": {
+    "ipa": "dənˈteːʃʋəriː",
+    "note": "duhn-TAYSH-vuh-ree - the mother goddess of Bastar"
+  },
+  "Dantewada": {
+    "ipa": "dənˈteːʋɑːɽɑː",
+    "note": "duhn-TAY-vaa-raa"
+  },
+  "Shankhini": {
+    "ipa": "ʃəŋkʰɪniː",
+    "note": "shuhng-khi-nee - river at Dantewada"
+  },
+  "Dankini": {
+    "ipa": "dəŋkɪniː",
+    "note": "duhng-ki-nee - river at Dantewada"
+  },
+  "chham": {
+    "ipa": "tʃʰəm",
+    "note": "chhuhm - the anklet sound"
+  },
+  "Annamdeva": {
+    "ipa": "ənəmˈdeːʋə",
+    "note": "uh-nuhm-DAY-vuh"
+  },
+  "ghotul": {
+    "ipa": "ˈɡʰoːʈʊl",
+    "note": "GHOH-tul - the Muria young people's house"
+  },
+  "Muria": {
+    "ipa": "ˈmʊriɑː",
+    "note": "MU-ri-aa"
+  },
+  "Chitrakote": {
+    "ipa": "ˈtʃɪtrəkoːʈ",
+    "note": "CHIT-ruh-koht - the great waterfall of Bastar"
+  },
+  "Indravati": {
+    "ipa": "ɪndrɑːʋətiː",
+    "note": "in-draa-vuh-tee"
+  },
+  "Bada": {
+    "ipa": "bəɽɑː",
+    "note": "buh-raa - Bada Dev, the great god of the Gond"
+  },
+  "Gond": {
+    "ipa": "ɡoːɳɖ",
+    "note": "gohnd"
+  },
+  "Agaria": {
+    "ipa": "əɡərɪɑː",
+    "note": "uh-guh-ri-aa - the iron-smelting community"
+  },
+  "Lohasur": {
+    "ipa": "loːˈhɑːsʊr",
+    "note": "loh-HAA-sur - the iron spirit of the furnace"
+  },
+  "Asur": {
+    "ipa": "əsʊr",
+    "note": "uh-sur - the smelter community, neighbours of the Munda"
+  },
+  "Chhattisgarhi": {
+    "ipa": "tʃʰətiːsɡəɽiː",
+    "note": "chhuh-tees-guh-ree - -garhi with ɽ: no accepted ɽʰ"
+  },
+  "Pandavani": {
+    "ipa": "pɑːɳɖəˈʋɑːniː",
+    "note": "paan-duh-VAA-nee - the sung Mahabharata of Chhattisgarh"
+  },
+  "Teejan": {
+    "ipa": "ˈtiːdʒən",
+    "note": "TEE-juhn - Teejan Bai"
+  },
+  "Durg": {
+    "ipa": "dʊrɡ",
+    "note": "durg"
+  },
+  "Pardhi": {
+    "ipa": "ˈpɑːrd̪ʰiː",
+    "note": "PAAR-dhee"
+  },
+  "Brijlal": {
+    "ipa": "ˈbrɪdʒlɑːl",
+    "note": "BRIJ-laal"
+  },
+  "kapalik": {
+    "ipa": "kəˈpɑːlɪk",
+    "note": "kuh-PAA-lik - the standing Pandavani style"
+  },
+  "vedmati": {
+    "ipa": "ˈʋeːdmətiː",
+    "note": "VAYD-muh-tee - the seated Pandavani style"
+  },
+  "Ulgulan": {
+    "ipa": "ˈʊlɡʊlɑːn",
+    "note": "UL-gu-laan - Birsa's Great Tumult"
+  },
+  "Ulihatu": {
+    "ipa": "ʊliːˈhɑːtuː",
+    "note": "u-lee-HAA-too - Birsa Munda's birth village"
+  },
+  "Chotanagpur": {
+    "ipa": "tʃʰoːʈɑːˈnɑːɡpʊr",
+    "note": "chhoh-taa-NAAG-pur"
+  },
+  "Birsa": {
+    "ipa": "ˈbɪrsɑː",
+    "note": "BIR-saa - Birsa Munda"
+  },
+  "Munda": {
+    "ipa": "ˈmʊɳɖɑː",
+    "note": "MUN-daa"
+  },
+  "Mundas": {
+    "ipa": "ˈmʊɳɖɑːz",
+    "note": "MUN-daaz"
+  },
+  "Dharti": {
+    "ipa": "d̪ʰərtiː",
+    "note": "dhuhr-tee - Dharti Aba, Father of the Earth"
+  },
+  "Aba": {
+    "ipa": "ˈɑːbɑː",
+    "note": "AA-baa"
+  },
+  "Sarna": {
+    "ipa": "sərnɑː",
+    "note": "suhr-naa - the sacred grove, and the Adivasi faith of the grove"
+  },
+  "jaher": {
+    "ipa": "ˈdʒɑːheːr",
+    "note": "JAA-hayr - the Santhal sacred grove"
+  },
+  "Oraon": {
+    "ipa": "oːˈraʊn",
+    "note": "oh-ROWN"
+  },
+  "pahan": {
+    "ipa": "ˈpɑːhən",
+    "note": "PAA-huhn - the village priest of the grove"
+  },
+  "Sarhul": {
+    "ipa": "sərˈhuːl",
+    "note": "suhr-HOOL - the spring festival of the sal grove"
+  },
+  "Baha": {
+    "ipa": "ˈbɑːhɑː",
+    "note": "BAA-haa - the Santhal flower festival"
+  },
+  "Karam": {
+    "ipa": "kərəm",
+    "note": "kuh-ruhm - the Jharkhand harvest-season festival"
+  },
+  "jawa": {
+    "ipa": "dʒəʋɑː",
+    "note": "juh-vaa - the seedling cups grown for Karam"
+  },
+  "Bonga": {
+    "ipa": "ˈboːŋɡɑː",
+    "note": "BOHNG-gaa - Sing Bonga, the Santhal great spirit"
+  },
+  "bongas": {
+    "ipa": "ˈboːŋɡɑːz",
+    "note": "BOHNG-gaaz - the spirits of places"
+  },
+  "tamak": {
+    "ipa": "təˈmɑːk",
+    "note": "tuh-MAAK - the big Santhal kettledrum"
+  },
+  "tumdak": {
+    "ipa": "ˈtʊmdɑːk",
+    "note": "TUM-daak - the long Santhal drum"
+  },
+  "thum": {
+    "ipa": "t̪ʰʊm",
+    "note": "thum - the pestle rhythm in the first-dance story"
+  },
+  "Adivasi": {
+    "ipa": "ɑːd̪ɪˈʋɑːsiː",
+    "note": "aa-di-VAA-see"
+  },
+  "Hirkani": {
+    "ipa": "hiːrkəɳiː",
+    "note": "heer-kuh-nee - the milkmaid who climbed down Raigad"
+  },
+  "Raigad": {
+    "ipa": "ˈraɪɡəɖ",
+    "note": "REYE-guhd"
+  },
+  "Buruj": {
+    "ipa": "bʊˈruːdʒ",
+    "note": "bu-ROOJ - Hirkani Buruj, her tower"
+  },
+  "Gavli": {
+    "ipa": "ɡəʋliː",
+    "note": "guhv-lee - the milkmaid community"
+  },
+  "Hirwa": {
+    "ipa": "ˈhɪrʋɑː",
+    "note": "HIR-vaa - the green spirit of the Warli sowing"
+  },
+  "Waghoba": {
+    "ipa": "ʋɑːˈɡʰoːbɑː",
+    "note": "vaa-GHOH-baa - the tiger god of the forest edge"
+  },
+  "Kokna": {
+    "ipa": "ˈkɔknɑː",
+    "note": "KOK-naa - community of Dadra and Nagar Haveli"
+  },
+  "tarpa": {
+    "ipa": "ˈtɑːrpɑː",
+    "note": "TAAR-paa - the Warli gourd horn"
+  },
+  "Palaghata": {
+    "ipa": "pɑːləˈɡʰɑːʈɑː",
+    "note": "paa-luh-GHAA-taa - the Warli marriage goddess"
+  },
+  "Kansari": {
+    "ipa": "kɑːnˈsɑːriː",
+    "note": "kaan-SAA-ree - the grain goddess of the Dhodia"
+  },
+  "Dhodia": {
+    "ipa": "ˈd̪ʰoːɖɪɑː",
+    "note": "DHOH-di-aa"
+  },
+  "Tukaram": {
+    "ipa": "tʊkɑːˈrɑːm",
+    "note": "tu-kaa-RAAM"
+  },
+  "Dehu": {
+    "ipa": "ˈdeːhuː",
+    "note": "DAY-hoo - Tukaram's village"
+  },
+  "Indrayani": {
+    "ipa": "ɪndrɑːjəɳiː",
+    "note": "in-draa-yuh-nee - the river at Dehu"
+  },
+  "Pune": {
+    "ipa": "ˈpʊɳeː",
+    "note": "PU-nay"
+  },
+  "vahi": {
+    "ipa": "ʋəˈhiː",
+    "note": "vuh-HEE - a notebook of poems"
+  },
+  "vahis": {
+    "ipa": "ʋəˈhiːz",
+    "note": "vuh-HEEZ"
+  },
+  "abhang": {
+    "ipa": "əbʰəŋɡ",
+    "note": "uh-bhuhngg - Tukaram's verse form"
+  },
+  "Abhangs": {
+    "ipa": "əbʰəŋɡz",
+    "note": "uh-bhuhnggz"
+  },
+  "Vitthal": {
+    "ipa": "ˈʋɪʈʈʰəl",
+    "note": "VIT-thuhl - the god of Pandharpur"
+  },
+  "Pandharpur": {
+    "ipa": "pəɳɖʰərpʊr",
+    "note": "puhn-dhuhr-pur"
+  },
+  "Warkari": {
+    "ipa": "ʋɑːrkəriː",
+    "note": "vaar-kuh-ree - the pilgrim tradition of Pandharpur"
+  },
+  "Warkaris": {
+    "ipa": "ʋɑːrkəriːz",
+    "note": "vaar-kuh-reez"
+  },
+  "Palkhi": {
+    "ipa": "ˈpɑːlkʰiː",
+    "note": "PAAL-khee - the palanquin procession"
+  },
+  "palkhis": {
+    "ipa": "ˈpɑːlkʰiːz",
+    "note": "PAAL-kheez"
+  },
+  "Ashadh": {
+    "ipa": "ɑːˈʂɑːɖʰ",
+    "note": "aa-SHAADH - the rain month of the walk"
+  },
+  "Mauli": {
+    "ipa": "ˈmaʊliː",
+    "note": "MOW-lee - mother - what Warkaris call each other"
+  },
+  "Mavshi": {
+    "ipa": "ˈmɑːʋʃiː",
+    "note": "MAAV-shee - aunt, in Marathi"
+  },
+  "Jijabai": {
+    "ipa": "dʒiːdʒɑːˈbɑːiː",
+    "note": "jee-jaa-BAA-ee"
+  },
+  "Shahaji": {
+    "ipa": "ʃəˈhɑːdʒiː",
+    "note": "shuh-HAA-jee"
+  },
+  "Shivneri": {
+    "ipa": "ʃɪʋˈneːriː",
+    "note": "shiv-NAY-ree - the fort where Shivaji was born"
+  },
+  "Maratha": {
+    "ipa": "məˈrɑːʈʰɑː",
+    "note": "muh-RAA-thaa"
+  },
+  "Marathi": {
+    "ipa": "məˈrɑːʈʰiː",
+    "note": "muh-RAA-thee"
+  },
+  "Mavali": {
+    "ipa": "ˈmɑːʋəliː",
+    "note": "MAA-vuh-lee - the farm boys of the valleys"
+  },
+  "bakhar": {
+    "ipa": "bəkʰər",
+    "note": "buh-khuhr - a Marathi chronicle"
+  },
+  "bakhars": {
+    "ipa": "bəkʰərz",
+    "note": "buh-khuhrz"
+  },
+  "powada": {
+    "ipa": "poːˈʋɑːɽɑː",
+    "note": "poh-VAA-raa - a Marathi ballad"
+  },
+  "powadas": {
+    "ipa": "poːˈʋɑːɽɑːz",
+    "note": "poh-VAA-raaz"
+  },
+  "Koli": {
+    "ipa": "ˈkoːliː",
+    "note": "KOH-lee - the fisher people"
+  },
+  "Machhi": {
+    "ipa": "ˈmɑːtʃʰiː",
+    "note": "MAA-chhee - the fisher people of Daman"
+  },
+  "Narali": {
+    "ipa": "nɑːrəliː",
+    "note": "naa-ruh-lee - Narali Purnima, the coconut full moon"
+  },
+  "Purnima": {
+    "ipa": "ˈpuːrɳɪmɑː",
+    "note": "POOR-ni-maa - full moon"
+  },
+  "Moti": {
+    "ipa": "ˈmoːtiː",
+    "note": "MOH-tee - Moti Daman"
+  },
+  "Nani": {
+    "ipa": "ˈnɑːniː",
+    "note": "NAA-nee - Nani Daman"
+  },
+  "garba": {
+    "ipa": "ɡərbɑː",
+    "note": "guhr-baa"
+  },
+  "dandiya": {
+    "ipa": "ˈɖɑːɳɖɪjɑː",
+    "note": "DAAN-di-yaa"
+  },
+  "Narsinh": {
+    "ipa": "nərsɪn",
+    "note": "nuhr-sin - Narsinh Mehta; the written nh is a nasal the engine cannot carry"
+  },
+  "hundi": {
+    "ipa": "ˈhʊɳɖiː",
+    "note": "HUN-dee - a merchant's note of payment"
+  },
+  "hundis": {
+    "ipa": "ˈhʊɳɖiːz",
+    "note": "HUN-deez"
+  },
+  "Dwarka": {
+    "ipa": "ˈdʋɑːrkɑː",
+    "note": "DVAAR-kaa"
+  },
+  "Junagadh": {
+    "ipa": "ˈdʒuːnɑːɡəɽ",
+    "note": "JOO-naa-guhr - -gadh with ɽ: no accepted ɽʰ"
+  },
+  "Seth": {
+    "ipa": "seːʈʰ",
+    "note": "sayth - a great merchant"
+  },
+  "Shamalsha": {
+    "ipa": "ʃɑːməlʃɑː",
+    "note": "shaa-muhl-shaa - Shamalsha Seth of the hundi story"
+  },
+  "Kavi": {
+    "ipa": "kəˈʋiː",
+    "note": "kuh-VEE - poet - Gujarat's Adi Kavi"
+  },
+  "Vaishnav": {
+    "ipa": "ˈʋɛːʃɳəʋ",
+    "note": "VAYSH-nuhv - from Narsinh's song Vaishnav jan to"
+  },
+  "Gandhiji": {
+    "ipa": "ˈɡɑːnd̪ʰiːdʒiː",
+    "note": "GAAN-dhee-jee"
+  },
+  "Mandvi": {
+    "ipa": "ˈmɑːɳɖʋiː",
+    "note": "MAAN-dvee - the shipbuilding town of Kutch"
+  },
+  "Rukmavati": {
+    "ipa": "rʊkmɑːʋətiː",
+    "note": "ruk-maa-vuh-tee - the river at Mandvi"
+  },
+  "Kharva": {
+    "ipa": "ˈkʰɑːrʋɑː",
+    "note": "KHAAR-vaa - Mandvi's hereditary seafarers"
+  },
+  "mistri": {
+    "ipa": "ˈmɪstriː",
+    "note": "MIS-tree - the master builder"
+  },
+  "Kutch": {
+    "ipa": "kətʃʰ",
+    "note": "kuhchh"
+  },
+  "Rann": {
+    "ipa": "rəɳ",
+    "note": "ruhn - the Great Rann"
+  },
+  "Maldhari": {
+    "ipa": "mɑːlˈd̪ʰɑːriː",
+    "note": "maal-DHAA-ree - the herding families of Gir"
+  },
+  "Maldharis": {
+    "ipa": "mɑːlˈd̪ʰɑːriːz",
+    "note": "maal-DHAA-reez"
+  },
+  "Gujarati": {
+    "ipa": "ɡʊdʒəˈrɑːtiː",
+    "note": "gu-juh-RAA-tee"
+  },
+  "hokka": {
+    "ipa": "ˈhɔkɑː",
+    "note": "HO-kaa - Diu's name for the doum palm"
+  },
+  "Nagoa": {
+    "ipa": "nəˈɡoːɑː",
+    "note": "nuh-GOH-aa - the beach on Diu"
+  },
+  "shankh": {
+    "ipa": "ʃəŋkʰ",
+    "note": "shuhngkh - the conch"
+  },
+  "Gangeshwar": {
+    "ipa": "ɡəŋˈɡeːʃʋər",
+    "note": "guhng-GAYSH-vuhr - the tide-washed shrine on Diu"
+  },
+  "shivling": {
+    "ipa": "ˈʃɪʋlɪŋɡ",
+    "note": "SHIV-lingg"
+  },
+  "shivlings": {
+    "ipa": "ˈʃɪʋlɪŋɡz",
+    "note": "SHIV-linggz"
+  },
+  "abhishek": {
+    "ipa": "əbʰɪˈʃeːk",
+    "note": "uh-bhi-SHAYK - the honouring bath"
+  },
+  "Pandava": {
+    "ipa": "ˈpɑːɳɖəʋə",
+    "note": "PAAN-duh-vuh"
+  },
+  "Pedru": {
+    "ipa": "ˈpeːdruː",
+    "note": "PAYD-roo - Portuguese Pedro, as Goa says it"
+  },
+  "Bom": {
+    "ipa": "boːm",
+    "note": "bohm - Portuguese: good, as in Bom dia"
+  },
+  "noite": {
+    "ipa": "ˈnɔɪteː",
+    "note": "NOY-tay - Portuguese: night, as in Boa noite"
+  },
+  "balcao": {
+    "ipa": "bəlˈkaʊ",
+    "note": "buhl-KOW - the Goan porch; Portuguese balcão"
+  },
+  "Mandovi": {
+    "ipa": "mɑːɳˈɖoːʋiː",
+    "note": "maan-DOH-vee"
+  },
+  "Zuari": {
+    "ipa": "zʊˈɑːriː",
+    "note": "zu-AA-ree"
+  },
+  "Shigmo": {
+    "ipa": "ˈʃɪɡmoː",
+    "note": "SHIG-moh - Goa's spring festival"
+  },
+  "romta": {
+    "ipa": "ˈroːmtɑː",
+    "note": "ROHM-taa - the romta mell, the roving Shigmo bands"
+  },
+  "dhol": {
+    "ipa": "ɖʰoːl",
+    "note": "dhohl"
+  },
+  "tasha": {
+    "ipa": "ˈtɑːʃɑː",
+    "note": "TAA-shaa"
+  },
+  "ghumot": {
+    "ipa": "ɡʰʊˈmoːʈ",
+    "note": "ghu-MOHT - Goa's clay-pot drum"
+  },
+  "mando": {
+    "ipa": "ˈmɑːndoː",
+    "note": "MAAN-doh - the Goan Konkani song form"
+  },
+  "mandos": {
+    "ipa": "ˈmɑːndoːz",
+    "note": "MAAN-dohz"
+  },
+  "Kharvi": {
+    "ipa": "ˈkʰɑːrʋiː",
+    "note": "KHAAR-vee - Goa's fisher people"
+  },
+  "Aji": {
+    "ipa": "ˈɑːdʒiː",
+    "note": "AA-jee - grandmother, in Konkani"
+  },
+  "Mog": {
+    "ipa": "moːɡ",
+    "note": "mohg - love, in Konkani"
+  },
+  "deepastambha": {
+    "ipa": "diːpəstəmbʰə",
+    "note": "dee-puhs-tuhm-bhuh - the lamp tower"
+  },
+  "Mannge": {
+    "ipa": "ˈmɑːŋɡeː",
+    "note": "MAANG-gay - Mannge Thapnee, the crocodile rite"
+  },
+  "Thapnee": {
+    "ipa": "ˈt̪ʰɑːpniː",
+    "note": "THAAP-nee"
+  },
+  "Aaji": {
+    "ipa": "ˈɑːdʒiː",
+    "note": "AA-jee - grandmother, in Marathi"
+  },
+  "Kannagi": {
+    "ipa": "kəɳɳəɡiː",
+    "note": "kuhn-nuh-gee"
+  },
+  "Kovalan": {
+    "ipa": "ˈkoːʋəlɑːn",
+    "note": "KOH-vuh-laan"
+  },
+  "Madurai": {
+    "ipa": "mədʊraɪ",
+    "note": "muh-du-reye"
+  },
+  "Pandyan": {
+    "ipa": "ˈpɑːɳɖɪən",
+    "note": "PAAN-di-uhn"
+  },
+  "Puhar": {
+    "ipa": "puːˈhɑːr",
+    "note": "poo-HAAR - the drowned port of the Kaveri"
+  },
+  "Poompuhar": {
+    "ipa": "puːmpʊˈhɑːr",
+    "note": "poom-pu-HAAR"
+  },
+  "Kaveripoompattinam": {
+    "ipa": "kɑːʋeːriːpuːmpəʈʈɪɳəm",
+    "note": "kaa-vay-ree-poom-puht-ti-nuhm"
+  },
+  "Manimekalai": {
+    "ipa": "məɳɪˈmeːkəlaɪ",
+    "note": "muh-ni-MAY-kuh-leye"
+  },
+  "silambu": {
+    "ipa": "sɪləmbuː",
+    "note": "si-luhm-boo - the hollow gold anklet"
+  },
+  "Pattini": {
+    "ipa": "pətɪɳiː",
+    "note": "puh-ti-nee - Kannagi as goddess"
+  },
+  "Karikala": {
+    "ipa": "kərɪˈkɑːlɑː",
+    "note": "kuh-ri-KAA-laa - the Chola of the Kallanai"
+  },
+  "Kari": {
+    "ipa": "kəˈriː",
+    "note": "kuh-REE - charred, in Kari-kala"
+  },
+  "Kala": {
+    "ipa": "ˈkɑːlɑː",
+    "note": "KAA-laa"
+  },
+  "Kallanai": {
+    "ipa": "kələˈnaɪ",
+    "note": "kuh-luh-NEYE - the ancient Kaveri weir"
+  },
+  "Avvaiyar": {
+    "ipa": "əʋaɪˈjɑːr",
+    "note": "uh-veye-YAAR"
+  },
+  "naaval": {
+    "ipa": "ˈnɑːʋəl",
+    "note": "NAA-vuhl - the jamun tree"
+  },
+  "Paatti": {
+    "ipa": "ˈpɑːʈʈiː",
+    "note": "PAAT-tee - grandmother, in Tamil"
+  },
+  "pazham": {
+    "ipa": "pərəm",
+    "note": "puh-ruhm - fruit; Tamil zh is the retroflex glide ɻ, rejected by the engine - en-US r is its nearest accepted sound"
+  },
+  "sudatha": {
+    "ipa": "sʊˈɖɑːdɑː",
+    "note": "su-DAA-daa - unroasted, in Avvaiyar's riddle"
+  },
+  "Katrathu": {
+    "ipa": "kətrətuː",
+    "note": "kuht-ruh-too - what is learned - from Avvaiyar's saying"
+  },
+  "kallathathu": {
+    "ipa": "kəˈlɑːdətuː",
+    "note": "kuh-LAA-duh-too - what is not learned"
+  },
+  "alavu": {
+    "ipa": "ələʋuː",
+    "note": "uh-luh-voo - a handful's measure"
+  },
+  "ulagalavu": {
+    "ipa": "ʊləɡələʋuː",
+    "note": "u-luh-guh-luh-voo - the world's measure"
+  },
+  "Murugan": {
+    "ipa": "ˈmʊrʊɡən",
+    "note": "MU-ru-guhn"
+  },
+  "Thirunallar": {
+    "ipa": "tɪrʊnəˈlɑːr",
+    "note": "ti-ru-nuh-LAAR - the Shani temple town; Tamil th is unaspirated"
+  },
+  "theertham": {
+    "ipa": "ˈtiːrt̪ʰəm",
+    "note": "TEER-thuhm - the temple tank"
+  },
+  "Shani": {
+    "ipa": "ʃəniː",
+    "note": "shuh-nee"
+  },
+  "Damayanti": {
+    "ipa": "dəməjəntiː",
+    "note": "duh-muh-yuhn-tee"
+  },
+  "Vedapuri": {
+    "ipa": "ˈʋeːdəpʊriː",
+    "note": "VAY-duh-pu-ree - the old name of Pondicherry"
+  },
+  "Vedapureeswarar": {
+    "ipa": "ʋeːdəpʊˈriːʃʋərər",
+    "note": "vay-duh-pu-REESH-vuh-ruhr"
+  },
+  "Vindhya": {
+    "ipa": "ˈʋɪnd̪ʰjɑː",
+    "note": "VIN-dhyaa"
+  },
+  "Vindhyas": {
+    "ipa": "ˈʋɪnd̪ʰjɑːz",
+    "note": "VIN-dhyaaz"
+  },
+  "tittibha": {
+    "ipa": "ˈʈɪʈʈɪbʰə",
+    "note": "TIT-ti-bhuh - the shore bird of the Panchatantra tale"
+  },
+  "tittibhas": {
+    "ipa": "ˈʈɪʈʈɪbʰəz",
+    "note": "TIT-ti-bhuhz"
+  },
+  "Kadalamma": {
+    "ipa": "kəɖələmɑː",
+    "note": "kuh-duh-luh-maa - the sea mother"
+  },
+  "kadal": {
+    "ipa": "kəɖəl",
+    "note": "kuh-duhl - the sea, in Malayalam"
+  },
+  "Amma": {
+    "ipa": "əmɑː",
+    "note": "uh-maa - mother"
+  },
+  "Mahe": {
+    "ipa": "məˈheː",
+    "note": "muh-HAY"
+  },
+  "Mayyazhi": {
+    "ipa": "maɪˈjɑːriː",
+    "note": "meye-YAA-ree - Mahe's Malayalam name; the zh glide ɻ is rejected by the engine, en-US r is its nearest accepted sound"
+  },
+  "chakara": {
+    "ipa": "ˈtʃɑːkərɑː",
+    "note": "CHAA-kuh-raa - the sudden teeming shoal"
+  },
+  "Kannur": {
+    "ipa": "kəˈnuːr",
+    "note": "kuh-NOOR"
+  },
+  "Kasaragod": {
+    "ipa": "ˈkɑːsərəɡoːɖ",
+    "note": "KAA-suh-ruh-gohd"
+  },
+  "theyyam": {
+    "ipa": "ˈteːjəm",
+    "note": "TAY-yuhm - the god-embodying ritual art of Malabar"
+  },
+  "Devu": {
+    "ipa": "ˈdeːʋuː",
+    "note": "DAY-voo"
+  },
+  "Kathanar": {
+    "ipa": "kəttəˈnɑːr",
+    "note": "kuht-tuh-NAAR - priest, in old Malayalam"
+  },
+  "Kadamattathu": {
+    "ipa": "kəɖəməʈʈətʊ",
+    "note": "kuh-duh-muht-tuh-tu - of Kadamattom"
+  },
+  "Kadamattom": {
+    "ipa": "kəɖəməʈʈoːm",
+    "note": "kuh-duh-muht-tohm"
+  },
+  "Poulose": {
+    "ipa": "ˈpoːloːs",
+    "note": "POH-lohs"
+  },
+  "Naranath": {
+    "ipa": "ˈnɑːrɑːɳət",
+    "note": "NAA-raa-nuht"
+  },
+  "Branthan": {
+    "ipa": "ˈbʰrɑːntən",
+    "note": "BHRAAN-tuhn - the mad one - Naranath Branthan"
+  },
+  "Rayiranellur": {
+    "ipa": "rɑːjɪrəneːˈluːr",
+    "note": "raa-yi-ruh-nay-LOOR - the hill of the boulder"
+  },
+  "Bhadrakali": {
+    "ipa": "bʰədrəˈkɑːliː",
+    "note": "bhuhd-ruh-KAA-lee"
+  },
+  "Kayamkulam": {
+    "ipa": "ˈkɑːjəmkʊləm",
+    "note": "KAA-yuhm-ku-luhm"
+  },
+  "Kochunni": {
+    "ipa": "koːˈtʃʊɳɳiː",
+    "note": "koh-CHUN-nee - Kayamkulam Kochunni"
+  },
+  "kalari": {
+    "ipa": "kələriː",
+    "note": "kuh-luh-ree - the training yard"
+  },
+  "kalaripayattu": {
+    "ipa": "kələrɪpəjəʈʈuː",
+    "note": "kuh-luh-ri-puh-yuht-too"
+  },
+  "Aranmula": {
+    "ipa": "ɑːrənˈmʊlɑː",
+    "note": "aa-ruhn-MU-laa"
+  },
+  "Parthasarathy": {
+    "ipa": "pɑːrt̪ʰəˈsɑːrət̪ʰiː",
+    "note": "paar-thuh-SAA-ruh-thee - Krishna as Arjuna's charioteer"
+  },
+  "chundan": {
+    "ipa": "ˈtʃʊɳɖən",
+    "note": "CHUN-duhn - chundan vallam, the snake boat"
+  },
+  "vallam": {
+    "ipa": "ʋələm",
+    "note": "vuh-luhm - a boat"
+  },
+  "vallams": {
+    "ipa": "ʋələmz",
+    "note": "vuh-luhmz"
+  },
+  "valla": {
+    "ipa": "ʋələ",
+    "note": "vuh-luh - the valla sadya, the rowers' feast"
+  },
+  "vanchipattu": {
+    "ipa": "ʋəntʃɪˈpɑːʈʈuː",
+    "note": "vuhn-chi-PAAT-too - the boat song"
+  },
+  "Vararuchi": {
+    "ipa": "ʋərəˈrʊtʃiː",
+    "note": "vuh-ruh-RU-chee - the scholar of the Panthirukulam"
+  },
+  "Pakkanar": {
+    "ipa": "pəkkənɑːr",
+    "note": "puhk-kuh-naar"
+  },
+  "Perunthachan": {
+    "ipa": "peːrʊnˈt̪ʰɑːtʃən",
+    "note": "pay-run-THAA-chuhn - the master carpenter"
+  },
+  "Uppukottan": {
+    "ipa": "ʊppʊˈkoːʈʈən",
+    "note": "up-pu-KOHT-tuhn - the salt trader brother"
+  },
+  "Cheraman": {
+    "ipa": "ˈtʃeːrəmɑːn",
+    "note": "CHAY-ruh-maan - Cheraman Perumal"
+  },
+  "Perumal": {
+    "ipa": "peːrʊˈmɑːl",
+    "note": "pay-ru-MAAL"
+  },
+  "Kodungallur": {
+    "ipa": "koːɖʊŋɡəˈluːr",
+    "note": "koh-dung-guh-LOOR"
+  },
+  "Juma": {
+    "ipa": "ˈdʒʊmɑː",
+    "note": "JU-maa - the Cheraman Juma Masjid"
+  },
+  "Ubaidullah": {
+    "ipa": "ʊbaɪˈdʊlɑː",
+    "note": "u-beye-DU-laa"
+  },
+  "Amini": {
+    "ipa": "əˈmiːniː",
+    "note": "uh-MEE-nee - the Lakshadweep island"
+  },
+  "odam": {
+    "ipa": "ˈoːɖəm",
+    "note": "OH-duhm - the Minicoy sailing boat"
+  },
+  "Thaana": {
+    "ipa": "ˈtɑːnɑː",
+    "note": "TAA-naa - the Divehi script; its th is a dental t"
+  },
+  "Divehi": {
+    "ipa": "dɪˈʋeːhiː",
+    "note": "di-VAY-hee"
+  },
+  "Mahl": {
+    "ipa": "mɑːl",
+    "note": "maal - the language of Minicoy"
+  },
+  "Minicoy": {
+    "ipa": "ˈmɪnɪkɔɪ",
+    "note": "MI-ni-koy"
+  },
+  "Obavva": {
+    "ipa": "oːbəʋɑː",
+    "note": "oh-buh-vaa - Obavva of the pestle"
+  },
+  "Obavvana": {
+    "ipa": "oːbəʋənɑː",
+    "note": "oh-buh-vuh-naa - Obavva's, in Onake Obavvana Kindi"
+  },
+  "onake": {
+    "ipa": "ˈoːɳəkeː",
+    "note": "OH-nuh-kay - the rice pestle"
+  },
+  "kindi": {
+    "ipa": "ˈkɪndiː",
+    "note": "KIN-dee - the crevice in the fort wall"
+  },
+  "Chitradurga": {
+    "ipa": "tʃɪtrəˈdʊrɡɑː",
+    "note": "chit-ruh-DUR-gaa"
+  },
+  "Kahale": {
+    "ipa": "kɑːhəleː",
+    "note": "kaa-huh-lay - watchman Kahale Mudda Hanuma"
+  },
+  "Mudda": {
+    "ipa": "ˈmʊdɑː",
+    "note": "MU-daa"
+  },
+  "Hanuma": {
+    "ipa": "hənʊˈmɑː",
+    "note": "huh-nu-MAA"
+  },
+  "Kannada": {
+    "ipa": "kənəɖə",
+    "note": "kuh-nuh-duh"
+  },
+  "Gullakayajji": {
+    "ipa": "ɡʊlɑːkɑːjədʒiː",
+    "note": "gu-laa-kaa-yuh-jee - the ajji of the gourd cup"
+  },
+  "gullakayi": {
+    "ipa": "ɡʊlɑːˈkɑːjiː",
+    "note": "gu-laa-KAA-yee - the little gourd"
+  },
+  "ajji": {
+    "ipa": "ədʒiː",
+    "note": "uh-jee - grandmother, in Kannada"
+  },
+  "Chavundaraya": {
+    "ipa": "tʃɑːʋʊɳɖəˈrɑːjə",
+    "note": "chaa-vun-duh-RAA-yuh - the minister who raised Bahubali's statue"
+  },
+  "Gommateshwara": {
+    "ipa": "ɡoːməˈʈeːʃʋərə",
+    "note": "goh-muh-TAYSH-vuh-ruh - Bahubali at Shravanabelagola"
+  },
+  "Kodagu": {
+    "ipa": "ˈkoːɖəɡuː",
+    "note": "KOH-duh-goo"
+  },
+  "Kodava": {
+    "ipa": "ˈkoːɖəʋɑː",
+    "note": "KOH-duh-vaa - the people of Kodagu"
+  },
+  "Coorg": {
+    "ipa": "kuːrɡ",
+    "note": "koorg"
+  },
+  "Kaveramme": {
+    "ipa": "kɑːʋeːrəmeː",
+    "note": "kaa-vay-ruh-may - Mother Kaveri, in Kodava speech"
+  },
+  "Sankramana": {
+    "ipa": "səŋkrəməɳə",
+    "note": "suhng-kruh-muh-nuh - the Kaveri Sankramana"
+  },
+  "kamandalu": {
+    "ipa": "kəməɳɖəluː",
+    "note": "kuh-muhn-duh-loo - the sage's water-pot"
+  },
+  "Paramanandayya": {
+    "ipa": "pərəmɑːnəndəjɑː",
+    "note": "puh-ruh-maa-nuhn-duh-yaa - the Telugu guru of the ten disciples"
+  },
+  "guruji": {
+    "ipa": "ˈɡʊrʊdʒiː",
+    "note": "GU-ru-jee"
+  },
+  "Lepakshi": {
+    "ipa": "leːˈpɑːkʂiː",
+    "note": "lay-PAAK-shee"
+  },
+  "pakshi": {
+    "ipa": "pəkʂiː",
+    "note": "puhk-shee - bird - le, pakshi: rise, bird"
+  },
+  "Nandi": {
+    "ipa": "nəndiː",
+    "note": "nuhn-dee"
+  },
+  "Narasimhadeva": {
+    "ipa": "nərəsɪmhəˈdeːʋə",
+    "note": "nuh-ruh-sim-huh-DAY-vuh - builder of Konark"
+  },
+  "Surya": {
+    "ipa": "ˈsuːrjə",
+    "note": "SOOR-yuh"
+  },
+  "Gautami": {
+    "ipa": "ˈɡaʊtəmiː",
+    "note": "GOW-tuh-mee - the Godavari; not the Pali Gotami"
+  },
+  "Yanam": {
+    "ipa": "ˈjɑːnəm",
+    "note": "YAA-nuhm"
+  },
+  "Pushkaram": {
+    "ipa": "ˈpʊʂkərəm",
+    "note": "PUSH-kuh-ruhm - the twelfth-year river festival"
+  },
+  "Brahmagiri": {
+    "ipa": "brəhməˈɡɪriː",
+    "note": "bruhh-muh-GI-ree"
+  },
+  "Srikalahasti": {
+    "ipa": "ʃriːkɑːləhəstiː",
+    "note": "shree-kaa-luh-huhs-tee"
+  },
+  "Swarnamukhi": {
+    "ipa": "sʋərɳəˈmʊkʰiː",
+    "note": "svuhr-nuh-MU-khee - the golden-faced river"
+  },
+  "shivalinga": {
+    "ipa": "ʃɪʋəˈlɪŋɡə",
+    "note": "shi-vuh-LING-guh"
+  },
+  "Hasti": {
+    "ipa": "həstiː",
+    "note": "huhs-tee - the elephant of Sri-kala-hasti"
+  },
+  "Amudha": {
+    "ipa": "əˈmʊdɑː",
+    "note": "uh-MU-daa - Amudha Surabhi, the unemptying bowl"
+  },
+  "Surabhi": {
+    "ipa": "ˈsʊrəbʰiː",
+    "note": "SU-ruh-bhee"
+  },
+  "vikatakavi": {
+    "ipa": "ʋɪkəʈəkəʋiː",
+    "note": "vi-kuh-tuh-kuh-vee - the palindrome jester-poet"
+  },
+  "tila": {
+    "ipa": "ˈtɪlə",
+    "note": "TI-luh - sesame, in the mock title"
+  },
+  "Tilakashta": {
+    "ipa": "tɪləˈkɑːʂʈʰə",
+    "note": "ti-luh-KAASH-thuh - from Tenali's invented classic"
+  },
+  "Kashta": {
+    "ipa": "ˈkɑːʂʈʰə",
+    "note": "KAASH-thuh - dry wood"
+  },
+  "Mahisha": {
+    "ipa": "məhɪʂə",
+    "note": "muh-hi-shuh - buffalo"
+  },
+  "Bandhana": {
+    "ipa": "bənd̪ʰənə",
+    "note": "buhn-dhuh-nuh - binding"
+  },
+  "ilish": {
+    "ipa": "ˈiːlɪʃ",
+    "note": "EE-lish - the hilsa"
+  },
+  "brishti": {
+    "ipa": "ˈbrɪʃʈiː",
+    "note": "BRISH-tee - rain, in Bengali"
+  },
+  "Padma": {
+    "ipa": "pədmɑː",
+    "note": "puhd-maa - the river"
+  },
+  "Hooghly": {
+    "ipa": "ˈhuːɡliː",
+    "note": "HOOG-lee"
+  },
+  "Bonbibi": {
+    "ipa": "bɔnˈbiːbiː",
+    "note": "bon-BEE-bee - Lady of the Forest"
+  },
+  "Dukhey": {
+    "ipa": "dʊˈkʰeː",
+    "note": "du-KHAY"
+  },
+  "Dhona": {
+    "ipa": "ˈd̪ʰoːnɑː",
+    "note": "DHOH-naa - the greedy trader"
+  },
+  "Dokkhin": {
+    "ipa": "ˈdɔkʰɪn",
+    "note": "DO-khin - Dokkhin Rai, lord of the south"
+  },
+  "Rai": {
+    "ipa": "raɪ",
+    "note": "reye"
+  },
+  "Johuranama": {
+    "ipa": "dʒoːhʊrɑːˈnɑːmɑː",
+    "note": "joh-hu-raa-NAA-maa - Bonbibi's book"
+  },
+  "Jongoli": {
+    "ipa": "dʒɔŋˈɡoːliː",
+    "note": "jong-GOH-lee - Shah Jongoli, Bonbibi's brother"
+  },
+  "rakkhosh": {
+    "ipa": "ˈrɑːkʰoːʃ",
+    "note": "RAA-khohsh - the ogre of Bengali tales"
+  },
+  "Thakurmar": {
+    "ipa": "ˈʈʰɑːkʊrmɑːr",
+    "note": "THAA-kur-maar - Thakurmar Jhuli, the Grandmother's Bag"
+  },
+  "Jhuli": {
+    "ipa": "ˈdʒʰʊliː",
+    "note": "JHU-lee"
+  },
+  "Lalkamal": {
+    "ipa": "lɑːlkəməl",
+    "note": "laal-kuh-muhl"
+  },
+  "Nilkamal": {
+    "ipa": "niːlkəməl",
+    "note": "neel-kuh-muhl"
+  },
+  "Haau": {
+    "ipa": "ˈhɑːʊ",
+    "note": "HAA-u - from the rakkhosh chant"
+  },
+  "khaau": {
+    "ipa": "ˈkʰɑːʊ",
+    "note": "KHAA-u - from the rakkhosh chant"
+  },
+  "maau": {
+    "ipa": "ˈmɑːʊ",
+    "note": "MAA-u - from the rakkhosh chant"
+  },
+  "paau": {
+    "ipa": "ˈpɑːʊ",
+    "note": "PAA-u - from the rakkhosh chant"
+  },
+  "gawndho": {
+    "ipa": "ˈɡɔnd̪ʰoː",
+    "note": "GON-dhoh - smell, in the chant's Bengali"
+  },
+  "Manusher": {
+    "ipa": "ˈmɑːnʊʃeːr",
+    "note": "MAA-nu-shayr - of humans, in the chant's Bengali"
+  },
+  "Krishnanagar": {
+    "ipa": "krɪʂɳənəɡər",
+    "note": "krish-nuh-nuh-guhr - Gopal Bhar's town"
+  },
+  "Tapoi": {
+    "ipa": "təˈpɔɪ",
+    "note": "tuh-POY - the Odia tale of the seven ships"
+  },
+  "Bhadraba": {
+    "ipa": "ˈbʰɑːdrəbɑː",
+    "note": "BHAAD-ruh-baa - the Odia month"
+  },
+  "khuda": {
+    "ipa": "ˈkʰʊdɑː",
+    "note": "KHU-daa - broken rice"
+  },
+  "Khudurukuni": {
+    "ipa": "kʰʊdʊrʊˈkʊniː",
+    "note": "khu-du-ru-KU-nee - the Sunday osha of Odia girls"
+  },
+  "Osha": {
+    "ipa": "ˈoːʃɑː",
+    "note": "OH-shaa - a votive observance"
+  },
+  "Mangala": {
+    "ipa": "məŋɡəlɑː",
+    "note": "muhng-guh-laa - the goddess of the Khudurukuni Osha"
+  },
+  "Boita": {
+    "ipa": "ˈbɔɪtɑː",
+    "note": "BOY-taa - Boita Bandana, the honouring of the boats"
+  },
+  "boitas": {
+    "ipa": "ˈbɔɪtɑːz",
+    "note": "BOY-taaz"
+  },
+  "boi": {
+    "ipa": "bɔɪ",
+    "note": "boy - from the sailing cry Aa ka ma boi"
+  },
+  "Bandana": {
+    "ipa": "bənˈdɑːnɑː",
+    "note": "buhn-DAA-naa - honouring - not the English headscarf",
+    "case_sensitive": true
+  },
+  "sadhabas": {
+    "ipa": "ˈsɑːd̪ʰəbɑːz",
+    "note": "SAA-dhuh-baaz - the old seafaring merchants of Kalinga"
+  },
+  "Kartika": {
+    "ipa": "ˈkɑːrtɪkə",
+    "note": "KAAR-ti-kuh - the holy month"
+  },
+  "Mahanadi": {
+    "ipa": "məhɑːnədiː",
+    "note": "muh-haa-nuh-dee"
+  },
+  "Cuttack": {
+    "ipa": "kəʈək",
+    "note": "kuh-tuhk"
+  },
+  "Jatra": {
+    "ipa": "ˈdʒɑːtrɑː",
+    "note": "JAAT-raa - Bali Jatra, the journey to Bali"
+  },
+  "Kalinga": {
+    "ipa": "kəˈlɪŋɡɑː",
+    "note": "kuh-LING-gaa"
+  },
+  "Manika": {
+    "ipa": "məɳɪkɑː",
+    "note": "muh-ni-kaa - the curd-seller of the katha"
+  },
+  "Manikapatna": {
+    "ipa": "məɳɪkɑːpətnɑː",
+    "note": "muh-ni-kaa-puht-naa - Manika's town by the Chilika"
+  },
+  "Chilika": {
+    "ipa": "ˈtʃɪlɪkɑː",
+    "note": "CHI-li-kaa"
+  },
+  "Purushottama": {
+    "ipa": "pʊrʊˈʂoːtəmə",
+    "note": "pu-ru-SHOH-tuh-muh - Purushottama Deva"
+  },
+  "Kanchi": {
+    "ipa": "ˈkɑːntʃiː",
+    "note": "KAAN-chee"
+  },
+  "Rasagola": {
+    "ipa": "rəsəˈɡoːlɑː",
+    "note": "ruh-suh-GOH-laa"
+  },
+  "Rasagolas": {
+    "ipa": "rəsəˈɡoːlɑːz",
+    "note": "ruh-suh-GOH-laaz"
+  },
+  "Niladri": {
+    "ipa": "niːˈlɑːdriː",
+    "note": "nee-LAAD-ree - Niladri Bije, Jagannath's homecoming day"
+  },
+  "Bije": {
+    "ipa": "ˈbiːdʒeː",
+    "note": "BEE-jay"
+  },
+  "Dibasa": {
+    "ipa": "dɪbəsə",
+    "note": "di-buh-suh - day, in Odia - Rasagola Dibasa"
+  },
+  "Rath": {
+    "ipa": "rət̪ʰ",
+    "note": "ruhth - a chariot-palanquin"
+  },
+  "kathas": {
+    "ipa": "kəˈt̪ʰɑːz",
+    "note": "kuh-THAAZ"
+  },
+  "Gahirmatha": {
+    "ipa": "ɡəhiːrmət̪ʰɑː",
+    "note": "guh-heer-muh-thaa - the turtle beach of Odisha"
+  },
+  "Rushikulya": {
+    "ipa": "rʊʂɪˈkʊljɑː",
+    "note": "ru-shi-KUL-yaa - the other great nesting river-mouth"
+  },
+  "Tejimola": {
+    "ipa": "teːdʒiːˈmoːlɑː",
+    "note": "tay-jee-MOH-laa"
+  },
+  "dheki": {
+    "ipa": "ˈɖʰeːkiː",
+    "note": "DHAY-kee - the great rice-pounder"
+  },
+  "bogori": {
+    "ipa": "bɔˈɡoːriː",
+    "note": "bo-GOH-ree - the wild plum"
+  },
+  "Bordoisila": {
+    "ipa": "bɔrdɔɪˈsiːlɑː",
+    "note": "bor-doy-SEE-laa - the spring storm, the daughter coming home"
+  },
+  "Bohag": {
+    "ipa": "bɔˈhɑːɡ",
+    "note": "bo-HAAG - the first Assamese month"
+  },
+  "Bihu": {
+    "ipa": "ˈbiːhuː",
+    "note": "BEE-hoo"
+  },
+  "Bihus": {
+    "ipa": "ˈbiːhuːz",
+    "note": "BEE-hooz"
+  },
+  "Rongali": {
+    "ipa": "rɔŋˈɡɑːliː",
+    "note": "rong-GAA-lee"
+  },
+  "Kongali": {
+    "ipa": "kɔŋˈɡɑːliː",
+    "note": "kong-GAA-lee"
+  },
+  "Bhogali": {
+    "ipa": "bʰoːˈɡɑːliː",
+    "note": "bhoh-GAA-lee"
+  },
+  "Goru": {
+    "ipa": "ˈɡɔruː",
+    "note": "GO-roo - Goru Bihu, the cattle's day"
+  },
+  "Manuh": {
+    "ipa": "ˈmɑːnʊh",
+    "note": "MAA-nuh - Manuh Bihu, the people's day"
+  },
+  "koka": {
+    "ipa": "kɔˈkɑː",
+    "note": "ko-KAA - grandfather, in Assamese"
+  },
+  "Lau": {
+    "ipa": "laʊ",
+    "note": "low - gourd, from the Goru Bihu chant"
+  },
+  "bengena": {
+    "ipa": "beŋˈɡeːnɑː",
+    "note": "beng-GAY-naa - brinjal, from the chant"
+  },
+  "bosore": {
+    "ipa": "bɔˈsoːreː",
+    "note": "bo-SOH-ray - yearly, from the chant"
+  },
+  "gamosa": {
+    "ipa": "ɡɑːˈmoːsɑː",
+    "note": "gaa-MOH-saa - the red-and-white cloth of respect"
+  },
+  "gamosas": {
+    "ipa": "ɡɑːˈmoːsɑːz",
+    "note": "gaa-MOH-saaz"
+  },
+  "husori": {
+    "ipa": "hʊˈsoːriː",
+    "note": "hu-SOH-ree - the roving Bihu singing parties"
+  },
+  "pepa": {
+    "ipa": "ˈpeːpɑː",
+    "note": "PAY-paa - the buffalo-horn pipe"
+  },
+  "naach": {
+    "ipa": "nɑːtʃ",
+    "note": "naach - dance"
+  },
+  "burhi": {
+    "ipa": "ˈbʊɽiː",
+    "note": "BU-ree - old (woman); the rh is ɽ - no accepted ɽʰ"
+  },
+  "aai": {
+    "ipa": "ˈɑːiː",
+    "note": "AA-ee - mother, in Assamese"
+  },
+  "Aair": {
+    "ipa": "ˈɑːiːr",
+    "note": "AA-eer - mother's - Burhi Aair Sadhu"
+  },
+  "Sadhu": {
+    "ipa": "ˈsɑːd̪ʰuː",
+    "note": "SAA-dhoo - a folk tale, in Assamese; also the wandering ascetic"
+  },
+  "kotha": {
+    "ipa": "ˈkɔt̪ʰɑː",
+    "note": "KO-thaa - sadhu-kotha, the told tale"
+  },
+  "Lakshminath": {
+    "ipa": "ləkʂmiːˈnɑːt̪ʰ",
+    "note": "luhk-shmee-NAATH"
+  },
+  "Bezbaroa": {
+    "ipa": "bezbəˈrʊɑː",
+    "note": "bez-buh-RU-aa"
+  },
+  "Sahityarathi": {
+    "ipa": "sɑːhɪtjərət̪ʰiː",
+    "note": "saa-hit-yuh-ruh-thee - the charioteer of literature"
+  },
+  "Mising": {
+    "ipa": "ˈmiːʃɪŋ",
+    "note": "MEE-shing - the river people of the Brahmaputra"
+  },
+  "Ligang": {
+    "ipa": "liːˈɡɑːŋ",
+    "note": "lee-GAANG - Ali-Aye-Ligang, the sowing festival"
+  },
+  "ghar": {
+    "ipa": "ɡʰər",
+    "note": "ghuhr - house - the stilt chang ghar"
+  },
+  "gumrag": {
+    "ipa": "ˈɡʊmrɑːɡ",
+    "note": "GUM-raag - the Mising sowing dance"
+  },
+  "Bagurumba": {
+    "ipa": "bɑːɡʊˈrʊmbɑː",
+    "note": "baa-gu-RUM-baa - the butterfly dance"
+  },
+  "Bodo": {
+    "ipa": "ˈboːɖoː",
+    "note": "BOH-doh"
+  },
+  "Bodos": {
+    "ipa": "ˈboːɖoːz",
+    "note": "BOH-dohz"
+  },
+  "dokhona": {
+    "ipa": "doːˈkʰoːnɑː",
+    "note": "doh-KHOH-naa - the Bodo woven dress"
+  },
+  "kham": {
+    "ipa": "kʰɑːm",
+    "note": "khaam - the long drum"
+  },
+  "sifung": {
+    "ipa": "siːˈfʊŋ",
+    "note": "see-FUNG - the bamboo flute"
+  },
+  "serja": {
+    "ipa": "ˈseːrdʒɑː",
+    "note": "SAYR-jaa - the bowed lute"
+  },
+  "sijou": {
+    "ipa": "ˈsiːdʒoː",
+    "note": "SEE-joh - the sacred tree of Bathou courtyards"
+  },
+  "Bathou": {
+    "ipa": "bɑːˈt̪ʰoː",
+    "note": "baa-THOH - the Bodo faith"
+  },
+  "Khasis": {
+    "ipa": "ˈkʰɑːsiːz",
+    "note": "KHAA-seez"
+  },
+  "Sohra": {
+    "ipa": "ˈsoːrɑː",
+    "note": "SOH-raa - Cherrapunji's own name"
+  },
+  "Angami": {
+    "ipa": "əŋˈɡɑːmiː",
+    "note": "uhng-GAA-mee"
+  },
+  "Chakhesang": {
+    "ipa": "tʃəˈkʰeːsɑːŋ",
+    "note": "chuh-KHAY-saang"
+  },
+  "Mao": {
+    "ipa": "maʊ",
+    "note": "mow - the Mao Naga"
+  },
+  "Poumai": {
+    "ipa": "ˈpoːmaɪ",
+    "note": "POH-meye"
+  },
+  "Tenyimia": {
+    "ipa": "teːnjɪˈmɪɑː",
+    "note": "tayn-yi-MI-aa - the Angami and their kin together"
+  },
+  "Konyak": {
+    "ipa": "ˈkɔnjɑːk",
+    "note": "KON-yaak"
+  },
+  "Lotha": {
+    "ipa": "ˈloːt̪ʰɑː",
+    "note": "LOH-thaa"
+  },
+  "Sumi": {
+    "ipa": "ˈsuːmiː",
+    "note": "SOO-mee"
+  },
+  "Rengma": {
+    "ipa": "ˈreŋmɑː",
+    "note": "RENG-maa"
+  },
+  "Ao": {
+    "ipa": "ˈɑːoː",
+    "note": "AA-oh - the Ao Naga"
+  },
+  "Chungliyimti": {
+    "ipa": "tʃʊŋliːˈjɪmtiː",
+    "note": "chung-lee-YIM-tee - the Ao origin village of the six stones"
+  },
+  "Longterok": {
+    "ipa": "lɔŋtəˈrɔk",
+    "note": "long-tuh-ROK - the six stones"
+  },
+  "Dikhu": {
+    "ipa": "ˈdiːkʰuː",
+    "note": "DEE-khoo - the river below Chungliyimti"
+  },
+  "Makhel": {
+    "ipa": "məˈkʰeːl",
+    "note": "muh-KHAYL - the dispersal village with the pear tree"
+  },
+  "Kisama": {
+    "ipa": "kɪˈsɑːmɑː",
+    "note": "ki-SAA-maa - the Hornbill Festival's heritage village"
+  },
+  "morung": {
+    "ipa": "ˈmoːrʊŋ",
+    "note": "MOH-rung - the young people's great house"
+  },
+  "Meitei": {
+    "ipa": "ˈmeːteː",
+    "note": "MAY-tay"
+  },
+  "Sandrembi": {
+    "ipa": "sənˈdrembiː",
+    "note": "suhn-DREM-bee"
+  },
+  "Chaisra": {
+    "ipa": "ˈtʃaɪsrɑː",
+    "note": "CHEYES-raa"
+  },
+  "Khamba": {
+    "ipa": "kʰəmbɑː",
+    "note": "khuhm-baa"
+  },
+  "Thoibi": {
+    "ipa": "ˈt̪ʰɔɪbiː",
+    "note": "THOY-bee"
+  },
+  "Moirang": {
+    "ipa": "ˈmɔɪrɑːŋ",
+    "note": "MOY-raang"
+  },
+  "Nongban": {
+    "ipa": "ˈnɔŋbɑːn",
+    "note": "NONG-baan - Khamba's rich rival"
+  },
+  "Thangjing": {
+    "ipa": "ˈt̪ʰɑːŋdʒɪŋ",
+    "note": "THAANG-jing - the old god of Moirang"
+  },
+  "Khamnu": {
+    "ipa": "kʰəmnuː",
+    "note": "khuhm-noo - Khamba's sister"
+  },
+  "Kao": {
+    "ipa": "kɑːˈoː",
+    "note": "kaa-OH - the great bull"
+  },
+  "Sana": {
+    "ipa": "səˈnɑː",
+    "note": "suh-NAA"
+  },
+  "Ima": {
+    "ipa": "iːˈmɑː",
+    "note": "ee-MAA - mother - Ima Loktak"
+  },
+  "Abok": {
+    "ipa": "əˈboːk",
+    "note": "uh-BOHK - grandmother, in Meitei"
+  },
+  "Emoinu": {
+    "ipa": "eːˈmɔɪnuː",
+    "note": "ay-MOY-noo - the hearth goddess"
+  },
+  "Marjing": {
+    "ipa": "ˈmɑːrdʒɪŋ",
+    "note": "MAAR-jing - the god of horses"
+  },
+  "Samadon": {
+    "ipa": "səˈmɑːdɔn",
+    "note": "suh-MAA-don - Samadon Ayangba, the winged pony"
+  },
+  "Ayangba": {
+    "ipa": "əˈjɑːŋbɑː",
+    "note": "uh-YAANG-baa"
+  },
+  "Mapal": {
+    "ipa": "ˈmɑːpəl",
+    "note": "MAA-puhl - Mapal Kangjeibung, the oldest polo ground"
+  },
+  "Kangjeibung": {
+    "ipa": "kɑːŋdʒeɪˈbʊŋ",
+    "note": "kaang-jay-BUNG"
+  },
+  "kangjei": {
+    "ipa": "ˈkɑːŋdʒeɪ",
+    "note": "KAANG-jay - the polo stick"
+  },
+  "sagol": {
+    "ipa": "səˈɡɔl",
+    "note": "suh-GOL - the pony - sagol kangjei"
+  },
+  "pena": {
+    "ipa": "ˈpeːnɑː",
+    "note": "PAY-naa - the one-stringed Meitei fiddle"
+  },
+  "maibi": {
+    "ipa": "ˈmaɪbiː",
+    "note": "MEYE-bee - a priestess of Lai Haraoba"
+  },
+  "maibis": {
+    "ipa": "ˈmaɪbiːz",
+    "note": "MEYE-beez"
+  },
+  "phanek": {
+    "ipa": "pəneːk",
+    "note": "puh-nayk - the Meitei wrap; no accepted pʰ - plain p"
+  },
+  "phumdi": {
+    "ipa": "ˈpʊmdiː",
+    "note": "PUM-dee - the floating meadows of Loktak; no accepted pʰ"
+  },
+  "phunga": {
+    "ipa": "ˈpʊŋɡɑː",
+    "note": "PUNG-gaa - the Meitei hearth; no accepted pʰ"
+  },
+  "wari": {
+    "ipa": "ˈʋɑːriː",
+    "note": "VAA-ree - phunga wari, hearthside tales"
+  },
+  "umang": {
+    "ipa": "ʊˈmɑːŋ",
+    "note": "u-MAANG - umang lai, the grove deities"
+  },
+  "Lai": {
+    "ipa": "laɪ",
+    "note": "leye - Lai Haraoba"
+  },
+  "Haraoba": {
+    "ipa": "həˈraʊbɑː",
+    "note": "huh-ROW-baa"
+  },
+  "Ibemma": {
+    "ipa": "iːˈbemɑː",
+    "note": "ee-BE-maa"
+  },
+  "sangai": {
+    "ipa": "səŋˈɡaɪ",
+    "note": "suhng-GEYE - the dancing deer of Loktak"
+  },
+  "Keibul": {
+    "ipa": "ˈkeːbʊl",
+    "note": "KAY-bul - Keibul Lamjao, the floating park"
+  },
+  "Lamjao": {
+    "ipa": "ˈlɑːmdʒaʊ",
+    "note": "LAAM-jow"
+  },
+  "Wakching": {
+    "ipa": "ˈʋɑːktʃɪŋ",
+    "note": "VAAK-ching - the cold Meitei month"
+  },
+  "Eratpa": {
+    "ipa": "eːˈrɑːtpɑː",
+    "note": "ay-RAAT-paa - Emoinu Eratpa, the hearth-goddess day"
+  },
+  "Manipuri": {
+    "ipa": "məɳɪˈpʊriː",
+    "note": "muh-ni-PU-ree"
+  },
+  "Bomong": {
+    "ipa": "boːˈmoːŋ",
+    "note": "boh-MOHNG - the sun sister of the Adi telling"
+  },
+  "Bong": {
+    "ipa": "boːŋ",
+    "note": "bohng - her sister"
+  },
+  "Donyi": {
+    "ipa": "ˈdoːnjiː",
+    "note": "DOHN-yee - the sun - Donyi-Polo"
+  },
+  "nyok": {
+    "ipa": "njɔk",
+    "note": "nyok - the land, in Nyokum's name"
+  },
+  "nyub": {
+    "ipa": "njʊb",
+    "note": "nyub - the Nyishi priest"
+  },
+  "gangging": {
+    "ipa": "ˈɡɑːŋɡɪŋ",
+    "note": "GAANG-ging - the Donyi-Polo prayer hall"
+  },
+  "Monpa": {
+    "ipa": "ˈmoːnpɑː",
+    "note": "MOHN-paa - the Buddhist people of Tawang"
+  },
+  "Tawang": {
+    "ipa": "təˈʋɑːŋ",
+    "note": "tuh-VAANG"
+  },
+  "Mera": {
+    "ipa": "ˈmeːrɑː",
+    "note": "MAY-raa - Mera Lama, builder of Tawang monastery"
+  },
+  "Kokborok": {
+    "ipa": "ˈkɔkbɔrɔk",
+    "note": "KOK-bo-rok - the language of the Borok people"
+  },
+  "Kharchi": {
+    "ipa": "kʰərtʃiː",
+    "note": "khuhr-chee - Kharchi Puja, the week of the Fourteen Gods"
+  },
+  "Garia": {
+    "ipa": "ɡəˈriːjɑː",
+    "note": "guh-REE-yaa - the dancing god of the Tripura new year"
+  },
+  "Jamatia": {
+    "ipa": "dʒəmɑːˈtɪɑː",
+    "note": "juh-maa-TI-aa"
+  },
+  "Tripuri": {
+    "ipa": "trɪˈpʊriː",
+    "note": "tri-PU-ree"
+  },
+  "Tripuris": {
+    "ipa": "trɪˈpʊriːz",
+    "note": "tri-PU-reez"
+  },
+  "Manikya": {
+    "ipa": "ˈmɑːɳɪkjə",
+    "note": "MAA-nik-yuh - the old royal line of Tripura"
+  },
+  "Rajmala": {
+    "ipa": "rɑːdʒˈmɑːlɑː",
+    "note": "raaj-MAA-laa - the verse chronicle of the kings"
+  },
+  "Chaturdasha": {
+    "ipa": "tʃətʊrdəʃɑː",
+    "note": "chuh-tur-duh-shaa - the Fourteen Gods"
+  },
+  "Devata": {
+    "ipa": "ˈdeːʋətɑː",
+    "note": "DAY-vuh-taa"
+  },
+  "Unakoti": {
+    "ipa": "uːnəˈkoːʈiː",
+    "note": "oo-nuh-KOH-tee - one less than a crore"
+  },
+  "koti": {
+    "ipa": "ˈkoːʈiː",
+    "note": "KOH-tee - a crore"
+  },
+  "Kashi": {
+    "ipa": "ˈkɑːʃiː",
+    "note": "KAA-shee"
+  },
+  "Kallu": {
+    "ipa": "kəluː",
+    "note": "kuh-loo - the sculptor of Unakoti"
+  },
+  "Matabari": {
+    "ipa": "mɑːtɑːˈbɑːriː",
+    "note": "maa-taa-BAA-ree - the Tripura Sundari temple"
+  },
+  "Kalyan": {
+    "ipa": "kəlˈjɑːɳ",
+    "note": "kuhl-YAAN - Kalyan Sagar, the temple lake"
+  },
+  "Sagar": {
+    "ipa": "ˈsɑːɡər",
+    "note": "SAA-guhr"
+  },
+  "pera": {
+    "ipa": "ˈpeːrɑː",
+    "note": "PAY-raa - the Matabari milk sweet"
+  },
+  "Pitha": {
+    "ipa": "ˈpiːʈʰə",
+    "note": "PEE-thuh - a seat of the Goddess"
+  },
+  "Pithas": {
+    "ipa": "ˈpiːʈʰəz",
+    "note": "PEE-thuhz"
+  },
+  "Shakti": {
+    "ipa": "ʃəktiː",
+    "note": "shuhk-tee"
+  },
+  "Udaipur": {
+    "ipa": "ʊˈdaɪpʊr",
+    "note": "u-DEYE-pur - the Tripura town"
+  },
+  "Sundari": {
+    "ipa": "ˈsʊndəriː",
+    "note": "SUN-duh-ree - Tripura Sundari"
+  },
+  "Bizhu": {
+    "ipa": "ˈbiːʒuː",
+    "note": "BEE-zhoo - the Chakma new year"
+  },
+  "Chakma": {
+    "ipa": "tʃəkmɑː",
+    "note": "chuhk-maa"
+  },
+  "pajon": {
+    "ipa": "ˈpɑːdʒɔn",
+    "note": "PAA-jon - the everything-pot of Mul Bizhu"
+  },
+  "Mul": {
+    "ipa": "muːl",
+    "note": "mool - Mul Bizhu, the great day"
+  },
+  "Phool": {
+    "ipa": "puːl",
+    "note": "pool - Phool Bizhu, the flower day; no accepted pʰ"
+  },
+  "Mizo": {
+    "ipa": "ˈmiːzoː",
+    "note": "MEE-zoh"
+  },
+  "Mizos": {
+    "ipa": "ˈmiːzoːz",
+    "note": "MEE-zohz"
+  },
+  "lal": {
+    "ipa": "lɑːl",
+    "note": "laal - a Mizo chief"
+  },
+  "chapchar": {
+    "ipa": "tʃəptʃɑːr",
+    "note": "chuhp-chaar - the drying pause in the jhum year"
+  },
+  "Kut": {
+    "ipa": "kʊt",
+    "note": "kut - festival, in Mizo"
+  },
+  "cheraw": {
+    "ipa": "tʃəˈrɔː",
+    "note": "chuh-RAW - the bamboo dance"
+  },
+  "Narcondam": {
+    "ipa": "nɑːrˈkɔndəm",
+    "note": "naar-KON-duhm - the lone hornbill island"
+  },
+  "Jarawa": {
+    "ipa": "ˈdʒɑːrəʋɑː",
+    "note": "JAA-ruh-vaa"
+  },
+  "Onge": {
+    "ipa": "ˈɔŋɡeː",
+    "note": "ONG-gay"
+  },
+  "Shompen": {
+    "ipa": "ˈʃɔmpen",
+    "note": "SHOM-pen"
+  },
+  "Vijaya": {
+    "ipa": "ʋɪdʒəjə",
+    "note": "vi-juh-yuh - Sri Vijaya Puram"
+  },
+  "Puram": {
+    "ipa": "ˈpʊrəm",
+    "note": "PU-ruhm"
+  },
+  "Netaji": {
+    "ipa": "neːˈtɑːdʒiː",
+    "note": "nay-TAA-jee"
+  },
+  "Subhas": {
+    "ipa": "sʊˈbʰɑːʃ",
+    "note": "su-BHAASH"
+  },
+  "Chandra": {
+    "ipa": "tʃəndrɑː",
+    "note": "chuhn-draa"
+  },
+  "Bose": {
+    "ipa": "boːs",
+    "note": "bohs"
+  },
+  "Dweep": {
+    "ipa": "dʋiːp",
+    "note": "dveep - island"
+  },
+  "Haridas": {
+    "ipa": "hərɪˈdɑːs",
+    "note": "huh-ri-DAAS - Swami Haridas, Tansen's teacher"
+  },
+  "Ramtanu": {
+    "ipa": "rɑːmtənuː",
+    "note": "raam-tuh-noo - Tansen's boyhood name"
+  },
+  "Behat": {
+    "ipa": "ˈbeːhət",
+    "note": "BAY-huht - Tansen's village"
+  },
+  "Gwalior": {
+    "ipa": "ˈɡʋɑːliːər",
+    "note": "GVAA-lee-uhr"
+  },
+  "Rewa": {
+    "ipa": "ˈreːʋɑː",
+    "note": "RAY-vaa"
+  },
+  "Ghaus": {
+    "ipa": "ɡʰaʊs",
+    "note": "ghows - Muhammad Ghaus, Tansen's Sufi teacher"
+  },
+  "Samaroh": {
+    "ipa": "səmɑːˈroː",
+    "note": "suh-maa-ROH - the Tansen Samaroh festival"
+  },
+  "navaratnas": {
+    "ipa": "nəʋərətnəz",
+    "note": "nuh-vuh-ruht-nuhz - the nine jewels of Akbar's court"
+  },
+  "dhrupad": {
+    "ipa": "ˈd̪ʰrʊpəd",
+    "note": "DHRU-puhd"
+  },
+  "Navroz": {
+    "ipa": "nəʋˈroːz",
+    "note": "nuhv-ROHZ"
+  },
+  "Mughal": {
+    "ipa": "ˈmʊɡəl",
+    "note": "MU-guhl"
+  },
+  "semal": {
+    "ipa": "ˈseːməl",
+    "note": "SAY-muhl - the silk-cotton tree"
+  },
+  "gulmohars": {
+    "ipa": "ˈɡʊlmoːhərz",
+    "note": "GUL-moh-huhrz"
+  },
+  "Sal": {
+    "ipa": "sɑːl",
+    "note": "saal - the sal tree"
+  },
+  "kalpavriksha": {
+    "ipa": "kəlpəˈʋrɪkʂə",
+    "note": "kuhl-puh-VRIK-shuh - the wish-fulfilling tree"
+  },
+  "Sandal": {
+    "ipa": "səndəl",
+    "note": "suhn-duhl - the Sandal Bar country - not the footwear",
+    "case_sensitive": true
+  },
+  "Chemtatrawta": {
+    "ipa": null,
+    "note": "Mizo. The vowel qualities and the awt cluster cannot be read off the romanisation. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Chhura": {
+    "ipa": null,
+    "note": "Mizo. Chh- is an aspirated affricate the transcriber cannot vouch for, and the vowels are in doubt. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Chhurbura": {
+    "ipa": null,
+    "note": "Mizo, Chhura's full name. Same doubts as Chhura. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Nahaia": {
+    "ipa": null,
+    "note": "Mizo, Chhura's clever brother. The hiatus a-ia cannot be read off the spelling. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Sichangneii": {
+    "ipa": null,
+    "note": "Mizo, the winged sky-daughter. The final -eii is beyond this transcriber. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Ngaitei": {
+    "ipa": null,
+    "note": "Mizo. Initial ng- and the diphthongs are guessable but not honestly known. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Mauruangi": {
+    "ipa": null,
+    "note": "Mizo, the Cinderella-figure. The -uang- nucleus cannot be pinned from spelling. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Liandova": {
+    "ipa": null,
+    "note": "Mizo, the orphan brother. Vowel qualities in doubt. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Tuaisiala": {
+    "ipa": null,
+    "note": "Mizo, Liandova's little brother. The tuai- and -sia- nuclei are in doubt. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "tlawmngaihna": {
+    "ipa": null,
+    "note": "Mizo, the ethic of serving first. The tl- onset and aw/ai nuclei need a Mizo speaker. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "khuallam": {
+    "ipa": null,
+    "note": "Mizo, the dance of the guests. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "phunchawng": {
+    "ipa": null,
+    "note": "Mizo, the silk-cotton tree. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Tapta": {
+    "ipa": null,
+    "note": "Mizo, the frog of the tale. Looks transparent, but Mizo vowel length and tone are not readable from it. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Sohpetbneng": {
+    "ipa": null,
+    "note": "Khasi, the Navel of the Sky hill. The bn- cluster and vowels need a Khasi speaker. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "sohpet": {
+    "ipa": null,
+    "note": "Khasi: navel. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "bneng": {
+    "ipa": null,
+    "note": "Khasi: sky. The bn- onset cannot be guessed. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Lum": {
+    "ipa": null,
+    "note": "Khasi: hill. Vowel quality (lum/loom) in doubt. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Diengiei": {
+    "ipa": null,
+    "note": "Khasi, the world-shading tree. The -iei nucleus needs a Khasi speaker. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Klew": {
+    "ipa": null,
+    "note": "Khasi, the peacock. The -ew nucleus is not readable from spelling. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Ksew": {
+    "ipa": null,
+    "note": "Khasi, the dog. The ks- onset and -ew nucleus need a speaker. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Khla": {
+    "ipa": null,
+    "note": "Khasi, the tiger. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "iew": {
+    "ipa": null,
+    "note": "Khasi: market. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Hyn": {
+    "ipa": null,
+    "note": "Khasi, from Hynniew Trep, the Seven Huts. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Trep": {
+    "ipa": null,
+    "note": "Khasi: hut, from Hynniew Trep. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Behdienkhlam": {
+    "ipa": null,
+    "note": "Pnar, the plague-chasing festival of Jowai. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "beh": {
+    "ipa": null,
+    "note": "Pnar: to chase, from Behdienkhlam. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "dien": {
+    "ipa": null,
+    "note": "Pnar: stick, from Behdienkhlam. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "khlam": {
+    "ipa": null,
+    "note": "Pnar: plague, from Behdienkhlam. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Aitnar": {
+    "ipa": null,
+    "note": "Pnar, the pool where the rots are danced. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "datlawakor": {
+    "ipa": null,
+    "note": "Pnar, the wooden-ball game. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Niamtre": {
+    "ipa": null,
+    "note": "Pnar, the Pnar faith. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Jowai": {
+    "ipa": null,
+    "note": "Pnar town. Probably jo-WAI, but not known well enough to pin. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Pnar": {
+    "ipa": null,
+    "note": "The Jaintia people's autonym; the pn- onset cannot be guessed from spelling. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Jaintia": {
+    "ipa": null,
+    "note": "The anglicised district name is said many ways; the community's own reading needs a speaker. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "jingkieng": {
+    "ipa": null,
+    "note": "Khasi, the living root bridge (jingkieng jri). NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "jri": {
+    "ipa": null,
+    "note": "Khasi: rubber-fig root. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Nongriat": {
+    "ipa": null,
+    "note": "Khasi village of the double-decker bridge. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Wangala": {
+    "ipa": null,
+    "note": "Garo, the hundred-drums festival. Stress and vowels in doubt. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "nokma": {
+    "ipa": null,
+    "note": "Garo: the headman. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Saljong": {
+    "ipa": null,
+    "note": "Garo, Misi Saljong the giver. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Misi": {
+    "ipa": null,
+    "note": "Garo, part of Misi Saljong. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "chik": {
+    "ipa": null,
+    "note": "Garo, from A'chik, the hill people's autonym; the raised dot is a glottal the engine has no symbol for. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "sungkong": {
+    "ipa": null,
+    "note": "Garo, the log drum. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Twipra": {
+    "ipa": null,
+    "note": "Kokborok, the old name of Tripura. The w-vowel cannot be pinned (see Kwrwi). NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Twi": {
+    "ipa": null,
+    "note": "Kokborok: water. Same w-vowel problem as Kwrwi. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "kok": {
+    "ipa": null,
+    "note": "Kokborok: speech. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Borok": {
+    "ipa": null,
+    "note": "Kokborok: the people. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "rignai": {
+    "ipa": null,
+    "note": "Kokborok, the woven wrap. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "risha": {
+    "ipa": null,
+    "note": "Kokborok, the woven stole. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Chantai": {
+    "ipa": null,
+    "note": "Kokborok, the hereditary priests of the Fourteen Gods. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Subrai": {
+    "ipa": null,
+    "note": "Kokborok, Subrai Raja, the eldest god. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Maliku": {
+    "ipa": null,
+    "note": "Mahl, Minicoy's own name. Probably ma-li-ku, but vowel length needs a Mahl speaker. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Kine": {
+    "ipa": null,
+    "note": "Lepcha tale name (Kine Nane). Romanisation cannot be read off reliably - see Mutanchi. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Nane": {
+    "ipa": null,
+    "note": "Lepcha (Kine Nane). NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "Bwisagu": {
+    "ipa": null,
+    "note": "Bodo new year. The Bodo w-vowel (Bwisagu ~ Bwisagw) is not representable confidently. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "simolu": {
+    "ipa": null,
+    "note": "Assamese silk-cotton tree, often romanised ximolu - the initial sibilant is the Assamese x and cannot be pinned from this spelling. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "barhi": {
+    "ipa": null,
+    "note": "Assamese herb from the Goru Bihu chant; the rh cluster is not readable. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "tuhet": {
+    "ipa": null,
+    "note": "Nicobarese, the great joint household. Ethnographic romanisation - see Biliku. NEEDS A NATIVE SPEAKER.",
+    "needs_native_speaker": true
+  },
+  "aarti": {
+    "ipa": "ˈɑːrtiː",
+    "note": "AAR-tee"
+  },
+  "aangan": {
+    "ipa": "ˈɑːŋɡən",
+    "note": "AANG-guhn - courtyard"
+  },
+  "Garo": {
+    "ipa": "ˈɡɑːroː",
+    "note": "GAA-roh - the people of west Meghalaya"
+  },
+  "Sansar": {
+    "ipa": "sənˈsɑːr",
+    "note": "suhn-SAAR - Maharaja Sansar Chand of Kangra"
+  },
+  "Andrott": {
+    "ipa": "ənˈdroːt",
+    "note": "uhn-DROHT - the Lakshadweep island"
+  },
+  "Holi": {
+    "ipa": "ˈhoːliː",
+    "note": "HOH-lee"
+  },
+  "Swami": {
+    "ipa": "ˈsʋɑːmiː",
+    "note": "SVAA-mee"
+  },
+  "panchayat": {
+    "ipa": "pənˈtʃɑːjət",
+    "note": "puhn-CHAA-yuht - the village council"
+  },
+  "Panchayats": {
+    "ipa": "pənˈtʃɑːjəts",
+    "note": "puhn-CHAA-yuhts"
   }
 }

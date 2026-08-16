@@ -1264,6 +1264,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--card2); font-size: 20px; line-height: 1.7;
 }
 
+/* --- oddOneOut "listen to the length": numbered speakers, in the same order
+       as the options. Numbers, never names — a roman name here would print the
+       answer beside the question. --- */
+.hearrow { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--space-md); }
+.hearone {
+  display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  padding: 7px 13px; border-radius: var(--radius-pill);
+  border: 1px solid var(--line2); background: var(--card2);
+  font: 700 13px var(--mono); color: var(--text2);
+}
+.hearone:hover { border-color: var(--accent); color: var(--accent); }
+
 /* --- matraAttach: the sign yet to be found --- */
 .qmark {
   display: inline-grid; place-items: center; width: .9em; height: .9em;
@@ -1307,12 +1319,66 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tracesay.good { color: var(--good); font-weight: 700; }
 
 /* --- Bhasha Phase 1-2: the lesson spine and readiness --- */
+
+/* THE ARC STRIP — one tick per beat of the planned session, across the top of
+   every card in it. Introductions are the short pale ticks, the closing review
+   its own colour. It shows how much is LEFT, never how much you could lose:
+   this app has no hearts and this is the strip that replaces them. */
+.arcbar { display: flex; gap: 3px; margin: 0 0 var(--space-lg); align-items: center; }
+.arcbar i {
+  flex: 1 1 0; height: 5px; border-radius: 99px;
+  background: var(--line2); transition: background .25s ease;
+}
+/* a teaching beat is a dot, a drill is a bar: the rhythm of the strip is the
+   shape of the lesson — dot, bar, bar, dot, bar, bar, then the run home */
+.arcbar i.a-int { flex: 0 0 7px; height: 7px; border-radius: 50%; }
+.arcbar i.done { background: var(--accent); }
+.arcbar i.a-int.done { background: var(--accent); opacity: .5; }
+.arcbar i.a-rev { background: #cdd8ee; }
+.arcbar i.a-rev.done { background: #4d7fd6; }
+.arcbar i.at { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
 /* the introduce beat: the new thing shown plainly, one Got-it under it */
 .introcard { text-align: center; }
-.introcard .bigglyph { margin: 6px 0 0; }
+/* the glyph on its own soft plate — one thing on the card, unmistakably */
+.introplate {
+  margin: var(--space-lg) auto var(--space-md); width: min(172px, 46vw); aspect-ratio: 1;
+  border-radius: 50%; display: grid; place-items: center;
+  /* accent-soft is a 10% wash, which alone reads as grey — the disc is a
+     stronger mix with the wash as a halo around it */
+  background: color-mix(in srgb, var(--accent) 13%, var(--card));
+  box-shadow: 0 0 0 10px var(--accent-soft);
+}
+.introcard .bigglyph { margin: 0; font-size: clamp(64px, 19vw, 92px); }
+.introcard.smallglyph .introplate {
+  aspect-ratio: auto; width: 100%; border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md);
+}
 .introcard.smallglyph .bigglyph { font-size: clamp(22px, 5.5vw, 32px); line-height: 1.75; }
 .introsub { font-size: 17px; color: var(--text2); margin: 2px 0 0; }
 .introen { font-family: var(--display); font-size: 21px; margin: 6px 0 12px; }
+
+/* the band, worn as a place on a journey — its own quiet strip under the
+   pack meter rather than a second pill crowding the title */
+.bandrow {
+  display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap;
+  margin: var(--space-lg) 0 0; padding-top: var(--space-md);
+  border-top: 1px dashed var(--line2);
+}
+.bandrow .mono { margin: 0; }
+
+/* the placement step in onboarding: framed as the one answer that routes the
+   child, with the routing said out loud the moment it is given */
+.placebox {
+  margin-top: var(--space-xl); padding: var(--space-lg);
+  border: 1px solid var(--line2); border-radius: var(--radius-lg);
+  background: var(--card2);
+}
+.placeout {
+  margin: var(--space-lg) 0 0; padding-top: var(--space-md);
+  border-top: 1px dashed var(--line2); font-size: 14px; color: var(--text2);
+}
+.placeout b { color: var(--accent); }
 
 /* readiness chips on the path — counts straight off the SRS boxes */
 .rchips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
@@ -1325,7 +1391,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* a locked stage looks locked but stays tappable — into the test-out offer */
 .pnode.locked .pdisc { background: var(--card2); color: var(--muted); border-style: dashed; }
 .pnode.locked .pbody b { color: var(--muted); }
-.totlink { color: var(--accent); font-weight: 700; }
+/* the way through a locked rung — accented, but it must NOT inherit the
+   display-serif <b> of a stage title sitting two selectors up */
+.pnode .pbody b.totlink {
+  color: var(--accent); font-weight: 700; font-family: var(--body); font-size: inherit;
+}
 .totmini {
   border: 1.5px dashed var(--line2); background: none; border-radius: 12px;
   padding: 8px 14px; margin: 2px 0 8px 52px; font-size: 12.5px; font-weight: 700;

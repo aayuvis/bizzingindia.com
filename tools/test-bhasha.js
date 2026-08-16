@@ -452,6 +452,54 @@ var last = plDue.specs[plDue.specs.length - 1];
 ok('a due card comes back as the closing review', last.kind === 'review' && last.key === 'letter:अ',
   JSON.stringify(last));
 
+/* THE WHOLE ARC IN ONE PLAN: teach a new thing, drill THAT thing, close on
+   review. This is the shape the rebuild exists to produce, asserted whole. */
+(function () {
+  var st = fresh();
+  st.band = 2;
+  /* some ground already held, one card of it overdue, so a review is owed */
+  B.stage('hi', 's1').items.slice(0, 5).forEach(function (ch, i) {
+    st.srs['letter:' + ch] = { key: 'letter:' + ch, box: i === 0 ? 3 : 1, seen: 4,
+                               due: i === 0 ? t0 - 90000 : t0 + 9e8 };
+  });
+  var pl = B.session('hi', 's1', st, { now: t0, seed: 'arc' });
+  var intro = pl.specs.filter(function (s) { return s.kind === 'introduce'; })[0];
+  ok('the arc introduces', !!intro);
+  var drills = pl.specs.filter(function (s) { return s.kind === 'drill' && s.key === intro.key; });
+  ok('the arc drills the thing it just introduced', drills.length >= 2, 'drills=' + drills.length);
+  var types = {}; drills.forEach(function (d) { types[d.type] = 1; });
+  ok('those drills are not the same question twice', Object.keys(types).length >= 2,
+    Object.keys(types).join(','));
+  var revs = pl.specs.filter(function (s) { return s.kind === 'review'; });
+  ok('the arc closes on review of what slipped', revs.length >= 1 && revs[0].key === 'letter:अ',
+    JSON.stringify(revs.map(function (r) { return r.key; })));
+  ok('review comes last, not first',
+    pl.specs.indexOf(revs[0]) > pl.specs.indexOf(drills[drills.length - 1]));
+}());
+
+/* MISS REPLAY: a missed item re-enters the SAME session, once */
+(function () {
+  var pl = B.session('hi', 's1', fresh(), { now: t0, seed: 'replay' });
+  var n = pl.specs.length;
+  var missed = pl.specs.filter(function (s) { return s.kind === 'drill'; })[0];
+  var at = pl.specs.indexOf(missed);
+  B.replayMiss(pl, at, missed);
+  eq('a miss puts one more beat in the plan', pl.specs.length, n + 1);
+  var copies = pl.specs.filter(function (s, i) { return i > at && s.replay && s.key === missed.key; });
+  eq('the replay drills the same item, once', copies.length, 1);
+  ok('the replay lands later in the same session', pl.specs.indexOf(copies[0]) > at);
+  B.replayMiss(pl, at, missed);
+  eq('a second miss of the same beat does not breed a third copy', pl.specs.length, n + 1);
+  var introSpec = pl.specs.filter(function (s) { return s.kind === 'introduce'; })[0];
+  B.replayMiss(pl, 0, introSpec);
+  eq('an introduce beat is never replayed (it was never graded)', pl.specs.length, n + 1);
+  /* and the card itself drops a box — the other half of the rule */
+  var c = { key: 'letter:क', box: 3 };
+  SRS.review(c, false, t0);
+  eq('a missed item drops one SRS box', c.box, 2);
+  ok('and is due again within the session', c.due - t0 <= 2 * 86400000);
+}());
+
 /* TEST-OUT: six pinned questions spread across the whole ramp */
 var plT = B.session('pa', 's2', fresh(), { testout: true, seed: 'to' });
 eq('test-out plans six questions', plT.specs.length, 6);

@@ -2650,11 +2650,13 @@
     if (b !== (rec.band || 1)) { rec.band = b; rec.window = []; }
 
     /* MISS REPLAY: an item answered wrong comes back later in this same
-       session — once, a couple of beats ahead, Duolingo's in-session replay */
-    if (!ok && sp && sp.kind !== 'introduce' && !sp.replay && quiz.plan) {
-      quiz.plan.specs.splice(Math.min(quiz.pi + 3, quiz.plan.specs.length), 0,
-        { kind: 'drill', item: sp.item, key: sp.key, type: sp.type, replay: true });
-      sp.replay = true;
+       session — once, a couple of beats ahead. The rule itself lives in the
+       engine (IND_BHASHA.replayMiss) so it can be tested without a browser.
+       NOT in a test-out: that card promises six questions, and a challenge
+       that quietly grows when you miss is exactly the punishment mechanic
+       docs/09 refuses. A test-out miss simply costs the mark. */
+    if (!ok && sp && quiz.plan && quiz.mode !== 'testout') {
+      window.IND_BHASHA.replayMiss(quiz.plan, quiz.pi, sp);
     }
     save();
     if (ok) { earn(2, 'correct'); quiz.right++; }
@@ -2906,12 +2908,7 @@
         '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc.name) + '</div></div>' +
         '<span class="pill stat" style="flex:none">' + doneN + ' / ' + stages.length + '</span></div>' +
         '<div class="meter" style="margin-top:14px"><i style="width:' +
-          Math.round(doneN / Math.max(1, stages.length) * 100) + '%"></i></div>' +
-        /* The band gets its own quiet strip rather than crowding the header —
-           and it is worn as a place on a journey, never a grade or a number. */
-        '<div class="bandrow"><span class="mono">where you are</span>' +
-        '<span class="pill stat bandlbl">' +
-        esc(BAND_LABELS[Math.max(0, Math.min(4, (rec.band || 1) - 1))]) + '</span></div></div>' +
+          Math.round(doneN / Math.max(1, stages.length) * 100) + '%"></i></div></div>' +
 
       offerCard + overCard +
 
@@ -2927,6 +2924,13 @@
       '<div class="card"><h3 style="margin:0 0 4px">The path</h3>' +
         '<p class="tiny muted">The same eight rungs in every language — that is the point of ' +
         'the engine.</p>' +
+        /* The band lives WITH the path, because the path is what it paces: it
+           caps how much new arrives per sitting and how deep into the ramp
+           that new comes from. Worn as a place on a journey — never a grade,
+           never a number on screen. */
+        '<div class="bandrow"><span class="mono">where you are</span>' +
+        '<span class="pill stat bandlbl">' +
+        esc(BAND_LABELS[Math.max(0, Math.min(4, (rec.band || 1) - 1))]) + '</span></div>' +
         '<div class="path">' + stages.map(function (s, i) {
           var done = stageMastered(id, s);
           var unlocked = stageUnlocked(id, i, stages);
@@ -3125,9 +3129,23 @@
       case 'oddOneOut':
         /* q.items, not q.options — the renderer used to look only at options
            and drew zero buttons for this type. After the answer, q.why lands
-           in the feedback strip: teach, don't just mark. */
+           in the feedback strip: teach, don't just mark.
+           LEAK FIX: the roman name is printed for the family and kind cuts,
+           where it names a sound and not the answer — but NEVER for 'length',
+           where "aa" beside three "a/u/ri" spells the odd one out in Latin
+           before the child has looked at a single letter. */
         prompt = q.prompt || 'Which one does not belong?';
-        subFor = function (o) { return o.name; };
+        subFor = q.strategy === 'length' ? null : function (o) { return o.name; };
+        /* …and "listen to the length" then has to be listenable: a row of
+           numbered speakers in the SAME order as the options, so the sound is
+           available without any text naming it. */
+        if (q.strategy === 'length') {
+          lead = '<div class="hearrow">' + (q.items || []).map(function (o, i) {
+            return '<button class="hearone" data-act="say" data-k="' + esc(o.audio || '') +
+              '" data-t="' + esc(o.char) + '" data-l="' + esc(packLang()) + '" ' +
+              'aria-label="hear sound ' + (i + 1) + '">' + icon('sound', 15) + (i + 1) + '</button>';
+          }).join('') + '</div>';
+        }
         break;
       case 'barakhadi':
         /* The full row is the teaching context; the question is to FIND the

@@ -2805,6 +2805,24 @@ function session(packId, stageId, st, opts) {
            say: sessionSay(stage, intro.length, midN, reviewN) };
 }
 
+/* MISS REPLAY — an item answered wrong comes back inside the SAME session,
+   once, a couple of beats ahead: long enough that it is recall and not echo,
+   soon enough that the child leaves having got it right. The replayed beat is
+   flagged so a second miss does not breed a third copy, and an introduce beat
+   is never replayed (it was not graded). Returns the plan, mutated, so the
+   caller can splice-in-place; returns it untouched when nothing is owed.
+
+   It lives here rather than in the app because it is a rule of the lesson, and
+   because a rule of the lesson should be testable without a browser. */
+function replayMiss(plan, pi, spec, gap) {
+  if (!plan || !plan.specs || !spec) return plan;
+  if (spec.kind === 'introduce' || spec.replay) return plan;
+  var at = Math.min(pi + (gap || 3), plan.specs.length);
+  plan.specs.splice(at, 0, { kind: 'drill', item: spec.item, key: spec.key, type: spec.type, replay: true });
+  spec.replay = true;                      /* this beat has had its second chance */
+  return plan;
+}
+
 /* READINESS — what the pack page paints per stage, straight off the boxes:
    box 0 unseen → new · box 0 seen and 1–2 → learning · 3–4 → review ·
    5 → mastered. */
@@ -2863,6 +2881,7 @@ W.IND_BHASHA = {
   nextQuestion: nextQuestion,
   srsItems: srsItems,
   session: session,        /* the planned lesson arc (Phase 1) */
+  replayMiss: replayMiss,  /* a missed item comes back in the same session */
   bandStep: bandStep,      /* climb fast, fall slow */
   readiness: readiness,    /* per-stage new/learning/review/mastered counts */
 

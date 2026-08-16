@@ -752,15 +752,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
   color: var(--accent2); font-size: 12px;
 }
 
-/* ------------------------------------------------------------- EPIC DECK
-   One beat per card, a page-turn each time. No score, no timer, no quiz. */
-.deckcard {
-  position: relative; background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
-  padding: var(--space-2xl) var(--space-xl) var(--space-xl);
-  min-height: 260px; display: grid; gap: var(--space-lg); align-content: start;
-  animation: turn .26s ease-out;
-}
 /* A heads-up, not a lock. Deliberately quiet — it must not read as a warning label or as a
    thing withheld, because nothing is withheld. */
 .badge.soft { background: var(--ground2); color: var(--muted); border: 1px solid var(--line); }
@@ -781,49 +772,61 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .eprow > .epbody > .spread b { font-family: var(--display); font-size: 16.5px; line-height: 1.3; }
 @media (max-width: 480px) { .eprow .epth { width: 72px; height: 54px; } }
 
-/* One painting per card, sitting above its text. 16:9 rather than a letterbox strip, because
-   these are full scenes and cropping them to a band throws away the composition the painting
-   was built around. */
+/* ------------------------------------------------------------- the deck --
+   One card: its painting, who is speaking, the words, and the way onward. The art is INSIDE
+   the card rather than floating above it — as two separate blocks they never quite lined up
+   and left a dead white band between picture and text. */
+.deckhead {
+  display: flex; align-items: baseline; gap: var(--space-md);
+  margin-bottom: 6px;
+}
+.deckhead .mono {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.deckhead .deckn { font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; }
+
+.deckcard {
+  position: relative; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
+  overflow: hidden; animation: turn .26s ease-out;
+}
+.deckcard.hasart .deckbody { padding-top: var(--space-lg); }
+.deckbody { padding: var(--space-xl); display: grid; gap: var(--space-lg); }
+
 .deckart {
-  aspect-ratio: 16 / 9; max-height: 46vh; overflow: hidden;
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  box-shadow: var(--shadow-lg); position: relative; z-index: 1;
-  background: var(--ground2);
+  width: 100%; overflow: hidden; background: var(--ground2);
+  /* Height, not aspect-ratio: with aspect-ratio a max-height makes the browser resolve the
+     whole box from the height, so the picture shrank in WIDTH too and left half the card
+     blank. An explicit responsive height keeps it full-bleed at every size, and stops a
+     16:9 painting being 600px tall on a desktop with the words below the fold. */
+  height: clamp(190px, 30vw, 360px);
 }
 .deckart img {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  animation: turn .3s ease-out;
+  /* A little over-scan: several paintings carry a painted border of their own, and inside
+     the card's own rounded frame that read as a frame within a frame. */
+  transform: scale(1.08);
 }
-/* A dark scrim at the join so the card's top edge never fights the painting under it. */
-.deckart::after {
-  content: ''; position: absolute; inset: auto 0 0 0; height: 42%;
-  background: linear-gradient(to bottom, transparent, var(--card));
-  pointer-events: none;
-}
-.deckcard.under {
-  border-radius: 0 0 var(--radius-xl) var(--radius-xl); border-top: 0;
-  margin-top: -1px; padding-top: var(--space-xl);
-}
-/* The stacked-deck edges belong to the card, so with art above they only show below it. */
-.deckcard.under::before, .deckcard.under::after { top: auto; }
 
-/* the two cards behind, so it reads as a deck you are moving through */
-.deckcard::before, .deckcard::after {
-  content: ''; position: absolute; left: 14px; right: 14px; bottom: -7px; height: 22px;
-  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl); z-index: -1;
+/* Speaker sits with the words, small and to the left, not stranded above them. */
+.whorow { display: flex; align-items: center; gap: var(--space-md); }
+.whorow img, .whorow svg { flex: none; }
+.whorow .whoname {
+  font-family: var(--display); font-weight: 800; font-size: 16px; color: var(--accent);
 }
-.deckcard::after { left: 26px; right: 26px; bottom: -13px; opacity: .65; }
-.deckcard .who { display: grid; place-items: center; gap: 4px; }
-/* The speaker's name under the face. Thirty new characters is a lot, and Vibhishana and
-   Sugriva are not tellable apart from their portraits the first time. */
-.deckcard .whoname {
-  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--muted);
-}
+
+/* Left-aligned and measured. Long centred paragraphs are genuinely harder to read, and a
+   card can run to sixty words. */
 .deckcard p {
-  font-size: 19px; line-height: 1.62; color: var(--text); margin: 0;
-  max-width: 46ch; justify-self: center; text-align: center;
+  font-size: 19px; line-height: 1.66; color: var(--text); margin: 0; max-width: 60ch;
 }
+.deckbar { display: flex; gap: var(--space-sm); align-items: center; }
+
+@media (max-width: 560px) {
+  .deckbody { padding: var(--space-lg); }
+  .deckcard p { font-size: 17.5px; }
+}
+
 @keyframes turn { from { opacity: 0; transform: translateX(14px) } }
 @keyframes rise { from { opacity: 0; transform: translateY(10px) } }
 @media (max-width: 560px) { .deckcard p { font-size: 17.5px; } }
@@ -832,3 +835,27 @@ button, input, select, textarea { font: inherit; color: inherit; }
    open, unfinished — rather than as the boxed "moral of the story" a fable ends on. */
 .wonder { border-left: 4px solid var(--accent2); background: var(--ground2); }
 .wonder p { font-size: 17px; line-height: 1.6; max-width: 52ch; }
+
+/* WHO IS IN THIS ONE — the episode's cast as a scrolling strip under the picture. A child
+   meeting thirty new names needs faces to hang them on; this is where "Vibhishana" stops
+   being a word. The speaker of the current card is lit. */
+.castrow {
+  display: flex; gap: var(--space-md); overflow-x: auto; padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--line); background: var(--ground2);
+  scrollbar-width: none;
+}
+.castrow::-webkit-scrollbar { display: none; }
+.castchip {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  flex: none; width: 60px; opacity: .55; transition: opacity .2s;
+}
+.castchip b {
+  font-size: 10.5px; line-height: 1.2; text-align: center; color: var(--text2);
+  font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
+/* Lit, not merely darker — the speaking character should be findable at a glance. */
+.castchip.on { opacity: 1; }
+.castchip.on b { color: var(--accent); }
+.castchip.on img, .castchip.on svg {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 50%;
+}

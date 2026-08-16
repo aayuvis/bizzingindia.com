@@ -201,7 +201,28 @@
     if (window.IND_VOICE && window.IND_VOICE.indexOf(key) < 0) return;
     try { if (audio) audio.pause(); audio = new Audio('voice/' + key + '.mp3'); audio.play().catch(function () {}); } catch (e) {}
   }
-  function stopAudio() { if (audio) { audio.pause(); audio = null; } }
+  function stopAudio() {
+    if (audio) { audio.pause(); audio = null; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  }
+
+  /* Read something aloud, whether or not a recorded clip exists yet.
+     The bundled MP3 is always preferred: it is US English with SSML phoneme tags so Indian
+     names are said properly, which the browser's own voice will not do. But a "read it to
+     me" button that silently does nothing is worse than a slightly wrong pronunciation, and
+     686 epic cards narrate over hours — so the browser voice covers the gap and the clip
+     takes over the moment it lands. */
+  function readAloud(key, text) {
+    if (!soundOn) return;
+    if (key && window.IND_VOICE && window.IND_VOICE.indexOf(key) >= 0) return speak(key);
+    if (!text || !window.speechSynthesis) return;
+    try {
+      stopAudio();
+      var u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.92; u.lang = 'en-US';
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
 
   /* =================================================================== VIEWS */
   var V = {};
@@ -1608,33 +1629,58 @@
        lazily so turning to card three never costs the other eleven. */
     var epArt = epicArt(e.id, ep.n, deck.i);
 
+    /* WHO IS SPEAKING. `who` is null on narrated beats — most of them, because the epics
+       deliberately keep the principals in the storyteller's voice rather than borrow a wrong
+       face. The old card filled that null with the EPIC's avatar, so every narrated card put
+       Rama's portrait above words Rama is not saying. A narrated card now carries no
+       portrait at all; the storyteller is a voice, not a character. */
+    var vk = cardVoice(e.id, ep.n, deck.i);
+    var speakerArt = who === 'mithu' ? mascot('mithu', 'talk', 56) : speaker ? art(speaker, 56) : '';
+    var speakerLabel = who === 'mithu' ? 'Mithu' : (speaker ? avatarName(speaker) : '');
+
+    /* WHO IS IN THIS ONE. A strip of the episode's cast, always visible, with the speaker of
+       the current card lit up. A child meeting thirty new names needs faces to hang them on,
+       and this is where "Vibhishana" stops being a word and becomes somebody. Absent cast
+       members simply do not appear, so it fills in as the avatars are painted. */
+    var cast = (ep.cast || []).filter(function (id) {
+      return (window.IND_AVATAR_ART || {})[id] || (window.IND_AVATAR || {})[id];
+    });
+
     return '<button class="backlink" data-act="epic" data-id="' + e.id + '">' + icon('back', 18) + ' ' + esc(e.title) + '</button>' +
-      '<div class="spread" style="margin-bottom:12px">' +
-      '<span class="mono">' + esc(ep.title) + ' · ' + (deck.i + 1) + ' of ' + ep.cards.length + '</span>' +
-      '<div class="dots">' + ep.cards.map(function (_, i) { return '<i class="' + (i <= deck.i ? 'on' : '') + '"></i>'; }).join('') + '</div></div>' +
-      (epArt ? '<div class="deckart"><img src="' + epArt + '" alt="" loading="lazy"></div>' : '') +
-      '<div class="deckcard' + (epArt ? ' under' : '') + '">' +
-        /* Who is talking, by name as well as by face. A portrait alone is no use to a child
-           meeting thirty new characters — Vibhishana and Sugriva are not tellable apart from
-           their pictures the first time. `who` is null on narrated beats, and then the card
-           is simply the storyteller's voice with no name attached. */
-        '<div class="who">' +
-          (who === 'mithu' ? mascot('mithu', 'talk', 76) : speaker ? art(speaker, 84) : art(e.avatar, 84)) +
-          (speaker && avatarName(speaker)
-            ? '<span class="whoname">' + esc(avatarName(speaker)) + '</span>' : '') +
-        '</div>' +
-        '<p>' + esc(c.text) + '</p>' +
-        /* Read it to me. The whole app is audio-first for a reason — a child of four cannot
-           read this and a child of nine still wants it read. */
-        (hasVoice(cardVoice(e.id, ep.n, deck.i))
-          ? '<div class="row" style="justify-content:center">' +
-            '<button class="btn ghost sm" data-act="say" data-k="' + cardVoice(e.id, ep.n, deck.i) + '">' +
-            icon('sound', 16) + ' Read it to me</button></div>'
-          : '') +
+      /* Title and counter on their own line: at 430px the counter used to wrap under the
+         title and collide with the dots. */
+      '<div class="deckhead">' +
+        '<span class="mono">' + esc(ep.title) + '</span>' +
+        '<span class="deckn">' + (deck.i + 1) + ' / ' + ep.cards.length + '</span>' +
       '</div>' +
-      '<div class="row" style="margin-top:14px">' +
-      (deck.i > 0 ? '<button class="btn ghost" data-act="cardback">' + icon('back', 18) + '</button>' : '') +
-      '<button class="btn" style="flex:1" data-act="cardnext">' + (deck.i === ep.cards.length - 1 ? 'End of episode →' : 'Turn the page →') + '</button>' +
+      '<div class="dots">' + ep.cards.map(function (_, i) { return '<i class="' + (i <= deck.i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
+
+      '<div class="deckcard' + (epArt ? ' hasart' : '') + '">' +
+        (epArt ? '<div class="deckart"><img src="' + epArt + '" alt="" loading="lazy"></div>' : '') +
+        (cast.length
+          ? '<div class="castrow">' + cast.map(function (id) {
+              return '<span class="castchip' + (id === who ? ' on' : '') + '">' +
+                art(id, 40) + '<b>' + esc(avatarName(id) || id) + '</b></span>';
+            }).join('') + '</div>'
+          : '') +
+        '<div class="deckbody">' +
+          (speakerArt
+            ? '<div class="whorow">' + speakerArt +
+              (speakerLabel ? '<span class="whoname">' + esc(speakerLabel) + '</span>' : '') +
+              '</div>'
+            : '') +
+          '<p>' + esc(c.text) + '</p>' +
+          '<div class="deckbar">' +
+            (deck.i > 0 ? '<button class="iconbtn" data-act="cardback" aria-label="Back">' + icon('back', 20) + '</button>' : '') +
+            /* Always present. The app is audio-first on purpose — a four-year-old cannot read
+               a card and a nine-year-old still wants it read — so this never depends on
+               whether the recording has landed yet. */
+            '<button class="iconbtn" data-act="readcard" aria-label="Read it to me">' +
+              icon('sound', 20) + '</button>' +
+            '<button class="btn" style="flex:1" data-act="cardnext">' +
+              (deck.i === ep.cards.length - 1 ? 'End of episode →' : 'Turn the page →') + '</button>' +
+          '</div>' +
+        '</div>' +
       '</div>';
   };
 
@@ -2150,6 +2196,13 @@
     /* Tapping a state on the map shows its facts in place rather than navigating away —
        the map is for browsing, and being thrown into a full page on every touch is what
        stopped it being browsable. Tapping the same state again closes the panel. */
+    if (a === 'readcard') {
+      var re = epicById(deck.epic);
+      var rep = re && re.episodes.filter(function (x) { return x.n === deck.n; })[0];
+      var rc = rep && rep.cards[deck.i];
+      if (rc) readAloud(cardVoice(re.id, rep.n, deck.i), rc.text);
+      return;
+    }
     if (a === 'peek') {
       var pc = t.getAttribute('data-code');
       mapFocus = (mapFocus === pc) ? null : pc;

@@ -118,7 +118,7 @@ def _wrap(m):
     hit = ' '.join(m.group(1).split())
     if CASE_STRICT.get(hit.lower(), hit) != hit:
         return m.group(0)                     # right spelling, wrong case: leave it alone
-    ipa = LEX[' '.join(m.group(1).split()).lower()]
+    ipa = LEX[hit.lower()]
     if m.group(2):
         ipa += possessive_suffix(ipa)
     # m.group(0) is the already-escaped source text: the spelling stays on screen
@@ -133,7 +133,7 @@ def to_ssml(text):
 # --------------------------------------------------------------- audit ------
 
 _PHONEME_RE = re.compile(r'<phoneme[^>]*>.*?</phoneme>', re.DOTALL)
-_WORD_RE = re.compile(r"[A-Za-z][A-Za-z'’’-]*")
+_WORD_RE = re.compile(r"[A-Za-z][A-Za-z'’-]*")
 _ENTITY_RE = re.compile(r'&(?:amp|lt|gt|quot|apos|#39);')
 
 

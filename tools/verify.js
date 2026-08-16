@@ -27,6 +27,7 @@ const ARG_VIEWS = {
   state: 'window.IND_MAP && Object.keys(window.IND_MAP.paths)',
   story: 'window.BI.allStories ? window.BI.allStories().map(function(s){return s.id}) : []',
   kahani: 'window.BI.storyThemes ? window.BI.storyThemes() : []',
+  avcard: '(window.IND_AVATAR_PACKS || []).reduce(function(o,p){return o.concat(p.ids)},[])',
   era: 'window.IND_ITIHAAS && window.IND_ITIHAAS.eras.map(function(e){return e.id})',
   faith: 'window.IND_DHARMA && window.IND_DHARMA.faiths.map(function(f){return f.id})',
   value: 'window.IND_NEETI && window.IND_NEETI.values.map(function(v){return v.id})',

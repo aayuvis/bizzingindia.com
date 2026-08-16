@@ -190,17 +190,53 @@
       'All of them</button></div>';
   }
 
-  /* one avatar chip, graded by rarity */
-  function chip(id, size) {
+  /* one avatar chip. Rarity is paused (see avatars.js), so no tier label; the
+     act is a parameter because onboarding picks directly while the Me page
+     opens the companion's card first. */
+  function chip(id, size, act) {
     var r = window.IND_RARITY_OF ? window.IND_RARITY_OF(id) : 'free';
     var meta = (window.IND_RARITY || {})[r] || {};
     return '<button class="avchip' + (S.buddy === id ? ' on' : '') + '" data-rar="' + r +
-      '" data-act="pick" data-id="' + id + '" title="' + esc(meta.label || '') + '">' +
+      '" data-act="' + (act || 'pick') + '" data-id="' + id + '" title="' + esc(meta.label || '') + '">' +
       art(id, size) +
       '<span>' + esc((window.IND_AVATAR_NAMES || {})[id] || id) + '</span>' +
       (r !== 'free' ? '<span class="rarlabel">' + esc(meta.label || r) + '</span>' : '') +
       '</button>';
   }
+
+  /* ------------------------------------------------------------ AVATAR CARD */
+  /* The Bee's trading-card layer, in this house's voice (avatar-cards.js has
+     the data and the design notes). One deliberate difference from the Bee:
+     sacred figures carry no numbers — their card says 'beyond measure'.
+     Every card wears the same glow-in-the-dark finish; rarity is paused. */
+  V.avcard = function (id) {
+    var name = (window.IND_AVATAR_NAMES || {})[id] || id;
+    var C = window.IND_AV_CARD ? window.IND_AV_CARD(id) : null;
+    var mine = S.buddy === id;
+    var statRows = '';
+    if (C && C.stats) {
+      statRows = (window.IND_AV_STAT_KEYS || []).map(function (k) {
+        var v = C.stats[k[0]] || 0;
+        return '<div class="avstat"><span class="avlbl">' + k[1] + ' ' + esc(k[2]) + '</span>' +
+          '<span class="avbar"><i style="width:' + v + '%"></i></span>' +
+          '<b>' + v + '</b></div>';
+      }).join('');
+    } else if (C && C.sacred) {
+      statRows = '<div class="avbeyond">beyond measure</div>';
+    }
+    return '<button class="backlink" data-act="go" data-v="me">' + icon('back', 18) + ' Back</button>' +
+      '<div class="avcardwrap"><div class="avcard' + (C && C.sacred ? ' sacred' : '') + '">' +
+        '<div class="avhalo">' + art(id, 148) + '</div>' +
+        '<h1>' + esc(name) + '</h1>' +
+        (C && C.title ? '<div class="mono avtitle">' + esc(C.title) + '</div>' : '') +
+        (C && C.lore ? '<p class="avlore">' + esc(C.lore) + '</p>' : '') +
+        statRows +
+        (C && C.fact ? '<div class="avfact"><b>Did you know?</b> ' + esc(C.fact) + '</div>' : '') +
+        (mine
+          ? '<span class="pill stat" style="margin-top:14px">Travelling with you ✓</span>'
+          : '<button class="btn lg" style="margin-top:14px" data-act="pick" data-id="' + id + '">Travel with me</button>') +
+      '</div></div>';
+  };
 
   /* Stories arrive one file at a time and the library only ever grows, so each source is
      folded in defensively — a file that has not loaded yet costs an empty array, not a
@@ -2631,10 +2667,11 @@
       '<span class="pill stat">' + esc(rank()) + '</span>' +
       '<span class="pill stat">' + Object.keys(S.lit).length + ' places</span>' +
       '<span class="pill stat">' + Object.keys(S.read).length + ' stories</span></div></div></div></div>' +
-      '<div class="card"><h3>Who travels with you</h3>' + packs.map(function (p) {
+      '<div class="card"><h3>Who travels with you</h3>' +
+      '<p class="tiny muted">Tap anyone to see their card.</p>' + packs.map(function (p) {
         return '<div class="tiny muted" style="margin:14px 0 8px;font-weight:700">' + esc(p.name) + ' — ' + esc(p.note) + '</div>' +
           '<div class="grid g4">' + p.ids.map(function (id) {
-            return chip(id, 74);
+            return chip(id, 74, 'avcard');
           }).join('') + '</div>';
       }).join('') + '</div>' +
       '<button class="tile" style="margin-bottom:var(--space-lg)" data-act="go" data-v="worlds">' +
@@ -2768,6 +2805,7 @@
       case 'faith': h = V.faith(view.arg); break;
       case 'worlds': h = V.worlds(); break;
       case 'tongue': h = V.tongue(); break;
+      case 'avcard': h = V.avcard(view.arg); break;
       case 'me': h = V.me(); break;
       default: h = V.home();
     }
@@ -2790,7 +2828,7 @@
                   game: 'khel', mela: 'khel', play: 'khel', rishtey: 'khel', rishquiz: 'khel',
                   nani: 'stories', shelf: 'stories', invite: 'stories', kahani: 'stories',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
-                  worlds: 'me', tongue: 'home' };
+                  worlds: 'me', tongue: 'home', avcard: 'me' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
@@ -3044,6 +3082,7 @@
     if (a === 'pack')   { quiz = { packId: null, stage: null, q: null, done: 0, right: 0 }; return go('pack', t.getAttribute('data-id')); }
     if (a === 'game')   return go('game', t.getAttribute('data-id'));
     if (a === 'kahani') return go('kahani', t.getAttribute('data-id'));
+    if (a === 'avcard') return go('avcard', t.getAttribute('data-id'));
     if (a === 'quiz')   {
       quiz.stage = t.getAttribute('data-s') || quiz.stage;
       quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now());

@@ -670,6 +670,13 @@ window.IND_RARITY = {
 };
 window.IND_RARITY_SACRED_FLAT = false;
 
+/* RARITY IS PAUSED (user call, and the docs/05 note above finally acted on):
+   no Rare, no Epic, no Legendary for now — every companion is equally yours,
+   and every card gets the same glow-in-the-dark finish instead of a tier.
+   The grading table above is kept intact so un-pausing is one flag, and the
+   kauri prices stay dormant with it. */
+window.IND_RARITY_PAUSED = true;
+
 window.IND_AVATAR_RARITY = {
   /* Devas — matched to Bizzing Bee's own grading of the same figures */
   ganesha:'legendary', krishna:'legendary', shiva:'legendary', durga:'legendary',
@@ -705,6 +712,7 @@ window.IND_AVATAR_RARITY = {
 };
 
 window.IND_RARITY_OF = function (id) {
+  if (window.IND_RARITY_PAUSED) return 'free';
   var r = window.IND_AVATAR_RARITY[id] || 'free';
   if (window.IND_RARITY_SACRED_FLAT) {
     var devas = (window.IND_AVATAR_PACKS || []).filter(function (p) { return p.id === 'devas'; })[0];

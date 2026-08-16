@@ -776,6 +776,21 @@ PROMPTS = {
         "white star shaped faintly like a running horse. No writing, no signboards, no "
         "ribbons or scrolls anywhere in the scene."),
 
+    # Same banner disease as ny.flipkart: the prose's bank name and membership number
+    # keep coming back as signage and a floral numeral. Tesseract reads none of it —
+    # decorative script defeats the OCR sweep, so this class of failure is caught by
+    # eye. Hand-composed, nothing shaped like a place for words or numbers.
+    "rah.ela": p(
+        "an Ahmedabad courtyard in the 1970s, evening light: working women — load "
+        "carriers with their head-bundles set down at the edge, vegetable sellers with "
+        "their baskets, papad rollers with round trays — seated in a wide circle under "
+        "a neem tree, passing small stitched cloth pouches from hand to hand with great "
+        "care, coins and folded notes visible in an open brass bowl at the centre beside "
+        "one lit oil lamp. Among them, part of the circle and not above it, a gentle "
+        "older woman in a plain white khadi sari with round spectacles. Riverside light, "
+        "marigolds, a sleeping cat, painted birds in the neem branches. No lettering, "
+        "no signboards, no numerals anywhere in the scene."),
+
     "fk.abotani-rice": p(
         "an Arunachal Pradesh hillside at harvest, first light on the mountains: a "
         "bamboo house on stilts with a thatched roof, terraced rice fields dropping away "

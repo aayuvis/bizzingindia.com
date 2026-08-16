@@ -1502,6 +1502,9 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     render();
-    window.BI = { S: S, go: go, render: render, Store: Store };
+    // Also the handle tools/verify.js drives the app by, so the headless walk exercises the
+    // real navigation rather than a parallel test path.
+    window.BI = { S: S, go: go, render: render, Store: Store,
+                  allStories: allStories, epics: epics };
   });
 })();

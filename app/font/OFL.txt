@@ -1,0 +1,9 @@
+The typefaces in this directory are redistributed under the SIL Open Font License 1.1:
+
+  Fraunces        — Undercase Type / Flavia Zimbardi, Phaedra Charles
+  Hanken Grotesk  — Alfredo Marco Pradil
+  Space Mono      — Colophon Foundry for Google Design
+  Mukta           — Ek Type
+
+Full licence text: https://openfontlicense.org/open-font-license-official-text/
+Sources: https://fonts.google.com/

@@ -77,6 +77,12 @@
     return fn ? fn(mood).replace('<svg', '<svg width="' + (size || 76) + '" height="' + (size || 76) + '"') : '';
   }
 
+  /* the hero painting for a story, when one exists */
+  function storyArt(id) {
+    var k = slug(id);
+    return (window.IND_STORY_ART && window.IND_STORY_ART.indexOf(k) >= 0) ? 'art/story/' + k + '.jpg' : null;
+  }
+
   /* one avatar chip, graded by rarity */
   function chip(id, size) {
     var r = window.IND_RARITY_OF ? window.IND_RARITY_OF(id) : 'free';
@@ -247,7 +253,7 @@
         metric('var(--accent3)', 'Stories', S.todayCount, S.goal) +
         metric('var(--good)', 'Places lit', lit, 34) +
         metric('var(--accent)', 'Words', wordsN, 20) +
-        '<div class="bar" style="margin-top:12px"><i style="width:' +
+        '<div class="meter" style="margin-top:12px"><i style="width:' +
           Math.min(100, Math.round(S.todayCount / S.goal * 100)) + '%"></i></div>' +
         '<div class="tiny muted" style="margin-top:8px">🪔 ' + S.streak.count + '-day streak · ' +
         esc(rank()) + ' · Lv ' + (lv + 1) + '</div>' +
@@ -267,7 +273,7 @@
         '<button class="journey" data-act="go" data-v="stories">' +
           '<div class="banner" style="background-image:url(art/banner/stories.jpg)">' +
             '<span class="chip">' + icon('tree', 20) + '</span>' +
-            '<span class="tag">' + readN + ' of ' + totalStories + ' told</span></div>' +
+            '<span class="tag">' + totalStories + ' stories</span></div>' +
           '<div class="body"><div class="tiny muted">Next on your yatra</div>' +
           '<h2 style="margin:2px 0 6px">Under the Banyan</h2>' +
           '<p class="tiny" style="margin:0 0 14px">Panchatantra · Akbar &amp; Birbal · the great stories — each one with a choice to make in the middle.</p>' +
@@ -280,7 +286,7 @@
           '<div class="body"><div class="tiny muted">Your long journey</div>' +
           '<h2 style="margin:2px 0 6px">The Great Forgetting</h2>' +
           '<p class="tiny" style="margin:0 0 14px">Vismriti is eating India’s memory. Every story you finish pushes the grey back off one more place.</p>' +
-          '<div class="bar"><i style="width:' + Math.round(lit / 34 * 100) + '%"></i></div></div></button>' +
+          '<div class="meter"><i style="width:' + Math.round(lit / 34 * 100) + '%"></i></div></div></button>' +
       '</div>' +
 
       /* the two nugget cards */
@@ -297,8 +303,10 @@
 
       /* the rest of the map */
       '<div class="grid g2" style="margin-top:var(--space-lg)">' +
-        [['bhasha', 'Bhasha', 'Hindi · Punjabi', 'Real script from day one, on one engine that will take every Indian language.'],
-         ['mela', 'The Mela', '4 stalls open', 'Rangoli Rush, State Hunt, Festival Frenzy and Jataka Jump.']]
+        [['neeti', 'Neeti', '12 values', 'The values the stories carry — and one small thing to actually do.'],
+         ['bhasha', 'Bhasha', 'Hindi · Punjabi', 'Real script from day one, on one engine that will take every Indian language.'],
+         ['learn', 'Learn', 'Map · Itihaas · Dharma', 'The map, the centuries and the faiths.'],
+         ['play', 'Play', '5 stalls open', 'Rangoli Rush, State Hunt, Festival Frenzy, Jataka Jump and Rishtey.']]
         .map(function (c) {
           return '<button class="tile" data-act="go" data-v="' + c[0] + '">' +
             '<div class="spread"><h3 style="margin:0">' + c[1] + '</h3><span class="pill stat tiny">' + c[2] + '</span></div>' +
@@ -320,7 +328,7 @@
             '<div style="margin:6px 0">' + mascot('gattu', i === lv ? 'wow' : 'happy', 46) + '</div>' +
             '<div class="nm">' + esc(r) + '</div></div>';
         }).join('') + '</div>' +
-        '<div class="bar" style="margin-top:12px"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="meter" style="margin-top:12px"><i style="width:' + pct + '%"></i></div>' +
       '</div>';
   };
 
@@ -385,20 +393,35 @@
   /* --------------------------------------------------------------- STORIES */
   V.stories = function () {
     var cols = allCollections(), all = allStories();
-    return '<div class="card"><h1>The Story Tree</h1>' +
-      '<p>Every story you finish lifts the mist off the place it came from.</p></div>' +
+    var favs = S.favs || {};
+    var loved = all.filter(function (x) { return favs[x.id]; });
+
+    function shelf(title, note, list) {
+      if (!list.length) return '';
+      return '<h3 style="margin:26px 0 4px">' + esc(title) + '</h3>' +
+        (note ? '<p class="tiny muted" style="margin:0 0 12px">' + esc(note) + '</p>' : '') +
+        '<div class="rail">' + list.map(card).join('') + '</div>';
+    }
+    function card(x) {
+      var img = storyArt(x.id);
+      return '<button class="scard" data-act="story" data-id="' + x.id + '">' +
+        (img ? '<span class="pic" style="background-image:url(' + img + ')"></span>'
+             : '<span class="pic noart">' + art(x.hero, 84) + '</span>') +
+        (favs[x.id] ? '<span class="fav">♥</span>' : '') +
+        '<span class="nm">' + esc(x.title) + '</span>' +
+        '<span class="hk">' + esc(x.hook) + '</span></button>';
+    }
+
+    return '<div class="card"><div class="spread"><div>' +
+      '<h1 style="margin:0">Stories</h1>' +
+      '<p style="margin:6px 0 0">' + all.length + ' of them, and more coming. Nothing to finish, ' +
+      'nothing to get right — you can have the same one again tomorrow.</p></div></div>' +
+      '<button class="btn lg" style="margin-top:14px" data-act="tellone">' + icon('play', 20) +
+      ' Tell me one</button></div>' +
+
+      shelf('Again', 'The ones you loved. A story is not used up.', loved) +
       cols.map(function (c) {
-        return '<div class="card"><div class="row" style="margin-bottom:14px;flex-wrap:nowrap">' + art(c.avatar, 62) +
-          '<div><h2 style="margin:0">' + esc(c.name) + '</h2><div class="tiny muted">' + esc(c.note) + '</div></div></div>' +
-          '<div class="grid g2">' + all.filter(function (s) { return s.collection === c.id; }).map(function (s) {
-            return '<button class="tile" data-act="story" data-id="' + s.id + '">' +
-              '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(s.hero, 58) +
-              '<div style="flex:1"><span class="badge ' + s.badge + '">' + s.badge + '</span>' +
-              (S.read[s.id] ? ' <span class="badge aaj">✓ read</span>' : '') +
-              '<div style="font-family:var(--display);font-weight:800;font-size:17px;margin:6px 0 3px">' + esc(s.title) + '</div>' +
-              '<div class="tiny muted">' + esc(s.hook) + '</div>' +
-              '<div class="mono" style="margin-top:6px">' + s.minutes + ' min</div></div></div></button>';
-          }).join('') + '</div></div>';
+        return shelf(c.name, c.note, all.filter(function (x) { return x.collection === c.id; }));
       }).join('');
   };
 
@@ -411,10 +434,11 @@
     if (play.i >= st.scenes.length) return V.storyEnd(st);
 
     var sc = st.scenes[play.i], cast = (sc.art || []).slice(0, 2), teller = sc.who === 'mithu';
+    var img = storyArt(st.id);
     return '<button class="backlink" data-act="go" data-v="stories">' + icon('back', 18) + ' Stories</button>' +
       '<div class="spread" style="margin-bottom:12px"><span class="badge ' + st.badge + '">' + st.badge + '</span>' +
       '<div class="dots">' + st.scenes.map(function (_, i) { return '<i class="' + (i <= play.i ? 'on' : '') + '"></i>'; }).join('') + '</div></div>' +
-      '<div class="stage">' + (teller ? '<div class="speaking">' + mascot('mithu', 'talk', 128) + '</div>' :
+      '<div class="stage"' + (img ? ' style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(' + img + ')"' : '') + '>' + (teller ? '<div class="speaking">' + mascot('mithu', 'talk', 128) + '</div>' :
         cast.map(function (c, i) { return '<div class="' + (i === 0 ? 'speaking' : '') + '">' + art(c, i === 0 ? 128 : 100) + '</div>'; }).join('')) + '</div>' +
       '<div class="speech" style="margin-top:14px">' + (teller ? '<span class="who">Mithu</span>' : '') +
       esc(sc.text).replace(/\*(.+?)\*/g, '<i>$1</i>') + '</div>' +
@@ -435,7 +459,9 @@
   V.storyEnd = function (st) {
     var code = (st.place || [])[0]; code = code ? code.replace('IN-', '') : null;
     var G = window.IND_GEO, place = (code && G && G.states[code]) ? G.states[code].name : null;
+    var himg = storyArt(st.id);
     return '<button class="backlink" data-act="go" data-v="stories">' + icon('back', 18) + ' Stories</button>' +
+      (himg ? '<div class="heroshot" style="background-image:url(' + himg + ')"></div>' : '') +
       '<div class="card center">' + mascot('mithu', 'wink', 112) +
       '<h1 style="margin-top:8px">' + esc(st.title) + '</h1>' +
       '<p style="font-size:18px;max-width:52ch;margin:0 auto var(--space-md)">' + esc(st.moral) + '</p>' +
@@ -446,6 +472,13 @@
             '<div class="deva" style="font-size:28px">' + esc(w[0]) + '</div>' +
             '<div class="mono">' + esc(w[1]) + '</div><div class="tiny">' + esc(w[2]) + '</div></button>';
         }).join('') + '</div></div>' : '') +
+      '<div class="card center"><div class="row" style="justify-content:center">' +
+      '<button class="btn" data-act="again" data-id="' + st.id + '">' + icon('play', 18) + ' Again</button>' +
+      '<button class="btn ghost" data-act="love" data-id="' + st.id + '">' +
+      ((S.favs || {})[st.id] ? '♥ Loved' : '♡ I loved this') + '</button>' +
+      '<button class="btn ghost" data-act="tellone">Another one</button></div>' +
+      '<p class="tiny muted" style="margin:12px 0 0">Hearing it again is not going backwards. ' +
+      'That is how you end up knowing it by heart.</p></div>' +
       '<div class="card flat tiny"><b>Where this comes from.</b> ' + esc(st.source || '') + '</div>';
   };
 
@@ -569,6 +602,47 @@
 
 
 
+
+  /* ------------------------------------------------------------------ HUBS */
+  /* Twelve top-level tabs was too many. Three hubs collapse the pillars that
+     belong together, and Me moved to the topbar. Six tabs. */
+
+  function hubCard(v, title, note, icon_) {
+    return '<button class="tile" data-act="go" data-v="' + v + '">' +
+      '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
+      '<span style="width:46px;height:46px;flex:none;border-radius:13px;background:var(--accent-soft);' +
+      'color:var(--accent);display:grid;place-items:center">' + icon(icon_, 24) + '</span>' +
+      '<div style="flex:1"><h3 style="margin:0">' + esc(title) + '</h3>' +
+      '<p class="tiny" style="margin:5px 0 0">' + esc(note) + '</p></div></div></button>';
+  }
+
+  V.learn = function () {
+    var lit = Object.keys(S.lit).length;
+    return '<div class="card"><h1>Learn</h1>' +
+      '<p>The map, the centuries and the faiths. Take them in any order — none of it is a test.</p></div>' +
+      '<div class="grid g2">' +
+      hubCard('map', 'The Living Map', lit + ' of 34 places remembered. Stories light the place they came from.', 'map') +
+      hubCard('itihaas', 'Itihaas', 'The River of Time — eleven eras, from the Indus cities to a rocket to Mars.', 'clock') +
+      hubCard('dharma', 'Dharma', 'Hinduism, Buddhism, Jainism and Sikhi, each told from the inside.', 'temple') +
+      '</div>';
+  };
+
+  V.play = function () {
+    var G = window.IND_GAMES || [];
+    return '<div class="card"><h1>Play</h1><p>The Mela. Every stall is a drill wearing a costume.</p></div>' +
+      '<div class="grid g2">' +
+      hubCard('rishtey', 'Rishtey', 'Thirty exact words for your family, where English has one. Build your own tree.', 'parent') +
+      G.map(function (g) {
+        return '<button class="tile" data-act="game" data-id="' + g.id + '">' +
+          '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
+          '<span style="width:46px;height:46px;flex:none;border-radius:13px;background:var(--accent-soft);' +
+          'color:var(--accent);display:grid;place-items:center">' + icon('game', 24) + '</span>' +
+          '<div style="flex:1"><h3 style="margin:0">' + esc(g.name) + '</h3>' +
+          '<p class="tiny" style="margin:5px 0 0">' + esc(g.blurb || '') + '</p>' +
+          '<div class="mono" style="margin-top:6px">' + (g.minutes || 2) + ' min</div></div></div></button>';
+      }).join('') + '</div>';
+  };
+
   /* ---------------------------------------------------------------- SHLOK */
   /* The "recited" channel from docs/11 — the thing a grandparent can still say
      from memory sixty years on. Not a quiz: a verse, what it means, and the
@@ -643,6 +717,11 @@
       '<p class="tiny muted">No levels here, and nothing to finish. You get a bead when you ' +
       '<b>do</b> one of these, not when you read about it.</p></div>' +
       (beads ? V.malaStrip() : '') +
+      '<button class="tile" style="margin-bottom:var(--space-lg)" data-act="go" data-v="shlok">' +
+      '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art('saraswati', 52) +
+      '<div style="flex:1"><h3 style="margin:0">Shlok — verses to carry</h3>' +
+      '<p class="tiny" style="margin:5px 0 0">Thirukkural, Dhammapada, subhashitas. The ones your ' +
+      'grandparents can still say from memory.</p></div></div></button>' +
       '<div class="grid g2">' + K.values.map(function (v) {
         var n = (S.mala || []).filter(function (b) { return b.v === v.id; }).length;
         return '<button class="tile" data-act="value" data-id="' + v.id + '">' +
@@ -924,6 +1003,13 @@
             return chip(id, 74);
           }).join('') + '</div>';
       }).join('') + '</div>' +
+      '<button class="tile" style="margin-bottom:var(--space-lg)" data-act="go" data-v="worlds">' +
+      '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
+      '<span style="width:46px;height:46px;flex:none;border-radius:13px;background:var(--accent-soft);' +
+      'color:var(--accent);display:grid;place-items:center">' + icon('star', 24) + '</span>' +
+      '<div style="flex:1"><h3 style="margin:0">Worlds</h3>' +
+      '<p class="tiny" style="margin:5px 0 0">Repaint everything in a real Indian folk-art tradition. ' +
+      'Currently: ' + esc(S.world) + '.</p></div></div></button>' +
       '<div class="card"><h3>Grown-ups</h3><div class="row">' +
       '<button class="pill' + (soundOn ? ' on' : '') + '" data-act="sound">' + icon('sound', 18) + ' Sound</button>' +
       '<button class="pill' + (night ? ' on' : '') + '" data-act="night">Night mode</button>' +
@@ -935,15 +1021,16 @@
   };
 
   /* ================================================================== SHELL */
-  var TABS = [['home', 'Home', 'chart'], ['map', 'Map', 'map'], ['stories', 'Stories', 'tree'],
-              ['bhasha', 'Bhasha', 'script'], ['neeti', 'Neeti', 'star'], ['shlok', 'Shlok', 'book'], ['rishtey', 'Rishtey', 'parent'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
+  var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['neeti', 'Neeti', 'star'],
+              ['learn', 'Learn', 'map'], ['bhasha', 'Bhasha', 'script'], ['play', 'Play', 'game']];
 
   function chrome() {
-    return '<header class="topbar"><div class="bar">' +
+    return '<header class="topbar"><div class="barrow">' +
       '<div class="brand">' + mascot('gattu', 'happy', 34) + 'Bizzing <em>India</em></div>' +
       '<span class="pill stat">🐚 <span id="kauriCount">' + S.kauris + '</span></span>' +
-      '<button class="iconbtn" data-act="night" aria-label="night mode">' + icon('lamp', 20) + '</button>' +
       '<button class="iconbtn" data-act="sound" aria-label="sound">' + icon('sound', 20) + '</button>' +
+      '<button class="iconbtn" data-act="go" data-v="me" aria-label="you" style="overflow:hidden;padding:0">' +
+      art(S.buddy, 40) + '</button>' +
       '</div><nav class="nav">' + TABS.map(function (t) {
         return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 19) + '<span>' + t[1] + '</span></button>';
       }).join('') + '</nav></header><main class="wrap" id="main"></main>';
@@ -971,6 +1058,8 @@
       case 'pack': h = V.pack(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'game': h = V.game(); break;
+      case 'learn': h = V.learn(); break;
+      case 'play': h = V.play(); break;
       case 'shlok': h = V.shlok(); break;
       case 'verses': h = V.verses(view.arg); break;
       case 'neeti': h = V.neeti(); break;
@@ -988,7 +1077,11 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas', rishquiz: 'rishtey', value: 'neeti', verses: 'shlok' };
+    var alias = { state: 'learn', map: 'learn', itihaas: 'learn', era: 'learn', dharma: 'learn', faith: 'learn',
+                  story: 'stories', pack: 'bhasha',
+                  game: 'play', mela: 'play', rishtey: 'play', rishquiz: 'play',
+                  value: 'neeti', shlok: 'neeti', verses: 'neeti',
+                  worlds: 'me' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
@@ -1088,6 +1181,27 @@
       play.answered = (i === ask.answer) ? ask.right : ask.wrong;
       if (i === ask.answer) earn(3, 'good thinking');
       return render();
+    }
+    if (a === 'tellone') {
+      /* the app picks, the way a grandparent picks — favouring the unheard */
+      var pool = allStories(), unread = pool.filter(function (x) { return !S.read[x.id]; });
+      var pick = (unread.length ? unread : pool)[Math.floor(Math.random() * (unread.length ? unread.length : pool.length))];
+      if (!pick) return;
+      play = { story: null, i: 0, answered: false };
+      go('story', pick.id); speak('st/' + slug(pick.id) + '-0');
+      return;
+    }
+    if (a === 'again') {
+      var aid = t.getAttribute('data-id');
+      play = { story: null, i: 0, answered: false };
+      go('story', aid); speak('st/' + slug(aid) + '-0');
+      return;
+    }
+    if (a === 'love') {
+      S.favs = S.favs || {};
+      var lid = t.getAttribute('data-id');
+      if (S.favs[lid]) { delete S.favs[lid]; } else { S.favs[lid] = today(); toast('Kept. It will be waiting.'); }
+      save(); return render();
     }
     if (a === 'say')    return speak(t.getAttribute('data-k'));
     if (a === 'pick')   { S.buddy = t.getAttribute('data-id'); save(); return render(); }

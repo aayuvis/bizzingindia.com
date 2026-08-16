@@ -140,7 +140,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--ground2);           /* solid: color-mix + blur rendered badly on some browsers */
   border-bottom: 1px solid var(--line);
 }
-.topbar .bar { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: var(--space-md); padding: 14px var(--space-lg) 12px; }
+.topbar .barrow { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: var(--space-md); padding: 14px var(--space-lg) 12px; }
 .brand {
   display: flex; align-items: center; gap: 10px; min-width: 0;
   font-family: var(--display); font-weight: 800; font-size: 20px; margin-right: auto;
@@ -387,9 +387,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .rung .lv { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; color: var(--muted); }
 .rung .nm { font-size: 12px; font-weight: 700; margin-top: 4px; }
 
-/* progress */
-.bar { height: 8px; border-radius: 99px; background: var(--card2); overflow: hidden; border: 1px solid var(--line); }
-.bar i { display: block; height: 100%; background: var(--accent); }
+/* progress. NOT called .bar — that collided with .topbar .bar and was silently
+   applying height:8px + overflow:hidden to the header, which clipped the brand
+   mascot and is what "the icon is getting smushed" actually was. */
+.meter { height: 8px; border-radius: 99px; background: var(--card2); overflow: hidden; border: 1px solid var(--line); }
+.meter i { display: block; height: 100%; background: var(--accent); }
 .ring { display: grid; place-items: center; }
 
 /* ------------------------------------------------------------- language */
@@ -509,3 +511,44 @@ button, input, select, textarea { font: inherit; color: inherit; }
   animation: beadIn .32s ease-out;
 }
 @keyframes beadIn { from { transform: scale(.2); opacity: 0 } }
+
+/* --------------------------------------------------------- STORY LIBRARY
+   Shelves, not a path. docs/10 §3.5: no progress bar anywhere near a story,
+   and the artwork does the work a grandmother's face used to do. */
+.rail {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 232px; gap: var(--space-lg);
+  overflow-x: auto; padding: 4px 2px 14px; scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.rail > * { scroll-snap-align: start; }
+@media (max-width: 560px) { .rail { grid-auto-columns: 78vw; } }
+
+.scard {
+  position: relative; display: grid; gap: 2px; text-align: left; padding: 0 0 14px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow); cursor: pointer; overflow: hidden;
+  transition: transform .16s, box-shadow .16s;
+}
+.scard:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.scard .pic {
+  display: block; height: 154px; background-size: cover; background-position: center;
+  background-color: var(--card2);
+}
+.scard .pic.noart { display: grid; place-items: center; }
+.scard .nm {
+  font-family: var(--display); font-weight: 800; font-size: 16.5px;
+  line-height: 1.25; padding: 12px 14px 0;
+}
+.scard .hk { font-size: 12.5px; color: var(--muted); line-height: 1.45; padding: 4px 14px 0; }
+.scard .fav {
+  position: absolute; top: 10px; right: 12px; z-index: 2;
+  color: #fff; font-size: 17px; text-shadow: 0 1px 6px rgba(0,0,0,.5);
+}
+
+/* the story player's stage carries the painting */
+.stage { background-size: cover; background-position: center; }
+.heroshot {
+  height: 260px; border-radius: var(--radius-xl); margin-bottom: var(--space-lg);
+  background-size: cover; background-position: center;
+  border: 1px solid var(--line); box-shadow: var(--shadow);
+}

@@ -55,12 +55,26 @@ VOICE = {
   'en-US': ('en-US-Neural2-F', 0.95),   # matches Bizzing Bee's word voice exactly
   'hi-IN': ('hi-IN-Neural2-A', 0.88),   # slower: children imitate these
   'pa-IN': ('pa-IN-Standard-A', 0.88),
+  # The seven packs of 2026-08. Wavenet-A everywhere Wavenet exists (probed via the
+  # voices API); Telugu has Standard only. Same slow rate: children imitate these too,
+  # and docs/09 §9 stands — every one is a placeholder for a human voice before launch.
+  'bn-IN': ('bn-IN-Wavenet-A', 0.88),
+  'mr-IN': ('mr-IN-Wavenet-A', 0.88),
+  'te-IN': ('te-IN-Standard-A', 0.88),
+  'ta-IN': ('ta-IN-Wavenet-A', 0.88),
+  'gu-IN': ('gu-IN-Wavenet-A', 0.88),
+  'kn-IN': ('kn-IN-Wavenet-A', 0.88),
+  'ur-IN': ('ur-IN-Wavenet-A', 0.88),
 }
 
 # The Bhasha packs are TAUGHT, not narrated: a Hindi word goes to a Hindi voice
 # as its own Devanagari, never to the English narrator as a transliteration.
-# Keyed by pack id (bhasha.js `voice.ns`, which is also the voice/ subdirectory).
-PACK_LANG = {'hi': 'hi-IN', 'pa': 'pa-IN'}
+# Keyed by the CLIP KEY'S NAMESPACE ('hi/l-13' -> hi), not by the pack that asked:
+# the Marathi pack shares Devanagari and its letter items deliberately point at the
+# existing 'hi/…' recordings — the same letters, already voiced. Keying by pack
+# would re-record Hindi's letter files in a Marathi voice, silently, for everyone.
+PACK_LANG = {'hi': 'hi-IN', 'pa': 'pa-IN', 'bn': 'bn-IN', 'mr': 'mr-IN',
+             'te': 'te-IN', 'ta': 'ta-IN', 'gu': 'gu-IN', 'kn': 'kn-IN', 'ur': 'ur-IN'}
 
 # ------------------------------------------------------- bhasha clips ------
 
@@ -74,6 +88,12 @@ BHASHA = os.path.join(ROOT, 'app', 'bhasha.js')
 _DUMP_JS = """
 global.window = global;
 require(process.argv[1]);
+/* sibling pack files register through IND_BHASHA_KIT, exactly as the browser
+   loads them — bhasha.js first, then every data-bhasha-*.js in name order */
+var fs = require('fs'), path = require('path');
+var dir = path.dirname(process.argv[1]);
+fs.readdirSync(dir).filter(function (f) { return /^data-bhasha-.*\\.js$/.test(f); })
+  .sort().forEach(function (f) { require(path.join(dir, f)); });
 var out = [];
 Object.keys(window.IND_PACKS).forEach(function (id) {
   window.IND_BHASHA.srsItems(id).forEach(function (it) {
@@ -107,9 +127,12 @@ def bhasha_clips(packs=None, kinds=None):
             continue
         if kinds and it['kind'] not in kinds:
             continue
-        lang = PACK_LANG.get(it['pack'])
+        # namespace of the key, not the asking pack — see the PACK_LANG comment
+        ns = it['key'].split('/', 1)[0]
+        lang = PACK_LANG.get(ns)
         if not lang:
-            raise SystemExit('pack %r has no language in PACK_LANG' % it['pack'])
+            raise SystemExit('clip namespace %r (pack %r) has no language in PACK_LANG'
+                             % (ns, it['pack']))
         if it['key'] in seen:
             continue                       # one key, one clip, whoever asks for it
         seen.add(it['key'])

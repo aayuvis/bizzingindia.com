@@ -1394,9 +1394,9 @@ var HI_READ = hiPassages([
 /* The same shared themes, the same shape, a different script module. This is
    the whole thesis: the diff between these two packs is content only — and
    the fact that Hindi is further along is a content backlog, not a claim
-   about either language. Punjabi has the first eight themes filled; stages
-   4, 5 and 6 still run on the derived skeleton until a Punjabi pedagogue
-   writes them. */
+   about either language. Punjabi now fills all seventeen themes — around
+   250 words, half of Hindi's depth and closing; stages 4, 5 and 6 still run
+   on the derived skeleton until a Punjabi pedagogue writes them. */
 
 var PA_LEX = [
   /* family */
@@ -1480,7 +1480,226 @@ var PA_LEX = [
   { word: 'ਨਹੀਂ',             roman: 'nahin',    en: 'no',          theme: 'greetings', audio: 'pa/w-nahin' },
   { word: 'ਚੰਗਾ',             roman: 'changa',   en: 'good, okay',  theme: 'greetings', audio: 'pa/w-changa' },
   { word: 'ਸ਼ੁਕਰੀਆ', roman: 'shukriya', en: 'thanks', theme: 'greetings', audio: 'pa/w-shukriya' },
-  { word: 'ਰੱਬ ਰਾਖਾ', roman: 'rabb raakha', en: 'goodbye', theme: 'greetings', audio: 'pa/w-rabbrakha' }
+  { word: 'ਰੱਬ ਰਾਖਾ', roman: 'rabb raakha', en: 'goodbye', theme: 'greetings', audio: 'pa/w-rabbrakha' },
+
+  /* ============ the ramp widens — from the founding 74 to a real pack ==== */
+  /* The founding 74 above stay untouched and stay first: they are the ear-
+     first base that stage 0 leans on. What follows grows the pack the way a
+     Punjabi childhood does — first the people and the kitchen (the words a
+     child is called by and fed with), then the little glue words and the
+     doing words that turn naming into talking, then the wider world: school,
+     clothes, the sky, the clock, the pind and the road. Where Punjabi has
+     its own word the pack teaches it — vekhna not dekhna, pind not gaanv,
+     chann not chaand — because heritage-first means the words of THIS house,
+     not Hindi respelt in Gurmukhi. */
+
+  /* family — the people a child is called by */
+  { word: 'ਵੀਰ', roman: 'veer', en: 'big brother — the warm word, often veer ji', theme: 'family', audio: 'pa/w-veer' },
+  { word: 'ਬੇਬੇ', roman: 'bebe', en: 'grandmother in many families — in others it’s mum; ask your family', theme: 'family', audio: 'pa/w-bebe' },
+  { word: 'ਬੀਬੀ', roman: 'bibi', en: 'grandmother in many families — and a respectful word for an elder lady', theme: 'family', audio: 'pa/w-bibi' },
+  { word: 'ਮਾਸੀ', roman: 'maasi', en: 'aunt (mother’s sister)', theme: 'family', audio: 'pa/w-maasi' },
+  { word: 'ਮਾਮਾ', roman: 'maama', en: 'uncle (mother’s brother)', theme: 'family', audio: 'pa/w-maama' },
+  { word: 'ਮਾਮੀ', roman: 'maami', en: 'aunt (maama’s wife)', theme: 'family', audio: 'pa/w-maami' },
+  { word: 'ਚਾਚਾ', roman: 'chaacha', en: 'uncle (father’s younger brother)', theme: 'family', audio: 'pa/w-chaacha' },
+  { word: 'ਚਾਚੀ', roman: 'chaachi', en: 'aunt (chaacha’s wife)', theme: 'family', audio: 'pa/w-chaachi' },
+  { word: 'ਤਾਇਆ', roman: 'taaia', en: 'uncle (father’s elder brother)', theme: 'family', audio: 'pa/w-taaia' },
+  { word: 'ਤਾਈ', roman: 'taai', en: 'aunt (taaia’s wife)', theme: 'family', audio: 'pa/w-taai' },
+  { word: 'ਮੁੰਡਾ', roman: 'munda', en: 'boy', theme: 'family', audio: 'pa/w-munda' },
+  { word: 'ਕੁੜੀ', roman: 'kuri', en: 'girl', theme: 'family', audio: 'pa/w-kuri' },
+
+  /* food — the Punjabi kitchen on a Tuesday */
+  { word: 'ਲੱਸੀ', roman: 'lassi', en: 'lassi — churned yoghurt to drink', theme: 'food', audio: 'pa/w-lassi' },
+  { word: 'ਮੱਕੀ ਦੀ ਰੋਟੀ', roman: 'makki di roti', en: 'corn roti — winter’s flatbread', theme: 'food', audio: 'pa/w-makkidiroti' },
+  { word: 'ਸਰੋਂ ਦਾ ਸਾਗ', roman: 'saron da saag', en: 'mustard greens — makki di roti’s partner', theme: 'food', audio: 'pa/w-sarondasaag' },
+  { word: 'ਪਰੌਂਠਾ', roman: 'parauntha', en: 'paratha', theme: 'food', audio: 'pa/w-parauntha' },
+  { word: 'ਸਬਜ਼ੀ', roman: 'sabzi', en: 'vegetable', theme: 'food', audio: 'pa/w-sabzi' },
+  { word: 'ਫਲ', roman: 'phal', en: 'fruit', theme: 'food', audio: 'pa/w-phal' },
+  { word: 'ਆਲੂ', roman: 'aaloo', en: 'potato', theme: 'food', audio: 'pa/w-aaloo' },
+  { word: 'ਗਾਜਰ', roman: 'gaajar', en: 'carrot', theme: 'food', audio: 'pa/w-gaajar' },
+  { word: 'ਦਹੀਂ', roman: 'dahin', en: 'yoghurt', theme: 'food', audio: 'pa/w-dahin' },
+  { word: 'ਮੱਖਣ', roman: 'makkhan', en: 'butter — best on a hot roti', theme: 'food', audio: 'pa/w-makkhan' },
+  { word: 'ਘਿਓ', roman: 'ghio', en: 'ghee', theme: 'food', audio: 'pa/w-ghio' },
+  { word: 'ਖੰਡ', roman: 'khand', en: 'sugar', theme: 'food', audio: 'pa/w-khand' },
+
+  /* greetings — the rest of the doorway */
+  { word: 'ਜੀ', roman: 'ji', en: 'the little word of respect — added to a name, an answer, a yes', theme: 'greetings', audio: 'pa/w-ji' },
+  { word: 'ਜੀ ਆਇਆਂ ਨੂੰ', roman: 'ji aaian nu', en: 'welcome — the warm words over many Punjabi doors', theme: 'greetings', audio: 'pa/w-jiaaiannu' },
+  { word: 'ਮਾਫ਼ ਕਰਨਾ', roman: 'maaf karna', en: 'sorry', theme: 'greetings', audio: 'pa/w-maafkarna' },
+  { word: 'ਫਿਰ ਮਿਲਾਂਗੇ', roman: 'phir milaange', en: 'see you again', theme: 'greetings', audio: 'pa/w-phirmilaange' },
+  { word: 'ਵਧਾਈਆਂ', roman: 'vadhaaian', en: 'congratulations', theme: 'greetings', audio: 'pa/w-vadhaaian' },
+  { word: 'ਮਿਹਰਬਾਨੀ', roman: 'meharbaani', en: 'thank you — the older, warmer word', theme: 'greetings', audio: 'pa/w-meharbaani' },
+
+  /* everyday words that glue sentences */
+  { word: 'ਮੈਂ', roman: 'main', en: 'I', theme: 'basics', audio: 'pa/w-main' },
+  { word: 'ਤੂੰ', roman: 'toon', en: 'you (to a friend or someone younger)', theme: 'basics', audio: 'pa/w-toon' },
+  { word: 'ਤੁਸੀਂ', roman: 'tusin', en: 'you (respectful) — for elders; many families say it even for mum and dad', theme: 'basics', audio: 'pa/w-tusin' },
+  { word: 'ਅਸੀਂ', roman: 'asin', en: 'we', theme: 'basics', audio: 'pa/w-asin' },
+  { word: 'ਇਹ', roman: 'ih', en: 'this', theme: 'basics', audio: 'pa/w-ih' },
+  { word: 'ਉਹ', roman: 'uh', en: 'that — and he, and she', theme: 'basics', audio: 'pa/w-uh' },
+  { word: 'ਮੇਰਾ', roman: 'mera', en: 'my', theme: 'basics', audio: 'pa/w-mera' },
+  { word: 'ਕੀ', roman: 'ki', en: 'what', theme: 'basics', audio: 'pa/w-ki' },
+  { word: 'ਕੌਣ', roman: 'kaun', en: 'who', theme: 'basics', audio: 'pa/w-kaun' },
+  { word: 'ਕਿੱਥੇ', roman: 'kitthe', en: 'where', theme: 'basics', audio: 'pa/w-kitthe' },
+  { word: 'ਵੱਡਾ', roman: 'vadda', en: 'big', theme: 'basics', audio: 'pa/w-vadda' },
+  { word: 'ਛੋਟਾ', roman: 'chhota', en: 'small', theme: 'basics', audio: 'pa/w-chhota' },
+  { word: 'ਨਾਲ', roman: 'naal', en: 'with, together', theme: 'basics', audio: 'pa/w-naal' },
+
+  /* doing words */
+  { word: 'ਖੇਡਣਾ', roman: 'khedna', en: 'to play', theme: 'actions', audio: 'pa/w-khedna' },
+  { word: 'ਪੜ੍ਹਨਾ', roman: 'parhna', en: 'to read — and to study', theme: 'actions', audio: 'pa/w-parhna' },
+  { word: 'ਲਿਖਣਾ', roman: 'likhna', en: 'to write', theme: 'actions', audio: 'pa/w-likhna' },
+  { word: 'ਖਾਣਾ', roman: 'khaana', en: 'to eat — and a meal, the same word', theme: 'actions', audio: 'pa/w-khaana' },
+  { word: 'ਪੀਣਾ', roman: 'peena', en: 'to drink', theme: 'actions', audio: 'pa/w-peena' },
+  { word: 'ਸੌਣਾ', roman: 'sauna', en: 'to sleep', theme: 'actions', audio: 'pa/w-sauna' },
+  { word: 'ਜਾਣਾ', roman: 'jaana', en: 'to go', theme: 'actions', audio: 'pa/w-jaana' },
+  { word: 'ਆਉਣਾ', roman: 'aauna', en: 'to come', theme: 'actions', audio: 'pa/w-aauna' },
+  { word: 'ਵੇਖਣਾ', roman: 'vekhna', en: 'to see, to watch', theme: 'actions', audio: 'pa/w-vekhna' },
+  { word: 'ਸੁਣਨਾ', roman: 'sunna', en: 'to listen', theme: 'actions', audio: 'pa/w-sunna' },
+  { word: 'ਬੋਲਣਾ', roman: 'bolna', en: 'to speak', theme: 'actions', audio: 'pa/w-bolna' },
+  { word: 'ਤੁਰਨਾ', roman: 'turna', en: 'to walk', theme: 'actions', audio: 'pa/w-turna' },
+  { word: 'ਸਿੱਖਣਾ', roman: 'sikkhna', en: 'to learn — the word a Sikh is named from: a learner', theme: 'actions', audio: 'pa/w-sikkhna' },
+
+  /* body */
+  { word: 'ਮੱਥਾ', roman: 'mattha', en: 'forehead', theme: 'body', audio: 'pa/w-mattha' },
+  { word: 'ਗੱਲ੍ਹ', roman: 'gallh', en: 'cheek', theme: 'body', audio: 'pa/w-gallh' },
+  { word: 'ਬੁੱਲ੍ਹ', roman: 'bullh', en: 'lip', theme: 'body', audio: 'pa/w-bullh' },
+  { word: 'ਜੀਭ', roman: 'jeebh', en: 'tongue', theme: 'body', audio: 'pa/w-jeebh' },
+  { word: 'ਮੋਢਾ', roman: 'modha', en: 'shoulder', theme: 'body', audio: 'pa/w-modha' },
+  { word: 'ਬਾਂਹ', roman: 'baanh', en: 'arm', theme: 'body', audio: 'pa/w-baanh' },
+  { word: 'ਪਿੱਠ', roman: 'pitth', en: 'back', theme: 'body', audio: 'pa/w-pitth' },
+  { word: 'ਗੋਡਾ', roman: 'goda', en: 'knee', theme: 'body', audio: 'pa/w-goda' },
+  { word: 'ਲੱਤ', roman: 'latt', en: 'leg', theme: 'body', audio: 'pa/w-latt' },
+
+  /* home */
+  { word: 'ਕਮਰਾ', roman: 'kamra', en: 'room', theme: 'home', audio: 'pa/w-kamra' },
+  { word: 'ਕੰਧ', roman: 'kandh', en: 'wall', theme: 'home', audio: 'pa/w-kandh' },
+  { word: 'ਵਿਹੜਾ', roman: 'vihra', en: 'courtyard — where the manjas come out on summer evenings', theme: 'home', audio: 'pa/w-vihra' },
+  { word: 'ਪੱਖਾ', roman: 'pakkha', en: 'fan', theme: 'home', audio: 'pa/w-pakkha' },
+  { word: 'ਬੱਤੀ', roman: 'batti', en: 'light', theme: 'home', audio: 'pa/w-batti' },
+  { word: 'ਦੀਵਾ', roman: 'deeva', en: 'oil lamp', theme: 'home', audio: 'pa/w-deeva' },
+  { word: 'ਚੁੱਲ੍ਹਾ', roman: 'chullha', en: 'stove', theme: 'home', audio: 'pa/w-chullha' },
+  { word: 'ਭਾਂਡੇ', roman: 'bhaande', en: 'the pots and dishes — the washing-up', theme: 'home', audio: 'pa/w-bhaande' },
+  { word: 'ਥਾਲੀ', roman: 'thaali', en: 'plate', theme: 'home', audio: 'pa/w-thaali' },
+  { word: 'ਰਜਾਈ', roman: 'rajaai', en: 'quilt — winter’s heavy warm blanket', theme: 'home', audio: 'pa/w-rajaai' },
+
+  /* animals */
+  { word: 'ਬੱਕਰੀ', roman: 'bakri', en: 'goat', theme: 'animals', audio: 'pa/w-bakri' },
+  { word: 'ਮੱਝ', roman: 'majjh', en: 'buffalo', theme: 'animals', audio: 'pa/w-majjh' },
+  { word: 'ਊਠ', roman: 'ooth', en: 'camel', theme: 'animals', audio: 'pa/w-ooth' },
+  { word: 'ਸੱਪ', roman: 'sapp', en: 'snake', theme: 'animals', audio: 'pa/w-sapp' },
+  { word: 'ਚੂਹਾ', roman: 'chooha', en: 'mouse', theme: 'animals', audio: 'pa/w-chooha' },
+  { word: 'ਮੋਰ', roman: 'mor', en: 'peacock', theme: 'animals', audio: 'pa/w-mor' },
+  { word: 'ਕਾਂ', roman: 'kaan', en: 'crow', theme: 'animals', audio: 'pa/w-kaan' },
+  { word: 'ਤੋਤਾ', roman: 'tota', en: 'parrot', theme: 'animals', audio: 'pa/w-tota' },
+  { word: 'ਕੁੱਕੜ', roman: 'kukkar', en: 'rooster', theme: 'animals', audio: 'pa/w-kukkar' },
+
+  /* colours */
+  { word: 'ਭੂਰਾ', roman: 'bhoora', en: 'brown', theme: 'colours', audio: 'pa/w-bhoora' },
+  { word: 'ਜਾਮਨੀ', roman: 'jaamni', en: 'purple', theme: 'colours', audio: 'pa/w-jaamni' },
+  { word: 'ਸਲੇਟੀ', roman: 'saleti', en: 'grey', theme: 'colours', audio: 'pa/w-saleti' },
+  { word: 'ਰੰਗ', roman: 'rang', en: 'colour', theme: 'colours', audio: 'pa/w-rang' },
+
+  /* numbers — beyond ten */
+  { word: 'ਗਿਆਰਾਂ', roman: 'giaaraan', en: 'eleven', theme: 'numbers', audio: 'pa/w-giaaraan', value: 11 },
+  { word: 'ਬਾਰਾਂ', roman: 'baaraan', en: 'twelve', theme: 'numbers', audio: 'pa/w-baaraan', value: 12 },
+  { word: 'ਤੇਰਾਂ', roman: 'teraan', en: 'thirteen', theme: 'numbers', audio: 'pa/w-teraan', value: 13 },
+  { word: 'ਚੌਦਾਂ', roman: 'chaudaan', en: 'fourteen', theme: 'numbers', audio: 'pa/w-chaudaan', value: 14 },
+  { word: 'ਪੰਦਰਾਂ', roman: 'pandraan', en: 'fifteen', theme: 'numbers', audio: 'pa/w-pandraan', value: 15 },
+  { word: 'ਸੋਲਾਂ', roman: 'solaan', en: 'sixteen', theme: 'numbers', audio: 'pa/w-solaan', value: 16 },
+  { word: 'ਸਤਾਰਾਂ', roman: 'sataaraan', en: 'seventeen', theme: 'numbers', audio: 'pa/w-sataaraan', value: 17 },
+  { word: 'ਅਠਾਰਾਂ', roman: 'athaaraan', en: 'eighteen', theme: 'numbers', audio: 'pa/w-athaaraan', value: 18 },
+  { word: 'ਉੱਨੀ', roman: 'unni', en: 'nineteen', theme: 'numbers', audio: 'pa/w-unni', value: 19 },
+  { word: 'ਵੀਹ', roman: 'veeh', en: 'twenty', theme: 'numbers', audio: 'pa/w-veeh', value: 20 },
+  { word: 'ਸੌ', roman: 'sau', en: 'a hundred', theme: 'numbers', audio: 'pa/w-sau', value: 100 },
+  { word: 'ਅੱਧਾ', roman: 'addha', en: 'half', theme: 'numbers', audio: 'pa/w-addha' },
+
+  /* school */
+  { word: 'ਸਕੂਲ', roman: 'sakool', en: 'school', theme: 'school', audio: 'pa/w-sakool' },
+  { word: 'ਕਿਤਾਬ', roman: 'kitaab', en: 'book', theme: 'school', audio: 'pa/w-kitaab' },
+  { word: 'ਕਲਮ', roman: 'kalam', en: 'pen', theme: 'school', audio: 'pa/w-kalam' },
+  { word: 'ਬਸਤਾ', roman: 'basta', en: 'school bag', theme: 'school', audio: 'pa/w-basta' },
+  { word: 'ਜਮਾਤ', roman: 'jamaat', en: 'class', theme: 'school', audio: 'pa/w-jamaat' },
+  { word: 'ਸਵਾਲ', roman: 'savaal', en: 'question', theme: 'school', audio: 'pa/w-savaal' },
+  { word: 'ਜਵਾਬ', roman: 'javaab', en: 'answer', theme: 'school', audio: 'pa/w-javaab' },
+  { word: 'ਅੱਖਰ', roman: 'akkhar', en: 'letter (of the alphabet) — Gurmukhi has thirty-five', theme: 'school', audio: 'pa/w-akkhar' },
+  { word: 'ਕਹਾਣੀ', roman: 'kahaani', en: 'story', theme: 'school', audio: 'pa/w-kahaani' },
+  { word: 'ਬੋਲੀ', roman: 'boli', en: 'language — Punjabi speakers call theirs their boli', theme: 'school', audio: 'pa/w-boli' },
+
+  /* clothes */
+  { word: 'ਕੱਪੜੇ', roman: 'kappre', en: 'clothes', theme: 'clothes', audio: 'pa/w-kappre' },
+  { word: 'ਕੁੜਤਾ', roman: 'kurta', en: 'kurta', theme: 'clothes', audio: 'pa/w-kurta' },
+  { word: 'ਸਲਵਾਰ', roman: 'salvaar', en: 'salwar', theme: 'clothes', audio: 'pa/w-salvaar' },
+  { word: 'ਕਮੀਜ਼', roman: 'kameez', en: 'shirt', theme: 'clothes', audio: 'pa/w-kameez' },
+  { word: 'ਜੁੱਤੀ', roman: 'jutti', en: 'jutti — the embroidered Punjabi shoe', theme: 'clothes', audio: 'pa/w-jutti' },
+  { word: 'ਚੁੰਨੀ', roman: 'chunni', en: 'chunni — the light scarf worn with a salwar-kameez', theme: 'clothes', audio: 'pa/w-chunni' },
+  { word: 'ਪੱਗ', roman: 'pagg', en: 'turban — tied with care and pride in many Punjabi families', theme: 'clothes', audio: 'pa/w-pagg' },
+  { word: 'ਜੁਰਾਬ', roman: 'juraab', en: 'sock', theme: 'clothes', audio: 'pa/w-juraab' },
+  { word: 'ਜੇਬ', roman: 'jeb', en: 'pocket', theme: 'clothes', audio: 'pa/w-jeb' },
+  { word: 'ਫੁਲਕਾਰੀ', roman: 'phulkaari', en: 'phulkari — “flower work”, Punjab’s embroidered shawl', theme: 'clothes', audio: 'pa/w-phulkaari' },
+
+  /* weather and sky */
+  { word: 'ਮੌਸਮ', roman: 'mausam', en: 'weather', theme: 'weather', audio: 'pa/w-mausam' },
+  { word: 'ਧੁੱਪ', roman: 'dhupp', en: 'sunshine', theme: 'weather', audio: 'pa/w-dhupp' },
+  { word: 'ਮੀਂਹ', roman: 'meenh', en: 'rain', theme: 'weather', audio: 'pa/w-meenh' },
+  { word: 'ਬੱਦਲ', roman: 'baddal', en: 'cloud', theme: 'weather', audio: 'pa/w-baddal' },
+  { word: 'ਹਵਾ', roman: 'hava', en: 'wind, air', theme: 'weather', audio: 'pa/w-hava' },
+  { word: 'ਸਿਆਲ', roman: 'siaal', en: 'winter, the cold season', theme: 'weather', audio: 'pa/w-siaal' },
+  { word: 'ਸੂਰਜ', roman: 'sooraj', en: 'sun', theme: 'weather', audio: 'pa/w-sooraj' },
+  { word: 'ਚੰਨ', roman: 'chann', en: 'moon', theme: 'weather', audio: 'pa/w-chann' },
+  { word: 'ਤਾਰਾ', roman: 'taara', en: 'star', theme: 'weather', audio: 'pa/w-taara' },
+  { word: 'ਬਰਫ਼', roman: 'baraf', en: 'snow, ice', theme: 'weather', audio: 'pa/w-baraf' },
+  { word: 'ਸਤਰੰਗੀ ਪੀਂਘ', roman: 'satrangi peengh', en: 'rainbow — Punjabi calls it the seven-coloured swing', theme: 'weather', audio: 'pa/w-satrangipeengh' },
+
+  /* time and days */
+  { word: 'ਅੱਜ', roman: 'ajj', en: 'today', theme: 'time', audio: 'pa/w-ajj' },
+  { word: 'ਕੱਲ੍ਹ', roman: 'kallh', en: 'yesterday — and tomorrow, the same word', theme: 'time', audio: 'pa/w-kallh' },
+  { word: 'ਸਵੇਰ', roman: 'saver', en: 'morning', theme: 'time', audio: 'pa/w-saver' },
+  { word: 'ਦੁਪਹਿਰ', roman: 'dupahir', en: 'afternoon', theme: 'time', audio: 'pa/w-dupahir' },
+  { word: 'ਸ਼ਾਮ', roman: 'shaam', en: 'evening', theme: 'time', audio: 'pa/w-shaam' },
+  { word: 'ਰਾਤ', roman: 'raat', en: 'night', theme: 'time', audio: 'pa/w-raat' },
+  { word: 'ਦਿਨ', roman: 'din', en: 'day', theme: 'time', audio: 'pa/w-din' },
+  { word: 'ਹਫ਼ਤਾ', roman: 'hafta', en: 'week', theme: 'time', audio: 'pa/w-hafta' },
+  { word: 'ਮਹੀਨਾ', roman: 'maheena', en: 'month', theme: 'time', audio: 'pa/w-maheena' },
+  { word: 'ਸਾਲ', roman: 'saal', en: 'year', theme: 'time', audio: 'pa/w-saal' },
+  { word: 'ਵੇਲਾ', roman: 'vela', en: 'time, the moment for something — as in roti vela, mealtime', theme: 'time', audio: 'pa/w-vela' },
+  { word: 'ਘੜੀ', roman: 'ghari', en: 'clock, watch', theme: 'time', audio: 'pa/w-ghari' },
+  { word: 'ਤਿਉਹਾਰ', roman: 'tiuhaar', en: 'festival', theme: 'time', audio: 'pa/w-tiuhaar' },
+
+  /* places and outdoors */
+  { word: 'ਪਿੰਡ', roman: 'pind', en: 'village — the pind is where a family’s story starts', theme: 'places', audio: 'pa/w-pind' },
+  { word: 'ਗੁਰਦੁਆਰਾ', roman: 'gurdwara', en: 'gurdwara — the Guru’s door, open to everyone who comes', theme: 'places', audio: 'pa/w-gurdwara' },
+  { word: 'ਮੰਦਰ', roman: 'mandar', en: 'temple', theme: 'places', audio: 'pa/w-mandar' },
+  { word: 'ਮਸੀਤ', roman: 'maseet', en: 'mosque', theme: 'places', audio: 'pa/w-maseet' },
+  { word: 'ਗਿਰਜਾ', roman: 'girja', en: 'church', theme: 'places', audio: 'pa/w-girja' },
+  { word: 'ਬਾਜ਼ਾਰ', roman: 'baazaar', en: 'market', theme: 'places', audio: 'pa/w-baazaar' },
+  { word: 'ਦੁਕਾਨ', roman: 'dukaan', en: 'shop', theme: 'places', audio: 'pa/w-dukaan' },
+  { word: 'ਸ਼ਹਿਰ', roman: 'shahir', en: 'city', theme: 'places', audio: 'pa/w-shahir' },
+  { word: 'ਖੇਤ', roman: 'khet', en: 'field', theme: 'places', audio: 'pa/w-khet' },
+  { word: 'ਦਰਿਆ', roman: 'dariaa', en: 'river — Punjab is named for five of them', theme: 'places', audio: 'pa/w-dariaa' },
+  { word: 'ਰੁੱਖ', roman: 'rukkh', en: 'tree', theme: 'places', audio: 'pa/w-rukkh' },
+  { word: 'ਫੁੱਲ', roman: 'phull', en: 'flower', theme: 'places', audio: 'pa/w-phull' },
+
+  /* getting around */
+  { word: 'ਗੱਡੀ', roman: 'gaddi', en: 'car — and a train is a gaddi too', theme: 'transport', audio: 'pa/w-gaddi' },
+  { word: 'ਬੱਸ', roman: 'bass', en: 'bus', theme: 'transport', audio: 'pa/w-bass' },
+  { word: 'ਸਾਈਕਲ', roman: 'saaikal', en: 'bicycle', theme: 'transport', audio: 'pa/w-saaikal' },
+  { word: 'ਟਰੈਕਟਰ', roman: 'taraiktar', en: 'tractor — the pride of the fields', theme: 'transport', audio: 'pa/w-taraiktar' },
+  { word: 'ਜਹਾਜ਼', roman: 'jahaaz', en: 'ship — and an aeroplane as well', theme: 'transport', audio: 'pa/w-jahaaz' },
+  { word: 'ਟਿਕਟ', roman: 'tikat', en: 'ticket', theme: 'transport', audio: 'pa/w-tikat' },
+  { word: 'ਰਾਹ', roman: 'raah', en: 'the way, the path', theme: 'transport', audio: 'pa/w-raah' },
+  { word: 'ਪਹੀਆ', roman: 'paheea', en: 'wheel', theme: 'transport', audio: 'pa/w-paheea' },
+
+  /* feelings */
+  { word: 'ਖ਼ੁਸ਼', roman: 'khush', en: 'happy', theme: 'feelings', audio: 'pa/w-khush' },
+  { word: 'ਉਦਾਸ', roman: 'udaas', en: 'sad', theme: 'feelings', audio: 'pa/w-udaas' },
+  { word: 'ਗੁੱਸਾ', roman: 'gussa', en: 'anger', theme: 'feelings', audio: 'pa/w-gussa' },
+  { word: 'ਡਰ', roman: 'dar', en: 'fear', theme: 'feelings', audio: 'pa/w-dar' },
+  { word: 'ਪਿਆਰ', roman: 'piaar', en: 'love', theme: 'feelings', audio: 'pa/w-piaar' },
+  { word: 'ਭੁੱਖਾ', roman: 'bhukkha', en: 'hungry', theme: 'feelings', audio: 'pa/w-bhukkha' },
+  { word: 'ਥੱਕਿਆ', roman: 'thakkia', en: 'tired', theme: 'feelings', audio: 'pa/w-thakkia' },
+  { word: 'ਹਾਸਾ', roman: 'haasa', en: 'laughter', theme: 'feelings', audio: 'pa/w-haasa' },
+  { word: 'ਹੰਝੂ', roman: 'hanjhoo', en: 'tears', theme: 'feelings', audio: 'pa/w-hanjhoo' },
+  { word: 'ਹੌਸਲਾ', roman: 'hausla', en: 'courage, heart', theme: 'feelings', audio: 'pa/w-hausla' }
 ];
 
 /* Stage items are keys, not prose: the letters/signs/words the stage owns.

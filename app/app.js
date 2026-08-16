@@ -214,7 +214,8 @@
       .concat(window.IND_STORIES_EAST || [])
       .concat(window.IND_STORIES_WEST || [])
       .concat(window.IND_STORIES_NE_A || [])
-      .concat(window.IND_STORIES_NE_B || []);
+      .concat(window.IND_STORIES_NE_B || [])
+      .concat(window.IND_STORIES_MODERN || []);
   }
   function allCollections() {
     return (window.IND_COLLECTIONS || [])
@@ -225,7 +226,8 @@
       .concat(window.IND_COLLECTIONS_EAST || [])
       .concat(window.IND_COLLECTIONS_WEST || [])
       .concat(window.IND_COLLECTIONS_NE_A || [])
-      .concat(window.IND_COLLECTIONS_NE_B || []);
+      .concat(window.IND_COLLECTIONS_NE_B || [])
+      .concat(window.IND_COLLECTIONS_MODERN || []);
   }
 
   function toast(m) {
@@ -2449,7 +2451,8 @@
     var grid = function (list) {
       return '<div class="gridscript">' + (list || []).map(function (v) {
         return '<button class="glyph" data-act="say" data-k="' + esc(v.audio || '') +
-          '" data-t="' + esc(v.char) + '" data-l="' + esc(sc.speechLang || 'hi-IN') + '">' +
+          /* the synthesis fallback must speak the pack's own language, not Hindi */
+          '" data-t="' + esc(v.char) + '" data-l="' + esc((p.id || 'hi') + '-IN') + '">' +
           esc(v.char) + '<small>' + esc(v.name) + '</small></button>';
       }).join('') + '</div>';
     };
@@ -2585,7 +2588,11 @@
 
   function chrome() {
     return '<header class="topbar"><div class="barrow">' +
-      '<div class="brand">' + mascot('gattu', 'happy', 34) + 'Bizzing <em>India</em></div>' +
+      /* the mark is the peacock, not a mascot — Gattu still narrates, he just
+         doesn't have to BE the logo (and the user said as much) */
+      '<div class="brand">' + (window.IND_ART_IMG && window.IND_ART_IMG.indexOf('logo') >= 0
+        ? '<img src="art/logo.png" alt="" width="52" height="52">'
+        : '') + 'Bizzing <em>India</em></div>' +
       '<span class="pill stat">🐚 <span id="kauriCount">' + S.kauris + '</span></span>' +
       /* the family-language chip: shows the tongue in its own script, opens the picker */
       (window.IND_TONGUE

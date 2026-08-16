@@ -830,6 +830,100 @@ window.IND_ITIHAAS = {
                 'ISRO mission records',
                 'Election Commission of India, records of the first general election',
                 'National Dairy Development Board, Operation Flood records']
+    },
+    {
+      /* THE TAKEOFF. Deliberately carries no politician — no PM, no CM, no party, in any
+         field. A children's app that assigns credit for the economy to a politician has
+         taken a side (docs/05 §3.7: no triumphalism, no grievance). This era belongs to
+         engineers, founders and athletes, and is written that way on purpose. */
+      id: 'naya-bharat', title: 'The Takeoff', when: '1991 – today', gate: 7,
+      badge: 'itihaas', place: 'KA', avatar: 'neeraj',
+      hook: 'A country that was told to wait built its own rockets, pays for street food ' +
+            'with a QR code, and throws a javelin further than anyone.',
+      kid: 'In 1991 India nearly ran out of the foreign money it needed to buy things from ' +
+           'abroad — and answered by opening its economy wide. What followed was a takeoff: ' +
+           'software floors in Bengaluru writing code for the whole world, payments flying ' +
+           'free between any two phones, over a hundred young companies growing to be worth ' +
+           'a billion dollars each, and athletes standing on podiums India had only ever ' +
+           'watched.',
+      big: 'The takeoff is real, and it is uneven — many farmers and workers are still ' +
+           'waiting for their share, and grown-ups argue hard about how to spread it. Both ' +
+           'things are true at once: this is one of the great economic stories of the ' +
+           'century, and it is not finished until it reaches everyone.',
+      wonder: 'In much of the world people still pay with plastic cards, even paper ' +
+              'cheques. In India a coconut seller on the beach takes a QR code. Ask your ' +
+              'family what buying things was like when they were small.',
+      objects: ['A QR code taped to a vegetable cart', 'A javelin',
+                'A startup\'s first office — somebody\'s front room'],
+      moments: [
+        { when: '1991',
+          what: 'India has barely enough foreign money left to pay for a few weeks of ' +
+                'imports. The answer is to open up: the licences that decided who could ' +
+                'make what are scrapped, and trade and new businesses pour through the ' +
+                'open door.' },
+        { when: 'the 1990s and 2000s',
+          what: 'Software becomes India\'s calling card — Bengaluru, Hyderabad and Pune ' +
+                'write code for the world, and in 1999 Infosys becomes the first ' +
+                'India-registered company listed on America\'s Nasdaq exchange.' },
+        { when: '2008',
+          what: 'At the Beijing Olympics, Abhinav Bindra wins the 10-metre air rifle — ' +
+                'India\'s first individual Olympic gold medal, ever.' },
+        { when: '2016',
+          what: 'UPI launches: free, instant payments between any two phones. Within a few ' +
+                'years India is making more real-time payments than any other country on ' +
+                'Earth.' },
+        { when: '2022',
+          what: 'India\'s economy becomes the fifth largest in the world by the IMF\'s ' +
+                'measure — and the same year its startups pass one hundred "unicorns", ' +
+                'young companies valued at a billion dollars each.' },
+        { when: 'December 2024',
+          what: 'D. Gukesh of Chennai, eighteen years old, becomes the youngest world ' +
+                'chess champion in history.' }
+      ],
+      figures: [
+        { id: 'n_murthy', name: 'N. R. Narayana Murthy',
+          line: 'Started Infosys in 1981 in a front room, on savings borrowed from his ' +
+                'wife Sudha — and helped turn Indian software into something the world ' +
+                'queues for.' },
+        { id: 'neeraj', name: 'Neeraj Chopra',
+          line: 'A farmer\'s son from Panipat district whose javelin throw in Tokyo won ' +
+                'India\'s first Olympic gold in athletics.' },
+        { id: 'falguni', name: 'Falguni Nayar',
+          line: 'Left a big banking job at fifty to build Nykaa from scratch — proof the ' +
+                'takeoff has no age limit.' },
+        { id: 'gukesh', name: 'D. Gukesh',
+          line: 'World chess champion at eighteen, the youngest ever — in the land where ' +
+                'chess\'s oldest ancestor, chaturanga, was first played.' }
+      ],
+      today: [
+        { what: 'Bengaluru, where the software takeoff began — floors of young companies ' +
+          'building new things', where: 'Bengaluru', state: 'KA' },
+        { what: 'The National Institute of Sports, where Olympic medallists train',
+          where: 'Patiala', state: 'PB' },
+        { what: 'Chennai, the chess city that raised two world champions', where: 'Chennai',
+          state: 'TN' }
+      ],
+      /* Linked in a later pass: the sports and startup story collections are being written
+         in parallel and their ids are not settled — do not guess them here. */
+      stories: [],
+      listen: 'This stretch of the river is moving fast — code, rockets, javelins — and ' +
+              'the people digging it are alive right now, some not much older than you.',
+      sources: ['Reserve Bank of India\'s official history volumes on the 1991 ' +
+                'balance-of-payments crisis and the reforms that followed',
+                'NASSCOM records of the software industry; Infosys\'s 1999 Nasdaq listing',
+                'NPCI records of UPI\'s 2016 launch and its published monthly transaction ' +
+                'volumes',
+                'ACI Worldwide\'s annual reports on real-time payments by country',
+                'The official Olympic results database: Beijing 2008 shooting, Tokyo 2020 ' +
+                'athletics',
+                'FIDE records of the 2024 World Chess Championship',
+                'IMF World Economic Outlook database (GDP rankings); Economic Survey of ' +
+                'India on startup unicorns'],
+      needs_review: true,
+      review_note: 'Contemporary economics is contested ground: growth, inequality and ' +
+                   'farm distress are argued about by living people, and docs/05 §6 sends ' +
+                   'contested ground to a human author with a named reviewer before any ' +
+                   'of this is published.'
     }
   ]
 };

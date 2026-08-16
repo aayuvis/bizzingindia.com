@@ -587,6 +587,14 @@ window.IND_AVATAR_PACKS = [
   { id: 'great',  name: 'Great Indians',   note: 'Real people. Every one has an Itihaas card.',
     ids: ['ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','aryabhata','tagore','kalpana','sarojini'] },
 
+  /* Modern India. Real people again — athletes and builders, chosen so a child sees
+     women and men, north and south, plains and hills, a wheelchair and a turban, all
+     under the same word: champion. No politician is in either pack, deliberately. */
+  { id: 'khel',   name: 'India at Play',   note: 'The athletes who made a billion people look up.',
+    ids: ['dhyanchand','milkha','kapil','sachin','marykom','sindhu','neeraj','anand','gukesh','avani'] },
+  { id: 'naya',   name: 'The Builders',    note: 'Milk, software, rockets and startups — made here.',
+    ids: ['kurien','n_murthy','sudha_murty','falguni','ritesh','rocket','unicorn'] },
+
   /* The epic casts. All 30 PNGs live under app/art and in art-manifest.js.
      Rama, Hanuman and Krishna stay in the Devas pack and are deliberately not repeated
      here — an id in two packs renders twice in the picker. */
@@ -610,6 +618,13 @@ window.IND_AVATAR_NAMES = {
   gandhi:'Mohandas Gandhi', ambedkar:'B. R. Ambedkar', bhagat:'Bhagat Singh',
   kalam:'A. P. J. Abdul Kalam', aryabhata:'Aryabhata', tagore:'Rabindranath Tagore',
   kalpana:'Kalpana Chawla', sarojini:'Sarojini Naidu',
+  /* India at Play */
+  dhyanchand:'Dhyan Chand', milkha:'Milkha Singh', kapil:'Kapil Dev', sachin:'Sachin Tendulkar',
+  marykom:'Mary Kom', sindhu:'P. V. Sindhu', neeraj:'Neeraj Chopra', anand:'Viswanathan Anand',
+  gukesh:'D. Gukesh', avani:'Avani Lekhara',
+  /* The Builders */
+  kurien:'Verghese Kurien', n_murthy:'Narayana Murthy', sudha_murty:'Sudha Murty',
+  falguni:'Falguni Nayar', ritesh:'Ritesh Agarwal', rocket:'The Rocket', unicorn:'The Unicorn',
   /* Ramayana. Names are the ones a child will hear at home; no epithets, no titles
      that would rank one character above another. */
   sita:'Sita', lakshmana:'Lakshmana', bharata:'Bharata', dasharatha:'Dasharatha',

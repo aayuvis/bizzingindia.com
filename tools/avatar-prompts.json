@@ -410,5 +410,59 @@
    "akbar.png",
    "lakshmibai.png"
   ]
+ },
+ "dhyanchand": {
+  "prompt": "Major Dhyan Chand, India's hockey wizard of the 1930s: a smiling sportsman in a vintage cream hockey shirt and navy shorts, holding a wooden field-hockey stick with a small white ball at his feet, a folded olive army beret tucked at his shoulder, natural Indian skin, short neat black hair."
+ },
+ "milkha": {
+  "prompt": "Milkha Singh, the Flying Sikh, the great track runner: a lean smiling Sikh athlete in a white running vest with a cloth race number, a neatly tied navy turban and short beard, caught in a joyful mid-run stride, natural Indian skin."
+ },
+ "kapil": {
+  "prompt": "Kapil Dev, the 1983 cricket captain: a beaming cricketer with black curly hair and a moustache in cricket whites, lifting a small golden trophy cup with both hands, natural Indian skin."
+ },
+ "sachin": {
+  "prompt": "Sachin Tendulkar, the beloved batsman: a small smiling cricketer with black curly hair in an India-blue cricket jersey, white pads, holding a cricket bat over one shoulder, natural Indian skin."
+ },
+ "marykom": {
+  "prompt": "Mary Kom, the champion boxer from Manipur: a smiling young woman with short black hair, East Asian facial features true to Manipur, wearing a blue India boxing vest and big red boxing gloves raised in a friendly guard, natural skin tone."
+ },
+ "sindhu": {
+  "prompt": "P. V. Sindhu, the badminton champion: a tall smiling young sportswoman with a high ponytail, in an India badminton jersey, holding a badminton racquet with a white shuttlecock floating beside her, natural Indian skin."
+ },
+ "neeraj": {
+  "prompt": "Neeraj Chopra, the javelin gold medallist: a smiling young athlete with dark hair swept back, in an India athletics vest with a gold medal on an orange-green ribbon, holding a silver javelin upright like a flag, natural Indian skin."
+ },
+ "anand": {
+  "prompt": "Viswanathan Anand, the chess grandmaster from Chennai: a warmly smiling man with neat side-parted black hair, in a soft blue shirt, holding up a white chess knight piece, a folded chessboard under his other arm, natural Indian skin."
+ },
+ "gukesh": {
+  "prompt": "D. Gukesh, the teenage world chess champion: a shyly smiling teenage boy with thick black hair and a faint young beard, in a simple dark shirt, cradling a golden chess king piece with both hands, natural Indian skin."
+ },
+ "avani": {
+  "prompt": "Avani Lekhara, the Paralympic champion shooter: a proudly smiling young woman seated in her sleek sports wheelchair, wearing an India shooting-team jacket with a gold medal around her neck, one hand resting on the wheel, calm and confident, natural Indian skin."
+ },
+ "kurien": {
+  "prompt": "Verghese Kurien, the Milkman of India: a kindly older man with black-rimmed glasses and neatly combed grey-streaked hair, in a simple white shirt, holding a shiny steel milk churn, a splash of white milk arcing happily from it, natural Indian skin."
+ },
+ "n_murthy": {
+  "prompt": "N. R. Narayana Murthy, the software pioneer: a gently smiling older man with round spectacles and a neat grey side-parting, in a plain light shirt, holding a chunky beige 1980s computer monitor showing a little green heart on screen, natural Indian skin."
+ },
+ "sudha_murty": {
+  "prompt": "Sudha Murty, engineer, author and teacher: a warmly laughing older woman in a simple cotton sari with a shawl, hair in a low bun, spectacles, hugging a small stack of storybooks, natural Indian skin."
+ },
+ "falguni": {
+  "prompt": "Falguni Nayar, the founder who started at fifty: a confident smiling woman with shoulder-length black hair in an elegant deep-pink kurta jacket, ringing a small golden bell with one hand, natural Indian skin."
+ },
+ "ritesh": {
+  "prompt": "Ritesh Agarwal, the young founder from Odisha: a cheerfully grinning very young man with short black hair in a casual red shirt, holding up a big brass room key with a red tag, a tiny backpack on one shoulder, natural Indian skin."
+ },
+ "rocket": {
+  "prompt": "A friendly Indian space rocket: a cute white rocket with saffron and green bands like the tricolour, a small round window like an eye with a tiny astronaut waving inside, standing proudly on little landing fins with a soft puff of steam below, no text anywhere."
+ },
+ "unicorn": {
+  "prompt": "A cheerful startup unicorn: a small white unicorn with a golden horn and a flowing mane in saffron, white and green, carrying a tiny silver laptop under one foreleg, one hoof raised in greeting, no text anywhere."
+ },
+ "logo": {
+  "prompt": "A proud little peacock, the Bizzing India mark: a royal-blue peacock with a tiny golden three-point crest, big friendly glossy eyes, and a fanned tail of five bold simplified feathers in teal, deep blue and gold, each with one golden eye-spot, standing tall and symmetrical like an emblem, no text anywhere."
  }
 }

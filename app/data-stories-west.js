@@ -1606,3 +1606,292 @@ window.IND_STORIES_WEST = [
   moral: 'Great skill begins as great attention — listen to the world hard enough and one day it sings back through you.',
   source: 'The childhood tradition of Tansen (Ramtanu) of Behat near Gwalior — the imitated animal calls, the tiger, and the discovery by Swami Haridas — as preserved in the Gwalior and dhrupad traditions and later written accounts; dates uncertain and said so. His place among Akbar\'s navaratnas, the contemporary fame recorded in Mughal-era chronicles, his tomb beside Muhammad Ghaus at Gwalior and the annual Tansen Samaroh are historical record.'
 },
+
+/* ============================================== CHHATTISGARH ============= */
+{
+  id: 'it.teejan-pandavani',
+  collection: 'heart-lands',
+  badge: 'itihaas',
+  title: 'The Girl Who Sang the Mahabharata',
+  hook: 'In Chhattisgarh the great epic is not read aloud — it is SUNG, by one performer who becomes the whole battlefield. And the greatest of them started as a girl listening at her grandfather\'s knee.',
+  hero: 'courtier',
+  cast: ['courtier', 'guard'],
+  minutes: 4,
+  place: ['IN-CT'],
+  words_hi: [['गायन', 'gaayan', 'singing'], ['वीणा', 'veena', 'a stringed instrument'], ['मंच', 'manch', 'stage']],
+  scenes: [
+    { art: ['guard'], who: null,
+      text: 'Chhattisgarh has its own way with the Mahabharata, and it is like nothing else in India. It is called Pandavani — the songs of the Pandavas. One singer, one stage, a drone-stringed tambura in hand — and out of that one person comes the whole epic: every hero, every taunt, every battle, sung and acted at full blaze.' },
+    { art: ['guard'], who: null,
+      text: 'The tambura is the secret weapon. In a Pandavani singer\'s hands it stops being an instrument and becomes everything else: swung up, it is Bhima\'s mace. Levelled, it is Arjuna\'s bow. Raised overhead, a chariot banner. The audience sees a battlefield; the prop list is one lute.' },
+    { art: ['courtier'], who: null,
+      text: 'And the name the whole world knows Pandavani by is Teejan Bai. She was born near Durg, in a Pardhi family, and as a small girl she would listen to her grandfather, Brijlal, singing the Mahabharata verses of the Chhattisgarhi tradition. She swallowed them whole — hours of epic, learned by ear, the way her land had always passed it down.' },
+    { art: ['courtier'], who: null, mood: 'think',
+      text: 'But there was a wall in her way. Women who sang Pandavani in those days sang in the vedmati style — seated, decorous, the epic delivered sitting down. The blazing, striding, mace-swinging performance style — kapalik — was for men. And seated was not how the epic burned inside Teejan Bai.',
+      ask: {
+        q: 'Tradition says a girl sings sitting down. The epic inside her wants to stride. What does she do?',
+        options: ['Sing seated, as expected', 'Stand up — sing kapalik, stride the stage, and let the singing answer the doubters', 'Give up performing'],
+        answer: 1,
+        right: 'She stood up. As a young teenager she performed standing, in full kapalik fire — and the power of the singing itself silenced the objections, village by village, stage by stage.',
+        wrong: 'Seated could not hold what she carried, and giving up was never in her. She stood up — sang kapalik as a young teenager, striding, blazing — and the singing itself silenced the objections, village by village.'
+      } },
+    { art: ['courtier'], who: null, mood: 'wow',
+      text: 'What audiences saw, once they saw her, ended the argument. Teejan Bai in full flight is the epic weather-fronted into one person: voice like a festival drum, the tambura flashing from bow to mace, Draupadi\'s fury and Bhima\'s laughter pouring out of the same throat. Villages that had muttered came back the next night and brought their neighbours.' },
+    { art: ['guard', 'courtier'], who: null,
+      text: 'From village stages she went on to the country\'s biggest, and then the world\'s — performing across India and far beyond, carrying Chhattisgarh\'s way of telling the Mahabharata to audiences who spoke not a word of Chhattisgarhi and sat spellbound anyway. The nation gave her its highest artistic honours, Padma awards among them.' },
+    { art: ['courtier'], who: null,
+      text: 'And behind her, the door she opened stayed open. Girls across Chhattisgarh now learn Pandavani in both styles, seated and striding, many of them naming Teejan Bai as the reason they dared. The tradition did not break when she stood up. It grew a new branch, and the branch is full of singers.' },
+    { art: ['guard'], who: 'mithu',
+      text: 'An epic stays alive by finding new voices — and sometimes the new voice must first win the right to stand. All of this is living memory, not legend: Teejan Bai is real, her recordings are a search away, and Pandavani is being sung in Chhattisgarh this very season. Credit where it belongs: to the Pandavani tradition, and the girl who stood up inside it.' }
+  ],
+  moral: 'An old story stays alive by finding new voices — even when the new voice has to fight to stand.',
+  source: 'Teejan Bai of Chhattisgarh and the Pandavani tradition — her learning of the Chhattisgarhi Mahabharata from her grandfather Brijlal Pardhi, her taking up of the standing kapalik style as a young performer when women were expected to sing seated vedmati, her national and international career and Padma honours — is documented contemporary record. The tradition is credited by name.'
+},
+
+{
+  id: 'fk.ghotul-lamps',
+  collection: 'heart-lands',
+  badge: 'aaj',
+  title: 'The Children\'s Own House',
+  hook: 'In some Bastar villages there is a big house that belongs to no family — because it belongs to the village\'s young people, who run it themselves.',
+  hero: 'courtier',
+  cast: ['courtier', 'guard'],
+  minutes: 4,
+  place: ['IN-CT'],
+  words_hi: [['घर', 'ghar', 'house'], ['नियम', 'niyam', 'rule'], ['ज़िम्मेदारी', 'zimmedari', 'responsibility']],
+  scenes: [
+    { art: ['courtier'], who: null,
+      text: 'In the forest country of Bastar, in southern Chhattisgarh, the Muria people have long kept an institution that visitors from everywhere find astonishing. In the village stands a spacious house — often the finest-kept in the village — that belongs to no family at all. It is the ghotul: the young people\'s own house.' },
+    { art: ['guard'], who: null,
+      text: 'In the evenings, when the day\'s work is done, the village\'s boys and girls gather there — and the grown-ups stay away. That is the standing rule, kept by the elders themselves. Inside the ghotul, the young run everything.' },
+    { art: ['courtier', 'guard'], who: null, mood: 'wow',
+      text: 'And run it they do, properly. The ghotul has its own chosen leaders from among the young people, its own duties shared out — sweeping, firewood, repairs — its own code of conduct, and its own consequences for slacking, decided by the members. A small working republic, with a thatched roof.' },
+    { art: ['courtier'], who: 'courtier', mood: 'think',
+      text: 'A visitor once asked a Muria elder why the village hands its young an entire house and steps back. The elder found the question as strange as the visitor found the ghotul.',
+      ask: {
+        q: 'Why give the young people a house of their own to run?',
+        options: ['To keep them out of the way', 'Because running something real — rules, duties, fairness — is how you learn to be a grown-up, and learning needs a place to practise', 'Because the family houses are too small'],
+        answer: 1,
+        right: '"Where else would they learn?" said the elder. "You cannot learn to carry a village by watching. In the ghotul they carry a small one first — settle their own disputes, keep their own house. By the time they marry, they have practised being responsible for years."',
+        wrong: '"Out of the way?" The elder laughed. "The ghotul is the centre! There they settle their own disputes, keep their own house, carry a small village before they must carry the real one. You cannot learn responsibility by watching it."'
+      } },
+    { art: ['guard'], who: null,
+      text: 'The evenings themselves are the treasure: songs learned and taught, the great story-hoard of the Muria passed down, dances rehearsed for the festivals — for it is the ghotul members who drum and dance at the village\'s great occasions, and their performances are the village\'s pride.' },
+    { art: ['courtier'], who: null,
+      text: 'Younger children look up to older ones and are taught by them; older ones learn the patience of teaching. Quarrels are settled inside, by ghotul rules, without an adult voice in the room. Anyone who has ever run a clubhouse, a team or a classroom monitor system has touched a corner of what the ghotul does whole.' },
+    { art: ['guard', 'courtier'], who: null,
+      text: 'The ghotul is old — how old, nobody can say — and it has changed as Bastar changes; in some villages it thrives, in others it has faded, and the Muria themselves decide its future, as they always have. Scholars who came to study it went home describing one of the most remarkable schools of community life anywhere on Earth.' },
+    { art: ['courtier'], who: 'mithu',
+      text: 'A house where the young are trusted with real responsibility, and rise to it, generation after generation. Ask yourself what you would run well, if you were truly handed the keys. The Muria have been answering that question for centuries.' }
+  ],
+  moral: 'Trust the young with something real, and they will practise their way into carrying it.',
+  source: 'The ghotul of the Muria people of Bastar, Chhattisgarh — the youth house with its own chosen leaders, duties, code and evenings of song, dance and story — as documented by scholars from Verrier Elwin onward and continued, where the Muria keep it, today. Told here in its children\'s-commons aspect, from the inside, and credited to the Muria by name.'
+},
+
+{
+  id: 'fk.bastar-chariot',
+  collection: 'heart-lands',
+  badge: 'aaj',
+  title: 'The Chariot the Whole Forest Pulls',
+  hook: 'The world\'s longest festival runs for some seventy-five days — and at its heart, hundreds of hands haul a giant wooden chariot built new every single year.',
+  hero: 'guard',
+  cast: ['guard', 'durga'],
+  minutes: 4,
+  place: ['IN-CT'],
+  words_hi: [['रथ', 'rath', 'chariot'], ['त्योहार', 'tyohar', 'festival'], ['रस्सी', 'rassi', 'rope']],
+  scenes: [
+    { art: ['guard'], who: null,
+      text: 'In Jagdalpur, the old capital of Bastar in Chhattisgarh, they keep a Dussehra unlike any other in India — and they keep it longer than anyone keeps anything. Bastar Dussehra runs, with all its stages counted, for around seventy-five days: often called the longest festival in the world.' },
+    { art: ['durga'], who: null,
+      text: 'And here is the first surprise for visitors: Bastar Dussehra is not about a victory in the Ramayana. It belongs to the Devi — above all to Danteshwari, the great mother goddess of Bastar, whom the whole land honours as its own. The festival is Bastar gathering to its goddess, in Bastar\'s own way.' },
+    { art: ['guard', 'durga'], who: null, mood: 'wow',
+      text: 'At its heart rolls the rath: a massive chariot of solid wood on great solid wheels, tall as a house — built completely new each year. Trees are brought from the forest with due ceremony, and hereditary carpenter families from particular villages shape them with hand tools, as their fathers and grandfathers did, each village keeping the task that has been its honour for generations.' },
+    { art: ['guard'], who: 'guard', mood: 'think',
+      text: 'Then comes the pulling. No engine, no animals. Long, heavy ropes — and hundreds of young men of the Adivasi communities, Muria and others, who come in from the villages holding the hereditary right to pull the rath, take their places on the lines.',
+      ask: {
+        q: 'Why build a new giant chariot every year and pull it by hundreds of hands, when wheels and engines exist?',
+        options: ['Nobody thought of engines', 'Because the building and the pulling ARE the festival — every village\'s task, every hauler\'s rope, is a share in honouring the Devi', 'To save money'],
+        answer: 1,
+        right: 'That is the heart of it. An engine would carry the chariot and lose the festival. The tree-bringers, the carpenter villages, the rope teams — each has a hereditary share, and the sharing out of the work IS Bastar honouring its goddess together.',
+        wrong: 'Bastar knows all about engines — and a new rath each year costs far more effort, not less. The building and pulling ARE the festival: every village\'s hereditary task, every hauler\'s rope, is a share in honouring the Devi together.'
+      } },
+    { art: ['durga', 'guard'], who: null,
+      text: 'For days the great wheels groan around the streets of Jagdalpur, the ropes taut with hauliers, the crowds vast, the air full of drums. The festival\'s many stages have their own names and rites, months of them — and through it all, the goddess\'s honour is carried by turns, community by community, as carefully as the chariot itself.' },
+    { art: ['guard'], who: null,
+      text: 'There is even a famous night, beloved of every child who hears the schedule, when the rath is spirited away and ceremonially "stolen" — and must be found and brought back with negotiation and feasting. Bastar has been running this festival so long it has built comedy into the liturgy.' },
+    { art: ['durga'], who: null,
+      text: 'When it all ends, the Devi is seen off with honour until the next year, the rath\'s duty is done, and the carpenter villages already know that next year the forest will give new trees and their hands will build it all again. Nothing is stored. Everything is renewed. That is the Bastar way.' },
+    { art: ['guard'], who: 'mithu',
+      text: 'A festival is a machine made of everyone\'s jobs — and Bastar builds the machine fresh every year, from forest to rope, by memory and hand. Some seventy-five days, and not one of them idle. Go and see it once in your life if you can.' }
+  ],
+  moral: 'The doing together is the celebration — share out the work and the festival builds itself.',
+  source: 'Bastar Dussehra at Jagdalpur, Chhattisgarh — its roughly 75-day span, its dedication to Devi Danteshwari rather than to the Ramayana victory, the annually rebuilt wooden rath made and pulled by hereditary right by villages of the Muria and other Adivasi communities of Bastar, and the rath-stealing night — is a documented living festival, told from the inside and credited to the communities who keep it.'
+},
+
+{
+  id: 'fk.myna-judge',
+  collection: 'heart-lands',
+  badge: 'katha',
+  title: 'The Myna Who Judged the Quarrel',
+  hook: 'Two loud neighbours, one disputed mango tree, and a judge with feathers who says nothing of her own — she only repeats.',
+  hero: 'pt_crow',
+  cast: ['pt_crow', 'pt_jackal'],
+  minutes: 4,
+  place: ['IN-CT'],
+  words_hi: [['झगड़ा', 'jhagda', 'quarrel'], ['मैना', 'maina', 'myna bird'], ['फ़ैसला', 'faisla', 'judgement']],
+  scenes: [
+    { art: ['pt_crow'], who: null,
+      text: 'In the forests of Bastar, in Chhattisgarh, lives a glossy black bird with bright yellow wattles called the hill myna — and she has one famous gift. She can repeat, perfectly, any voice she hears. Chhattisgarh loves her so well it made her the state bird. This is a fable told in her honour.' },
+    { art: ['pt_jackal'], who: null,
+      text: 'On the edge of a forest village stood a mango tree, and on either side of the mango tree lived two neighbours, and between them stood a quarrel so old it had practically built its own house. Whose tree? Whose mangoes? Every season the shouting came back with the fruit.' },
+    { art: ['pt_jackal', 'pt_crow'], who: null,
+      text: 'They shouted so long and loud that year that the whole forest knew the speeches by heart. And in the mango tree itself, listening with professional interest, sat a hill myna.' },
+    { art: ['pt_crow'], who: null, mood: 'think',
+      text: 'One morning the neighbours arrived to find the myna on the lowest branch, waiting like a magistrate. "The forest has appointed me judge," she announced — in a voice of great authority, which she had borrowed from the village headwoman. "Present your cases. I will consider every word."',
+      ask: {
+        q: 'The myna cannot make speeches of her own — she can only repeat what she hears. What kind of judgement can such a judge give?',
+        options: ['None — she is useless as a judge', 'She can repeat each neighbour\'s words back to them — and let them hear themselves for the first time', 'She can ask the trees to decide'],
+        answer: 1,
+        right: 'That was her entire plan, and it was enough. Each neighbour spoke; the myna repeated them — exactly, tone and sneer and all — to their own faces.',
+        wrong: 'The trees keep their opinions to themselves. The myna\'s plan was simpler: she repeated each neighbour\'s own words back — exactly, tone and sneer and all — to their own faces.'
+      } },
+    { art: ['pt_jackal'], who: null, mood: 'wow',
+      text: 'The first neighbour gave his speech, all grievance and thunder. The myna cocked her head and gave it back to him — every word, every snort, the exact curl of "and THAT man calls himself a neighbour!" He stood there hearing himself, and his ears slowly went red.' },
+    { art: ['pt_jackal', 'pt_crow'], who: null,
+      text: 'The second neighbour fared no better. Her own speech, returned with perfect fidelity, contained — she now noticed — three insults, one exaggeration the size of the tree itself, and nothing whatsoever about mangoes. The myna waited, bright-eyed, entirely silent except for other people\'s words.' },
+    { art: ['pt_crow'], who: null,
+      text: 'What could they do? Hearing yourself is a strong medicine. The two of them looked at each other over the roots, embarrassed into honesty at last, and settled the matter in ten minutes flat: the tree was nobody\'s and the fruit was everybody\'s, shared down the middle, with a basket for the judge.' },
+    { art: ['pt_crow'], who: 'mithu',
+      text: 'The myna accepted her mangoes and flew off to listen to somebody else. She never once gave an opinion, and she never had to. Half of judging, it turns out, is letting people hear themselves — the rest they can usually manage on their own.' }
+  ],
+  moral: 'Hear yourself as others hear you, and half the quarrel settles itself.',
+  source: 'A fable composed for this app around Chhattisgarh\'s state bird, the hill myna of Bastar, whose gift of perfect mimicry is natural fact. Told in the manner of the region\'s animal tales; not presented as a collected Chhattisgarhi tale, and the source says so honestly.'
+},
+
+{
+  id: 'fk.agaria-first-fire',
+  collection: 'heart-lands',
+  badge: 'katha',
+  title: 'The People of the First Furnace',
+  hook: 'Before the tools, before the ploughs, someone had to be first to coax metal out of stone — and their descendants still greet the fire politely.',
+  hero: 'guard',
+  cast: ['guard', 'courtier'],
+  minutes: 4,
+  place: ['IN-CT'],
+  words_hi: [['लोहा', 'loha', 'iron'], ['आग', 'aag', 'fire'], ['भट्ठी', 'bhatthi', 'furnace']],
+  scenes: [
+    { art: ['guard'], who: null,
+      text: 'Across the hill country of Chhattisgarh and central India live the Agaria — a community whose very name carries fire in it, for ag is fire in their tongue as in many. For centuries beyond reckoning, the Agaria have been the iron-makers: the people who take dark stone out of the earth and, with charcoal and bellows and knowledge, persuade it to become metal.' },
+    { art: ['courtier'], who: null,
+      text: 'Persuade is the right word, in the Agaria understanding. Iron is not a dead thing to them. In the furnace, their tradition holds, dwells Lohasur — the iron spirit, the lord of the metal — and no smelting begins without honouring him first. You do not barge into a forge. You greet the one who lives there.' },
+    { art: ['guard', 'courtier'], who: null, mood: 'wow',
+      text: 'Watch the old craft, where it survives: a small clay furnace built like a standing person, packed with layers of ore and charcoal; the goat-skin bellows worked in rhythm for hours, breathing for the fire; and then the moment — the furnace opened, and out of what was stone comes a glowing sponge of real iron, hissing like something being born.' },
+    { art: ['guard'], who: 'guard', mood: 'think',
+      text: 'An Agaria elder, teaching a boy the bellows, was asked by him why they thank the fire and the iron before beginning, every single time, when the family has done this ten thousand times.',
+      ask: {
+        q: 'After ten thousand successful smeltings, why still greet Lohasur before each one?',
+        options: ['In case the others were luck', 'Because the craft began as a friendship with something wild — and friendship kept carelessly is friendship lost', 'It is required by law'],
+        answer: 1,
+        right: '"Fire was wild before it was ours," said the elder. "Iron was stone before it agreed to be tools. The greeting is how we remember it is an agreement — and agreements are kept fresh, or they end."',
+        wrong: 'No law, and no luck. "Fire was wild before it was ours," said the elder. "Iron was stone before it agreed to be tools. The greeting keeps the agreement fresh — and an agreement kept carelessly ends."'
+      } },
+    { art: ['courtier'], who: null,
+      text: 'And think what that agreement gave everyone else. The farmer\'s ploughshare, the axe, the sickle, the arrowhead, the cooking pot\'s stand — for centuries, the villages of central India ran on Agaria iron. The quiet family at the furnace on the village edge was holding up half the world\'s work.' },
+    { art: ['guard'], who: null,
+      text: 'The Agaria\'s own tellings of the first furnace and the first iron are theirs, and they are rich — full of the iron spirit, the first smiths, and hard bargains between fire and people. Scholars wrote some of them down generations ago; the community\'s own elders remain the true keepers, and versions differ village to village, as living lore does.' },
+    { art: ['courtier', 'guard'], who: null, mood: 'wow',
+      text: 'Big mills make India\'s iron now, and the old clay furnaces are few. But the knowledge that a person can build a furnace from riverbank clay and breathe stone into metal — that lives where it always lived: in Agaria memory, and in the hands of those who still demonstrate the old smelting for the young to see.' },
+    { art: ['guard'], who: 'mithu',
+      text: 'Every tool you have ever used descends from somebody\'s first fire. The Agaria remember what the rest of us forget: it all began as an agreement with something wild — and they still say thank you to their half of it.' }
+  ],
+  moral: 'Every craft began as a friendship with something wild — honour the agreement and it holds.',
+  source: 'The Agaria iron-smelting communities of Chhattisgarh and central India — the clay furnaces, the bellows craft, and the honouring of Lohasur, the iron spirit of the furnace — as kept in Agaria tradition and recorded by scholars including Verrier Elwin (The Agaria, 1942). The Agaria\'s own origin tellings are theirs and vary; this telling stays within what the tradition holds and says so.'
+},
+
+{
+  id: 'fk.chitrakote-sings',
+  collection: 'heart-lands',
+  badge: 'katha',
+  title: 'The Waterfall That Sings',
+  hook: 'In the rains it roars like a crowd; in winter it plays like a flute. The people who live beside it say the river is practising.',
+  hero: 'pt_tortoise',
+  cast: ['pt_tortoise', 'courtier'],
+  minutes: 4,
+  place: ['IN-CT'],
+  words_hi: [['झरना', 'jharna', 'waterfall'], ['गीत', 'geet', 'song'], ['मौसम', 'mausam', 'season']],
+  scenes: [
+    { art: ['pt_tortoise'], who: null,
+      text: 'In Bastar, in Chhattisgarh, the Indravati river comes to a horseshoe-shaped cliff and steps off it, all at once, in a curtain of falling water so wide that people call Chitrakote the widest waterfall in India — the country\'s own little Niagara, wearing a permanent scarf of mist.' },
+    { art: ['courtier'], who: null,
+      text: 'The villages of the country around have lived with the falls forever, and they will tell you what every visitor eventually notices: Chitrakote never sounds the same twice. It has seasons of voice, as a person does. This is the telling one riverside grandfather gave his granddaughter about that.' },
+    { art: ['pt_tortoise', 'courtier'], who: null, mood: 'wow',
+      text: '"In the monsoon," he said, "she is a crowd — the whole brown flood shouting over the edge at once, and you must shout too, to be heard beside her. In autumn she is a choir, white and many-voiced. And in the dry months she narrows to silver threads, and plays soft, like a flute at the end of a feast."' },
+    { art: ['courtier'], who: 'courtier', mood: 'think',
+      text: 'The girl asked the good question: "Why so many songs? The rocks are the same rocks all year."',
+      ask: {
+        q: 'Same cliff, same river — why does the waterfall sound different every season?',
+        options: ['The rocks change shape', 'The river changes — how much water she carries changes her whole voice, though the cliff never moves', 'It only seems different because we change'],
+        answer: 1,
+        right: '"The cliff is her instrument," said her grandfather. "She is the player. Full of the monsoon she plays it thundering; lean in summer she plays it sweet. Same sitar — different song, depending what the player carries."',
+        wrong: 'The rocks hold still for centuries — and the change is real, not imagined; you can measure it. "The cliff is her instrument," said her grandfather. "The river is the player. What she carries decides the song."'
+      } },
+    { art: ['pt_tortoise'], who: null,
+      text: '"People are the same," the old man added, since a grandfather never wastes a waterfall. "Loud seasons, soft seasons, full years and lean ones — and the same person underneath all of it. Do not mistake somebody\'s quiet month for their whole music."' },
+    { art: ['courtier', 'pt_tortoise'], who: null,
+      text: 'The Indravati is Bastar\'s great river — the giver of fields and fish for the communities along her whole length — and the falls are her grandest public appearance. On full-moon nights the mist over the drop goes silver, and the pools below hold the moon like a coin, and nobody hurries home.' },
+    { art: ['pt_tortoise'], who: null, mood: 'wow',
+      text: 'Travellers come now from across the world with cameras, and the villages sell them tea and watch them discover, one by one, what Bastar always knew: you do not really photograph Chitrakote. You stand in the spray and let her sing whichever season\'s song she is practising, and you take that home instead.' },
+    { art: ['courtier'], who: 'mithu',
+      text: 'One river, many voices, one self underneath — like a singer, like a family, like you across a year. The falls have been teaching it free of charge for as long as the Indravati has run.' }
+  ],
+  moral: 'The same heart sings differently by season — judge no one by a single month\'s song.',
+  source: 'Chitrakote Falls on the Indravati river in Bastar, Chhattisgarh — its horseshoe cliff, its dramatic seasonal changes of flow and sound — is real and much loved. This grandfather\'s telling is composed for this app in the riverside manner of the region, and the source says so honestly.'
+},
+
+{
+  id: 'fk.danteshwari-bastar',
+  collection: 'heart-lands',
+  badge: 'katha',
+  title: 'The Goddess Who Walked Behind',
+  hook: 'The goddess made the king one promise: I will follow you into the new land — walk ahead, listen for my anklets, and do not look back.',
+  hero: 'durga',
+  cast: ['durga', 'guard'],
+  minutes: 4,
+  place: ['IN-CT'],
+  words_hi: [['देवी', 'devi', 'goddess'], ['पायल', 'paayal', 'anklets'], ['संगम', 'sangam', 'river-meeting']],
+  scenes: [
+    { art: ['durga'], who: null,
+      text: 'Bastar, the great forest land of southern Chhattisgarh, has a mother: Danteshwari. Every community of the region — village and town, forest and field — honours her as the land\'s own goddess, and her chief temple stands at Dantewada, where two rivers meet. This is the katha of how she came, told as Bastar tells it.' },
+    { art: ['guard'], who: null,
+      text: 'Long ago, the telling goes, a king called Annamdeva was leaving his old kingdom to found a new one in the southern forests. Before he set out, he prayed to the goddess his family had always served — and she gave him a promise, and a condition, which is how promises from goddesses usually arrive.' },
+    { art: ['durga', 'guard'], who: 'durga',
+      text: '"I will come with you," she said. "I will walk behind you, and where my feet go, your kingdom will be. You will not see me — but you will hear my anklets at your back, every step. Walk ahead, and trust the sound. And do not look back at me. That is the whole of the condition."' },
+    { art: ['guard'], who: null, mood: 'think',
+      text: 'So the king walked south, day upon day, through forests and over hills — and always behind him, chham, chham, the silver sound of the anklets, steady as his own heartbeat. Until he came to a place where two rivers meet, and crossed into the shallows, and there — the sound stopped.',
+      ask: {
+        q: 'The anklets have gone silent behind him. What should the king do?',
+        options: ['Keep walking and trust her — sand and water can silence any anklet', 'Look back — he must know if she is still there', 'Stop and wait without turning'],
+        answer: 0,
+        right: 'That is the harder, wiser road — in soft sand and running water, anklets go quiet though the feet still follow. But the king was human: his heart lurched, and he turned.',
+        wrong: 'The king chose as you might — he turned to look. And there she stood in the river-crossing, real as morning: it was only the water and sand that had silenced the anklets. She had never stopped following.'
+      } },
+    { art: ['durga'], who: null,
+      text: 'The condition was broken, and the goddess stayed where his glance had found her. "This far I have walked," she said, "and this far is enough. Here, where the rivers meet, I remain — and from here I will hold your whole land." There was no anger in it, the tellers insist. A goddess turns even a broken condition into a blessing with a good address.' },
+    { art: ['guard', 'durga'], who: null, mood: 'wow',
+      text: 'And so the temple of Danteshwari stands to this day at Dantewada, at the meeting of the rivers called Shankhini and Dankini, on the very spot where the anklets fell silent — and the town itself bears her name. The king built his kingdom around her, which is what the promise had meant all along.' },
+    { art: ['durga'], who: null,
+      text: 'Each year at Bastar Dussehra, the great seventy-five-day festival, Danteshwari is brought with honour to Jagdalpur, and all Bastar gathers to her. The whole festival, grandest in the land, turns around the goddess who once walked behind a king with silver at her ankles.' },
+    { art: ['durga'], who: 'mithu',
+      text: 'In many Bastar families the katha ends with a gentle word about trust: some promises ask you to keep walking on the strength of a sound. And even when trust stumbles — listen — the goddess stayed anyway. She is there at the sangam still.' }
+  ],
+  moral: 'Some promises ask you to walk on trust — and even a stumble can end in a blessing, where there is love.',
+  source: 'The founding katha of the Danteshwari temple at Dantewada, Chhattisgarh — the goddess following king Annamdeva by the sound of her anklets, the silence at the river-crossing of the Shankhini and Dankini, and the backward glance — as the tradition of Bastar tells it. The temple, and Danteshwari\'s presiding place in Bastar Dussehra, are living fact; the katha is presented from the inside, as it is told.'
+}
+];
+
+/* Shelf registry, merged by allCollections() alongside the other story files. */
+window.IND_COLLECTIONS_WEST = [
+  { id: 'coast-forest', name: 'The Coast and the Forest', note: 'Warli country, the Daman shore and Goa — Dadra & Nagar Haveli and Daman & Diu lit at last.', avatar: 'pt_crocodile' },
+  { id: 'west-lands',   name: 'The Western Lands',        note: 'Maharashtra, Gujarat and Rajasthan — mothers, milkmaids, lions, stepwells and one very reliable camel.', avatar: 'pt_lion' },
+  { id: 'heart-lands',  name: 'The Heart of the Land',    note: 'Madhya Pradesh and Chhattisgarh — the mahua, the boy who spoke tiger, and the epic that is sung standing up.', avatar: 'tansen' }
+];

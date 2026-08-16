@@ -384,6 +384,328 @@ PROMPTS = {
         "broad-shouldered young man braces his feet and heaves at the tail with both "
         "hands, red-faced and getting nowhere. Rhododendron blossom, snow peaks, "
         "pine, a rushing stream, bright thin mountain light."),
+
+    # =============================================== data-stories-more.js =====
+    # -- Jataka --
+    "jt.golden-goose": p(
+        "a goose whose every feather is bright beaten gold, standing on the low tiled "
+        "roof of a small village house at sunrise and letting one glowing gold feather "
+        "drift down onto the doorstep below; a mother and three daughters in simple "
+        "patched saris stand in the doorway with their hands at their mouths, looking up "
+        "at him. Rose and amber dawn, sewing baskets on the step, a mango tree, doves."),
+
+    "jt.woodpecker-lion": p(
+        "a calm golden lion lying on the forest floor with his head resting sideways on "
+        "the grass and his jaws propped wide apart by a short stick standing upright "
+        "between his upper and lower teeth like a tent pole, holding perfectly still "
+        "and patient with his eyes closed; a small green-and-crimson woodpecker stands "
+        "right at the front of his open mouth with her whole head and shoulders "
+        "disappearing inside it, tail up, feet braced on his lower lip, working away. "
+        "Dappled sunlight through leaves, painted ferns and flowers, curious deer "
+        "peeping from behind a tree. Gentle, kind, faintly comic, entirely unfrightening."),
+
+    "jt.elephant-dog": p(
+        "a sunny palace stable yard: a great grey elephant with painted forehead "
+        "markings lifting a small delighted street dog high with his curling trunk and "
+        "setting him on top of his own head, the dog with all four legs waving; stable "
+        "boys clapping, a trough of rice, a wise old minister smiling in the archway. "
+        "Warm golden light, marigold garlands, painted arches, joyful."),
+
+    "jt.nandivisala": p(
+        "a magnificent white ox with a great hump and painted horns leaning into a "
+        "wooden yoke and taking the first step, while behind him a line of a hundred "
+        "loaded bullock carts, roped one to the next, stretches away down a dusty road "
+        "to the horizon; his owner leans forward from the front cart speaking softly to "
+        "him, and a whole town lines the roadside cheering. Bright dust, hot gold light."),
+
+    "jt.monkey-gardener": p(
+        "a royal pleasure garden at dusk in cheerful comedy: a troop of monkeys busily "
+        "pulling young saplings out of their neat rows and holding them up in the air to "
+        "measure their dangling roots, brass water pots and leather buckets everywhere, "
+        "one chief monkey sitting on a stone bench directing the work with great "
+        "seriousness; flower beds, a garden wall, a mango tree, warm evening colour."),
+
+    "jt.crocodile-rock": p(
+        "a moonlit river at dusk: a monkey standing on the near bank with both hands "
+        "cupped around his mouth, shouting cheerfully across the water at a large grey "
+        "boulder in midstream — and the boulder is quite clearly a big crocodile lying "
+        "flat with his eyes just showing, opening his mouth to answer; the far bank is "
+        "an island of fruit trees. Silver moon, indigo water, reeds, fireflies, comic."),
+
+    "jt.parrot-figtree": p(
+        "a huge old fig tree on a riverbank whose bare grey branches are bursting back "
+        "into green leaf in a spreading haze from the middle outward: one small green "
+        "parrot sits firmly on a high branch on the left where he has always sat, and "
+        "beside him a great goose with wings the colour of morning; new figs appearing, "
+        "a flock of birds returning across a golden sky, the Ganga wide below."),
+
+    "jt.partridge-elders": p(
+        "under an enormous spreading banyan tree, three friends stacked one on another "
+        "and walking along together: a big patterned elephant below, a monkey sitting on "
+        "his back, and a small brown partridge perched on the monkey's shoulder, all "
+        "three looking pleased with themselves; hanging aerial roots, ripe figs, painted "
+        "birds and leaves, a stone gateway carved with the same three animals beyond."),
+
+    "jt.quail-fire": p(
+        "a tiny downy quail chick sitting up bright and unafraid in a grass nest at the "
+        "centre of a perfect circle of green untouched grass, while the orange line of a "
+        "grass fire curves respectfully away all around the outside of that circle and "
+        "goes off up the slope; dawn light through smoke, deer and birds moving away in "
+        "the distance, painted grasses. Calm, radiant, protected."),
+
+    "jt.guttila-veena": p(
+        "a great open assembly ground in Benares at night: an old master musician "
+        "seated cross-legged on a low platform playing a long veena that has a single "
+        "string left on it, his eyes closed; thousands of people sit hushed on the "
+        "ground in the lamplight, the king at the front, a young musician standing to "
+        "one side holding his own perfect seven-stringed instrument and listening. "
+        "Hanging oil lamps, deep blue night, warm gold pools of light."),
+
+    "jt.three-birds-king": p(
+        "a palace chamber at night: a king in a plain robe sitting on the floor beside "
+        "three wooden perches, talking earnestly to three birds — a round wise owl, a "
+        "bright green parrot and a small brown hen — who look back at him and are "
+        "plainly answering; one oil lamp, an open window full of stars, carpets, jali "
+        "screens, painted flowers. Intimate, warm, gold on deep blue."),
+
+    "jt.trees-together": p(
+        "a great storm on the plain: on the right a dense wood whose trees lean together "
+        "with their branches interlocked, holding firm while only leaves fly off them; "
+        "on the left a wide open field where a few very large solitary trees lie tipped "
+        "over with their root plates in the air; a bruise-coloured sky, sheets of wind "
+        "drawn as sweeping painted lines, birds sheltering deep inside the wood."),
+
+    # -- Panchatantra & Hitopadesha --
+    "pt.mongoose-baby": p(
+        "the warm inside of a village house: a father sitting down flat on the floor "
+        "with relief all over his face while a sleek little mongoose puts both front "
+        "paws up on his knee, pleased with himself and waiting to be praised; just "
+        "behind them a wooden cradle with a fat happy baby kicking both legs in the air. "
+        "Lamplight, a doorway of daylight, painted floor patterns, brass pots, tender."),
+
+    "pt.four-friends": p(
+        "a golden evening field: a deer stepping free of a loosened rope net whose "
+        "strands hang chewed apart, a small mouse standing on the net still holding a "
+        "strand, a crow with wings spread overhead, and a determined tortoise arriving "
+        "at a run from the far side; long grass, a distant wood, a lake beyond. Warm "
+        "amber light, painted rope pattern, all four friends together in one frame."),
+
+    "pt.mice-iron": p(
+        "a court of judges in a Gujarati merchant town: a huge heavy iron balance-beam "
+        "being carried in and set down on the floor by two straining porters, entirely "
+        "unmarked; one merchant looking sheepish, another with his arms folded, a room "
+        "of townspeople trying not to laugh, and a small mouse sitting quite innocently "
+        "on a sack in the corner. Carved wooden pillars, warm ochre, scales, ledgers."),
+
+    "pt.crane-crab": p(
+        "high over a green landscape at midday: a big old crane in flight with a "
+        "blue-grey crab riding on his long neck, both claws firmly clamped on either "
+        "side of it, the crab looking sternly down; far below a small flat sun-baked "
+        "rock in a field, and behind them the lily pond they came from with the hill "
+        "between. Wide painted sky, swirling clouds, kingfisher blue and white."),
+
+    "pt.elephants-rabbits": p(
+        "a desert lake under an enormous full moon: a huge tusked elephant kneeling at "
+        "the water's edge with his trunk just touching the surface, and the reflected "
+        "moon breaking into a hundred shivering white pieces spreading right across the "
+        "lake; a small rabbit stands upright on a high rock beside them with one paw "
+        "raised, speaking, and the whole herd waits behind in the moonlight. Rajasthan "
+        "dunes, silver and indigo, painted ripples."),
+
+    "pt.two-headed-bird": p(
+        "a lush green riverbank in full colour: a beautiful bird with one plump body and "
+        "two long graceful necks and two heads, its plumage deep peacock blue, emerald "
+        "green and gold with dense decorative feather pattern; the right head holds a "
+        "glossy scarlet fruit in its beak and the left head is turned away, looking out "
+        "over the water. Deep turquoise river with painted ripples, banks thick with "
+        "emerald reeds and pink lotus, mango trees in full leaf, a white heron, a sunset "
+        "sky of rose and marigold above, fireflies. Richly saturated, jewel-like, "
+        "many different colours, ornamental and tender."),
+
+    "pt.lion-makers": p(
+        "a sunlit forest clearing in gentle comedy: a brand-new young lion standing in "
+        "the grass having a great luxurious stretch with his eyes half shut, looking "
+        "thoroughly pleased and not at all fierce; three learned young men in scholars' "
+        "shawls are running away over the ridge with their books under their arms, and a "
+        "fourth sits comfortably high in a tree looking down. Dappled light, painted "
+        "leaves, scattered white bones and a fallen palm-leaf book on the ground."),
+
+    "pt.drum-jackal": p(
+        "an abandoned army camp field at dusk: a lean jackal crouching low in the grass "
+        "with his ears up, staring at an enormous war drum lying on its side in a clump "
+        "of bushes, a long branch swinging over it in the wind and striking the drumskin; "
+        "beside the drum a burst sack spilling grain and provisions. Long shadows, "
+        "abandoned tent pegs, dusty rose sky, painted drum ornament."),
+
+    "pt.monkey-wedge": p(
+        "a temple building yard at noon: a half-sawn log lying across trestles with a "
+        "wooden wedge driven into the split, and a young monkey sitting astride the log "
+        "with both hands gripping that wedge and heaving at it with all his might; other "
+        "monkeys sitting in the empty buckets and inspecting the saws, the carpenters' "
+        "lunch cloths abandoned, a half-carved stone temple rising behind. Bright, comic."),
+
+    "pt.singing-donkey": p(
+        "a moonlit cucumber field: a fat happy grey donkey standing among the vines with "
+        "his head thrown right back and his mouth wide open, singing at the moon with "
+        "enormous feeling; a jackal is slipping neatly out through a gap in the thorn "
+        "fence in the foreground, glancing back; a farmer's hut with one lit window a "
+        "little way off. Silver-blue night, curling vines, comic and warm."),
+
+    # -- Puranic --
+    "pu.samudra-manthan": p(
+        "drawn reverently in a folk-art idiom, the great churning of the ocean of milk: "
+        "Mount Mandara standing upright in the middle of a wide sea, spinning on the "
+        "broad back of an enormous serene tortoise, with the huge coiled serpent Vasuki "
+        "wound round the mountain as a rope; two long lines of figures haul on either "
+        "end of him from left and right; overhead the goddess Lakshmi rises standing on "
+        "a pink lotus with elephants pouring water, and beside the mountain a "
+        "blue-throated Shiva stands calm and gentle. Foam, conch shells, banded gold and "
+        "turquoise sea, radiant light."),
+
+    "pu.ganga-shiva": p(
+        "drawn reverently in a folk-art idiom: Shiva seated serenely on a snowy "
+        "Himalayan peak with his eyes closed and a crescent moon in his piled-up matted "
+        "hair, and the whole white torrent of a heavenly river falling out of the sky "
+        "into that hair and disappearing, then coming out below as one clear bright "
+        "stream that runs down the rock; a prince stands lower on the slope with his "
+        "hands joined, walking ahead of the new river as it goes down to the plain. "
+        "Deodar pines, snow, blue and silver and gold, spray and rainbows."),
+
+    "pu.durga-mahisha": p(
+        "drawn reverently in a folk-art idiom, the moment of calm victory: the goddess "
+        "Durga seated serenely side-saddle on a great golden lion on a green hilltop at "
+        "dawn, radiant and smiling gently, with many arms each holding a different "
+        "emblem — lotus, conch, discus, bow, bell — held quietly at rest; a crown, red "
+        "and gold silk, heavy jewellery, a garland of hibiscus. All around her the devas "
+        "stand with their hands joined offering lamps and flowers, and the sky behind is "
+        "full of golden light. Marigolds, drums, festival banners, deeply warm."),
+
+    "pu.narasimha-prahlad": p(
+        "drawn reverently in a folk-art idiom, the quiet moment after: in a marble "
+        "palace hall at dusk, the lion-faced Narasimha sits calmly on the threshold "
+        "step, entirely at peace, with a small boy in a yellow dhoti standing at his "
+        "knee with his hands joined and his eyes shining; one hand rests gently on the "
+        "boy's head. Behind them a great stone pillar stands cracked open with warm "
+        "golden light pouring out of it. Lamps, scalloped arches, courtiers bowing far "
+        "back in the shadows. Tender, radiant, gentle."),
+
+    "pu.dhruva-star": p(
+        "a small boy standing alone and very straight in a clearing in a dark forest at "
+        "night, his hands joined, his face turned up to an immense sky of painted stars "
+        "— and directly above him one large steady white star, brighter than the rest, "
+        "with all the other stars drawn as fine circling trails wheeling around it; "
+        "sages' huts, deer resting, fireflies, deep indigo and gold. Still and hopeful."),
+
+    "pu.krishna-kaliya": p(
+        "drawn reverently in a folk-art idiom, the most-painted scene in Braj: the boy "
+        "Krishna, blue-skinned, in a yellow dhoti with a peacock feather in his hair, "
+        "dancing lightly on the spread hoods of a great many-headed serpent in the "
+        "middle of the Yamuna, one foot raised, one hand holding the serpent's tail like "
+        "a ribbon, smiling; the serpent's wives rise from the water on either side with "
+        "their hands joined; the whole village of cowherds and cows crowds the bank "
+        "under a kadamba tree, watching. White water, lotuses, turquoise and gold."),
+
+    "pu.govardhan": p(
+        "drawn reverently in a folk-art idiom: the boy Krishna, blue-skinned in a yellow "
+        "dhoti, standing easily and holding an entire green hill up on the little finger "
+        "of one raised hand like an umbrella; underneath the hill the whole village of "
+        "Vrindavan shelters dry — men, women, children, cows, calves, dogs and carts — "
+        "and all around the rim the cowherds hold their long wooden staffs up against "
+        "the underside of the hill, taking their share. Sheets of monsoon rain outside, "
+        "peacocks, deep greens, warm gold light under the hill."),
+
+    "pu.markandeya": p(
+        "a small stone Shiva shrine by the sea at dusk: a boy with both arms wrapped "
+        "tightly around a smooth dark stone lingam on its round base, his cheek against "
+        "it and his eyes shut, a small oil lamp and fresh flowers beside him — and out "
+        "of the stone itself a gentle radiance of warm light spreading through the whole "
+        "shrine, with the calm figure of Shiva appearing within that light, drawn "
+        "reverently in a folk-art idiom. Coconut palms, waves, bilva leaves, deep "
+        "protective glow."),
+
+    # -- Regional folk --
+    "fk.bhekuli-biya": p(
+        "an Assam village at the end of a hot dry afternoon: a children's frog wedding "
+        "in full swing — two little frogs dabbed with turmeric sitting side by side "
+        "under a tiny pandal made of banana leaf, a small boy holding a big umbrella "
+        "over them, girls in mekhela chador singing with their hands raised, someone "
+        "banging a dhol; the whole village watching and laughing, a grandmother on the "
+        "step; cracked paddy fields beyond and the first heavy dark clouds finally "
+        "coming over the hills. Marigold, brass, green and gold."),
+
+    "fk.lepcha-tower": p(
+        "a towering column of thousands of round clay cooking pots stacked one on "
+        "another, rising from a Sikkim hillside past the pines and up into the cloud "
+        "out of sight, with a long line of tiny people passing pots hand to hand all the "
+        "way up it; the great white snow wall of Kanchenjunga stands behind in the "
+        "clear morning air. Prayer flags, terraced fields, cardamom groves, deep blue "
+        "sky, awe and scale."),
+
+    "fk.pebet": p(
+        "a Manipur grassland at golden hour: a very small brown mother bird flying low "
+        "and heavy just above the grass tops with her smallest chick clinging "
+        "underneath her, heading for a dense thorn bush; five other fledglings wobble "
+        "off in five directions overhead; below in the grass a startled cat sits with "
+        "his paw half raised, quite outwitted. Lotus pond, tall reeds, warm gold light."),
+
+    "fk.hojagiri-pots": p(
+        "a Tripura hill village at night: eight Reang girls in black and red woven "
+        "risa and rignai each balanced on top of an upturned earthen pitcher, dancing "
+        "with only their knees and hips moving, a bottle standing on each girl's head "
+        "and a lit oil lamp burning on top of each bottle, a cloth in their hands; "
+        "drummers seated in front, harvested paddy sheaves stacked behind, the whole "
+        "village watching. Deep night blue, eight steady flames, firelight, bamboo."),
+
+    "fk.parashuram-coast": p(
+        "drawn reverently in a folk-art idiom: a calm sage-warrior with an axe across "
+        "his shoulder standing high on the green cliff-top of the Western Ghats, having "
+        "just loosed an arrow far out over the sea — the arrow drawn as a long golden "
+        "arc over the water; below him the sea has drawn back and left a wide new strip "
+        "of dark shining land between the mountains and the waves, and people are "
+        "already coming down the slope to it with baskets and coconut saplings. "
+        "Monsoon-washed greens, laterite red earth, palms, radiant sky."),
+
+    "fk.hadimba-cedar": p(
+        "a tall wooden temple with a triple pagoda roof standing in a wood of "
+        "enormous ancient deodar cedars above Manali, shafts of light coming down "
+        "between the trunks in bars; a Kullu Dussehra procession winds up the path to it "
+        "— village deities carried on flower-decked palanquins on men's shoulders, "
+        "long horns, drums, women in Kullu shawls and caps; snow peaks glimpsed beyond. "
+        "Deep green shade, warm gold light, carved wooden panels, hushed and grand."),
+
+    "fk.santhal-first-birds": p(
+        "the beginning of the world: an endless open ocean under a wide pale sky, with "
+        "two tired birds circling low over it — and in the middle of the water an "
+        "enormous calm tortoise holding perfectly still while a fresh island of dark "
+        "earth grows across his broad back, an earthworm curling on the new soil, and a "
+        "crab and a prawn watching from the shallows below. First green shoots, "
+        "first light on the water, deep teal and gold, Santhal wall-painting patterns "
+        "of white line on warm earth-red running round the scene."),
+
+    "fk.karaikal-mango": p(
+        "the doorway of a Tamil merchant's house in Karaikal at midday: a woman in a "
+        "sari standing on the threshold placing a golden mango and a heap of rice onto a "
+        "banana leaf held out by a thin, dusty wandering ascetic who has stopped at her "
+        "door; behind her the cool dark of the house with brass vessels and a lit lamp, "
+        "and a kolam drawn on the step. Coconut palms, hot white coastal light, deep "
+        "reds and gold, quiet and generous."),
+
+    "fk.andaman-fire": p(
+        "a night seascape in the Andaman Islands: a small brilliant blue-and-orange "
+        "kingfisher flying fast and low over the black water carrying a burning brand in "
+        "his beak, a trail of bright sparks streaming behind him; ahead of him the dark "
+        "green wall of an island forest with mangrove roots and tall trees, and behind "
+        "him a great storm sky of piled cloud lit from within. Painted waves, phosphor "
+        "on the water, deep indigo and ember orange. A landscape and a bird alone."),
+
+    "fk.abotani-rice": p(
+        "an Arunachal Pradesh hillside at harvest, first light on the mountains: a "
+        "bamboo house on stilts with a thatched roof, terraced rice fields dropping away "
+        "in green and gold steps below it, and on the veranda a tall woven basket heaped "
+        "with the first rice of the world — a pair of hands setting a small handful of "
+        "that rice out onto a green leaf on the top step before anyone has eaten. A "
+        "great dark mithun stands quietly in the yard below, bamboo tubes, woven cane "
+        "baskets, red and white Tani weaving patterns, mist in the valley, dawn gold."),
 }
 
 
@@ -395,7 +717,7 @@ def slug(story_id):
 def story_ids_from_data():
     """Read the ids out of the two data files so we can assert full coverage."""
     ids = []
-    for name in ("data-stories.js", "data-stories-regional.js"):
+    for name in ("data-stories.js", "data-stories-regional.js", "data-stories-more.js"):
         path = os.path.join(ROOT, "app", name)
         with open(path, encoding="utf-8") as fh:
             src = fh.read()
@@ -419,9 +741,25 @@ def to_jpeg(png_bytes, path):
     im.save(path, "JPEG", quality=QUALITY, optimize=True, progressive=True)
 
 
+def ref_parts():
+    """Style-reference paintings as inline_data parts, loaded once and cached."""
+    if not hasattr(ref_parts, "cache"):
+        parts = []
+        for path in REF_IMAGES:
+            if os.path.exists(path):
+                with open(path, "rb") as fh:
+                    parts.append({"inline_data": {
+                        "mime_type": "image/jpeg",
+                        "data": base64.b64encode(fh.read()).decode("ascii")}})
+        ref_parts.cache = parts
+    return ref_parts.cache
+
+
 def generate(prompt, key):
     """One call. Returns PNG bytes. Retries 3x with backoff on 429/5xx."""
-    body = json.dumps({"contents": [{"parts": [{"text": prompt}]}]}).encode()
+    parts = list(ref_parts())
+    parts.append({"text": (REF_NOTE if parts else "") + prompt})
+    body = json.dumps({"contents": [{"parts": parts}]}).encode()
     last = None
     for attempt in range(3):
         req = urllib.request.Request(

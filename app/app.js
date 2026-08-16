@@ -1546,6 +1546,10 @@
 
   var deck = { epic: null, n: 0, i: 0 };
 
+  function avatarName(id) { return (window.IND_AVATAR_NAMES || {})[id] || ''; }
+  function cardVoice(epicId, n, i) { return 'ep/' + epicId + '-' + n + '-' + i; }
+  function hasVoice(k) { return !!(window.IND_VOICE && window.IND_VOICE.indexOf(k) >= 0); }
+
   V.episode = function () {
     var e = epicById(deck.epic);
     if (!e) return '<div class="card">Not found.</div>';
@@ -1560,12 +1564,33 @@
         '<div class="mono">End of episode ' + ep.n + '</div>' +
         '<h1 style="margin:6px 0 12px">' + esc(ep.title) + '</h1>' +
         '<p style="font-size:18px;max-width:44ch;margin:0 auto var(--space-lg)">' + esc(ep.ends_on || '') + '</p>' +
+        (hasVoice('ep/' + e.id + '-' + ep.n + '-end')
+          ? '<button class="btn ghost sm" style="margin-bottom:var(--space-lg)" data-act="say" ' +
+            'data-k="ep/' + e.id + '-' + ep.n + '-end">' + icon('sound', 16) + ' Hear it again</button>' : '') +
         (nextEp ? '<button class="btn lg" data-act="episode" data-id="' + e.id + '" data-n="' + nextEp.n + '">' +
           'Next: ' + esc(nextEp.title) + ' →</button>' :
           '<p class="tiny muted">That is the last one we have written. More is coming.</p>') +
         '<div class="row" style="justify-content:center;margin-top:12px">' +
         '<button class="btn ghost" data-act="episode" data-id="' + e.id + '" data-n="' + ep.n + '">' + icon('play', 18) + ' Again</button>' +
         '<button class="btn ghost" data-act="epic" data-id="' + e.id + '">All episodes</button></div></div>' +
+        /* THE THING TO THINK ABOUT — a question, never a moral. Both epics were deliberately
+           written without a moral field: the Mahabharata in particular refuses to hand down
+           verdicts, and bolting "the lesson is…" onto Karna at the wheel would flatten the
+           one thing that makes it worth telling. So the episode closes on an open question
+           it genuinely raises, and where a value from Neeti honestly fits, the door to it. */
+        (ep.wonder
+          ? '<div class="card wonder"><div class="mono">Something to think about</div>' +
+            '<p>' + esc(ep.wonder) + '</p>' +
+            (ep.value && window.IND_NEETI
+              ? (function () {
+                  var v = window.IND_NEETI.values.filter(function (x) { return x.id === ep.value; })[0];
+                  return v ? '<button class="btn ghost sm" data-act="value" data-id="' + v.id + '">' +
+                    'More about ' + esc(v.roman) + ' →</button>' : '';
+                })()
+              : '') +
+            '<p class="tiny muted" style="margin:var(--space-md) 0 0">There is no right answer ' +
+            'here. Ask a grown-up what they think — they may not be sure either.</p></div>'
+          : '') +
         (ep.words_hi && ep.words_hi.length ? '<div class="card"><h3>Three words from this one</h3><div class="grid g3">' +
           ep.words_hi.map(function (w) {
             return '<button class="tile center" data-act="say" data-k="hi/w-' + slug(w[1]) + '">' +
@@ -1589,8 +1614,23 @@
       '<div class="dots">' + ep.cards.map(function (_, i) { return '<i class="' + (i <= deck.i ? 'on' : '') + '"></i>'; }).join('') + '</div></div>' +
       (epArt ? '<div class="deckart"><img src="' + epArt + '" alt="" loading="lazy"></div>' : '') +
       '<div class="deckcard' + (epArt ? ' under' : '') + '">' +
-        '<div class="who">' + (who === 'mithu' ? mascot('mithu', 'talk', 76) : speaker ? art(speaker, 84) : art(e.avatar, 84)) + '</div>' +
+        /* Who is talking, by name as well as by face. A portrait alone is no use to a child
+           meeting thirty new characters — Vibhishana and Sugriva are not tellable apart from
+           their pictures the first time. `who` is null on narrated beats, and then the card
+           is simply the storyteller's voice with no name attached. */
+        '<div class="who">' +
+          (who === 'mithu' ? mascot('mithu', 'talk', 76) : speaker ? art(speaker, 84) : art(e.avatar, 84)) +
+          (speaker && avatarName(speaker)
+            ? '<span class="whoname">' + esc(avatarName(speaker)) + '</span>' : '') +
+        '</div>' +
         '<p>' + esc(c.text) + '</p>' +
+        /* Read it to me. The whole app is audio-first for a reason — a child of four cannot
+           read this and a child of nine still wants it read. */
+        (hasVoice(cardVoice(e.id, ep.n, deck.i))
+          ? '<div class="row" style="justify-content:center">' +
+            '<button class="btn ghost sm" data-act="say" data-k="' + cardVoice(e.id, ep.n, deck.i) + '">' +
+            icon('sound', 16) + ' Read it to me</button></div>'
+          : '') +
       '</div>' +
       '<div class="row" style="margin-top:14px">' +
       (deck.i > 0 ? '<button class="btn ghost" data-act="cardback">' + icon('back', 18) + '</button>' : '') +

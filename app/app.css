@@ -813,7 +813,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl); z-index: -1;
 }
 .deckcard::after { left: 26px; right: 26px; bottom: -13px; opacity: .65; }
-.deckcard .who { display: grid; place-items: center; }
+.deckcard .who { display: grid; place-items: center; gap: 4px; }
+/* The speaker's name under the face. Thirty new characters is a lot, and Vibhishana and
+   Sugriva are not tellable apart from their portraits the first time. */
+.deckcard .whoname {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+}
 .deckcard p {
   font-size: 19px; line-height: 1.62; color: var(--text); margin: 0;
   max-width: 46ch; justify-self: center; text-align: center;
@@ -821,3 +827,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @keyframes turn { from { opacity: 0; transform: translateX(14px) } }
 @keyframes rise { from { opacity: 0; transform: translateY(10px) } }
 @media (max-width: 560px) { .deckcard p { font-size: 17.5px; } }
+
+/* A question at the end of an episode, never a moral. Styled as an invitation — warm,
+   open, unfinished — rather than as the boxed "moral of the story" a fable ends on. */
+.wonder { border-left: 4px solid var(--accent2); background: var(--ground2); }
+.wonder p { font-size: 17px; line-height: 1.6; max-width: 52ch; }

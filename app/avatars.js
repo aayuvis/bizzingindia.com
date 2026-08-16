@@ -585,17 +585,17 @@ window.IND_AVATAR_PACKS = [
   { id: 'darbar', name: "Akbar's Darbar",  note: 'The cleverest court in the world.',
     ids: ['akbar','birbal','tansen','courtier','guard','royal_elephant'] },
   { id: 'great',  name: 'Great Indians',   note: 'Real people. Every one has an Itihaas card.',
-    ids: ['ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','aryabhata','tagore','kalpana','sarojini'] },
+    ids: ['ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','aryabhata','tagore','kalpana','sarojini','savitribai','hansa_mehta'] },
 
   /* Modern India. Real people again — athletes and builders, chosen so a child sees
      women and men, north and south, plains and hills, a wheelchair and a turban, all
      under the same word: champion. No politician is in either pack, deliberately. */
   { id: 'khel',   name: 'India at Play',   note: 'The athletes who made a billion people look up.',
-    ids: ['dhyanchand','milkha','kapil','sachin','marykom','sindhu','neeraj','anand','gukesh','avani'] },
-  { id: 'naya',   name: 'The Builders',    note: 'Milk, software, rockets and startups — made here.',
-    ids: ['kurien','n_murthy','sudha_murty','falguni','ritesh','rocket','unicorn'] },
+    ids: ['dhyanchand','milkha','kapil','sachin','dhoni','kohli','mithali','marykom','sindhu','saina','neeraj','malleswari','mirabai','anand','gukesh','avani'] },
+  { id: 'naya',   name: 'The Builders',    note: 'Milk, software, rockets, startups, a bank for working women — made here.',
+    ids: ['kurien','n_murthy','sudha_murty','falguni','kiran_shaw','ela_bhatt','ritesh','rocket','unicorn'] },
   { id: 'vigyan', name: 'The Scientists',  note: 'They asked why, and kept asking. Kalam, Kalpana and Aryabhata keep their place among the Great Indians.',
-    ids: ['raman','ramanujan','bhabha','sarabhai','jcbose','janaki_ammal','swaminathan','salimali'] },
+    ids: ['raman','ramanujan','bhabha','sarabhai','jcbose','janaki_ammal','annamani','tessy','swaminathan','salimali'] },
 
   /* The epic casts. All 30 PNGs live under app/art and in art-manifest.js.
      Rama, Hanuman and Krishna stay in the Devas pack and are deliberately not repeated
@@ -631,6 +631,12 @@ window.IND_AVATAR_NAMES = {
   raman:'C. V. Raman', ramanujan:'Srinivasa Ramanujan', bhabha:'Homi Bhabha',
   sarabhai:'Vikram Sarabhai', jcbose:'Jagadish Chandra Bose', janaki_ammal:'Janaki Ammal',
   swaminathan:'M. S. Swaminathan', salimali:'Salim Ali',
+  annamani:'Anna Mani', tessy:'Tessy Thomas',
+  /* The 2026-08 women's bench, and the two captains */
+  dhoni:'M. S. Dhoni', kohli:'Virat Kohli', mithali:'Mithali Raj', saina:'Saina Nehwal',
+  malleswari:'Karnam Malleswari', mirabai:'Mirabai Chanu',
+  kiran_shaw:'Kiran Mazumdar-Shaw', ela_bhatt:'Ela Bhatt',
+  savitribai:'Savitribai Phule', hansa_mehta:'Hansa Mehta',
   /* Ramayana. Names are the ones a child will hear at home; no epithets, no titles
      that would rank one character above another. */
   sita:'Sita', lakshmana:'Lakshmana', bharata:'Bharata', dasharatha:'Dasharatha',

@@ -488,5 +488,41 @@
  },
  "salimali": {
   "prompt": "Salim Ali, the Birdman of India: a wiry smiling older man with a white beard, in a khaki field jacket and cap, binoculars around his neck and a tiny sparrow perched on one finger, natural Indian skin."
+ },
+ "dhoni": {
+  "prompt": "M. S. Dhoni, Captain Cool: a calmly smiling cricketer with short hair in an India-blue jersey, wicket-keeping gloves on, lifting a golden trophy with one steady hand, natural Indian skin."
+ },
+ "kohli": {
+  "prompt": "Virat Kohli, the chase master: an intensely joyful cricketer with a neat black beard in an India-blue jersey, mid celebration with both fists up, a cricket bat under one arm, natural Indian skin."
+ },
+ "mithali": {
+  "prompt": "Mithali Raj, the queen of women's cricket: a serenely smiling woman cricketer with a long braid, in an India-blue jersey with pads and bat, natural Indian skin."
+ },
+ "saina": {
+  "prompt": "Saina Nehwal, badminton pioneer: a determined smiling young woman with a short ponytail, in an India jersey, mid smash with her racquet high, a medal at her chest, natural Indian skin."
+ },
+ "malleswari": {
+  "prompt": "Karnam Malleswari, the first Indian woman to win an Olympic medal: a powerfully smiling woman in an India weightlifting singlet, holding a loaded barbell aloft with both arms locked out, a bronze medal shining, natural Indian skin."
+ },
+ "mirabai": {
+  "prompt": "Mirabai Chanu, weightlifting champion from Manipur: a joyfully beaming small-framed woman with her hair in a bun, East Asian facial features true to Manipur, in an India singlet lifting a barbell overhead, a silver medal, natural skin tone."
+ },
+ "annamani": {
+  "prompt": "Anna Mani, the weather woman of India: a wise smiling older woman in a simple handloom sari with short curled grey hair, holding a small weather balloon on a string in one hand and an anemometer in the other, natural Indian skin."
+ },
+ "tessy": {
+  "prompt": "Tessy Thomas, the missile scientist: a confident warmly smiling woman with her hair tied back, wearing a sari with an identity badge, holding a small model of a slender launch rocket, natural Indian skin."
+ },
+ "kiran_shaw": {
+  "prompt": "Kiran Mazumdar-Shaw, the biotech pioneer: a bright-eyed smiling woman with short silver-streaked hair in an elegant kurta jacket, holding up a glass laboratory flask glowing softly amber, natural Indian skin."
+ },
+ "hansa_mehta": {
+  "prompt": "Hansa Mehta, who wrote 'all human beings' into the world's rights: a dignified gently smiling woman of the 1940s in a khadi sari with her head lightly covered, holding an unfurled scroll with a globe faintly behind her, natural Indian skin."
+ },
+ "savitribai": {
+  "prompt": "Savitribai Phule, who opened the school door for girls in 1848: a resolute warmly smiling woman in a simple 1840s Marathi sari, one arm around a slate, the other hand holding an oil lamp that lights a doorway, natural Indian skin."
+ },
+ "ela_bhatt": {
+  "prompt": "Ela Bhatt, the gentle banker of working women: a softly smiling elderly woman in a plain white khadi sari with round spectacles, holding a small cloth passbook bag, marigolds at her shoulder, natural Indian skin."
  }
 }

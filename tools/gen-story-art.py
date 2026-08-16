@@ -764,6 +764,18 @@ PROMPTS = {
         "him a great storm sky of piled cloud lit from within. Painted waves, phosphor "
         "on the water, deep indigo and ember orange. A landscape and a bird alone."),
 
+    # Composed automatically this story's motto-shaped prose keeps coming back as
+    # ribbon lettering across the sky — three rolls, three banners. Hand-composed
+    # scene with no scroll, no ribbon, nothing shaped like a place for words.
+    "ny.flipkart": p(
+        "a Bengaluru lane at dusk in the mid-2000s: a young man on a small scooter, a "
+        "stack of paper-wrapped books tied with string on the seat behind him, handing "
+        "one wrapped book down to a delighted mother and child at their gate; warm "
+        "windows coming on down the lane, rain-washed street shining, a sleeping dog, "
+        "a chai stall's steam, marigolds on a balcony rail. In the far sky one small "
+        "white star shaped faintly like a running horse. No writing, no signboards, no "
+        "ribbons or scrolls anywhere in the scene."),
+
     "fk.abotani-rice": p(
         "an Arunachal Pradesh hillside at harvest, first light on the mountains: a "
         "bamboo house on stilts with a thatched roof, terraced rice fields dropping away "

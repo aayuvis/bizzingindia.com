@@ -159,7 +159,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--ground2);           /* solid: color-mix + blur rendered badly on some browsers */
   border-bottom: 1px solid var(--line);
 }
-.topbar .barrow { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: var(--space-md); padding: 14px var(--space-lg) 12px; }
+/* flex-wrap so a long wordmark and four controls can never sit on top of each
+   other; min-width:0 on the brand lets it shrink instead of pushing them off */
+.topbar .barrow { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-md); padding: 14px var(--space-lg) 12px; }
 /* a button now (it is the way home), so the button chrome has to be undone */
 .brand {
   display: flex; align-items: center; gap: 14px; min-width: 0;
@@ -172,9 +174,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .brand em { font-style: italic; color: var(--accent); }
 /* flex:none or the mark gets squeezed flat when the bar is tight */
 .brand img, .brand svg { flex: none; width: 68px; height: 68px; border-radius: 16px; object-fit: contain; }
+/* The wordmark got big on purpose, but at phone width it was driving straight
+   into the kauri count and the language chip. Step it down before the collision
+   rather than letting the row overlap. */
+@media (max-width: 560px) {
+  .brand { font-size: 21px; gap: 9px; }
+  .brand img, .brand svg { width: 44px; height: 44px; }
+}
 @media (max-width: 430px) {
-  .brand { font-size: 25px; gap: 10px; }
-  .brand img, .brand svg { width: 52px; height: 52px; }
+  .brand { font-size: 18px; gap: 7px; }
+  .brand img, .brand svg { width: 36px; height: 36px; }
 }
 
 /* horizontal nav — the Bizzing Bee pattern. Wraps rather than scrolls, so no

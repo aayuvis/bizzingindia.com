@@ -903,9 +903,9 @@ window.IND_ITIHAAS = {
         { what: 'Chennai, the chess city that raised two world champions', where: 'Chennai',
           state: 'TN' }
       ],
-      /* Linked in a later pass: the sports and startup story collections are being written
-         in parallel and their ids are not settled — do not guess them here. */
-      stories: [],
+      /* The khel and naya collections in data-stories-modern.js carry the era's people at
+         story length; the six here are the spine — one per moment, roughly. */
+      stories: ['ny.infosys', 'ny.upi', 'ny.isro', 'kh.neeraj', 'kh.gukesh', 'ny.nykaa'],
       listen: 'This stretch of the river is moving fast — code, rockets, javelins — and ' +
               'the people digging it are alive right now, some not much older than you.',
       sources: ['Reserve Bank of India\'s official history volumes on the 1991 ' +

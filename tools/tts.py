@@ -1,9 +1,20 @@
 """Bizzing India narration generator.
 
     python3 tools/tts.py clips.json [--force] [--print-ssml]
+    python3 tools/tts.py --audit clips.json [--words words_alpha.txt]
+    python3 tools/tts.py --check-lexicon [term ...]
 
 clips.json is a list of {key, text, lang}. Audio lands at app/voice/<key>.mp3 and
 app/voice-manifest.js is rewritten from whatever is actually on disk afterwards.
+
+--audit runs every clip through the SSML builder and prints the word tokens that
+came out UNWRAPPED and are not in an English wordlist. That is how the lexicon is
+grown: exhaustively, from the corpus, rather than by remembering names.
+
+--check-lexicon asks the live API whether a <phoneme> is actually honoured. An IPA
+symbol Google's en-US does not know is not an error — the tag is silently dropped
+and the spelling read instead — so the only way to tell is to synthesise the term
+with and without the tag and see whether the bytes differ.
 
 English clips go out as SSML, not plain text. The narrator is a US English voice
 (the audience is the diaspora, so the English accent is right) but she anglicises
@@ -99,11 +110,108 @@ def to_ssml(text):
     return '<speak>' + TERM_RE.sub(_wrap, escape(text)) + '</speak>'
 
 
+# --------------------------------------------------------------- audit ------
+
+_PHONEME_RE = re.compile(r'<phoneme[^>]*>.*?</phoneme>', re.DOTALL)
+_WORD_RE = re.compile(r"[A-Za-z][A-Za-z'’’-]*")
+_ENTITY_RE = re.compile(r'&(?:amp|lt|gt|quot|apos|#39);')
+
+
+def unwrapped_words(text):
+    """Word tokens of `text` that to_ssml() left outside a <phoneme> tag.
+
+    Deletes the wrapped spans first, so anything the lexicon already covers is
+    invisible here and only genuinely unpinned words survive."""
+    left = _PHONEME_RE.sub(' ', to_ssml(text))
+    left = _ENTITY_RE.sub(' ', left)
+    left = re.sub(r'<[^>]*>', ' ', left)
+    out = []
+    for tok in _WORD_RE.findall(left):
+        # split hyphenated compounds: "leaf-plate" is two English words, and a
+        # name only ever needs pinning one part at a time.
+        for w in tok.split('-'):
+            w = w.strip("'’")
+            low = w.lower()
+            for suf in ("'s", "’s"):
+                if low.endswith(suf):
+                    w, low = w[:-2], low[:-2]
+            if low:
+                out.append((w, low))
+    return out
+
+
+def load_wordlist(path):
+    if not path or not os.path.exists(path):
+        return set()
+    with open(path, encoding='utf-8', errors='ignore') as f:
+        return {w.strip().lower() for w in f if w.strip()}
+
+
+def audit(clips, words_path=None):
+    """Frequency-ranked report of clip words the lexicon does not pin and an
+       English wordlist does not know. Everything in it is a candidate entry."""
+    english = load_wordlist(words_path)
+    known = set(LEX) | {t for term in LEX for t in term.split()}
+    # ipa:null entries are deliberate — surface them separately, never as TODOs.
+    raw = json.load(open(LEXICON, encoding='utf-8'))
+    flagged = {k.lower() for k, v in raw.items()
+               if not k.startswith('_') and not v.get('ipa')}
+    counts, first_seen, forms = {}, {}, {}
+    for c in clips:
+        if c.get('lang', 'en-US') not in SSML_LANGS:
+            continue
+        for w, low in unwrapped_words(c['text']):
+            if low in english or low in known or low in flagged or len(low) < 3:
+                continue
+            if not w[0].isupper() and low in english:
+                continue
+            counts[low] = counts.get(low, 0) + 1
+            forms.setdefault(low, w)
+            first_seen.setdefault(low, c['key'])
+    order = sorted(counts, key=lambda w: (-counts[w], w))
+    for w in order:
+        print('%5d  %-26s %s' % (counts[w], forms[w], first_seen[w]))
+    print('\n%d distinct unpinned terms, %d occurrences'
+          % (len(order), sum(counts.values())))
+    return order
+
+
+# ------------------------------------------------------- lexicon check ------
+
+def check_lexicon(terms=None):
+    """Does the API actually honour each <phoneme>, or silently fall back?
+
+    Synthesise the bare term and the tagged term. If the two clips are the same
+    bytes, the tag did nothing and the entry is a lie — the voice is reading the
+    spelling. Any difference at all means the IPA was parsed and used."""
+    raw = json.load(open(LEXICON, encoding='utf-8'))
+    todo = [(k, v['ipa']) for k, v in raw.items()
+            if not k.startswith('_') and v.get('ipa')
+            and (not terms or k.lower() in {t.lower() for t in terms})]
+    bad = []
+    for i, (term, ipa) in enumerate(todo):
+        plain = '<speak>%s</speak>' % escape(term)
+        tagged = '<speak><phoneme alphabet="ipa" ph="%s">%s</phoneme></speak>' % (
+            escape(ipa), escape(term))
+        try:
+            a, b = _say_ssml(plain), _say_ssml(tagged)
+        except Exception as e:
+            print('ERROR', term, str(e)[:100], flush=True)
+            bad.append((term, ipa, 'request failed'))
+            continue
+        if a == b or abs(len(a) - len(b)) < 8:
+            print('FALLBACK %-24s %s' % (term, ipa), flush=True)
+            bad.append((term, ipa, 'tag dropped'))
+        if (i + 1) % 25 == 0:
+            print('  ...', i + 1, '/', len(todo), flush=True)
+    print('checked %d, %d fell back' % (len(todo), len(bad)))
+    return bad
+
+
 # ---------------------------------------------------------------- main ------
 
-def synthesize(text, lang):
+def _post(inp, lang):
     name, rate = VOICE[lang]
-    inp = {'ssml': to_ssml(text)} if lang in SSML_LANGS else {'text': text}
     body = json.dumps({
         'input': inp,
         'voice': {'languageCode': lang, 'name': name},
@@ -114,6 +222,15 @@ def synthesize(text, lang):
         data=body, headers={'Content-Type': 'application/json'})
     r = json.load(urllib.request.urlopen(req, timeout=60))
     return base64.b64decode(r['audioContent'])
+
+
+def synthesize(text, lang):
+    return _post({'ssml': to_ssml(text)} if lang in SSML_LANGS else {'text': text}, lang)
+
+
+def _say_ssml(ssml, lang='en-US'):
+    """Synthesise a literal SSML string — used by the lexicon checker only."""
+    return _post({'ssml': ssml}, lang)
 
 
 def write_manifest():
@@ -140,7 +257,17 @@ def write_manifest():
 def main(argv):
     force = '--force' in argv
     args = [a for a in argv if not a.startswith('-')]
+
+    if '--check-lexicon' in argv:
+        check_lexicon(args or None)
+        return
+
     clips = json.load(open(args[0]))
+
+    if '--audit' in argv:
+        # tts.py --audit clips.json [wordlist.txt]
+        audit(clips, args[1] if len(args) > 1 else None)
+        return
 
     if '--print-ssml' in argv:
         for c in clips:

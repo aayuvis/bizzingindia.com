@@ -1235,6 +1235,111 @@
         '<p class="tiny muted">' + esc(N.invite.parentNote) + '</p></div>';
   };
 
+  /* ------------------------------------------------------------------- GEET
+
+     docs/11 §4.5: "A parent hearing their own nursery rhyme come out of a tablet in New
+     Jersey is the moment they decide to pay."
+
+     THE HONEST PART, and the view is built around it. 28 of the 64 entries carry
+     text_pending — either a rights doubt, or the writer knew three mutually inconsistent
+     versions of a genuinely folk rhyme and refused to print one as canonical. docs/10 §3 is
+     explicit that a half-remembered text printed as the real thing is the credibility
+     failure that ends this product with the exact families it is for.
+
+     So a pending song is not hidden and not faked. It is shown with everything that IS
+     known — what it is, when it was sung, the words worth learning — and says plainly that
+     the words are not written down here yet. A named gap invites a parent to fill it. An
+     invented verse invites them to close the app. */
+  var GEET_LANG = {
+    Hindi: 'hi', Hindustani: 'hi', Awadhi: 'hi', Braj: 'hi', Sanskrit: 'sa', Prakrit: 'hi',
+    Marathi: 'mr', Tamil: 'ta', Telugu: 'te', Bengali: 'bn', Assamese: 'as', Gujarati: 'gu',
+    Punjabi: 'pa', Kannada: 'kn', Malayalam: 'ml', Odia: 'or', Pali: 'hi'
+  };
+  function geetAll() {
+    var G = window.IND_GEET;
+    return G ? G.songs.concat(G.bhajans || []) : [];
+  }
+  function geetById(id) {
+    return geetAll().filter(function (s) { return s.id === id; })[0];
+  }
+
+  V.geet = function () {
+    var G = window.IND_GEET;
+    if (!G) return '<div class="card">Nothing here yet.</div>';
+    var ready = G.songs.filter(function (s) { return !s.text_pending; });
+    var pending = G.songs.filter(function (s) { return s.text_pending; });
+    var card = function (s) {
+      return '<button class="tile" data-act="song" data-id="' + s.id + '">' +
+        '<b>' + esc(s.title) + '</b>' +
+        '<span class="tiny muted">' + esc(s.lang) + ' · ' + esc(s.kind) + ' · ' + esc(s.age) + '</span>' +
+        '<p class="tiny">' + esc(s.kid) + '</p>' +
+        (s.text_pending ? '<span class="tiny muted">words not written down yet</span>' : '') +
+        '</button>';
+    };
+    return '<button class="backlink" data-act="go" data-v="play">' + icon('back', 18) + ' Play</button>' +
+      '<div class="card"><h1>Geet</h1><p>' + esc(G.intro) + '</p></div>' +
+      '<div class="card"><h2 style="margin-top:0">Sing these</h2>' +
+        '<div class="grid g2">' + ready.map(card).join('') + '</div></div>' +
+      '<div class="card"><h2 style="margin-top:0">Bhajans and shabads</h2>' +
+        '<div class="grid g2">' + (G.bhajans || []).map(card).join('') + '</div></div>' +
+      (pending.length
+        ? '<div class="card"><h2 style="margin-top:0">We know these exist</h2>' +
+          '<p class="tiny muted">' + pending.length + ' songs whose words we will not print until ' +
+          'someone who actually sang them has checked. Every one of them is real; the version ' +
+          'in this app has to be right, not plausible.</p>' +
+          '<div class="grid g2">' + pending.map(card).join('') + '</div></div>'
+        : '');
+  };
+
+  V.song = function (id) {
+    var G = window.IND_GEET, s = geetById(id);
+    if (!s) return '<div class="card">Not found.</div>';
+    var lang = GEET_LANG[s.lang] || 'hi';
+    var lines = function (txt, cls, lg) {
+      return '<p class="' + cls + '"' + (lg ? ' lang="' + lg + '"' : '') + '>' +
+        esc(txt).replace(/\n/g, '<br>') + '</p>';
+    };
+    return '<button class="backlink" data-act="go" data-v="geet">' + icon('back', 18) + ' Geet</button>' +
+      '<div class="card">' +
+        '<h1 style="margin-bottom:2px">' + esc(s.title) + '</h1>' +
+        '<p class="tiny muted">' + esc(s.lang) + ' · ' + esc(s.region) + ' · ' + esc(s.kind) + '</p>' +
+        '<p>' + esc(s.kid) + '</p>' +
+        (s.note ? '<p class="tiny">' + esc(s.note) + '</p>' : '') +
+      '</div>' +
+
+      (s.text_pending
+        ? '<div class="card"><h2 style="margin-top:0">The words are not here yet</h2>' +
+          '<p>' + esc(s.why || 'We could not confirm the words well enough to print them.') + '</p>' +
+          '<p class="tiny muted">' + esc((G.singalong && G.singalong.pending) ||
+            'If you know this one, your version is worth more than ours.') + '</p></div>'
+        : '<div class="card lyric">' +
+            lines(s.script, 'lyr', lang) +
+            lines(s.roman, 'tiny muted') +
+            '<hr>' + lines(s.en, 'tiny') +
+            (s.variant ? '<p class="tiny muted">This one changes house to house. Yours is not ' +
+              'the wrong one — sing it the way you were taught.</p>' : '') +
+          '</div>') +
+
+      ((s.words || []).length
+        ? '<div class="card"><h2 style="margin-top:0">Words from it</h2><div class="grid g3">' +
+          s.words.map(function (w) {
+            return '<div class="tile center"><b lang="' + lang + '">' + esc(w.term) + '</b>' +
+              '<span class="tiny">' + esc(w.roman) + '</span>' +
+              '<span class="tiny muted">' + esc(w.en) + '</span></div>'; }).join('') + '</div></div>'
+        : '') +
+      ((s.actions || []).length
+        ? '<div class="card"><h2 style="margin-top:0">What your hands do</h2><ul class="dolist">' +
+          s.actions.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul></div>'
+        : '') +
+      /* Human voice or nothing. A synthesiser cannot sing a thalattu, and docs/11 §4.2 says
+         these are better in a grandparent's voice anyway — which is what the shelf is for. */
+      '<div class="card center"><p class="tiny muted">No recording yet. These want a real ' +
+        'voice, not a synthesised one.</p>' +
+        (window.IND_NANI ? '<button class="btn ghost" data-act="go" data-v="shelf">' +
+          icon('mic', 18) + ' Ask someone to sing it</button>' : '') + '</div>' +
+      (s.source ? '<p class="tiny muted" style="padding:0 var(--space-lg)">' + esc(s.source) + '</p>' : '');
+  };
+
   V.play = function () {
     var G = window.IND_GAMES || [];
     return '<div class="card"><h1>Play</h1><p>The Mela. Every stall is a drill wearing a costume.</p></div>' +
@@ -1243,6 +1348,10 @@
       (window.IND_GULLY
         ? hubCard('gully', 'Gully', window.IND_GULLY.games.length +
             ' street games, with the rules — to take outside and actually play.', 'run')
+        : '') +
+      (window.IND_GEET
+        ? hubCard('geet', 'Geet', 'The rhymes and lullabies your parents knew by heart, ' +
+            'with what the words mean.', 'sound')
         : '') +
       G.map(function (g) {
         return '<button class="tile" data-act="game" data-id="' + g.id + '">' +
@@ -1804,6 +1913,8 @@
       case 'utsav': h = V.utsav(); break;
       case 'gully': h = V.gully(); break;
       case 'nani': h = V.nani(); break;
+      case 'geet': h = V.geet(); break;
+      case 'song': h = V.song(view.arg); break;
       case 'shelf': h = V.shelf(); break;
       case 'invite': h = V.invite(); break;
       case 'gullygame': h = V.gullygame(view.arg); break;
@@ -1868,6 +1979,7 @@
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
     if (a === 'fest')   return go('festival', t.getAttribute('data-id'));
     if (a === 'gullyg') return go('gullygame', t.getAttribute('data-id'));
+    if (a === 'song')   return go('song', t.getAttribute('data-id'));
 
     /* Recording a grandparent. The mic is only ever opened by this explicit tap, the track is
        stopped the moment recording ends so no light stays on, and the blob never leaves the

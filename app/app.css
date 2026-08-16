@@ -355,6 +355,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
   font-size: 26px; line-height: 1; color: var(--accent2);
 }
 
+/* -------------------------------------------------------------------- geet */
+/* Verses are set to be sung from, not skimmed: generous leading, centred, and never
+   letter-spaced — several of these are Devanagari, Tamil and Gurmukhi, where letter-spacing
+   would break the script outright. */
+.lyric { text-align: center; }
+.lyric .lyr { font-size: 21px; line-height: 2; margin-bottom: var(--space-md); }
+.lyric hr { border: 0; border-top: 1px solid var(--line); margin: var(--space-lg) auto; width: 60px; }
+
 /* -------------------------------------------------------------------- nani */
 /* The week's question. It is the most important thing on the page and it is a question, so
    it gets the display face and room to be read aloud. */

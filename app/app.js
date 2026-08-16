@@ -127,6 +127,13 @@
     return (window.IND_STORY_ART && window.IND_STORY_ART.indexOf(k) >= 0) ? 'art/story/' + k + '.jpg' : null;
   }
 
+  /* One painting per epic episode, shared by every card in it. Absent until the art lands,
+     and everything that uses it degrades to no image rather than a broken one. */
+  function epicArt(epicId, n) {
+    var k = epicId + '-' + n;
+    return (window.IND_EPIC_ART && window.IND_EPIC_ART.indexOf(k) >= 0) ? 'art/epic/' + k + '.jpg' : null;
+  }
+
   function stateArt(code) {
     return (window.IND_STATE_ART && window.IND_STATE_ART.indexOf(code) >= 0) ? 'art/state/' + code + '.jpg' : null;
   }
@@ -1496,13 +1503,18 @@
           eps.map(function (ep) {
             var gated = (S.age || 8) < (ep.gate || 0);
             var done = !!st.done[ep.n];
-            return '<button class="tile" style="margin-bottom:9px' + (gated ? ';opacity:.5' : '') + '"' +
+            /* A thumbnail of the episode's painting on the list too, so a child chooses by
+               picture rather than by reading 33 titles. */
+            var th = epicArt(e.id, ep.n);
+            return '<button class="tile eprow" style="margin-bottom:9px' + (gated ? ';opacity:.5' : '') + '"' +
               (gated ? ' disabled' : '') + ' data-act="episode" data-id="' + e.id + '" data-n="' + ep.n + '">' +
+              (th ? '<img class="epth" src="' + th + '" alt="">' : '') +
+              '<div class="epbody">' +
               '<div class="spread"><b>' + ep.n + '. ' + esc(ep.title) + '</b>' +
               (done ? '<span class="badge aaj">read</span>' : gated ? '<span class="badge">a bit older</span>' : '') + '</div>' +
               '<div class="tiny muted" style="margin-top:4px">' + esc(ep.hook) + '</div>' +
               (ep.note ? '<div class="tiny muted" style="margin-top:6px"><i>' + esc(ep.note) + '</i></div>' : '') +
-              '</button>';
+              '</div></button>';
           }).join('') + '</div>';
       }).join('') +
       '<div class="card flat tiny"><b>Where this comes from.</b> ' + esc(e.source || '') + '</div>';
@@ -1541,11 +1553,25 @@
     var c = ep.cards[deck.i];
     var who = c.who;
     var speaker = who === 'mithu' ? null : who;
+
+    /* Every card carries the episode's painting rather than a painting of its own.
+       686 unique images would be roughly 100MB on top of a 107MB offline-first app — the
+       weight is a worse problem than the money. Instead the one painting is held behind the
+       deck and SLOWLY PANNED as the cards turn: card one sits at the left of the image, the
+       last card at the right. The picture moves with the story, so a card is never a wall of
+       text, and the deck reads as a single scene being walked through rather than as
+       unrelated stills. This is also how a patachitra scroll is actually read. */
+    var epArt = epicArt(e.id, ep.n);
+    var span = Math.max(1, ep.cards.length - 1);
+    var panX = Math.round((deck.i / span) * 100);
+
     return '<button class="backlink" data-act="epic" data-id="' + e.id + '">' + icon('back', 18) + ' ' + esc(e.title) + '</button>' +
       '<div class="spread" style="margin-bottom:12px">' +
       '<span class="mono">' + esc(ep.title) + ' · ' + (deck.i + 1) + ' of ' + ep.cards.length + '</span>' +
       '<div class="dots">' + ep.cards.map(function (_, i) { return '<i class="' + (i <= deck.i ? 'on' : '') + '"></i>'; }).join('') + '</div></div>' +
-      '<div class="deckcard">' +
+      (epArt ? '<div class="deckart"><img src="' + epArt + '" alt="" ' +
+        'style="object-position:' + panX + '% 50%"></div>' : '') +
+      '<div class="deckcard' + (epArt ? ' under' : '') + '">' +
         '<div class="who">' + (who === 'mithu' ? mascot('mithu', 'talk', 76) : speaker ? art(speaker, 84) : art(e.avatar, 84)) + '</div>' +
         '<p>' + esc(c.text) + '</p>' +
       '</div>' +

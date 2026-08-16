@@ -7,21 +7,23 @@
 
 window.IND_ART_IMG = [
   'abhimanyu', 'akbar', 'ambedkar', 'anand', 'arjuna', 'aryabhata',
-  'ashoka', 'avani', 'bhagat', 'bharata', 'bhima', 'bhishma',
-  'birbal', 'buddha', 'chanakya', 'courtier', 'dasharatha', 'dhritarashtra',
-  'dhyanchand', 'draupadi', 'drona', 'durga', 'duryodhana', 'ekalavya',
-  'falguni', 'gandhari', 'gandhi', 'ganesha', 'gattu', 'gattu_happy',
-  'gattu_think', 'gattu_wow', 'guard', 'gukesh', 'hanuman', 'harmandir',
-  'jatayu', 'kaikeyi', 'kalam', 'kalpana', 'kapil', 'karna',
-  'khanda', 'krishna', 'kunti', 'kurien', 'lakshmana', 'lakshmi',
-  'lakshmibai', 'logo', 'mahavira', 'mandodari', 'marykom', 'milkha',
-  'mithu', 'n_murthy', 'nakula', 'neeraj', 'pt_bull', 'pt_crocodile',
-  'pt_crow', 'pt_deer', 'pt_elephant', 'pt_heron', 'pt_jackal', 'pt_lion',
-  'pt_monkey', 'pt_mouse', 'pt_rabbit', 'pt_tortoise', 'rama', 'ravana',
-  'ritesh', 'rocket', 'royal_elephant', 'sachin', 'sahadeva', 'saraswati',
-  'sarojini', 'shabari', 'shakuni', 'shiva', 'shivaji', 'sindhu',
-  'sita', 'sudha_murty', 'sugriva', 'tagore', 'tansen', 'unicorn',
-  'valmiki', 'vibhishana', 'vidura', 'vishwamitra', 'vismriti', 'yudhishthira'
+  'ashoka', 'avani', 'bhabha', 'bhagat', 'bharata', 'bhima',
+  'bhishma', 'birbal', 'buddha', 'chanakya', 'courtier', 'dasharatha',
+  'dhritarashtra', 'dhyanchand', 'draupadi', 'drona', 'durga', 'duryodhana',
+  'ekalavya', 'falguni', 'gandhari', 'gandhi', 'ganesha', 'gattu',
+  'gattu_happy', 'gattu_think', 'gattu_wow', 'guard', 'gukesh', 'hanuman',
+  'harmandir', 'janaki_ammal', 'jatayu', 'jcbose', 'kaikeyi', 'kalam',
+  'kalpana', 'kapil', 'karna', 'khanda', 'krishna', 'kunti',
+  'kurien', 'lakshmana', 'lakshmi', 'lakshmibai', 'logo', 'mahavira',
+  'mandodari', 'marykom', 'milkha', 'mithu', 'n_murthy', 'nakula',
+  'neeraj', 'pt_bull', 'pt_crocodile', 'pt_crow', 'pt_deer', 'pt_elephant',
+  'pt_heron', 'pt_jackal', 'pt_lion', 'pt_monkey', 'pt_mouse', 'pt_rabbit',
+  'pt_tortoise', 'rama', 'raman', 'ramanujan', 'ravana', 'ritesh',
+  'rocket', 'royal_elephant', 'sachin', 'sahadeva', 'salimali', 'sarabhai',
+  'saraswati', 'sarojini', 'shabari', 'shakuni', 'shiva', 'shivaji',
+  'sindhu', 'sita', 'sudha_murty', 'sugriva', 'swaminathan', 'tagore',
+  'tansen', 'unicorn', 'valmiki', 'vibhishana', 'vidura', 'vishwamitra',
+  'vismriti', 'yudhishthira'
 ];
 
 window.IND_ART_SRC = function (id) {

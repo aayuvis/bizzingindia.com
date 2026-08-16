@@ -568,17 +568,17 @@
 
 
 
-  /* ------------------------------------------------------------- SANSKAAR */
+  /* ---------------------------------------------------------------- NEETI */
   /* The payoff here is deliberately NOT a ladder. Nobody acquires a value by
      consuming stories, so levels would be a lie. What earns a bead is DOING the
      small thing — and a grown-up witnessing it. The mala grows and is never
      finished, which is also true of the thing it represents. */
 
-  V.sanskaar = function () {
-    var K = window.IND_SANSKAAR;
-    if (!K) return '<div class="card"><h1>Sanskaar</h1><p>Not loaded.</p></div>';
+  V.neeti = function () {
+    var K = window.IND_NEETI;
+    if (!K) return '<div class="card"><h1>Neeti</h1><p>Not loaded.</p></div>';
     var beads = (S.mala || []).length;
-    return '<div class="card"><h1>Sanskaar</h1><p>' + esc(K.intro) + '</p>' +
+    return '<div class="card"><h1>Neeti</h1><p>' + esc(K.intro) + '</p>' +
       '<p class="tiny muted">No levels here, and nothing to finish. You get a bead when you ' +
       '<b>do</b> one of these, not when you read about it.</p></div>' +
       (beads ? V.malaStrip() : '') +
@@ -597,7 +597,7 @@
   };
 
   V.malaStrip = function () {
-    var K = window.IND_SANSKAAR, beads = S.mala || [];
+    var K = window.IND_NEETI, beads = S.mala || [];
     var col = function (id) { var v = K.values.filter(function (x) { return x.id === id; })[0]; return v ? v.colour : 'var(--accent)'; };
     return '<div class="card"><div class="spread" style="margin-bottom:10px">' +
       '<div><h3 style="margin:0">Your mala</h3>' +
@@ -609,14 +609,14 @@
   };
 
   V.value = function (id) {
-    var K = window.IND_SANSKAAR;
+    var K = window.IND_NEETI;
     var v = K && K.values.filter(function (x) { return x.id === id; })[0];
     if (!v) return '<div class="card">Not found.</div>';
     var mine = allStories().filter(function (s) { return (v.stories || []).indexOf(s.id) >= 0; });
     var done = (S.mala || []).filter(function (b) { return b.v === v.id; });
     var big = (S.age || 8) >= 9;
 
-    return '<button class="backlink" data-act="go" data-v="sanskaar">' + icon('back', 18) + ' Sanskaar</button>' +
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Neeti</button>' +
       '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(v.avatar, 92) +
       '<div style="flex:1"><span class="deva" style="font-size:34px;font-weight:700;color:' + v.colour + '">' + esc(v.term) + '</span>' +
       '<div class="mono" style="text-transform:none">' + esc(v.roman) + '</div>' +
@@ -875,7 +875,7 @@
 
   /* ================================================================== SHELL */
   var TABS = [['home', 'Home', 'chart'], ['map', 'Map', 'map'], ['stories', 'Stories', 'tree'],
-              ['bhasha', 'Bhasha', 'script'], ['sanskaar', 'Sanskaar', 'star'], ['rishtey', 'Rishtey', 'parent'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
+              ['bhasha', 'Bhasha', 'script'], ['neeti', 'Neeti', 'star'], ['rishtey', 'Rishtey', 'parent'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
 
   function chrome() {
     return '<header class="topbar"><div class="bar">' +
@@ -910,7 +910,7 @@
       case 'pack': h = V.pack(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'game': h = V.game(); break;
-      case 'sanskaar': h = V.sanskaar(); break;
+      case 'neeti': h = V.neeti(); break;
       case 'value': h = V.value(view.arg); break;
       case 'rishtey': h = V.rishtey(); break;
       case 'rishquiz': h = V.rishquiz(); break;
@@ -925,7 +925,7 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas', rishquiz: 'rishtey', value: 'sanskaar' };
+    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas', rishquiz: 'rishtey', value: 'neeti' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
@@ -985,7 +985,7 @@
       return render();
     }
     if (a === 'deednani') {
-      var vv = window.IND_SANSKAAR.values.filter(function (x) { return x.id === t.getAttribute('data-id'); })[0];
+      var vv = window.IND_NEETI.values.filter(function (x) { return x.id === t.getAttribute('data-id'); })[0];
       var msg = (S.name || 'Your grandchild') + ' did this today: ' + (vv ? vv.doit : '');
       if (navigator.share) { navigator.share({ text: msg }).catch(function () {}); }
       else { toast('Copy this: ' + msg); }

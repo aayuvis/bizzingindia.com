@@ -1,10 +1,17 @@
-/* Bizzing India — Sanskaar: the values, and the stories that carry them.
+/* Bizzing India — Neeti: the values, and the stories that carry them.
 
    WHY THIS IS THE SPINE (docs/11, docs/12):
    The founder's own words: parents miss "the moral values that we had through the stories —
    religious, mythological and/or literary — that we heard, read in school, and were recited
    by nana-nani." Stories are not the product. Stories are the DELIVERY MECHANISM. The value
    is the product.
+
+   ON THE NAME. This was "Sanskaar" for about an hour, which was wrong: the word has been
+   thoroughly memefied in India (sanskari, the Alok Nath jokes) and would read as cringe or
+   as a punchline to the exact audience we are for. "Neeti" is what the tradition itself
+   calls this — a nitikatha IS a moral story, and the Panchatantra, already the biggest
+   collection in this app, is a nitishastra, a treatise on wise conduct. Chanakya Niti,
+   Vidur Niti. No meme baggage, and it points straight back at the stories.
 
    So this file inverts the usual arrangement. Instead of a story that happens to end with a
    moral, a VALUE is the front door, and behind it stand four or five stories from different
@@ -21,7 +28,7 @@
    one value says "these traditions all cared about this", never "they agree" and never "one
    got it right". The `note` field on a value is where that nuance is stated plainly. */
 
-window.IND_SANSKAAR = {
+window.IND_NEETI = {
   intro: 'Every one of these was taught to your parents the same way — not as a lesson, but ' +
          'as a story someone told them. Pick a value and meet it four different ways.',
 

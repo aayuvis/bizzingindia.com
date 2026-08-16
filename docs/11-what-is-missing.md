@@ -54,6 +54,22 @@ harder to start. That urgency is the strongest thing this product has and we are
 
 ---
 
+## 3.5 The name, and why not the obvious one
+
+The pillar this points at is the one Indian parents describe as wanting to give their children
+**sanskaar**. That is the right concept and the wrong word: *sanskaari* has been thoroughly
+memefied in India, and a diaspora parent in their thirties reads it as a punchline, not a
+promise.
+
+**The pillar is called Neeti.** *Nitikatha* is the tradition's own name for a moral story, and
+the Panchatantra — the largest collection in this app — is a *nitishastra*, a treatise on wise
+conduct. Chanakya Niti, Vidur Niti. No meme baggage, real pedigree, and it points straight back
+at the stories rather than away from them.
+
+Runners-up, recorded in case the call gets revisited: **Seekh** (literally the lesson from a
+story, and the exact phrase every Indian child heard — *"is kahani se hume ye seekh milti hai"*
+— but it romanises too close to Sikh), and **Buniyaad** (foundation; warm, but vaguer).
+
 ## 4. What to build, in priority order
 
 ### 4.1 Rishtey — the kinship pack *(build first; nobody has done it)*

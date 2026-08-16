@@ -1,7 +1,7 @@
 """Bizzing India narration generator.
 
     python3 tools/tts.py clips.json [--force] [--print-ssml]
-    python3 tools/tts.py --audit clips.json [--words words_alpha.txt]
+    python3 tools/tts.py --audit clips.json [big-words.txt [common-words.txt]]
     python3 tools/tts.py --check-lexicon [term ...]
 
 clips.json is a list of {key, text, lang}. Audio lands at app/voice/<key>.mp3 and
@@ -11,10 +11,9 @@ app/voice-manifest.js is rewritten from whatever is actually on disk afterwards.
 came out UNWRAPPED and are not in an English wordlist. That is how the lexicon is
 grown: exhaustively, from the corpus, rather than by remembering names.
 
---check-lexicon asks the live API whether a <phoneme> is actually honoured. An IPA
-symbol Google's en-US does not know is not an error — the tag is silently dropped
-and the spelling read instead — so the only way to tell is to synthesise the term
-with and without the tag and see whether the bytes differ.
+--check-lexicon asks the live API whether a <phoneme> is actually honoured, by
+putting the IPA on a decoy spelling; see check_lexicon for why the obvious test
+does not work.
 
 English clips go out as SSML, not plain text. The narrator is a US English voice
 (the audience is the diaspora, so the English accent is right) but she anglicises
@@ -180,7 +179,10 @@ def audit(clips, words_path=None, common_path=None):
     all-lowercase token may use the big list too."""
     english = load_wordlist(words_path)
     common = load_wordlist(common_path) or english
-    known = set(LEX) | {t for term in LEX for t in term.split()}
+    # Only whole lexicon terms count as known. A word that is one half of a
+    # multi-word entry is still unpinned when it turns up on its own, and that
+    # is exactly the kind of gap worth hearing about.
+    known = set(LEX)
     # ipa:null entries are deliberate — surface them separately, never as TODOs.
     raw = json.load(open(LEXICON, encoding='utf-8'))
     flagged = {k.lower() for k, v in raw.items()

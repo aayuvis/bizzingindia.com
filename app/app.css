@@ -772,19 +772,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .eprow > .epbody > .spread b { font-family: var(--display); font-size: 16.5px; line-height: 1.3; }
 @media (max-width: 480px) { .eprow .epth { width: 72px; height: 54px; } }
 
-/* The episode's painting, held above the deck and panned as the cards turn — card one sits
-   at the left of the image, the last card at the right. One image serves the whole episode,
-   so the deck gets artwork without 686 separate paintings and the ~100MB they would add to
-   an offline-first app. The pan is what makes it read as one scene walked through rather
-   than the same picture shown twelve times. */
+/* One painting per card, sitting above its text. 16:9 rather than a letterbox strip, because
+   these are full scenes and cropping them to a band throws away the composition the painting
+   was built around. */
 .deckart {
-  height: clamp(150px, 26vh, 230px); overflow: hidden;
+  aspect-ratio: 16 / 9; max-height: 46vh; overflow: hidden;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   box-shadow: var(--shadow-lg); position: relative; z-index: 1;
+  background: var(--ground2);
 }
 .deckart img {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  transition: object-position .55s ease;
+  animation: turn .3s ease-out;
 }
 /* A dark scrim at the join so the card's top edge never fights the painting under it. */
 .deckart::after {

@@ -11,3 +11,6 @@ dist/
 
 # Gemini raw output cache — intermediates, regenerable via tools/gen-avatars.py
 tools/.art-raw/
+
+# Epic card masters are book assets, not app assets — deploy.sh only copies app/.
+# They are committed deliberately so they survive the container.

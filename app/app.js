@@ -127,10 +127,17 @@
     return (window.IND_STORY_ART && window.IND_STORY_ART.indexOf(k) >= 0) ? 'art/story/' + k + '.jpg' : null;
   }
 
-  /* One painting per epic episode, shared by every card in it. Absent until the art lands,
-     and everything that uses it degrades to no image rather than a broken one. */
-  function epicArt(epicId, n) {
-    var k = epicId + '-' + n;
+  /* A painting per CARD — <epicId>-<episode>-<card>. The episode list uses card 0 of each
+     episode as its thumbnail, so nothing needs a separate hero image.
+
+     On weight: 686 paintings is about 68MB in the repo, but the browser only fetches the
+     card actually on screen, so a child downloads ~100KB per card turned, not 68MB. That
+     stays true until a service worker starts precaching for offline, at which point epic
+     art should be cache-on-read rather than precached with the shell.
+
+     Everything degrades to no image while the art is still generating. */
+  function epicArt(epicId, n, i) {
+    var k = epicId + '-' + n + (i === undefined ? '-0' : '-' + i);
     return (window.IND_EPIC_ART && window.IND_EPIC_ART.indexOf(k) >= 0) ? 'art/epic/' + k + '.jpg' : null;
   }
 
@@ -1554,23 +1561,16 @@
     var who = c.who;
     var speaker = who === 'mithu' ? null : who;
 
-    /* Every card carries the episode's painting rather than a painting of its own.
-       686 unique images would be roughly 100MB on top of a 107MB offline-first app — the
-       weight is a worse problem than the money. Instead the one painting is held behind the
-       deck and SLOWLY PANNED as the cards turn: card one sits at the left of the image, the
-       last card at the right. The picture moves with the story, so a card is never a wall of
-       text, and the deck reads as a single scene being walked through rather than as
-       unrelated stills. This is also how a patachitra scroll is actually read. */
-    var epArt = epicArt(e.id, ep.n);
-    var span = Math.max(1, ep.cards.length - 1);
-    var panX = Math.round((deck.i / span) * 100);
+    /* Every card gets its own painting of its own beat — the deck is a painted book, and a
+       card with a picture of a different moment would be worse than no picture. Loaded
+       lazily so turning to card three never costs the other eleven. */
+    var epArt = epicArt(e.id, ep.n, deck.i);
 
     return '<button class="backlink" data-act="epic" data-id="' + e.id + '">' + icon('back', 18) + ' ' + esc(e.title) + '</button>' +
       '<div class="spread" style="margin-bottom:12px">' +
       '<span class="mono">' + esc(ep.title) + ' · ' + (deck.i + 1) + ' of ' + ep.cards.length + '</span>' +
       '<div class="dots">' + ep.cards.map(function (_, i) { return '<i class="' + (i <= deck.i ? 'on' : '') + '"></i>'; }).join('') + '</div></div>' +
-      (epArt ? '<div class="deckart"><img src="' + epArt + '" alt="" ' +
-        'style="object-position:' + panX + '% 50%"></div>' : '') +
+      (epArt ? '<div class="deckart"><img src="' + epArt + '" alt="" loading="lazy"></div>' : '') +
       '<div class="deckcard' + (epArt ? ' under' : '') + '">' +
         '<div class="who">' + (who === 'mithu' ? mascot('mithu', 'talk', 76) : speaker ? art(speaker, 84) : art(e.avatar, 84)) + '</div>' +
         '<p>' + esc(c.text) + '</p>' +

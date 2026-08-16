@@ -1568,6 +1568,26 @@
   var deck = { epic: null, n: 0, i: 0 };
 
   function avatarName(id) { return (window.IND_AVATAR_NAMES || {})[id] || ''; }
+
+  /* Characters named in a card's text, in the order they appear, plus the card's own speaker
+     if it has one. Matching is on whole words only, so "Rama" does not fire inside
+     "Ramayana" and "Tara" does not fire inside "Tarachand". Capped at four: past that the
+     strip stops being a cast list and becomes a wall. */
+  function cardCast(text, speaker) {
+    var REG = window.IND_EPIC_CAST || {}, seen = {}, found = [];
+    Object.keys(REG).forEach(function (id) {
+      var names = [REG[id].name].concat(REG[id].alias || []);
+      for (var i = 0; i < names.length; i++) {
+        var at = text.search(new RegExp('\\b' + names[i] + '\\b'));
+        if (at >= 0) { if (!(id in seen) || at < seen[id]) seen[id] = at; break; }
+      }
+    });
+    found = Object.keys(seen).sort(function (a, b) { return seen[a] - seen[b]; });
+    if (speaker && speaker !== 'mithu' && found.indexOf(speaker) < 0 && REG[speaker]) {
+      found.unshift(speaker);
+    }
+    return found.slice(0, 4);
+  }
   function cardVoice(epicId, n, i) { return 'ep/' + epicId + '-' + n + '-' + i; }
   function hasVoice(k) { return !!(window.IND_VOICE && window.IND_VOICE.indexOf(k) >= 0); }
 
@@ -1602,6 +1622,11 @@
         (ep.wonder
           ? '<div class="card wonder"><div class="mono">Something to think about</div>' +
             '<p>' + esc(ep.wonder) + '</p>' +
+            /* The question is the one thing on this page addressed straight at the child, so
+               it is the thing most worth having read aloud. */
+            '<button class="iconbtn" style="margin-right:8px" data-act="saywonder" ' +
+              'data-id="' + e.id + '" data-n="' + ep.n + '" aria-label="Read the question">' +
+              icon('sound', 20) + '</button>' +
             (ep.value && window.IND_NEETI
               ? (function () {
                   var v = window.IND_NEETI.values.filter(function (x) { return x.id === ep.value; })[0];
@@ -1638,13 +1663,16 @@
     var speakerArt = who === 'mithu' ? mascot('mithu', 'talk', 56) : speaker ? art(speaker, 56) : '';
     var speakerLabel = who === 'mithu' ? 'Mithu' : (speaker ? avatarName(speaker) : '');
 
-    /* WHO IS IN THIS ONE. A strip of the episode's cast, always visible, with the speaker of
-       the current card lit up. A child meeting thirty new names needs faces to hang them on,
-       and this is where "Vibhishana" stops being a word and becomes somebody. Absent cast
-       members simply do not appear, so it fills in as the avatars are painted. */
-    var cast = (ep.cast || []).filter(function (id) {
-      return (window.IND_AVATAR_ART || {})[id] || (window.IND_AVATAR || {})[id];
-    });
+    /* WHO IS IN THIS CARD — found in the card's own words.
+       `card.who` is set on barely a tenth of the cards and `episode.cast` lists only the few
+       characters an avatar happens to exist for, because the epics deliberately keep the
+       principals in the storyteller's voice. So neither field can answer "who is in this
+       scene". The card text can: it names them. cardCast() matches the registry in
+       data-epic-cast.js against the text, so a card about Dhritarashtra and Gandhari shows
+       both, in the order they are mentioned, whether or not either has ever been painted.
+       The name and the one-line description are the part a child actually needs; the face,
+       when it exists, is a bonus. */
+    var cast = cardCast(c.text, who);
 
     return '<button class="backlink" data-act="epic" data-id="' + e.id + '">' + icon('back', 18) + ' ' + esc(e.title) + '</button>' +
       /* Title and counter on their own line: at 430px the counter used to wrap under the
@@ -1659,16 +1687,19 @@
         (epArt ? '<div class="deckart"><img src="' + epArt + '" alt="" loading="lazy"></div>' : '') +
         (cast.length
           ? '<div class="castrow">' + cast.map(function (id) {
-              return '<span class="castchip' + (id === who ? ' on' : '') + '">' +
-                art(id, 40) + '<b>' + esc(avatarName(id) || id) + '</b></span>';
+              var p = (window.IND_EPIC_CAST || {})[id] || {};
+              var face = art(id, 44);
+              return '<div class="castchip' + (id === who ? ' on' : '') + '">' +
+                /* No avatar yet for most of them, so an initial in a disc stands in. It is a
+                   placeholder that looks deliberate rather than a hole where a face should
+                   be, and it swaps for the painting the moment one exists. */
+                (face || '<span class="castmono">' + esc((p.name || id).charAt(0)) + '</span>') +
+                '<b>' + esc(p.name || avatarName(id) || id) + '</b>' +
+                (p.desc ? '<span>' + esc(p.desc) + '</span>' : '') +
+                '</div>';
             }).join('') + '</div>'
           : '') +
         '<div class="deckbody">' +
-          (speakerArt
-            ? '<div class="whorow">' + speakerArt +
-              (speakerLabel ? '<span class="whoname">' + esc(speakerLabel) + '</span>' : '') +
-              '</div>'
-            : '') +
           '<p>' + esc(c.text) + '</p>' +
           '<div class="deckbar">' +
             (deck.i > 0 ? '<button class="iconbtn" data-act="cardback" aria-label="Back">' + icon('back', 20) + '</button>' : '') +
@@ -2196,6 +2227,13 @@
     /* Tapping a state on the map shows its facts in place rather than navigating away —
        the map is for browsing, and being thrown into a full page on every touch is what
        stopped it being browsable. Tapping the same state again closes the panel. */
+    if (a === 'saywonder') {
+      var we = epicById(t.getAttribute('data-id'));
+      var wn = +t.getAttribute('data-n');
+      var wep = we && we.episodes.filter(function (x) { return x.n === wn; })[0];
+      if (wep) readAloud('ep/' + we.id + '-' + wn + '-wonder', wep.wonder);
+      return;
+    }
     if (a === 'readcard') {
       var re = epicById(deck.epic);
       var rep = re && re.episodes.filter(function (x) { return x.n === deck.n; })[0];

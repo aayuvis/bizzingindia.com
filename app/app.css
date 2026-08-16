@@ -489,7 +489,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .opt.right { border-color: var(--good); background: #e7f6ef; color: #15694a; }
 .opt.wrong { border-color: var(--bad); background: #fdeceb; color: #8f2f2b; }
 
-.dots { display: flex; gap: 5px; }
+.dots { max-width: 720px; margin-left: auto; margin-right: auto; display: flex; gap: 5px; }
 .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line2); }
 .dots i.on { background: var(--accent); }
 
@@ -778,7 +778,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
    and left a dead white band between picture and text. */
 .deckhead {
   display: flex; align-items: baseline; gap: var(--space-md);
-  margin-bottom: 6px;
+  margin: 0 auto 6px; max-width: 720px;
 }
 .deckhead .mono {
   flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -789,6 +789,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
   position: relative; background: var(--card); border: 1px solid var(--line);
   border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
   overflow: hidden; animation: turn .26s ease-out;
+  /* Narrower than the page. A card is one beat of a story being told to you, and at 1100px
+     wide it stopped reading like a card at all. */
+  max-width: 720px; margin: 0 auto;
 }
 .deckcard.hasart .deckbody { padding-top: var(--space-lg); }
 .deckbody { padding: var(--space-xl); display: grid; gap: var(--space-lg); }
@@ -818,9 +821,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* Left-aligned and measured. Long centred paragraphs are genuinely harder to read, and a
    card can run to sixty words. */
 .deckcard p {
-  font-size: 19px; line-height: 1.66; color: var(--text); margin: 0; max-width: 60ch;
+  font-size: 19px; line-height: 1.7; color: var(--text); margin: 0 auto;
+  max-width: 46ch; text-align: center;
 }
-.deckbar { display: flex; gap: var(--space-sm); align-items: center; }
+.deckbar { display: flex; gap: var(--space-sm); align-items: center; justify-content: center; }
 
 @media (max-width: 560px) {
   .deckbody { padding: var(--space-lg); }
@@ -836,26 +840,33 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wonder { border-left: 4px solid var(--accent2); background: var(--ground2); }
 .wonder p { font-size: 17px; line-height: 1.6; max-width: 52ch; }
 
-/* WHO IS IN THIS ONE — the episode's cast as a scrolling strip under the picture. A child
-   meeting thirty new names needs faces to hang them on; this is where "Vibhishana" stops
-   being a word. The speaker of the current card is lit. */
+/* WHO IS IN THIS CARD — found by name in the card's own words, so it works with or without
+   any artwork. Centred, because the characters are the subject of the card and not a label
+   filed down its left edge. Most have no painting yet, so the initial-disc stand-in has to
+   look deliberate rather than like a hole. */
 .castrow {
-  display: flex; gap: var(--space-md); overflow-x: auto; padding: var(--space-md) var(--space-lg);
-  border-bottom: 1px solid var(--line); background: var(--ground2);
-  scrollbar-width: none;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-lg);
+  padding: var(--space-lg); border-bottom: 1px solid var(--line); background: var(--ground2);
 }
-.castrow::-webkit-scrollbar { display: none; }
 .castchip {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  flex: none; width: 60px; opacity: .55; transition: opacity .2s;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  flex: 1 1 150px; max-width: 210px; text-align: center;
 }
 .castchip b {
-  font-size: 10.5px; line-height: 1.2; text-align: center; color: var(--text2);
-  font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+  font-family: var(--display); font-weight: 800; font-size: 15px; color: var(--text);
+  line-height: 1.2;
 }
-/* Lit, not merely darker — the speaking character should be findable at a glance. */
-.castchip.on { opacity: 1; }
+.castchip > span:last-child {
+  font-size: 12px; line-height: 1.45; color: var(--text2);
+}
+.castmono {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--display); font-weight: 800; font-size: 20px;
+}
+/* The speaker of this card, when there is one, is lit rather than merely darker. */
 .castchip.on b { color: var(--accent); }
-.castchip.on img, .castchip.on svg {
+.castchip.on .castmono, .castchip.on img, .castchip.on svg {
   outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 50%;
 }
+

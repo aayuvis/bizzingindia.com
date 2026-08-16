@@ -125,11 +125,25 @@ p  { margin: 0 0 var(--space-md); color: var(--text2); }
 a  { color: var(--accent); }
 button, input, select, textarea { font: inherit; color: inherit; }
 .ic { vertical-align: -4px; }
-:lang(hi), :lang(pa), .deva {
+/* SCRIPTS. Each Indian script gets its own face and its own optical size — every one of
+   them needs more size than Latin at the same nominal px, and every one of them needs more
+   leading, because marks stack above and below the line. Setting them all at 1em in a Latin
+   face is how a script ends up looking like a decorative squiggle, which CLAUDE.md forbids.
+   Tag content with lang= and it lands in the right face automatically; the .deva/.tamil/…
+   classes are the escape hatch for a fragment that cannot carry a lang attribute. */
+:lang(hi), :lang(mr), :lang(ne), :lang(sa), .deva {
   font-family: var(--deva);
-  font-size: 1.12em;   /* Devanagari needs ~10-15% more optical size than Latin */
-  line-height: 1.75;   /* matras stack above and below */
+  font-size: 1.12em;   /* Devanagari wants ~10-15% more optical size than Latin */
+  line-height: 1.75;   /* matras stack above and below, and the shirorekha needs air */
 }
+:lang(pa), .gurmukhi  { font-family: var(--gurmukhi);  font-size: 1.12em; line-height: 1.75; }
+:lang(ta), .tamil     { font-family: var(--tamil);     font-size: 1.10em; line-height: 1.8;  }
+:lang(gu), .gujarati  { font-family: var(--gujarati);  font-size: 1.12em; line-height: 1.75; }
+:lang(bn), :lang(as), .bengali { font-family: var(--bengali); font-size: 1.10em; line-height: 1.8; }
+:lang(te), .telugu    { font-family: var(--telugu);    font-size: 1.10em; line-height: 1.9; }
+:lang(kn), .kannada   { font-family: var(--kannada);   font-size: 1.10em; line-height: 1.9; }
+:lang(ml), .malayalam { font-family: var(--malayalam); font-size: 1.10em; line-height: 1.85; }
+:lang(or), .odia      { font-family: var(--odia);      font-size: 1.10em; line-height: 1.8; }
 .mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 
 /* ---------------------------------------------------------------- shell */
@@ -209,6 +223,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn.ghost:hover { border-color: var(--accent); color: var(--accent); filter: none; }
 .btn.block { width: 100%; }
 .btn.lg { padding: 15px 28px; font-size: 16.5px; min-height: 54px; }
+.btn.sm { padding: 8px 15px; font-size: 14px; min-height: 38px; }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 
 .pill {
@@ -263,13 +278,82 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* --------------------------------------------------------- the Living Map */
 .mapsvg { width: 100%; height: auto; display: block; touch-action: manipulation; }
-.mapsvg .terr { fill: var(--mist); stroke: var(--card); stroke-width: 1.4; cursor: pointer; transition: fill .5s ease; }
-.mapsvg .terr:hover { fill: color-mix(in srgb, var(--accent) 40%, var(--mist)); }
-.mapsvg .terr.lit { fill: var(--lit); }
+
+/* Each state is two stacked copies of the same shape: the painting underneath, the mist
+   over it. Meeting a state fades the mist out — the geometry never changes, which is the
+   point. No boundary here animates, redraws or moves. */
+.mapsvg .terrg { cursor: pointer; }
+.mapsvg .terr { stroke: var(--card); stroke-width: 1.4; }
+.mapsvg .mist {
+  fill: var(--mist); opacity: .88; pointer-events: none;
+  transition: opacity .6s ease;
+}
+.mapsvg .terrg.lit .mist { opacity: 0; }
+.mapsvg .terrg:hover .mist, .mapsvg .terrg:focus-visible .mist { opacity: .34; }
+.mapsvg .terrg.on .mist { opacity: 0; }
+.mapsvg .terrg.on .terr, .mapsvg .terrg:focus-visible .terr { stroke: var(--accent); stroke-width: 2.6; }
+.mapsvg .terrg:focus-visible { outline: none; }
+
+.mapsvg .tlab {
+  font-family: var(--body); font-size: 13px; font-weight: 700; fill: var(--text2);
+  text-anchor: middle; dominant-baseline: middle; pointer-events: none;
+  paint-order: stroke; stroke: var(--card); stroke-width: 3.4; stroke-linejoin: round;
+  opacity: .82;
+}
+.mapsvg .tlab.lit { fill: var(--text); opacity: 1; }
+
 .mapsvg .outline { fill: none; stroke: var(--text2); stroke-width: 1.6; opacity: .35; }
 .mapsvg .pin circle { fill: var(--accent3); stroke: #fff; stroke-width: 2.5; cursor: pointer; }
+
+/* The callout sits on the map, anchored to the state it belongs to. Parking the facts in a
+   panel below turns looking at a map into reading a table underneath one. */
+.mapwrap { position: relative; }
+.callout {
+  position: absolute; z-index: 3; transform: translate(-50%, calc(-100% - 16px));
+  width: min(262px, 76vw); padding: var(--space-md) var(--space-lg) var(--space-lg); text-align: left;
+  background: var(--card); border: 1px solid var(--line2); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); animation: rise .2s ease-out;
+}
+.callout.below { transform: translate(-50%, 16px); }
+.callout h3 { margin: 0 0 2px; font-size: 19px; padding-right: 20px; }
+.callout .cx {
+  position: absolute; top: 6px; right: 8px; width: 28px; height: 28px; line-height: 1;
+  border: 0; background: none; color: var(--muted); font-size: 21px; cursor: pointer;
+  border-radius: var(--radius-pill);
+}
+.callout .cx:hover { background: var(--ground2); color: var(--text); }
+.callout .chello { margin: 0 0 var(--space-md); font-size: 17px; color: var(--accent); }
+.callout .cfacts { display: grid; gap: 5px; margin-bottom: var(--space-sm); }
+.callout .cfacts span { display: block; line-height: 1.2; }
+.callout .cfacts b { font-size: 14.5px; line-height: 1.3; }
+.callout .ctriv {
+  margin: 0 0 var(--space-md); font-size: 13px; color: var(--text2); line-height: 1.5;
+  padding-left: 10px; border-left: 3px solid var(--accent2);
+}
+/* On a phone the bubble stops trying to be a bubble and becomes a sheet — a 300px card
+   anchored to Manipur is unreadable on a 360px screen. */
+@media (max-width: 560px) {
+  .callout, .callout.below {
+    position: static; transform: none; width: auto; margin-top: var(--space-lg);
+  }
+}
+
+/* the ambient strip under the map, so the map is never a dead surface */
+.mfacts {
+  margin-top: var(--space-lg); padding: var(--space-lg);
+  background: var(--ground2); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  animation: rise .22s ease-out;
+}
+.mfacts.hint { color: var(--muted); font-size: 14px; text-align: center; }
+.mfacts .fgrid {
+  display: grid; gap: var(--space-sm); margin-top: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
 .legend { display: flex; gap: var(--space-lg); flex-wrap: wrap; font-size: 13px; color: var(--muted); }
 .legend i { display: inline-block; width: 13px; height: 13px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; }
+.legend i.lg-mist { background: var(--mist); }
+.legend i.lg-lit { background: linear-gradient(135deg, var(--accent2), var(--accent3)); }
 
 /* --------------------------------------------------------------- tiles */
 .tile {
@@ -602,4 +686,5 @@ button, input, select, textarea { font: inherit; color: inherit; }
   max-width: 46ch; justify-self: center; text-align: center;
 }
 @keyframes turn { from { opacity: 0; transform: translateX(14px) } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px) } }
 @media (max-width: 560px) { .deckcard p { font-size: 17.5px; } }

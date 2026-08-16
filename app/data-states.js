@@ -318,14 +318,16 @@ window.IND_STATES = {
     ],
     hello: { word: "ਸਤ ਸ੍ਰੀ ਅਕਾਲ", roman: "Sat Sri Akal" },
     myth: {
-      deities: [],
+      deities: [
+        { name: "Chandi", what: "The goddess the city is named after — Chandigarh means the fort of Chandi, from the old Chandi temple just outside it." }
+      ],
       legend: null,
       living: [
         { name: "Lohri and Baisakhi", what: "A city built in the 1950s keeps the festivals of the countryside around it — the bonfire in January, the harvest dance in April." }
       ]
     },
     unsure: [
-      "Chandigarh is a planned city barely seventy years old and has no folklore of its own; the myth block is deliberately near-empty rather than borrowed from Punjab and Haryana.",
+      "Chandigarh is a planned city barely seventy years old and has almost no folklore of its own; the myth block is deliberately thin rather than borrowed from Punjab and Haryana. The Chandi Mandir the city is named for stands just outside it, in Haryana.",
       "State symbols for union territories are less well documented than for states; these four are widely published but were not checked against a notification."
     ]
   },
@@ -757,5 +759,1310 @@ window.IND_STATES = {
     ]
   },
 
-  /*END*/
+  JH: {
+    capital: "Ranchi",
+    formed: "15 November 2000, carved out of Bihar — on Birsa Munda's birthday",
+    population: 32988134, population_year: 2011,
+    area_km2: 79716,
+    languages: ["Hindi", "Santali", "Nagpuri", "Kurukh", "Mundari", "Ho", "Bengali", "Urdu"],
+    script: "Devanagari; Santali is written in Ol Chiki, a script invented for it in the 1920s",
+    symbols: { animal: "Indian elephant", bird: "Koel", tree: "Sal", flower: "Palash" },
+    people: [
+      { name: "M. S. Dhoni", what: "Cricketer", why: "Born and brought up in Ranchi; captained India to two World Cup titles." },
+      { name: "Jaipal Singh Munda", what: "Hockey captain", why: "Born at Takra Pahantoli in Khunti district; he captained India to Olympic gold in 1928." },
+      { name: "Deepika Kumari", what: "Archer", why: "Born at Ratu Chatti near Ranchi; she has been ranked world number one." },
+      { name: "Birsa Munda", what: "Munda leader", why: "Born at Ulihatu; Jharkhand's foundation day is deliberately set on his birthday." }
+    ],
+    food: [
+      { dish: "Dhuska", what: "A deep-fried rice-and-lentil bread, puffed and golden, eaten with chana." },
+      { dish: "Rugra", what: "A wild mushroom that appears only after the first monsoon rain, cooked the day it is gathered." },
+      { dish: "Chilka roti", what: "A thin rice pancake, plain or with lentils folded in." },
+      { dish: "Thekua", what: "A crunchy jaggery biscuit fried in ghee." },
+      { dish: "Litti chokha", what: "Roasted stuffed dough balls with smoky mashed brinjal, shared with neighbouring Bihar." }
+    ],
+    places: [
+      { name: "Parasnath Hill (Shikharji)", what: "One of the holiest Jain pilgrimage places; the climb up and around is many kilometres in a day." },
+      { name: "Betla National Park", what: "Sal forest with elephants, and two old hill forts inside it." },
+      { name: "Hundru Falls", what: "The Subarnarekha dropping about 98 m over black rock." },
+      { name: "Netarhat", what: "A plateau known for its sunrises, high above the surrounding forest." },
+      { name: "Baidyanath Dham, Deoghar", what: "A major Shiva shrine that draws a month-long walking pilgrimage in monsoon." }
+    ],
+    trivia: [
+      "Jharkhand means 'the land of forests', and the name is much older than the state.",
+      "Santali has its own alphabet, Ol Chiki, designed in the 1920s specifically for the language.",
+      "Rugra mushrooms cannot be farmed — they simply arrive with the first proper rain and are gone in a fortnight.",
+      "The state was created on 15 November 2000, chosen because it is Birsa Munda's birthday."
+    ],
+    hello: { word: "जोहार", roman: "Johar" },
+    myth: {
+      deities: [
+        { name: "Singbonga", what: "The sun as the highest god in Munda and Ho tradition — everything begins with him." },
+        { name: "Marang Buru", what: "The great mountain spirit of the Santals, called on first at every gathering." },
+        { name: "Sarna Ma", what: "The goddess of the sacred grove; the grove itself, uncut, is the shrine." }
+      ],
+      legend: {
+        name: "How the first people came",
+        tell: "The Santals tell of Pilchu Haram and Pilchu Budhi, the first man and the first woman, who hatched from eggs and had to learn everything about living from the beginning. Their story is not read from a book — it is sung, in long sequences, by people who have carried it in memory for a very long time."
+      },
+      living: [
+        { name: "Sarna sthal", what: "A patch of old trees left standing at the edge of the village, never cut, where the community worships." },
+        { name: "Sohrai and Khovar painting", what: "Women in Hazaribagh paint their house walls with combs and cloth pads — animals at harvest, patterns for a wedding." },
+        { name: "Karam", what: "A branch of the karam tree is brought into the village and sung to through the night by young people." }
+      ]
+    },
+    unsure: [
+      "The Santal first-couple narrative has several recorded versions; retold in the most general terms and marked as sung tradition. Needs a Santal reviewer.",
+      "Hundru Falls height is commonly given as 98 m; not independently checked."
+    ]
+  },
+
+  JK: {
+    capital: "Srinagar (summer) · Jammu (winter)",
+    formed: "Reorganised as a union territory in 2019, when Ladakh was made separate",
+    population: 12541302, population_year: 2011,
+    languages: ["Kashmiri", "Dogri", "Urdu", "Hindi", "Pahari", "Gojri"],
+    script: "Perso-Arabic for Kashmiri and Urdu; Devanagari for Dogri and Hindi",
+    symbols: { animal: "Hangul (Kashmir stag)", tree: "Chinar" },
+    people: [
+      { name: "Lal Ded", what: "Poet", why: "A 14th-century Kashmiri mystic whose short verses, the vakhs, are still quoted in ordinary conversation in the valley." },
+      { name: "Habba Khatoon", what: "Poet", why: "A 16th-century Kashmiri poet whose songs of longing are sung on the shikaras to this day." },
+      { name: "Zain-ul-Abidin", what: "15th-century sultan", why: "Remembered in Kashmir as Budshah, the 'great king', who brought in the craftsmen who began papier-mâché, carpet and shawl weaving here." }
+    ],
+    food: [
+      { dish: "Rogan josh", what: "Lamb in a deep red gravy coloured by dried Kashmiri chillies, which are mild, not fiery." },
+      { dish: "Wazwan", what: "A formal feast of many courses cooked by wazas, eaten four to a big copper plate called a trami." },
+      { dish: "Nadru", what: "Lotus root from Dal Lake, sliced into rings and fried or curried." },
+      { dish: "Kahwa", what: "Green tea with saffron, cardamom and slivered almonds, poured from a samovar." },
+      { dish: "Kalari", what: "A stretchy Dogra cheese from the Jammu hills, fried in its own fat until it squeaks." }
+    ],
+    places: [
+      { name: "Dal Lake", what: "Houseboats, floating vegetable gardens, and a market held on the water at dawn." },
+      { name: "Mughal Gardens", what: "Shalimar and Nishat, built in terraces so the water falls from one level to the next." },
+      { name: "Gulmarg", what: "A meadow that becomes a ski slope in winter, with one of the highest cable cars in the world." },
+      { name: "Pahalgam", what: "Pine valleys where the Lidder river comes down cold and fast." },
+      { name: "Vaishno Devi, Katra", what: "A cave shrine in the Trikuta hills reached by a long walk uphill." }
+    ],
+    trivia: [
+      "Most of India's saffron is grown around Pampore, and it takes roughly 150,000 flowers to make a single kilogram.",
+      "A fine pashmina shawl is woven from the winter undercoat of a Changthangi goat, and the best ones will pass through a finger ring.",
+      "Chinar trees turn the whole valley red and gold in autumn; some standing chinars are hundreds of years old.",
+      "Dal Lake has floating gardens — mats of weed and soil that vegetables are actually grown on."
+    ],
+    hello: null,
+    myth: {
+      deities: [
+        { name: "Ragnya Devi (Kheer Bhawani)", what: "A Kashmiri goddess worshipped at a spring, to whom milk-rice is offered rather than anything cooked in oil." }
+      ],
+      legend: {
+        name: "Satisar, the lake that was drained",
+        tell: "The old Kashmiri account says the whole valley was once a lake called Satisar, and that the sage Kashyapa cut a gap in the hills at Baramulla and let the water out — and the valley underneath was the land people then settled. Geologists agree there really was a great lake here once, which is one of those places where a very old story and the rocks happen to shake hands."
+      },
+      living: [
+        { name: "Rouf", what: "Rows of women dancing shoulder to shoulder, stepping forward and back, singing at weddings and at Eid." },
+        { name: "Chakri", what: "Kashmiri folk singing with the harmonium, rabab and matka, that can go on for hours." },
+        { name: "Ziyarat", what: "Visiting a saint's shrine is part of ordinary life in the valley, and people of more than one faith do it." }
+      ]
+    },
+    unsure: [
+      "Area deliberately omitted.",
+      "`hello` omitted: Kashmiri, Dogri, Gojri and Urdu are all spoken here and picking one greeting would misrepresent the territory.",
+      "State bird and flower omitted: the symbols of the former state are not cleanly carried over after the 2019 reorganisation.",
+      "Population is the 2011 Census for the then state of Jammu & Kashmir, which included Ladakh — so it is not comparable to the present territory.",
+      "Saffron flower-per-kilogram figure is commonly cited between 150,000 and 170,000; written as 'roughly'."
+    ]
+  },
+
+  KA: {
+    capital: "Bengaluru",
+    formed: "1 November 1956 as Mysore State; renamed Karnataka on 1 November 1973",
+    population: 61095297, population_year: 2011,
+    area_km2: 191791,
+    languages: ["Kannada", "Urdu", "Telugu", "Tamil", "Tulu", "Konkani", "Kodava"],
+    script: "Kannada",
+    symbols: { animal: "Indian elephant", bird: "Indian roller", tree: "Sandalwood", flower: "Lotus" },
+    people: [
+      { name: "M. Visvesvaraya", what: "Engineer", why: "Born at Muddenahalli; he designed the Krishna Raja Sagara dam and flood gates still copied today. India's Engineers' Day is his birthday." },
+      { name: "Kuvempu", what: "Poet", why: "From Kuppali in the Malnad hills; the first Kannada writer to win the Jnanpith, and author of the state anthem." },
+      { name: "C. N. R. Rao", what: "Chemist", why: "Born in Bengaluru; one of the world's most-cited solid-state chemists." },
+      { name: "Anil Kumble", what: "Cricketer", why: "Born in Bengaluru; one of only three bowlers ever to take all ten wickets in a Test innings." },
+      { name: "Prakash Padukone", what: "Badminton player", why: "Born in Bengaluru; the first Indian to win the All England championship." }
+    ],
+    food: [
+      { dish: "Bisi bele bath", what: "Hot rice, lentils, vegetables and a special masala, all cooked into one pot." },
+      { dish: "Mysore pak", what: "Gram flour, sugar and a startling amount of ghee, set into a crumbly slab." },
+      { dish: "Ragi mudde", what: "A ball of finger-millet dough swallowed, not chewed, with a spicy saaru." },
+      { dish: "Neer dosa", what: "Coastal rice crepes so thin they are almost translucent." },
+      { dish: "Dharwad peda", what: "A brown, grainy milk sweet with its own GI tag." }
+    ],
+    places: [
+      { name: "Hampi", what: "The boulder-strewn capital of Vijayanagara, with a stone chariot and pillars that ring like bells." },
+      { name: "Mysore Palace", what: "Lit by thousands of bulbs on Sunday nights and through Dasara." },
+      { name: "Pattadakal and Badami", what: "Chalukya temples and rock-cut caves where south and north Indian temple styles met." },
+      { name: "Shravanabelagola", what: "A 17 m statue of Bahubali carved from a single block of granite on top of a hill." },
+      { name: "Jog Falls", what: "The Sharavathi dropping about 253 m in four separate streams." }
+    ],
+    trivia: [
+      "The Bahubali statue at Shravanabelagola is bathed with milk, saffron and sandalwood from scaffolding once every twelve years.",
+      "Karnataka grows most of India's coffee — the Baba Budan hills are where the plant first arrived in India.",
+      "Some pillars in Hampi's Vittala temple ring with different musical notes when you tap them.",
+      "Kannada has one of the longest continuous literary traditions in India, going back well over a thousand years."
+    ],
+    hello: { word: "ನಮಸ್ಕಾರ", roman: "Namaskara" },
+    myth: {
+      deities: [
+        { name: "Panjurli", what: "A boar daiva of Tulunadu on the coast, a guardian who is called to settle disputes as much as to bless." },
+        { name: "Chamundeshwari", what: "The goddess on Chamundi hill above Mysuru, whose name the city carries." },
+        { name: "Manjunatha of Dharmasthala", what: "A Shiva shrine looked after by a Jain family, with Vaishnava priests — one place, three traditions, on purpose." },
+        { name: "Yellamma and the grama devatas", what: "Village goddesses of north Karnataka whose small shrines mark the boundary of a settlement." }
+      ],
+      legend: {
+        name: "Why Mysuru is called Mysuru",
+        tell: "The old telling is that a buffalo-headed being called Mahishasura ruled here, and the goddess Chamundeshwari met him on the hill above the town. The city took its name from him — Mahishuru, then Mysuru — which is a rather generous thing for a city to do. His statue still stands at the top of the hill, and the Dasara procession still comes down it."
+      },
+      living: [
+        { name: "Yakshagana", what: "All-night coastal theatre with towering headdresses, painted faces and a drummer who never seems to tire." },
+        { name: "Bhoota Kola", what: "In Tulunadu, a performer takes on the daiva's ornaments and voice and speaks to the village — spectacular, formal, and taken very seriously." },
+        { name: "Mysuru Dasara", what: "Ten days ending with a procession of elephants, one carrying a golden howdah." }
+      ]
+    },
+    unsure: [
+      "Jog Falls height commonly given as 253 m; Bahubali statue height as about 17 m (57–58 ft). Neither independently verified.",
+      "Karnataka's share of India's coffee is usually put around 70%; written as 'most' rather than a number."
+    ]
+  },
+
+  KL: {
+    capital: "Thiruvananthapuram",
+    formed: "1 November 1956",
+    population: 33406061, population_year: 2011,
+    area_km2: 38863,
+    languages: ["Malayalam", "Tamil", "Kannada", "Tulu", "English"],
+    script: "Malayalam",
+    symbols: { animal: "Indian elephant", bird: "Great hornbill", tree: "Coconut palm", flower: "Golden shower (kanikonna)" },
+    people: [
+      { name: "Raja Ravi Varma", what: "Painter", why: "Born at Kilimanoor in Travancore; his oil paintings and cheap printed copies changed how India pictures its own gods." },
+      { name: "E. Sreedharan", what: "Engineer", why: "Born in Palakkad district; built the Konkan Railway and the Delhi Metro, both on time." },
+      { name: "P. T. Usha", what: "Athlete", why: "Born at Payyoli near Kozhikode; missed an Olympic medal by 1/100th of a second in 1984." },
+      { name: "Adi Shankara", what: "Philosopher", why: "By tradition born at Kalady on the Periyar river; he walked the length of the subcontinent debating." }
+    ],
+    food: [
+      { dish: "Sadya", what: "Two dozen dishes served on a banana leaf in a fixed order, eaten with the hands." },
+      { dish: "Puttu and kadala", what: "Steamed cylinders of rice flour and coconut, with a dark black-chickpea curry." },
+      { dish: "Appam with stew", what: "A lacy fermented rice pancake with a mild coconut-milk stew." },
+      { dish: "Meen curry", what: "Fish cooked with kudampuli, a smoky sour fruit, in a clay pot that is never washed with soap." },
+      { dish: "Payasam", what: "Milk or jaggery pudding, always the last thing on the leaf." }
+    ],
+    places: [
+      { name: "Alappuzha backwaters", what: "A network of lakes and canals you travel along instead of roads." },
+      { name: "Munnar", what: "Tea slopes in the high ranges, where the neelakurinji flowers once every twelve years." },
+      { name: "Fort Kochi", what: "Chinese fishing nets, Dutch and Portuguese houses, and a spice market that has been trading for centuries." },
+      { name: "Paradesi Synagogue, Mattancherry", what: "Built in 1568, with a floor of hand-painted Chinese tiles and no two tiles the same." },
+      { name: "Periyar, Thekkady", what: "A reserve where you watch elephants from a boat on a flooded lake." }
+    ],
+    trivia: [
+      "Kerala has around 44 rivers, and all but three of them flow west into the Arabian Sea.",
+      "A snake boat used in the Vallam Kali races can be over 100 feet long and carry more than a hundred rowers.",
+      "The neelakurinji shrub in the high ranges flowers just once every twelve years and turns whole hillsides blue.",
+      "Kathakali make-up takes three to four hours to put on, and a lot of it is applied lying down."
+    ],
+    hello: { word: "നമസ്കാരം", roman: "Namaskaram" },
+    myth: {
+      deities: [
+        { name: "Mahabali", what: "The good king whose people were happy — remembered every year when he is said to come back to check on them." },
+        { name: "Ayyappan", what: "The deity of Sabarimala, whose pilgrims wear black and address one another as swami, all as equals." },
+        { name: "Bhagavathy", what: "The goddess of the kavu, the sacred grove, in a thousand local forms with a thousand local names." },
+        { name: "Muthappan", what: "A hunter-deity of north Malabar whose theyyam meets and talks with anyone who comes, of any background." }
+      ],
+      legend: {
+        name: "Onam, and the king who comes home",
+        tell: "Mahabali ruled so well that there was no falsehood and no want in his land, and that made the gods uneasy. Vishnu came as Vamana, a small boy, and asked for three paces of ground — and with two strides covered everything, so the king offered his own head for the third. Because Mahabali asked to come back once a year and see his people happy, every Malayali household lays a flower carpet and cooks a sadya for him. He is coming to visit. You want the house looking good."
+      },
+      living: [
+        { name: "Theyyam", what: "In north Kerala, a performer in enormous headgear and paint becomes the deity for a night, and the village comes to speak with them." },
+        { name: "Vallam Kali", what: "Snake boat races on the backwaters in the monsoon, with villages rowing to a song that keeps the stroke." },
+        { name: "Kavu", what: "Sacred groves left uncut for the goddess, which turn out to be some of the last patches of original forest in the state." }
+      ]
+    },
+    unsure: [
+      "Adi Shankara's birth at Kalady is strong tradition, not documented history; the entry says 'by tradition'.",
+      "Snake boat lengths and crew sizes vary; written as 'can be'."
+    ]
+  },
+
+  LD: {
+    capital: "Kavaratti",
+    formed: "A union territory since 1956 as the Laccadive, Minicoy and Amindivi Islands; renamed Lakshadweep in 1973",
+    population: 64473, population_year: 2011,
+    area_km2: 32,
+    languages: ["Malayalam", "Mahl (on Minicoy)", "English"],
+    script: "Malayalam; Mahl on Minicoy is written in Thaana",
+    symbols: { animal: "Butterfly fish", bird: "Sooty tern", tree: "Breadfruit" },
+    people: [],
+    food: [
+      { dish: "Masmin", what: "Tuna smoked and dried until it is hard as wood, then shaved into curries." },
+      { dish: "Mus kavaab", what: "Tuna cooked with coconut and spices — the everyday island dish." },
+      { dish: "Coconut", what: "Grated into every curry, pressed for milk, drunk from the shell and burnt for fuel." }
+    ],
+    places: [
+      { name: "Kavaratti", what: "The capital island, with a lagoon so calm it looks like a swimming pool." },
+      { name: "Minicoy", what: "The southernmost island, with a tall lighthouse and its own language." },
+      { name: "Bangaram", what: "An uninhabited island ringed by reef." },
+      { name: "Agatti", what: "The only island with an airstrip, laid along the reef." },
+      { name: "Pitti Bird Sanctuary", what: "A tiny sandbank where terns come in thousands to nest." }
+    ],
+    trivia: [
+      "Lakshadweep is India's smallest union territory by land — about 32 square kilometres in total.",
+      "There are 36 islands and only about ten of them have people living on them.",
+      "The name means 'a hundred thousand islands', which is a generous count.",
+      "On Minicoy people speak Mahl, the same language as the Maldives, and write it in the curly Thaana script."
+    ],
+    hello: { word: "നമസ്കാരം", roman: "Namaskaram" },
+    myth: {
+      deities: [],
+      legend: {
+        name: "The sailors who did not come back",
+        tell: "The islands' own account of how they were settled tells of ships sent out from the Kerala coast in search of a king who had sailed away, and of crews who were blown off course, found land ringed with coral, and stayed. It is told as history on the islands and as legend on the mainland, and nobody has been able to settle which it is."
+      },
+      living: [
+        { name: "Lava dance", what: "On Minicoy, dancers in bright headgear move in lines to drums, a tradition shared with the Maldives." },
+        { name: "Kolkali and Parichakali", what: "Circle dances beaten out with sticks or with small shields, performed at weddings and Eid." }
+      ]
+    },
+    unsure: [
+      "No `people` entry: could not verify a nationally known figure born in the islands.",
+      "The settlement legend is the standard local account (usually attached to Cheraman Perumal); it is written as an unsettled story rather than as fact."
+    ]
+  },
+
+  MH: {
+    capital: "Mumbai",
+    formed: "1 May 1960, when Bombay State was divided into Maharashtra and Gujarat",
+    population: 112374333, population_year: 2011,
+    area_km2: 307713,
+    languages: ["Marathi", "Hindi", "Urdu", "Gujarati", "Konkani"],
+    script: "Devanagari",
+    symbols: { animal: "Indian giant squirrel (shekru)", bird: "Yellow-footed green pigeon (hariyal)", tree: "Mango", flower: "Jarul" },
+    people: [
+      { name: "Chhatrapati Shivaji", what: "17th-century ruler", why: "Born at Shivneri fort near Junnar; he built a kingdom out of the hill forts of the Sahyadris." },
+      { name: "Sachin Tendulkar", what: "Cricketer", why: "Born in Mumbai and made in its maidans; the only batter with a hundred international centuries." },
+      { name: "Dadasaheb Phalke", what: "Filmmaker", why: "Born at Trimbak; he made Raja Harishchandra in 1913, India's first full-length feature." },
+      { name: "Savitribai Phule", what: "Teacher", why: "Born at Naigaon in Satara district; she opened one of India's first schools for girls, in Pune in 1848, and taught in it herself." },
+      { name: "Sant Tukaram", what: "Poet", why: "From Dehu near Pune; his abhangs are still sung by the lakh on the walk to Pandharpur." }
+    ],
+    food: [
+      { dish: "Puran poli", what: "A flatbread stuffed with sweet gram and jaggery, rolled thin and eaten with ghee." },
+      { dish: "Vada pav", what: "A spiced potato ball in a bun with dry garlic chutney — Mumbai's whole lunch for very little money." },
+      { dish: "Misal pav", what: "Sprouted beans under a slick of fiery red tarri, with farsan on top." },
+      { dish: "Modak", what: "Steamed rice dumplings with coconut and jaggery inside, made for Ganpati." },
+      { dish: "Solkadhi", what: "A cool pink drink of coconut milk and kokum, drunk after a coastal meal." }
+    ],
+    places: [
+      { name: "Ajanta and Ellora Caves", what: "Painted Buddhist caves and, at Ellora, a whole temple carved downwards out of one rock." },
+      { name: "Elephanta Caves", what: "Rock-cut Shiva caves on an island an hour's boat ride from the Gateway of India." },
+      { name: "Raigad Fort", what: "Shivaji's capital, on a flat-topped hill reached by 1,400-odd steps or a ropeway." },
+      { name: "Kaas Plateau", what: "A high rock flat that erupts into wildflowers for a few weeks each monsoon." },
+      { name: "Chhatrapati Shivaji Maharaj Terminus", what: "A Gothic railway station with gargoyles, and a World Heritage Site." }
+    ],
+    trivia: [
+      "The Kailasa temple at Ellora was cut downwards out of a single hill — no bricks, no joins, and about 200,000 tonnes of rock removed.",
+      "Mumbai's dabbawalas deliver around 200,000 home-cooked lunches a day, mostly without reading or writing an address.",
+      "Maharashtra has more UNESCO World Heritage Sites than any other Indian state.",
+      "The Kaas Plateau changes colour week by week as different flowers take their turn."
+    ],
+    hello: { word: "नमस्कार", roman: "Namaskar" },
+    myth: {
+      deities: [
+        { name: "Vitthal (Vithoba)", what: "Krishna standing on a brick at Pandharpur, hands on his hips, waiting — the most patient god in India." },
+        { name: "Khandoba", what: "The deity of Jejuri, whose devotees throw turmeric until the whole hill goes gold." },
+        { name: "Ganpati", what: "Every Maharashtrian household's first invitation, and the reason the city stops for ten days each year." },
+        { name: "Jyotiba and Bahiroba", what: "Guardian deities of the hills and the village boundary, older than most temples." }
+      ],
+      legend: {
+        name: "The brick that is still there",
+        tell: "Pundalik was busy looking after his mother and father when God turned up at his door. He did not want to be rude, but he also did not want to stop — so he tossed a brick outside and asked the visitor to wait on it. And Vitthal has been standing on that brick at Pandharpur ever since, hands on his hips, perfectly happy about it. Which is the whole point of the story: looking after your parents was not the lesser thing."
+      },
+      living: [
+        { name: "The Wari", what: "Hundreds of thousands of warkaris walk to Pandharpur every year in the monsoon, singing abhangs, sleeping in fields." },
+        { name: "Ganeshotsav", what: "Ten days of neighbourhood pandals, ending with clay images carried to the sea." },
+        { name: "Bhandara at Jejuri", what: "Turmeric thrown in handfuls at Khandoba's festival, until people, steps and sky are all yellow." }
+      ]
+    },
+    unsure: [
+      "Ellora Kailasa rock-removal figure (about 200,000 tonnes) is the widely published estimate, not a measured number.",
+      "Raigad step count is approximate."
+    ]
+  },
+
+  ML: {
+    capital: "Shillong",
+    formed: "An autonomous state within Assam in 1970; a full state on 21 January 1972",
+    population: 2966889, population_year: 2011,
+    area_km2: 22429,
+    languages: ["Khasi", "Garo", "Pnar (Jaintia)", "English"],
+    script: "Latin — Khasi and Garo are both written in the Roman alphabet",
+    symbols: { animal: "Clouded leopard", bird: "Hill myna", tree: "White teak", flower: "Lady's slipper orchid" },
+    people: [
+      { name: "Soso Tham", what: "Poet", why: "Born at Sohra (Cherrapunji); he is regarded as the poet laureate of the Khasi language." },
+      { name: "Lou Majaw", what: "Musician", why: "From Shillong; he has played a Bob Dylan birthday concert in the city every year for decades." },
+      { name: "Neil Nongkynrih", what: "Pianist and conductor", why: "From Shillong; he founded the Shillong Chamber Choir." },
+      { name: "Patricia Mukhim", what: "Journalist and writer", why: "From Shillong; a long-standing editor writing from and about the hills." }
+    ],
+    food: [
+      { dish: "Jadoh", what: "Red rice cooked with meat until the grains take the colour and the flavour." },
+      { dish: "Dohneiiong", what: "Pork with black sesame ground into a dark, nutty gravy." },
+      { dish: "Tungrymbai", what: "Fermented soybean paste, pungent and much loved, cooked with sesame and ginger." },
+      { dish: "Pukhlein", what: "A rice-and-jaggery fritter, sticky in the middle and crisp at the edge." },
+      { dish: "Nakham bitchi", what: "A Garo soup of dried fish, drunk before a meal to open the appetite." }
+    ],
+    places: [
+      { name: "Living root bridges, Nongriat", what: "Bridges grown from the roots of rubber fig trees, including a famous double-decker." },
+      { name: "Mawsynram and Sohra", what: "Two of the wettest inhabited places on Earth, a few hours apart." },
+      { name: "Nohkalikai Falls", what: "A single plunge off the plateau into a green pool far below." },
+      { name: "Mawlynnong", what: "A village known across India for keeping itself spotless, with bamboo bins on every path." },
+      { name: "Krem Liat Prah", what: "The longest known cave in India, over 30 km of passages." }
+    ],
+    trivia: [
+      "The root bridges are grown, not built — it takes fifteen to thirty years, and unlike an ordinary bridge they get stronger with age.",
+      "Meghalaya has the longest cave systems in India; new passages are still being surveyed.",
+      "Khasi, Garo and Jaintia families are matrilineal — children take the mother's family name, and the youngest daughter usually looks after the ancestral home.",
+      "The name Meghalaya means 'the abode of clouds', and on many days you cannot see the far side of the road."
+    ],
+    hello: { word: "Khublei", roman: "Khublei" },
+    myth: {
+      deities: [
+        { name: "U Blei Nongthaw", what: "The creator in Khasi tradition — the one who made, and to whom the first portion is offered." },
+        { name: "Ka Ramew", what: "The earth, spoken of as a mother who agreed to hold people if they would look after her." },
+        { name: "Misi Saljong", what: "The giver of the harvest in Garo tradition, thanked at Wangala with a hundred drums." }
+      ],
+      legend: {
+        name: "The golden ladder at Sohpetbneng",
+        tell: "The Khasi telling is that a golden ladder once joined earth to the sky at the peak of Lum Sohpetbneng, and sixteen families lived on both sides. Seven of them came down to look after the earth — the Hynñiew Trep, the seven huts — and then the ladder was lost. People still climb that hill every February, which is a rather good way of saying: we have not forgotten where the ladder was."
+      },
+      living: [
+        { name: "Ka Pomblang Nongkrem", what: "A five-day dance at Smit, where unmarried women dance in the centre and men circle them with swords and whisks." },
+        { name: "Shad Suk Mynsiem", what: "The 'dance of the joyful heart', danced in spring after the sowing." },
+        { name: "Wangala", what: "The Garo harvest festival, where a hundred drums are played together for Misi Saljong." }
+      ]
+    },
+    unsure: [
+      "Krem Liat Prah length is usually given as about 34 km and keeps changing as surveying continues; written as 'over 30 km'.",
+      "Khasi cosmology is summarised from published accounts and should be checked by a Khasi reviewer before it ships."
+    ]
+  },
+
+  MN: {
+    capital: "Imphal",
+    formed: "A union territory in 1956; a full state on 21 January 1972",
+    area_km2: 22327,
+    languages: ["Meiteilon (Manipuri)", "Thadou", "Tangkhul", "Paite", "Hindi", "English"],
+    script: "Meitei Mayek; the Bengali-Assamese script has also been used for Meiteilon",
+    symbols: { animal: "Sangai", bird: "Mrs Hume's pheasant (nongin)", tree: "Uningthou", flower: "Shirui lily" },
+    people: [
+      { name: "Mary Kom", what: "Boxer", why: "Born at Kangathei in Churachandpur district; six-time world champion." },
+      { name: "Mirabai Chanu", what: "Weightlifter", why: "Born at Nongpok Kakching near Imphal; Olympic silver medallist in 2021." },
+      { name: "Guru Bipin Singh", what: "Dance guru", why: "From Manipur; he did more than anyone to bring Manipuri dance onto the concert stage." },
+      { name: "Dingko Singh", what: "Boxer", why: "Born at Sekta village; won gold at the 1998 Asian Games and pulled a generation of Manipuri children into the ring." }
+    ],
+    food: [
+      { dish: "Eromba", what: "Boiled vegetables mashed with chilli and fermented fish — the taste people miss most when away." },
+      { dish: "Chak-hao kheer", what: "Pudding made from Manipur's black rice, which cooks to a deep purple." },
+      { dish: "Singju", what: "A crunchy salad of shredded raw vegetables, roasted chickpea flour and chilli." },
+      { dish: "Nga thongba", what: "A light fish curry, usually with local river fish." },
+      { dish: "Kangshoi", what: "A clear vegetable stew, seasoned simply, eaten with rice every day." }
+    ],
+    places: [
+      { name: "Loktak Lake", what: "A lake covered in phumdis — floating mats of vegetation big enough to build a hut on." },
+      { name: "Keibul Lamjao National Park", what: "The only floating national park in the world, and the last home of the sangai deer." },
+      { name: "Ima Keithel, Imphal", what: "A market of thousands of stalls, every single one run by a woman." },
+      { name: "Kangla Fort", what: "The old seat of the Meitei kings in the middle of Imphal." },
+      { name: "Shirui hills", what: "Where the Shirui lily grows, and grows nowhere else on Earth." }
+    ],
+    trivia: [
+      "Keibul Lamjao is the only floating national park anywhere, and the sangai deer walks on the floating mats as if they were ground.",
+      "Ima Keithel — the Mothers' Market — has been run entirely by women for centuries.",
+      "The ancestor of modern polo, sagol kangjei, was played in Manipur, and the game spread from here to the rest of the world.",
+      "Chak-hao, Manipur's black rice, turns a deep purple when it is cooked."
+    ],
+    hello: { word: "খুরুমজরি", roman: "Khurumjari" },
+    myth: {
+      deities: [
+        { name: "Lainingthou Sanamahi", what: "Honoured in the south-west corner of every traditional Meitei home — the household's own deity, in the house itself." },
+        { name: "Pakhangba", what: "The serpent-dragon of Meitei tradition, whose coiled form is drawn on the Kangla and on flags." },
+        { name: "Leimarel Sidabi", what: "The mother of the earth, to whom the first offering of the household is made." },
+        { name: "Umang Lai", what: "The forest deities of the sacred groves, each with its own grove and its own festival." }
+      ],
+      legend: {
+        name: "Lai Haraoba, the merrymaking of the gods",
+        tell: "Once a year the maibis — the priestesses — dance the making of the world in front of the Umang Lai: the shaping of the earth, the building of the first house, the sowing, the weaving, all of it in gesture. Nothing is explained out loud. The children watching learn the order of creation the way you learn a song, by seeing it again every year until you know it."
+      },
+      living: [
+        { name: "Lai Haraoba", what: "Weeks of dance and offering at the sacred groves, led by maibis and maibas." },
+        { name: "Thabal Chongba", what: "A moonlight dance at Yaoshang where young people hold hands in a circle and go round until very late." },
+        { name: "Manipuri Ras Leela", what: "Krishna's dance performed in stiff, mirrored skirts, with the softest footwork of any Indian classical form." }
+      ]
+    },
+    unsure: [
+      "Population omitted: the 2011 Census figure for Manipur is reported differently across sources (the count in parts of Senapati district was disputed), so no number is given rather than a wrong one."
+    ]
+  },
+
+  MP: {
+    capital: "Bhopal",
+    formed: "1 November 1956; Chhattisgarh was carved out of it in 2000",
+    population: 72626809, population_year: 2011,
+    area_km2: 308252,
+    languages: ["Hindi", "Bundeli", "Malvi", "Nimadi", "Gondi", "Bhili", "Urdu"],
+    script: "Devanagari",
+    symbols: { animal: "Barasingha", bird: "Indian paradise flycatcher (dudhraj)", tree: "Banyan" },
+    people: [
+      { name: "Tansen", what: "Musician", why: "Born near Gwalior; the dhrupad singer of Akbar's court, and his tomb in Gwalior still hosts a music festival every year." },
+      { name: "Lata Mangeshkar", what: "Singer", why: "Born in Indore; she recorded in three dozen languages over seven decades." },
+      { name: "Kishore Kumar", what: "Singer and actor", why: "Born in Khandwa, where his house is still a stop for fans." },
+      { name: "Raja Bhoj", what: "11th-century king", why: "Ruled from Dhar; a scholar-king who wrote on architecture, poetry and astronomy, and built the great lake at Bhojpur." }
+    ],
+    food: [
+      { dish: "Poha-jalebi", what: "Flattened rice with onion and sev, eaten with a hot jalebi on the side. Indore's breakfast." },
+      { dish: "Bhutte ka kees", what: "Grated corn cooked in milk with mustard seed — sweet, savoury and a bit weird, in a good way." },
+      { dish: "Dal bafla", what: "Wheat balls boiled, then baked, then dunked in ghee and eaten with dal." },
+      { dish: "Sabudana khichdi", what: "Tapioca pearls with peanuts and green chilli, made for fasting days and eaten on all the others too." },
+      { dish: "Indori namkeen", what: "A whole street of savoury mixtures, sold by weight late into the night." }
+    ],
+    places: [
+      { name: "Bhimbetka", what: "Rock shelters whose walls people painted on for thousands of years — hunters, dancers, a giant boar." },
+      { name: "Khajuraho", what: "Temples covered in carvings of everyday life a thousand years ago." },
+      { name: "Sanchi", what: "The great stupa begun under Ashoka, with Jataka stories carved on its gateways." },
+      { name: "Kanha and Bandhavgarh", what: "Sal forest and meadow, and some of the best tiger country in India." },
+      { name: "Bhedaghat", what: "White marble cliffs rising straight out of the Narmada, best seen by boat." }
+    ],
+    trivia: [
+      "Madhya Pradesh had more tigers than any other state in the last national count.",
+      "The paintings at Bhimbetka were made across many thousands of years — some are so high up nobody is sure how they were reached.",
+      "For centuries Indian astronomers measured longitude from Ujjain, treating it as the prime meridian.",
+      "The Narmada is one of the very few big Indian rivers that flows west instead of east."
+    ],
+    hello: { word: "नमस्ते", roman: "Namaste" },
+    myth: {
+      deities: [
+        { name: "Mahakal of Ujjain", what: "Shiva as lord of time, woken before dawn with the bhasma aarti while the city is still asleep." },
+        { name: "Narmada Maiya", what: "The river herself as a goddess — not a river with a goddess in it, the river." },
+        { name: "Bada Deo", what: "The great deity of Gond tradition, honoured at the saja tree rather than in a building." }
+      ],
+      legend: {
+        name: "Why the Narmada turns her back",
+        tell: "The story goes that Narmada was to marry the Sohan river, and on the wedding day she was tricked — a message went astray, and she found out too late. She turned around and walked away west, all the way to the sea, and she has never turned back since. Every other great river of the north goes east. She goes west. People walking her banks will point this out to you within about five minutes."
+      },
+      living: [
+        { name: "Narmada Parikrama", what: "Walking the entire river, down one bank and up the other — some three thousand kilometres — while villages on the way feed you." },
+        { name: "Bhasma aarti", what: "The pre-dawn ritual at Ujjain, where the crowd waits in the dark for the doors to open." },
+        { name: "Gond and Bhil painting", what: "Dotted, line-filled animals and trees, taken from house walls onto paper by artists from Patangarh and beyond." }
+      ]
+    },
+    unsure: [
+      "State flower not listed — could not confirm a designated flower for Madhya Pradesh.",
+      "Tiger numbers change with each national estimation cycle; phrased as 'the last national count' rather than a figure.",
+      "The Narmada–Sohan story has several regional variants; the version told is the most common one."
+    ]
+  },
+
+  MZ: {
+    capital: "Aizawl",
+    formed: "A union territory in 1972; a full state on 20 February 1987",
+    population: 1097206, population_year: 2011,
+    area_km2: 21081,
+    languages: ["Mizo", "English", "Hindi"],
+    script: "Latin",
+    symbols: { animal: "Himalayan serow (saza)", bird: "Mrs Hume's pheasant (vavu)", flower: "Red vanda (senhri)" },
+    people: [
+      { name: "Lalsangzuali Sailo", what: "Songwriter and singer", why: "From Mizoram; she wrote hundreds of Mizo songs and was given the Padma Shri for them." },
+      { name: "Jeje Lalpekhlua", what: "Footballer", why: "From Hnahthial in Mizoram; a long-serving India international striker." },
+      { name: "Lallianzuala Chhangte", what: "Footballer", why: "From Mizoram; one of the fastest wingers in Indian football." }
+    ],
+    food: [
+      { dish: "Bai", what: "Boiled vegetables with a little pork and bamboo shoot — the everyday Mizo dish, light and clean." },
+      { dish: "Vawksa rep", what: "Pork smoked slowly above the kitchen fire until it is dark and firm." },
+      { dish: "Sawhchiar", what: "Rice cooked together with meat into a soft, comforting one-pot meal." },
+      { dish: "Chhum han", what: "Steamed mixed vegetables, seasoned barely at all so you taste the vegetables." },
+      { dish: "Bamboo shoot", what: "Fermented and used a little at a time, the way another kitchen would use a stock cube." }
+    ],
+    places: [
+      { name: "Phawngpui (Blue Mountain)", what: "The highest peak in Mizoram, with an open grassy top and cliffs falling away on one side." },
+      { name: "Vantawng Falls", what: "The tallest waterfall in the state, dropping in two steps through thick forest." },
+      { name: "Reiek", what: "A rock hill above Aizawl with a rebuilt traditional Mizo village at its foot." },
+      { name: "Dampa Tiger Reserve", what: "The largest protected forest in Mizoram, on the western edge." },
+      { name: "Champhai", what: "A wide rice-growing valley in the east, unusual in such a hilly state." }
+    ],
+    trivia: [
+      "Mizoram has one of the highest literacy rates in India, close behind Kerala.",
+      "The bamboo that covers much of Mizoram flowers roughly once every 48 years, an event called mautam — and then dies back all at once.",
+      "In the Cheraw dance, pairs of bamboo poles are clapped together on the beat and the dancers step in and out between them.",
+      "Almost every Mizo village used to have a zawlbuk, a large house in the centre where the young men slept and learned."
+    ],
+    hello: { word: "Chibai", roman: "Chibai" },
+    myth: {
+      deities: [
+        { name: "Pathian", what: "The creator in older Mizo belief — good, distant, and not to be bargained with." },
+        { name: "Khuavang", what: "A spirit of fortune and protection, spoken of in older village practice." }
+      ],
+      legend: {
+        name: "Chhura",
+        tell: "Chhura is the hero of Mizo folktales, and he is not clever. He is enormously strong, absolutely well-meaning, and gets things wrong in ways that make children fall over laughing. Grandparents still tell Chhura stories, and the joke is always gentle — he is never humiliated, just very silly."
+      },
+      living: [
+        { name: "Chapchar Kut", what: "The spring festival after the jhum fields are cleared, with Cheraw danced in the open." },
+        { name: "Church choirs", what: "Mizoram today is overwhelmingly Christian, and choral singing is one of the strongest living community traditions in the state." },
+        { name: "Puanchei weaving", what: "The bright striped cloth worn for Cheraw, woven on a backstrap loom." }
+      ]
+    },
+    unsure: [
+      "State tree omitted — could not confirm a designated tree for Mizoram.",
+      "Pathian and Khuavang are drawn from published ethnography of pre-Christian Mizo belief; a Mizo reviewer should check both the names and the framing.",
+      "Mautam bamboo flowering cycle is usually given as about 48 years."
+    ]
+  },
+
+  NL: {
+    capital: "Kohima",
+    formed: "1 December 1963",
+    population: 1978502, population_year: 2011,
+    area_km2: 16579,
+    languages: ["English (the official language)", "Nagamese", "Ao", "Angami", "Konyak", "Sema", "Lotha"],
+    script: "Latin",
+    symbols: { animal: "Mithun", bird: "Blyth's tragopan", tree: "Alder", flower: "Rhododendron" },
+    people: [
+      { name: "Easterine Kire", what: "Novelist and poet", why: "From Kohima; the first Naga writer to publish a novel in English, and a chronicler of Angami village life." },
+      { name: "Temsüla Ao", what: "Writer and scholar", why: "An Ao Naga writer whose short stories are the best-known literary account of the hills; she also documented Ao oral tradition." },
+      { name: "Chekrovolü Swüro", what: "Archer", why: "From Nagaland; she competed for India at the 2012 Olympics." }
+    ],
+    food: [
+      { dish: "Smoked pork with axone", what: "Pork cured over the fire, cooked with fermented soybean — the state's signature dish." },
+      { dish: "Galho", what: "A rice porridge cooked with greens and a little meat, warm and filling." },
+      { dish: "Bamboo shoot", what: "Fermented in bamboo tubes and used to sharpen almost any dish." },
+      { dish: "Raja mircha", what: "The king chilli, used in tiny slivers — a whole one would be a mistake." },
+      { dish: "Anishi", what: "Dried, fermented yam leaves pressed into cakes, cooked with pork." }
+    ],
+    places: [
+      { name: "Dzükou Valley", what: "A high, treeless valley of rolling green that fills with lilies in summer." },
+      { name: "Khonoma", what: "A terraced village that declared its own forest a no-hunting zone." },
+      { name: "Kisama Heritage Village", what: "Where the Hornbill Festival is held each December, with a house built by each tribe." },
+      { name: "Japfü Peak", what: "The second-highest point in Nagaland, with a famously tall rhododendron tree on its slopes." },
+      { name: "Kohima", what: "A hill capital built along a ridge, with the old village on the height above it." }
+    ],
+    trivia: [
+      "English is the official language of Nagaland — the only state in India where that is the case.",
+      "The Naga king chilli was once measured as the hottest chilli in the world.",
+      "The Dzükou lily grows in that valley and nowhere else on Earth.",
+      "Nagaland has sixteen major tribes, and their languages are different enough that people often talk to each other in Nagamese or English."
+    ],
+    hello: null,
+    myth: {
+      deities: [
+        { name: "Ukepenuopfü", what: "In Angami tradition, the ancestress from whom people descend — the first mother." },
+        { name: "Lijaba", what: "In Ao tradition, the earth god who goes into the ground with the seed and comes up with the crop." },
+        { name: "Terhuomia", what: "Spirits of forest, field and stone in Angami belief, treated with care rather than fear." }
+      ],
+      legend: {
+        name: "The six stones",
+        tell: "The Ao account says the first ancestors came out at Lungterok — 'six stones' — and from those six the clans spread across the hills. Every Ao village can trace its way back to that place. It is a short story with a very long shadow: it is why village elders can still tell you exactly who is related to whom, across dozens of villages, without writing anything down."
+      },
+      living: [
+        { name: "Sekrenyi", what: "The Angami purification festival in February — ten days of ritual, washing, feasting and settling of quarrels." },
+        { name: "Moatsü", what: "The Ao festival after the sowing, when the hard work is done and the village sings." },
+        { name: "The morung", what: "The carved wooden dormitory where boys once learned everything a village knew; the log drums outside them are enormous." }
+      ]
+    },
+    unsure: [
+      "`hello` omitted: Nagaland has sixteen major tribal languages plus Nagamese, and there is no single greeting for the state.",
+      "Naga deity names are given per tribe and should not be merged; each entry names whose tradition it comes from. Needs a Naga reviewer.",
+      "Japfü's tall rhododendron is a documented record but the claim is often exaggerated; kept vague."
+    ]
+  },
+
+  OR: {
+    capital: "Bhubaneswar",
+    formed: "A separate province from 1936 and a state from 1950; the state's name was officially changed from Orissa to Odisha in 2011",
+    population: 41974218, population_year: 2011,
+    area_km2: 155707,
+    languages: ["Odia", "Santali", "Ho", "Hindi", "Telugu"],
+    script: "Odia",
+    symbols: { animal: "Sambar", bird: "Indian roller" },
+    people: [
+      { name: "Kelucharan Mohapatra", what: "Odissi dancer and guru", why: "Born at Raghurajpur; he shaped Odissi into the classical form performed today." },
+      { name: "Subhas Chandra Bose", what: "Leader of the freedom movement", why: "Born in Cuttack in 1897." },
+      { name: "Sudarsan Pattnaik", what: "Sand artist", why: "From Puri; he builds enormous sculptures on the beach that the tide takes away again." },
+      { name: "Dutee Chand", what: "Sprinter", why: "Born at Chaka Gopalpur in Jajpur district; national record holder in the 100 m." }
+    ],
+    food: [
+      { dish: "Dalma", what: "Lentils cooked with vegetables and no onion or garlic, finished with roasted cumin." },
+      { dish: "Pakhala bhata", what: "Rice left overnight in water, eaten cold with fried fish and green chilli in the summer heat." },
+      { dish: "Chhena poda", what: "Fresh cheese and sugar baked until the top goes dark and smoky — a burnt cheesecake, roughly." },
+      { dish: "Rasagola", what: "Odisha's version is softer and browner than its neighbour's, and has its own GI tag." },
+      { dish: "Santula", what: "Lightly boiled mixed vegetables with a spoon of mustard oil — the gentlest thing on the plate." }
+    ],
+    places: [
+      { name: "Konark Sun Temple", what: "Built as a chariot for the sun, with twenty-four carved stone wheels." },
+      { name: "Jagannath Temple, Puri", what: "The great temple whose Rath Yatra brings the deities out into the street." },
+      { name: "Chilika Lake", what: "Asia's largest brackish lagoon, with Irrawaddy dolphins and flamingos in winter." },
+      { name: "Udayagiri and Khandagiri caves", what: "Rock-cut Jain cells above Bhubaneswar, carved more than two thousand years ago." },
+      { name: "Raghurajpur", what: "A village where every single house is a Pattachitra painter's workshop." }
+    ],
+    trivia: [
+      "Three brand-new wooden chariots are built from scratch every single year for the Rath Yatra, and taken apart afterwards.",
+      "The English word 'juggernaut' comes from Jagannath, from European travellers describing the size of the chariots.",
+      "Olive ridley turtles come ashore at Gahirmatha and Rushikulya in the hundreds of thousands to nest, all in a few nights.",
+      "Chilika Lake is home to India's only regular resident population of Irrawaddy dolphins."
+    ],
+    hello: { word: "ନମସ୍କାର", roman: "Namaskar" },
+    myth: {
+      deities: [
+        { name: "Jagannath, Balabhadra and Subhadra", what: "Three wooden images with round eyes and unfinished arms — brother, brother and sister, worshipped together." },
+        { name: "Sudarshan", what: "The fourth presence on the chariot, a wooden pillar rather than a figure." },
+        { name: "Mangala and the village goddesses", what: "Local goddesses across coastal Odisha with their own shrines, songs and fiercely loyal villages." }
+      ],
+      legend: {
+        name: "The carving that was never finished",
+        tell: "The telling is that the images were being carved behind closed doors, and the one condition was that nobody look until it was done. The king could not wait. The door opened too early, the work stopped where it was, and that is why Jagannath has no finished hands or feet — and why he is loved exactly like that. Odisha will also tell you that he was first worshipped by Vishvavasu of the Sabara people in the forest, and that the servitors who dress him today descend from him."
+      },
+      living: [
+        { name: "Rath Yatra", what: "Three new chariots, ropes, and a whole city pulling them down the Grand Road in July." },
+        { name: "Nabakalebara", what: "Every twelve to nineteen years the wooden images are made anew, from trees chosen by signs, in secret." },
+        { name: "Pattachitra", what: "Paintings on cloth stiffened with tamarind glue, in natural colours, still made in Raghurajpur." }
+      ]
+    },
+    unsure: [
+      "State tree and flower omitted — could not confirm the designated species.",
+      "The Sabara origin of Jagannath worship is the tradition maintained at Puri itself; presented as the temple's own account."
+    ]
+  },
+
+  PB: {
+    capital: "Chandigarh",
+    formed: "A state from 1950; reorganised on 1 November 1966, when Haryana and Himachal's hill districts were separated",
+    population: 27743338, population_year: 2011,
+    area_km2: 50362,
+    languages: ["Punjabi", "Hindi", "Urdu", "English"],
+    script: "Gurmukhi",
+    symbols: { animal: "Blackbuck", bird: "Northern goshawk (baaz)", tree: "Shisham" },
+    people: [
+      { name: "Balbir Singh Sr.", what: "Hockey player", why: "Born at Haripur Khalsa in Jalandhar district; three Olympic golds, and a final-match record that stood for decades." },
+      { name: "Bhai Vir Singh", what: "Poet and scholar", why: "Born in Amritsar; often called the father of modern Punjabi literature." },
+      { name: "Sobha Singh", what: "Painter", why: "Born at Sri Hargobindpur; his paintings of Punjabi folk figures hang in homes across the state." },
+      { name: "Harbhajan Singh", what: "Cricketer", why: "Born in Jalandhar; took a hat-trick against Australia in 2001." }
+    ],
+    food: [
+      { dish: "Sarson da saag with makki di roti", what: "Slow-cooked mustard greens with maize flatbread and a lump of white butter." },
+      { dish: "Amritsari fish", what: "River fish in an ajwain-scented gram-flour batter, fried till crisp." },
+      { dish: "Pinni", what: "Wheat flour, ghee and jaggery rolled into winter balls with nuts inside." },
+      { dish: "Lassi", what: "Thick, sweet and topped with malai, in a glass you cannot lift with one hand." },
+      { dish: "Kada prasad", what: "Warm halwa of flour, ghee and sugar, given to everyone who comes to a gurdwara." }
+    ],
+    places: [
+      { name: "Harmandir Sahib, Amritsar", what: "The Golden Temple, with four doors so anyone may enter from any direction." },
+      { name: "Anandpur Sahib", what: "A historic Sikh town in the Shivalik foothills, and the Virasat-e-Khalsa museum." },
+      { name: "Qila Mubarak, Patiala", what: "A rambling old fort-palace in the middle of the city." },
+      { name: "Harike Wetland", what: "Where the Beas and Sutlej meet — a huge winter stop for migratory birds." },
+      { name: "Sheesh Mahal, Patiala", what: "A palace of mirrors with a suspension bridge across the garden." }
+    ],
+    trivia: [
+      "The langar at Harmandir Sahib feeds tens of thousands of people free every day, and anyone at all can join the cooking.",
+      "Punjab means 'five rivers' — panj ab — although only some of them run through the Indian state today.",
+      "Punjabi is written in Gurmukhi, a script arranged so that the letters follow the sounds in order.",
+      "The wheat grown in Punjab feeds a large part of the country, from a state that is barely one-and-a-half per cent of India's land."
+    ],
+    hello: { word: "ਸਤ ਸ੍ਰੀ ਅਕਾਲ", roman: "Sat Sri Akal" },
+    myth: {
+      deities: [
+        { name: "Gugga Pir (Gogaji)", what: "The snake protector of the Punjab plains — his shrine is visited by Hindus, Sikhs and Muslims, and he is called by more than one name." },
+        { name: "Sakhi Sarwar", what: "A saint whose shrine drew followers from several communities for centuries, remembered in Punjabi folk song." }
+      ],
+      legend: {
+        name: "Heer and Ranjho",
+        tell: "Heer of the Sials and Ranjha the flute-player is the great Punjabi love story, and it is not really told — it is sung. Waris Shah put it into verse in the 1700s, and a good singer will hold a courtyard for hours on a single passage. Ask an older relative to sing you two lines of Heer and watch what happens to the room."
+      },
+      living: [
+        { name: "Bhangra and giddha", what: "Harvest dances — bhangra to the dhol, giddha in a ring with clapped verses that the women make up as they go." },
+        { name: "Lohri", what: "A January bonfire with sesame and jaggery thrown in, and the song of Dulla Bhatti sung around it." },
+        { name: "Qissa singing", what: "Long verse romances — Heer Ranjha, Sohni Mahiwal, Mirza Sahiban — sung by folk singers at fairs." }
+      ]
+    },
+    unsure: [
+      "State flower not listed — could not confirm a designated flower for Punjab.",
+      "Punjab's Sikh life is deliberately not placed inside the `myth` block; it belongs in the Dharma pillar, and the Gurus are never depicted (docs/05 §2)."
+    ]
+  },
+
+  PY: {
+    capital: "Puducherry",
+    formed: "Transferred to India in 1954 and formally in 1962; a union territory from 1 July 1963",
+    population: 1247953, population_year: 2011,
+    area_km2: 479,
+    languages: ["Tamil", "French", "Telugu", "Malayalam", "English"],
+    script: "Tamil (with French and English in daily official use)",
+    symbols: { animal: "Indian palm squirrel", bird: "Koel" },
+    people: [
+      { name: "Sri Aurobindo", what: "Poet and philosopher", why: "Born in Calcutta, he lived in Puducherry for the last forty years of his life, and his ashram is at the centre of the town." },
+      { name: "Subramania Bharati", what: "Tamil poet", why: "Born at Ettayapuram, he spent a decade in Puducherry, and wrote some of his best-known poems here." },
+      { name: "Ananda Ranga Pillai", what: "Diarist and merchant", why: "Lived in 18th-century Puducherry and kept a day-by-day diary that historians still read to understand the town." }
+    ],
+    food: [
+      { dish: "Dosa and filter coffee", what: "The Tamil breakfast, served in Puducherry with a baguette on the next table." },
+      { dish: "Kadugu yerra", what: "Prawns in a sharp mustard sauce — a dish born from Tamil and French kitchens meeting." },
+      { dish: "French bakery bread", what: "Baguettes and croissants, made here for well over a century." },
+      { dish: "Podanlangkai", what: "Snake gourd cooked simply with coconut, an everyday Tamil vegetable dish." }
+    ],
+    places: [
+      { name: "White Town", what: "Yellow walls, bougainvillea and street signs in French, Tamil and English." },
+      { name: "Promenade Beach", what: "A rock-lined seafront that closes to traffic every evening." },
+      { name: "Auroville", what: "An experimental township laid out as a spiral around a golden dome." },
+      { name: "Sri Aurobindo Ashram", what: "A quiet courtyard in the middle of the town where people sit without speaking." },
+      { name: "Basilica of the Sacred Heart", what: "A Gothic church in cream and brown with tall stained-glass panels." }
+    ],
+    trivia: [
+      "Puducherry is made of four separate pieces of land, hundreds of kilometres apart: Puducherry and Karaikal inside Tamil Nadu, Yanam inside Andhra Pradesh, and Mahé inside Kerala.",
+      "French is still an official language here, and some of the police still wear red kepis.",
+      "Auroville's Matrimandir is a golden sphere with a crystal inside that catches the sun through the roof.",
+      "The old town is laid out on a grid that was drawn up in the 1700s and has barely changed."
+    ],
+    hello: { word: "வணக்கம்", roman: "Vanakkam" },
+    myth: {
+      deities: [
+        { name: "Ayyanar", what: "The guardian who rides the boundary of the village at night; his shrines stand at the edge, under a tree." },
+        { name: "Muneeswaran", what: "A guardian deity of the crossroads and the field, given offerings before travel or a new venture." },
+        { name: "Draupadi Amman", what: "Draupadi worshipped as a goddess — a tradition especially strong in this stretch of the coast." }
+      ],
+      legend: {
+        name: "The horses at the edge of the village",
+        tell: "Go to the boundary of an old village around here at dusk and you may find a row of terracotta horses, some of them taller than a grown-up, facing outwards into the dark. They are for Ayyanar, who is said to ride them at night around the fields. Potters make new ones as offerings, and the old ones are left to crumble back into the earth they came from."
+      },
+      living: [
+        { name: "Terukoothu", what: "Street theatre performed through the night at village festivals, with painted faces and a story from the epics." },
+        { name: "Villupattu", what: "The bow-song: a big bow strung with bells is struck like an instrument while the singer tells a story." },
+        { name: "Masi Magam", what: "In February or March, deities from many temples are carried down to the sea for a bath." }
+      ]
+    },
+    unsure: [
+      "Area is given as 479 km2; 492 km2 also appears in published sources.",
+      "Symbols for Puducherry are less well documented than for states; tree and flower omitted.",
+      "'Kadugu yerra' as a specifically Puducherry Creole dish is reported in food writing rather than in an official source."
+    ]
+  },
+
+  RJ: {
+    capital: "Jaipur",
+    formed: "Formed in stages from 1949; completed on 1 November 1956",
+    population: 68548437, population_year: 2011,
+    area_km2: 342239,
+    languages: ["Hindi", "Rajasthani (Marwari, Mewari, Dhundhari)", "Urdu"],
+    script: "Devanagari",
+    symbols: { animal: "Chinkara", bird: "Great Indian bustard (godawan)", tree: "Khejri", flower: "Rohida" },
+    people: [
+      { name: "Meera Bai", what: "Poet", why: "Born at Kudki in Merta; her Krishna songs are sung across India five hundred years later." },
+      { name: "Maharana Pratap", what: "16th-century ruler of Mewar", why: "Born at Kumbhalgarh; remembered in Rajasthan for holding out in the Aravalli hills for years." },
+      { name: "Allah Jilai Bai", what: "Folk singer", why: "From Bikaner; her 'Kesariya Balam' is the song Rajasthan is known by." },
+      { name: "Devendra Jhajharia", what: "Paralympic javelin thrower", why: "Born at Jhajharia village in Churu district; the first Indian to win two Paralympic golds." }
+    ],
+    food: [
+      { dish: "Dal baati churma", what: "Baked wheat balls cracked open over dal, with sweet crushed churma alongside." },
+      { dish: "Gatte ki sabzi", what: "Gram-flour dumplings boiled, sliced and simmered in yoghurt gravy." },
+      { dish: "Ker sangri", what: "Desert berries and beans, dried and cooked — food designed for a place with no vegetables." },
+      { dish: "Ghewar", what: "A crisp honeycomb disc soaked in syrup, made for the monsoon festivals." },
+      { dish: "Pyaaz kachori", what: "A fat, flaky pastry filled with spiced onion, eaten hot in Jodhpur." }
+    ],
+    places: [
+      { name: "Amber Fort", what: "A hill fort above Jaipur with a hall of a thousand tiny mirrors." },
+      { name: "Mehrangarh, Jodhpur", what: "A fort standing on a cliff above a whole city painted blue." },
+      { name: "Jaisalmer Fort", what: "A golden sandstone fort with several thousand people still living inside it." },
+      { name: "Keoladeo Ghana, Bharatpur", what: "A World Heritage wetland made for birds, best seen from a cycle rickshaw." },
+      { name: "Jantar Mantar, Jaipur", what: "Giant stone instruments for reading the sky, including the world's largest stone sundial." }
+    ],
+    trivia: [
+      "The Aravalli hills are among the oldest mountain ranges on Earth — far older than the Himalaya.",
+      "Jaisalmer is one of very few forts in the world where people still live inside the walls, as they have for centuries.",
+      "The Vrihat Samrat Yantra at Jantar Mantar is a sundial about 27 m tall and can be read to a couple of seconds.",
+      "Rajasthan is the largest Indian state by area, and the khejri tree in its desert can send roots down tens of metres for water."
+    ],
+    hello: { word: "खम्मा घणी", roman: "Khamma ghani" },
+    myth: {
+      deities: [
+        { name: "Pabuji", what: "A folk deity of western Rajasthan, protector of camels, whose story is sung in front of a painted scroll." },
+        { name: "Gogaji", what: "The snake deity, whose shrine at Gogamedi is visited by Hindus and Muslims together." },
+        { name: "Ramdevji", what: "A saint of Runicha revered across communities, whose fair at Ramdevra draws walking pilgrims for weeks." },
+        { name: "Karni Mata", what: "The goddess of Deshnok, in whose temple thousands of rats are fed and protected." }
+      ],
+      legend: {
+        name: "The scroll that is only opened at night",
+        tell: "A bhopa and bhopi arrive at a village at dusk, unroll a long painted cloth called a phad, and set a lamp in front of it. They sing Pabuji's story all night, moving the lamp so that only the part being sung is lit — so the picture you can see is always the part of the story you are in. At dawn they roll it up. The phad is treated as a travelling temple, not a painting."
+      },
+      living: [
+        { name: "Phad painting and bhopa singing", what: "Scroll paintings made in Bhilwara, sung by hereditary performers with a ravanhatta fiddle." },
+        { name: "Kalbeliya", what: "A whirling dance in black skirts, listed by UNESCO as intangible cultural heritage." },
+        { name: "Karni Mata's temple", what: "At Deshnok the rats are cared for, counted and fed — and seeing a white one is considered lucky." }
+      ]
+    },
+    unsure: [
+      "Jantar Mantar sundial accuracy is usually given as about two seconds; the height as about 27 m.",
+      "Jaisalmer's resident population inside the fort is often quoted as around 3,000–4,000; no figure given."
+    ]
+  },
+
+  SK: {
+    capital: "Gangtok",
+    formed: "Became the 22nd state of India on 16 May 1975",
+    population: 610577, population_year: 2011,
+    area_km2: 7096,
+    languages: ["Nepali", "Bhutia", "Lepcha", "Limbu", "English"],
+    script: "Devanagari for Nepali, Tibetan script for Bhutia, and Lepcha has its own Róng script",
+    symbols: { animal: "Red panda", bird: "Blood pheasant", tree: "Rhododendron", flower: "Noble dendrobium orchid" },
+    people: [
+      { name: "Baichung Bhutia", what: "Footballer", why: "Born at Tinkitam in South Sikkim; captained India and played professionally in England." },
+      { name: "Danny Denzongpa", what: "Actor", why: "Born at Yuksom; a Hindi film mainstay for five decades." },
+      { name: "Tarundeep Rai", what: "Archer", why: "From Namchi; a three-time Olympian and Asian Games medallist." }
+    ],
+    food: [
+      { dish: "Momos", what: "Steamed dumplings with a fiery tomato-and-chilli dip." },
+      { dish: "Thukpa", what: "Noodles in broth with vegetables or meat, eaten when the mist comes down." },
+      { dish: "Gundruk", what: "Leafy greens fermented and dried, then cooked into a sour soup." },
+      { dish: "Phagshapa", what: "Strips of pork fat cooked with radish and dried chillies." },
+      { dish: "Sel roti", what: "A ring of sweet rice batter poured into hot oil, crisp outside and soft in." }
+    ],
+    places: [
+      { name: "Kanchenjunga National Park", what: "A World Heritage site of glacier, forest and the third-highest mountain on Earth." },
+      { name: "Rumtek Monastery", what: "A large monastery above Gangtok with a golden roof and a courtyard for masked dance." },
+      { name: "Tsomgo Lake", what: "A glacial lake that freezes in winter, at about 3,750 m." },
+      { name: "Yuksom", what: "The old capital, and the start of the walk to Kanchenjunga base camp." },
+      { name: "Gurudongmar Lake", what: "One of the highest lakes in the world, in the far north of the state." }
+    ],
+    trivia: [
+      "Sikkim became India's first fully organic state in 2016 — chemical pesticides and fertilisers are banned outright.",
+      "Sikkim has the smallest population of any Indian state.",
+      "Kanchenjunga is treated as a guardian, and by long-standing custom climbers stop just short of the actual summit.",
+      "Sikkim joined India in 1975, which makes it one of the newest parts of the map."
+    ],
+    hello: { word: "नमस्ते", roman: "Namaste" },
+    myth: {
+      deities: [
+        { name: "Dzonga", what: "Kanchenjunga itself as the guardian deity of Sikkim — the mountain is not scenery here, it is the protector." },
+        { name: "Itbu-moo", what: "The mother creator in Lepcha tradition, who made the first people from the pure snows of the peak." },
+        { name: "Yabdu", what: "The retinue of local mountain and valley spirits honoured alongside Dzonga at Pang Lhabsol." }
+      ],
+      legend: {
+        name: "Mayel Lyang, the hidden valley",
+        tell: "The Lepchas speak of Mayel Lyang, a hidden valley somewhere below the snows where seven households live, growing old in the evening and young again by morning, and sending the seeds of every crop down to the people outside. Nobody finds it by looking. It is where the Lepchas say they came from, and it is why the mountain is treated with such care."
+      },
+      living: [
+        { name: "Pang Lhabsol", what: "A festival for Kanchenjunga, with the Pangtoed Chaam — a warrior dance in helmets and armour." },
+        { name: "Cham", what: "Masked monastic dances at Rumtek and Pemayangtse, performed in the courtyard over several days." },
+        { name: "Losar", what: "The new year, with butter lamps, prayer flags renewed on the passes, and houses swept out completely." }
+      ]
+    },
+    unsure: [
+      "Lepcha creation names (Itbu-moo, Fudongthing and Nazongnyu) appear in several published spellings; only the best-attested one is used and no couple is named.",
+      "Tsomgo Lake elevation is usually given between 3,700 and 3,780 m."
+    ]
+  },
+
+  TN: {
+    capital: "Chennai",
+    formed: "Madras State from 1950; renamed Tamil Nadu on 14 January 1969",
+    population: 72147030, population_year: 2011,
+    area_km2: 130058,
+    languages: ["Tamil", "Telugu", "Kannada", "Urdu", "English"],
+    script: "Tamil",
+    symbols: { animal: "Nilgiri tahr", bird: "Emerald dove", tree: "Palmyra palm", flower: "Glory lily (kandhal)" },
+    people: [
+      { name: "Srinivasa Ramanujan", what: "Mathematician", why: "Born in Erode and raised in Kumbakonam; he worked out results nobody had seen before, largely on his own." },
+      { name: "C. V. Raman", what: "Physicist", why: "Born in Tiruchirappalli; won the Nobel Prize in 1930 for discovering why the sea is blue." },
+      { name: "M. S. Subbulakshmi", what: "Carnatic singer", why: "Born in Madurai; the first musician to receive the Bharat Ratna." },
+      { name: "Subramania Bharati", what: "Poet", why: "Born at Ettayapuram; he rewrote what Tamil poetry could sound like, and wrote for children too." },
+      { name: "Thiruvalluvar", what: "Poet", why: "Author of the Tirukkural, 1,330 couplets on how to live; when exactly he lived is genuinely unknown." }
+    ],
+    food: [
+      { dish: "Idli and sambar", what: "Steamed rice cakes with lentil stew — breakfast for millions, every day." },
+      { dish: "Chettinad curries", what: "Ground fresh spices, black pepper and stone flower, from the Chettinad merchant houses." },
+      { dish: "Pongal", what: "Rice and lentils with pepper and cumin, or the sweet version with jaggery for the harvest festival." },
+      { dish: "Filter coffee", what: "Decoction dripped slowly through a brass filter, then pulled between two tumblers till it froths." },
+      { dish: "Jigarthanda", what: "A Madurai drink of milk, almond gum, sarsaparilla syrup and ice cream." }
+    ],
+    places: [
+      { name: "Meenakshi Temple, Madurai", what: "Fourteen towers covered in thousands of painted figures." },
+      { name: "Brihadisvara Temple, Thanjavur", what: "A Chola temple a thousand years old, with a tower of enormous single stones." },
+      { name: "Mahabalipuram", what: "Shore temples and a whole cliff carved with elephants, cats and a descending river." },
+      { name: "Nilgiri Mountain Railway", what: "A World Heritage steam line that climbs on a rack-and-pinion track." },
+      { name: "Kanyakumari", what: "The southern tip of India, where you can watch the sun set and the moon rise over the same water." }
+    ],
+    trivia: [
+      "Tamil has literature going back more than two thousand years, and the Sangam poems still read as if they were written yesterday.",
+      "The Nilgiri Mountain Railway uses a toothed rail to grip its way up the steepest sections — the steepest such line in Asia.",
+      "The Thanjavur temple's tower is topped by a single huge capstone, put in place a thousand years ago.",
+      "Every morning millions of Tamil households draw a kolam in rice flour on the doorstep, and it is meant to be walked on and worn away."
+    ],
+    hello: { word: "வணக்கம்", roman: "Vanakkam" },
+    myth: {
+      deities: [
+        { name: "Murugan", what: "The hill god of the Tamil country, with six great shrines — the Arupadai Veedu — each on its own hill." },
+        { name: "Ayyanar", what: "The village guardian, whose shrines at the boundary are lined with giant terracotta horses." },
+        { name: "Meenakshi", what: "The fish-eyed queen of Madurai, who is the ruler of the city and whose husband came to her." },
+        { name: "Mariamman", what: "The goddess of rain and of cooling, honoured in the hot months with pots of water and neem leaves." }
+      ],
+      legend: {
+        name: "The wedding the whole city attends",
+        tell: "Every year at Chithirai, Madurai holds Meenakshi's wedding — and the whole city is the wedding party. Her brother Kallazhagar sets out from his own temple to attend, and arrives late, riding into the Vaigai river to a crowd of thousands. It is a family occasion at the scale of a city, and people take the lateness quite personally, in a fond sort of way."
+      },
+      living: [
+        { name: "Terukoothu", what: "All-night street theatre in the villages, with towering headgear and a drummer keeping everyone awake." },
+        { name: "Kolam", what: "Dot-and-line patterns drawn in rice flour at dawn, made to be erased by feet and eaten by ants." },
+        { name: "Ayyanar shrines", what: "Potters make terracotta horses as offerings and stand them at the village edge, facing outward." }
+      ]
+    },
+    unsure: [
+      "Thanjavur capstone weight is popularly given as about 80 tonnes; the number is disputed, so no figure is used.",
+      "Thiruvalluvar's dates are unknown — stated as unknown rather than guessed."
+    ]
+  },
+
+  TR: {
+    capital: "Agartala",
+    formed: "Merged with India in 1949 and made a union territory in 1956; a full state on 21 January 1972",
+    population: 3673917, population_year: 2011,
+    area_km2: 10486,
+    languages: ["Bengali", "Kokborok", "Hindi", "English"],
+    script: "Bengali-Assamese; Kokborok is written in both the Bengali and Latin scripts",
+    symbols: { animal: "Phayre's langur", bird: "Green imperial pigeon", tree: "Agar", flower: "Nageshwar" },
+    people: [
+      { name: "Dipa Karmakar", what: "Gymnast", why: "Born in Agartala; the first Indian woman gymnast to compete at the Olympics, and she finished fourth." },
+      { name: "Sachin Dev Burman", what: "Composer", why: "Born into the Tripura royal family; he brought the folk tunes of this region into Hindi film music." },
+      { name: "Bir Bikram Kishore Manikya", what: "Ruler and city planner", why: "The maharaja who laid out modern Agartala and built its airfield in the 1930s." }
+    ],
+    food: [
+      { dish: "Mui borok", what: "The Tripuri way of cooking — very little oil, lots of herbs, and berma for depth." },
+      { dish: "Berma", what: "Fermented dried fish, used in small amounts the way another kitchen uses salt." },
+      { dish: "Chakhwi", what: "Bamboo shoot cooked with vegetables and a little pork." },
+      { dish: "Gudok", what: "Vegetables and berma cooked inside a bamboo tube over a fire." },
+      { dish: "Mosdeng serma", what: "A hot tomato-and-chilli chutney pounded in a stone mortar." }
+    ],
+    places: [
+      { name: "Neermahal", what: "A palace built in the middle of Rudrasagar Lake, reached only by boat." },
+      { name: "Unakoti", what: "Enormous faces and figures carved into a forested hillside." },
+      { name: "Ujjayanta Palace", what: "A white-domed palace in the middle of Agartala, now a museum." },
+      { name: "Jampui Hills", what: "Orange orchards along a ridge, with cloud sitting in the valleys below." },
+      { name: "Sepahijala", what: "A sanctuary with a lake and the spectacled langur." }
+    ],
+    trivia: [
+      "Tripura is bordered by Bangladesh on three of its four sides.",
+      "The carvings at Unakoti are cut straight into the rock face and the largest head is several times taller than a person.",
+      "Neermahal is one of only two water palaces in India.",
+      "Tripura is the third-smallest state in India by area, after Goa and Sikkim."
+    ],
+    hello: { word: "খুলুমখা", roman: "Khulumkha" },
+    myth: {
+      deities: [
+        { name: "The Chaturdasha Devata", what: "Fourteen deities of the Tripuri royal tradition, worshipped as heads rather than full figures." },
+        { name: "Tripura Sundari", what: "The goddess at Udaipur in south Tripura, in a temple shaped like a tortoise's back." },
+        { name: "Garia", what: "The Tripuri deity of the harvest and of cattle, honoured at a decorated bamboo pole." }
+      ],
+      legend: {
+        name: "Kharchi, the washing of the fourteen",
+        tell: "Once a year the fourteen deities are carried out of their temple to the river by the chantai — the traditional Tripuri priest — and bathed there before being carried back. It is a court ritual and a village fair at the same time, and for those days Agartala fills with people who have walked in from the hills."
+      },
+      living: [
+        { name: "Kharchi Puja", what: "Seven days in July around the fourteen deities, with a fair that takes over the town." },
+        { name: "Garia Puja", what: "A spring festival with a bamboo pole dressed in flowers and cloth, and dancing round it." },
+        { name: "Hojagiri", what: "Reang girls dance balanced on earthen pitchers, with bottles and lit lamps on their heads, moving only from the waist down." }
+      ]
+    },
+    unsure: [
+      "S. D. Burman was born at Comilla, in what is now Bangladesh, into the Tripura royal house; the entry says 'born into the Tripura royal family' rather than claiming a Tripura birthplace.",
+      "The 'only two water palaces in India' claim is widely repeated but not from an official source."
+    ]
+  },
+
+  UK: {
+    capital: "Dehradun",
+    formed: "9 November 2000, carved out of Uttar Pradesh as Uttaranchal; renamed Uttarakhand in 2007",
+    population: 10086292, population_year: 2011,
+    area_km2: 53483,
+    languages: ["Hindi", "Garhwali", "Kumaoni", "Jaunsari", "Urdu"],
+    script: "Devanagari",
+    symbols: { animal: "Alpine musk deer", bird: "Himalayan monal", tree: "Burans (rhododendron)", flower: "Brahma kamal" },
+    people: [
+      { name: "Bachendri Pal", what: "Mountaineer", why: "Born at Nakuri in Uttarkashi district; the first Indian woman to climb Everest, in 1984." },
+      { name: "Gaura Devi", what: "Village leader", why: "From Reni village; in 1974 she led the women of her village to stand between the trees and the axes, and the Chipko movement grew from it." },
+      { name: "Jim Corbett", what: "Hunter turned conservationist", why: "Born in Nainital and lived there most of his life; India's oldest national park is named after him." },
+      { name: "Narendra Singh Negi", what: "Folk singer", why: "From Pauri Garhwal; his Garhwali songs are the soundtrack of the hills." }
+    ],
+    food: [
+      { dish: "Kafuli", what: "Spinach and fenugreek cooked into a thick green curry, thickened with rice paste." },
+      { dish: "Bhatt ki churkani", what: "Black soybeans cooked slow into a dark, glossy gravy." },
+      { dish: "Aloo ke gutke", what: "Boiled potatoes tossed with red chilli and coriander seed — the picnic food of Kumaon." },
+      { dish: "Bal mithai", what: "A brown fudge of roasted khoya, rolled in white sugar balls. Almora's own." },
+      { dish: "Jhangora ki kheer", what: "Barnyard millet cooked in milk until it is creamy." }
+    ],
+    places: [
+      { name: "Valley of Flowers", what: "A World Heritage valley that flowers for a few weeks each monsoon and is under snow the rest of the year." },
+      { name: "Jim Corbett National Park", what: "India's first national park, set up in 1936." },
+      { name: "Rishikesh and Haridwar", what: "Where the Ganga leaves the mountains, with evening aartis on the ghats." },
+      { name: "Kedarnath", what: "A stone shrine below a glacier, reached by a long walk uphill." },
+      { name: "Nanda Devi", what: "The highest mountain entirely within India, and a goddess to the hills around it." }
+    ],
+    trivia: [
+      "Both the Ganga and the Yamuna begin in Uttarakhand's glaciers, a few valleys apart.",
+      "Jim Corbett National Park, opened in 1936, is the oldest national park in India.",
+      "The brahma kamal flowers at night, high in the mountains, and is offered at the shrines up there.",
+      "The Chipko movement started here in 1974, when village women put themselves between the trees and the contractors."
+    ],
+    hello: { word: "नमस्कार", roman: "Namaskar" },
+    myth: {
+      deities: [
+        { name: "Nanda Devi", what: "The mountain as a daughter of the hills — and the region's most beloved goddess." },
+        { name: "Golu Devta", what: "The god of justice, who hears complaints; his temples are hung with thousands of bells and written petitions." },
+        { name: "Ganga", what: "The river as a goddess from her very first metre at Gaumukh, the cow's mouth of the glacier." }
+      ],
+      legend: {
+        name: "The Raj Jat, walking the daughter home",
+        tell: "About once every twelve years, Uttarakhand walks Nanda Devi back to her husband's house in the high mountains. A four-horned ram leads the procession, and villages hand her on from one to the next over nearly three weeks and 280 kilometres of hard walking. Nobody rides. At the last stage the ram goes on alone, and the people turn back."
+      },
+      living: [
+        { name: "Jagar", what: "Night-long invocation singing where a deity is called into a dangariya, who then answers the village's questions." },
+        { name: "Golu Devta's bells", what: "People write their case on stamped paper, tie it up at Chitai, and hang a bell — thousands of them." },
+        { name: "Nanda Devi Raj Jat", what: "The twelve-yearly pilgrimage, one of the longest walking festivals in the Himalaya." }
+      ]
+    },
+    unsure: [
+      "Raj Jat distance and interval vary between accounts (roughly 280 km, roughly every twelve years); written with 'about'.",
+      "Nanda Devi is the highest mountain entirely within India — correct, but worth checking the phrasing against the map policy before it ships."
+    ]
+  },
+
+  UP: {
+    capital: "Lucknow",
+    formed: "The United Provinces were renamed Uttar Pradesh on 26 January 1950; Uttarakhand was carved out of it in 2000",
+    population: 199812341, population_year: 2011,
+    area_km2: 240928,
+    languages: ["Hindi", "Awadhi", "Braj Bhasha", "Bhojpuri", "Urdu"],
+    script: "Devanagari (Urdu in the Perso-Arabic script)",
+    symbols: { animal: "Barasingha", bird: "Sarus crane", tree: "Ashoka", flower: "Palash" },
+    people: [
+      { name: "Munshi Premchand", what: "Novelist", why: "Born at Lamhi near Varanasi; he moved Hindi and Urdu fiction out of romance and into the lives of ordinary villagers." },
+      { name: "Dhyan Chand", what: "Hockey player", why: "Born in Allahabad; three Olympic golds, and stick skills that opponents wrote books about." },
+      { name: "Ravi Shankar", what: "Sitar player", why: "Born in Varanasi; he took Indian classical music to concert halls across the world." },
+      { name: "Tulsidas", what: "Poet", why: "Associated with Varanasi and with Rajapur; his Ramcharitmanas is recited in millions of homes." },
+      { name: "Kabir", what: "Poet-weaver", why: "Associated with Varanasi; his short, blunt verses are sung by singers of several faiths." }
+    ],
+    food: [
+      { dish: "Tunday kebab", what: "Lucknow mince kebabs so soft they are said to melt before you chew." },
+      { dish: "Awadhi biryani", what: "Rice and meat sealed under dough and cooked slowly in its own steam." },
+      { dish: "Mathura peda", what: "A dense, slightly grainy milk sweet from Krishna's town." },
+      { dish: "Agra petha", what: "Translucent candied ash gourd, plain or flavoured with rose or saffron." },
+      { dish: "Malaiyo", what: "Varanasi's winter foam of milk left out overnight in the dew, served before the sun gets high." }
+    ],
+    places: [
+      { name: "Taj Mahal", what: "Marble that goes pink at dawn, white at noon and gold at dusk." },
+      { name: "Varanasi ghats", what: "Stone steps down to the Ganga where the whole city meets the river." },
+      { name: "Sarnath", what: "Where the Buddha is said to have taught for the first time, and where Ashoka's Lion Capital was found." },
+      { name: "Fatehpur Sikri", what: "A red sandstone city built and then left, still standing almost complete." },
+      { name: "Bara Imambara, Lucknow", what: "A vast hall with no pillars, and a maze of narrow passages built into the walls above it." }
+    ],
+    trivia: [
+      "If Uttar Pradesh were a country it would be among the most populous on Earth — nearly 200 million people at the 2011 Census.",
+      "The Lion Capital that is India's state emblem was found at Sarnath, and the original is in the museum there.",
+      "The Bhool Bhulaiya at the Bara Imambara is a maze of hundreds of passages, and a whisper carries clear across the gallery.",
+      "Braj, around Mathura and Vrindavan, has its own kind of Holi — at Barsana the women drive the men off with sticks, and everyone enjoys it enormously."
+    ],
+    hello: { word: "नमस्ते", roman: "Namaste" },
+    myth: {
+      deities: [
+        { name: "Krishna of Braj", what: "Not the king or the charioteer here — the child who stole butter and would not stay out of the river." },
+        { name: "Kashi Vishwanath", what: "Shiva as the lord of Varanasi, a city people say he never leaves." },
+        { name: "Ganga Maiya", what: "The river as mother, greeted at the ghats every evening with lamps." }
+      ],
+      legend: {
+        name: "The hill on one finger",
+        tell: "When the rain would not stop and the village of Braj was about to be washed away, Krishna — still a boy — lifted the whole hill of Govardhan on the tip of his little finger and held it up like an umbrella for seven days, so that everyone and every cow could stand underneath. People still walk the twenty-one kilometres around that hill, barefoot, and some of them lie down and measure the whole way with their bodies."
+      },
+      living: [
+        { name: "Ramlila of Ramnagar", what: "A month-long open-air Ramayana played across a whole town, with the audience walking from scene to scene." },
+        { name: "Lathmar Holi", what: "At Barsana and Nandgaon, the women of the village chase the men with long sticks, and the men carry shields." },
+        { name: "Ganga aarti", what: "Lamps swung in unison on the ghats at sunset, every single evening of the year." }
+      ]
+    },
+    unsure: [
+      "Tulsidas's birthplace is disputed (Rajapur and Soron are both claimed); the entry says 'associated with' rather than choosing.",
+      "Bara Imambara passage count is usually given as about 1,000; written as 'hundreds'.",
+      "Govardhan parikrama length is usually given as 21 km."
+    ]
+  },
+
+  WB: {
+    capital: "Kolkata",
+    formed: "A state since 1950",
+    population: 91276115, population_year: 2011,
+    area_km2: 88752,
+    languages: ["Bengali", "Hindi", "Santali", "Urdu", "Nepali"],
+    script: "Bengali-Assamese; Santali is written in Ol Chiki",
+    symbols: { animal: "Fishing cat", bird: "White-throated kingfisher", tree: "Chatim (devil tree)", flower: "Shiuli (night-flowering jasmine)" },
+    people: [
+      { name: "Rabindranath Tagore", what: "Poet", why: "Born in Kolkata; the first non-European to win the Nobel Prize in Literature, and he wrote two national anthems." },
+      { name: "Satyajit Ray", what: "Filmmaker", why: "Born in Kolkata; he also wrote detective stories and science fiction for children, and drew his own posters." },
+      { name: "Sukumar Ray", what: "Poet", why: "Born in Kolkata; his Abol Tabol is the greatest nonsense verse in Bengali and possibly in India." },
+      { name: "Satyendra Nath Bose", what: "Physicist", why: "Born in Kolkata; the boson is named after him." },
+      { name: "Sourav Ganguly", what: "Cricketer", why: "Born in Kolkata; captained India and changed how the team behaved abroad." }
+    ],
+    food: [
+      { dish: "Macher jhol", what: "A light fish curry with potato, eaten with rice at lunch, most days." },
+      { dish: "Shorshe ilish", what: "Hilsa in a mustard paste, steamed — the most argued-about dish in Bengal." },
+      { dish: "Rosogolla", what: "Cheese balls boiled in syrup until they are spongy enough to bounce back." },
+      { dish: "Mishti doi", what: "Yoghurt set with caramelised sugar in a clay pot." },
+      { dish: "Puchka", what: "Kolkata's fiercer, tamarind-sharp version of the golgappa." }
+    ],
+    places: [
+      { name: "Sundarbans", what: "The world's largest mangrove forest, where the tigers swim between islands." },
+      { name: "Victoria Memorial", what: "A white marble hall in a garden in the middle of Kolkata." },
+      { name: "Howrah Bridge", what: "A steel cantilever bridge built entirely with rivets — not a single nut or bolt." },
+      { name: "Darjeeling Himalayan Railway", what: "A toy train running since 1881, looping and zigzagging up to 2,000 m." },
+      { name: "Santiniketan", what: "Tagore's school where classes are still held under the trees; a World Heritage Site since 2023." }
+    ],
+    trivia: [
+      "The Sundarbans is the largest mangrove forest on Earth, and its tigers really do swim from island to island.",
+      "The Howrah Bridge was assembled with rivets alone — there is not one nut or bolt holding it up.",
+      "Durga Puja in Kolkata was added to UNESCO's list of intangible cultural heritage in 2021.",
+      "The Darjeeling toy train has been climbing the same track since 1881, and still uses a loop and a zigzag to gain height."
+    ],
+    hello: { word: "নমস্কার", roman: "Nomoskar" },
+    myth: {
+      deities: [
+        { name: "Durga", what: "In Bengal she is the daughter coming home to her parents for four days — the whole festival is a family visit." },
+        { name: "Manasa", what: "The snake goddess, honoured in the monsoon when the water rises and the snakes move." },
+        { name: "Bonbibi", what: "The guardian of the Sundarbans forest, prayed to by Hindu and Muslim honey-collectors and woodcutters alike before they go in." },
+        { name: "Shitala", what: "The cooling goddess, called on against fever, worshipped at small shrines under trees." }
+      ],
+      legend: {
+        name: "Bonbibi and the boy",
+        tell: "Dukhey was a poor boy taken into the forest by a man who meant to leave him there. Alone and frightened, he called out to Bonbibi, and she came — and she made the forest and the people share it fairly, so much for the tiger and so much for the honey-gatherers. Before anyone enters the Sundarbans they still stop at her shrine, and the men who do it are Hindu and Muslim both, standing in the same queue."
+      },
+      living: [
+        { name: "Durga Puja", what: "Four days when hundreds of pandals turn Kolkata into an open-air gallery, and nobody sleeps much." },
+        { name: "Baul", what: "Wandering singers in saffron with a one-stringed ektara, singing songs that belong to no one religion." },
+        { name: "Patachitra of Naya", what: "Scroll painters in Pingla unroll a painted cloth and sing the story on it — and many of the painters are Muslim families painting Hindu tales." }
+      ]
+    },
+    unsure: [
+      "The Naya patua community's religious background is well documented in folk-art scholarship but should be checked with a named source before it appears in a child-facing card."
+    ]
+  },
+
+  TG: {
+    capital: "Hyderabad",
+    formed: "2 June 2014, separated from Andhra Pradesh — India's newest state",
+    population: 35003674, population_year: 2011,
+    area_km2: 112077,
+    languages: ["Telugu", "Urdu", "Hindi", "Lambadi", "Gondi"],
+    script: "Telugu (Urdu in the Perso-Arabic script)",
+    symbols: { animal: "Spotted deer (jinka)", bird: "Indian roller (palapitta)", tree: "Jammi", flower: "Tangedu" },
+    people: [
+      { name: "Sarojini Naidu", what: "Poet", why: "Born in Hyderabad; called the Nightingale of India, and the first woman to be governor of an Indian state." },
+      { name: "P. V. Sindhu", what: "Badminton player", why: "Born in Hyderabad; world champion and a two-time Olympic medallist." },
+      { name: "V. V. S. Laxman", what: "Cricketer", why: "Born in Hyderabad; his 281 at Eden Gardens in 2001 is one of the most famous innings ever played." },
+      { name: "Sania Mirza", what: "Tennis player", why: "Brought up in Hyderabad, where she trained; a former doubles world number one." }
+    ],
+    food: [
+      { dish: "Hyderabadi biryani", what: "Raw marinated meat and rice sealed under dough and cooked together, never separately." },
+      { dish: "Haleem", what: "Wheat and meat pounded for hours into a smooth paste, made in Ramzan." },
+      { dish: "Sarva pindi", what: "A thick rice-flour pancake with peanuts and chana, cooked slowly in a pan with holes poked in it." },
+      { dish: "Jonna rotte", what: "Sorghum flatbread, patted out by hand, eaten with a fiery chutney." },
+      { dish: "Qubani ka meetha", what: "Stewed dried apricots served with cream — the last course at every Hyderabadi wedding." }
+    ],
+    places: [
+      { name: "Charminar", what: "Four minarets over a crossroads, with the bangle bazaar all around it." },
+      { name: "Golconda Fort", what: "A hill fort whose acoustics carry a clap from the gate to the top." },
+      { name: "Ramappa Temple, Palampet", what: "A 13th-century Kakatiya temple, a World Heritage Site since 2021." },
+      { name: "Thousand Pillar Temple, Warangal", what: "A star-shaped Kakatiya temple with a huge polished Nandi." },
+      { name: "Hussain Sagar", what: "A lake built in the 1560s with a stone Buddha standing in the middle of it." }
+    ],
+    trivia: [
+      "Telangana became India's 29th state in 2014, and is the newest state on the map.",
+      "A clap at the entrance of Golconda Fort can be heard right at the top of the hill.",
+      "The Kohinoor and several other famous diamonds came out of the Golconda mines.",
+      "Ramappa Temple is built with bricks said to be light enough to float on water."
+    ],
+    hello: { word: "నమస్కారం", roman: "Namaskaram" },
+    myth: {
+      deities: [
+        { name: "Bathukamma", what: "The goddess is the flower stack itself — built up in layers by hand and then given to the water." },
+        { name: "Pochamma and Mysamma", what: "Village goddesses of Telangana, with shrines under trees at the edge of the settlement." },
+        { name: "Sammakka and Saralamma", what: "A Koya mother and daughter honoured at Medaram — an Adivasi tradition that now draws millions." },
+        { name: "Yellamma", what: "A goddess whose Bonalu procession brings women through the streets with decorated pots on their heads." }
+      ],
+      legend: {
+        name: "The flowers that go back to the water",
+        tell: "For nine days at Bathukamma, women build cone after cone of marigold, tangedu and chrysanthemum on brass plates, higher and higher, and sing around them in a ring, clapping. On the last evening every stack is carried to the tank and set on the water, and the flowers come apart and drift away. Nothing is kept. That is the point."
+      },
+      living: [
+        { name: "Bathukamma", what: "Nine days of flower stacks and circle songs, ending with everything floated on the water." },
+        { name: "Medaram Jatara", what: "Held every two years for Sammakka and Saralamma; one of the largest gatherings of people anywhere in India." },
+        { name: "Perini Shivatandavam", what: "A vigorous Kakatiya-era dance, reconstructed in the twentieth century from temple sculpture." }
+      ]
+    },
+    unsure: [
+      "Population is the 2011 Census figure for the districts that became Telangana in 2014 — the state did not exist at the time of the count.",
+      "The 'floating bricks' of Ramappa are a widely repeated claim; written as 'said to be'.",
+      "Medaram Jatara attendance figures vary enormously between reports; no number given."
+    ]
+  },
+
+  LA: {
+    capital: "Leh",
+    formed: "Became a separate union territory on 31 October 2019",
+    population: 274289, population_year: 2011,
+    languages: ["Ladakhi (Bhoti)", "Purgi", "Balti", "Hindi", "Urdu", "English"],
+    script: "Tibetan script for Ladakhi; Perso-Arabic and Devanagari are also in use",
+    symbols: { animal: "Snow leopard", bird: "Black-necked crane" },
+    people: [
+      { name: "Sonam Wangchuk", what: "Engineer and educator", why: "From Uleytokpo in Ladakh; he founded SECMOL and invented the ice stupa, a cone of frozen water that stores winter melt for spring." },
+      { name: "Kushok Bakula Rinpoche", what: "Monk and diplomat", why: "Born at Matho in Ladakh; a monastic leader who later served as India's ambassador to Mongolia." },
+      { name: "Morup Namgyal", what: "Folk singer", why: "From Ladakh; he spent a lifetime recording and broadcasting Ladakhi songs so they would not be lost." }
+    ],
+    food: [
+      { dish: "Skyu", what: "Thumb-pressed wheat pasta cooked with root vegetables into a thick stew." },
+      { dish: "Thukpa", what: "Hand-pulled noodles in broth — the meal at the end of a cold day." },
+      { dish: "Gur gur cha", what: "Butter tea churned in a wooden cylinder, salty rather than sweet." },
+      { dish: "Tigmo", what: "Steamed, springy bread rolls torn up and dipped into stew." },
+      { dish: "Apricots", what: "Dried on flat roofs all summer; the kernels are pressed for oil." }
+    ],
+    places: [
+      { name: "Thiksey Monastery", what: "A whitewashed monastery stepping up a hill, with a two-storey Maitreya inside." },
+      { name: "Hemis Monastery", what: "Hidden in a side valley, and the site of a great masked dance festival each summer." },
+      { name: "Pangong Tso", what: "A long, high lake that changes colour through the day." },
+      { name: "Nubra Valley", what: "Sand dunes at 3,000 m, with double-humped Bactrian camels on them." },
+      { name: "Zanskar", what: "A deep valley whose river freezes solid enough to walk on in winter." }
+    ],
+    trivia: [
+      "Ladakh is a cold desert — it gets very little rain, but it is high up in the mountains rather than hot.",
+      "The Bactrian camels in Nubra are descendants of Silk Road caravan animals that never left.",
+      "In deep winter the Zanskar river freezes hard enough to walk along, which was for centuries the only way out.",
+      "Ice stupas — tall cones of frozen water built on purpose in winter — melt slowly in spring exactly when the fields need water."
+    ],
+    hello: { word: "ཇུ་ལེ།", roman: "Julley" },
+    myth: {
+      deities: [
+        { name: "Chenrezig", what: "The bodhisattva of compassion, whose mantra is carved on the mani walls beside every path." },
+        { name: "Lha and lhu", what: "The mountain spirits and water spirits of older Ladakhi belief, still given a lhatho — a small shrine — on rooftops and passes." },
+        { name: "Protectors of the monastery", what: "Each gompa has its own guardian, whose mask is brought out only at the yearly festival." }
+      ],
+      legend: {
+        name: "Kesar of Ling",
+        tell: "Kesar is the hero-king of a story so long that a Ladakhi bard could sing for many nights and still not finish it. He is sent down from the sky, born in poor circumstances, tricked and underestimated, and he wins anyway — usually by being cleverer than everyone expects. Versions of his story are sung right across the Himalaya and into Tibet and Mongolia."
+      },
+      living: [
+        { name: "Hemis Tsechu", what: "Masked cham dance in the monastery courtyard, with cymbals, long horns and enormous embroidered thangkas." },
+        { name: "Losar", what: "The Ladakhi new year in winter, with ibex-shaped bread and lamps set out in the dark." },
+        { name: "Lungta", what: "Prayer flags strung across every pass, so the wind carries the printed prayers away." }
+      ]
+    },
+    unsure: [
+      "Area deliberately omitted.",
+      "Population is the sum of the 2011 Census figures for Leh and Kargil districts, counted when Ladakh was part of Jammu & Kashmir.",
+      "State symbols for Ladakh as a union territory are recent; snow leopard and black-necked crane are the widely reported choices but were not checked against a notification.",
+      "Tree and flower symbols omitted."
+    ]
+  }
+
 };

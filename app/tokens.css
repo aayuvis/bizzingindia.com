@@ -40,7 +40,20 @@
   --display:'Fraunces', Georgia, serif;
   --body:'Hanken Grotesk','Segoe UI',sans-serif;
   --mono:'Space Mono', ui-monospace, monospace;
-  --deva:'Mukta','Noto Sans Devanagari','Noto Sans Gurmukhi',sans-serif;
+  /* One token per script, never one stack for all of them. Gurmukhi is not Devanagari and
+     was being set in a Devanagari face until now; Tamil, Telugu, Bengali and the rest had no
+     face at all and fell back to whatever the device happened to have. Every stack ends in
+     the body family so Latin runs inside an Indian-script span stay in Hanken Grotesk —
+     the script families ship no Latin subset (tools/fonts.sh). */
+  --deva:'Mukta','Noto Sans Devanagari',var(--body);
+  --gurmukhi:'Mukta Mahee','Noto Sans Gurmukhi',var(--body);
+  --tamil:'Mukta Malar','Noto Sans Tamil',var(--body);
+  --gujarati:'Mukta Vaani','Noto Sans Gujarati',var(--body);
+  --bengali:'Noto Sans Bengali',var(--body);
+  --telugu:'Noto Sans Telugu',var(--body);
+  --kannada:'Noto Sans Kannada',var(--body);
+  --malayalam:'Noto Sans Malayalam',var(--body);
+  --odia:'Noto Sans Oriya',var(--body);
 
   --shadow: 0 1px 2px rgba(30,20,70,.05), 0 8px 24px rgba(30,20,70,.06);
   --shadow-lg: 0 12px 40px rgba(30,20,70,.12);

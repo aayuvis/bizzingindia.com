@@ -336,15 +336,111 @@
       '</div>';
   };
 
-  /* -------------------------------------------------------------------- MAP */
+  /* -------------------------------------------------------------------- MAP
+
+     The map is the anchor of the whole app, so it has to be worth looking at before it is
+     worth tapping. It used to be 34 grey silhouettes: nothing to see, nothing to learn, and
+     no reason to touch any particular one.
+
+     Now every state is FILLED WITH ITS OWN PAINTING, through one SVG <pattern> per state
+     mapped onto the precomputed bbox in map-data.js. Kerala is backwaters, Rajasthan is
+     desert and fort, Punjab is fields. The map teaches at a glance.
+
+     The mist still means something. A state you have not met yet shows its painting
+     dimmed under the mist — you can see there is something there, which is an invitation,
+     where flat grey was just an absence. Reading a story lifts the mist off that state and
+     the painting comes to full colour. Same mechanic, but the reward is now visible in
+     advance instead of being a surprise nobody was waiting for.
+
+     Nothing here animates or gamifies a boundary (CLAUDE.md): the mist is a fill opacity on
+     a fixed shape, and no border ever moves, draws itself or gets won. */
+  var mapFocus = null;   /* the state whose facts are showing under the map */
+
+  function stateName(c) {
+    var G = window.IND_GEO;
+    return (G && G.states[c] && G.states[c].name) || c;
+  }
+
+  /* The facts on the callout. Deliberately the things a child repeats to someone else — the
+     capital, what people say for hello, what lives there — not a table of statistics. */
+  function mapFacts(c) {
+    var X = (window.IND_STATES || {})[c] || {}, out = [];
+    if (X.capital) out.push(['Capital', X.capital]);
+    if (X.languages && X.languages.length) out.push(['Speaks', X.languages.slice(0, 2).join(', ')]);
+    if (X.symbols && X.symbols.animal) out.push(['State animal', X.symbols.animal]);
+    if (X.symbols && X.symbols.bird) out.push(['State bird', X.symbols.bird]);
+    if (X.food && X.food.length) out.push(['Eat this', X.food[0].dish]);
+    if (X.places && X.places.length) out.push(['Go here', X.places[0].name]);
+    var n = allStories().filter(function (t) { return (t.place || []).indexOf('IN-' + c) >= 0; }).length;
+    if (n) out.push(['Stories', n + (n === 1 ? ' story from here' : ' stories from here')]);
+    return out;
+  }
+
+  /* Which language the state's `hello` is written in, so it lands in the right face. Every
+     one of these scripts is self-hosted (tools/fonts.sh); anything not listed is Devanagari,
+     which is the honest default for this field only because that is the script those
+     particular greetings are written in — not because Hindi is the default anything. */
+  var HELLO_LANG = {
+    TN: 'ta', KL: 'ml', KA: 'kn', AP: 'te', TG: 'te', OR: 'or', WB: 'bn', TR: 'bn',
+    AS: 'as', PB: 'pa', GJ: 'gu', DD: 'gu', DN: 'gu', MH: 'mr', GA: 'mr', SK: 'ne'
+  };
+
+  /* One line of trivia, picked by the day rather than at random, so the map says the same
+     thing all day and a child can carry it to someone. A different fact every refresh is
+     forgettable; the same fact all Tuesday gets repeated at dinner. */
+  function triviaOfTheDay() {
+    var ST = window.IND_STATES || {};
+    var codes = Object.keys(ST).filter(function (c) { return (ST[c].trivia || []).length; });
+    if (!codes.length) return null;
+    var day = Math.floor(Date.now() / 86400000);
+    var c = codes[day % codes.length];
+    var list = ST[c].trivia;
+    return { code: c, text: list[day % list.length] };
+  }
+
   V.map = function () {
     var M = window.IND_MAP, G = window.IND_GEO;
     if (!M) return '<div class="card">Map data missing.</div>';
-    var lit = Object.keys(S.lit).length, total = Object.keys(M.paths).length;
-    var paths = Object.keys(M.paths).map(function (c) {
-      return '<path class="terr' + (S.lit[c] ? ' lit' : '') + '" d="' + M.paths[c] + '" data-act="state" data-code="' + c +
-        '"><title>' + esc(G && G.states[c] ? G.states[c].name : c) + '</title></path>';
+    var codes = Object.keys(M.paths);
+    var lit = Object.keys(S.lit).length, total = codes.length;
+    var bb = M.bbox || {};
+
+    /* One pattern per state that has a painting. slice keeps the painting's aspect ratio
+       and crops, so no state gets a squashed picture. */
+    var defs = codes.map(function (c) {
+      var src = stateArt(c), b = bb[c];
+      if (!src || !b) return '';
+      /* The pattern's x/y place the tile in user space, so the <image> inside is positioned
+         from the tile's own origin at 0,0 — not at the bbox coordinates again, which would
+         push the image clean outside the tile and paint nothing. */
+      return '<pattern id="pt' + c + '" patternUnits="userSpaceOnUse" x="' + b[0] + '" y="' + b[1] +
+        '" width="' + b[2] + '" height="' + b[3] + '">' +
+        '<image href="' + src + '" x="0" y="0" width="' + b[2] +
+        '" height="' + b[3] + '" preserveAspectRatio="xMidYMid slice"/></pattern>';
     }).join('');
+
+    var paths = codes.map(function (c) {
+      var isLit = !!S.lit[c], has = stateArt(c) && bb[c];
+      var fill = has ? 'url(#pt' + c + ')' : 'var(--mist)';
+      return '<g class="terrg' + (isLit ? ' lit' : '') + (mapFocus === c ? ' on' : '') +
+          '" data-act="peek" data-code="' + c + '" tabindex="0" role="button" ' +
+          'aria-label="' + esc(stateName(c)) + '">' +
+        '<title>' + esc(stateName(c)) + '</title>' +
+        '<path class="terr" d="' + M.paths[c] + '" fill="' + fill + '"/>' +
+        /* the mist itself: a second copy of the same shape, faded out as the state is met */
+        '<path class="mist" d="' + M.paths[c] + '"/>' +
+        '</g>';
+    }).join('');
+
+    /* Labels last so they sit above every fill. Only states with room for the text get one;
+       the rest are reachable by tap and by their <title>. */
+    var labels = codes.map(function (c) {
+      var a = M.anchors[c], b = bb[c];
+      if (!a || !b || b[2] < 44 || b[3] < 26) return '';
+      return '<text class="tlab' + (S.lit[c] ? ' lit' : '') + '" x="' + a[0] + '" y="' + a[1] +
+        '">' + esc(stateName(c)) + '</text>';
+    }).join('');
+
     var pins = G && G.pins ? Object.keys(G.pins).map(function (id) {
       var m = (G.monuments || []).filter(function (x) { return x.id === id; })[0];
       if (!m || !S.lit[m.state]) return '';
@@ -352,19 +448,66 @@
       return '<g class="pin" data-act="mon" data-id="' + id + '"><circle cx="' + p[0] + '" cy="' + p[1] + '" r="10"/></g>';
     }).join('') : '';
 
+    /* The callout sits ON the map, anchored to the state, because a facts panel parked
+       below turns looking at the map into reading a table underneath it. The anchor is the
+       same label point, converted to a percentage of the viewBox so the overlay tracks the
+       SVG at any width. */
+    var callout = '';
+    if (mapFocus) {
+      var vb = M.viewBox.split(/[\s,]+/).map(Number);
+      var a = M.anchors[mapFocus] || [vb[2] / 2, vb[3] / 2];
+      var lx = ((a[0] - vb[0]) / vb[2]) * 100, ly = ((a[1] - vb[1]) / vb[3]) * 100;
+      var X = (window.IND_STATES || {})[mapFocus] || {};
+      var facts = mapFacts(mapFocus).slice(0, 3);
+      var hello = X.hello;
+      var triv = (X.trivia || [])[0];
+      /* Above the anchor normally, below it near the top edge, so the bubble never runs off
+         the map. The horizontal clamp keeps it on screen for Gujarat and Arunachal alike. */
+      var below = ly < 26;
+      callout =
+        '<div class="callout' + (below ? ' below' : '') + '" style="left:' +
+            Math.max(20, Math.min(80, lx)) + '%;top:' + ly + '%">' +
+          '<button class="cx" data-act="peek" data-code="' + mapFocus + '" aria-label="Close">×</button>' +
+          '<h3>' + esc(stateName(mapFocus)) + '</h3>' +
+          (hello && hello.word
+            ? '<p class="chello"><span lang="' + (HELLO_LANG[mapFocus] || 'hi') + '">' + esc(hello.word) +
+              '</span> <span class="tiny muted">' + esc(hello.roman || '') + '</span></p>' : '') +
+          (facts.length
+            ? '<div class="cfacts">' + facts.map(function (f) {
+                return '<div><span class="tiny muted">' + esc(f[0]) + '</span><b>' + esc(f[1]) + '</b></div>';
+              }).join('') + '</div>'
+            : '<p class="tiny muted">We are still writing this one up.</p>') +
+          (triv ? '<p class="ctriv">' + esc(triv) + '</p>' : '') +
+          '<button class="btn sm block" data-act="state" data-code="' + mapFocus + '">Open ' +
+            esc(stateName(mapFocus)) + ' →</button>' +
+        '</div>';
+    }
+
+    /* Something to read even before anything is tapped, so the map is never a dead surface. */
+    var tod = triviaOfTheDay();
+    var strip = mapFocus ? ''
+      : (tod ? '<div class="mfacts"><span class="tiny muted">Today, from ' + esc(stateName(tod.code)) +
+               '</span><p style="margin:4px 0 0">' + esc(tod.text) + '</p></div>'
+             : '<div class="mfacts hint"><p style="margin:0">Tap any state to see what it is known for.</p></div>');
+
     return '<div class="card">' +
       '<div class="spread" style="margin-bottom:14px">' +
         '<div><h2 style="margin:0">The Living Map</h2>' +
-        '<div class="tiny muted">' + lit + ' of ' + total + ' places remembered · tap anywhere in the mist</div></div>' +
+        '<div class="tiny muted">' + lit + ' of ' + total + ' places remembered · tap a state</div></div>' +
         '<span class="pill stat">🪔 ' + S.streak.count + '</span></div>' +
-      '<svg class="mapsvg" viewBox="' + M.viewBox + '" role="img" aria-label="Map of India">' +
-        '<path class="outline" d="' + M.outline + '"/>' + paths + pins + '</svg>' +
+      '<div class="mapwrap">' +
+        '<svg class="mapsvg" viewBox="' + M.viewBox + '" role="img" aria-label="Map of India">' +
+          '<defs>' + defs + '</defs>' +
+          '<path class="outline" d="' + M.outline + '"/>' + paths + pins + labels + '</svg>' +
+        callout +
+      '</div>' +
+      strip +
       '<div class="legend" style="margin-top:14px">' +
-        '<span><i style="background:var(--mist)"></i>still forgotten</span>' +
-        '<span><i style="background:var(--lit)"></i>remembered</span>' +
+        '<span><i class="lg-mist"></i>still under the mist</span>' +
+        '<span><i class="lg-lit"></i>remembered</span>' +
         '<span><i style="background:var(--accent3)"></i>a place to visit</span></div></div>' +
-      (lit === 0 ? '<div class="card center"><p>Nothing is lit yet. Read a story — each one pushes the mist back off the place it comes from.</p>' +
-        '<button class="btn" data-act="go" data-v="stories">Open the Story Tree</button></div>' : '');
+      (lit === 0 ? '<div class="card center"><p>Every state is painted under the mist. Read a story and the mist lifts off the place it came from.</p>' +
+        '<button class="btn" data-act="go" data-v="stories">Open the story library</button></div>' : '');
   };
 
   V.state = function (code) {
@@ -1343,6 +1486,14 @@
     if (a === 'begin')  { view = { name: 'onboard' }; return render(); }
     if (a === 'go')     return go(t.getAttribute('data-v'));
     if (a === 'state')  return go('state', t.getAttribute('data-code'));
+    /* Tapping a state on the map shows its facts in place rather than navigating away —
+       the map is for browsing, and being thrown into a full page on every touch is what
+       stopped it being browsable. Tapping the same state again closes the panel. */
+    if (a === 'peek') {
+      var pc = t.getAttribute('data-code');
+      mapFocus = (mapFocus === pc) ? null : pc;
+      return render();
+    }
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
     if (a === 'era')    return go('era', t.getAttribute('data-id'));
     if (a === 'rishquiz') {
@@ -1498,6 +1649,13 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && S.started && view.name !== 'home') go('home');
     if (e.key === 'ArrowRight' && view.name === 'story') { var n = document.querySelector('[data-act="next"]'); if (n) n.click(); }
+    /* Map states are SVG <g>, which a browser will focus but will not activate on Enter the
+       way it does a <button>. Everything in this app has to work from the keyboard as well
+       as by touch, so wire it up by hand. */
+    if ((e.key === 'Enter' || e.key === ' ') && document.activeElement) {
+      var g = document.activeElement.closest && document.activeElement.closest('g[data-act="peek"]');
+      if (g) { e.preventDefault(); g.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
+    }
   });
 
   document.addEventListener('DOMContentLoaded', function () {

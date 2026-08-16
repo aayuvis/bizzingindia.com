@@ -29,7 +29,21 @@ API='https://fonts.googleapis.com/css2'
 # Fraunces is two-axis (opsz, wght), so the tuple after @ must carry both axes in the order
 # they are named — `opsz,wght@9..144,600..900`, not a bare list of weights. Getting that wrong
 # returns a 400 page that looks like CSS to a script and silently produces zero fonts.
-QUERY='family=Fraunces:opsz,wght@9..144,600..900&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Mukta:wght@400;500;600;700&display=swap'
+UI='family=Fraunces:opsz,wght@9..144,600..900&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700'
+
+# THE INDIAN SCRIPTS. CLAUDE.md's rule is written about Devanagari, but the reason behind it
+# is not Devanagari-specific: a script set in a fallback face is a script set badly, and this
+# audience is Tamil, Telugu, Bengali, Gujarati, Punjabi, Malayalam, Kannada and Odia
+# households as much as Hindi ones. Shipping Mukta alone and letting the rest fall back to
+# whatever the OS has would say, in typography, exactly the thing rule 8 forbids saying.
+#
+# Mukta first wherever Ek Type drew a sibling — Mahee (Gurmukhi), Malar (Tamil), Vaani
+# (Gujarati) — because they were designed as one superfamily and the scripts then look like
+# one app rather than eight. Noto Sans covers the rest at a compatible weight and colour.
+# Assamese is written in the Bengali script, so Noto Sans Bengali serves both.
+SCRIPTS='family=Mukta:wght@400;500;600;700&family=Mukta+Mahee:wght@400;500;600;700&family=Mukta+Malar:wght@400;500;600;700&family=Mukta+Vaani:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400..700&family=Noto+Sans+Telugu:wght@400..700&family=Noto+Sans+Kannada:wght@400..700&family=Noto+Sans+Malayalam:wght@400..700&family=Noto+Sans+Oriya:wght@400..700'
+
+QUERY="$UI&$SCRIPTS&display=swap"
 
 RAW=$(mktemp); trap 'rm -f "$RAW"' EXIT
 curl -sS -A "$UA" "$API?$QUERY" -o "$RAW"
@@ -51,12 +65,34 @@ seen = {}
 # Google emits every subset it has — cyrillic, greek, vietnamese. unicode-range means a
 # browser would never fetch them, but we would still be committing the files, so drop the
 # blocks we have no use for. This app needs latin (UI), latin-ext (transliteration
-# diacritics: ā, ṛ, ṣ, ñ) and devanagari (Mukta).
-KEEP = ('latin', 'latin-ext', 'devanagari')
-blocks = re.split(r'(?=/\* [a-z-]+ \*/)', css)
-kept = [b for b in blocks if not b.strip().startswith('/*')
-        or (re.match(r'/\* ([a-z-]+) \*/', b.strip()) or [None, ''])[1] in KEEP]
+# diacritics: ā, ṛ, ṣ, ñ) and every Indian script it sets.
+KEEP = ('latin', 'latin-ext', 'devanagari', 'gurmukhi', 'tamil', 'gujarati',
+        'bengali', 'telugu', 'kannada', 'malayalam', 'oriya')
+
+# And the Latin subset is kept ONLY for the three UI families. Every Indian-script family
+# also ships Latin, which would be eight redundant copies of an alphabet Hanken Grotesk
+# already sets — 2.6MB instead of 900KB, all of it downloaded by a child on a phone. The
+# --deva stack falls through to the body family for Latin runs inside an Indian-script span,
+# so nothing loses a glyph.
+UI_FAMILIES = ('Fraunces', 'Hanken Grotesk', 'Space Mono')
+
+kept, dropped = [], 0
+for b in re.split(r'(?=/\* [a-z-]+ \*/)', css):
+    m = re.match(r'/\* ([a-z-]+) \*/', b.strip())
+    if not m:
+        kept.append(b)                      # preamble, not a subset block
+        continue
+    subset = m.group(1)
+    fam = re.search(r"font-family: '([^']+)'", b)
+    fam = fam.group(1) if fam else ''
+    if subset not in KEEP:
+        dropped += 1
+    elif subset.startswith('latin') and fam not in UI_FAMILIES:
+        dropped += 1
+    else:
+        kept.append(b)
 css = ''.join(kept)
+print(f"dropped {dropped} redundant subset blocks")
 
 def fetch(url):
     if url in seen:

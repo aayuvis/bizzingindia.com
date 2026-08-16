@@ -826,6 +826,7 @@ window.IND_GEET = {
       note:'Warning label, not content. Licence it from the estate or leave it out.',
       words:[
         { term:'ಬಣ್ಣ',    roman:'banna',   en:'colour' },
+        { term:'ತಗಡು',   roman:'tagadu',  en:'tin, sheet metal' },
         { term:'ತುತ್ತೂರಿ', roman:'tutturi', en:'trumpet' }
       ],
       sing:'solo', badge:'aaj', audio:null,
@@ -1397,7 +1398,7 @@ window.IND_GEET = {
         { id:'nobody',  label:'One in a language nobody at school speaks' },
         { id:'today',   label:'One for today' }
       ],
-      shelves_note: 'The shelves are moods and occasions, not levels. Nothing here unlocks anything.'
+      shelves_note: 'These are moods and occasions — the way somebody at home would reach for one. Everything is open, all the time, from the first day.'
     },
 
     /* How a song is played. Three ways in, all optional, none of them a test. */

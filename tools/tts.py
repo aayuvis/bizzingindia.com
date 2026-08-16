@@ -21,7 +21,14 @@ Two things to know about Google's <phoneme>:
 """
 import json, os, base64, urllib.request, time, sys, re
 
-KEY = os.environ['GKEY']
+# Read lazily, not at import: --print-ssml and the lexicon helpers are useful
+# without a key, and importing this module should never require one.
+def api_key():
+    try:
+        return os.environ['GKEY']
+    except KeyError:
+        raise SystemExit('GKEY is not set. Source the key file; never hardcode it.')
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'app', 'voice')
 LEXICON = os.path.join(ROOT, 'tools', 'pron-lexicon.json')
@@ -35,10 +42,17 @@ VOICE = {
 # ---------------------------------------------------------------- SSML ------
 
 def load_lexicon(path=LEXICON):
-    """term (lowercased, whitespace-collapsed) -> ipa. `_`-prefixed keys are docs."""
+    """term (lowercased, whitespace-collapsed) -> ipa. `_`-prefixed keys are docs.
+
+    An entry may carry "ipa": null. That is a deliberate "nobody here could
+    transcribe this confidently — a native speaker has to" marker, not an
+    omission: the term is dropped from the matcher entirely and falls through to
+    the voice's own reading. A wrong <phoneme> is worse than none, because it
+    sounds authoritative and nobody re-checks it."""
     raw = json.load(open(path, encoding='utf-8'))
     return {' '.join(k.split()).lower(): v['ipa']
-            for k, v in raw.items() if not k.startswith('_')}
+            for k, v in raw.items()
+            if not k.startswith('_') and v.get('ipa')}
 
 LEX = load_lexicon()
 
@@ -96,7 +110,7 @@ def synthesize(text, lang):
         'audioConfig': {'audioEncoding': 'MP3', 'speakingRate': rate, 'sampleRateHertz': 24000}
     }).encode()
     req = urllib.request.Request(
-        'https://texttospeech.googleapis.com/v1/text:synthesize?key=' + KEY,
+        'https://texttospeech.googleapis.com/v1/text:synthesize?key=' + api_key(),
         data=body, headers={'Content-Type': 'application/json'})
     r = json.load(urllib.request.urlopen(req, timeout=60))
     return base64.b64decode(r['audioContent'])

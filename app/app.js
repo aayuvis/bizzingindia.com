@@ -19,7 +19,51 @@
     loadDevice: function (k, d) { try { var o = JSON.parse(localStorage.getItem(this.DEV) || '{}'); return (k in o) ? o[k] : d; } catch (e) { return d; } },
     saveDevice: function (k, v) { try { var o = JSON.parse(localStorage.getItem(this.DEV) || '{}'); o[k] = v; localStorage.setItem(this.DEV, JSON.stringify(o)); } catch (e) {} },
     migrate: function (b) { if (!b.schemaVersion) b.schemaVersion = 1; return b; },
-    onRemoteChange: function () {}
+    onRemoteChange: function () {},
+
+    /* BLOBS. Recorded voices do not fit in localStorage, so they go to IndexedDB — but they
+       go through this seam like everything else, because the whole point of the seam is that
+       swapping the backend later touches one file. When the family account exists these four
+       methods get a sync partner; nothing above them changes.
+
+       These recordings are the most personal thing in the app. They stay on the device: no
+       upload, no third party, no analytics on them. archive.promises in data-nani.js states
+       that to the family in writing, and this is where the code has to keep it. */
+    DB: 'bi_voices', STORE: 'clips',
+    _db: function (fn) {
+      if (!window.indexedDB) return fn(null);
+      var rq = indexedDB.open(this.DB, 1), self = this;
+      rq.onupgradeneeded = function () { rq.result.createObjectStore(self.STORE, { keyPath: 'id' }); };
+      rq.onsuccess = function () { fn(rq.result); };
+      rq.onerror = function () { fn(null); };
+    },
+    putClip: function (rec, fn) {
+      this._db(function (db) {
+        if (!db) return fn && fn(false);
+        var t = db.transaction(Store.STORE, 'readwrite');
+        t.objectStore(Store.STORE).put(rec);
+        t.oncomplete = function () { fn && fn(true); };
+        t.onerror = function () { fn && fn(false); };
+      });
+    },
+    listClips: function (fn) {
+      this._db(function (db) {
+        if (!db) return fn([]);
+        var rq = db.transaction(Store.STORE).objectStore(Store.STORE).getAll();
+        rq.onsuccess = function () {
+          fn((rq.result || []).sort(function (a, b) { return b.at - a.at; }));
+        };
+        rq.onerror = function () { fn([]); };
+      });
+    },
+    delClip: function (id, fn) {
+      this._db(function (db) {
+        if (!db) return fn && fn();
+        var t = db.transaction(Store.STORE, 'readwrite');
+        t.objectStore(Store.STORE).delete(id);
+        t.oncomplete = function () { fn && fn(); };
+      });
+    }
   };
 
   /* =================================================================== STATE */
@@ -298,6 +342,21 @@
           '<p class="tiny" style="margin:0 0 14px">Vismriti is eating India’s memory. Every story you finish pushes the grey back off one more place.</p>' +
           '<div class="meter"><i style="width:' + Math.round(lit / 34 * 100) + '%"></i></div></div></button>' +
       '</div>' +
+
+      /* The week's question, high on Home. docs/11 §3: the outcome a parent actually wants is
+         "she can talk to my mother", and this is the only surface that moves it. It is also
+         the one with a deadline — grandparents do not wait — so it does not sit three taps
+         down behind a hub. */
+      (naniWeek()
+        ? (function () {
+            var q = naniWeek();
+            return '<button class="card askcard" data-act="go" data-v="nani" ' +
+              'style="margin-top:var(--space-lg);width:100%;text-align:left">' +
+              '<div class="mono">This week, ask ' + esc(q.to === 'any' ? 'someone older' : q.to) + '</div>' +
+              '<h2 style="margin:8px 0 4px">' + esc(q.en) + '</h2>' +
+              '<p class="tiny muted" style="margin:0">' + esc(q.roman) + '</p></button>';
+          })()
+        : '') +
 
       /* the two nugget cards */
       '<div class="grid g2" style="grid-template-columns:1fr 1fr;margin-top:var(--space-lg)">' +
@@ -1055,6 +1114,127 @@
       '<div class="card center"><p>' + esc((G.takeout && G.takeout.handoff) || 'Go and play it.') + '</p></div>';
   };
 
+  /* ------------------------------------------------------------------- NANI
+
+     docs/11 puts this at the top of the inventory and calls it the emotional apex of the
+     product: the thing the parent had is a grandmother telling stories at night, and the
+     only substitute for her is HER ACTUAL VOICE.
+
+     Two halves, and they do different jobs:
+
+       Ask Nani  — one question a week the child carries to a grandparent. This is the
+                   METHOD the parent lacks (docs/11 §4.3). It converts passive learning into
+                   a real conversation and gives the grandparent a role beyond being looked
+                   at. It needs no backend and works today.
+
+       The Shelf — recordings, kept on this device. The full design is a link a grandparent
+                   opens with no install and no account, which needs a server. What works
+                   today is real and not a mock: record a grandparent who is visiting, or
+                   hold the phone up during Sunday's call. The empty state says plainly what
+                   is not built yet rather than pretending.
+
+     The questions are written correct for ONE grandparent — Hindi agrees its verb with the
+     addressee, so करती थीं and करते थे are not interchangeable — which is why each carries a
+     `to` and why nothing here name-swaps the Hindi. */
+  var nani = { rec: null, chunks: [], clips: null, busy: false };
+
+  function naniWeek() {
+    var N = window.IND_NANI; if (!N) return null;
+    /* Week of the year, so the question changes on a rhythm a family can feel and everyone
+       in the household is on the same one. Not random — a question you can plan to ask. */
+    var wk = Math.floor((Date.now() / 86400000 + 4) / 7) % N.questions.length;
+    return N.questions[wk];
+  }
+
+  function loadClips(then) {
+    Store.listClips(function (list) { nani.clips = list; then && then(); });
+  }
+
+  V.nani = function () {
+    var N = window.IND_NANI;
+    if (!N) return '<div class="card">Nothing here yet.</div>';
+    var q = naniWeek();
+    if (nani.clips === null) { loadClips(render); }
+    var n = (nani.clips || []).length;
+
+    return '<button class="backlink" data-act="go" data-v="home">' + icon('back', 18) + ' Home</button>' +
+      '<div class="card"><h1>' + esc(N.archive.title) + '</h1><p>' + esc(N.archive.tagline) + '</p></div>' +
+
+      (q ? '<div class="card askcard">' +
+          '<span class="mono">This week, ask ' + esc(q.to === 'any' ? 'someone older' : q.to) + '</span>' +
+          '<h2 style="margin:8px 0">' + esc(q.en) + '</h2>' +
+          '<p lang="' + esc(q.lang || 'hi') + '" style="margin-bottom:4px">' + esc(q.hi) + '</p>' +
+          '<p class="tiny muted">' + esc(q.roman) + '</p>' +
+          (q.follow ? '<p class="tiny"><b>If the answer is short, ask:</b> ' + esc(q.follow) + '</p>' : '') +
+          '<button class="btn" data-act="go" data-v="shelf">' + icon('mic', 18) + ' Record the answer</button>' +
+        '</div>' : '') +
+
+      '<div class="grid g2">' +
+        hubCard('shelf', N.archive.title, n ? n + (n === 1 ? ' voice kept here' : ' voices kept here')
+                                            : 'Nothing on the shelf yet.', 'mic') +
+        hubCard('invite', 'Ask a grandparent', N.invite.landing.what, 'parent') +
+      '</div>';
+  };
+
+  V.shelf = function () {
+    var N = window.IND_NANI;
+    if (nani.clips === null) { loadClips(render); return '<div class="card">…</div>'; }
+    var list = nani.clips;
+    var empty = N.ritual.empty[Math.floor(Date.now() / 86400000) % N.ritual.empty.length];
+
+    return '<button class="backlink" data-act="go" data-v="nani">' + icon('back', 18) + ' Back</button>' +
+      '<div class="card">' +
+        '<h1>' + esc(N.archive.title) + '</h1>' +
+        '<p>' + esc(N.archive.child) + '</p>' +
+        (nani.rec
+          ? '<button class="btn lg block" data-act="recstop">■ Stop and keep it</button>'
+          : '<button class="btn lg block" data-act="recstart">' + icon('mic', 20) + ' Record a story</button>') +
+        '<p class="tiny muted" style="margin-top:10px">' + esc(N.archive.where) + '</p>' +
+      '</div>' +
+
+      (list.length
+        ? '<div class="card"><h2 style="margin-top:0">On the shelf</h2>' +
+          list.map(function (c) {
+            return '<div class="clip">' +
+              '<div><b>' + esc(c.title || 'A story') + '</b>' +
+              '<span class="tiny muted">' + new Date(c.at).toLocaleDateString() +
+              (c.plays ? ' · heard ' + c.plays + (c.plays === 1 ? ' time' : ' times') : '') + '</span></div>' +
+              '<button class="btn sm" data-act="clipplay" data-id="' + esc(c.id) + '">' +
+                icon('play', 16) + ' ' + (c.plays ? 'Again' : 'Listen') + '</button>' +
+              '<button class="btn sm ghost" data-act="clipdel" data-id="' + esc(c.id) + '">Remove</button>' +
+            '</div>';
+          }).join('') + '</div>'
+        : '<div class="card center"><p>' + esc(empty) + '</p></div>') +
+
+      /* The prompts exist for the grandparent who says "I don't know what to tell." */
+      '<div class="card"><h2 style="margin-top:0">Things to ask them for</h2>' +
+        '<div class="grid g2">' + N.prompts.slice(0, 8).map(function (p) {
+          return '<div class="tile"><b>' + esc(p.en) + '</b>' +
+            '<span class="tiny muted">' + esc(p.why) + '</span></div>'; }).join('') + '</div></div>';
+  };
+
+  V.invite = function () {
+    var N = window.IND_NANI, L = N.invite.landing;
+    return '<button class="backlink" data-act="go" data-v="nani">' + icon('back', 18) + ' Back</button>' +
+      '<div class="card"><h1>' + esc(L.headline) + '</h1><p>' + esc(L.sub) + '</p>' +
+        '<p>' + esc(L.what) + '</p>' +
+        '<ul class="dolist">' + (L.reassurances || []).map(function (r) {
+          return '<li>' + esc(r) + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="card"><h2 style="margin-top:0">Hello, in their language</h2>' +
+        '<div class="grid g3">' + (N.invite.greetings || []).map(function (g) {
+          return '<div class="tile center"><b lang="' + esc(g.lang || 'hi') + '">' + esc(g.word) + '</b>' +
+            '<span class="tiny muted">' + esc(g.roman || '') + '</span></div>'; }).join('') + '</div>' +
+        '<p class="tiny muted">Not every grandparent in this app speaks Hindi, and the app should ' +
+        'never assume they do.</p></div>' +
+      /* Honest about what is not built. A fake "send" button here would be the worst thing
+         in the product: a parent would send nothing and a grandparent would wait. */
+      '<div class="card"><h3 style="margin-top:0">Sending them a link</h3>' +
+        '<p>The link a grandparent opens with no app and no account needs the family account, ' +
+        'which is not built yet. Until it is, the shelf records on this device — so it works ' +
+        'when they visit, or when you hold the phone up on Sunday’s call.</p>' +
+        '<p class="tiny muted">' + esc(N.invite.parentNote) + '</p></div>';
+  };
+
   V.play = function () {
     var G = window.IND_GAMES || [];
     return '<div class="card"><h1>Play</h1><p>The Mela. Every stall is a drill wearing a costume.</p></div>' +
@@ -1623,6 +1803,9 @@
       case 'dharma': h = V.dharma(); break;
       case 'utsav': h = V.utsav(); break;
       case 'gully': h = V.gully(); break;
+      case 'nani': h = V.nani(); break;
+      case 'shelf': h = V.shelf(); break;
+      case 'invite': h = V.invite(); break;
       case 'gullygame': h = V.gullygame(view.arg); break;
       case 'festival': h = V.festival(view.arg); break;
       case 'faith': h = V.faith(view.arg); break;
@@ -1685,6 +1868,58 @@
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
     if (a === 'fest')   return go('festival', t.getAttribute('data-id'));
     if (a === 'gullyg') return go('gullygame', t.getAttribute('data-id'));
+
+    /* Recording a grandparent. The mic is only ever opened by this explicit tap, the track is
+       stopped the moment recording ends so no light stays on, and the blob never leaves the
+       device — that is the promise data-nani.js makes to the family in writing. */
+    if (a === 'recstart') {
+      if (nani.busy) return;
+      nani.busy = true;
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+        nani.chunks = [];
+        nani.rec = new MediaRecorder(stream);
+        nani.rec.ondataavailable = function (e) { if (e.data.size) nani.chunks.push(e.data); };
+        nani.rec.onstop = function () {
+          stream.getTracks().forEach(function (tr) { tr.stop(); });
+          var blob = new Blob(nani.chunks, { type: nani.rec.mimeType || 'audio/webm' });
+          var q = naniWeek();
+          Store.putClip({ id: 'c' + Date.now(), at: Date.now(), blob: blob, plays: 0,
+                          title: q ? q.en : 'A story' }, function () {
+            nani.rec = null; nani.busy = false;
+            loadClips(function () { toast('Kept on the shelf.'); render(); });
+          });
+        };
+        nani.rec.start();
+        nani.busy = false;
+        render();
+      }).catch(function () {
+        nani.busy = false;
+        toast('The microphone is not available. Check the browser’s permission.');
+      });
+      return;
+    }
+    if (a === 'recstop') { if (nani.rec && nani.rec.state !== 'inactive') nani.rec.stop(); return; }
+    if (a === 'clipplay') {
+      var cid = t.getAttribute('data-id');
+      var clip = (nani.clips || []).filter(function (c) { return c.id === cid; })[0];
+      if (!clip) return;
+      stopAudio();
+      var url = URL.createObjectURL(clip.blob);
+      var au = new Audio(url);
+      au.onended = function () { URL.revokeObjectURL(url); };
+      au.play();
+      /* Counted as love, not as repetition — docs/10 §3.5. Hearing it for the fiftieth time
+         is the point, so the number goes up and nothing ever goes down. */
+      clip.plays = (clip.plays || 0) + 1;
+      Store.putClip(clip, function () { render(); });
+      return;
+    }
+    if (a === 'clipdel') {
+      var did = t.getAttribute('data-id');
+      if (!confirm('Remove this recording? It cannot be got back.')) return;
+      Store.delClip(did, function () { loadClips(render); });
+      return;
+    }
     if (a === 'era')    return go('era', t.getAttribute('data-id'));
     if (a === 'rishquiz') {
       if (t.getAttribute('data-reset') || rish.i >= window.IND_RISHTEY.tree.length) rish = { i: 0, picked: null, right: 0 };

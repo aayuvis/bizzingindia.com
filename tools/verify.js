@@ -38,7 +38,7 @@ const ARG_VIEWS = {
 };
 
 const NO_ARG = ['home', 'map', 'stories', 'itihaas', 'dharma', 'learn', 'play', 'epics',
-                'shlok', 'neeti', 'rishtey', 'worlds', 'bhasha', 'me', 'utsav', 'gully'];
+                'shlok', 'neeti', 'rishtey', 'worlds', 'bhasha', 'me', 'utsav', 'gully', 'nani', 'shelf', 'invite'];
 
 async function main() {
   const i = process.argv.indexOf('--url');

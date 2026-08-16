@@ -398,9 +398,12 @@ PROMPTS = {
         "terracotta-tiled roof of a small village house at sunrise, letting one glowing "
         "gold feather drift down onto the doorstep below; a mother and three daughters "
         "in patched saris of deep indigo, crimson and marigold stand in the doorway with "
-        "their hands at their mouths, looking up at him. Rose, amber and saffron dawn, "
-        "sewing baskets on the step, a mango tree in deep emerald leaf, white doves. "
-        "Richly saturated, warm and jewel-like."),
+        "their hands at their mouths, looking up at him. A deep rose, amber and saffron "
+        "sunrise burning behind them with a low golden sun, the house walls warm "
+        "terracotta and ochre lit by that light, long warm shadows across the swept "
+        "earth, sewing baskets on the step, a mango tree in deep emerald leaf, green and "
+        "gold fields beyond, white doves. Richly saturated jewel tones, deeply warm and "
+        "glowing, the painted scene running right off all four edges of the picture."),
 
     "jt.woodpecker-lion": p(
         "a calm golden lion lying on the forest floor with his head resting sideways on "

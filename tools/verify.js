@@ -88,6 +88,27 @@ async function main() {
     for (const id of [...new Set(pick)]) targets.push([v, id]);
   }
 
+  // REGISTRIES THAT PROMISE SOMETHING THEY CANNOT DELIVER.
+  //
+  // Walking views only catches an asset when an <img> is actually emitted for it. An avatar
+  // registered in a pack with neither a PNG nor an inline SVG emits NOTHING — art() returns
+  // an empty string — so the walk stayed green while 30 blank chips sat in onboarding. Same
+  // shape of hole for any manifest that lists a key with no file behind it. Check the
+  // registries directly rather than hoping a view happens to render every entry.
+  const registries = await page.evaluate(() => {
+    const out = [];
+    const packs = window.IND_AVATAR_PACKS || {};
+    const art = window.IND_AVATAR_ART || {}, svg = window.IND_AVATAR || {};
+    Object.keys(packs).forEach(p => {
+      const ids = packs[p].ids || packs[p];
+      (Array.isArray(ids) ? ids : []).forEach(id => {
+        if (!art[id] && !svg[id]) out.push(`avatar "${id}" is in pack "${p}" but has no image`);
+      });
+    });
+    (window.IND_STORY_ART || []).length === 0 && out.push('story art manifest is empty');
+    return out;
+  });
+
   const thin = [];
   for (const [v, arg] of targets) {
     where = arg ? `${v}:${arg}` : v;
@@ -111,6 +132,7 @@ async function main() {
   bad += report('no console errors', errors);
   bad += report('no missing assets', [...missing]);
   bad += report('no empty views', thin);
+  bad += report('no registry promises nothing', registries);
   process.exit(bad ? 1 : 0);
 }
 

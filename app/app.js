@@ -2470,7 +2470,162 @@
       'and TTS teaches errors a native-speaker parent hears instantly.</div>';
   };
 
-  var quiz = { packId: null, stage: null, q: null, done: 0, right: 0 };
+  /* ------------------------------------------------------------- THE QUIZ
+     Phase 0 of the Bhasha rebuild. The old renderer read only q.options and
+     the old grader only a numeric answerIndex, which left five question
+     shapes unrenderable or unwinnable (s4/s6/s7 needed 12 right answers with
+     0 possible). The quiz now has three interaction families:
+
+       - choice   options + answerIndex, tapped or keyed (native buttons)
+       - build    tiles placed IN ORDER into slots (wordBuild, sentenceBuild,
+                  conjunctSplit), auto-graded when the last slot fills
+       - trace    the Likhna canvas (stage 7), pass counts as correct
+
+     `build` is the ordered-build state, `fb` the feedback strip (generators
+     write why/point explanations; discarding them was marking, not teaching),
+     `lock` swallows input during the feedback beat, `reveal` shows the
+     correct arrangement after a wrong build. */
+  function quizReset(packId) {
+    return { packId: packId || null, stage: null, q: null, done: 0, right: 0,
+             build: null, fb: null, lock: false, reveal: false };
+  }
+  var quiz = quizReset(null);
+  function isBuild(type) { return type === 'wordBuild' || type === 'sentenceBuild' || type === 'conjunctSplit'; }
+  function tileChar(t) { return typeof t === 'string' ? t : (t && t.char) || ''; }
+  function packLang() { return (quiz.packId || 'hi') + '-IN'; }
+
+  /* Fetch the next question through the real engine path. `index` rides along
+     so stage 7 can ramp through the varnamala instead of jumping about. */
+  function quizNext(bump) {
+    quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now() + (bump || 0),
+                                            { index: stageStat(quiz.packId, quiz.stage).asked });
+    quiz.build = { placed: [], kfocus: 0, kb: false };
+    quiz.fb = null; quiz.lock = false; quiz.reveal = false;
+    if (quiz.q) speak(quiz.q.audio, quiz.q.say, packLang());
+  }
+  function recordAnswer(ok) {
+    var rec = S.lang[quiz.packId] || (S.lang[quiz.packId] = { asked: 0, correct: 0, seen: {} });
+    rec.asked++; if (ok) rec.correct++;
+    /* Per stage as well as per pack, or the path has nothing to draw. */
+    rec.stages = rec.stages || {};
+    var sst = rec.stages[quiz.stage] || (rec.stages[quiz.stage] = { asked: 0, correct: 0 });
+    sst.asked++; if (ok) sst.correct++;
+    save();
+    if (ok) { earn(2, 'correct'); quiz.right++; }
+    quiz.done++;
+  }
+  function advance(ms) {
+    if (window.BI_FAST) ms = 30;   /* test hook: tools/verify.js answers hundreds of questions */
+    var token = quiz.q;            /* the question this beat belongs to */
+    setTimeout(function () {
+      /* Only move on if that question is still the live one. Without this, a
+         child (or the test) who starts another stage mid-beat gets their
+         fresh question silently swapped from under them by the stale timer. */
+      if (quiz.q !== token) return;
+      quizNext(quiz.done);
+      render();
+    }, ms);
+  }
+
+  /* The feedback strip. Right or wrong, the child learns something: the
+     generators' why/point lines finally get shown, and the authored example
+     sentences (data-bhasha-hi-sentences.js) surface after the answer — post-
+     answer, so nothing on screen ever gives an answer away. Wrong is never
+     shamed: the correct answer is shown and explained, and that is all. */
+  var CHEERS = ['Shabash!', 'That’s it!', 'Well done!', 'Yes!'];
+  var POINTS = {   /* kid-sized versions of the grammar-point ids on HI_S4 */
+    sov: 'Hindi keeps the doing-word for last.',
+    copula: '“है” — is — comes at the very end.',
+    gender: 'The describing word changes with who it is about.',
+    plural: 'More than one changes the word and the verb.',
+    respect: 'For elders, Hindi uses the respectful “हैं”.',
+    postposition: 'The little joining word comes AFTER its noun, not before.',
+    possession: '“का / की / के” — of — follows the owner.',
+    question: 'The asking word sits inside the sentence, not at the front.',
+    negation: '“नहीं” sits just before the verb.',
+    'tense-present': 'This is happening now.',
+    'tense-past': 'This already happened.',
+    'tense-future': 'This is still to come.',
+    imperative: 'A gentle telling-to — the verb changes its ending.',
+    request: '“दीजिए / चाहिए” make it polite.',
+    agreement: 'The describing word agrees with the thing described.',
+    quantity: 'The counting word comes before the noun.'
+  };
+  function exampleSentence(word) {
+    /* authored example-sentence seam — contract in data-bhasha-hi-sentences.js */
+    var Sx = window.IND_HI_SENTENCES;
+    return (quiz.packId === 'hi' && Sx && Sx[word]) ? Sx[word] : null;
+  }
+  function fbFor(q, ok, idx) {
+    var head = ok ? CHEERS[quiz.done % CHEERS.length] : 'Not this one —';
+    var body = '', sent = null, i;
+    switch (q.type) {
+      case 'soundMatch':
+        body = '<b class="deva">' + esc(q.answer) + '</b> says “' + esc(q.answerName) + '”.'; break;
+      case 'matraAttach':
+        body = '<span class="deva">' + esc(q.base) + '</span> + <span class="deva">' + esc(q.matra) + '</span> = ' +
+               '<b class="deva">' + esc(q.target) + '</b> — “' + esc(q.targetName) + '”.'; break;
+      case 'barakhadi':
+        body = '<b class="deva">' + esc(q.target) + '</b> says “' + esc(q.targetRoman) + '”.'; break;
+      case 'oddOneOut':
+        body = esc(q.why || ''); break;
+      case 'listenPoint':
+        body = '<b class="deva">' + esc(q.answerWord) + '</b> (' + esc(q.roman) + ') — ' + esc(q.answer) + '.';
+        sent = exampleSentence(q.answerWord); break;
+      case 'wordBuild':
+        body = '<b class="deva">' + esc(q.word) + '</b> (' + esc(q.roman) + ') — ' + esc(q.en) + '.';
+        sent = exampleSentence(q.word); break;
+      case 'sentenceBuild':
+        body = '<span class="deva">' + esc(q.say) + '</span> <span class="muted">' + esc(q.roman || '') + '</span>' +
+               (POINTS[q.point] ? '<br>' + esc(POINTS[q.point]) : ''); break;
+      case 'conjunctSplit':
+        var pr = [];
+        for (i = 0; i < (q.parts || []).length; i++) pr.push('<span class="deva">' + esc(q.parts[i]) + '</span>');
+        body = pr.join(' + ') + ' make <b class="deva">' + esc(q.conjunct) + '</b>' +
+               (q.word ? ' — as in <span class="deva">' + esc(q.word) + '</span>' : '') + '.'; break;
+      case 'pickReply':
+        var why = (!ok && q.options[idx] && q.options[idx].whyWrong) ? esc(q.options[idx].whyWrong) + ' ' : '';
+        var best = q.options[q.answerIndex] || {};
+        body = why + 'You’d say: <b class="deva">' + esc(best.word) + '</b> — “' + esc(best.en || q.answerEn || '') + '”.' +
+               (q.promptEn ? '<br><span class="muted">They said: “' + esc(q.promptEn) + '”</span>' : ''); break;
+      case 'readPassage':
+        body = '“' + esc(q.answerEn) + '”<br><span class="muted">' + esc(q.roman || '') + '</span>'; break;
+      case 'trace':
+        body = 'That is <b class="deva">' + esc(q.letter.char) + '</b> — “' + esc(q.letter.name) + '”.'; break;
+    }
+    if (sent) {
+      body += '<span class="fbsent"><span class="deva">' + esc(sent.s) + '</span><br>' +
+              '<span class="muted">' + esc(sent.roman) + ' — ' + esc(sent.en) + '</span></span>';
+    }
+    return { ok: ok, html: '<b>' + esc(head) + '</b> ' + body };
+  }
+  /* Inject feedback into the live page without a re-render, so the .right /
+     .wrong marks the grader just set stay put. */
+  function showFb(fb) {
+    quiz.fb = fb;
+    var el = $('#qfb');
+    if (el) { el.className = 'qfb show ' + (fb.ok ? 'good' : 'bad'); el.innerHTML = fb.html; }
+  }
+
+  /* Ordered build: place a tile, return a tile, grade when full. */
+  function placeTile(i) {
+    var q = quiz.q, b = quiz.build;
+    if (!q || quiz.lock || !b || b.placed.indexOf(i) >= 0 || i < 0 || i >= q.tiles.length) return;
+    b.placed.push(i);
+    if (b.placed.length >= q.answer.length) return buildGrade();
+    render();
+  }
+  function buildGrade() {
+    var q = quiz.q, b = quiz.build, built = [], i;
+    for (i = 0; i < b.placed.length; i++) built.push(tileChar(q.tiles[b.placed[i]]));
+    var ok = built.join('') === q.answer.join('');
+    recordAnswer(ok);
+    quiz.lock = true;
+    quiz.reveal = !ok;                        /* show the correct arrangement briefly */
+    quiz.fb = fbFor(q, ok, -1);
+    render();
+    advance(ok ? 1100 : 2600);
+  }
 
   /* ------------------------------------------------------------- A PACK
 
@@ -2502,7 +2657,7 @@
   V.pack = function (id) {
     var p = window.IND_PACKS[id]; if (!p) return '<div class="card">Pack not found.</div>';
     var sc = window.IND_SCRIPTS[p.script];
-    if (quiz.packId !== id) quiz = { packId: id, stage: null, q: null, done: 0, right: 0 };
+    if (quiz.packId !== id) quiz = quizReset(id);
     if (quiz.q) return '<button class="backlink" data-act="pack" data-id="' + id + '">' +
       icon('back', 18) + ' ' + esc(p.name.en) + '</button>' + V.question(quiz.q);
 
@@ -2572,34 +2727,144 @@
   };
 
   function optLabel(o) { if (o == null) return ''; if (typeof o === 'string') return o; return o.char || o.word || o.sign || o.syllable || o.en || o.roman || ''; }
-  function optSub(o) { if (!o || typeof o === 'string') return ''; if (o.word && o.en) return o.en; return o.name || o.roman || ''; }
 
+  /* THE QUESTION RENDERER — Phase 0 rebuild. Three families (choice, build,
+     trace), and one rule above all of them, from CLAUDE.md: never leak the
+     answer in on-screen text. That is why wordBuild shows the meaning and a
+     play button but NEVER the word itself; why soundMatch and matraAttach
+     options carry no roman labels (the label would name the sound being
+     asked for); and why sentenceBuild shows only the English until after the
+     answer. */
   V.question = function (q) {
-    var opts = q.options || q.tiles || [], prompt, hint = '', big = '';
-    switch (q.type) {
-      case 'listenPoint': prompt = 'Listen — which one is it?'; break;
-      case 'soundMatch':  prompt = 'Which letter makes this sound?'; break;
-      case 'matraAttach': prompt = 'Add this matra to the letter';
-        big = '<div class="bigglyph"><span class="deva">' + esc(q.base) + '</span> <span style="color:var(--accent)">+</span> <span class="deva">' + esc(q.matra) + '</span></div>';
-        hint = 'It goes ' + esc(q.position || 'somewhere') + '.'; break;
-      case 'wordBuild':   prompt = 'Which piece starts this word?';
-        big = '<div class="bigglyph deva">' + esc(q.word || '') + '</div>'; hint = esc(q.en || q.roman || ''); break;
-      case 'oddOneOut':   prompt = 'Which one does not belong?'; break;
-      case 'conjunctSplit': prompt = 'This letter is two letters squashed together. Which two?';
-        big = '<div class="bigglyph deva">' + esc(q.conjunct || '') + '</div>'; hint = q.word ? 'As in ' + esc(q.word) : ''; break;
-      default: prompt = q.prompt || 'Pick the right one';
+    var qfb = '<div id="qfb" class="qfb' + (quiz.fb ? ' show ' + (quiz.fb.ok ? 'good' : 'bad') : '') + '">' +
+      (quiz.fb ? quiz.fb.html : '') + '</div>';
+    var meta = '<div class="mono" style="margin-top:14px">' + quiz.right + ' right of ' + quiz.done +
+      ' · no timer, no lives</div>';
+    var hear = (q.audio || q.say)
+      ? '<button class="btn ghost block" style="margin-bottom:14px" data-act="say" data-k="' + esc(q.audio || '') +
+        '" data-t="' + esc(q.say || '') + '" data-l="' + esc(packLang()) + '">' + icon('sound', 20) + ' Hear it</button>'
+      : '';
+
+    /* --- trace (stage 7): the Likhna canvas, mounted after render --- */
+    if (q.type === 'trace') {
+      var inner = window.IND_LIKHNA
+        ? window.IND_LIKHNA.render(q.letter)
+        : '<p class="muted">The tracing tool did not load.</p>';
+      return '<div class="card">' +
+        '<h3 style="margin-bottom:4px">Likhna — trace <span class="deva">' + esc(q.letter.char) + '</span></h3>' +
+        '<p class="tiny muted" style="margin-top:0">“' + esc(q.letter.name) + '”</p>' +
+        inner + qfb + meta + '</div>';
     }
-    var grid = ['soundMatch', 'matraAttach', 'oddOneOut', 'conjunctSplit', 'wordBuild'].indexOf(q.type) >= 0;
+
+    /* --- ordered build: tiles into slots, in order --- */
+    if (isBuild(q.type)) {
+      var b = quiz.build || { placed: [] }, head = '', i, k;
+      if (q.type === 'wordBuild') {
+        /* LEAK FIX: the old card printed the finished word above the tiles.
+           The child now builds it from meaning + sound alone. */
+        head = '<h3>Build the word</h3>' + hear +
+          '<div class="buildclue"><b>' + esc(q.en || '') + '</b>' +
+          (q.roman ? '<span class="muted"> · ' + esc(q.roman) + '</span>' : '') + '</div>';
+      } else if (q.type === 'sentenceBuild') {
+        head = '<h3>Say it in ' + esc((window.IND_PACKS[quiz.packId] || { name: { en: 'the language' } }).name.en) + '</h3>' +
+          '<div class="buildclue"><b>“' + esc(q.prompt || '') + '”</b></div>' +
+          '<p class="tiny muted">Put the word tiles in order.</p>';
+      } else {  /* conjunctSplit: the conjunct IS the question, so it is shown */
+        head = '<h3>' + esc(q.prompt || 'Two letters holding hands — which two, in order?') + '</h3>' +
+          '<div class="bigglyph deva">' + esc(q.conjunct || '') + '</div>' +
+          (q.word ? '<p class="tiny muted" style="text-align:center">As in <span class="deva">' + esc(q.word) + '</span></p>' : '');
+      }
+      var slots = '';
+      for (k = 0; k < q.answer.length; k++) {
+        if (quiz.reveal) {           /* wrong: show the correct arrangement briefly */
+          slots += '<span class="slot reveal deva">' + esc(q.answer[k]) + '</span>';
+        } else if (k < b.placed.length) {
+          slots += '<button class="slot filled deva' + (quiz.lock ? ' good' : '') + '" data-act="bslot" data-i="' + k + '"' +
+            (quiz.lock ? ' disabled' : '') + '>' + esc(tileChar(q.tiles[b.placed[k]])) + '</button>';
+        } else {
+          slots += '<span class="slot' + (k === b.placed.length ? ' next' : '') + '"></span>';
+        }
+      }
+      var tiles = '';
+      for (i = 0; i < q.tiles.length; i++) {
+        var used = b.placed.indexOf(i) >= 0;
+        var focus = b.kb && !used && i === b.kfocus;
+        var sub = (q.type === 'conjunctSplit' && q.tiles[i] && q.tiles[i].name)
+          ? '<small>' + esc(q.tiles[i].name) + '</small>' : '';
+        tiles += '<button class="btile' + (used ? ' used' : '') + (focus ? ' kfocus' : '') + '"' +
+          ' data-act="btile" data-i="' + i + '" data-ch="' + esc(tileChar(q.tiles[i])) + '"' +
+          (used || quiz.lock ? ' disabled' : '') + ' aria-label="tile ' + esc(tileChar(q.tiles[i])) + '">' +
+          '<span class="deva">' + esc(tileChar(q.tiles[i])) + '</span>' + sub + '</button>';
+      }
+      return '<div class="card">' + head +
+        '<div class="slots' + (quiz.reveal ? ' shake' : '') + '">' + slots + '</div>' +
+        '<div class="btiles">' + tiles + '</div>' +
+        '<p class="tiny muted">Tap a tile to place it, tap a filled slot to take it back. ' +
+        'Keys: ← → choose, Enter place, Backspace undo.</p>' +
+        qfb + meta + '</div>';
+    }
+
+    /* --- choice questions --- */
+    var opts = q.options || q.items || [], prompt = q.prompt || 'Pick the right one';
+    var big = '', lead = '', subFor = null, grid = true;
+    switch (q.type) {
+      case 'listenPoint':
+        prompt = 'Listen — which one is it?'; grid = false;
+        subFor = function (o) { return o.en; };
+        break;
+      case 'soundMatch':
+        prompt = q.kind === 'syllable' ? 'Which one makes this sound?' : 'Which letter makes this sound?';
+        subFor = null;      /* the roman name IS the answer — never printed before it */
+        break;
+      case 'matraAttach':
+        /* LEAK FIX: the old card printed base + the correct matra as the
+           prompt. The target sign now only ever appears among the options. */
+        prompt = 'Which sign makes it say “' + esc(q.promptRoman || '') + '”?';
+        big = '<div class="bigglyph"><span class="deva">' + esc(q.base) + '</span>' +
+          ' <span style="color:var(--accent)">+</span> <span class="qmark">?</span></div>';
+        subFor = null;
+        break;
+      case 'oddOneOut':
+        /* q.items, not q.options — the renderer used to look only at options
+           and drew zero buttons for this type. After the answer, q.why lands
+           in the feedback strip: teach, don't just mark. */
+        prompt = q.prompt || 'Which one does not belong?';
+        subFor = function (o) { return o.name; };
+        break;
+      case 'barakhadi':
+        /* The full row is the teaching context; the question is to FIND the
+           asked-for cell in it. */
+        prompt = q.prompt || 'Find the one that says “' + esc(q.targetRoman) + '”.';
+        lead = '<div class="bkrow" aria-label="the full barakhadi row of ' + esc(q.baseName) + '">' +
+          q.cells.map(function (c) { return '<span class="bkcell deva">' + esc(c.syllable) + '</span>'; }).join('') +
+          '</div><p class="tiny muted">The whole row of <span class="deva">' + esc(q.base) + '</span> — find the sound in it.</p>';
+        subFor = null;
+        break;
+      case 'pickReply':
+        prompt = 'What would you say back?'; grid = false;
+        lead = (q.sceneEn || q.scene ? '<span class="scenechip">' + esc(q.sceneEn || String(q.scene).replace(/-/g, ' ')) + '</span>' : '') +
+          '<div class="speech saidtoyou"><span class="who">' + (q.who === 'child' ? 'Your friend' : 'They say') + '</span>' +
+          '<span class="deva" style="font-size:20px">' + esc(q.prompt) + '</span>' +
+          (q.promptRoman ? '<span class="muted tiny" style="display:block;margin-top:2px">' + esc(q.promptRoman) + '</span>' : '') +
+          '</div>';
+        subFor = function (o) { return o.roman; };   /* roman, not en — the gloss comes after the answer */
+        break;
+      case 'readPassage':
+        prompt = q.prompt || 'Read it. What is it about?'; grid = false;
+        lead = '<div class="passage deva">' + esc(q.hi) + '</div>';
+        subFor = null;
+        break;
+    }
     var choices = opts.map(function (o, i) {
-      var l = esc(optLabel(o)), s = esc(optSub(o));
-      return grid ? '<button class="glyph" data-act="ans" data-i="' + i + '">' + l + (s ? '<small>' + s + '</small>' : '') + '</button>'
-        : '<button class="opt" data-act="ans" data-i="' + i + '"><span class="deva" style="font-size:22px">' + l + '</span>' + (s ? ' <span class="muted tiny">' + s + '</span>' : '') + '</button>';
+      var l = esc(optLabel(o)), s = subFor ? esc(subFor(o) || '') : '';
+      return grid
+        ? '<button class="glyph" data-act="ans" data-i="' + i + '">' + l + (s ? '<small>' + s + '</small>' : '') + '</button>'
+        : '<button class="opt" data-act="ans" data-i="' + i + '"><span class="deva" style="font-size:22px">' + l + '</span>' +
+          (s ? ' <span class="muted tiny">' + s + '</span>' : '') + '</button>';
     }).join('');
-    return '<div class="card"><h3>' + esc(prompt) + '</h3>' + big +
-      (q.audio ? '<button class="btn ghost block" style="margin-bottom:14px" data-act="say" data-k="' + esc(q.audio) + '">' + icon('sound', 20) + ' Play it again</button>' : '') +
-      (hint ? '<p class="tiny muted">' + hint + '</p>' : '') +
+    return '<div class="card"><h3>' + prompt + '</h3>' + lead + big + hear +
       (grid ? '<div class="gridscript">' + choices + '</div>' : choices) +
-      '<div class="mono" style="margin-top:14px">' + quiz.right + ' right of ' + quiz.done + ' · no timer, no lives</div></div>';
+      qfb + meta + '</div>';
   };
 
   /* ------------------------------------------------------------------ MELA */
@@ -2837,10 +3102,20 @@
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
     });
     if (view.name === 'game') mountGame(view.arg);
+
+    /* The tracing canvas (stage 7) owns window-level pointer listeners, so it
+       gets the same care a game does: torn down on EVERY render — navigation
+       included — and remounted only when a trace question is on screen. */
+    if (traceOff) { try { traceOff(); } catch (err) {} traceOff = null; }
+    if (view.name === 'pack' && quiz.q && quiz.q.type === 'trace' &&
+        window.IND_LIKHNA && $('#tInk')) {
+      traceOff = window.IND_LIKHNA.mount(quiz.q.letter);
+    }
   }
 
   /* a running game owns document-level key handlers and timers */
   var gameTeardown = null;
+  var traceOff = null;      /* teardown for the mounted Likhna tracing canvas */
   function killGame() {
     if (!gameTeardown) return;
     try { if (typeof gameTeardown === 'function') gameTeardown(); else if (gameTeardown.destroy) gameTeardown.destroy(); } catch (e) {}
@@ -3082,38 +3357,50 @@
     if (a === 'night')  { night = !night; Store.saveDevice('night', night); return render(); }
     if (a === 'reset')  { if (confirm('Clear everything on this device and start again?')) { localStorage.removeItem(Store.KEY); location.reload(); } return; }
     if (a === 'mon')    { var mo = (window.IND_GEO.monuments || []).filter(function (x) { return x.id === t.getAttribute('data-id'); })[0]; if (mo) toast(mo.name + ' — ' + mo.fact); return; }
-    if (a === 'pack')   { quiz = { packId: null, stage: null, q: null, done: 0, right: 0 }; return go('pack', t.getAttribute('data-id')); }
+    if (a === 'pack')   { quiz = quizReset(null); return go('pack', t.getAttribute('data-id')); }
     if (a === 'game')   return go('game', t.getAttribute('data-id'));
     if (a === 'kahani') return go('kahani', t.getAttribute('data-id'));
     if (a === 'avcard') return go('avcard', t.getAttribute('data-id'));
     if (a === 'quiz')   {
       quiz.stage = t.getAttribute('data-s') || quiz.stage;
-      quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now());
-      if (quiz.q && quiz.q.audio) speak(quiz.q.audio);
+      quizNext(0);
       return render();
     }
+    /* choice questions: tap an option */
     if (a === 'ans') {
       var q = quiz.q, idx = +t.getAttribute('data-i');
-      var want = (typeof q.answerIndex === 'number') ? q.answerIndex : q.answer;
+      if (!q || quiz.lock) return;
+      var want = (typeof q.answerIndex === 'number') ? q.answerIndex : -1;
       var ok = (idx === want);
-      var rec = S.lang[quiz.packId] || (S.lang[quiz.packId] = { asked: 0, correct: 0, seen: {} });
-      rec.asked++; if (ok) rec.correct++;
-      /* Per stage as well as per pack, or the path has nothing to draw. */
-      rec.stages = rec.stages || {};
-      var sst = rec.stages[quiz.stage] || (rec.stages[quiz.stage] = { asked: 0, correct: 0 });
-      sst.asked++; if (ok) sst.correct++;
-      save();
+      recordAnswer(ok);
+      quiz.lock = true;
       t.classList.add(ok ? 'right' : 'wrong');
-      if (!ok && typeof want === 'number') {
+      if (!ok && want >= 0) {
         var w = document.querySelector('[data-act="ans"][data-i="' + want + '"]'); if (w) w.classList.add('right');
       }
-      if (ok) { earn(2, 'correct'); quiz.right++; }
-      quiz.done++;
-      setTimeout(function () {
-        quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now() + quiz.done);
-        if (quiz.q && quiz.q.audio) speak(quiz.q.audio);
-        render();
-      }, ok ? 620 : 1200);
+      showFb(fbFor(q, ok, idx));
+      advance(ok ? 1100 : 2600);
+      return;
+    }
+    /* ordered build: tap a tile in, tap a filled slot out */
+    if (a === 'btile') return placeTile(+t.getAttribute('data-i'));
+    if (a === 'bslot') {
+      if (quiz.lock || !quiz.build) return;
+      quiz.build.placed.splice(+t.getAttribute('data-i'), 1);
+      return render();
+    }
+    /* tracing (stage 7). A pass counts as a correct answer; a miss shows
+       likhna's own which-way-it-went-wrong line and costs nothing — the
+       child simply traces again. No shaming, no lives. */
+    if (a === 'tclear') { if (window.IND_LIKHNA && window.IND_LIKHNA.clear) window.IND_LIKHNA.clear(); return; }
+    if (a === 'tcheck') {
+      if (!quiz.q || quiz.q.type !== 'trace' || quiz.lock) return;
+      var res = (window.IND_LIKHNA && window.IND_LIKHNA.check) ? window.IND_LIKHNA.check() : null;
+      if (!res || !res.pass) return;
+      recordAnswer(true);
+      quiz.lock = true;
+      showFb(fbFor(quiz.q, true, -1));
+      advance(1200);
       return;
     }
   });
@@ -3122,6 +3409,43 @@
     if (e.target && e.target.id === 'ageIn') { var o = $('#ageOut'); if (o) o.textContent = e.target.value; }
   });
   document.addEventListener('keydown', function (e) {
+    /* Ordered-build keyboard controls (every drill needs keys as well as
+       touch): ← → walk the unused tiles with a visible ring, Enter places
+       the ringed tile, Backspace takes the last one back. Works cold — no
+       click needed first. When a tile button itself has focus (tab
+       navigation), its native Enter click is left alone. */
+    if (S.started && view.name === 'pack' && quiz.q && isBuild(quiz.q.type) && !quiz.lock &&
+        !(e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) {
+      var b = quiz.build, qq = quiz.q, nT = qq.tiles.length, j;
+      function nextUnused(from, dir) {
+        var x = from, n = 0;
+        do { x = (x + dir + nT) % nT; n++; } while (b.placed.indexOf(x) >= 0 && n <= nT);
+        return b.placed.indexOf(x) >= 0 ? -1 : x;
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        b.kb = true;
+        j = nextUnused(b.kfocus, e.key === 'ArrowRight' ? 1 : -1);
+        if (j >= 0) { b.kfocus = j; render(); }
+        e.preventDefault(); return;
+      }
+      if (e.key === 'Enter' && !(document.activeElement && document.activeElement.classList &&
+                                 document.activeElement.classList.contains('btile'))) {
+        b.kb = true;
+        j = b.placed.indexOf(b.kfocus) >= 0 ? nextUnused(b.kfocus, 1) : b.kfocus;
+        if (j >= 0) {
+          /* park the ring on the next free tile BEFORE placing, so it is
+             never left sitting invisibly on the tile just used */
+          b.placed.push(j); var nf = nextUnused(j, 1); b.placed.pop();
+          if (nf >= 0) b.kfocus = nf;
+          placeTile(j);
+        }
+        e.preventDefault(); return;
+      }
+      if (e.key === 'Backspace') {
+        if (b.placed.length) { b.placed.pop(); render(); }
+        e.preventDefault(); return;
+      }
+    }
     if (e.key === 'Escape' && S.started && view.name !== 'home') go('home');
     if (e.key === 'ArrowRight' && view.name === 'story') { var n = document.querySelector('[data-act="next"]'); if (n) n.click(); }
     /* Map states are SVG <g>, which a browser will focus but will not activate on Enter the
@@ -3161,6 +3485,9 @@
 
     window.BI = { S: S, go: go, render: render, Store: Store,
                   allStories: allStories, epics: epics,
-                  storyThemes: function () { return STORY_THEMES.map(function (t) { return t.id; }); } };
+                  storyThemes: function () { return STORY_THEMES.map(function (t) { return t.id; }); },
+                  /* read-only view of the live quiz for tools/verify.js's
+                     no-dead-ends walk — a getter because `quiz` is reassigned */
+                  quizState: function () { return quiz; } };
   });
 })();

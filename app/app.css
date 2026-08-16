@@ -1147,3 +1147,117 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .tmoment:last-child::after { display: none; }
 .tmoment p { margin: 3px 0 0; font-size: 15px; }
+
+/* ================================================= BHASHA PHASE 0 ======= */
+/* The quiz's three interaction families: ordered build (slots + tiles),
+   the feedback strip, and the Likhna tracing canvas. Devanagari inside all
+   of them obeys the house rule: real face, roomy line-height, never
+   letter-spaced. */
+
+/* --- ordered build: answer slots --- */
+.buildclue { font-size: 17px; margin: 2px 0 12px; }
+.slots {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch;
+  justify-content: center; margin: 6px 0 16px; min-height: 58px;
+}
+.slot {
+  min-width: 52px; min-height: 54px; padding: 4px 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 2px dashed var(--line2); border-radius: var(--radius-md);
+  background: var(--card2); font-size: 24px; line-height: 1.7;
+}
+.slot.next { border-color: var(--accent); background: var(--accent-soft); }
+.slot.filled {
+  border: 2px solid var(--accent); background: var(--card); cursor: pointer;
+  font-family: inherit; color: var(--text); box-shadow: var(--shadow);
+}
+.slot.filled:hover { border-color: var(--bad); }        /* tap to take it back */
+.slot.filled.good { border-color: var(--good); background: #e7f6ef; }
+.slot.reveal { border: 2px solid var(--good); background: #e7f6ef; color: #15694a; }
+
+/* --- ordered build: the tile tray --- */
+.btiles { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-bottom: 12px; }
+.btile {
+  min-width: 56px; min-height: 56px; padding: 6px 12px; cursor: pointer;
+  border: 1px solid var(--line2); border-radius: var(--radius-md);
+  background: var(--card); color: var(--text); font-size: 24px; line-height: 1.7;
+  box-shadow: var(--shadow); display: inline-flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.btile:hover { border-color: var(--accent); color: var(--accent); }
+.btile small { font-family: var(--body); font-size: 10.5px; color: var(--muted); line-height: 1.2; }
+.btile.used { opacity: .28; cursor: default; box-shadow: none; }      /* greyed, its glyph is on a slot */
+.btile.kfocus { outline: 3px solid var(--accent); outline-offset: 2px; }  /* the keyboard ring */
+.btile:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* wrong build: a gentle shake, stilled for reduced-motion */
+.slots.shake { animation: buildshake .4s ease 1; }
+@keyframes buildshake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); } 55% { transform: translateX(5px); } 80% { transform: translateX(-3px); }
+}
+@media (prefers-reduced-motion: reduce) { .slots.shake { animation: none; } }
+
+/* --- the feedback strip: explain, never just mark --- */
+.qfb { display: none; }
+.qfb.show {
+  display: block; margin-top: 14px; padding: 12px 14px;
+  border-radius: var(--radius-md); font-size: 15px; line-height: 1.65;
+  border: 1px solid var(--line2); background: var(--card2);
+}
+.qfb.good { border-color: var(--good); background: #e7f6ef; color: #15694a; }
+.qfb.bad  { border-color: var(--accent2, var(--line2)); background: #fdf6e8; color: var(--text); }
+.qfb .fbsent { display: block; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line2); }
+
+/* --- barakhadi: the teaching row above the question --- */
+.bkrow {
+  display: flex; gap: 6px; overflow-x: auto; padding: 8px 2px; margin-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.bkcell {
+  flex: none; min-width: 44px; padding: 6px 8px; text-align: center;
+  border: 1px solid var(--line2); border-radius: var(--radius-sm);
+  background: var(--card2); font-size: 20px; line-height: 1.7;
+}
+
+/* --- matraAttach: the sign yet to be found --- */
+.qmark {
+  display: inline-grid; place-items: center; width: .9em; height: .9em;
+  border: 3px dashed var(--accent); border-radius: var(--radius-md);
+  color: var(--accent); font-size: .55em; font-family: var(--display); font-weight: 800;
+}
+
+/* --- pickReply: the line said to you --- */
+.scenechip {
+  display: inline-block; padding: 4px 12px; margin-bottom: 8px;
+  border-radius: var(--radius-pill); background: var(--accent-soft); color: var(--accent);
+  font-size: 12.5px; font-weight: 700; text-transform: capitalize;
+}
+.speech.saidtoyou { margin-bottom: 14px; }
+
+/* --- readPassage --- */
+.passage {
+  font-size: 19px; line-height: 1.9; padding: 14px 16px; margin-bottom: 14px;
+  background: var(--card2); border-left: 3px solid var(--accent2);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* --- Likhna: the tracing canvas (likhna.js renders, these dress it) --- */
+.trace { margin-top: 4px; }
+.tracehead { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.tracewrap {
+  position: relative; width: min(100%, 340px); aspect-ratio: 1; margin: 0 auto 10px;
+  border: 1px solid var(--line2); border-radius: var(--radius-lg);
+  background: var(--card2); overflow: hidden; touch-action: none;
+}
+.tguide, .tink { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tink { cursor: crosshair; }
+.tink:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; border-radius: var(--radius-lg); }
+.tpen {
+  position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px;
+  border: 2.5px solid var(--accent); border-radius: 50%; pointer-events: none;
+  background: transparent; z-index: 2;
+}
+.tpen.on { background: var(--accent); }
+.tracesay { margin: 4px 0 10px; min-height: 1.4em; }
+.tracesay.good { color: var(--good); font-weight: 700; }

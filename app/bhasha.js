@@ -502,25 +502,54 @@ var THEMES = [
 
 /* The ladder is shared shape, per-pack content. `types` is the list of
    exercise generators appropriate to the stage — keeping it in DATA is what
-   lets a new pack re-sequence itself without touching nextQuestion(). */
+   lets a new pack re-sequence itself without touching nextQuestion().
+
+   PHASE 0 ROUTING FIX. The audit found letter drills leaking into the word,
+   sentence and reading stages (oddOneOut — a letter exercise — sat in s4 and
+   s6; soundMatch served ~75% bare letters inside s3 Words), so each stage now
+   lists only the types that practise ITS skill. Two mechanics make that safe
+   in data rather than code:
+
+     - `typeOpts` on a stage is per-type generator options, merged in by
+       nextQuestion(). s2 uses it to make soundMatch discriminate SYLLABLES
+       (consonant+matra), not bare letters — bare letters are s1's job.
+     - generators that need authored content (sentenceBuild, pickReply,
+       readPassage) or a traceable script (trace) fall back to wordBuild
+       inside the engine, so wordBuild is listed as a legal type exactly where
+       that fallback is reachable. The aspirational type STAYS listed so the
+       authoring gap is visible, never hidden. */
 function ladder(items) {
+  var s4Authored = !!(items.s4 && items.s4.length && typeof items.s4[0] === 'object');
+  var s5Authored = !!(items.s5 && items.s5.length && typeof items.s5[0] === 'object');
+  var s6HasPassages = (function () {
+    var i; for (i = 0; i < (items.s6 || []).length; i++) { if (items.s6[i] && items.s6[i].kind === 'passage') return true; }
+    return false;
+  }());
+  var s6HasItems = !!(items.s6 && items.s6.length);
   return [
     { id: 's0', n: 0, name: 'Sunna',     en: 'Listening',  desc: 'Ear first. Spoken words and phrases, listen and point, no script at all.',
       outcome: 'Understands common spoken words and picks the right picture.', script: false, types: ['listenPoint'], items: items.s0 },
     { id: 's1', n: 1, name: 'Varnamala', en: 'The letters', desc: 'Every letter: its shape, its sound, its sound family.',
       outcome: 'Recognises every letter by sight and by sound.', script: true, types: ['soundMatch', 'oddOneOut'], items: items.s1 },
     { id: 's2', n: 2, name: 'Matras',    en: 'Vowel signs', desc: 'The vowel signs and the barakhadi grid — the core abugida skill.',
-      outcome: 'Reads any simple word aloud.', script: true, types: ['matraAttach', 'barakhadi', 'soundMatch'], items: items.s2 },
+      outcome: 'Reads any simple word aloud.', script: true, types: ['matraAttach', 'barakhadi', 'soundMatch'],
+      typeOpts: { soundMatch: { kind: 'syllable' } }, items: items.s2 },
     { id: 's3', n: 3, name: 'Shabd',     en: 'Words',       desc: 'Core words by theme — the house, the table, the body, the street, the calendar.',
-      outcome: 'Reads and understands common words.', script: true, types: ['wordBuild', 'listenPoint', 'soundMatch'], items: items.s3 },
+      outcome: 'Reads and understands common words.', script: true, types: ['listenPoint', 'wordBuild'], items: items.s3 },
     { id: 's4', n: 4, name: 'Vakya',     en: 'Sentences',   desc: 'Sentence order, gender, postpositions, verb agreement, tense.',
-      outcome: 'Builds correct simple sentences.', script: true, types: ['sentenceBuild', 'oddOneOut'], items: items.s4 },
+      outcome: 'Builds correct simple sentences.', script: true,
+      types: s4Authored ? ['sentenceBuild'] : ['sentenceBuild', 'wordBuild'], items: items.s4 },
     { id: 's5', n: 5, name: 'Baat-cheet', en: 'Conversation', desc: 'Whole exchanges: greeting elders, the table, the shop, Sunday’s call to Nani.',
-      outcome: 'Follows a short everyday exchange and picks the right reply.', script: true, types: ['pickReply', 'listenPoint'], items: items.s5 },
+      outcome: 'Follows a short everyday exchange and picks the right reply.', script: true,
+      types: s5Authored ? ['pickReply', 'listenPoint'] : ['pickReply', 'listenPoint', 'wordBuild'], items: items.s5 },
     { id: 's6', n: 6, name: 'Padhna',    en: 'Reading',     desc: 'Graded readers, and the conjuncts you need to get through them.',
-      outcome: 'Splits conjuncts and reads a few real sentences.', script: true, types: ['conjunctSplit', 'wordBuild', 'oddOneOut'], items: items.s6 },
-    { id: 's7', n: 7, name: 'Likhna',    en: 'Writing',     desc: 'Handwriting, dictation, and short paragraph writing.',
-      outcome: 'Builds words and sentences from their parts. Handwriting is not taught yet.', script: true, types: ['wordBuild', 'barakhadi'], items: items.s7 }
+      outcome: 'Splits conjuncts and reads a few real sentences.', script: true,
+      types: s6HasPassages ? ['conjunctSplit', 'readPassage'] : (s6HasItems ? ['conjunctSplit', 'wordBuild'] : ['wordBuild']),
+      items: items.s6 },
+    /* `trace` is listed three times as a WEIGHT: pick() is uniform, tracing is
+       the stage, and one build question in four keeps the wrist rested. */
+    { id: 's7', n: 7, name: 'Likhna',    en: 'Writing',     desc: 'Trace every letter with a finger or the arrow keys — the shape first; stroke order comes with a grown-up.',
+      outcome: 'Forms each letter’s shape by tracing it.', script: true, types: ['trace', 'trace', 'trace', 'wordBuild'], items: items.s7 }
   ];
 }
 
@@ -1840,7 +1869,16 @@ function syllable(base, sign) { return base + (sign || ''); }
 /* ---- barakhadi ---------------------------------------------------------
    The core teaching object in every Indian script: one consonant across
    every vowel sign. Devanagari gives 12 cells (क का कि की कु कू के कै को कौ कं कः),
-   Gurmukhi gives 10 (ਕ ਕਾ ਕਿ ਕੀ ਕੁ ਕੂ ਕੇ ਕੈ ਕੋ ਕੌ). Same function. */
+   Gurmukhi gives 10 (ਕ ਕਾ ਕਿ ਕੀ ਕੁ ਕੂ ਕੇ ਕੈ ਕੋ ਕੌ). Same function.
+
+   PHASE 0: this used to return the grid alone — no options, no answerIndex —
+   which the quiz UI rendered as zero buttons: a question that could not be
+   answered at all. It is now a find-the-cell exercise: ONE cell is asked for
+   by its sound ("Which one says ki?"), `options` is a sampled row of cells
+   and `answerIndex` flows through the standard grading path. The full row
+   stays in `cells` for the UI to render as teaching context above — the
+   question asks the child to FIND, so showing the grid IS the exercise, not
+   a leak. The options carry no roman labels: those would be the answer. */
 function barakhadi(script, consonant, opts) {
   script = resolveScript(script);
   opts = opts || {};
@@ -1860,11 +1898,23 @@ function barakhadi(script, consonant, opts) {
       audio: script.audioNs + '/bk-' + cons.name + '-' + m.name
     });
   }
+  var target = cells[rint(rng, cells.length)];
+  var n = Math.min(opts.options || 4, cells.length);
+  var wrong = sample(rng, cells, n - 1, function (c) { return c.syllable === target.syllable; });
+  var row = shuffle(rng, [target].concat(wrong));
+  var opt = [], ai = 0;
+  for (i = 0; i < row.length; i++) {
+    opt.push({ char: row[i].syllable, audio: row[i].audio });   /* no name/roman: that is the answer */
+    if (row[i].syllable === target.syllable) ai = i;
+  }
   return {
     type: 'barakhadi', script: script.id, direction: script.direction, font: script.font,
     base: cons.char, baseName: cons.name, baseAudio: cons.audio,
     cells: cells, cols: cells.length,
-    prompt: 'Tap each one and hear it change.'
+    options: opt, answerIndex: ai,
+    target: target.syllable, targetRoman: target.roman,
+    audio: target.audio, say: target.syllable,
+    prompt: 'Find the one that says “' + target.roman + '”.'
   };
 }
 
@@ -1894,6 +1944,7 @@ function matraAttach(script, opts) {
     matra: m.sign, matraName: m.name, position: m.position,
     options: opt, answer: m.sign, answerIndex: (function () { var i; for (i = 0; i < opt.length; i++) { if (opt[i].sign === m.sign) return i; } return -1; }()),
     audio: script.audioNs + '/bk-' + cons.name + '-' + m.name,
+    say: syllable(cons.char, m.sign),           /* TTS fallback for the prompt sound; spoken, never shown */
     promptRoman: cons.r + m.vowel,
     target: syllable(cons.char, m.sign),        /* reveal only after answering */
     targetName: cons.r + m.vowel,
@@ -1944,7 +1995,7 @@ function soundMatch(script, opts) {
   }
   return {
     type: 'soundMatch', script: script.id, direction: script.direction, font: script.font,
-    kind: kind, audio: item.audio, options: opt,
+    kind: kind, audio: item.audio, say: key, options: opt,
     answer: key, answerName: item.name,
     answerIndex: (function () { var k; for (k = 0; k < opt.length; k++) { if (opt[k].char === key) return k; } return -1; }()),
     prompt: 'Listen, then tap the one you heard.'
@@ -1984,7 +2035,7 @@ function wordBuild(pack, opts) {
   return {
     type: 'wordBuild', pack: pack.id, script: script.id, direction: script.direction, font: script.font,
     word: w.word, roman: w.roman, en: w.en, theme: w.theme,
-    audio: audioFor(w.audio, pack),
+    audio: audioFor(w.audio, pack), say: w.word,
     tiles: shuffle(rng, tiles.concat(extras)),
     answer: parts, answerWord: w.word,
     prompt: 'Tap the letters in order to build the word.'
@@ -2116,7 +2167,7 @@ function listenPoint(pack, opts) {
   }
   return {
     type: 'listenPoint', pack: pack.id, script: resolveScript(pack).id,
-    audio: audioFor(w.audio, pack), theme: w.theme,
+    audio: audioFor(w.audio, pack), say: w.word, theme: w.theme,
     options: opt, answer: w.en, answerWord: w.word, roman: w.roman,
     answerIndex: (function () { var k; for (k = 0; k < opt.length; k++) { if (opt[k].word === w.word) return k; } return -1; }()),
     prompt: 'Listen. Which one is it?'
@@ -2199,6 +2250,33 @@ function pickReply(pack, opts) {
   pack = resolvePack(pack);
   opts = opts || {};
   var rng = opts.rng || rngFrom(opts.seed);
+  var i;
+
+  /* AUTHORED SEAM (Phase 0). data-bhasha-hi-dialogues.js writes real
+     exchanges with a per-distractor whyWrong line — pedagogy the adjacency
+     derivation cannot produce. When it has content, the Hindi pack prefers
+     it; derived pairs remain the fallback for every pack without authored
+     data. Guarded for absence: the file registers an empty array until the
+     content pass lands. */
+  var authored = (pack.id === 'hi' && W.IND_HI_DIALOGUES && W.IND_HI_DIALOGUES.length) ? W.IND_HI_DIALOGUES : null;
+  if (authored) {
+    var d = opts.item || pick(rng, authored);
+    var os = [{ word: d.reply.hi, roman: d.reply.roman, en: d.reply.en }];
+    for (i = 0; i < (d.distractors || []).length && os.length < 3; i++) {
+      os.push({ word: d.distractors[i].hi, roman: d.distractors[i].roman, en: d.distractors[i].en, whyWrong: d.distractors[i].whyWrong });
+    }
+    os = shuffle(rng, os);
+    var aa = 0;
+    for (i = 0; i < os.length; i++) { if (os[i].word === d.reply.hi) aa = i; }
+    return {
+      type: 'pickReply',
+      prompt: d.prompt, promptRoman: d.roman, promptEn: d.en,
+      scene: d.scene || null, sceneEn: d.sceneEn || null, who: d.who || null,
+      options: os, answerIndex: aa, answerEn: d.reply.en,
+      script: resolveScript(pack).id, font: resolveScript(pack).font
+    };
+  }
+
   var stage = stageOf(pack, 's5');
   var items = (stage && stage.items) || [];
   if (!items.length || typeof items[0] !== 'object') return wordBuild(pack, opts);
@@ -2230,10 +2308,74 @@ function pickReply(pack, opts) {
     promptRoman: ask.roman,
     promptEn: ask.en,
     scene: ask.scene || null,
+    who: ask.who || null,
     options: opts3,
     answerIndex: ai,
+    answerEn: reply.en,
     script: resolveScript(pack).id,
     font: resolveScript(pack).font
+  };
+}
+
+/* ---------------------------------------------------------------------------
+   READ A PASSAGE — stage 6 (Phase 0).
+
+   The pack carries twelve authored reading passages (HI_READ) that nothing
+   ever served: s6 mixed conjunct items with passage items but only the
+   conjunct generator existed, so the passages sat inert. This asks the one
+   thing a reader can be asked through the standard options path: read it,
+   then pick what it means. The roman transliteration is withheld until after
+   the answer — showing it up front would let the child bypass the script,
+   which is the skill s6 exists to build. Falls back to wordBuild for packs
+   whose stage 6 has no authored passages yet. */
+function readPassage(pack, opts) {
+  pack = resolvePack(pack);
+  opts = opts || {};
+  var rng = opts.rng || rngFrom(opts.seed);
+  var stage = stageOf(pack, 's6');
+  var items = (stage && stage.items) || [], ps = [], i;
+  for (i = 0; i < items.length; i++) { if (items[i] && items[i].kind === 'passage') ps.push(items[i]); }
+  if (ps.length < 3) return wordBuild(pack, opts);      /* need two plausible wrong meanings */
+  var p = opts.item || pick(rng, ps);
+  var others = sample(rng, ps, 2, function (x) { return x.id === p.id; });
+  var os = shuffle(rng, [{ en: p.en }, { en: others[0].en }, { en: others[1].en }]);
+  var ai = 0;
+  for (i = 0; i < os.length; i++) { if (os[i].en === p.en) ai = i; }
+  return {
+    type: 'readPassage', pack: pack.id,
+    hi: p.hi, roman: p.roman,
+    options: os, answerIndex: ai, answerEn: p.en,
+    script: resolveScript(pack).id, direction: resolveScript(pack).direction, font: resolveScript(pack).font,
+    prompt: 'Read it. What is it about?'
+  };
+}
+
+/* ---------------------------------------------------------------------------
+   TRACE A LETTER — stage 7 (Phase 0).
+
+   Likhna (app/likhna.js) is the tracing canvas: it existed, complete, and
+   nothing routed to it — stage 7 called itself Writing while serving tile
+   assembly. This generator is deliberately thin: the engine picks WHICH
+   letter (ramp order through the varnamala when the caller passes its
+   running `index`, seeded-random otherwise) and the view owns the canvas.
+
+   Honest limit: likhna's guide glyph is drawn in the Devanagari faces, and a
+   letter traced in a wrong face teaches a wrong shape (CLAUDE.md's Devanagari
+   rule, applied in reverse) — so packs on any other script keep the wordBuild
+   fallback until likhna carries their face. */
+function trace(pack, opts) {
+  pack = resolvePack(pack);
+  opts = opts || {};
+  var script = resolveScript(pack);
+  if (!script || script.id !== 'devanagari') return wordBuild(pack, opts);
+  var rng = opts.rng || rngFrom(opts.seed);
+  var ramp = script.vowels.concat(script.consonants);
+  var L = ramp[typeof opts.index === 'number' ? (opts.index % ramp.length) : rint(rng, ramp.length)];
+  return {
+    type: 'trace', pack: pack.id, script: script.id, direction: script.direction, font: script.font,
+    letter: { char: L.char, name: L.name, audio: audioFor(L.audio, pack) },
+    audio: audioFor(L.audio, pack), say: L.char,
+    prompt: 'Trace the letter.'
   };
 }
 
@@ -2247,7 +2389,9 @@ var GENERATORS = {
   sentenceBuild: function (pack, script, rng, o) { return sentenceBuild(pack, { rng: rng, item: o.item }); },
   pickReply:     function (pack, script, rng, o) { return pickReply(pack, { rng: rng, item: o.item }); },
   listenPoint:   function (pack, script, rng, o) { return listenPoint(pack, { rng: rng, theme: o.theme, options: o.options }); },
-  readAloud:     function (pack, script, rng, o) { return readAloud(pack, { rng: rng }); }
+  readAloud:     function (pack, script, rng, o) { return readAloud(pack, { rng: rng }); },
+  readPassage:   function (pack, script, rng, o) { return readPassage(pack, { rng: rng, item: o.item }); },
+  trace:         function (pack, script, rng, o) { return trace(pack, { rng: rng, index: o.index }); }
 };
 
 function stageOf(pack, stageId) {
@@ -2271,6 +2415,17 @@ function nextQuestion(packId, stageId, seed, opts) {
   var types = opts.type ? [opts.type] : (stage.types || ['soundMatch']);
   var type = pick(rng, types);
   var gen = GENERATORS[type] || GENERATORS.soundMatch;
+  /* Stage-level generator options (ladder `typeOpts`) fill in anything the
+     caller did not set — this is how s2 gets syllable-kind soundMatch from
+     data instead of a language switch in code. Merged on a copy: the
+     caller's opts object is never mutated. */
+  var to = stage.typeOpts && stage.typeOpts[type], k;
+  if (to) {
+    var merged = {};
+    for (k in opts) { if (Object.prototype.hasOwnProperty.call(opts, k)) merged[k] = opts[k]; }
+    for (k in to) { if (Object.prototype.hasOwnProperty.call(to, k) && merged[k] === undefined) merged[k] = to[k]; }
+    opts = merged;
+  }
   var q = gen(pack, script, rng, opts);
   q.type = q.type || type;
   q.stage = stage.id;
@@ -2324,6 +2479,8 @@ W.IND_BHASHA = {
   conjunctSplit: conjunctSplit,
   listenPoint: listenPoint,
   readAloud: readAloud,
+  readPassage: readPassage,
+  trace: trace,
   generators: GENERATORS,
 
   /* the one the UI actually calls */

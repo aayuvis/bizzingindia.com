@@ -33,6 +33,12 @@ const ARG_VIEWS = {
   value: 'window.IND_NEETI && window.IND_NEETI.values.map(function(v){return v.id})',
   verses: 'window.IND_SHLOK && window.IND_SHLOK.collections.map(function(c){return c.id})',
   pack: 'window.IND_PACKS && Object.keys(window.IND_PACKS)',
+  kosh: 'window.IND_PACKS && Object.keys(window.IND_PACKS)',
+  // the word card takes "<packId>:<word>" — walk one from the front, middle and
+  // back of every registered lexicon, which is how a card that only breaks on a
+  // word with no sentence, or a multi-token word, gets caught
+  wordcard: 'Object.keys(window.IND_PACKS || {}).reduce(function(o,k){' +
+            'return o.concat((window.IND_PACKS[k].lexicon||[]).map(function(w){return k+":"+w.word}))},[])',
   festival: 'window.IND_UTSAV && window.IND_UTSAV.festivals.map(function(f){return f.id})',
   song: 'window.IND_GEET && window.IND_GEET.songs.concat(window.IND_GEET.bhajans||[]).map(function(s){return s.id})',
   gullygame: 'window.IND_GULLY && window.IND_GULLY.games.map(function(g){return g.id})',

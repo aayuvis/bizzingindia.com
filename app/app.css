@@ -1413,3 +1413,115 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .totmini:hover { border-color: var(--accent); }
 .totoffer { border: 1.5px dashed var(--accent); }
 .bandlbl { white-space: nowrap; }
+
+/* ===================================================== THE WORD CARD (Phase 3)
+   "There are no word cards with sentences like in bizzing bee" — the audit's
+   finding, in the user's own words, and this is the answer to it. One word,
+   shown the way a flashcard shows it: big in its own script on a soft plate,
+   its roman and its meaning under it, the theme it belongs to and where it
+   stands in the child's own boxes on the shoulders of the card, and — the
+   part that did not exist — the sentence it lives in.
+
+   Two states, one card. Browsing shows the sentence whole. Testing cuts the
+   word out and leaves a gap you can see the shape of. */
+.wcard { display: grid; gap: 0; text-align: center; }
+.wcard.flat { margin: 0; }
+.wchead {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+/* the theme, worn as a door back into its room of the Shabdkosh */
+.wctheme {
+  border: 1px solid var(--line2); background: var(--card2); color: var(--text2);
+  border-radius: var(--radius-pill); padding: 4px 12px; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; line-height: 1.7;
+}
+.wctheme:hover { border-color: var(--accent); color: var(--accent); }
+.wcard .rc { font-style: normal; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 99px; }
+/* the word itself, on the same soft plate the introduce beat uses, so a word
+   met in a lesson and a word looked up read as the same object */
+.wcword {
+  font-size: clamp(40px, 12vw, 58px); line-height: 1.6; color: var(--text);
+  background: color-mix(in srgb, var(--accent) 9%, var(--card));
+  border-radius: var(--radius-lg); padding: var(--space-md) var(--space-sm);
+  box-shadow: 0 0 0 8px var(--accent-soft);
+}
+.wcroman { font-family: var(--mono); font-size: 13px; color: var(--accent); margin-top: var(--space-lg); letter-spacing: .06em; }
+.wcen { font-family: var(--display); font-size: 22px; line-height: 1.35; margin: 4px 0 var(--space-lg); }
+.wchear { margin-bottom: 0; }
+
+/* the sentence half — always framed, so the card has an obvious lower storey */
+.wcsent {
+  margin-top: var(--space-lg); padding: var(--space-md) var(--space-lg) var(--space-lg);
+  background: var(--card2); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  text-align: left;
+}
+.wcsent.masked { border-style: dashed; border-color: var(--line2); }
+.wcsent .mono { margin-bottom: 6px; }
+.wcs { font-size: 19px; line-height: 1.85; margin: 0; color: var(--text); }
+.wcsr { font-size: 13.5px; line-height: 1.6; margin: 6px 0 var(--space-md); color: var(--text2); }
+.wcsent .btn { margin-top: 2px; }
+
+/* THE GAP. Never a run of underscores — a slot the size of a word, dashed in
+   the accent, so a child can see that something is missing rather than read
+   punctuation. It is the same mark in the card and in the question. */
+.wcgap {
+  display: inline-block; width: 3.2em; height: .95em; vertical-align: -.08em;
+  margin: 0 .12em; border-bottom: 3px dashed var(--accent);
+  background: linear-gradient(180deg, transparent 55%, var(--accent-soft) 55%);
+  border-radius: 3px;
+}
+
+/* a word met inside a lesson: the card, with the Got-it under it */
+.introcard.wordintro { text-align: center; }
+.introcard.wordintro .wcard { text-align: center; }
+
+/* ------------------------------------------------------------- SHABDKOSH
+   शब्दकोश — the word-store. A reference, like the letter chart: rooms with a
+   count on the door, and every word one tap from its card. */
+.koshtabs { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 var(--space-lg); }
+.koshtabs .pill { font-size: 12.5px; padding: 6px 13px; }
+.koshgrid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px; margin-top: var(--space-md);
+}
+.koshw {
+  display: grid; gap: 1px; text-align: left; cursor: pointer;
+  padding: 9px 12px; border-radius: var(--radius-md);
+  border: 1px solid var(--line); background: var(--card2);
+}
+.koshw:hover { border-color: var(--accent); background: var(--card); }
+.koshw b { font-size: 20px; line-height: 1.7; font-weight: 600; }
+.koshw .tiny { line-height: 1.4; }
+.koshw .rc {
+  font-style: normal; justify-self: start; margin-top: 4px;
+  font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 99px;
+}
+
+/* -------------------------------------------------- fill the blank (s3)
+   The sentence with a hole in it, what it means underneath, and a voice that
+   reads around the hole. Nothing here may contain the answer. */
+.blanksent {
+  font-size: 21px; line-height: 1.9; text-align: center;
+  background: var(--card2); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); padding: var(--space-lg) var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.blankmean {
+  font-family: var(--display); font-size: 17px; line-height: 1.45;
+  text-align: center; color: var(--text2); margin: 0 0 var(--space-md);
+}
+.blankhear { display: block; margin: 0 auto var(--space-lg); }
+
+/* the answer, arriving in its gap — and the card, one tap away */
+.qfb .fbfill {
+  background: color-mix(in srgb, var(--good) 18%, transparent);
+  border-radius: 5px; padding: 0 4px; font-weight: 700;
+}
+.fbcard {
+  display: block; margin-top: 10px; padding: 8px 14px; cursor: pointer;
+  border: 1px solid currentColor; border-radius: var(--radius-pill);
+  background: transparent; color: inherit; font-size: 13px; font-weight: 700;
+  opacity: .85;
+}
+.fbcard:hover { opacity: 1; }

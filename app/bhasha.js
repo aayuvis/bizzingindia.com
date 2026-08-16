@@ -534,8 +534,13 @@ function ladder(items) {
     { id: 's2', n: 2, name: 'Matras',    en: 'Vowel signs', desc: 'The vowel signs and the barakhadi grid — the core abugida skill.',
       outcome: 'Reads any simple word aloud.', script: true, types: ['matraAttach', 'barakhadi', 'soundMatch'],
       typeOpts: { soundMatch: { kind: 'syllable' } }, items: items.s2 },
+    /* PHASE 3 put `sentenceBlank` here: a word in a sentence is exactly what
+       this stage is for, and it is the only drill that asks whether the child
+       knows what a word DOES rather than how it is spelt. Packs without
+       written sentences fall back to wordBuild inside the generator. */
     { id: 's3', n: 3, name: 'Shabd',     en: 'Words',       desc: 'Core words by theme — the house, the table, the body, the street, the calendar.',
-      outcome: 'Reads and understands common words.', script: true, types: ['listenPoint', 'wordBuild'], items: items.s3 },
+      outcome: 'Reads and understands common words.', script: true,
+      types: ['listenPoint', 'wordBuild', 'sentenceBlank'], items: items.s3 },
     { id: 's4', n: 4, name: 'Vakya',     en: 'Sentences',   desc: 'Sentence order, gender, postpositions, verb agreement, tense.',
       outcome: 'Builds correct simple sentences.', script: true,
       types: s4Authored ? ['sentenceBuild'] : ['sentenceBuild', 'wordBuild'], items: items.s4 },
@@ -1852,6 +1857,112 @@ function audioFor(key, pack) {
   return slash < 0 ? pack.voice.ns + '/' + key : pack.voice.ns + key.slice(slash);
 }
 
+/* ---- the example-sentence seam (Phase 3) -------------------------------
+   data-bhasha-hi-sentences.js writes { '<word>': { s, roman, en } }, keyed
+   byte-for-byte by the lexicon's own spelling, one entry per lexicon word,
+   and every sentence carries its word VERBATIM EXACTLY ONCE. That last
+   guarantee is the whole reason masking can be honest: there is one
+   occurrence to hide, and hiding it cannot swallow anything else.
+
+   Same shape as the dialogue seam — a global per pack, absent until the
+   content lands, everything downstream guarded for its absence. A future
+   pack can register through W.IND_BHASHA_SENTENCES[packId] instead of
+   claiming a global of its own. */
+function sentenceMap(pack) {
+  pack = resolvePack(pack);
+  if (!pack) return null;
+  var reg = W.IND_BHASHA_SENTENCES || {};
+  var m = reg[pack.id] || (pack.id === 'hi' ? W.IND_HI_SENTENCES : null);
+  return (m && typeof m === 'object') ? m : null;
+}
+function lexEntry(pack, word) {
+  pack = resolvePack(pack);
+  var lex = (pack && pack.lexicon) || [], i;
+  for (i = 0; i < lex.length; i++) { if (lex[i].word === word) return lex[i]; }
+  return null;
+}
+/* THE SENTENCE CLIP KEY is derived from the word's romanisation exactly the
+   way the word key is, so the manifest a recording session works from can
+   never drift from the pack:
+
+       hi/w-paani   the word पानी
+       hi/s-paani   the sentence that word lives in
+
+   No clip is asserted to exist. Callers play it only when the voice manifest
+   lists it, and read the sentence some other way when it does not. */
+function sentenceKey(pack, entry) {
+  pack = resolvePack(pack);
+  var ns = (pack && pack.voice && pack.voice.ns) || (pack && pack.id) || 'hi';
+  return ns + '/s-' + String((entry && entry.roman) || '').replace(/\s+/g, '');
+}
+/* sentenceFor('hi', 'पानी') -> { word, s, roman, en, audio } | null */
+function sentenceFor(pack, word) {
+  var m = sentenceMap(pack), e = m && m[word], le = lexEntry(pack, word);
+  if (!e || !le) return null;
+  return { word: word, s: e.s, roman: e.roman, en: e.en, audio: sentenceKey(pack, le) };
+}
+
+var BLANK = '_____';
+/* MASK ONE WORD, HONESTLY. indexOf — not a regex, and never a global
+   replace: the job is to hide THE occurrence of the target, and a blunt
+   replace-all would also swallow those same letters where they sit inside a
+   longer word, quietly deleting a piece of the sentence the child needs.
+   Returns the two pieces as well as the joined text, so a view can draw a
+   real slot and a voice can read around the hole without ever saying it. */
+function maskWord(sentence, word, blank) {
+  var t = String(sentence == null ? '' : sentence), w = String(word == null ? '' : word);
+  if (!w) return { text: t, before: t, after: '', matched: false };
+  var at = t.indexOf(w);
+  if (at < 0) return { text: t, before: t, after: '', matched: false };
+  var before = t.slice(0, at), after = t.slice(at + w.length);
+  return { text: before + (blank === undefined ? BLANK : blank) + after,
+           before: before, after: after, matched: true, at: at };
+}
+
+/* TWO GLOSSES THAT NAME THE SAME THING. A distractor that shares a sense
+   with the answer would ALSO fit the gap, and a child who read the sentence
+   perfectly would be marked wrong for choosing it — so it never becomes an
+   option. English is the only handle a script-generic engine has here, so
+   the comparison is done on the glosses: each sense reduced to its content
+   words, stop words and plurals off, and two senses count as the same when
+   one covers the other. "thanks" and "thank you" are the same word to a
+   six-year-old; so are "water" and "drinking water". */
+var GLOSS_STOP = {
+  a: 1, an: 1, the: 1, to: 1, of: 1, in: 1, on: 1, at: 1, is: 1, it: 1, its: 1, be: 1,
+  you: 1, your: 1, my: 1, and: 1, or: 1, do: 1, does: 1, one: 1, some: 1, that: 1,
+  this: 1, for: 1, with: 1, up: 1, down: 1, very: 1, own: 1
+};
+function glossSenses(en) {
+  var raw = String(en == null ? '' : en).toLowerCase().replace(/\([^)]*\)/g, ' ').split(/[,;/]|\bor\b/);
+  var out = [], i, k, w, toks, sense;
+  for (i = 0; i < raw.length; i++) {
+    toks = raw[i].replace(/[^a-z\s'-]/g, ' ').split(/\s+/);
+    sense = [];
+    for (k = 0; k < toks.length; k++) {
+      w = toks[k];
+      if (!w || GLOSS_STOP[w]) continue;
+      if (w.length > 3 && /[^s]s$/.test(w)) w = w.slice(0, -1);   /* plurals and third persons */
+      if (indexOf(sense, w) < 0) sense.push(w);
+    }
+    if (sense.length) out.push(sense);
+  }
+  return out;
+}
+function coversSense(big, small) {
+  var i;
+  for (i = 0; i < small.length; i++) { if (indexOf(big, small[i]) < 0) return false; }
+  return true;
+}
+function sharesGloss(a, b) {
+  var A = glossSenses(a), B = glossSenses(b), i, j;
+  for (i = 0; i < A.length; i++) {
+    for (j = 0; j < B.length; j++) {
+      if (coversSense(A[i], B[j]) || coversSense(B[j], A[i])) return true;
+    }
+  }
+  return false;
+}
+
 /* the matras that make up the barakhadi columns */
 function gridMatras(script) {
   var i, o = [];
@@ -2227,6 +2338,89 @@ function listenPoint(pack, opts) {
   };
 }
 
+/* ---- fill the blank ----------------------------------------------------
+   PHASE 3, stage 3. The audit's finding, in the user's words, was that there
+   were no word cards with sentences — and the drills showed it: a word here
+   was only ever a word, built out of letter tiles or matched to a gloss,
+   never once seen doing its job in a sentence. This is the exercise that
+   puts it back into one. The sentence with its word taken out, what the
+   whole sentence means underneath it, and four words to choose from.
+
+   Three rules keep it honest, and all three are tested:
+
+     - the gap is cut by exact string match on the ONE verbatim occurrence
+       the data guarantees (maskWord), so nothing on screen before the answer
+       contains the answer;
+     - distractors are same-theme words — "roti vs chawal", not "roti vs
+       Tuesday" — but never a synonym that would also fit the gap, and never
+       a word already standing elsewhere in the sentence;
+     - the full sentence and its romanisation are withheld until after the
+       answer, the same withholding readPassage makes, because a roman line
+       under the gap would let a child answer without reading the script at
+       all.
+
+   Falls back to wordBuild for any pack whose sentences are not written yet,
+   which is every pack but Hindi today — the type stays listed on the stage
+   so the authoring gap is visible rather than hidden. */
+function sentenceBlank(pack, opts) {
+  pack = resolvePack(pack);
+  opts = opts || {};
+  var rng = opts.rng || rngFrom(opts.seed);
+  var script = resolveScript(pack);
+  var map = sentenceMap(pack);
+  if (!map) return wordBuild(pack, opts);
+  var lex = pack.lexicon, i, pool = [];
+  for (i = 0; i < lex.length; i++) {
+    if (opts.theme && lex[i].theme !== opts.theme) continue;
+    if (map[lex[i].word]) pool.push(lex[i]);
+  }
+  if (!pool.length) return wordBuild(pack, opts);
+
+  /* PHASE 1 pinning: the planner names the exact word this beat drills. A
+     pin the sentences cannot serve is ignored, never an error. */
+  var w = null;
+  if (opts.word) { w = lexEntry(pack, opts.word); if (w && !map[w.word]) w = null; }
+  if (!w) w = pick(rng, pool);
+  var sent = map[w.word];
+  var m = maskWord(sent.s, w.word);
+  if (!m.matched) return wordBuild(pack, opts);   /* the guarantee failed for this row: teach something honest instead */
+
+  var n = opts.options || 4;
+  var same = [], other = [], c;
+  for (i = 0; i < lex.length; i++) {
+    c = lex[i];
+    if (c.word === w.word) continue;
+    if (sent.s.indexOf(c.word) >= 0) continue;                              /* already standing in the sentence */
+    if (c.word.indexOf(w.word) >= 0 || w.word.indexOf(c.word) >= 0) continue; /* shares the answer's letters */
+    if (sharesGloss(c.en, w.en)) continue;                                  /* a synonym would also fit */
+    if (c.theme === w.theme) same.push(c); else other.push(c);
+  }
+  var wrong = sample(rng, same, n - 1);
+  if (wrong.length < n - 1) wrong = wrong.concat(sample(rng, other, n - 1 - wrong.length));
+  var options = shuffle(rng, [w].concat(wrong)), opt = [], ai = 0;
+  for (i = 0; i < options.length; i++) {
+    opt.push({ word: options[i].word, roman: options[i].roman, theme: options[i].theme });
+    if (options[i].word === w.word) ai = i;
+  }
+  return {
+    type: 'sentenceBlank', pack: pack.id, script: script.id, direction: script.direction, font: script.font,
+    itemKey: 'word:' + w.word,
+    /* the question itself — the sentence with a hole in it, and the meaning */
+    blanked: m.text, before: m.before, after: m.after, blank: BLANK,
+    en: sent.en,
+    options: opt, answerIndex: ai,
+    answerWord: w.word, roman: w.roman, wordEn: w.en, theme: w.theme,
+    /* held back for the feedback beat, never rendered before it */
+    full: sent.s, fullRoman: sent.roman,
+    /* NOTHING here may be spoken before the answer: the sentence clip
+       contains the word. The view reads around the gap instead, and plays
+       these two only once the answer is in. */
+    audio: null, say: null,
+    sentAudio: sentenceKey(pack, w), wordAudio: audioFor(w.audio, pack),
+    prompt: 'Which word fills the gap?'
+  };
+}
+
 /* ---- read aloud --------------------------------------------------------
    Show the word, the child says it, then hears the model and self-marks or
    a parent marks. ASR optional, never required (docs/09 §5). */
@@ -2460,6 +2654,7 @@ var GENERATORS = {
   sentenceBuild: function (pack, script, rng, o) { return sentenceBuild(pack, { rng: rng, item: o.item }); },
   pickReply:     function (pack, script, rng, o) { return pickReply(pack, { rng: rng, item: o.item }); },
   listenPoint:   function (pack, script, rng, o) { return listenPoint(pack, { rng: rng, theme: o.theme, options: o.options, word: typeof o.item === 'string' ? o.item : undefined }); },
+  sentenceBlank: function (pack, script, rng, o) { return sentenceBlank(pack, { rng: rng, theme: o.theme, options: o.options, word: typeof o.item === 'string' ? o.item : undefined }); },
   readAloud:     function (pack, script, rng, o) { return readAloud(pack, { rng: rng, word: typeof o.item === 'string' ? o.item : undefined }); },
   readPassage:   function (pack, script, rng, o) { return readPassage(pack, { rng: rng, item: o.item }); },
   trace:         function (pack, script, rng, o) { return trace(pack, { rng: rng, index: o.index, letter: typeof o.item === 'string' ? o.item : undefined }); }
@@ -2546,7 +2741,7 @@ var TESTOUT_N = 6;         /* the test-out challenge: six questions, five to pas
 var PIN_TYPES = {
   letter:   ['soundMatch', 'oddOneOut', 'trace'],
   matra:    ['matraAttach', 'barakhadi', 'soundMatch'],
-  word:     ['listenPoint', 'wordBuild'],
+  word:     ['listenPoint', 'wordBuild', 'sentenceBlank'],
   sent:     ['sentenceBuild'],
   dlg:      ['pickReply'],
   conjunct: ['conjunctSplit'],
@@ -2862,7 +3057,16 @@ W.IND_BHASHA = {
   gridMatras: gridMatras,
   isCombiningMark: isCombiningMark,
 
+  /* the example sentences (Phase 3): the map, one entry resolved with its
+     derived clip key, and the masker every view and every test shares — one
+     implementation of "hide the word", so the rule cannot drift per screen */
+  sentences: sentenceMap,
+  sentence: sentenceFor,
+  mask: maskWord,
+  BLANK: BLANK,
+
   /* exercise generators */
+  sentenceBlank: sentenceBlank,
   sentenceBuild: sentenceBuild,
   pickReply: pickReply,
   barakhadi: barakhadi,

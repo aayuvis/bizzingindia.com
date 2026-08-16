@@ -354,6 +354,152 @@ Object.keys(P).forEach(function (pid) {
   console.log('  ' + pid + ': ' + pk.lexicon.length + ' words, ladder walked, determinism ok');
 });
 
+/* ====== 2c. THE EXAMPLE SENTENCES, THE MASK AND FILL-THE-BLANK (Phase 3) ==
+   The audit's finding was that the lexicon had no sentence field and no word
+   card existed. The sentences landed first; this is the check that the engine
+   uses them honestly. The rule under every assertion here is CLAUDE.md's:
+   never leak the answer in on-screen text. */
+console.log('\n\n########## EXAMPLE SENTENCES / MASK / FILL-THE-BLANK ##########');
+
+hdr('the sentence data itself');
+var HS = B.sentences('hi');
+ok('hi has an example sentence map', !!HS);
+if (HS) {
+  var lexHi = P.hi.lexicon, noSent = [], notOnce = [], notNfc = [];
+  lexHi.forEach(function (w) {
+    var e = HS[w.word];
+    if (!e || !e.s || !e.roman || !e.en) { noSent.push(w.word); return; }
+    /* THE GUARANTEE MASKING RESTS ON: exactly one verbatim occurrence. One
+       is maskable honestly; two would leave the answer on screen after the
+       mask, and none would mask nothing at all. */
+    var n = 0, at = e.s.indexOf(w.word);
+    while (at >= 0) { n++; at = e.s.indexOf(w.word, at + 1); }
+    if (n !== 1) notOnce.push(w.word + ' x' + n);
+    if (e.s.normalize('NFC') !== e.s) notNfc.push(w.word);
+  });
+  eq('every lexicon word has a sentence', noSent.length, 0);
+  if (noSent.length) console.log('       missing: ' + noSent.slice(0, 8).join(' '));
+  eq('every sentence contains its word verbatim exactly once', notOnce.length, 0);
+  if (notOnce.length) console.log('       not once: ' + notOnce.slice(0, 8).join(' '));
+  eq('every sentence is NFC', notNfc.length, 0);
+  console.log('  ' + Object.keys(HS).length + ' sentences, one per lexicon word, each holding its word exactly once');
+
+  var sf = B.sentence('hi', 'पानी');
+  ok('sentence() resolves an entry', !!sf && !!sf.s);
+  /* the clip key is DERIVED from the romanisation, never typed — that is
+     what keeps a recording manifest from drifting off the pack */
+  eq('sentence clip key is derived from the roman', sf.audio, 'hi/s-paani');
+  eq('and sits beside the word key, not on top of it',
+    B.audioFor(P.hi.lexicon.filter(function (w) { return w.word === 'पानी'; })[0].audio, 'hi'), 'hi/w-paani');
+  eq('a space in the roman is stripped, exactly as the word key strips it',
+    B.sentence('hi', 'शुभ रात्रि').audio, 'hi/s-shubhraatri');
+  ok('a pack with no sentences written yet resolves to nothing', !B.sentences('pa') && !B.sentence('pa', P.pa.lexicon[0].word));
+}
+
+hdr('the mask');
+var mk = B.mask('मैं रोज़ पानी पीता हूँ।', 'पानी');
+ok('mask matches', mk.matched);
+eq('mask removes the word', mk.text.indexOf('पानी'), -1);
+eq('mask keeps the head', mk.before, 'मैं रोज़ ');
+eq('mask keeps the tail', mk.after, ' पीता हूँ।');
+eq('mask rejoins to the sentence when the blank is put back',
+  mk.before + 'पानी' + mk.after, 'मैं रोज़ पानी पीता हूँ।');
+/* THE SLOPPY-MASK TEST. A global replace would take the word out of the
+   MIDDLE of a longer word too, deleting a piece of the sentence the child
+   still needs to read. Exactly one occurrence goes, and it is the first. */
+var mk2 = B.mask('आम आमरस से मीठा है।', 'आम');
+eq('mask cuts one occurrence only, never every match',
+  mk2.before + '[' + mk2.after + ']', '[ आमरस से मीठा है।]');
+eq('a word that is not there masks nothing', B.mask('घर बड़ा है।', 'पानी').text, 'घर बड़ा है।');
+ok('and says so rather than pretending', !B.mask('घर बड़ा है।', 'पानी').matched);
+eq('an empty word masks nothing', B.mask('घर बड़ा है।', '').text, 'घर बड़ा है।');
+eq('the blank is caller-chosen', B.mask('घर बड़ा है।', 'घर', '').text, ' बड़ा है।');
+
+hdr('sentenceBlank');
+(function () {
+  var seen = 0, leaks = [], noAns = [], dupes = [], offTheme = [], inSentence = [], synonyms = [], i, s;
+  for (i = 0; i < 160; i++) {
+    var q = B.nextQuestion('hi', 's3', 'blank-' + i, { type: 'sentenceBlank' });
+    if (q.type !== 'sentenceBlank') continue;
+    seen++;
+    /* 1. NOTHING THE CHILD CAN SEE BEFORE ANSWERING CONTAINS THE ANSWER.
+       Every string the renderer draws pre-answer is searched for the word
+       itself — the blanked sentence, its two halves, the English clue, the
+       prompt — because that is the rule this whole phase turns on. */
+    var shown = [q.blanked, q.before, q.after, q.en, q.prompt].join('   ');
+    if (shown.indexOf(q.answerWord) >= 0) leaks.push(q.answerWord + ' in "' + q.blanked + '"');
+    /* 2. the answer is among the options, and the index points at it */
+    if (!(q.options[q.answerIndex] && q.options[q.answerIndex].word === q.answerWord)) noAns.push(q.answerWord);
+    /* 3. four distinct options */
+    var words = q.options.map(function (o) { return o.word; });
+    if (new Set(words).size !== words.length || words.length !== 4) dupes.push(words.join(' '));
+    for (s = 0; s < q.options.length; s++) {
+      var o = q.options[s];
+      if (o.word === q.answerWord) continue;
+      /* 4. same theme — "roti vs chawal", never "roti vs Tuesday" */
+      if (o.theme !== q.theme) offTheme.push(o.word + '/' + o.theme + ' vs ' + q.theme);
+      /* 5. a distractor already standing in the sentence would be a second
+            visible answer, and one that would ALSO fit the gap is not wrong */
+      if (q.full.indexOf(o.word) >= 0) inSentence.push(o.word + ' in ' + q.full);
+      if (o.word === q.answerWord) synonyms.push(o.word);
+    }
+    /* 6. the reward is held back until the answer is in */
+    if (!q.full || q.full.indexOf(q.answerWord) < 0) noAns.push('full sentence lost ' + q.answerWord);
+    if (q.audio || q.say) leaks.push('would speak ' + (q.audio || q.say) + ' before the answer');
+  }
+  ok('sentenceBlank generates', seen > 100, 'only ' + seen + ' of 160 draws');
+  eq('the blanked sentence NEVER contains the answer word', leaks.length, 0);
+  if (leaks.length) console.log('       ' + leaks.slice(0, 4).join('\n       '));
+  eq('the answer is always among the options at answerIndex', noAns.length, 0);
+  eq('four distinct options every time', dupes.length, 0);
+  eq('every distractor comes from the answer’s own theme', offTheme.length, 0);
+  if (offTheme.length) console.log('       ' + offTheme.slice(0, 4).join('\n       '));
+  eq('no distractor is already standing in the sentence', inSentence.length, 0);
+  eq('and none of them is the answer wearing another spelling', synonyms.length, 0);
+
+  /* the synonym rule, made concrete: 'thanks' and 'thank you' both fit the
+     same gap, so they must never be offered against each other */
+  var syn = 0;
+  for (i = 0; i < 240; i++) {
+    var qs = B.sentenceBlank('hi', { seed: 'syn-' + i, word: 'धन्यवाद' });
+    if (qs.type !== 'sentenceBlank') continue;
+    if (qs.options.some(function (o) { return o.word === 'शुक्रिया'; })) syn++;
+  }
+  eq('a synonym that would also fit is never a distractor (dhanyavaad / shukriya)', syn, 0);
+
+  /* PIN: the planner names the word, and the question drills THAT word */
+  var pinned = B.nextQuestion('hi', 's3', 5, { item: 'रोटी', type: 'sentenceBlank' });
+  eq('a pinned word is the word blanked', pinned.answerWord, 'रोटी');
+  eq('and the item key the SRS moves is that word', pinned.itemKey, 'word:रोटी');
+  eq('the pinned sentence is the pinned word’s own', pinned.full, B.sentence('hi', 'रोटी').s);
+  eq('a multi-word entry blanks whole', B.sentenceBlank('hi', { seed: 'mw', word: 'हवाई जहाज़' }).blanked.indexOf('हवाई जहाज़'), -1);
+
+  /* a pack with no sentences must fall back to something winnable rather
+     than render an empty question — the same fallback readPassage makes */
+  eq('a pack without sentences falls back to wordBuild', B.sentenceBlank('pa', { seed: 'fb' }).type, 'wordBuild');
+  eq('and so does the stage that lists the type', ['wordBuild', 'listenPoint'].indexOf(
+    B.nextQuestion('pa', 's3', 'fb2', { type: 'sentenceBlank' }).type) >= 0, true);
+
+  var demo = B.nextQuestion('hi', 's3', 'blank-demo', { type: 'sentenceBlank' });
+  console.log('  “' + demo.blanked + '”  (' + demo.en + ')');
+  console.log('  options: ' + demo.options.map(function (o) { return o.word + '/' + o.roman; }).join('  ') +
+    '   answer=' + demo.answerWord + ' idx=' + demo.answerIndex);
+  console.log('  after the answer: ' + demo.full + '  ·  ' + demo.sentAudio);
+}());
+
+hdr('the stage that carries it');
+eq('s3 lists sentenceBlank beside listenPoint and wordBuild',
+  B.stage('hi', 's3').types.join(','), 'listenPoint,wordBuild,sentenceBlank');
+ok('a pinned word can be drilled as a fill-the-blank',
+  B.generators.sentenceBlank && (function () {
+    var types = {}, i;
+    for (i = 0; i < 40; i++) {
+      var pl = B.session('hi', 's3', { srs: {}, window: [], band: 3, path: 'heritage' }, { seed: 'pin-' + i });
+      pl.specs.forEach(function (sp) { if (sp.type) types[sp.type] = 1; });
+    }
+    return !!types.sentenceBlank;
+  }()));
+
 /* one full question object printed raw, so the shape is eyeballable */
 hdr('raw question object (pa / s2)');
 show(B.nextQuestion('pa', 's2', 'raw-demo'));

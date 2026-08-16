@@ -293,6 +293,51 @@
     if (window.speechSynthesis) window.speechSynthesis.cancel();
   }
 
+  /* SPEAK A SENTENCE WITH ITS WORD LEFT OUT (Phase 3) — the Bee's sayMasked,
+     in this app's idiom.
+
+     Never a recorded clip, on purpose: the only clip a sentence will ever
+     have contains the word, and before the answer the word is the answer.
+     So the two halves are spoken around the hole with a beat of silence
+     where the missing word goes — the child hears the shape of the sentence
+     and exactly nothing of the answer. When the device has no voice at all
+     this simply does nothing, which is the honest failure: silence, never a
+     leak. */
+  function sayMasked(before, after, lang) {
+    if (!soundOn || !window.speechSynthesis) return;
+    stopAudio();
+    try {
+      var mk = function (txt) {
+        var u = new SpeechSynthesisUtterance(txt);
+        u.lang = lang || 'hi-IN'; u.rate = 0.8;
+        return u;
+      };
+      var tail = String(after || '').trim(), head = String(before || '').trim();
+      var said = false;
+      var rest = function () {
+        if (said) return; said = true;
+        if (!tail) return;
+        setTimeout(function () { try { window.speechSynthesis.speak(mk(tail)); } catch (e) {} }, 480);
+      };
+      if (head) {
+        var u1 = mk(head);
+        u1.onend = rest; u1.onerror = rest;
+        window.speechSynthesis.speak(u1);
+        /* some devices never fire onend; the gap is a beat, not a deadline */
+        setTimeout(rest, 1200 + head.length * 70);
+      } else rest();
+    } catch (e) {}
+  }
+  /* The whole sentence, once the answer is in — the reward. The clip
+     (hi/s-<roman>) is preferred the moment a recording exists; until then
+     speak() falls through to the device voice, so the button is never dead. */
+  function saySentence(packId, word) {
+    var e = window.IND_BHASHA && window.IND_BHASHA.sentence
+      ? window.IND_BHASHA.sentence(packId || 'hi', word) : null;
+    if (!e) return;
+    speak(e.audio, e.s, (packId || 'hi') + '-IN');
+  }
+
   /* Read something aloud, whether or not a recorded clip exists yet.
      The bundled MP3 is always preferred: it is US English with SSML phoneme tags so Indian
      names are said properly, which the browser's own voice will not do. But a "read it to
@@ -2665,15 +2710,23 @@
   function advance(ms) {
     if (window.BI_FAST) ms = 30;   /* test hook: tools/verify.js answers hundreds of questions */
     var token = quiz.q;            /* the question this beat belongs to */
-    setTimeout(function () {
+    var waits = 0;
+    var tick = function () {
       /* Only move on if that question is still the live one. Without this, a
          child (or the test) who starts another stage mid-beat gets their
          fresh question silently swapped from under them by the stale timer. */
       if (quiz.q !== token) return;
+      /* THE LESSON WAITS (Phase 3). The feedback offers the word's card, and
+         a child who takes it is off the pack page reading. Moving the session
+         on underneath them would throw the card away mid-sentence — so the
+         beat holds until they come back, for a couple of minutes at most, and
+         then gives up rather than leaving a timer running forever. */
+      if (view.name !== 'pack' && ++waits < 240) return setTimeout(tick, 500);
       quiz.pi++;
       planStep();
       render();
-    }, ms);
+    };
+    setTimeout(tick, ms);
   }
 
   /* The feedback strip. Right or wrong, the child learns something: the
@@ -2708,6 +2761,10 @@
   function fbFor(q, ok, idx) {
     var head = ok ? CHEERS[quiz.done % CHEERS.length] : 'Not this one —';
     var body = '', sent = null, i;
+    /* Phase 3: a question about a WORD ends one tap from that word's card —
+       the sentence, the theme, the voice, where it stands in the child's own
+       boxes. The lesson waits while they read it (see advance()). */
+    var cardWord = null;
     switch (q.type) {
       case 'soundMatch':
         body = '<b class="deva">' + esc(q.answer) + '</b> says “' + esc(q.answerName) + '”.'; break;
@@ -2720,10 +2777,19 @@
         body = esc(q.why || ''); break;
       case 'listenPoint':
         body = '<b class="deva">' + esc(q.answerWord) + '</b> (' + esc(q.roman) + ') — ' + esc(q.answer) + '.';
-        sent = exampleSentence(q.answerWord); break;
+        sent = exampleSentence(q.answerWord); cardWord = q.answerWord; break;
       case 'wordBuild':
         body = '<b class="deva">' + esc(q.word) + '</b> (' + esc(q.roman) + ') — ' + esc(q.en) + '.';
-        sent = exampleSentence(q.word); break;
+        sent = exampleSentence(q.word); cardWord = q.word; break;
+      /* THE REWARD (Phase 3). Answering fills the gap in: the sentence is
+         shown whole for the first time, with the word standing in its place,
+         and now — and only now — its romanisation and its voice. */
+      case 'sentenceBlank':
+        body = '<b class="deva">' + esc(q.answerWord) + '</b> (' + esc(q.roman) + ') — ' + esc(q.wordEn) + '.' +
+          '<span class="fbsent"><span class="deva">' + esc(q.before) +
+          '<b class="fbfill">' + esc(q.answerWord) + '</b>' + esc(q.after) + '</span><br>' +
+          '<span class="muted">' + esc(q.fullRoman || '') + ' — ' + esc(q.en || '') + '</span></span>';
+        cardWord = q.answerWord; break;
       case 'sentenceBuild':
         body = '<span class="deva">' + esc(q.say) + '</span> <span class="muted">' + esc(q.roman || '') + '</span>' +
                (POINTS[q.point] ? '<br>' + esc(POINTS[q.point]) : ''); break;
@@ -2745,6 +2811,10 @@
     if (sent) {
       body += '<span class="fbsent"><span class="deva">' + esc(sent.s) + '</span><br>' +
               '<span class="muted">' + esc(sent.roman) + ' — ' + esc(sent.en) + '</span></span>';
+    }
+    if (cardWord && window.IND_PACKS[quiz.packId]) {
+      body += '<button class="fbcard" data-act="wcard" data-id="' + esc(quiz.packId + ':' + cardWord) +
+        '">See the word card →</button>';
     }
     return { ok: ok, html: '<b>' + esc(head) + '</b> ' + body };
   }
@@ -2962,11 +3032,18 @@
           return node;
         }).join('') + '</div></div>' +
 
-      /* The chart, behind its own door. */
+      /* The two references, behind their own doors — a chart is not a lesson,
+         and neither is a dictionary. Both are here to be looked things up in. */
+      '<div class="grid g2">' +
       '<button class="tile" data-act="chart" data-id="' + id + '">' +
         '<b>The ' + esc(sc.name) + ' chart</b>' +
         '<span class="tiny muted">All ' + ((sc.vowels || []).length + (sc.consonants || []).length) +
-        ' letters, with the sound of each. Look things up here any time.</span></button>';
+        ' letters, with the sound of each. Look things up here any time.</span></button>' +
+      '<button class="tile" data-act="kosh" data-id="' + id + '">' +
+        '<b class="deva" lang="' + esc(id) + '">शब्दकोश</b>' +
+        '<span class="tiny muted">Every one of the ' + ((p.lexicon || []).length) +
+        ' words, room by room — each with what it means and a sentence it lives in.</span></button>' +
+      '</div>';
   };
 
   /* The letter chart. A reference, deliberately separate from the lessons. */
@@ -2989,6 +3066,160 @@
       '<h3 style="margin-top:18px">Consonants</h3>' + grid(sc.consonants) +
       ((sc.matras || []).length ? '<h3 style="margin-top:18px">Matras</h3>' + grid(sc.matras) : '') +
       '</div>';
+  };
+
+  /* ============================================================ THE WORD CARD
+     Phase 3, and the thing the audit named in the user's own words: "there
+     are no word cards with sentences like in bizzing bee."
+
+     One card for one word — the word big in its own script, its roman, what
+     it means, the theme it belongs to, where it stands in this child's own
+     spaced repetition, and the EXAMPLE SENTENCE it lives in, which is the
+     half that did not exist at all.
+
+     The sentence has two states, and the difference between them is the one
+     rule of this app that cannot bend. BROWSING, it is shown whole, romanised
+     and glossed, and can be heard whole — that is the reward. TESTING, the
+     word is cut out of it by exact string match on the single verbatim
+     occurrence the data guarantees, and nothing on screen, and nothing the
+     speaker says, contains the answer until the child has answered. Both
+     states share one masker (IND_BHASHA.mask), so the rule cannot drift
+     from one screen to another. */
+
+  /* the same four words the pack page's readiness chips use, off the same
+     Leitner boxes, so a word never says "review" in one place and "learning"
+     in another */
+  var WSTATE = { new: ['new', 'rc-new'], learn: ['learning', 'rc-learn'],
+                 rev: ['review', 'rc-rev'], mast: ['mastered', 'rc-mast'] };
+  function wordState(packId, word) {
+    var c = ((S.lang[packId] || {}).srs || {})['word:' + word];
+    if (!c || (!c.seen && !c.intro)) return 'new';
+    var b = window.IND_SRS ? window.IND_SRS.box(c) : 0;
+    return b >= 5 ? 'mast' : (b >= 3 ? 'rev' : 'learn');
+  }
+  function themeOf(pack, id) {
+    var t = (pack && pack.themes) || [], i;
+    for (i = 0; i < t.length; i++) { if (t[i].id === id) return t[i]; }
+    return null;
+  }
+  function lexWord(pack, word) {
+    var lex = (pack && pack.lexicon) || [], i;
+    for (i = 0; i < lex.length; i++) { if (lex[i].word === word) return lex[i]; }
+    return null;
+  }
+  /* The sentence half of the card. `masked` cuts the word out and offers the
+     read-around-the-gap voice; unmasked shows and speaks the whole thing.
+     A pack with no sentences written yet renders nothing here rather than an
+     empty frame — the gap is honest, not decorated. */
+  function sentBlock(packId, word, masked) {
+    var B = window.IND_BHASHA, e = (B && B.sentence) ? B.sentence(packId, word) : null;
+    if (!e) return '';
+    if (masked) {
+      var m = B.mask(e.s, word, '');
+      return '<div class="wcsent masked"><div class="mono">in a sentence</div>' +
+        '<p class="wcs deva">' + esc(m.before) +
+        '<span class="wcgap" role="img" aria-label="the missing word"></span>' + esc(m.after) + '</p>' +
+        '<button class="btn ghost sm" data-act="saymask" data-b="' + esc(m.before) + '" data-a="' + esc(m.after) +
+        '" data-l="' + esc(packId + '-IN') + '">' + icon('sound', 16) + ' Hear it round the gap</button></div>';
+    }
+    return '<div class="wcsent"><div class="mono">in a sentence</div>' +
+      '<p class="wcs deva">' + esc(e.s) + '</p>' +
+      '<p class="wcsr">' + esc(e.roman) + '<span class="muted"> — ' + esc(e.en) + '</span></p>' +
+      '<button class="btn ghost sm" data-act="saysent" data-p="' + esc(packId) + '" data-w="' + esc(word) +
+      '">' + icon('sound', 16) + ' Hear the sentence</button></div>';
+  }
+  /* The card body, shared by the full view, the Shabdkosh, the introduce beat
+     and the post-answer feedback — one card, four doors. */
+  function wordCard(packId, word, o) {
+    o = o || {};
+    var p = window.IND_PACKS[packId]; if (!p) return '';
+    var w = lexWord(p, word); if (!w) return '';
+    var th = themeOf(p, w.theme), st = WSTATE[wordState(packId, word)];
+    return '<div class="wcard' + (o.flat ? ' flat' : '') + '">' +
+      '<div class="wchead">' +
+        (th ? '<button class="wctheme" data-act="kosh" data-id="' + esc(packId) + '" data-t="' + esc(th.id) + '">' +
+          esc(th.icon) + ' ' + esc(th.en) + '</button>' : '<span></span>') +
+        '<i class="rc ' + st[1] + '">' + st[0] + '</i></div>' +
+      '<div class="wcword deva" lang="' + esc(packId) + '">' + esc(w.word) + '</div>' +
+      '<div class="wcroman">' + esc(w.roman) + '</div>' +
+      '<div class="wcen">' + esc(w.en) + '</div>' +
+      '<button class="btn ghost block wchear" data-act="say" data-k="' + esc(window.IND_BHASHA.audioFor(w.audio, p) || '') +
+        '" data-t="' + esc(w.word) + '" data-l="' + esc(packId + '-IN') + '">' +
+        icon('sound', 18) + ' Hear it</button>' +
+      sentBlock(packId, word, !!o.mask) +
+      (o.link ? '<button class="btn ghost block" style="margin-top:12px" data-act="wcard" data-id="' +
+        esc(packId + ':' + word) + '">See the whole card →</button>' : '') +
+      '</div>';
+  }
+
+  /* The card on its own page. Reached from the Shabdkosh, from a lesson's
+     feedback and from anywhere a word is named. */
+  V.wordcard = function (arg) {
+    var bits = String(arg || '').split(':'), packId = bits[0], word = bits.slice(1).join(':');
+    var p = window.IND_PACKS[packId], w = p ? lexWord(p, word) : null;
+    if (!w) return '<div class="card"><h1>Word</h1><p>That word is not in this pack.</p>' +
+      '<button class="btn" data-act="go" data-v="bhasha">Bhasha</button></div>';
+    var th = themeOf(p, w.theme);
+    /* the neighbours in its own theme, so the card is a place you can carry
+       on from rather than a dead end */
+    var near = (p.lexicon || []).filter(function (x) { return x.theme === w.theme && x.word !== w.word; }).slice(0, 8);
+    return '<button class="backlink" data-act="kosh" data-id="' + esc(packId) + '" data-t="' + esc(w.theme) + '">' +
+      icon('back', 18) + ' Shabdkosh</button>' +
+      '<div class="card">' + wordCard(packId, word, { flat: true }) + '</div>' +
+      (near.length ? '<div class="card"><h3 style="margin:0 0 4px">More ' +
+        esc(th ? th.en.toLowerCase() : 'words') + '</h3>' +
+        '<p class="tiny muted">Words that keep the same company.</p>' +
+        '<div class="koshgrid">' + near.map(function (x) { return koshRow(packId, x); }).join('') + '</div></div>' : '');
+  };
+
+  /* ------------------------------------------------------------ SHABDKOSH
+     शब्दकोश — the word-store. Every word in the pack, grouped by the themes
+     the pack itself declares, with a count on each so a child can see how big
+     a room is before walking into it. Tapping a word opens its card. This is
+     a REFERENCE, deliberately, the way the letter chart is: browsable, never
+     graded, never a lesson. */
+  /* which room of the Shabdkosh is open — null is the whole store. It lives
+     out here rather than in the URL because the app has one view argument and
+     that one belongs to the pack. */
+  var koshTheme = null;
+  function koshRow(packId, x) {
+    var st = WSTATE[wordState(packId, x.word)];
+    return '<button class="koshw" data-act="wcard" data-id="' + esc(packId + ':' + x.word) + '">' +
+      '<b class="deva" lang="' + esc(packId) + '">' + esc(x.word) + '</b>' +
+      '<span class="tiny muted">' + esc(x.roman) + ' · ' + esc(x.en) + '</span>' +
+      (st[0] === 'new' ? '' : '<i class="rc ' + st[1] + '">' + st[0] + '</i>') + '</button>';
+  }
+  V.kosh = function (id) {
+    var p = window.IND_PACKS[id]; if (!p) return '<div class="card">Pack not found.</div>';
+    var lex = p.lexicon || [], byTheme = {}, i;
+    for (i = 0; i < lex.length; i++) (byTheme[lex[i].theme] || (byTheme[lex[i].theme] = [])).push(lex[i]);
+    var withSent = 0, B = window.IND_BHASHA;
+    var sm = (B && B.sentences) ? B.sentences(p) : null;
+    for (i = 0; i < lex.length; i++) { if (sm && sm[lex[i].word]) withSent++; }
+    var open = koshTheme;   /* which room is open; null means all of them */
+    return '<button class="backlink" data-act="pack" data-id="' + esc(id) + '">' + icon('back', 18) +
+      ' ' + esc(p.name.en) + '</button>' +
+      '<div class="card"><h1 class="deva" style="margin:0" lang="' + esc(id) + '">शब्दकोश</h1>' +
+      '<div class="mono">Shabdkosh · the word-store</div>' +
+      '<p style="margin:10px 0 0">Every word in ' + esc(p.name.en) + ' — ' + lex.length +
+      ' of them, in the rooms they live in' +
+      (withSent ? ', ' + withSent + ' with a sentence to show you what they do' : '') +
+      '. Tap any word for its card.</p></div>' +
+      '<div class="koshtabs">' +
+      '<button class="pill' + (open ? '' : ' on') + '" data-act="kosh" data-id="' + esc(id) + '">All ' + lex.length + '</button>' +
+      (p.themes || []).map(function (t) {
+        var n = (byTheme[t.id] || []).length;
+        if (!n) return '';
+        return '<button class="pill' + (open === t.id ? ' on' : '') + '" data-act="kosh" data-id="' + esc(id) +
+          '" data-t="' + esc(t.id) + '">' + esc(t.icon) + ' ' + esc(t.en) + ' ' + n + '</button>';
+      }).join('') + '</div>' +
+      (p.themes || []).map(function (t) {
+        var list = byTheme[t.id] || [];
+        if (!list.length || (open && open !== t.id)) return '';
+        return '<div class="card"><div class="spread"><h3 style="margin:0">' + esc(t.icon) + ' ' + esc(t.en) + '</h3>' +
+          '<span class="pill stat" style="flex:none">' + list.length + '</span></div>' +
+          '<div class="koshgrid">' + list.map(function (x) { return koshRow(id, x); }).join('') + '</div></div>';
+      }).join('');
   };
 
   function optLabel(o) { if (o == null) return ''; if (typeof o === 'string') return o; return o.char || o.word || o.sign || o.syllable || o.en || o.roman || ''; }
@@ -3032,6 +3263,20 @@
        name, meaning, voice — with a single Got-it (tap, or just Enter).
        The example-sentence seam gives a word its sentence on first meeting. */
     if (q.type === 'introduce') {
+      /* A WORD is met as its card (Phase 3) — the word, its meaning, its
+         theme, its voice and the sentence it lives in, all shown plainly,
+         because meeting a word without ever seeing it used is exactly the
+         gap this phase exists to close. Letters, matras and conjuncts keep
+         the glyph-on-a-plate card below: they have no sentence to show. */
+      var ikey = q.spec && q.spec.key;
+      if (ikey && ikey.indexOf('word:') === 0 && window.IND_PACKS[quiz.packId] &&
+          lexWord(window.IND_PACKS[quiz.packId], ikey.slice(5))) {
+        return '<div class="card introcard wordintro">' + arcStrip() +
+          '<div class="mono">A new word</div>' +
+          wordCard(quiz.packId, ikey.slice(5), { flat: true }) +
+          '<button class="btn lg block" style="margin-top:16px" data-act="gotit">Got it →</button>' +
+          '<p class="tiny muted" style="margin-top:10px">You’ll meet it again in a moment.</p></div>';
+      }
       var isent = q.char ? exampleSentence(q.char) : null;
       return '<div class="card introcard' + (q.small ? ' smallglyph' : '') + '">' +
         arcStrip() +
@@ -3169,6 +3414,24 @@
         prompt = q.prompt || 'Read it. What is it about?'; grid = false;
         lead = '<div class="passage deva">' + esc(q.hi) + '</div>';
         subFor = null;
+        break;
+      /* --- fill the blank (Phase 3) ---
+         The sentence with a real hole in it, what the whole sentence means
+         under it, and a voice that reads AROUND the hole. Three things are
+         deliberately absent before the answer: the word, the sentence's
+         romanisation (it would spell the answer in Latin), and any clip of
+         the sentence (every clip of it contains the word). The options carry
+         roman, not English — the same line pickReply draws: the gloss is the
+         reward for answering, not the way to answer. */
+      case 'sentenceBlank':
+        prompt = q.prompt || 'Which word fills the gap?'; grid = false;
+        lead = '<div class="blanksent deva" lang="' + esc(quiz.packId || 'hi') + '">' + esc(q.before) +
+          '<span class="wcgap" role="img" aria-label="the missing word"></span>' + esc(q.after) + '</div>' +
+          '<p class="blankmean">“' + esc(q.en || '') + '”</p>' +
+          '<button class="btn ghost sm blankhear" data-act="saymask" data-b="' + esc(q.before) +
+          '" data-a="' + esc(q.after) + '" data-l="' + esc(packLang()) + '">' +
+          icon('sound', 16) + ' Hear it round the gap</button>';
+        subFor = function (o) { return o.roman; };
         break;
     }
     var choices = opts.map(function (o, i) {
@@ -3399,6 +3662,8 @@
       case 'bhasha': h = V.bhasha(); break;
       case 'pack': h = V.pack(view.arg); break;
       case 'chart': h = V.chart(view.arg); break;
+      case 'kosh': h = V.kosh(view.arg); break;
+      case 'wordcard': h = V.wordcard(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'khel': h = V.mela(); break;   /* the games pillar got its own tab; Mela is its page */
       case 'game': h = V.game(); break;
@@ -3447,7 +3712,7 @@
     var alias = { state: 'map', mon: 'map', learn: 'map', era: 'itihaas',
                   dharma: 'neeti', faith: 'neeti', utsav: 'neeti', festival: 'neeti',
                   gully: 'neeti', gullygame: 'neeti', geet: 'neeti', song: 'neeti',
-                  story: 'stories', pack: 'bhasha', chart: 'bhasha',
+                  story: 'stories', pack: 'bhasha', chart: 'bhasha', kosh: 'bhasha', wordcard: 'bhasha',
                   game: 'khel', mela: 'khel', play: 'khel', rishtey: 'khel', rishquiz: 'khel',
                   nani: 'stories', shelf: 'stories', invite: 'stories', kahani: 'stories',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
@@ -3526,6 +3791,14 @@
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
     if (a === 'fest')   return go('festival', t.getAttribute('data-id'));
     if (a === 'chart')  return go('chart', t.getAttribute('data-id'));
+    /* the Shabdkosh, and one word's card out of it (Phase 3) */
+    if (a === 'kosh')   { koshTheme = t.getAttribute('data-t') || null; return go('kosh', t.getAttribute('data-id')); }
+    if (a === 'wcard')  return go('wordcard', t.getAttribute('data-id'));
+    /* the sentence, spoken. Masked reads AROUND the missing word and never
+       touches a clip; the whole thing plays its clip when one has been
+       recorded and falls back to the device voice until then. */
+    if (a === 'saymask') return sayMasked(t.getAttribute('data-b'), t.getAttribute('data-a'), t.getAttribute('data-l'));
+    if (a === 'saysent') return saySentence(t.getAttribute('data-p'), t.getAttribute('data-w'));
     if (a === 'gullyg') return go('gullygame', t.getAttribute('data-id'));
     if (a === 'song')   return go('song', t.getAttribute('data-id'));
 
@@ -3776,7 +4049,13 @@
         var w = document.querySelector('[data-act="ans"][data-i="' + want + '"]'); if (w) w.classList.add('right');
       }
       showFb(fbFor(q, ok, idx));
-      advance(ok ? 1100 : 2600);
+      /* Fill-the-blank's reward is the sentence, whole, out loud — the one
+         thing that could not be played a moment ago. It needs a longer beat
+         than a tap-and-move drill, so the child hears it end. */
+      if (q.type === 'sentenceBlank') {
+        saySentence(quiz.packId, q.answerWord);
+        advance(ok ? 2400 : 3400);
+      } else advance(ok ? 1100 : 2600);
       return;
     }
     /* ordered build: tap a tile in, tap a filled slot out */

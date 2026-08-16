@@ -3,14 +3,20 @@
    Anything not listed falls back to the inline SVG in app/avatars.js. */
 
 window.IND_ART_IMG = [
-  'ganesha','krishna','hanuman','durga','saraswati','shiva',
-  'rama','lakshmi','buddha','mahavira','khanda','harmandir',
-  'pt_lion','pt_jackal','pt_bull','pt_crow','pt_tortoise','pt_mouse',
-  'pt_deer','pt_crocodile','pt_monkey','pt_rabbit','pt_heron','pt_elephant',
-  'akbar','birbal','tansen','courtier','guard','royal_elephant',
-  'ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar',
-  'bhagat','kalam','aryabhata','tagore','kalpana','sarojini',
-  'gattu','gattu_happy','gattu_think','gattu_wow','mithu','vismriti'
+  'ganesha', 'krishna', 'hanuman', 'durga', 'saraswati', 'shiva',
+  'rama', 'lakshmi', 'buddha', 'mahavira', 'khanda', 'harmandir',
+  'pt_lion', 'pt_jackal', 'pt_bull', 'pt_crow', 'pt_tortoise', 'pt_mouse',
+  'pt_deer', 'pt_crocodile', 'pt_monkey', 'pt_rabbit', 'pt_heron', 'pt_elephant',
+  'akbar', 'birbal', 'tansen', 'courtier', 'guard', 'royal_elephant',
+  'ashoka', 'chanakya', 'shivaji', 'lakshmibai', 'gandhi', 'ambedkar',
+  'bhagat', 'kalam', 'aryabhata', 'tagore', 'kalpana', 'sarojini',
+  'sita', 'lakshmana', 'bharata', 'dasharatha', 'kaikeyi', 'ravana',
+  'vibhishana', 'sugriva', 'jatayu', 'shabari', 'vishwamitra', 'mandodari',
+  'valmiki',
+  'draupadi', 'arjuna', 'bhima', 'yudhishthira', 'nakula', 'sahadeva',
+  'karna', 'bhishma', 'drona', 'dhritarashtra', 'gandhari', 'kunti',
+  'duryodhana', 'shakuni', 'vidura', 'ekalavya', 'abhimanyu',
+  'gattu', 'gattu_happy', 'gattu_think', 'gattu_wow', 'mithu', 'vismriti'
 ];
 
 window.IND_ART_SRC = function (id) {

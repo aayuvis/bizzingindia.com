@@ -99,10 +99,12 @@ async function main() {
     const out = [];
     const packs = window.IND_AVATAR_PACKS || {};
     const art = window.IND_AVATAR_ART || {}, svg = window.IND_AVATAR || {};
+    const png = window.IND_ART_IMG || [];   // raster-only avatars (the epic casts) live here
     Object.keys(packs).forEach(p => {
       const ids = packs[p].ids || packs[p];
       (Array.isArray(ids) ? ids : []).forEach(id => {
-        if (!art[id] && !svg[id]) out.push(`avatar "${id}" is in pack "${p}" but has no image`);
+        if (!art[id] && !svg[id] && png.indexOf(id) < 0)
+          out.push(`avatar "${id}" is in pack "${p}" but has no image`);
       });
     });
     (window.IND_STORY_ART || []).length === 0 && out.push('story art manifest is empty');

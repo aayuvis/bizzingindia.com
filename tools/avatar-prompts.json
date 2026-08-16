@@ -180,7 +180,7 @@
   ]
  },
  "lakshmana": {
-  "prompt": "Lakshmana, Rama's younger brother, in the forest years: a chibi young prince with warm brown skin, plain saffron-ochre forest cloth over one shoulder and a simple dhoti, his hair tied up in a neat topknot, no crown and almost no ornament, a small quiver of arrows on his back and a plain wooden longbow held UNSTRUNG at rest, pointing straight down at his side, never raised and never drawn. Alert, watchful and standing a half step forward, the way somebody stands when they are guarding a person they love. Drawn reverently, dignified and serene, never comic, never a caricature. A soft warm golden glow behind the figure. Nothing frightening for a small child.",
+  "prompt": "Lakshmana, Rama's younger brother, in the forest years: a chibi young prince with warm brown skin, plain saffron-ochre forest cloth over one shoulder and a simple dhoti, his hair tied up in a neat topknot, no crown and almost no ornament, a small quiver of arrows on his back and a plain wooden longbow held UNSTRUNG at rest, pointing straight down at his side, never raised and never drawn. There is NO arrow on the bow and no arrow in his hands: every arrow stays tucked in the quiver on his back, and the bow hangs loose with no string pulled. Alert, watchful and standing a half step forward, the way somebody stands when they are guarding a person they love. Drawn reverently, dignified and serene, never comic, never a caricature. A soft warm golden glow behind the figure. Nothing frightening for a small child.",
   "refs": [
    "ganesha.png",
    "akbar.png",
@@ -356,7 +356,7 @@
   ]
  },
  "gandhari": {
-  "prompt": "Gandhari, the queen who tied a cloth over her own eyes so as not to see what her husband could not: a chibi queen with warm brown skin in a deep indigo and gold silk sari, gold jhumka earrings and gold bangles, and a plain folded cream cloth tied smoothly and neatly across her eyes — worn like a crown, because it was her own choice. Her mouth is calm and set and she stands absolutely straight, with the full weight and presence of a ruler. Formidable, sorrowful and dignified: never helpless, never pitiable, never frightening, no blank staring eyes. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "prompt": "Gandhari, the queen who tied a cloth over her own eyes so as not to see what her husband could not: a chibi queen with warm brown skin in a deep indigo and gold silk sari, gold jhumka earrings and gold bangles, and a plain folded cream cloth tied smoothly and neatly across her eyes — worn like a crown, because it was her own choice. The cloth is COMPLETELY OPAQUE, like a soft solid band: her eyes are entirely hidden behind it and are NOT drawn at all — no eyes visible through the fabric, no see-through cloth, no goggles, no visor. Her mouth is calm and set and she stands absolutely straight, with the full weight and presence of a ruler. Formidable, sorrowful and dignified: never helpless, never pitiable, never frightening, no blank staring eyes. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
   "refs": [
    "ganesha.png",
    "akbar.png",
@@ -396,7 +396,7 @@
   ]
  },
  "ekalavya": {
-  "prompt": "Ekalavya, the forest boy who taught himself: a chibi boy with warm dark brown skin, simple undyed cloth, a single feather and a few coloured beads in his tied-back hair, both hands whole and open, a small plain bow held at rest pointing straight down at his side, standing beside one small clay figure of a teacher. Bright, determined and proud of what he learned on his own. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "prompt": "Ekalavya, the forest boy who taught himself: a chibi boy with warm dark brown skin, simple undyed cloth, a single feather and a few coloured beads in his tied-back hair, both hands whole and open, a small plain bow held at rest pointing straight down at his side — NO arrow on the bow, no arrow in his hands, no string pulled, the bow simply hanging loose — standing beside one small clay figure of a teacher. Bright, determined and proud of what he learned on his own. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
   "refs": [
    "ganesha.png",
    "akbar.png",

@@ -585,24 +585,15 @@ window.IND_AVATAR_PACKS = [
   { id: 'darbar', name: "Akbar's Darbar",  note: 'The cleverest court in the world.',
     ids: ['akbar','birbal','tansen','courtier','guard','royal_elephant'] },
   { id: 'great',  name: 'Great Indians',   note: 'Real people. Every one has an Itihaas card.',
-    ids: ['ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','aryabhata','tagore','kalpana','sarojini'] }
+    ids: ['ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','aryabhata','tagore','kalpana','sarojini'] },
 
-  /* THE EPIC CASTS — WRITTEN, NOT YET PAINTED. Do not re-enable these two packs until
-     the 30 PNGs exist under app/art. A pack id with no PNG and no inline SVG renders an
-     empty chip in onboarding and in Me, which is worse than the character being absent.
-     The prompts are ready in tools/avatar-prompts.json; resume with
-
-       . <scratchpad>/keys.env && python3 tools/gen-avatars.py tools/avatar-prompts.json
-
-     then add the ids to app/art-manifest.js and uncomment the two entries below.
+  /* The epic casts. All 30 PNGs live under app/art and in art-manifest.js.
      Rama, Hanuman and Krishna stay in the Devas pack and are deliberately not repeated
-     here — an id in two packs renders twice in the picker.
-
-  , { id: 'ramayana', name: 'The Ramayana',    note: 'Everyone the story is about, not only the ones who win.',
-      ids: ['sita','lakshmana','bharata','dasharatha','kaikeyi','ravana','vibhishana','sugriva','jatayu','shabari','vishwamitra','mandodari','valmiki'] }
-  , { id: 'mahabharata', name: 'The Mahabharata', note: 'One family that could not stop. Nobody here is only a villain.',
-      ids: ['draupadi','arjuna','bhima','yudhishthira','nakula','sahadeva','karna','bhishma','drona','dhritarashtra','gandhari','kunti','duryodhana','shakuni','vidura','ekalavya','abhimanyu'] }
-  */
+     here — an id in two packs renders twice in the picker. */
+  { id: 'ramayana', name: 'The Ramayana',    note: 'Everyone the story is about, not only the ones who win.',
+    ids: ['sita','lakshmana','bharata','dasharatha','kaikeyi','ravana','vibhishana','sugriva','jatayu','shabari','vishwamitra','mandodari','valmiki'] },
+  { id: 'mahabharata', name: 'The Mahabharata', note: 'One family that could not stop. Nobody here is only a villain.',
+    ids: ['draupadi','arjuna','bhima','yudhishthira','nakula','sahadeva','karna','bhishma','drona','dhritarashtra','gandhari','kunti','duryodhana','shakuni','vidura','ekalavya','abhimanyu'] }
 ];
 
 window.IND_AVATAR_NAMES = {
@@ -620,10 +611,7 @@ window.IND_AVATAR_NAMES = {
   kalam:'A. P. J. Abdul Kalam', aryabhata:'Aryabhata', tagore:'Rabindranath Tagore',
   kalpana:'Kalpana Chawla', sarojini:'Sarojini Naidu',
   /* Ramayana. Names are the ones a child will hear at home; no epithets, no titles
-     that would rank one character above another.
-     These 30 epic ids are AHEAD OF THE ART: they are lookup entries only, not a
-     registry — nothing renders from this table except for ids that are in a pack, and
-     the two epic packs above are commented out until the PNGs exist. */
+     that would rank one character above another. */
   sita:'Sita', lakshmana:'Lakshmana', bharata:'Bharata', dasharatha:'Dasharatha',
   kaikeyi:'Kaikeyi', ravana:'Ravana', vibhishana:'Vibhishana', sugriva:'Sugriva',
   jatayu:'Jatayu', shabari:'Shabari', vishwamitra:'Vishwamitra', mandodari:'Mandodari',

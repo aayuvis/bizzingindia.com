@@ -1,11 +1,18 @@
 """Bizzing India narration generator.
 
     python3 tools/tts.py clips.json [--force] [--print-ssml]
+    python3 tools/tts.py --bhasha [pack ...] [--words] [--force] [--dry-run]
     python3 tools/tts.py --audit clips.json [big-words.txt [common-words.txt]]
     python3 tools/tts.py --check-lexicon [term ...]
 
 clips.json is a list of {key, text, lang}. Audio lands at app/voice/<key>.mp3 and
 app/voice-manifest.js is rewritten from whatever is actually on disk afterwards.
+
+--bhasha builds that clip list from app/bhasha.js instead of a file: every letter,
+matra and lexicon word each pack asks for, in the pack's own language. The word
+list moves (74 -> 507 in one commit), so a checked-in clips.json for it would be
+stale the day after it is written; asking the engine is the only list that cannot
+drift. See bhasha_clips().
 
 --audit runs every clip through the SSML builder and prints the word tokens that
 came out UNWRAPPED and are not in an English wordlist. That is how the lexicon is
@@ -29,7 +36,7 @@ Two things to know about Google's <phoneme>:
   * text must be XML-escaped BEFORE the tags go in, or a story containing "&"
     produces invalid SSML and the whole request 400s.
 """
-import json, os, base64, urllib.request, time, sys, re, threading
+import json, os, base64, urllib.request, time, sys, re, threading, subprocess
 import concurrent.futures as cf
 
 # Read lazily, not at import: --print-ssml and the lexicon helpers are useful
@@ -49,6 +56,66 @@ VOICE = {
   'hi-IN': ('hi-IN-Neural2-A', 0.88),   # slower: children imitate these
   'pa-IN': ('pa-IN-Standard-A', 0.88),
 }
+
+# The Bhasha packs are TAUGHT, not narrated: a Hindi word goes to a Hindi voice
+# as its own Devanagari, never to the English narrator as a transliteration.
+# Keyed by pack id (bhasha.js `voice.ns`, which is also the voice/ subdirectory).
+PACK_LANG = {'hi': 'hi-IN', 'pa': 'pa-IN'}
+
+# ------------------------------------------------------- bhasha clips ------
+
+BHASHA = os.path.join(ROOT, 'app', 'bhasha.js')
+
+# bhasha.js is browser ES5 hanging off `window`, with no build step, so node can
+# load it as-is once window exists. srsItems() is the one enumeration that
+# already knows every audio key a pack can ask for — letters, matras and lexicon
+# words — so reading it here means the recorded set and the app's set cannot
+# disagree about what exists or how a key is spelled.
+_DUMP_JS = """
+global.window = global;
+require(process.argv[1]);
+var out = [];
+Object.keys(window.IND_PACKS).forEach(function (id) {
+  window.IND_BHASHA.srsItems(id).forEach(function (it) {
+    if (it.audio && it.char) out.push({ pack: id, key: it.audio, text: it.char, kind: it.kind });
+  });
+});
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+def bhasha_clips(packs=None, kinds=None):
+    """[{key, text, lang}] for every audio-bearing Bhasha item, from bhasha.js.
+
+    `packs` limits to pack ids ({'hi'}), `kinds` to srsItems kinds
+    ({'word'} for the lexicon only; the others are 'vowel', 'consonant',
+    'matra'). Both None means everything the packs ask for.
+
+    The text is the native glyph or word, byte-for-byte as the app holds it.
+    That matters more than it looks: this lexicon writes nukta DECOMPOSED
+    (क + U+093C), tile matching downstream compares strings exactly, and a
+    well-meaning NFC pass anywhere in the pipeline silently breaks the match
+    while leaving the audio fine. So nothing here normalises, and neither
+    should anything that edits bhasha.js.
+    """
+    raw = subprocess.run(['node', '-e', _DUMP_JS, BHASHA],
+                         stdout=subprocess.PIPE, check=True).stdout
+    items = json.loads(raw.decode('utf-8'))
+    out, seen = [], set()
+    for it in items:
+        if packs and it['pack'] not in packs:
+            continue
+        if kinds and it['kind'] not in kinds:
+            continue
+        lang = PACK_LANG.get(it['pack'])
+        if not lang:
+            raise SystemExit('pack %r has no language in PACK_LANG' % it['pack'])
+        if it['key'] in seen:
+            continue                       # one key, one clip, whoever asks for it
+        seen.add(it['key'])
+        out.append({'key': it['key'], 'text': it['text'], 'lang': lang})
+    return out
+
 
 # ---------------------------------------------------------------- SSML ------
 
@@ -315,7 +382,16 @@ def main(argv):
         check_lexicon(args or None)
         return
 
-    clips = json.load(open(args[0]))
+    if '--bhasha' in argv:
+        # tts.py --bhasha [hi] [pa] [--words] — no clips.json; the packs are the list.
+        clips = bhasha_clips(set(args) or None, {'word'} if '--words' in argv else None)
+        by_lang = {}
+        for c in clips:
+            by_lang[c['lang']] = by_lang.get(c['lang'], 0) + 1
+        print('bhasha: %d clips %s' % (len(clips),
+              ' '.join('%s=%d(%s)' % (l, n, VOICE[l][0]) for l, n in sorted(by_lang.items()))))
+    else:
+        clips = json.load(open(args[0]))
 
     if '--audit' in argv:
         # tts.py --audit clips.json [big-wordlist.txt [common-wordlist.txt]]
@@ -340,6 +416,15 @@ def main(argv):
             skip += 1
         else:
             todo.append((c, path))
+
+    if '--dry-run' in argv:
+        # What would be asked for, and how much speech it is, without spending a
+        # request or touching the manifest.
+        chars = sum(len(c['text']) for c, _ in todo)
+        print('DRY-RUN would synthesise %d, cached %d, %d chars' % (len(todo), skip, chars))
+        for c, _ in todo[:10]:
+            print('   %-28s %s  %s' % (c['key'], c['lang'], c['text']))
+        return
 
     done = fail = 0
     lock = threading.Lock()

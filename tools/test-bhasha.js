@@ -119,18 +119,30 @@ Object.keys(P).forEach(function (id) {
   });
   ok(id + ': lexicon glyphs all in ' + sc.id + ' block', bad.length === 0, bad.join(', '));
   ok(id + ': no duplicate words', dup.length === 0, dup.join(', '));
-  ok(id + ': all 8 themes present', Object.keys(themes).length === 8, JSON.stringify(themes));
+  /* The eight founding themes must all survive; a pack may carry more. Hindi has grown to
+     seventeen and pinning the count to eight would fail every time the pack improves. */
+  var CORE = ['greetings', 'family', 'food', 'body', 'home', 'animals', 'colours', 'numbers'];
+  var missingTheme = CORE.filter(function (t) { return !themes[t]; });
+  ok(id + ': the eight core themes are all present', missingTheme.length === 0, missingTheme.join(', '));
   console.log('  ' + id + ': ' + pack.lexicon.length + ' words  ' + JSON.stringify(themes));
 });
-/* the two packs should mirror each other theme for theme */
+/* The packs no longer mirror each other and should not be forced to: Hindi has been taken
+   to 507 words across seventeen themes while Punjabi is still at its founding 74. What must
+   hold is that every theme Punjabi HAS also exists in Hindi, so the smaller pack is a subset
+   of the larger and never invents a theme of its own. */
 var hT = {}, pT = {};
 P.hi.lexicon.forEach(function (w) { hT[w.theme] = (hT[w.theme] || 0) + 1; });
 P.pa.lexicon.forEach(function (w) { pT[w.theme] = (pT[w.theme] || 0) + 1; });
-ok('hi/pa lexicons are parallel by theme', JSON.stringify(hT) === JSON.stringify(pT), JSON.stringify(hT) + ' vs ' + JSON.stringify(pT));
+var orphan = Object.keys(pT).filter(function (t) { return !hT[t]; });
+ok('every Punjabi theme exists in Hindi too', orphan.length === 0, orphan.join(', '));
+console.log('  hi themes: ' + Object.keys(hT).length + '  pa themes: ' + Object.keys(pT).length);
 /* number words must cover 1-10 in both packs */
 [['hi', P.hi], ['pa', P.pa]].forEach(function (p) {
-  var vals = p[1].lexicon.filter(function (w) { return w.theme === 'numbers'; }).map(function (w) { return w.value; }).sort(function (a, b) { return a - b; });
-  eq(p[0] + ': numbers cover 1-10', vals.join(','), '1,2,3,4,5,6,7,8,9,10');
+  /* 1-10 must be there; a pack that also teaches 11-20 or 100 is better, not broken. */
+  var vals = p[1].lexicon.filter(function (w) { return w.theme === 'numbers'; })
+    .map(function (w) { return w.value; }).filter(function (v) { return typeof v === 'number'; });
+  var missingNum = [1,2,3,4,5,6,7,8,9,10].filter(function (n) { return vals.indexOf(n) < 0; });
+  ok(p[0] + ': numbers cover at least 1-10', missingNum.length === 0, 'missing ' + missingNum.join(','));
 });
 /* spot-check the codepoints of the trickiest words by hand */
 console.log('\n=== SPOT-CHECKED WORDS ===');

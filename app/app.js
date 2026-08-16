@@ -885,14 +885,16 @@
 
 
   /* -------------------------------------------------------------- ITIHAAS */
-  /* Age-gated: nothing above the child's band is rendered at all (docs/05 §3). */
-  function ageOK(gate) { return (S.age || 8) >= (gate || 4); }
+  /* NOTHING IS HIDDEN BY AGE ANY MORE. This used to drop every era above the child's band
+     out of the list entirely, which is the worst version of a gate: the child cannot see
+     that the thing exists, so cannot ask about it, and a parent never learns it is there.
+     ageOK() is kept only to decide whether a heads-up is worth showing beside an item. */
+  function needsGrownup(gate) { return (S.age || 8) < (gate || 4); }
 
   V.itihaas = function () {
     var I = window.IND_ITIHAAS;
     if (!I) return '<div class="card"><h1>Itihaas</h1><p>Not loaded.</p></div>';
-    var eras = I.eras.filter(function (e) { return ageOK(e.gate); });
-    var hidden = I.eras.length - eras.length;
+    var eras = I.eras;
     return '<div class="card"><h1>The River of Time</h1><p>' + esc(I.intro) + '</p>' +
       '<div class="row" style="margin-top:6px">' +
       '<span class="badge itihaas">itihaas — what evidence shows</span>' +
@@ -902,19 +904,19 @@
           '<span class="yr">' + esc(e.when) + '</span>' +
           '<span class="node">' + art(e.avatar, 54) + '</span>' +
           '<span class="ttl">' + esc(e.title) + '</span>' +
-          '<span class="tiny muted">' + esc(e.hook) + '</span></button>';
+          '<span class="tiny muted">' + esc(e.hook) + '</span>' +
+          (needsGrownup(e.gate) ? '<span class="badge soft">has a hard part</span>' : '') +
+          '</button>';
       }).join('') + '</div>' +
-      (hidden ? '<div class="card flat tiny"><b>' + hidden + ' more further down the river.</b> ' +
-        'Some of what happened to India is hard, and we show it when a reader is a bit older. ' +
-        'A grown-up can change the age in Me.</div>' : '');
+      '<div class="card flat tiny"><b>The whole river is here.</b> ' +
+      'Some of what happened to India is hard, and none of it is hidden from you. ' +
+      'A few stretches are marked so a grown-up knows to read them with you.</div>';
   };
 
   V.era = function (id) {
     var I = window.IND_ITIHAAS;
     var e = I && I.eras.filter(function (x) { return x.id === id; })[0];
     if (!e) return '<div class="card">Not found.</div>';
-    if (!ageOK(e.gate)) return '<div class="card"><p>This part of the river is for a bit older. ' +
-      'Ask a grown-up.</p><button class="btn" data-act="go" data-v="itihaas">Back</button></div>';
     var big = (S.age || 8) >= 9;
     return '<button class="backlink" data-act="go" data-v="itihaas">' + icon('back', 18) + ' The River of Time</button>' +
       '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(e.avatar, 92) +
@@ -1501,25 +1503,40 @@
       '<div style="flex:1"><h1 style="margin:0">' + esc(e.title) + '</h1>' +
       '<div class="mono">' + esc(e.subtitle || '') + '</div>' +
       '<p style="margin:10px 0 0">' + esc(e.blurb || '') + '</p></div></div></div>' +
+      /* Said once, at the top, rather than implied by a lock on every third row. */
+      (e.gate_note ? '<div class="card flat"><h3 style="margin:0 0 6px">Every episode is open</h3>' +
+        '<p class="tiny" style="margin:0">' + esc(e.gate_note) + '</p></div>' : '') +
       (e.books || []).map(function (b) {
         var eps = byBook[b.id] || [];
         if (!eps.length) return '';
         return '<div class="card"><h3 style="margin:0 0 2px">' + esc(b.name) + '</h3>' +
           '<div class="mono" style="margin-bottom:4px">' + esc(b.meaning || '') + '</div>' +
           (b.note ? '<p class="tiny muted" style="margin:0 0 12px">' + esc(b.note) + '</p>' : '<div style="height:8px"></div>') +
+          /* NOTHING IS LOCKED. This list used to disable every episode above the child's age
+             band and label it "a bit older" — which, at the default age of 8, hid 21 of the
+             Mahabharata's 33 episodes behind a phrase that explained nothing and offered no
+             way forward. A child met a wall of grey and a grown-up was never told why.
+
+             The age number is now an ADVISORY, not a barrier: every card is reachable by
+             everyone, and an episode that carries a `why` shows a quiet heads-up instead of
+             a lock. The information a parent needs is surfaced; the decision stays theirs.
+             `why` is written for a grown-up, so the child-facing badge stays plain. */
           eps.map(function (ep) {
-            var gated = (S.age || 8) < (ep.gate || 0);
+            var heads = (ep.gate || 0) > (e.age_gate || 0);
             var done = !!st.done[ep.n];
             /* A thumbnail of the episode's painting on the list too, so a child chooses by
                picture rather than by reading 33 titles. */
             var th = epicArt(e.id, ep.n);
-            return '<button class="tile eprow" style="margin-bottom:9px' + (gated ? ';opacity:.5' : '') + '"' +
-              (gated ? ' disabled' : '') + ' data-act="episode" data-id="' + e.id + '" data-n="' + ep.n + '">' +
+            return '<button class="tile eprow" style="margin-bottom:9px" ' +
+              'data-act="episode" data-id="' + e.id + '" data-n="' + ep.n + '">' +
               (th ? '<img class="epth" src="' + th + '" alt="">' : '') +
               '<div class="epbody">' +
               '<div class="spread"><b>' + ep.n + '. ' + esc(ep.title) + '</b>' +
-              (done ? '<span class="badge aaj">read</span>' : gated ? '<span class="badge">a bit older</span>' : '') + '</div>' +
+              (done ? '<span class="badge aaj">read</span>'
+                    : heads ? '<span class="badge soft">has a hard part</span>' : '') + '</div>' +
               '<div class="tiny muted" style="margin-top:4px">' + esc(ep.hook) + '</div>' +
+              (heads && ep.why
+                ? '<div class="grownup"><b>For a grown-up:</b> ' + esc(ep.why) + '</div>' : '') +
               (ep.note ? '<div class="tiny muted" style="margin-top:6px"><i>' + esc(ep.note) + '</i></div>' : '') +
               '</div></button>';
           }).join('') + '</div>';
@@ -1598,7 +1615,7 @@
         'language to check it against a printed edition. We would rather say that than pretend. ' +
         'Nothing is quoted from memory — where we were unsure of the wording, we left it out.</div>' : '') +
       '<div class="grid g2">' + K.collections.map(function (c) {
-        var mine = K.verses.filter(function (v) { return v.collection === c.id && (S.age || 8) >= (v.gate || 7); });
+        var mine = K.verses.filter(function (v) { return v.collection === c.id; });
         if (!mine.length) return '';
         return '<button class="tile" data-act="verses" data-id="' + c.id + '">' +
           '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(c.avatar, 58) +
@@ -1614,7 +1631,9 @@
     var K = window.IND_SHLOK;
     var c = K.collections.filter(function (x) { return x.id === cid; })[0];
     if (!c) return '<div class="card">Not found.</div>';
-    var mine = K.verses.filter(function (v) { return v.collection === cid && (S.age || 8) >= (v.gate || 7); });
+    /* Every verse is listed. A verse a child cannot yet carry is still a verse they should
+       know is waiting, and hiding it just made the collection look shorter than it is. */
+    var mine = K.verses.filter(function (v) { return v.collection === cid; });
     var big = (S.age || 8) >= 9;
     return '<button class="backlink" data-act="go" data-v="shlok">' + icon('back', 18) + ' Shlok</button>' +
       '<div class="card"><h1>' + esc(c.name) + '</h1>' +

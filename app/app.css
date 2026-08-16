@@ -761,6 +761,15 @@ button, input, select, textarea { font: inherit; color: inherit; }
   min-height: 260px; display: grid; gap: var(--space-lg); align-content: start;
   animation: turn .26s ease-out;
 }
+/* A heads-up, not a lock. Deliberately quiet — it must not read as a warning label or as a
+   thing withheld, because nothing is withheld. */
+.badge.soft { background: var(--ground2); color: var(--muted); border: 1px solid var(--line); }
+.grownup {
+  margin-top: 8px; padding: 8px 10px; font-size: 12.5px; line-height: 1.5;
+  color: var(--text2); background: var(--ground2);
+  border-left: 3px solid var(--accent2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
 /* An episode row on the list: thumbnail beside the title, so a child picks by picture
    rather than reading 33 titles. Falls back to a plain row when the art is absent. */
 .eprow { display: flex; gap: var(--space-lg); align-items: flex-start; }

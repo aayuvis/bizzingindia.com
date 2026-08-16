@@ -272,7 +272,7 @@ window.IND_SHLOK = {
     {
       id: 'kural-391', collection: 'kural', n: 391,
       text_original: 'கற்க கசடறக் கற்பவை கற்றபின்\nநிற்க அதற்குத் தக',
-      translit: 'katka kasadarak katpavai katrapin\nnitka adharkuth thaga',
+      translit: 'karka kasadarak karpavai katrapin\nnirka adharkuth thaga',
       meaning_kid: 'Learn the things worth learning, and learn them properly, with no ' +
                    'mistakes left in. Then live the way what you learned says to live.',
       meaning_big: 'Learn thoroughly what is worth learning; having learnt it, stand by it.',

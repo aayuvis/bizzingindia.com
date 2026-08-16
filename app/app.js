@@ -568,6 +568,67 @@
 
 
 
+
+  /* ---------------------------------------------------------------- SHLOK */
+  /* The "recited" channel from docs/11 — the thing a grandparent can still say
+     from memory sixty years on. Not a quiz: a verse, what it means, and the
+     invitation to say it back. Everything here is draft until a reader of that
+     language has checked it, and the UI says so rather than hiding it. */
+
+  V.shlok = function () {
+    var K = window.IND_SHLOK;
+    if (!K) return '<div class="card"><h1>Shlok</h1><p>Not loaded.</p></div>';
+    return '<div class="card"><h1>Shlok</h1>' +
+      '<p>Verses worth carrying. Your grandparents can probably still say some of these from ' +
+      'memory — they learned them at about your age, and never lost them.</p></div>' +
+      (K.review && K.review.status !== 'ready' ?
+        '<div class="card flat tiny"><b>Draft.</b> Every verse here still needs a reader of that ' +
+        'language to check it against a printed edition. We would rather say that than pretend. ' +
+        'Nothing is quoted from memory — where we were unsure of the wording, we left it out.</div>' : '') +
+      '<div class="grid g2">' + K.collections.map(function (c) {
+        var mine = K.verses.filter(function (v) { return v.collection === c.id && (S.age || 8) >= (v.gate || 7); });
+        if (!mine.length) return '';
+        return '<button class="tile" data-act="verses" data-id="' + c.id + '">' +
+          '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(c.avatar, 58) +
+          '<div style="flex:1"><h3 style="margin:0">' + esc(c.name) + '</h3>' +
+          '<div class="mono">' + esc(c.language || '') + (c.count_total ? ' · ' + c.count_total + ' in all' : '') + '</div>' +
+          '<p class="tiny" style="margin:7px 0 0">' + esc(c.blurb || '') + '</p>' +
+          '<div class="tiny muted" style="margin-top:7px">' + mine.length + ' here so far</div>' +
+          '</div></div></button>';
+      }).join('') + '</div>';
+  };
+
+  V.verses = function (cid) {
+    var K = window.IND_SHLOK;
+    var c = K.collections.filter(function (x) { return x.id === cid; })[0];
+    if (!c) return '<div class="card">Not found.</div>';
+    var mine = K.verses.filter(function (v) { return v.collection === cid && (S.age || 8) >= (v.gate || 7); });
+    var big = (S.age || 8) >= 9;
+    return '<button class="backlink" data-act="go" data-v="shlok">' + icon('back', 18) + ' Shlok</button>' +
+      '<div class="card"><h1>' + esc(c.name) + '</h1>' +
+      '<div class="mono">' + esc(c.language || '') + '</div>' +
+      '<p style="margin-top:10px">' + esc(c.blurb || '') + '</p>' +
+      '<div class="tiny muted">' + esc(c.source || '') + '</div></div>' +
+      mine.map(function (v) {
+        return '<div class="card">' +
+          '<div class="spread"><span class="mono">' + (v.n_local ? '' : esc(c.name) + ' ' + v.n) + '</span>' +
+          (v.unsure || v.needs_original ? '<span class="badge">wording to check</span>' : '') + '</div>' +
+          (v.text_original ?
+            '<p class="deva" style="font-size:22px;line-height:1.85;margin:12px 0 6px">' + esc(v.text_original) + '</p>' : '') +
+          (v.translit ? '<div class="mono" style="text-transform:none;margin-bottom:10px">' + esc(v.translit) + '</div>' : '') +
+          '<p style="font-size:17px;margin:10px 0 6px">' + esc(v.meaning_kid) + '</p>' +
+          (big && v.meaning_big ? '<p class="tiny muted">' + esc(v.meaning_big) + '</p>' : '') +
+          (v.why ? '<div class="card flat tight" style="margin:12px 0 0"><b>Why carry it.</b> ' + esc(v.why) + '</div>' : '') +
+          '<div class="row" style="margin-top:12px">' +
+          '<button class="pill" data-act="say" data-k="' + esc(v.audio || '') + '">' + icon('sound', 16) + ' hear it</button>' +
+          '<button class="pill" data-act="recite" data-id="' + esc(v.id) + '">' + icon('mic', 16) + ' say it back</button>' +
+          '</div>' +
+          '<div class="tiny muted" style="margin-top:10px">' + esc(v.source) + '</div>' +
+          (v.note ? '<div class="tiny muted" style="margin-top:5px"><i>' + esc(v.note) + '</i></div>' : '') +
+          '</div>';
+      }).join('');
+  };
+
   /* ---------------------------------------------------------------- NEETI */
   /* The payoff here is deliberately NOT a ladder. Nobody acquires a value by
      consuming stories, so levels would be a lie. What earns a bead is DOING the
@@ -875,7 +936,7 @@
 
   /* ================================================================== SHELL */
   var TABS = [['home', 'Home', 'chart'], ['map', 'Map', 'map'], ['stories', 'Stories', 'tree'],
-              ['bhasha', 'Bhasha', 'script'], ['neeti', 'Neeti', 'star'], ['rishtey', 'Rishtey', 'parent'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
+              ['bhasha', 'Bhasha', 'script'], ['neeti', 'Neeti', 'star'], ['shlok', 'Shlok', 'book'], ['rishtey', 'Rishtey', 'parent'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
 
   function chrome() {
     return '<header class="topbar"><div class="bar">' +
@@ -910,6 +971,8 @@
       case 'pack': h = V.pack(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'game': h = V.game(); break;
+      case 'shlok': h = V.shlok(); break;
+      case 'verses': h = V.verses(view.arg); break;
       case 'neeti': h = V.neeti(); break;
       case 'value': h = V.value(view.arg); break;
       case 'rishtey': h = V.rishtey(); break;
@@ -925,7 +988,7 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas', rishquiz: 'rishtey', value: 'neeti' };
+    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas', rishquiz: 'rishtey', value: 'neeti', verses: 'shlok' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
@@ -976,6 +1039,15 @@
     }
     if (a === 'rishnext') { rish.i++; rish.picked = null; return render(); }
     if (a === 'value')  return go('value', t.getAttribute('data-id'));
+    if (a === 'verses') return go('verses', t.getAttribute('data-id'));
+    if (a === 'recite') {
+      /* saying it aloud is the whole exercise; nothing is recorded or scored */
+      S.recited = S.recited || {};
+      var vid = t.getAttribute('data-id');
+      if (!S.recited[vid]) { S.recited[vid] = today(); earn(4, 'said it aloud'); save(); }
+      toast('Say it out loud, twice. That is how it sticks.');
+      return;
+    }
     if (a === 'deed') {
       var vid = t.getAttribute('data-id');
       S.mala = S.mala || [];

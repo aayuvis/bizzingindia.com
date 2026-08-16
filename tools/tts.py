@@ -29,7 +29,8 @@ Two things to know about Google's <phoneme>:
   * text must be XML-escaped BEFORE the tags go in, or a story containing "&"
     produces invalid SSML and the whole request 400s.
 """
-import json, os, base64, urllib.request, time, sys, re
+import json, os, base64, urllib.request, time, sys, re, threading
+import concurrent.futures as cf
 
 # Read lazily, not at import: --print-ssml and the lexicon helpers are useful
 # without a key, and importing this module should never require one.
@@ -328,31 +329,56 @@ def main(argv):
             print()
         return
 
-    done = fail = skip = 0
+    todo = []
+    skip = 0
     for c in clips:
         path = os.path.join(OUT, c['key'] + '.mp3')
         os.makedirs(os.path.dirname(path), exist_ok=True)
+        # >500 bytes, not >0: a truncated or zero-byte file from a killed run is
+        # not a cached clip, and must be asked for again.
         if not force and os.path.exists(path) and os.path.getsize(path) > 500:
             skip += 1
-            continue
+        else:
+            todo.append((c, path))
+
+    done = fail = 0
+    lock = threading.Lock()
+
+    def one(job):
+        nonlocal done, fail
+        c, path = job
         for attempt in range(4):
             try:
-                open(path, 'wb').write(synthesize(c['text'], c['lang']))
-                done += 1
-                break
+                audio = synthesize(c['text'], c['lang'])
+                # Write whole, then move into place: a clip is either absent or
+                # complete, never a half file that the next run mistakes for cached.
+                tmp = path + '.part'
+                with open(tmp, 'wb') as f:
+                    f.write(audio)
+                os.replace(tmp, path)
+                with lock:
+                    done += 1
+                    if (done + skip) % 50 == 0:
+                        print('  ...', done + skip, '/', len(clips), flush=True)
+                return
             except Exception as e:
-                if attempt == 3:
-                    fail += 1
-                    detail = ''
-                    try:
-                        detail = e.read().decode()[:120]
-                    except Exception:
-                        detail = str(e)[:120]
-                    print('FAIL', c['key'], detail, flush=True)
-                else:
+                if attempt < 3:
                     time.sleep(2 ** attempt)
-        if (done + skip) % 25 == 0:
-            print('  ...', done + skip, '/', len(clips), flush=True)
+                    continue
+                try:
+                    detail = e.read().decode()[:120]
+                except Exception:
+                    detail = str(e)[:120]
+                with lock:
+                    fail += 1
+                    print('FAIL', c['key'], detail, flush=True)
+
+    # Modest fan-out. The epics alone are 800 clips and serial that is an hour;
+    # eight in flight is well inside the per-minute quota and the retry above
+    # still covers a throttle.
+    if todo:
+        with cf.ThreadPoolExecutor(max_workers=8) as pool:
+            list(pool.map(one, todo))
 
     total = write_manifest()
     print('DONE new=%d cached=%d failed=%d total=%d manifest=%d'

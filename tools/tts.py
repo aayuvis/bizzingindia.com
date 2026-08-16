@@ -356,8 +356,18 @@ def check_lexicon(terms=None, verbose=True):
 
 # ---------------------------------------------------------------- main ------
 
+# A per-run narrator override: --voice NAME [--rate R]. The story narrator moved
+# from an American voice to an Indian-English one because Indian names in an
+# American mouth is exactly the thing this app exists not to do; the lexicon's
+# IPA still rides along, so the names stay right whoever reads them.
+VOICE_OVERRIDE = {}
+# languageCode sent to the API per clip-language; only an override changes it.
+LOCALE_OF = {}
+
+
 def _post(inp, lang):
-    name, rate = VOICE[lang]
+    name, rate = VOICE_OVERRIDE.get(lang) or VOICE[lang]
+    lang = LOCALE_OF.get(lang, lang)
     body = json.dumps({
         'input': inp,
         'voice': {'languageCode': lang, 'name': name},
@@ -403,6 +413,17 @@ def write_manifest():
 def main(argv):
     force = '--force' in argv
     args = [a for a in argv if not a.startswith('-')]
+
+    # --voice en-IN-Chirp3-HD-Laomedeia [--rate 1.02] [--for en-US]
+    # `--for` is the clip language being replaced; the voice's own locale is read
+    # off its name, so an en-IN narrator can take over every en-US narration clip.
+    if '--voice' in argv:
+        vname = argv[argv.index('--voice') + 1]
+        rate = float(argv[argv.index('--rate') + 1]) if '--rate' in argv else 0.95
+        target = argv[argv.index('--for') + 1] if '--for' in argv else 'en-US'
+        VOICE_OVERRIDE[target] = (vname, rate)
+        LOCALE_OF[target] = '-'.join(vname.split('-')[:2])
+        print('narrator override: %s speaks every %s clip at rate %s' % (vname, target, rate))
 
     if '--check-lexicon' in argv:
         check_lexicon(args or None)

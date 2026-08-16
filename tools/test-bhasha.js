@@ -378,6 +378,117 @@ eq('due() picks the overdue and the unseen', due.map(function (d) { return d.key
 console.log('  due(list): ' + due.map(function (d) { return d.key; }).join(', '));
 console.log('  progress: ' + JSON.stringify(SRS.progress([{ box: 6 }, { box: 4 }, { box: 0 }])));
 
+/* ================= 4. THE SESSION PLANNER (Phase 1-2) ================= */
+console.log('\n\n########## SESSION PLANNER ##########');
+
+var KEY_PREFIX = { s0: 'word:', s1: 'letter:', s2: 'matra:', s3: 'word:', s6: 'conjunct:', s7: 'letter:' };
+var fresh = function () { return { srs: {}, window: [], band: 1, path: 'beginner' }; };
+
+['hi', 'pa'].forEach(function (pid) {
+  ['s1', 's2', 's3'].forEach(function (sid) {
+    var st = fresh();
+    var pl = B.session(pid, sid, st, { now: t0, seed: 'sess-' + pid + sid });
+    ok(pid + '/' + sid + ' session returns a plan', !!pl && pl.specs.length > 0);
+    var graded = pl.specs.filter(function (s) { return s.kind !== 'introduce'; });
+    eq(pid + '/' + sid + ' plans exactly 12 graded beats', graded.length, 12);
+    /* order is the ramp: the introduce beats are the FIRST items of
+       stage.items, in list order */
+    var stage = B.stage(pid, sid);
+    var intros = pl.specs.filter(function (s) { return s.kind === 'introduce'; });
+    ok(pid + '/' + sid + ' fresh profile introduces something', intros.length >= 1);
+    var wantKeys = stage.items.slice(0, intros.length).map(function (it) {
+      return KEY_PREFIX[sid] + (typeof it === 'object' ? (it.id || it.hi) : it);
+    });
+    eq(pid + '/' + sid + ' introduces follow stage.items order',
+      intros.map(function (s) { return s.key; }).join(','), wantKeys.join(','));
+    /* each introduction is followed straight away by two drills of that item */
+    var i0 = pl.specs.indexOf(intros[0]);
+    ok(pid + '/' + sid + ' a new item is drilled twice right after its intro',
+      pl.specs[i0 + 1].kind === 'drill' && pl.specs[i0 + 1].key === intros[0].key &&
+      pl.specs[i0 + 2].kind === 'drill' && pl.specs[i0 + 2].key === intros[0].key);
+    /* every graded spec names a type the stage allows */
+    var badT = graded.filter(function (s) { return stage.types.indexOf(s.type) < 0; });
+    ok(pid + '/' + sid + ' plan types are legal for the stage', badT.length === 0,
+      badT.map(function (s) { return s.type; }).join(','));
+    /* deterministic for a given state and seed */
+    eq(pid + '/' + sid + ' same seed -> same plan',
+      JSON.stringify(B.session(pid, sid, fresh(), { now: t0, seed: 'sess-' + pid + sid })),
+      JSON.stringify(pl));
+  });
+});
+
+/* pinned questions actually drill the pinned item */
+var pq = B.nextQuestion('hi', 's1', 7, { item: 'ख', type: 'soundMatch' });
+eq('pinned soundMatch asks the pinned letter', pq.answer, 'ख');
+eq('pinned soundMatch stamps its itemKey', pq.itemKey, 'letter:ख');
+var pq2 = B.nextQuestion('hi', 's2', 7, { item: 'ी', type: 'matraAttach' });
+eq('pinned matraAttach asks the pinned sign', pq2.matra, 'ी');
+var pq3 = B.nextQuestion('hi', 's3', 7, { item: 'पानी', type: 'wordBuild' });
+eq('pinned wordBuild builds the pinned word', pq3.word, 'पानी');
+var pq4 = B.nextQuestion('hi', 's1', 7, { item: 'आ', type: 'oddOneOut' });
+eq('pinned oddOneOut makes the pinned vowel the odd one', pq4.answer, 'आ');
+
+/* 85% STEERING: a struggling window brings nothing new and leans on review;
+   a soaring one brings extra */
+var stBad = fresh();
+stBad.window = [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0].map(function (v) { return { ok: v, nw: 1 }; });
+B.stage('hi', 's1').items.slice(0, 6).forEach(function (ch, i) {
+  stBad.srs['letter:' + ch] = { key: 'letter:' + ch, box: 1, seen: 3, due: t0 - 1000 };
+});
+var plBad = B.session('hi', 's1', stBad, { now: t0, seed: 'bad' });
+eq('struggling window -> no new items', plBad.newN, 0);
+ok('struggling window -> review-heavy', plBad.reviewN >= 4, 'reviewN=' + plBad.reviewN);
+var stGood = fresh(); stGood.band = 2;
+stGood.window = [1,1,1,1,1,1,1,1,1,1,1,1].map(function (v) { return { ok: 1, nw: 1 }; });
+stGood.srs['letter:अ'] = { key: 'letter:अ', box: 3, seen: 4, due: t0 + 9e9 };  /* something seen, so the fresh-stage seeding stays out of it */
+var plGood = B.session('hi', 's1', stGood, { now: t0, seed: 'good' });
+eq('soaring window at band 2 -> an extra new item', plGood.newN, 3);
+
+/* the review tail closes the session with SRS-due items */
+var stDue = fresh();
+stDue.srs['letter:अ'] = { key: 'letter:अ', box: 3, seen: 5, due: t0 - 5000 };
+var plDue = B.session('hi', 's1', stDue, { now: t0, seed: 'due' });
+var last = plDue.specs[plDue.specs.length - 1];
+ok('a due card comes back as the closing review', last.kind === 'review' && last.key === 'letter:अ',
+  JSON.stringify(last));
+
+/* TEST-OUT: six pinned questions spread across the whole ramp */
+var plT = B.session('pa', 's2', fresh(), { testout: true, seed: 'to' });
+eq('test-out plans six questions', plT.specs.length, 6);
+ok('test-out reaches the far end of the ramp',
+  plT.specs.some(function (s) { return s.key === 'matra:' + B.stage('pa', 's2').items.slice(-1)[0]; }));
+
+/* THE BAND: climb fast (10 @ >=80% with new-ish), fall slow (12 @ <65%) */
+function win(n, okFrac, nw) {
+  var o = [], i; for (i = 0; i < n; i++) o.push({ ok: i < Math.round(n * okFrac) ? 1 : 0, nw: nw ? 1 : 0 });
+  return o;
+}
+eq('band promotes on 10 good with new-ish', SRSBAND(1, win(10, 0.9, true)), 2);
+eq('band will not promote on old cards alone', SRSBAND(1, win(10, 0.9, false)), 1);
+eq('band will not promote on a short window', SRSBAND(1, win(8, 1, true)), 1);
+eq('band demotes only on a full bad window', SRSBAND(3, win(12, 0.5, true)), 2);
+eq('band holds at 11 bad answers', SRSBAND(3, win(11, 0.5, true)), 3);
+eq('band holds in the middle', SRSBAND(2, win(12, 0.7, true)), 2);
+eq('band caps at 5', SRSBAND(5, win(10, 1, true)), 5);
+eq('band floors at 1', SRSBAND(1, win(12, 0.1, true)), 1);
+function SRSBAND(b, w) { return B.bandStep(b, w); }
+
+/* READINESS: boxes -> new / learning / review / mastered */
+var rSrs = {
+  'letter:अ': { key: 'letter:अ', box: 5, seen: 9 },
+  'letter:आ': { key: 'letter:आ', box: 3, seen: 5 },
+  'letter:इ': { key: 'letter:इ', box: 1, seen: 2 },
+  'letter:ई': { key: 'letter:ई', box: 0, intro: t0 }
+};
+var rd = B.readiness('hi', 's1', rSrs);
+eq('readiness total = the stage items', rd.total, 46);
+eq('readiness mastered (box 5)', rd.mastered, 1);
+eq('readiness review (box 3-4)', rd.review, 1);
+eq('readiness learning (box 0 seen - 2)', rd.learning, 2);
+eq('readiness unseen', rd.unseen, 42);
+
+console.log('  session/band/readiness: planner walked for hi+pa s1-s3, steering, test-out, band, readiness');
+
 /* ================= result ================= */
 console.log('\n' + (fails ? 'FAILED ' + fails + ' of ' + checks + ' checks' : 'ALL ' + checks + ' CHECKS PASSED'));
 process.exit(fails ? 1 : 0);

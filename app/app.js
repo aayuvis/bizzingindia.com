@@ -563,6 +563,84 @@
       (f.note ? '<div class="card flat tiny"><b>A note on the pictures.</b> ' + esc(f.note) + '</div>' : '');
   };
 
+
+  /* -------------------------------------------------------------- RISHTEY */
+  /* The kinship words. docs/11: the single most immediately usable thing here —
+     learn it Saturday, use it on Sunday's call. */
+  var rish = { i: 0, picked: null, right: 0 };
+
+  V.rishtey = function () {
+    var R = window.IND_RISHTEY;
+    if (!R) return '<div class="card"><h1>Rishtey</h1><p>Not loaded.</p></div>';
+    var byTier = R.terms.slice().sort(function (a, b) { return a.tier - b.tier; });
+    var week = R.ask[new Date().getDay() % R.ask.length];
+    return '<div class="card"><h1>Rishtey</h1><p>' + esc(R.intro) + '</p>' +
+      '<button class="btn" data-act="rishquiz">Build your family tree →</button></div>' +
+
+      '<div class="card tint notch"><div class="mono">Ask a grown-up this week</div>' +
+      '<p style="font-family:var(--display);font-size:19px;margin:8px 0 0">' + esc(week) + '</p>' +
+      '<p class="tiny muted" style="margin-top:8px">Then tell them what they said. That is how ' +
+      'these stories stay alive — somebody asks.</p></div>' +
+
+      '<div class="card"><h3>Everyone has a name</h3>' +
+      '<div class="grid g2">' + byTier.map(function (t) {
+        return '<button class="tile" data-act="say" data-k="hi/w-' + esc(t.roman.split(' ')[0]) + '">' +
+          '<div class="spread"><div>' +
+          '<span class="deva" style="font-size:26px;font-weight:700">' + esc(t.hi) + '</span> ' +
+          '<span class="mono" style="text-transform:none">' + esc(t.roman) + '</span></div>' +
+          '<span class="pill stat tiny">' + (t.side === 'p' ? 'father’s side' : t.side === 'm' ? 'mother’s side' : 'yours') + '</span>' +
+          '</div>' +
+          '<div style="font-weight:700;margin-top:6px">' + esc(t.en) + '</div>' +
+          (t.note ? '<div class="tiny muted" style="margin-top:5px">' + esc(t.note) + '</div>' : '') +
+          (t.also ? '<div class="tiny muted" style="margin-top:7px">' +
+            Object.keys(t.also).map(function (k) { return esc(t.also[k]); }).join(' · ') + '</div>' : '') +
+          '</button>';
+      }).join('') + '</div></div>' +
+
+      '<div class="card flat tiny"><b>The other languages need a native check.</b> The Hindi is ' +
+      'solid; the Punjabi, Tamil, Bengali, Gujarati and Telugu equivalents are there so this ' +
+      'pillar is not Hindi-only, and a speaker of each should read them before launch.</div>';
+  };
+
+  V.rishquiz = function () {
+    var R = window.IND_RISHTEY, q = R.tree[rish.i];
+    if (!q) {
+      return '<button class="backlink" data-act="go" data-v="rishtey">' + icon('back', 18) + ' Rishtey</button>' +
+        '<div class="card center">' + mascot('gattu', 'wow', 104) +
+        '<h1>That is your family.</h1>' +
+        '<p style="font-size:17px">You got ' + rish.right + ' of ' + R.tree.length + '.</p>' +
+        '<p>Now go and use one. On the next call, say it out loud — <span class="deva">नानी</span>, ' +
+        '<span class="deva">दादा</span>, <span class="deva">मामा</span>. They will hear it.</p>' +
+        '<button class="btn" data-act="rishquiz" data-reset="1">Go again</button></div>';
+    }
+    var pool = R.terms.filter(function (t) { return t.id !== q.answer; });
+    var opts = [q.answer];
+    for (var i = 0; i < pool.length && opts.length < 4; i += Math.max(1, Math.floor(pool.length / 5))) opts.push(pool[i].id);
+    opts.sort(function (a, b) { return a.localeCompare(b); });
+    var term = function (id) { return R.terms.filter(function (t) { return t.id === id; })[0] || {}; };
+    var ans = term(q.answer);
+
+    return '<button class="backlink" data-act="go" data-v="rishtey">' + icon('back', 18) + ' Rishtey</button>' +
+      '<div class="spread" style="margin-bottom:12px"><span class="mono">Your family tree</span>' +
+      '<div class="dots">' + R.tree.map(function (_, i) { return '<i class="' + (i <= rish.i ? 'on' : '') + '"></i>'; }).join('') + '</div></div>' +
+      '<div class="card center"><div class="mono">What do you call</div>' +
+      '<h1 style="margin:8px 0 18px">' + esc(q.slot) + '?</h1>' +
+      (rish.picked ?
+        '<div class="card ' + (rish.picked === q.answer ? 'tint' : 'flat') + '">' +
+          '<div class="deva" style="font-size:44px;font-weight:700">' + esc(ans.hi) + '</div>' +
+          '<div class="mono" style="text-transform:none">' + esc(ans.roman) + '</div>' +
+          '<p style="margin-top:10px">' + esc(ans.en) + '</p>' +
+          (ans.note ? '<p class="tiny muted">' + esc(ans.note) + '</p>' : '') +
+          '<button class="btn block" style="margin-top:12px" data-act="rishnext">Next →</button></div>'
+        : opts.map(function (id) {
+            var t = term(id);
+            return '<button class="opt" data-act="rishpick" data-id="' + id + '">' +
+              '<span class="deva" style="font-size:24px">' + esc(t.hi) + '</span> ' +
+              '<span class="mono" style="text-transform:none">' + esc(t.roman) + '</span></button>';
+          }).join('')) +
+      '</div>';
+  };
+
   /* --------------------------------------------------------------- WORLDS */
   V.worlds = function () {
     return '<div class="card"><h1>Worlds</h1>' +
@@ -705,7 +783,7 @@
 
   /* ================================================================== SHELL */
   var TABS = [['home', 'Home', 'chart'], ['map', 'Map', 'map'], ['stories', 'Stories', 'tree'],
-              ['bhasha', 'Bhasha', 'script'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
+              ['bhasha', 'Bhasha', 'script'], ['rishtey', 'Rishtey', 'parent'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
 
   function chrome() {
     return '<header class="topbar"><div class="bar">' +
@@ -740,6 +818,8 @@
       case 'pack': h = V.pack(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'game': h = V.game(); break;
+      case 'rishtey': h = V.rishtey(); break;
+      case 'rishquiz': h = V.rishquiz(); break;
       case 'itihaas': h = V.itihaas(); break;
       case 'era': h = V.era(view.arg); break;
       case 'dharma': h = V.dharma(); break;
@@ -751,7 +831,7 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas' };
+    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas', rishquiz: 'rishtey' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
@@ -790,6 +870,17 @@
     if (a === 'state')  return go('state', t.getAttribute('data-code'));
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
     if (a === 'era')    return go('era', t.getAttribute('data-id'));
+    if (a === 'rishquiz') {
+      if (t.getAttribute('data-reset') || rish.i >= window.IND_RISHTEY.tree.length) rish = { i: 0, picked: null, right: 0 };
+      return go('rishquiz');
+    }
+    if (a === 'rishpick') {
+      var pick = t.getAttribute('data-id');
+      rish.picked = pick;
+      if (pick === window.IND_RISHTEY.tree[rish.i].answer) { rish.right++; earn(3, 'rishtey'); }
+      return render();
+    }
+    if (a === 'rishnext') { rish.i++; rish.picked = null; return render(); }
     if (a === 'story') {
       var id = t.getAttribute('data-id');
       play = { story: null, i: 0, answered: false }; go('story', id);

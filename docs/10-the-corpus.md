@@ -89,6 +89,40 @@ kind of error that ends the product's credibility with the exact families it is 
 
 ---
 
+## 3.5 Two kinds of corpus — and only one of them is a ladder
+
+**Correction, and it matters more than anything else in this document.** The first draft
+applied Bizzing Bee's ladder to everything. That is wrong for stories, and wrong in a way that
+would have made the product worse.
+
+| | **Masterable** | **A library** |
+|---|---|---|
+| What | Bhasha words · Shlok verses · states, rivers, monuments | **The stories** · the faiths |
+| The unit | something you either know or don't | something you *love*, and want again |
+| Progress | real: mastered / learning / new | meaningless — you never "complete" the Ramayana |
+| Repetition | failure to recall → schedule it sooner | hearing it for the fiftieth time **is the point** |
+| Right verb | practise | **tell me one** |
+| Right UI | ladder, heatmap, streak, completion meter | shelves, artwork, a voice, "again" |
+
+A grandmother has never once said *"tonight we are on level seven."* She says *"shall I tell
+you the one about the rabbit and the lion?"* — and if the child asks for the same one four
+nights running, that is a success, not a stalled journey. Putting a progress bar on that turns
+the warmest thing in the product into homework, which is precisely what makes a diaspora
+parent feel guilty and close the app.
+
+**So: the ladder lives on Bhasha, Shlok and Bhugol. The stories are a library.** The count
+still matters — but as *abundance*, the promise that there is always another one, never as a
+completion target. "Nothing is skipped" is the right promise for words. For stories the right
+promise is: **there is always another one, and you can have your favourite again.**
+
+What that means concretely:
+- No progress bar, no percentage, no "N of 38" on any story surface.
+- **Tell me one** is the primary action — the app picks, the way a grandparent picks.
+- **Again** is a first-class button. Re-listening is tracked as love, not repetition.
+- Shelves, not a path: by mood, by occasion, by who is in it, by how long you have.
+- The **occasion** surfaces itself — the Diwali story in Diwali week, a rain story in monsoon.
+- Artwork does the work of a grandmother's face. It has to be beautiful or none of this lands.
+
 ## 4. The ladder, restated
 
 Directly parallel to Bizzing Bee's *Spellbound Journey → Champion's Library*:
@@ -143,6 +177,11 @@ what we are missing, and depth is what gets repeated to another parent.
 
 Bizzing Bee: *"128,040 words. Every one waits its turn."*
 
-Bizzing India: **_"1,008 stories and 2,500 verses of India. Nothing skipped."_**
+Bizzing India, and note the two halves do different jobs:
+
+> **_"2,500 verses to carry. 1,008 stories to be told — the way your grandmother would."_**
+
+The verses are a ladder and the promise is *nothing skipped*. The stories are a library and the
+promise is *there is always another one, and you can have it again*.
 
 If we cannot say that truthfully, we have not built the product yet.

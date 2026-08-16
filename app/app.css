@@ -202,7 +202,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .card.flat { box-shadow: none; background: var(--card2); }
 .grid { display: grid; gap: var(--space-lg); }
 .g2 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-.g3 { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); }
+/* auto-fit, not auto-fill: with three items in a wide container auto-fill leaves empty
+   phantom columns and squeezes the real ones against the left edge. */
+.g3 { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 .g4 { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
 .row { display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap; }
 .spread { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
@@ -355,6 +357,33 @@ button, input, select, textarea { font: inherit; color: inherit; }
   font-size: 26px; line-height: 1; color: var(--accent2);
 }
 
+/* -------------------------------------------------------------------- home */
+/* Today: three invitations side by side, one per way this app gets used. Each one ends in a
+   button, because the point of this card is that something happens. */
+.today { display: grid; gap: var(--space-lg); grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.td {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-sm);
+  padding: var(--space-lg); background: var(--ground2);
+  border: 1px solid var(--line); border-radius: var(--radius-lg);
+}
+.td p { margin: 0; font-size: 14.5px; line-height: 1.55; flex: 1; }
+.td .btn, .td .pill { margin-top: auto; }
+
+/* Your yatra: five true numbers, not a row of identical mascots on an XP bar. */
+.ygrid {
+  display: grid; gap: var(--space-md); margin-top: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.ycell {
+  padding: var(--space-md); background: var(--ground2);
+  border-radius: var(--radius-md); display: grid; gap: 2px;
+}
+.ycell b { font-family: var(--display); font-size: 27px; line-height: 1.1; }
+.ycell > span { font-size: 13.5px; color: var(--text2); }
+
+/* An empty mala still shows its shape — a string of beads waiting, not a blank. */
+.mala.empty i { background: none; border: 1.5px dashed var(--line2); opacity: .8; }
+
 /* -------------------------------------------------------------------- geet */
 /* Verses are set to be sung from, not skimmed: generous leading, centred, and never
    letter-spaced — several of these are Devanagari, Tamil and Gurmukhi, where letter-spacing
@@ -417,6 +446,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
   transition: transform .15s, border-color .15s, box-shadow .15s;
 }
 .tile:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: var(--shadow-lg); }
+/* A tile's kicker, title and blurb are three stacked lines. Left inline they run into each
+   other — "ON THIS MONTHNuakhai" — which is how it read before this rule. */
+.tile > .mono, .tile > b { display: block; }
+.tile > b { font-family: var(--display); font-size: 17px; line-height: 1.3; margin: 4px 0; }
+.tile > .mono + b { margin-top: 6px; }
 .tile.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
 /* avatar chip — the "Pick a buddy" grid */

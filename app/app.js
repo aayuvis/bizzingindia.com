@@ -288,39 +288,59 @@
                  '“I remember every single thing. Come and see.”',
                  '“The mist is thinner than yesterday. That was you.”'][new Date().getDate() % 3];
 
-    function metric(colour, label, now, of) {
-      return '<div class="metric"><i style="background:' + colour + '"></i>' + label +
-        '<b>' + now + '<span class="muted">/' + of + '</span></b></div>';
-    }
+    /* TODAY. This used to be a "goal" card showing three unrelated counters, one of which
+       (Words) only ever moved if the family had bought Bhasha — so for a free child the
+       headline goal on the home screen was permanently stuck at zero.
 
-    return '<div class="statrow" style="margin-bottom:var(--space-lg)">' +
-      /* greeting + the buddy actually says something */
-      '<div class="card notch" style="margin:0"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
+       It is now three invitations instead of three numbers, one for each way this app is
+       used, and every one of them works without a subscription:
+
+         HEAR one — a story. No counter on it, ever. Stories are a library, not a ladder
+                    (docs/10 §3.5), so the verb is "tell me one", not "3 of 3 done".
+         DO one   — the day's deed. This is the payoff system: a bead for something you
+                    DID, never for something you read.
+         CARRY one — the word of the day. This one is masterable, so a count is honest here.
+
+       The streak stays because a rhythm is not a completion target, but it is a footnote
+       now rather than the headline. */
+    var K = window.IND_NEETI;
+    var todayValue = K ? K.values[Math.floor(Date.now() / 86400000) % K.values.length] : null;
+    var deedDone = todayValue && (S.mala || []).some(function (b) {
+      return b.v === todayValue.id && b.on === today();
+    });
+
+    return '<div class="card notch"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
         art(S.buddy, 72) +
         '<div style="flex:1"><div class="tiny muted">' + greet + ',</div>' +
         '<h2 style="margin:0 0 10px">' + esc(S.name || 'Yatri') + '</h2>' +
         '<div class="bubble">' + esc(hello) + '</div></div></div></div>' +
 
-      /* daily goal, several metrics at once */
-      '<div class="card notch" style="margin:0">' +
-        '<h3 style="margin:0 0 12px">Today’s goal</h3>' +
-        metric('var(--accent3)', 'Stories', S.todayCount, S.goal) +
-        metric('var(--good)', 'Places lit', lit, 34) +
-        metric('var(--accent)', 'Words', wordsN, 20) +
-        '<div class="meter" style="margin-top:12px"><i style="width:' +
-          Math.min(100, Math.round(S.todayCount / S.goal * 100)) + '%"></i></div>' +
-        '<div class="tiny muted" style="margin-top:8px">🪔 ' + S.streak.count + '-day streak · ' +
-        esc(rank()) + ' · Lv ' + (lv + 1) + '</div>' +
-      '</div>' +
+      '<div class="card"><div class="spread" style="margin-bottom:var(--space-lg)">' +
+        '<h3 style="margin:0">Today</h3>' +
+        '<span class="tiny muted">' + (S.streak.count
+          ? '🪔 ' + S.streak.count + '-day streak'
+          : 'Nothing yet today') + '</span></div>' +
 
-      /* shabd of the hour — our version of "word of the hour" */
-      '<div class="card tint notch" style="margin:0">' +
-        '<div class="mono">Shabd of the hour</div>' +
-        '<div class="deva" style="font-family:var(--deva);font-size:34px;font-weight:700;line-height:1.3">' + esc(w[0]) + '</div>' +
-        '<div class="mono" style="text-transform:none">/ ' + esc(w[1]) + ' /</div>' +
-        '<p class="tiny" style="margin:8px 0 10px">' + esc(w[2]) + '</p>' +
-        '<button class="pill" data-act="say" data-k="' + esc(w[3]) + '">' + icon('sound', 16) + ' hear it</button>' +
-      '</div></div>' +
+        '<div class="today">' +
+          '<div class="td"><span class="mono">Hear one</span>' +
+            '<p>A story, the way it would be told to you.</p>' +
+            '<button class="btn" data-act="tellone">' + icon('play', 18) + ' Tell me one</button></div>' +
+
+          (todayValue
+            ? '<div class="td"><span class="mono">Do one</span>' +
+              '<p><b>' + esc(todayValue.roman) + '</b> — ' + esc(todayValue.en) + '.<br>' +
+              esc(todayValue.doit) + '</p>' +
+              (deedDone
+                ? '<span class="pill stat">A bead on your mala ✓</span>'
+                : '<button class="btn ghost" data-act="deed" data-id="' + todayValue.id + '">I did it</button>')
+            + '</div>'
+            : '') +
+
+          '<div class="td"><span class="mono">Carry one</span>' +
+            '<p lang="hi" style="font-size:28px;line-height:1.5;margin:0">' + esc(w[0]) + '</p>' +
+            '<p class="tiny muted" style="margin:0 0 4px">/ ' + esc(w[1]) + ' / · ' + esc(w[2]) + '</p>' +
+            '<button class="pill" data-act="say" data-k="' + esc(w[3]) + '">' + icon('sound', 16) + ' hear it</button></div>' +
+        '</div></div>' +
 
       /* the two big illustrated journeys */
       '<div class="grid g2" style="grid-template-columns:1fr 1fr">' +
@@ -328,10 +348,14 @@
           '<div class="banner" style="background-image:url(art/banner/stories.jpg)">' +
             '<span class="chip">' + icon('tree', 20) + '</span>' +
             '<span class="tag">' + totalStories + ' stories</span></div>' +
-          '<div class="body"><div class="tiny muted">Next on your yatra</div>' +
+          /* Not "next on your yatra" — there is no next. It is a library and you pick.
+             The Tell-me-one button lives in Today; a second copy here just made the same
+             offer twice on one screen. */
+          '<div class="body"><div class="tiny muted">The whole library</div>' +
           '<h2 style="margin:2px 0 6px">Under the Banyan</h2>' +
-          '<p class="tiny" style="margin:0 0 14px">Panchatantra · Akbar &amp; Birbal · the great stories — each one with a choice to make in the middle.</p>' +
-          '<span class="btn">' + icon('play', 18) + ' Tell me one</span></div></button>' +
+          '<p class="tiny" style="margin:0">Panchatantra, Jataka, the Puranas, the Ramayana and ' +
+          'the Mahabharata, and the folk tales of every state — with your favourite always ' +
+          'there to hear again.</p></div></button>' +
 
         '<button class="journey" data-act="go" data-v="map">' +
           '<div class="banner" style="background-image:url(art/banner/map.jpg)">' +
@@ -358,47 +382,97 @@
           })()
         : '') +
 
-      /* the two nugget cards */
-      '<div class="grid g2" style="grid-template-columns:1fr 1fr;margin-top:var(--space-lg)">' +
-        '<div class="card notch"><div class="mono">Today’s tip from Mithu</div>' +
-          '<div class="row" style="flex-wrap:nowrap;margin-top:8px">' +
-          '<p class="tiny" style="flex:1;margin:0">Ask a grown-up which of these stories <i>they</i> were told as a child. ' +
-          'Nearly every family tells them a little differently — and their version is the one worth knowing.</p>' +
-          mascot('mithu', 'talk', 62) + '</div></div>' +
-        '<div class="card tint notch"><div class="mono">Subhashita of the hour</div>' +
-          '<p style="font-family:var(--display);font-size:18px;font-style:italic;margin:8px 0 6px">“' + esc(q[0]) + '”</p>' +
-          '<div class="tiny muted">— ' + esc(q[1]) + '</div></div>' +
-      '</div>' +
+      /* One nugget, not two. The Mithu tip said "ask a grown-up which version they were
+         told", which is the same job the Ask Nani card above does properly and with a real
+         question — so it was the same idea twice, weaker the second time. */
+      '<div class="card tint notch" style="margin-top:var(--space-lg)">' +
+        '<div class="row" style="flex-wrap:nowrap;align-items:center">' +
+        '<div style="flex:1"><div class="mono">Subhashita of the hour</div>' +
+        '<p style="font-family:var(--display);font-size:19px;font-style:italic;margin:8px 0 6px">“' + esc(q[0]) + '”</p>' +
+        '<div class="tiny muted">— ' + esc(q[1]) + '</div></div>' +
+        mascot('mithu', 'talk', 62) + '</div></div>' +
 
-      /* the rest of the map */
-      '<div class="grid g2" style="margin-top:var(--space-lg)">' +
-        [['neeti', 'Neeti', '12 values', 'The values the stories carry — and one small thing to actually do.'],
-         ['bhasha', 'Bhasha', 'Hindi · Punjabi', 'Real script from day one, on one engine that will take every Indian language.'],
-         ['learn', 'Learn', 'Map · Itihaas · Dharma', 'The map, the centuries and the faiths.'],
-         ['play', 'Play', '5 stalls open', 'Rangoli Rush, State Hunt, Festival Frenzy, Jataka Jump and Rishtey.']]
-        .map(function (c) {
-          return '<button class="tile" data-act="go" data-v="' + c[0] + '">' +
-            '<div class="spread"><h3 style="margin:0">' + c[1] + '</h3><span class="pill stat tiny">' + c[2] + '</span></div>' +
-            '<p class="tiny" style="margin:8px 0 0">' + c[3] + '</p></button>';
-        }).join('') +
-      '</div>' +
+      /* WHAT IS ON NOW. The four tiles that used to sit here — Neeti, Bhasha, Learn, Play —
+         were the top navigation printed a second time, with a static label under each. A
+         child had no more reason to tap "Play · 5 stalls open" than to tap the word Play in
+         the bar above it. Replaced with things that are actually true today: the festival
+         that falls this month, and a state that is still under the mist. */
+      (function () {
+        var bits = [];
+        var now = (typeof utsavNow === 'function') ? utsavNow() : [];
+        if (now.length) {
+          var f = now[new Date().getDate() % now.length];
+          bits.push('<button class="tile" data-act="fest" data-id="' + f.id + '">' +
+            '<span class="mono">On this month</span>' +
+            '<b>' + esc(f.name) + '</b>' +
+            '<p class="tiny">' + esc(f.do && f.do[0] ? f.do[0] : f.kid) + '</p></button>');
+        }
+        var G = window.IND_GEO;
+        var dark = G ? Object.keys(window.IND_MAP.paths).filter(function (c) { return !S.lit[c]; }) : [];
+        if (dark.length) {
+          var c = dark[new Date().getDate() % dark.length];
+          bits.push('<button class="tile" data-act="peekgo" data-code="' + c + '">' +
+            '<span class="mono">Still under the mist</span>' +
+            '<b>' + esc(stateName(c)) + '</b>' +
+            '<p class="tiny">' + (((window.IND_STATES || {})[c] || {}).trivia || [''])[0] + '</p></button>');
+        }
+        var st = allStories();
+        if (st.length) {
+          var s = st[(new Date().getDate() * 7) % st.length];
+          bits.push('<button class="tile" data-act="story" data-id="' + s.id + '">' +
+            '<span class="mono">If you only have five minutes</span>' +
+            '<b>' + esc(s.title) + '</b>' +
+            '<p class="tiny">' + esc(s.hook || '') + '</p></button>');
+        }
+        return bits.length
+          ? '<div class="grid g3" style="margin-top:var(--space-lg)">' + bits.join('') + '</div>'
+          : '';
+      })() +
 
-      /* the mala — deeds, not levels. See docs/12. */
-      (S.mala && S.mala.length ? V.malaStrip() : '') +
+      /* YOUR YATRA. This was a row of identical mascots on an XP ladder, which told a child
+         nothing about their own journey and — worse — put a level ladder over stories, which
+         docs/10 §3.5 says explicitly not to do.
 
-      /* rank ladder — the Bizzing Bee evolution row */
-      '<div class="card" style="margin-top:var(--space-lg)">' +
-        '<div class="spread" style="margin-bottom:14px"><h3 style="margin:0">Your yatra</h3>' +
-        '<span class="tiny muted">You’re <b>' + esc(rank()) + '</b>' +
-        (lv < RANKS.length - 1 ? ' — next: ' + esc(RANKS[lv + 1]) : ' — the top') + '</span></div>' +
-        '<div class="ladder">' + RANKS.map(function (r, i) {
-          return '<div class="rung ' + (i === lv ? 'cur' : i < lv ? 'done' : 'locked') + '">' +
-            '<div class="lv">Lv ' + (i + 1) + '</div>' +
-            '<div style="margin:6px 0">' + mascot('gattu', i === lv ? 'wow' : 'happy', 46) + '</div>' +
-            '<div class="nm">' + esc(r) + '</div></div>';
-        }).join('') + '</div>' +
-        '<div class="meter" style="margin-top:12px"><i style="width:' + pct + '%"></i></div>' +
-      '</div>';
+         What it shows now is the five things that are actually true of this child, and it
+         separates them the way the doc does. Stories are a COUNT, never a fraction: the
+         promise there is abundance, "there is always another one", not completion. The map,
+         the verses and the words are genuinely masterable, so they get a denominator. The
+         mala gets neither, because deeds are not a score.
+
+         All of it works without a subscription except the words, which appear only once the
+         child has actually started a pack — no more dead zero on the home screen. */
+      (function () {
+        var heard = Object.keys(S.read).length;
+        var verses = Object.keys(S.recited || {}).length;
+        var beads = (S.mala || []).length;
+        var totalVerses = window.IND_SHLOK ? window.IND_SHLOK.verses.length : 0;
+        var cell = function (n, of, label, note) {
+          return '<div class="ycell"><b>' + n + (of ? '<span class="muted"> / ' + of + '</span>' : '') + '</b>' +
+            '<span>' + label + '</span>' +
+            (note ? '<span class="tiny muted">' + note + '</span>' : '') + '</div>';
+        };
+        return '<div class="card" style="margin-top:var(--space-lg)">' +
+          '<div class="spread" style="margin-bottom:4px"><h3 style="margin:0">Your yatra</h3>' +
+          '<span class="pill stat">' + esc(rank()) + '</span></div>' +
+          '<p class="tiny muted">Where you have got to. Nothing here expires and nothing here ' +
+          'goes down.</p>' +
+          '<div class="ygrid">' +
+            cell(heard, 0, 'stories heard', 'out of ' + totalStories + ' — and more keep arriving') +
+            cell(lit, 34, 'places remembered', 'the mist lifts as you read') +
+            cell(beads, 0, 'beads on your mala', 'one for each thing you did') +
+            (totalVerses ? cell(verses, totalVerses, 'verses carried', 'said out loud, not just read') : '') +
+            (wordsN ? cell(wordsN, 0, 'words known', 'across every language you have started') : '') +
+          '</div>' +
+          '<div class="meter" style="margin-top:var(--space-lg)"><i style="width:' + pct + '%"></i></div>' +
+          '<p class="tiny muted" style="margin-top:8px">' +
+            (lv < RANKS.length - 1 ? 'Next: <b>' + esc(RANKS[lv + 1]) + '</b>' : 'You are at the top of the ladder') +
+          '</p></div>';
+      })() +
+
+      /* THE MALA, always — and explained. It used to appear only once a child had already
+         earned a bead, which meant the one screen that could explain the payoff system was
+         invisible to everybody who had not already worked it out. */
+      V.malaStrip();
   };
 
   /* -------------------------------------------------------------------- MAP
@@ -1574,16 +1648,36 @@
       }).join('') + '</div>';
   };
 
+  /* THE MALA — the payoff system, and the one thing in this app that needed explaining and
+     did not explain itself. It replaces the ladder deliberately (docs/11 §3.5, the founder's
+     "don't apply the Bizzing Bee ladder"): a mala is counted through by hand, one bead at a
+     time, and nobody checks it. That is the whole idea. A bead is earned by DOING something
+     — moving the spider outside — never by finishing a story.
+
+     So it renders whether or not there are any beads, and the empty state is where the rule
+     gets stated. Hiding it until the first bead meant the only surface that explained the
+     system was invisible to everyone who had not already worked the system out. */
   V.malaStrip = function () {
-    var K = window.IND_NEETI, beads = S.mala || [];
+    var K = window.IND_NEETI; if (!K) return '';
+    var beads = S.mala || [];
     var col = function (id) { var v = K.values.filter(function (x) { return x.id === id; })[0]; return v ? v.colour : 'var(--accent)'; };
-    return '<div class="card"><div class="spread" style="margin-bottom:10px">' +
+    return '<div class="card" style="margin-top:var(--space-lg)"><div class="spread" style="margin-bottom:10px">' +
       '<div><h3 style="margin:0">Your mala</h3>' +
-      '<div class="tiny muted">One bead for every time you did something, not read something.</div></div>' +
+      '<div class="tiny muted">A bead for every time you <b>did</b> something — never for ' +
+      'reading one. Nobody checks it. That is rather the point.</div></div>' +
       '<span class="pill stat">' + beads.length + '</span></div>' +
-      '<div class="mala">' + beads.slice(-40).map(function (b) {
-        return '<i style="background:' + col(b.v) + '" title="' + esc(b.v) + '"></i>';
-      }).join('') + '</div></div>';
+      (beads.length
+        ? '<div class="mala">' + beads.slice(-40).map(function (b) {
+            return '<i style="background:' + col(b.v) + '" title="' + esc(b.v) + '"></i>';
+          }).join('') + '</div>' +
+          (beads.length > 40 ? '<p class="tiny muted">showing the last 40</p>' : '')
+        : '<div class="mala empty">' +
+            new Array(13).join('<i></i>') +
+          '</div>' +
+          '<p class="tiny muted">Empty for now. Do the small thing at the top of this screen ' +
+          'and the first one is yours — and it stays, because a bead is something you did and ' +
+          'that cannot un-happen.</p>') +
+      '</div>';
   };
 
   V.value = function (id) {
@@ -1976,6 +2070,9 @@
       mapFocus = (mapFocus === pc) ? null : pc;
       return render();
     }
+    /* From Home: open the map already focused on that state, so the tap lands somewhere
+       that explains itself rather than on a map the child then has to search. */
+    if (a === 'peekgo') { mapFocus = t.getAttribute('data-code'); return go('map'); }
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
     if (a === 'fest')   return go('festival', t.getAttribute('data-id'));
     if (a === 'gullyg') return go('gullygame', t.getAttribute('data-id'));

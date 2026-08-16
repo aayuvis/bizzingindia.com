@@ -204,39 +204,8 @@
       '</button>';
   }
 
-  /* ------------------------------------------------------------ AVATAR CARD */
-  /* The Bee's trading-card layer, in this house's voice (avatar-cards.js has
-     the data and the design notes). One deliberate difference from the Bee:
-     sacred figures carry no numbers — their card says 'beyond measure'.
-     Every card wears the same glow-in-the-dark finish; rarity is paused. */
-  V.avcard = function (id) {
-    var name = (window.IND_AVATAR_NAMES || {})[id] || id;
-    var C = window.IND_AV_CARD ? window.IND_AV_CARD(id) : null;
-    var mine = S.buddy === id;
-    var statRows = '';
-    if (C && C.stats) {
-      statRows = (window.IND_AV_STAT_KEYS || []).map(function (k) {
-        var v = C.stats[k[0]] || 0;
-        return '<div class="avstat"><span class="avlbl">' + k[1] + ' ' + esc(k[2]) + '</span>' +
-          '<span class="avbar"><i style="width:' + v + '%"></i></span>' +
-          '<b>' + v + '</b></div>';
-      }).join('');
-    } else if (C && C.sacred) {
-      statRows = '<div class="avbeyond">beyond measure</div>';
-    }
-    return '<button class="backlink" data-act="go" data-v="me">' + icon('back', 18) + ' Back</button>' +
-      '<div class="avcardwrap"><div class="avcard' + (C && C.sacred ? ' sacred' : '') + '">' +
-        '<div class="avhalo">' + art(id, 148) + '</div>' +
-        '<h1>' + esc(name) + '</h1>' +
-        (C && C.title ? '<div class="mono avtitle">' + esc(C.title) + '</div>' : '') +
-        (C && C.lore ? '<p class="avlore">' + esc(C.lore) + '</p>' : '') +
-        statRows +
-        (C && C.fact ? '<div class="avfact"><b>Did you know?</b> ' + esc(C.fact) + '</div>' : '') +
-        (mine
-          ? '<span class="pill stat" style="margin-top:14px">Travelling with you ✓</span>'
-          : '<button class="btn lg" style="margin-top:14px" data-act="pick" data-id="' + id + '">Travel with me</button>') +
-      '</div></div>';
-  };
+  /* (the avatar card view lives just after V's declaration below — it cannot
+     be defined here, above `var V = {}`) */
 
   /* Stories arrive one file at a time and the library only ever grows, so each source is
      folded in defensively — a file that has not loaded yet costs an empty array, not a
@@ -344,6 +313,40 @@
 
   /* =================================================================== VIEWS */
   var V = {};
+
+  /* ------------------------------------------------------------ AVATAR CARD */
+  /* The Bee's trading-card layer, in this house's voice (avatar-cards.js has
+     the data and the design notes). One deliberate difference from the Bee:
+     sacred figures carry no numbers — their card says 'beyond measure'.
+     Every card wears the same glow-in-the-dark finish; rarity is paused. */
+  V.avcard = function (id) {
+    var name = (window.IND_AVATAR_NAMES || {})[id] || id;
+    var C = window.IND_AV_CARD ? window.IND_AV_CARD(id) : null;
+    var mine = S.buddy === id;
+    var statRows = '';
+    if (C && C.stats) {
+      statRows = (window.IND_AV_STAT_KEYS || []).map(function (k) {
+        var v = C.stats[k[0]] || 0;
+        return '<div class="avstat"><span class="avlbl">' + k[1] + ' ' + esc(k[2]) + '</span>' +
+          '<span class="avbar"><i style="width:' + v + '%"></i></span>' +
+          '<b>' + v + '</b></div>';
+      }).join('');
+    } else if (C && C.sacred) {
+      statRows = '<div class="avbeyond">beyond measure</div>';
+    }
+    return '<button class="backlink" data-act="go" data-v="me">' + icon('back', 18) + ' Back</button>' +
+      '<div class="avcardwrap"><div class="avcard' + (C && C.sacred ? ' sacred' : '') + '">' +
+        '<div class="avhalo">' + art(id, 148) + '</div>' +
+        '<h1>' + esc(name) + '</h1>' +
+        (C && C.title ? '<div class="mono avtitle">' + esc(C.title) + '</div>' : '') +
+        (C && C.lore ? '<p class="avlore">' + esc(C.lore) + '</p>' : '') +
+        statRows +
+        (C && C.fact ? '<div class="avfact"><b>Did you know?</b> ' + esc(C.fact) + '</div>' : '') +
+        (mine
+          ? '<span class="pill stat" style="margin-top:14px">Travelling with you ✓</span>'
+          : '<button class="btn lg" style="margin-top:14px" data-act="pick" data-id="' + id + '">Travel with me</button>') +
+      '</div></div>';
+  };
 
   /* -------------------------------------------------------------- LANDING */
   V.landing = function () {

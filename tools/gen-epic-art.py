@@ -21,7 +21,7 @@ actually read on that card.
 Usage:
     export GEMKEY=...            # never hardcode, never print
     python3 tools/gen-epic-art.py                    # resumable: skips what exists
-    python3 tools/gen-epic-art.py --slice 3/8        # one worker's share of the list
+    python3 -u tools/gen-epic-art.py --slice 3/8     # one worker's share (-u: see progress live)
     python3 tools/gen-epic-art.py --only ramayana-11-4
     python3 tools/gen-epic-art.py --print-prompt ramayana-11-4   # no API call
     python3 tools/gen-epic-art.py --manifest-only
@@ -87,30 +87,44 @@ MASTER_DIR = os.path.join(ROOT, "masters", "epic")
 MASTER_QUALITY = 92           # near-native; the book tier
 WIDTH, HEIGHT, QUALITY = 900, 506, 80   # 16:9 web tier
 
-# Two finished paintings from the story set, sent with every request so the epic
-# art matches the book rather than re-inventing it. One animal/forest scene, one
-# with people, deities and architecture, so both halves have something to lock on to.
-REF_IMAGES = [
-    os.path.join(STORY_DIR, "pt-lion-rabbit.jpg"),
-    os.path.join(STORY_DIR, "pu-krishna-kaliya.jpg"),
-]
+# STYLE SEEDS. Every request carries these finished paintings as inline_data so the whole
+# run converges on one look — written style words alone drift badly over hundreds of calls,
+# and across parallel workers the shared seeds are what stops one slice diverging from
+# another's.
+#
+# This directory starts EMPTY on purpose. The epics are painted in the soft animated-film
+# style below, which is deliberately not the Indian folk-art idiom of app/art/story — seeding
+# with those paintings would drag every card straight back to Madhubani. The workflow is:
+# generate two or three cards with no seed, pick the best by eye, drop it in here, and let it
+# hold the rest of the run.
+SEED_DIR = os.path.join(ROOT, "tools", "style-ref", "epic")
+REF_IMAGES = ([os.path.join(SEED_DIR, f) for f in sorted(os.listdir(SEED_DIR))
+               if f.lower().endswith((".jpg", ".png"))]
+              if os.path.isdir(SEED_DIR) else [])
 
 REF_NOTE = (
-    "The two paintings above are from the same children's book. Match them exactly: "
-    "the same fine ink linework, the same warm saturated palette, the same handmade-paper "
-    "grain, the same soft painted shading, the same density of small ornament. "
+    "The painting(s) above are finished pages from this same children's book. Match them "
+    "exactly: the same soft painted rendering, the same palette and light, the same "
+    "character-design language and facial style, the same level of background detail. "
     "Paint the new scene below as another page of that same book. "
 )
 
 # ---------------------------------------------------------------- house style --
 STYLE = (
-    "A richly painted Indian folk-art storybook illustration — Madhubani, Pattachitra "
-    "and Mughal-miniature influence, fine ink linework over warm saturated colour, "
-    "deep indigo and ochre and marigold and turquoise, glowing atmospheric light, "
-    "handmade-paper texture, painted leaves and birds and small pattern woven through "
-    "the scene itself. Purely pictorial: painted figures, animals, architecture and "
-    "ornament only. One single continuous painted scene filling the frame edge to edge, "
-    "16:9 landscape composition, warm and beautiful and gentle, for a children's book. "
+    "A soft, hand-painted animated-film illustration in the Japanese feature-animation "
+    "tradition: luminous watercolour and gouache backgrounds, gentle rounded character "
+    "designs with warm expressive faces and large clear eyes, delicate cel linework over "
+    "painted scenery, lush layered foliage, drifting clouds and long shafts of natural "
+    "light, dust and pollen in the air, deep atmospheric perspective, a quiet unhurried "
+    "mood. Nature is painted with love and detail — every leaf, every stone, moving grass, "
+    "wind through the trees. The colour is warm and slightly sun-faded: deep greens, "
+    "sky-blues, ochres, saffron and marigold. "
+    "Everything in the scene is INDIAN and specific: real Indian dress — dhoti, angavastram, "
+    "sari, uttariya — real Indian architecture, courtyards, stepwells, temple towers, "
+    "banyan and peepal and mango trees, Indian birds and animals, the Gangetic plain and "
+    "the Deccan and the Himalaya. Indian faces and skin tones. "
+    "One single continuous painted scene filling the frame edge to edge, 16:9 landscape "
+    "composition, cinematic, warm and beautiful and gentle, for a children's storybook. "
     "The painting shows: "
 )
 
@@ -655,6 +669,20 @@ PROMPTS = {
 
 
 # --------------------------------------------------------------------- utils --
+# ---------------------------------------------------------------- kill switch --
+# A fleet of workers re-runs this script on a loop, so "stop generating" cannot be done
+# by killing processes — they come straight back. Touch tools/.artstop and every run
+# exits immediately instead. Delete it to resume.
+STOP_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".artstop")
+
+
+def check_stop():
+    if os.path.exists(STOP_FILE):
+        print("tools/.artstop present — generation halted deliberately. "
+              "Delete that file to resume.", flush=True)
+        sys.exit(0)
+
+
 def load_cards():
     """Every card in both epics, in order, as
        (key, epicId, episodeN, cardIndex, cardText, episodeTitle).
@@ -809,6 +837,7 @@ def main():
     ap.add_argument("--manifest-only", action="store_true")
     ap.add_argument("--print-prompt", help="print one card's prompt and exit, no API call")
     args = ap.parse_args()
+    check_stop()
 
     os.makedirs(OUT_DIR, exist_ok=True)
     cards = load_cards()
@@ -854,9 +883,10 @@ def main():
                 calls += 1
                 raw = generate(build_card_prompt(c[1], c[2], c[4], c[5]), key, args.model)
                 to_jpeg(raw, path, os.path.join(MASTER_DIR, ck + ".jpg"))
-                print("made  ", ck, "%.0f kB web" % (os.path.getsize(path) / 1024))
+                print("made  ", ck, "%.0f kB web" % (os.path.getsize(path) / 1024),
+                      flush=True)
             except Exception as err:
-                print("FAIL  ", ck, err)
+                print("FAIL  ", ck, err, flush=True)
             time.sleep(1)
 
     have = [k for k in known if os.path.exists(os.path.join(OUT_DIR, k + ".jpg"))]

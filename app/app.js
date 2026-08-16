@@ -3095,6 +3095,28 @@
     render();
     // Also the handle tools/verify.js drives the app by, so the headless walk exercises the
     // real navigation rather than a parallel test path.
+    /* THE UPDATE NUDGE. This is a single-page app: a tab left open serves the version it
+       booted with forever, and GitHub Pages caches for ten minutes on top — so "I deployed
+       it" and "they can see it" can disagree for a while, and did. Every few minutes the
+       app asks for build.js with a cache-busting query; if the answer names a newer build,
+       a small bar offers one tap to reload. Never automatic — a child mid-story is not
+       interrupted by a refresh. */
+    var updateOffered = false;
+    setInterval(function () {
+      if (updateOffered || !window.fetch) return;
+      fetch('build.js?live=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text(); })
+        .then(function (t) {
+          var m = t.match(/IND_BUILD\s*=\s*'([^']+)'/);
+          if (!m || !window.IND_BUILD || m[1] === window.IND_BUILD) return;
+          updateOffered = true;
+          var bar = document.createElement('button');
+          bar.className = 'updatebar';
+          bar.textContent = 'A newer Bizzing India is ready — tap to load it';
+          bar.addEventListener('click', function () { location.reload(); });
+          document.body.appendChild(bar);
+        }).catch(function () { /* offline is fine; the app is offline-first */ });
+    }, 3 * 60 * 1000);
+
     window.BI = { S: S, go: go, render: render, Store: Store,
                   allStories: allStories, epics: epics,
                   storyThemes: function () { return STORY_THEMES.map(function (t) { return t.id; }); } };

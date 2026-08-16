@@ -101,6 +101,16 @@ function isCombiningMark(cp) {
   }
   /* Gurmukhi carries three signs outside the shared layout */
   if (cp === 0x0A70 || cp === 0x0A71 || cp === 0x0A75) return true; /* tippi, addak, yakash */
+  /* Arabic script, for the Urdu pack. Urdu is the one pack whose script is
+     not an Indic abugida, but the clustering question is the same: the
+     harakat (zabar, zer, pesh), tashdeed, jazm and the superscript alef
+     ride the letter before them and must stay on its tile. */
+  if (cp >= 0x0610 && cp <= 0x061A) return true;
+  if (cp >= 0x064B && cp <= 0x065F) return true;
+  if (cp === 0x0670) return true;
+  if (cp >= 0x06D6 && cp <= 0x06DC) return true;
+  if (cp >= 0x06DF && cp <= 0x06E8) return true;
+  if (cp >= 0x06EA && cp <= 0x06ED) return true;
   return false;
 }
 function isVirama(cp) { return cp >= 0x0900 && cp <= 0x0DFF && (cp & 0x7F) === 0x4D; }
@@ -1534,6 +1544,40 @@ var PA_PACK = {
 };
 
 W.IND_PACKS = { hi: HI_PACK, pa: PA_PACK };
+
+/* ==================================================== THE PACK KIT ======= */
+/* docs/09's promise — "adding Gujarati or Tamil is a data file, not a
+   rewrite" — is only true if a data file can actually reach the ladder.
+   This is the whole surface a sibling pack file needs: the shared theme
+   list, the shared eight-stage ladder, the item derivation, the lexicon
+   builder, and a register() that refuses to overwrite an existing script
+   or pack so load order can never silently replace Hindi.
+
+   A pack file loads AFTER bhasha.js and looks like:
+
+       var K = window.IND_BHASHA_KIT;
+       var BENGALI = { id: 'bengali', block: [0x0980, 0x09FF], ... };
+       var BN_LEX = K.packWords('bn', [ ... ]);
+       K.register(BENGALI, {
+         id: 'bn', name: { en: 'Bengali', native: 'বাংলা' },
+         script: 'bengali', lexicon: BN_LEX, themes: K.THEMES,
+         stages: K.ladder(K.stageItems(BENGALI, BN_LEX)), ...
+       });
+
+   `block` is the script's Unicode range, asserted by tools/test-bhasha.js
+   the same way the two founding scripts are. */
+W.IND_BHASHA_KIT = {
+  THEMES: THEMES,
+  ladder: ladder,
+  stageItems: stageItems,
+  packWords: packWords,
+  chars: chars,
+  themeWords: themeWords,
+  register: function (script, pack) {
+    if (script && script.id && !W.IND_SCRIPTS[script.id]) W.IND_SCRIPTS[script.id] = script;
+    if (pack && pack.id && !W.IND_PACKS[pack.id]) W.IND_PACKS[pack.id] = pack;
+  }
+};
 
 /* ======================================================== THE ENGINE ===== */
 

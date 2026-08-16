@@ -39,14 +39,21 @@ const ARG_VIEWS = {
 };
 
 const NO_ARG = ['home', 'map', 'stories', 'itihaas', 'dharma', 'learn', 'play', 'epics',
-                'shlok', 'neeti', 'rishtey', 'worlds', 'bhasha', 'me', 'utsav', 'gully', 'nani', 'shelf', 'invite', 'geet'];
+                'shlok', 'neeti', 'rishtey', 'worlds', 'bhasha', 'me', 'utsav', 'gully', 'nani', 'shelf', 'invite', 'geet',
+                'tongue'];
 
 async function main() {
   const i = process.argv.indexOf('--url');
   const url = i > -1 ? process.argv[i + 1]
                      : 'file://' + path.join(__dirname, '..', 'app', 'index.html');
 
-  const browser = await chromium.launch();
+  /* In the hosted build environment the browser is pre-installed at a fixed path and the
+     npm-installed playwright may be a newer build than the binary on disk — point at the
+     binary directly when it exists, and behave normally everywhere else. */
+  const fs = require('fs');
+  const preinstalled = '/opt/pw-browsers/chromium';
+  const browser = await chromium.launch(
+    fs.existsSync(preinstalled) ? { executablePath: preinstalled } : {});
   const page = await browser.newPage({ viewport: { width: 420, height: 900 } });
 
   const errors = [];

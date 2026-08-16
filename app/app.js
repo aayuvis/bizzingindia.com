@@ -69,6 +69,7 @@
   /* =================================================================== STATE */
   var S = Store.loadProfile() || {
     schemaVersion: 1, name: '', age: 8, mode: 'bade',
+    tongue: null,                 /* mother-tongue id from data-tongue.js; null = lean nowhere */
     buddy: 'ganesha', world: 'chitrakatha',
     kauris: 0, xp: 0,
     lit: {}, read: {}, lang: {},
@@ -144,6 +145,49 @@
 
   function stateArt(code) {
     return (window.IND_STATE_ART && window.IND_STATE_ART.indexOf(code) >= 0) ? 'art/state/' + code + '.jpg' : null;
+  }
+
+  /* ------------------------------------------------------- MOTHER TONGUE */
+  /* The family's language, chosen once and changeable any time (data-tongue.js).
+     Leaning is ORDERING, never gating: nothing is hidden from any child by any
+     of these helpers. The pillar names stay Sanskrit for everyone. */
+  function tongue() { var T = window.IND_TONGUE; return (T && S.tongue) ? T.get(S.tongue) : null; }
+  function homeStates() { var t = tongue(); return (t && t.states) || []; }
+  function isHome(c) { return homeStates().indexOf(c) >= 0; }
+  /* What THIS family calls a grandparent. The role ids are the Hindi ones the
+     Ask-Nani data is keyed by; the word shown is the family's own. */
+  function kinTerm(role) {
+    if (!role || role === 'any') return 'someone older';
+    var base = { nani: 'Nani', nana: 'Nana', dadi: 'Dadi', dada: 'Dada' };
+    var t = tongue();
+    return (t && t.kin && t.kin[role]) || base[role] || role;
+  }
+  /* Swap the address word at the head of an English question — ONLY the
+     English. The Hindi lines agree their verbs with the addressee and are
+     never string-swapped (see the warning in data-nani.js). */
+  function kinEn(q) {
+    var t = tongue();
+    if (!t || t.id === 'hi' || !q) return q && q.en;
+    return q.en.replace(/^(Nani|Nana|Dadi|Dada)\b/, kinTerm(q.to));
+  }
+  /* 'Nani-Nana Stories' in the family's own words — 'Paati-Thaatha Stories'
+     for a Tamil child. The Hindi default keeps the authored title. */
+  function naniTitle() {
+    var N = window.IND_NANI, t = tongue();
+    if (!N) return '';
+    if (!t || t.id === 'hi') return N.archive.title;
+    return kinTerm('nani') + '-' + kinTerm('nana') + ' Stories';
+  }
+  /* The picker row, shared by onboarding and the tongue page. */
+  function tongueChips() {
+    var T = window.IND_TONGUE; if (!T) return '';
+    return '<div class="row" style="margin-top:10px">' + T.list.map(function (t) {
+      return '<button class="pill' + (S.tongue === t.id ? ' on' : '') + '" data-act="settongue" ' +
+        'data-id="' + t.id + '"><span lang="' + t.lang + '">' + esc(t.native) + '</span>' +
+        ' <span class="tiny muted">' + esc(t.en) + '</span></button>';
+    }).join('') +
+      '<button class="pill' + (!S.tongue ? ' on' : '') + '" data-act="settongue" data-id="">' +
+      'All of them</button></div>';
   }
 
   /* one avatar chip, graded by rarity */
@@ -304,6 +348,9 @@
   };
 
   /* ------------------------------------------------------------- ONBOARDING */
+  /* Picking a chip re-renders the whole form, so the typed name is carried
+     across renders by hand — otherwise choosing your buddy erased your name. */
+  var obName = '';
   V.onboard = function () {
     var packs = window.IND_AVATAR_PACKS || [];
     return '<div class="wrap" style="max-width:640px">' +
@@ -312,10 +359,15 @@
         '<h1>Who’s exploring?</h1>' +
         '<p>Set up your traveller. Nothing here leaves this device.</p>' +
         '<label class="tiny" style="font-weight:700">Name</label>' +
-        '<input id="nm" class="opt" style="margin:6px 0 18px" placeholder="Their name" />' +
+        '<input id="nm" class="opt" style="margin:6px 0 18px" placeholder="Their name" value="' + esc(obName) + '" />' +
         '<label class="tiny" style="font-weight:700">Age · <b id="ageOut">' + S.age + '</b></label>' +
         '<input id="ageIn" type="range" min="4" max="12" value="' + S.age + '" style="width:100%;margin:10px 0 6px" />' +
         '<p class="tiny muted">4–7 gets big pictures and no reading. 8–12 gets the map, quizzes and script.</p>' +
+        '<h3 style="margin-top:22px">What does your family speak at home?</h3>' +
+        '<p class="tiny muted" style="margin:4px 0 0">Your family’s places rise to the top of the ' +
+        'shelf, your state glows on the map, and the grandparent words become your own. Nothing is ' +
+        'hidden either way — skip it or change it whenever you like.</p>' +
+        tongueChips() +
         '<h3 style="margin-top:22px">Pick who travels with you</h3>' +
         packs.map(function (p) {
           return '<div class="tiny muted" style="margin:14px 0 8px;font-weight:700">' + esc(p.name) + '</div>' +
@@ -352,7 +404,13 @@
     var hour = new Date().getHours();
     var greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
     var wordsN = Object.keys(S.lang).reduce(function (n, k) { return n + (S.lang[k].correct || 0); }, 0);
-    var w = SHABD[hour % SHABD.length], q = SUBHASHITA[hour % SUBHASHITA.length];
+    /* the word of the day arrives in the family's language when one is chosen;
+       the Hindi set keeps its recorded voice, the others speak via the
+       synthesis fallback until their packs record */
+    var tg = tongue();
+    var W = (tg && tg.words && tg.words.length) ? tg.words : SHABD;
+    var w = W[hour % W.length], q = SUBHASHITA[hour % SUBHASHITA.length];
+    var wLang = (tg && tg.words) ? tg.lang : 'hi';
     var hello = ['“Chalo — one story and a whole state wakes up.”',
                  '“I remember every single thing. Come and see.”',
                  '“The mist is thinner than yesterday. That was you.”'][new Date().getDate() % 3];
@@ -406,9 +464,10 @@
             : '') +
 
           '<div class="td"><span class="mono">Carry one</span>' +
-            '<p lang="hi" style="font-size:28px;line-height:1.5;margin:0">' + esc(w[0]) + '</p>' +
+            '<p lang="' + esc(wLang) + '" style="font-size:28px;line-height:1.5;margin:0">' + esc(w[0]) + '</p>' +
             '<p class="tiny muted" style="margin:0 0 4px">/ ' + esc(w[1]) + ' / · ' + esc(w[2]) + '</p>' +
-            '<button class="pill" data-act="say" data-k="' + esc(w[3]) + '">' + icon('sound', 16) + ' hear it</button></div>' +
+            '<button class="pill" data-act="say" data-k="' + esc(w[3] || '') + '" data-t="' + esc(w[0]) +
+            '" data-l="' + esc(wLang) + '-IN">' + icon('sound', 16) + ' hear it</button></div>' +
         '</div></div>' +
 
       /* the two big illustrated journeys */
@@ -445,8 +504,8 @@
             var q = naniWeek();
             return '<button class="card askcard" data-act="go" data-v="nani" ' +
               'style="margin-top:var(--space-lg);width:100%;text-align:left">' +
-              '<div class="mono">This week, ask ' + esc(q.to === 'any' ? 'someone older' : q.to) + '</div>' +
-              '<h2 style="margin:8px 0 4px">' + esc(q.en) + '</h2>' +
+              '<div class="mono">This week, ask ' + esc(kinTerm(q.to)) + '</div>' +
+              '<h2 style="margin:8px 0 4px">' + esc(kinEn(q)) + '</h2>' +
               '<p class="tiny muted" style="margin:0">' + esc(q.roman) + '</p></button>';
           })()
         : '') +
@@ -639,7 +698,11 @@
     var paths = codes.map(function (c) {
       var isLit = !!S.lit[c], has = stateArt(c) && bb[c];
       var fill = has ? 'url(#pt' + c + ')' : 'var(--mist)';
+      /* .home is the family's own state — a STATIC warm outline, set in CSS.
+         Nothing about it animates, pulses or rewards; the boundary rules in
+         CLAUDE.md are absolute and a glow that breathes would break them. */
       return '<g class="terrg' + (isLit ? ' lit' : '') + (mapFocus === c ? ' on' : '') +
+          (isHome(c) ? ' home' : '') +
           '" data-act="peek" data-code="' + c + '" tabindex="0" role="button" ' +
           'aria-label="' + esc(stateName(c)) + '">' +
         '<title>' + esc(stateName(c)) + '</title>' +
@@ -695,6 +758,8 @@
               }).join('') + '</div>'
             : '<p class="tiny muted">We are still writing this one up.</p>') +
           (triv ? '<p class="ctriv">' + esc(triv) + '</p>' : '') +
+          (isHome(mapFocus)
+            ? '<p class="tiny" style="margin:6px 0 0;color:var(--accent)">Your family’s language lives here.</p>' : '') +
           '<button class="btn sm block" data-act="state" data-code="' + mapFocus + '">Open ' +
             esc(stateName(mapFocus)) + ' →</button>' +
         '</div>';
@@ -935,7 +1000,7 @@
       (window.IND_NANI
         ? '<button class="tile" style="margin:var(--space-lg) 0 0" data-act="go" data-v="nani">' +
           '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + icon('mic', 36) +
-          '<div style="flex:1"><h3 style="margin:0">' + esc(window.IND_NANI.archive.title) + '</h3>' +
+          '<div style="flex:1"><h3 style="margin:0">' + esc(naniTitle()) + '</h3>' +
           '<p class="tiny" style="margin:5px 0 0">Stories in your own family\u2019s voice \u2014 the ' +
           'warmest shelf in this library. Record a grandparent, keep it forever.</p></div></div></button>'
         : '') +
@@ -945,6 +1010,19 @@
         '<p class="tiny" style="margin:5px 0 0">The Ramayana and the Mahabharata, one card at a ' +
         'time. Read one, stop, come back tomorrow — nobody finishes these in a night.</p></div></div></button>' : '') +
 
+      /* The family's own places first — leaning, not gating: every other shelf
+         is right below, untouched. */
+      (function () {
+        var t = tongue(); if (!t) return '';
+        var hs = homeStates();
+        var mine = all.filter(function (x) {
+          return (x.place || []).some(function (p) { return hs.indexOf(String(p).replace('IN-', '')) >= 0; });
+        });
+        if (!mine.length) return '';
+        var names = hs.map(stateName);
+        var where = names.length > 3 ? names.slice(0, 3).join(', ') + ' and more' : names.join(', ');
+        return shelf('From your family’s places', 'The ' + t.en + ' country — ' + where + '.', mine);
+      })() +
       shelf('Again', 'The ones you loved. A story is not used up.', loved) +
       cols.map(function (c) {
         return shelf(c.name, c.note, all.filter(function (x) { return x.collection === c.id; }));
@@ -995,7 +1073,10 @@
       '<h1 style="margin-top:8px">' + esc(st.title) + '</h1>' +
       '<p style="font-size:18px;max-width:52ch;margin:0 auto var(--space-md)">' + esc(st.moral) + '</p>' +
       (place ? '<span class="badge aaj">🪔 The mist lifted off ' + esc(place) + '</span>' : '') + '</div>' +
-      (st.words_hi && st.words_hi.length ? '<div class="card"><h3>Three words from this story</h3><div class="grid g3">' +
+      /* the story word-lists are Hindi content; when the family's tongue is
+         something else, the heading says so honestly rather than pretending */
+      (st.words_hi && st.words_hi.length ? '<div class="card"><h3>Three ' +
+        (tongue() && tongue().id !== 'hi' ? 'Hindi ' : '') + 'words from this story</h3><div class="grid g3">' +
         st.words_hi.map(function (w) {
           return '<button class="tile center" data-act="say" data-k="hi/w-' + slug(w[1]) + '">' +
             '<div class="deva" style="font-size:28px">' + esc(w[0]) + '</div>' +
@@ -1458,11 +1539,11 @@
     var n = (nani.clips || []).length;
 
     return '<button class="backlink" data-act="go" data-v="home">' + icon('back', 18) + ' Home</button>' +
-      '<div class="card"><h1>' + esc(N.archive.title) + '</h1><p>' + esc(N.archive.tagline) + '</p></div>' +
+      '<div class="card"><h1>' + esc(naniTitle()) + '</h1><p>' + esc(N.archive.tagline) + '</p></div>' +
 
       (q ? '<div class="card askcard">' +
-          '<span class="mono">This week, ask ' + esc(q.to === 'any' ? 'someone older' : q.to) + '</span>' +
-          '<h2 style="margin:8px 0">' + esc(q.en) + '</h2>' +
+          '<span class="mono">This week, ask ' + esc(kinTerm(q.to)) + '</span>' +
+          '<h2 style="margin:8px 0">' + esc(kinEn(q)) + '</h2>' +
           '<p lang="' + esc(q.lang || 'hi') + '" style="margin-bottom:4px">' + esc(q.hi) + '</p>' +
           '<p class="tiny muted">' + esc(q.roman) + '</p>' +
           (q.follow ? '<p class="tiny"><b>If the answer is short, ask:</b> ' + esc(q.follow) + '</p>' : '') +
@@ -1470,7 +1551,7 @@
         '</div>' : '') +
 
       '<div class="grid g2">' +
-        hubCard('shelf', N.archive.title, n ? n + (n === 1 ? ' voice kept here' : ' voices kept here')
+        hubCard('shelf', naniTitle(), n ? n + (n === 1 ? ' voice kept here' : ' voices kept here')
                                             : 'Nothing on the shelf yet.', 'mic') +
         hubCard('invite', 'Ask a grandparent', N.invite.landing.what, 'parent') +
       '</div>';
@@ -1484,7 +1565,7 @@
 
     return '<button class="backlink" data-act="go" data-v="nani">' + icon('back', 18) + ' Back</button>' +
       '<div class="card">' +
-        '<h1>' + esc(N.archive.title) + '</h1>' +
+        '<h1>' + esc(naniTitle()) + '</h1>' +
         '<p>' + esc(N.archive.child) + '</p>' +
         (nani.rec
           ? '<button class="btn lg block" data-act="recstop">■ Stop and keep it</button>'
@@ -2103,7 +2184,7 @@
       '<p style="font-family:var(--display);font-size:21px;margin:8px 0 14px">' + esc(v.doit) + '</p>' +
       '<div class="row">' +
       '<button class="btn" data-act="deed" data-id="' + v.id + '">I did it</button>' +
-      '<button class="btn ghost" data-act="deednani" data-id="' + v.id + '">Tell Nani</button></div>' +
+      '<button class="btn ghost" data-act="deednani" data-id="' + v.id + '">Tell ' + esc(kinTerm('nani')) + '</button></div>' +
       (done.length ? '<div class="tiny muted" style="margin-top:12px">You have done this ' +
         done.length + ' time' + (done.length > 1 ? 's' : '') + '. Last: ' + esc(done[done.length - 1].on) + '</div>' : '') +
       '<p class="tiny muted" style="margin-top:10px">Nobody is checking. That is rather the point.</p></div>' +
@@ -2238,14 +2319,30 @@
       '<p>Not one language — a platform. Hindi and Punjabi run on the <b>same engine</b>, because almost every ' +
       'Indian script works the same way underneath. Adding Gujarati or Tamil is a data file, not a rewrite.</p>' +
       '<span class="badge">Premium in the real product</span></div>' +
-      '<div class="grid g2">' + Object.keys(packs).map(function (k) {
-        var p = packs[k], sc = window.IND_SCRIPTS[p.script], st = S.lang[k] || { asked: 0, correct: 0 };
-        return '<button class="tile" data-act="pack" data-id="' + k + '">' +
-          '<div class="deva" style="font-size:44px;line-height:1">' + esc(sc && sc.consonants && sc.consonants[0] ? sc.consonants[0].char : '') + '</div>' +
-          '<h3 style="margin:10px 0 2px" class="deva">' + esc(p.name.native || p.name.en) + '</h3>' +
-          '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc ? sc.name : p.script) + '</div>' +
-          '<div class="tiny muted" style="margin-top:8px">' + st.correct + ' right of ' + st.asked + '</div></button>';
-      }).join('') + '</div>' +
+      /* the family's language leads; everything else follows in file order */
+      (function () {
+        var keys = Object.keys(packs), t = tongue();
+        /* the registry names a pack id, but only a pack that has actually
+           REGISTERED counts — packs land one data file at a time */
+        var lead = t && t.pack && packs[t.pack] ? t.pack : null;
+        if (lead && keys.indexOf(lead) > 0) {
+          keys.splice(keys.indexOf(lead), 1); keys.unshift(lead);
+        }
+        var missing = t && !lead
+          ? '<div class="card tint"><b lang="' + t.lang + '">' + esc(t.native) + '</b> — ' +
+            esc(t.en) + ' is on its way onto this same engine: the same eight rungs, ' +
+            esc(t.en) + ' words. Every pack below is open to you meanwhile.</div>'
+          : '';
+        return missing + '<div class="grid g2">' + keys.map(function (k) {
+          var p = packs[k], sc = window.IND_SCRIPTS[p.script], st = S.lang[k] || { asked: 0, correct: 0 };
+          return '<button class="tile" data-act="pack" data-id="' + k + '">' +
+            (lead === k ? '<div class="mono" style="color:var(--accent)">your family’s language</div>' : '') +
+            '<div class="deva" lang="' + esc((p.name.nativeLang || k)) + '" style="font-size:44px;line-height:1">' + esc(sc && sc.consonants && sc.consonants[0] ? sc.consonants[0].char : '') + '</div>' +
+            '<h3 style="margin:10px 0 2px" class="deva" lang="' + esc(k) + '">' + esc(p.name.native || p.name.en) + '</h3>' +
+            '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc ? sc.name : p.script) + '</div>' +
+            '<div class="tiny muted" style="margin-top:8px">' + st.correct + ' right of ' + st.asked + '</div></button>';
+        }).join('') + '</div>';
+      })() +
       /* Practice wearing a costume. With Play gone from the bar, the drills live beside the
          path they drill for — the Duolingo move: the game is the treat at the rung. The Mela
          keeps every stall for whoever wants the whole fairground. */
@@ -2446,6 +2543,36 @@
       'no child data leaves the browser — which is also how the real product is designed (docs/07).</p></div>';
   };
 
+  /* ---------------------------------------------------------------- TONGUE */
+  /* The family-language picker. It leans, it never gates — the copy on this
+     page is the contract, so keep it honest if it changes. */
+  V.tongue = function () {
+    var t = tongue();
+    return '<button class="backlink" data-act="go" data-v="home">' + icon('back', 18) + ' Home</button>' +
+      '<div class="card"><h1>Your family’s language</h1>' +
+      '<p>We don’t know where your family is from — so tell us once, and the app leans your ' +
+      'way. Everything stays; only the order changes.</p>' +
+      tongueChips() + '</div>' +
+      '<div class="card"><h3 style="margin:0 0 6px">What leans</h3>' +
+      '<ul class="dolist">' +
+      '<li>Stories from your family’s places come to the top of the shelf.</li>' +
+      '<li>Your states glow on the map.</li>' +
+      '<li>Your language leads in Bhasha' + (t && !(t.pack && window.IND_PACKS && window.IND_PACKS[t.pack])
+        ? ' — ' + esc(t.en) + '’s pack is still being built, and the engine is ready for it'
+        : '') + '.</li>' +
+      '<li>The word of the day arrives in your language.</li>' +
+      '<li>The grandparent words become your own — ' +
+      (t && t.id !== 'hi'
+        ? 'you ask <b>' + esc(kinTerm('nani')) + '</b> and <b>' + esc(kinTerm('nana')) + '</b>'
+        : 'a Tamil child asks <b>Paati</b>, not Nani') + '.</li></ul>' +
+      (t && t.kinNote ? '<p class="tiny muted" style="margin-top:10px">' + esc(t.kinNote) +
+        ' Kinship words differ family to family — ask yours.</p>' : '') + '</div>' +
+      '<div class="card flat tiny"><b>What never changes.</b> Itihaas, Neeti and Bhasha keep ' +
+      'their Sanskrit names — those belong to everyone. And no language hides anything: every ' +
+      'story, every state and every pack stays open to every child. Languages don’t stop at ' +
+      'state lines either — the states above are where yours is most at home, not a fence.</div>';
+  };
+
   /* ================================================================== SHELL */
   /* FIVE TABS, one per verb. Stories is everything told; India is everything that is a
      place or a time (the map with the River of Time inside it); Neeti is everything
@@ -2460,6 +2587,12 @@
     return '<header class="topbar"><div class="barrow">' +
       '<div class="brand">' + mascot('gattu', 'happy', 34) + 'Bizzing <em>India</em></div>' +
       '<span class="pill stat">🐚 <span id="kauriCount">' + S.kauris + '</span></span>' +
+      /* the family-language chip: shows the tongue in its own script, opens the picker */
+      (window.IND_TONGUE
+        ? '<button class="pill stat" data-act="go" data-v="tongue" aria-label="Your family’s language">' +
+          (tongue() ? '<span lang="' + tongue().lang + '">' + esc(tongue().native) + '</span>' : icon('script', 16)) +
+          '</button>'
+        : '') +
       '<button class="iconbtn" data-act="sound" aria-label="sound">' + icon('sound', 20) + '</button>' +
       '<button class="iconbtn" data-act="go" data-v="me" aria-label="you" style="overflow:hidden;padding:0">' +
       art(S.buddy, 40) + '</button>' +
@@ -2516,6 +2649,7 @@
       case 'festival': h = V.festival(view.arg); break;
       case 'faith': h = V.faith(view.arg); break;
       case 'worlds': h = V.worlds(); break;
+      case 'tongue': h = V.tongue(); break;
       case 'me': h = V.me(); break;
       default: h = V.home();
     }
@@ -2538,7 +2672,7 @@
                   game: 'bhasha', mela: 'bhasha', play: 'bhasha', rishtey: 'bhasha', rishquiz: 'bhasha',
                   nani: 'stories', shelf: 'stories', invite: 'stories',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
-                  worlds: 'me' };
+                  worlds: 'me', tongue: 'home' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
@@ -2763,7 +2897,19 @@
     }
     if (a === 'say')    return speak(t.getAttribute('data-k'),
                                      t.getAttribute('data-t'), t.getAttribute('data-l'));
-    if (a === 'pick')   { S.buddy = t.getAttribute('data-id'); save(); return render(); }
+    if (a === 'pick')   {
+      if (view.name === 'onboard') { var nmKeep = $('#nm'); if (nmKeep) obName = nmKeep.value; }
+      S.buddy = t.getAttribute('data-id'); save(); return render();
+    }
+    if (a === 'settongue') {
+      if (view.name === 'onboard') { var nmKeep2 = $('#nm'); if (nmKeep2) obName = nmKeep2.value; }
+      S.tongue = t.getAttribute('data-id') || null; save();
+      var tg = tongue();
+      toast(tg ? tg.en + ' it is — ask ' + kinTerm('nani') + '.' : 'All of India, evenly.');
+      /* the topbar chip shows the tongue, and chrome() is cached — rebuild it */
+      if ($('.topbar')) document.getElementById('app').innerHTML = chrome();
+      return render();
+    }
     if (a === 'world')  { S.world = t.getAttribute('data-w'); save(); toast('World: ' + S.world); return render(); }
     if (a === 'start')  {
       var nm = $('#nm'), ag = $('#ageIn');

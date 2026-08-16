@@ -7,6 +7,15 @@ global.window = W;
 var src = fs.readFileSync(require('path').join(__dirname, '..', 'app', 'bhasha.js'), 'utf8');
 vm.runInThisContext(src, { filename: 'bhasha.js' });
 
+/* Sibling pack files register through IND_BHASHA_KIT exactly as the browser
+   loads them: bhasha.js first, then every app/data-bhasha-*.js in name
+   order. A pack that only works when loaded by hand is not a pack. */
+var appDir = require('path').join(__dirname, '..', 'app');
+fs.readdirSync(appDir).filter(function (f) { return /^data-bhasha-.*\.js$/.test(f); })
+  .sort().forEach(function (f) {
+    vm.runInThisContext(fs.readFileSync(require('path').join(appDir, f), 'utf8'), { filename: f });
+  });
+
 var S = W.IND_SCRIPTS, P = W.IND_PACKS, B = W.IND_BHASHA, SRS = W.IND_SRS;
 var fails = 0, checks = 0;
 function cps(s) { var o = [], i; for (i = 0; i < s.length; i++) o.push(s.charCodeAt(i).toString(16).toUpperCase().padStart(4, '0')); return o.join('+'); }
@@ -73,9 +82,14 @@ eq('gur RRA stays precomposed U+0A5C', cps(G.consonants[31].char), '0A5C');
 eq('gur.painti length (35)', G.painti.length, 35);
 
 /* --- block containment + conjunct composition + audio-key uniqueness --- */
-function blockOf(id) { return id === 'devanagari' ? [0x0900, 0x097F] : [0x0A00, 0x0A7F]; }
+/* The two founding scripts predate the `block` field; every script since
+   declares its own Unicode range and is held to it. */
+function blockOf(sc) {
+  if (sc && sc.block) return sc.block;
+  return (sc && sc.id) === 'devanagari' ? [0x0900, 0x097F] : [0x0A00, 0x0A7F];
+}
 Object.keys(S).forEach(function (k) {
-  var sc = S[k], lo = blockOf(k)[0], hi = blockOf(k)[1], keys = {}, dupes = [], bad = [];
+  var sc = S[k], lo = blockOf(sc)[0], hi = blockOf(sc)[1], keys = {}, dupes = [], bad = [];
   function scan(list, field) {
     (list || []).forEach(function (x) {
       var t = x[field] || '';
@@ -91,7 +105,7 @@ Object.keys(S).forEach(function (k) {
 
   /* a conjunct must literally be parts[0] + virama + parts[1] */
   var badCj = [];
-  sc.hardConjuncts.forEach(function (c) {
+  (sc.hardConjuncts || []).forEach(function (c) {
     var built = c.parts.join(sc.virama);
     if (built !== c.char) badCj.push(c.char + ' (' + cps(c.char) + ') != ' + built + ' (' + cps(built) + ')');
     if (!c.char.split('').some(function (ch, i) { return B.isCombiningMark(c.char.charCodeAt(i)); })) badCj.push(c.char + ' has no virama');
@@ -100,13 +114,13 @@ Object.keys(S).forEach(function (k) {
 
   /* matra examples must be base + that sign */
   var badEx = [];
-  sc.matras.forEach(function (m) { if (m.example.slice(1) !== m.sign) badEx.push(m.name + ':' + cps(m.example)); });
+  (sc.matras || []).forEach(function (m) { if (m.example.slice(1) !== m.sign) badEx.push(m.name + ':' + cps(m.example)); });
   ok(k + ': matra examples are base+sign', badEx.length === 0, badEx.join(', '));
 });
 
 /* --- lexicon integrity --- */
 Object.keys(P).forEach(function (id) {
-  var pack = P[id], sc = B.script(pack), lo = blockOf(sc.id)[0], hi = blockOf(sc.id)[1];
+  var pack = P[id], sc = B.script(pack), lo = blockOf(sc)[0], hi = blockOf(sc)[1];
   var bad = [], seen = {}, dup = [], themes = {};
   pack.lexicon.forEach(function (w) {
     for (var i = 0; i < w.word.length; i++) {
@@ -130,14 +144,18 @@ Object.keys(P).forEach(function (id) {
    to 507 words across seventeen themes while Punjabi is still at its founding 74. What must
    hold is that every theme Punjabi HAS also exists in Hindi, so the smaller pack is a subset
    of the larger and never invents a theme of its own. */
-var hT = {}, pT = {};
+var hT = {};
 P.hi.lexicon.forEach(function (w) { hT[w.theme] = (hT[w.theme] || 0) + 1; });
-P.pa.lexicon.forEach(function (w) { pT[w.theme] = (pT[w.theme] || 0) + 1; });
-var orphan = Object.keys(pT).filter(function (t) { return !hT[t]; });
-ok('every Punjabi theme exists in Hindi too', orphan.length === 0, orphan.join(', '));
-console.log('  hi themes: ' + Object.keys(hT).length + '  pa themes: ' + Object.keys(pT).length);
-/* number words must cover 1-10 in both packs */
-[['hi', P.hi], ['pa', P.pa]].forEach(function (p) {
+Object.keys(P).forEach(function (id) {
+  if (id === 'hi') return;
+  var t = {};
+  P[id].lexicon.forEach(function (w) { t[w.theme] = 1; });
+  var orphan = Object.keys(t).filter(function (x) { return !hT[x]; });
+  ok('every ' + id + ' theme exists in Hindi too', orphan.length === 0, orphan.join(', '));
+});
+console.log('  hi themes: ' + Object.keys(hT).length);
+/* number words must cover 1-10 in every pack */
+Object.keys(P).map(function (id) { return [id, P[id]]; }).forEach(function (p) {
   /* 1-10 must be there; a pack that also teaches 11-20 or 100 is better, not broken. */
   var vals = p[1].lexicon.filter(function (w) { return w.theme === 'numbers'; })
     .map(function (w) { return w.value; }).filter(function (v) { return typeof v === 'number'; });
@@ -278,6 +296,62 @@ function hdr(t) { console.log('\n--- ' + t + ' ' + new Array(Math.max(2, 60 - t.
   ok(pid + ' same seed -> same question', a === b);
   ok(pid + ' different seed -> different question', a !== JSON.stringify(B.nextQuestion(pid, 's2', 43)));
   console.log('  seed 42 twice: identical = ' + (a === b));
+});
+
+/* ============ 2b. EVERY PACK REGISTERED SINCE, generically ============ */
+/* The founding pair is walked in depth above; every pack a data file has
+   registered gets the same sweep, feature-gated on what its script has —
+   an abjad with no matras must not be marked down for having no barakhadi. */
+Object.keys(P).forEach(function (pid) {
+  if (pid === 'hi' || pid === 'pa') return;
+  var pk = P[pid], sc = B.script(pk);
+  console.log('\n\n########## ' + sc.name + ' / ' + pk.name.en + ' (' + pk.name.native + ') ##########');
+  var sid = sc.id;
+
+  if (sc.matras && sc.matras.length) {
+    var cols = sc.matras.filter(function (m) { return m.grid !== false; }).length + 1;
+    var bk = B.barakhadi(sid, sc.consonants[2].char);
+    ok(sid + ' barakhadi cell count', bk.cols === cols, 'got ' + bk.cols + ' want ' + cols);
+    ok(sid + ' barakhadi cells compose correctly',
+      bk.cells.every(function (c) { return c.inherent ? c.syllable === bk.base : c.syllable === bk.base + c.matra; }));
+    var ma = B.matraAttach(sid, { seed: 'g-ma' });
+    ok(sid + ' matraAttach answer is in options', ma.answerIndex >= 0);
+    ok(sid + ' matraAttach target = base+matra', ma.target === ma.base + ma.matra);
+  }
+
+  var sm = B.soundMatch(sid, { seed: 'g-sm' });
+  ok(sid + ' soundMatch answer present', sm.answerIndex >= 0);
+  ok(sid + ' soundMatch 4 distinct options', new Set(sm.options.map(function (o) { return o.char; })).size === 4);
+
+  var wb = B.wordBuild(pid, { seed: 'g-wb' });
+  ok(sid + ' wordBuild answer rejoins to the word', wb.answer.join('') === wb.word);
+  ok(sid + ' wordBuild tiles contain every answer tile',
+    wb.answer.every(function (t) { return wb.tiles.indexOf(t) >= 0; }));
+
+  ['family', 'length', 'kind'].forEach(function (st) {
+    var oo = B.oddOneOut(sid, { seed: 'g-odd-' + st, strategy: st });
+    ok(sid + ' oddOneOut/' + st + ' answer present', oo.answerIndex >= 0);
+  });
+
+  if (sc.hardConjuncts && sc.hardConjuncts.length) {
+    var cj = B.conjunctSplit(sid, { seed: 'g-cj' });
+    ok(sid + ' conjunctSplit parts are in the tiles',
+      cj.answer.every(function (p) { return cj.tiles.some(function (t) { return t.char === p; }); }));
+  }
+
+  var lp = B.listenPoint(pid, { seed: 'g-lp' });
+  ok(sid + ' listenPoint answer present', lp.answerIndex >= 0);
+
+  pk.stages.forEach(function (st) {
+    var q = B.nextQuestion(pid, st.id, 'g-seed-' + st.id);
+    ok(pid + ' ' + st.id + ' returns a question', !!q && !!q.type);
+    ok(pid + ' ' + st.id + ' type is allowed for the stage',
+      !!q && st.types.indexOf(q.type) >= 0, (q && q.type) + ' not in ' + st.types.join(','));
+  });
+
+  var a = JSON.stringify(B.nextQuestion(pid, 's3', 42));
+  ok(pid + ' same seed -> same question', a === JSON.stringify(B.nextQuestion(pid, 's3', 42)));
+  console.log('  ' + pid + ': ' + pk.lexicon.length + ' words, ladder walked, determinism ok');
 });
 
 /* one full question object printed raw, so the shape is eyeballable */

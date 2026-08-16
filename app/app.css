@@ -144,6 +144,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 :lang(kn), .kannada   { font-family: var(--kannada);   font-size: 1.10em; line-height: 1.9; }
 :lang(ml), .malayalam { font-family: var(--malayalam); font-size: 1.10em; line-height: 1.85; }
 :lang(or), .odia      { font-family: var(--odia);      font-size: 1.10em; line-height: 1.8; }
+/* Urdu is Nastaliq or it is not Urdu — same rule as the shirorekha. Nastaliq hangs from a
+   sloping baseline, so it needs more air than any other script here, and it runs right to
+   left, which the lang attribute alone does not switch. */
+:lang(ur), .urdu      { font-family: var(--urdu); font-size: 1.15em; line-height: 2.1;
+                        direction: rtl; unicode-bidi: isolate; }
 .mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 
 /* ---------------------------------------------------------------- shell */
@@ -294,6 +299,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .mapsvg .terrg:hover .mist, .mapsvg .terrg:focus-visible .mist { opacity: .34; }
 .mapsvg .terrg.on .mist { opacity: 0; }
 .mapsvg .terrg.on .terr, .mapsvg .terrg:focus-visible .terr { stroke: var(--accent); stroke-width: 2.6; }
+/* the family's home state(s): a STATIC warm outline — never animated, never pulsing;
+   the boundary rules in CLAUDE.md forbid any boundary that moves or performs */
+.mapsvg .terrg.home .terr { stroke: var(--accent2, var(--accent)); stroke-width: 2.2; }
 .mapsvg .terrg:focus-visible { outline: none; }
 
 .mapsvg .tlab {

@@ -41,7 +41,10 @@ UI='family=Fraunces:opsz,wght@9..144,600..900&family=Hanken+Grotesk:wght@400;500
 # (Gujarati) — because they were designed as one superfamily and the scripts then look like
 # one app rather than eight. Noto Sans covers the rest at a compatible weight and colour.
 # Assamese is written in the Bengali script, so Noto Sans Bengali serves both.
-SCRIPTS='family=Mukta:wght@400;500;600;700&family=Mukta+Mahee:wght@400;500;600;700&family=Mukta+Malar:wght@400;500;600;700&family=Mukta+Vaani:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400..700&family=Noto+Sans+Telugu:wght@400..700&family=Noto+Sans+Kannada:wght@400..700&family=Noto+Sans+Malayalam:wght@400..700&family=Noto+Sans+Oriya:wght@400..700'
+SCRIPTS='family=Mukta:wght@400;500;600;700&family=Mukta+Mahee:wght@400;500;600;700&family=Mukta+Malar:wght@400;500;600;700&family=Mukta+Vaani:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400..700&family=Noto+Sans+Telugu:wght@400..700&family=Noto+Sans+Kannada:wght@400..700&family=Noto+Sans+Malayalam:wght@400..700&family=Noto+Sans+Oriya:wght@400..700&family=Noto+Nastaliq+Urdu:wght@400..700'
+# Noto Nastaliq Urdu is the Urdu pack's face. Nastaliq, not Naskh, because Nastaliq is what
+# Urdu is written in — a child taught Urdu in Naskh is being taught Arabic typesetting. Its
+# hanging baseline needs the generous line-height set in app.css (:lang(ur)).
 
 QUERY="$UI&$SCRIPTS&display=swap"
 
@@ -66,8 +69,9 @@ seen = {}
 # browser would never fetch them, but we would still be committing the files, so drop the
 # blocks we have no use for. This app needs latin (UI), latin-ext (transliteration
 # diacritics: ā, ṛ, ṣ, ñ) and every Indian script it sets.
+# 'arabic' is the subset name Google gives Noto Nastaliq Urdu's own script.
 KEEP = ('latin', 'latin-ext', 'devanagari', 'gurmukhi', 'tamil', 'gujarati',
-        'bengali', 'telugu', 'kannada', 'malayalam', 'oriya')
+        'bengali', 'telugu', 'kannada', 'malayalam', 'oriya', 'arabic')
 
 # And the Latin subset is kept ONLY for the three UI families. Every Indian-script family
 # also ships Latin, which would be eight redundant copies of an alphabet Hanken Grotesk

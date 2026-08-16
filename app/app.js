@@ -77,6 +77,7 @@
     started: null
   };
   var view = { name: 'home', arg: null };
+  var lastScrollSig = '';
   var soundOn = Store.loadDevice('sound', true);
   var night = Store.loadDevice('night', false);
   function save() { Store.saveProfile(S); }
@@ -725,25 +726,12 @@
       (lit === 0 ? '<div class="card center"><p>Every state is painted under the mist. Read a story and the mist lifts off the place it came from.</p>' +
         '<button class="btn" data-act="go" data-v="stories">Open the story library</button></div>' : '') +
 
-      /* THE RIVER OF TIME, on the same page as the map — India is one pillar: the places
-         and what time did to them. The eras themselves sit here, not a door that hides
-         them; the full river with its long tellings is one tap further. */
-      (window.IND_ITIHAAS
-        ? '<div class="card"><div class="spread" style="margin-bottom:4px">' +
-          '<h2 style="margin:0">The River of Time</h2>' +
-          '<button class="btn ghost sm" data-act="go" data-v="itihaas">The whole river →</button></div>' +
-          '<p class="tiny muted">The same land, age after age. Pick any bend.</p>' +
-          '<div class="riverstrip">' + window.IND_ITIHAAS.eras.map(function (e) {
-            return '<button class="bend" data-act="era" data-id="' + e.id + '">' +
-              '<span class="yr">' + esc(e.when) + '</span>' +
-              '<span class="node">' + art(e.avatar, 46) + '</span>' +
-              '<span class="ttl">' + esc(e.title) + '</span></button>';
-          }).join('') + '</div></div>' +
-          (window.IND_GAMES
-            ? '<button class="tile" data-act="game" data-id="statehunt" style="margin-top:var(--space-lg)">' +
-              '<b>State Hunt</b><span class="tiny muted">A capital, a fort, a rhino, a mountain — ' +
-              'which state is it? The map, as a game.</span></button>'
-            : '')
+      /* State Hunt: the map, as a game. (The River of Time lives on its own tab now —
+         repeating it here was the Learn-hub redundancy in new clothes.) */
+      (window.IND_GAMES
+        ? '<button class="tile" data-act="game" data-id="statehunt" style="margin-top:var(--space-lg)">' +
+          '<b>State Hunt</b><span class="tiny muted">A capital, a fort, a rhino, a mountain — ' +
+          'which state is it? The map, as a game.</span></button>'
         : '');
   };
 
@@ -2531,7 +2519,16 @@
       default: h = V.home();
     }
     m.innerHTML = h;
-    window.scrollTo(0, 0);
+    /* Scroll to the top only when the page actually changes. render() runs for lots of
+       small things — opening a map callout, earning a bead, answering a quiz — and
+       yanking the scroll position on those threw the reader back to the top of a page
+       they had not left. Page turns inside a story or episode count as navigation,
+       because the new card's text should start in view. */
+    var sig = view.name + ':' + (view.arg || '') +
+      (view.name === 'episode' ? ':' + deck.n + ':' + deck.i : '') +
+      (view.name === 'story' ? ':' + (play.i || 0) : '');
+    if (sig !== lastScrollSig) window.scrollTo(0, 0);
+    lastScrollSig = sig;
 
     var alias = { state: 'map', mon: 'map', learn: 'map', era: 'itihaas',
                   dharma: 'neeti', faith: 'neeti', utsav: 'neeti', festival: 'neeti',

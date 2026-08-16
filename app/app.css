@@ -338,6 +338,23 @@ button, input, select, textarea { font: inherit; color: inherit; }
   }
 }
 
+/* ------------------------------------------------------------------- utsav */
+/* The festival's own name in its own script, sitting next to the roman one — a Mizo or
+   Garo festival carries no script at all rather than a Devanagari transliteration no Mizo
+   family would recognise, so this has to degrade to nothing gracefully. */
+.fscript { font-weight: 600; color: var(--accent); margin-left: 4px; }
+
+/* "one thing to actually do today" — the whole point of the pillar, so it gets weight */
+.dolist { margin: 0; padding-left: 0; list-style: none; display: grid; gap: var(--space-sm); }
+.dolist li {
+  position: relative; padding: var(--space-md) var(--space-md) var(--space-md) 38px;
+  background: var(--ground2); border-radius: var(--radius-md); line-height: 1.55;
+}
+.dolist li::before {
+  content: '·'; position: absolute; left: 14px; top: 7px;
+  font-size: 26px; line-height: 1; color: var(--accent2);
+}
+
 /* the ambient strip under the map, so the map is never a dead surface */
 .mfacts {
   margin-top: var(--space-lg); padding: var(--space-lg);

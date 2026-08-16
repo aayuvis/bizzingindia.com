@@ -25,6 +25,10 @@ Prompt rules that were learned the hard way in this repo:
     stories are composed around the langar, the sarovar, the Khanda, the food and
     the people, with no Guru figure at all
   * peril is fine for ages 4-12; terror, gore and weapons-in-use are not
+  * every request carries two finished paintings from this set as image references
+    (REF_IMAGES below). Written style words alone drift badly across forty calls;
+    handing the model the actual paintings converges the whole batch in one pass.
+    This matters more than any adjective in STYLE.
 """
 
 import argparse
@@ -47,6 +51,21 @@ ENDPOINT = ("https://generativelanguage.googleapis.com/v1beta/models/"
             "gemini-2.5-flash-image:generateContent")
 
 WIDTH, HEIGHT, QUALITY = 900, 600, 78
+
+# Two finished paintings from this same set, sent with every request so the model
+# matches the book rather than re-inventing it. One animal/forest scene, one with
+# people and architecture, so both halves of the corpus have something to lock on to.
+REF_IMAGES = [
+    os.path.join(OUT_DIR, "pt-lion-rabbit.jpg"),
+    os.path.join(OUT_DIR, "fk-mahabali.jpg"),
+]
+
+REF_NOTE = (
+    "The two paintings above are from the same children's book. Match them exactly: "
+    "the same fine ink linework, the same warm saturated palette, the same handmade-paper "
+    "grain, the same soft painted shading, the same density of small ornament. "
+    "Paint the new scene below as another page of that same book. "
+)
 
 # ---------------------------------------------------------------- house style --
 # Kept identical for every story so the 38 read as one painted book.

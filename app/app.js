@@ -878,7 +878,98 @@
       hubCard('map', 'The Living Map', lit + ' of 34 places remembered. Stories light the place they came from.', 'map') +
       hubCard('itihaas', 'Itihaas', 'The River of Time — eleven eras, from the Indus cities to a rocket to Mars.', 'clock') +
       hubCard('dharma', 'Dharma', 'Hinduism, Buddhism, Jainism and Sikhi, each told from the inside.', 'temple') +
+      (window.IND_UTSAV
+        ? hubCard('utsav', 'Utsav', window.IND_UTSAV.festivals.length +
+            ' festivals across the whole country — and one thing to actually do on each of them.', 'lamp')
+        : '') +
       '</div>';
+  };
+
+  /* ------------------------------------------------------------------ UTSAV
+
+     docs/11 §4.4: the gap is not knowing what Diwali IS. It is that in India the whole city
+     stops and in New Jersey it is a Tuesday, so the child experiences the festival as private
+     family strangeness instead of belonging. So this pillar leads with WHAT IS ON NOW and
+     with one thing to actually do today — not with an encyclopedia entry.
+
+     No festival here carries a date. Almost all of them move: the data holds the months a
+     festival can fall in, and the note to the parent says plainly that the exact day is set
+     by lunisolar reckoning, varies by region and almanac, and that two families in one city
+     can both be right. Inventing a date for a children's app would be the fastest way to be
+     wrong in front of the exact families this is for. */
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+
+  function utsavNow() {
+    var U = window.IND_UTSAV; if (!U) return [];
+    var m = MONTHS[new Date().getMonth()];
+    return U.festivals.filter(function (f) { return (f.months || []).indexOf(m) >= 0; });
+  }
+  function festById(id) {
+    var U = window.IND_UTSAV;
+    return U ? U.festivals.filter(function (f) { return f.id === id; })[0] : null;
+  }
+  function festCard(f) {
+    return '<button class="tile" data-act="fest" data-id="' + f.id + '">' +
+      '<b>' + esc(f.name) + (f.script ? ' <span class="fscript">' + esc(f.script) + '</span>' : '') + '</b>' +
+      '<span class="tiny muted">' + esc((f.months || []).join(' or ')) + ' · ' +
+        esc((f.states || []).length > 8 ? 'across India' : (f.states || []).join(', ')) + '</span>' +
+      '<p class="tiny">' + esc(f.kid.split('. ')[0]) + '.</p></button>';
+  }
+
+  V.utsav = function () {
+    var U = window.IND_UTSAV;
+    if (!U) return '<div class="card">Nothing here yet.</div>';
+    var now = utsavNow(), month = MONTHS[new Date().getMonth()];
+    var rest = U.festivals.filter(function (f) { return now.indexOf(f) < 0; });
+
+    return '<button class="backlink" data-act="go" data-v="learn">' + icon('back', 18) + ' Learn</button>' +
+      '<div class="card"><h1>Utsav</h1><p>' + esc(U.intro) + '</p></div>' +
+      (now.length
+        ? '<div class="card"><h2 style="margin-top:0">This month</h2>' +
+          '<p class="tiny muted">These fall somewhere in ' + esc(month) +
+            '. Which day depends on the moon, the region and your family — ask at home.</p>' +
+          '<div class="grid g2">' + now.map(festCard).join('') + '</div></div>'
+        : '') +
+      '<div class="card"><h2 style="margin-top:0">All year</h2>' +
+      '<div class="grid g2">' + rest.map(festCard).join('') + '</div></div>' +
+      '<div class="card"><h3 style="margin-top:0">Why the dates move</h3>' +
+        '<p class="tiny">' + esc(U.calendarNote.childLine || U.calendarNote.text || '') + '</p></div>';
+  };
+
+  V.festival = function (id) {
+    var f = festById(id);
+    if (!f) return '<div class="card">Not found.</div>';
+    var st = f.story ? allStories().filter(function (s) { return s.id === f.story; })[0] : null;
+    return '<button class="backlink" data-act="go" data-v="utsav">' + icon('back', 18) + ' Utsav</button>' +
+      '<div class="card">' +
+        '<h1 style="margin-bottom:2px">' + esc(f.name) + '</h1>' +
+        (f.script ? '<p class="chello" style="margin:0 0 6px">' + esc(f.script) +
+          ' <span class="tiny muted">' + esc(f.roman || '') + '</span></p>' : '') +
+        '<p class="tiny muted">' + esc((f.months || []).join(' or ')) + ' · the exact day moves</p>' +
+        '<p>' + esc(f.kid) + '</p>' +
+        (S.age >= 8 && f.big ? '<p class="tiny">' + esc(f.big) + '</p>' : '') +
+      '</div>' +
+      '<div class="card"><h2 style="margin-top:0">Do this</h2>' +
+        '<ul class="dolist">' + (f.do || []).map(function (d) {
+          return '<li>' + esc(d) + '</li>'; }).join('') + '</ul></div>' +
+      ((f.variations || []).length
+        ? '<div class="card"><h2 style="margin-top:0">Not everyone does it the same</h2>' +
+          (f.variations || []).map(function (v) {
+            return '<p class="tiny">' + esc(v) + '</p>'; }).join('') +
+          '<p class="tiny muted">Ask your family which one is yours.</p></div>'
+        : '') +
+      ((f.words || []).length
+        ? '<div class="card"><h2 style="margin-top:0">Words for it</h2><div class="grid g3">' +
+          f.words.map(function (w) {
+            return '<div class="tile center"><b lang="hi">' + esc(w.term) + '</b>' +
+              '<span class="tiny">' + esc(w.roman) + '</span>' +
+              '<span class="tiny muted">' + esc(w.en) + '</span></div>'; }).join('') +
+          '</div></div>'
+        : '') +
+      (f.ask ? '<div class="card"><h3 style="margin-top:0">Ask someone older</h3><p>' + esc(f.ask) + '</p></div>' : '') +
+      (st ? '<button class="tile" data-act="story" data-id="' + st.id + '"><b>' + esc(st.title) +
+            '</b><span class="tiny muted">the story that goes with it</span></button>' : '');
   };
 
   V.play = function () {
@@ -1443,6 +1534,8 @@
       case 'itihaas': h = V.itihaas(); break;
       case 'era': h = V.era(view.arg); break;
       case 'dharma': h = V.dharma(); break;
+      case 'utsav': h = V.utsav(); break;
+      case 'festival': h = V.festival(view.arg); break;
       case 'faith': h = V.faith(view.arg); break;
       case 'worlds': h = V.worlds(); break;
       case 'me': h = V.me(); break;
@@ -1501,6 +1594,7 @@
       return render();
     }
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
+    if (a === 'fest')   return go('festival', t.getAttribute('data-id'));
     if (a === 'era')    return go('era', t.getAttribute('data-id'));
     if (a === 'rishquiz') {
       if (t.getAttribute('data-reset') || rish.i >= window.IND_RISHTEY.tree.length) rish = { i: 0, picked: null, right: 0 };

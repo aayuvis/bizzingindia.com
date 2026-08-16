@@ -31,12 +31,13 @@ const ARG_VIEWS = {
   value: 'window.IND_NEETI && window.IND_NEETI.values.map(function(v){return v.id})',
   verses: 'window.IND_SHLOK && window.IND_SHLOK.collections.map(function(c){return c.id})',
   pack: 'window.IND_PACKS && Object.keys(window.IND_PACKS)',
+  festival: 'window.IND_UTSAV && window.IND_UTSAV.festivals.map(function(f){return f.id})',
   epic: '(window.IND_EPIC_RAMAYANA||window.IND_EPIC_MAHABHARATA) ? ' +
         '[window.IND_EPIC_RAMAYANA,window.IND_EPIC_MAHABHARATA].filter(Boolean).map(function(e){return e.id}) : []',
 };
 
 const NO_ARG = ['home', 'map', 'stories', 'itihaas', 'dharma', 'learn', 'play', 'epics',
-                'shlok', 'neeti', 'rishtey', 'worlds', 'bhasha', 'me'];
+                'shlok', 'neeti', 'rishtey', 'worlds', 'bhasha', 'me', 'utsav'];
 
 async function main() {
   const i = process.argv.indexOf('--url');

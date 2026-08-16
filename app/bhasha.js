@@ -246,7 +246,19 @@ var DEVANAGARI = {
   ],
 
   /* The conjuncts that must be taught explicitly because their shape does
-     not read off their parts. Split on the virama in conjunctSplit(). */
+     not read off their parts. Split on the virama in conjunctSplit().
+
+     The first ten are the spine — the ones every Hindi primer opens with.
+     The rest are what a reader actually trips over in the first year: the
+     doubled letters inside words a child already says (बच्चा, चप्पल,
+     छुट्टी), the स्- cluster that starts स्कूल and नमस्ते, and the reph —
+     र् riding on top of the letter that follows it, in धर्म, दर्द, पार्क.
+     A child who can see the reph can read half the words that stop them.
+
+     Audio: only the original ten carry keys, because a voice file per
+     conjunct is a recording session and the pack budget spends its voice on
+     letters, matras and words. The conjunct is TAUGHT VISUALLY — split it,
+     see the two letters — and heard inside its example word. */
   hardConjuncts: [
     { char: 'क्ष', parts: ['क', 'ष'], name: 'ksha', audio: 'hi/ksha', word: 'क्षमा' },
     { char: 'त्र', parts: ['त', 'र'], name: 'tra',  audio: 'hi/tra',  word: 'त्रिशूल' },
@@ -257,7 +269,49 @@ var DEVANAGARI = {
     { char: 'द्व', parts: ['द', 'व'], name: 'dva',  audio: 'hi/dva',  word: 'द्वार' },
     { char: 'त्त', parts: ['त', 'त'], name: 'tta-j', audio: 'hi/tta-j', word: 'कुत्ता' },
     { char: 'ल्ल', parts: ['ल', 'ल'], name: 'lla-j', audio: 'hi/lla-j', word: 'बिल्ली' },
-    { char: 'च्छ', parts: ['च', 'छ'], name: 'chchha', audio: 'hi/chchha', word: 'अच्छा' }
+    { char: 'च्छ', parts: ['च', 'छ'], name: 'chchha', audio: 'hi/chchha', word: 'अच्छा' },
+
+    /* doubled letters — the child already says these words */
+    { char: 'च्च', parts: ['च', 'च'], name: 'chcha-j', word: 'बच्चा' },
+    { char: 'प्प', parts: ['प', 'प'], name: 'ppa-j',   word: 'चप्पल' },
+    { char: 'ट्ट', parts: ['ट', 'ट'], name: 'ttta-j',  word: 'छुट्टी' },
+    { char: 'ड्ड', parts: ['ड', 'ड'], name: 'ddda-j',  word: 'लड्डू' },
+    { char: 'न्न', parts: ['न', 'न'], name: 'nna-j',   word: 'उन्नीस' },
+    { char: 'म्म', parts: ['म', 'म'], name: 'mma-j',   word: 'चम्मच' },
+    { char: 'क्ख', parts: ['क', 'ख'], name: 'kkha',    word: 'मक्खन' },
+    { char: 'ल्ट', parts: ['ल', 'ट'], name: 'lta',     word: 'बाल्टी' },
+
+    /* the स्- cluster, which opens more early words than any other */
+    { char: 'स्त', parts: ['स', 'त'], name: 'sta',  word: 'नमस्ते' },
+    { char: 'स्थ', parts: ['स', 'थ'], name: 'stha', word: 'स्थान' },
+    { char: 'स्व', parts: ['स', 'व'], name: 'sva',  word: 'स्वागत' },
+    { char: 'स्क', parts: ['स', 'क'], name: 'ska',  word: 'स्कूल' },
+    { char: 'स्प', parts: ['स', 'प'], name: 'spa',  word: 'अस्पताल' },
+
+    /* half-letter + letter, the ordinary case */
+    { char: 'ब्द', parts: ['ब', 'द'], name: 'bda',  word: 'शब्द' },
+    { char: 'क्त', parts: ['क', 'त'], name: 'kta',  word: 'शक्ति' },
+    { char: 'प्त', parts: ['प', 'त'], name: 'pta',  word: 'सप्ताह' },
+    { char: 'ष्ट', parts: ['ष', 'ट'], name: 'shta', word: 'कष्ट' },
+    { char: 'ष्ण', parts: ['ष', 'ण'], name: 'shna', word: 'कृष्ण' },
+    { char: 'श्व', parts: ['श', 'व'], name: 'shva', word: 'विश्व' },
+    { char: 'द्ध', parts: ['द', 'ध'], name: 'dddha', word: 'शुद्ध' },
+    { char: 'ग्र', parts: ['ग', 'र'], name: 'gra',  word: 'ग्राम' },
+    { char: 'द्र', parts: ['द', 'र'], name: 'dra',  word: 'समुद्र' },
+    { char: 'ट्र', parts: ['ट', 'र'], name: 'ttra', word: 'ट्रेन' },
+
+    /* -य and -ज्य, which look like a new letter and are not */
+    { char: 'त्य', parts: ['त', 'य'], name: 'tya',  word: 'सत्य' },
+    { char: 'द्य', parts: ['द', 'य'], name: 'dya',  word: 'विद्या' },
+    { char: 'ध्य', parts: ['ध', 'य'], name: 'dhya', word: 'ध्यान' },
+    { char: 'न्य', parts: ['न', 'य'], name: 'nya',  word: 'धन्यवाद' },
+    { char: 'ज्य', parts: ['ज', 'य'], name: 'jya',  word: 'राज्य' },
+
+    /* the reph: र् climbs on top of the NEXT letter, not its own */
+    { char: 'र्म', parts: ['र', 'म'], name: 'rma',  word: 'धर्म' },
+    { char: 'र्द', parts: ['र', 'द'], name: 'rda',  word: 'दर्द' },
+    { char: 'र्क', parts: ['र', 'क'], name: 'rka',  word: 'पार्क' },
+    { char: 'र्ष', parts: ['र', 'ष'], name: 'rsha', word: 'वर्ष' }
   ]
 };
 
@@ -412,15 +466,28 @@ W.IND_SCRIPTS = { devanagari: DEVANAGARI, gurmukhi: GURMUKHI };
    sees the same eight themes in Hindi and in Punjabi, and so the parent
    report can compare like with like. */
 
+/* A pack fills these in the order it can afford to. Punjabi currently covers
+   the first eight; Hindi covers all seventeen. A theme with no words in a
+   pack is a gap in that pack, never a difference in the theme list — that is
+   what keeps two lexicons comparable in the parent report. */
 var THEMES = [
+  { id: 'greetings', en: 'Greetings', icon: '🙏' },
   { id: 'family',   en: 'Family',  icon: '👪' },
   { id: 'food',     en: 'Food',    icon: '🍛' },
   { id: 'body',     en: 'Body',    icon: '👤' },
   { id: 'home',     en: 'Home',    icon: '🏠' },
+  { id: 'basics',   en: 'Everyday words', icon: '🧩' },
+  { id: 'actions',  en: 'Doing words', icon: '🏃' },
   { id: 'animals',  en: 'Animals', icon: '🐘' },
   { id: 'colours',  en: 'Colours', icon: '🎨' },
   { id: 'numbers',  en: 'Numbers', icon: '🔢' },
-  { id: 'greetings', en: 'Greetings', icon: '🙏' }
+  { id: 'school',   en: 'School',  icon: '🎒' },
+  { id: 'clothes',  en: 'Clothes', icon: '👕' },
+  { id: 'weather',  en: 'Weather and sky', icon: '🌦️' },
+  { id: 'time',     en: 'Time and days', icon: '⏰' },
+  { id: 'places',   en: 'Places and outdoors', icon: '🌳' },
+  { id: 'transport', en: 'Getting around', icon: '🚌' },
+  { id: 'feelings', en: 'Feelings', icon: '💛' }
 ];
 
 /* The ladder is shared shape, per-pack content. `types` is the list of
@@ -434,12 +501,12 @@ function ladder(items) {
       outcome: 'Recognises every letter by sight and by sound.', script: true, types: ['soundMatch', 'oddOneOut'], items: items.s1 },
     { id: 's2', n: 2, name: 'Matras',    en: 'Vowel signs', desc: 'The vowel signs and the barakhadi grid — the core abugida skill.',
       outcome: 'Reads any simple word aloud.', script: true, types: ['matraAttach', 'barakhadi', 'soundMatch'], items: items.s2 },
-    { id: 's3', n: 3, name: 'Shabd',     en: 'Words',       desc: 'Core words by theme: family, food, body, home, animals, colours, numbers, greetings.',
+    { id: 's3', n: 3, name: 'Shabd',     en: 'Words',       desc: 'Core words by theme — the house, the table, the body, the street, the calendar.',
       outcome: 'Reads and understands common words.', script: true, types: ['wordBuild', 'listenPoint', 'soundMatch'], items: items.s3 },
     { id: 's4', n: 4, name: 'Vakya',     en: 'Sentences',   desc: 'Sentence order, gender, postpositions, verb agreement, tense.',
-      outcome: 'Builds correct simple sentences.', script: true, types: ['wordBuild', 'oddOneOut'], items: items.s4 },
-    { id: 's5', n: 5, name: 'Baat-cheet', en: 'Conversation', desc: 'Conversation scenarios: greeting elders, the market, the phone call to Nani.',
-      outcome: 'Follows a short everyday exchange and picks the right reply.', script: true, types: ['listenPoint', 'wordBuild'], items: items.s5 },
+      outcome: 'Builds correct simple sentences.', script: true, types: ['sentenceBuild', 'oddOneOut'], items: items.s4 },
+    { id: 's5', n: 5, name: 'Baat-cheet', en: 'Conversation', desc: 'Whole exchanges: greeting elders, the table, the shop, Sunday’s call to Nani.',
+      outcome: 'Follows a short everyday exchange and picks the right reply.', script: true, types: ['pickReply', 'listenPoint'], items: items.s5 },
     { id: 's6', n: 6, name: 'Padhna',    en: 'Reading',     desc: 'Graded readers, and the conjuncts you need to get through them.',
       outcome: 'Splits conjuncts and reads a few real sentences.', script: true, types: ['conjunctSplit', 'wordBuild', 'oddOneOut'], items: items.s6 },
     { id: 's7', n: 7, name: 'Likhna',    en: 'Writing',     desc: 'Handwriting, dictation, and short paragraph writing.',
@@ -448,97 +515,878 @@ function ladder(items) {
 }
 
 /* ---- Hindi ------------------------------------------------------------- */
-/* Sixty-two core words. Vocabulary is heritage-first (docs/09 §3): what is
-   actually said in the house, not invented sentences about owls. */
+/* Five hundred core words, which is the number docs/09 §9 budgets per pack
+   (1,000 is the full target; this is the half that a 4–12 child actually
+   uses). Vocabulary is heritage-first (docs/09 §3): what is said in the
+   house on a Tuesday, not invented sentences about owls. A child who
+   already knows what *paani* means does not need to be taught the meaning —
+   they need to learn that it is written पानी.
 
-var HI_LEX = [
-  /* family */
-  { word: 'माँ',                   roman: 'maa',      en: 'mother',      theme: 'family', audio: 'hi/w-maa' },
-  { word: 'पापा',             roman: 'papa',     en: 'father',      theme: 'family', audio: 'hi/w-papa' },
-  { word: 'भाई',                   roman: 'bhai',     en: 'brother',     theme: 'family', audio: 'hi/w-bhai' },
-  { word: 'बहन',                   roman: 'bahan',    en: 'sister',      theme: 'family', audio: 'hi/w-bahan' },
-  { word: 'दादा',             roman: 'dada',     en: 'grandfather (father’s side)', theme: 'family', audio: 'hi/w-dada' },
-  { word: 'दादी',             roman: 'dadi',     en: 'grandmother (father’s side)', theme: 'family', audio: 'hi/w-dadi' },
-  { word: 'नाना',             roman: 'nana',     en: 'grandfather (mother’s side)', theme: 'family', audio: 'hi/w-nana' },
-  { word: 'नानी',             roman: 'nani',     en: 'grandmother (mother’s side)', theme: 'family', audio: 'hi/w-nani' },
-  { word: 'बच्चा',       roman: 'bachcha',  en: 'child',       theme: 'family', audio: 'hi/w-bachcha' },
-  { word: 'परिवार', roman: 'parivaar', en: 'family',      theme: 'family', audio: 'hi/w-parivaar' },
-  /* food */
-  { word: 'पानी',             roman: 'paani',    en: 'water',       theme: 'food', audio: 'hi/w-paani' },
-  { word: 'रोटी',             roman: 'roti',     en: 'bread',       theme: 'food', audio: 'hi/w-roti' },
-  { word: 'दूध',                   roman: 'doodh',    en: 'milk',        theme: 'food', audio: 'hi/w-doodh' },
-  { word: 'चावल',             roman: 'chaawal',  en: 'rice',        theme: 'food', audio: 'hi/w-chaawal' },
-  { word: 'दाल',                   roman: 'daal',     en: 'lentils',     theme: 'food', audio: 'hi/w-daal' },
-  { word: 'आम',                         roman: 'aam',      en: 'mango',       theme: 'food', audio: 'hi/w-aam' },
-  { word: 'केला',             roman: 'kela',     en: 'banana',      theme: 'food', audio: 'hi/w-kela' },
-  { word: 'मिठाई',       roman: 'mithai',   en: 'sweets',      theme: 'food', audio: 'hi/w-mithai' },
-  { word: 'चाय',                   roman: 'chai',     en: 'tea',         theme: 'food', audio: 'hi/w-chai' },
-  { word: 'नमक',                   roman: 'namak',    en: 'salt',        theme: 'food', audio: 'hi/w-namak' },
-  /* body */
-  { word: 'सिर',                   roman: 'sir',      en: 'head',        theme: 'body', audio: 'hi/w-sir' },
-  { word: 'आँख',                   roman: 'aankh',    en: 'eye',         theme: 'body', audio: 'hi/w-aankh' },
-  { word: 'नाक',                   roman: 'naak',     en: 'nose',        theme: 'body', audio: 'hi/w-naak' },
-  { word: 'कान',                   roman: 'kaan',     en: 'ear',         theme: 'body', audio: 'hi/w-kaan' },
-  { word: 'मुँह',             roman: 'munh',     en: 'mouth',       theme: 'body', audio: 'hi/w-munh' },
-  { word: 'हाथ',                   roman: 'haath',    en: 'hand',        theme: 'body', audio: 'hi/w-haath' },
-  { word: 'पैर',                   roman: 'pair',     en: 'foot',        theme: 'body', audio: 'hi/w-pair' },
-  { word: 'पेट',                   roman: 'pet',      en: 'tummy',       theme: 'body', audio: 'hi/w-pet' },
-  { word: 'बाल',                   roman: 'baal',     en: 'hair',        theme: 'body', audio: 'hi/w-baal' },
-  { word: 'दाँत',             roman: 'daant',    en: 'tooth',       theme: 'body', audio: 'hi/w-daant' },
-  /* home */
-  { word: 'घर',                         roman: 'ghar',     en: 'house',       theme: 'home', audio: 'hi/w-ghar' },
-  { word: 'दरवाज़ा', roman: 'darwaaza', en: 'door',  theme: 'home', audio: 'hi/w-darwaaza' },
-  { word: 'खिड़की', roman: 'khidki',   en: 'window',      theme: 'home', audio: 'hi/w-khidki' },
-  { word: 'कुर्सी', roman: 'kursi',    en: 'chair',       theme: 'home', audio: 'hi/w-kursi' },
-  { word: 'मेज़',             roman: 'mez',      en: 'table',       theme: 'home', audio: 'hi/w-mez' },
-  { word: 'चाबी',             roman: 'chaabi',   en: 'key',         theme: 'home', audio: 'hi/w-chaabi' },
-  { word: 'बिस्तर', roman: 'bistar',   en: 'bed',         theme: 'home', audio: 'hi/w-bistar' },
-  { word: 'छत',                         roman: 'chhat',    en: 'roof',        theme: 'home', audio: 'hi/w-chhat' },
-  { word: 'रसोई',             roman: 'rasoi',    en: 'kitchen',     theme: 'home', audio: 'hi/w-rasoi' },
-  /* animals */
-  { word: 'हाथी',             roman: 'haathi',   en: 'elephant',    theme: 'animals', audio: 'hi/w-haathi' },
-  { word: 'कुत्ता', roman: 'kutta',    en: 'dog',         theme: 'animals', audio: 'hi/w-kutta' },
-  { word: 'बिल्ली', roman: 'billi',    en: 'cat',         theme: 'animals', audio: 'hi/w-billi' },
-  { word: 'गाय',                   roman: 'gaay',     en: 'cow',         theme: 'animals', audio: 'hi/w-gaay' },
-  { word: 'बंदर',             roman: 'bandar',   en: 'monkey',      theme: 'animals', audio: 'hi/w-bandar' },
-  { word: 'शेर',                   roman: 'sher',     en: 'lion',        theme: 'animals', audio: 'hi/w-sher' },
-  { word: 'चिड़िया', roman: 'chidiya', en: 'bird',   theme: 'animals', audio: 'hi/w-chidiya' },
-  { word: 'मछली',             roman: 'machhli',  en: 'fish',        theme: 'animals', audio: 'hi/w-machhli' },
-  { word: 'घोड़ा',       roman: 'ghoda',    en: 'horse',       theme: 'animals', audio: 'hi/w-ghoda' },
-  { word: 'तितली',       roman: 'titli',    en: 'butterfly',   theme: 'animals', audio: 'hi/w-titli' },
-  /* colours */
-  { word: 'लाल',                   roman: 'laal',     en: 'red',         theme: 'colours', audio: 'hi/w-laal' },
-  { word: 'नीला',             roman: 'neela',    en: 'blue',        theme: 'colours', audio: 'hi/w-neela' },
-  { word: 'पीला',             roman: 'peela',    en: 'yellow',      theme: 'colours', audio: 'hi/w-peela' },
-  { word: 'हरा',                   roman: 'hara',     en: 'green',       theme: 'colours', audio: 'hi/w-hara' },
-  { word: 'काला',             roman: 'kaala',    en: 'black',       theme: 'colours', audio: 'hi/w-kaala' },
-  { word: 'सफ़ेद',       roman: 'safed',    en: 'white',       theme: 'colours', audio: 'hi/w-safed' },
-  { word: 'नारंगी', roman: 'naarangi', en: 'orange',      theme: 'colours', audio: 'hi/w-naarangi' },
-  { word: 'गुलाबी', roman: 'gulaabi',  en: 'pink',        theme: 'colours', audio: 'hi/w-gulaabi' },
-  /* numbers */
-  { word: 'एक',                         roman: 'ek',       en: 'one',         theme: 'numbers', audio: 'hi/w-ek', value: 1 },
-  { word: 'दो',                         roman: 'do',       en: 'two',         theme: 'numbers', audio: 'hi/w-do', value: 2 },
-  { word: 'तीन',                   roman: 'teen',     en: 'three',       theme: 'numbers', audio: 'hi/w-teen', value: 3 },
-  { word: 'चार',                   roman: 'chaar',    en: 'four',        theme: 'numbers', audio: 'hi/w-chaar', value: 4 },
-  { word: 'पाँच',             roman: 'paanch',   en: 'five',        theme: 'numbers', audio: 'hi/w-paanch', value: 5 },
-  { word: 'छह',                         roman: 'chhah',    en: 'six',         theme: 'numbers', audio: 'hi/w-chhah', value: 6 },
-  { word: 'सात',                   roman: 'saat',     en: 'seven',       theme: 'numbers', audio: 'hi/w-saat', value: 7 },
-  { word: 'आठ',                         roman: 'aath',     en: 'eight',       theme: 'numbers', audio: 'hi/w-aath', value: 8 },
-  { word: 'नौ',                         roman: 'nau',      en: 'nine',        theme: 'numbers', audio: 'hi/w-nau', value: 9 },
-  { word: 'दस',                         roman: 'das',      en: 'ten',         theme: 'numbers', audio: 'hi/w-das', value: 10 },
-  /* greetings */
-  { word: 'नमस्ते', roman: 'namaste',  en: 'hello',       theme: 'greetings', audio: 'hi/w-namaste' },
-  { word: 'धन्यवाद', roman: 'dhanyavaad', en: 'thank you', theme: 'greetings', audio: 'hi/w-dhanyavaad' },
-  { word: 'हाँ',                   roman: 'haan',     en: 'yes',         theme: 'greetings', audio: 'hi/w-haan' },
-  { word: 'नहीं',             roman: 'nahin',    en: 'no',          theme: 'greetings', audio: 'hi/w-nahin' },
-  { word: 'अच्छा',       roman: 'achchha',  en: 'good, okay',  theme: 'greetings', audio: 'hi/w-achchha' },
-  { word: 'शुक्रिया', roman: 'shukriya', en: 'thanks', theme: 'greetings', audio: 'hi/w-shukriya' },
-  { word: 'अलविदा', roman: 'alvida',   en: 'goodbye',     theme: 'greetings', audio: 'hi/w-alvida' }
-];
+   Order IS the ramp. The first block is the couple of hundred words a
+   four-year-old hears every day, mixed across themes; the theme blocks
+   after it widen the same ground.
+
+   THE AUDIO BUDGET. Audio keys exist on exactly three kinds of thing: the
+   46 letters, the 12 matras, and lexicon words. Nothing else — no sentence,
+   no exercise item, no conjunct added here carries one, because every key
+   is a voice file somebody has to record. Word keys are DERIVED from the
+   romanisation rather than typed, so the manifest a recording session works
+   from can never drift from the pack:
+
+       hi/w-<roman, spaces removed>
+
+   Rows are [word, roman, en, theme] with an optional numeric 5th column. */
+
+function packWords(ns, rows) {
+  var out = [], i, r, e;
+  for (i = 0; i < rows.length; i++) {
+    r = rows[i];
+    e = { word: r[0], roman: r[1], en: r[2], theme: r[3], audio: ns + '/w-' + r[1].replace(/\s+/g, '') };
+    if (r.length > 4 && r[4] !== undefined) e.value = r[4];
+    out.push(e);
+  }
+  return out;
+}
+
+var HI_LEX = packWords('hi', [
+
+  /* ============ the first words — what is said in the house every day ==== */
+  ['नमस्ते', 'namaste', 'hello', 'greetings'],
+  ['हाँ', 'haan', 'yes', 'greetings'],
+  ['नहीं', 'nahin', 'no', 'greetings'],
+  ['अच्छा', 'achchha', 'good, okay', 'greetings'],
+  ['धन्यवाद', 'dhanyavaad', 'thank you', 'greetings'],
+  ['शुक्रिया', 'shukriya', 'thanks', 'greetings'],
+  ['नमस्कार', 'namaskaar', 'hello (respectful)', 'greetings'],
+  ['अलविदा', 'alvida', 'goodbye', 'greetings'],
+  ['जी', 'ji', 'yes — the respectful word', 'greetings'],
+  ['कृपया', 'kripya', 'please', 'greetings'],
+
+  ['माँ', 'maa', 'mother', 'family'],
+  ['पापा', 'papa', 'father', 'family'],
+  ['भाई', 'bhai', 'brother', 'family'],
+  ['बहन', 'bahan', 'sister', 'family'],
+  ['दादा', 'dada', 'grandfather (father’s side)', 'family'],
+  ['दादी', 'dadi', 'grandmother (father’s side)', 'family'],
+  ['नाना', 'nana', 'grandfather (mother’s side)', 'family'],
+  ['नानी', 'nani', 'grandmother (mother’s side)', 'family'],
+  ['बच्चा', 'bachcha', 'child', 'family'],
+  ['परिवार', 'parivaar', 'family', 'family'],
+  ['बेटा', 'beta', 'son — and what a grown-up calls a child', 'family'],
+  ['बेटी', 'beti', 'daughter', 'family'],
+  ['दोस्त', 'dost', 'friend', 'family'],
+
+  ['पानी', 'paani', 'water', 'food'],
+  ['रोटी', 'roti', 'bread', 'food'],
+  ['दूध', 'doodh', 'milk', 'food'],
+  ['चावल', 'chaawal', 'rice', 'food'],
+  ['दाल', 'daal', 'lentils', 'food'],
+  ['खाना', 'khaana', 'food, a meal; to eat', 'food'],
+  ['आम', 'aam', 'mango', 'food'],
+  ['केला', 'kela', 'banana', 'food'],
+  ['चाय', 'chai', 'tea', 'food'],
+  ['मिठाई', 'mithai', 'sweets', 'food'],
+  ['नमक', 'namak', 'salt', 'food'],
+  ['फल', 'phal', 'fruit', 'food'],
+  ['सब्ज़ी', 'sabzi', 'vegetable', 'food'],
+
+  ['सिर', 'sir', 'head', 'body'],
+  ['आँख', 'aankh', 'eye', 'body'],
+  ['नाक', 'naak', 'nose', 'body'],
+  ['कान', 'kaan', 'ear', 'body'],
+  ['मुँह', 'munh', 'mouth', 'body'],
+  ['हाथ', 'haath', 'hand', 'body'],
+  ['पैर', 'pair', 'foot', 'body'],
+  ['पेट', 'pet', 'tummy', 'body'],
+  ['बाल', 'baal', 'hair', 'body'],
+  ['दाँत', 'daant', 'tooth', 'body'],
+
+  ['घर', 'ghar', 'house', 'home'],
+  ['दरवाज़ा', 'darwaaza', 'door', 'home'],
+  ['खिड़की', 'khidki', 'window', 'home'],
+  ['कुर्सी', 'kursi', 'chair', 'home'],
+  ['मेज़', 'mez', 'table', 'home'],
+  ['चाबी', 'chaabi', 'key', 'home'],
+  ['बिस्तर', 'bistar', 'bed', 'home'],
+  ['छत', 'chhat', 'roof', 'home'],
+  ['रसोई', 'rasoi', 'kitchen', 'home'],
+  ['कमरा', 'kamra', 'room', 'home'],
+
+  ['मैं', 'main', 'I', 'basics'],
+  ['तुम', 'tum', 'you (to a friend)', 'basics'],
+  ['आप', 'aap', 'you (respectful)', 'basics'],
+  ['यह', 'yah', 'this', 'basics'],
+  ['वह', 'vah', 'that, he, she', 'basics'],
+  ['हम', 'ham', 'we', 'basics'],
+  ['मेरा', 'mera', 'my', 'basics'],
+  ['क्या', 'kya', 'what', 'basics'],
+  ['कौन', 'kaun', 'who', 'basics'],
+  ['कहाँ', 'kahaan', 'where', 'basics'],
+  ['बड़ा', 'bada', 'big', 'basics'],
+  ['छोटा', 'chhota', 'small', 'basics'],
+  ['बहुत', 'bahut', 'very, a lot', 'basics'],
+  ['ठीक', 'theek', 'fine, alright', 'basics'],
+
+  ['है', 'hai', 'is', 'actions'],
+  ['हूँ', 'hoon', 'am', 'actions'],
+  ['हैं', 'hain', 'are (respectful, or many)', 'actions'],
+  ['हो', 'ho', 'are (to a friend)', 'actions'],
+  ['खेलना', 'khelna', 'to play', 'actions'],
+  ['पीना', 'peena', 'to drink', 'actions'],
+  ['सोना', 'sona', 'to sleep', 'actions'],
+  ['जाना', 'jaana', 'to go', 'actions'],
+  ['आना', 'aana', 'to come', 'actions'],
+  ['देखना', 'dekhna', 'to see, to watch', 'actions'],
+  ['करना', 'karna', 'to do', 'actions'],
+  ['देना', 'dena', 'to give', 'actions'],
+  ['कहना', 'kahna', 'to say', 'actions'],
+
+  ['एक', 'ek', 'one', 'numbers', 1],
+  ['दो', 'do', 'two', 'numbers', 2],
+  ['तीन', 'teen', 'three', 'numbers', 3],
+  ['चार', 'chaar', 'four', 'numbers', 4],
+  ['पाँच', 'paanch', 'five', 'numbers', 5],
+  ['छह', 'chhah', 'six', 'numbers', 6],
+  ['सात', 'saat', 'seven', 'numbers', 7],
+  ['आठ', 'aath', 'eight', 'numbers', 8],
+  ['नौ', 'nau', 'nine', 'numbers', 9],
+  ['दस', 'das', 'ten', 'numbers', 10],
+
+  ['लाल', 'laal', 'red', 'colours'],
+  ['नीला', 'neela', 'blue', 'colours'],
+  ['पीला', 'peela', 'yellow', 'colours'],
+  ['हरा', 'hara', 'green', 'colours'],
+  ['काला', 'kaala', 'black', 'colours'],
+  ['सफ़ेद', 'safed', 'white', 'colours'],
+
+  ['कुत्ता', 'kutta', 'dog', 'animals'],
+  ['बिल्ली', 'billi', 'cat', 'animals'],
+  ['गाय', 'gaay', 'cow', 'animals'],
+  ['हाथी', 'haathi', 'elephant', 'animals'],
+  ['चिड़िया', 'chidiya', 'bird', 'animals'],
+  ['मछली', 'machhli', 'fish', 'animals'],
+
+  ['आज', 'aaj', 'today', 'time'],
+  ['कल', 'kal', 'yesterday — and tomorrow, the same word', 'time'],
+  ['सुबह', 'subah', 'morning', 'time'],
+  ['रात', 'raat', 'night', 'time'],
+
+  ['खुश', 'khush', 'happy', 'feelings'],
+  ['भूखा', 'bhookha', 'hungry', 'feelings'],
+  ['प्यार', 'pyaar', 'love', 'feelings'],
+
+  /* ================= greetings — the rest of the doorway ================= */
+  ['प्रणाम', 'pranaam', 'a respectful greeting to an elder', 'greetings'],
+  ['सुप्रभात', 'suprabhaat', 'good morning', 'greetings'],
+  ['शुभ रात्रि', 'shubh raatri', 'good night', 'greetings'],
+  ['माफ़ करना', 'maaf karna', 'sorry', 'greetings'],
+  ['स्वागत', 'svaagat', 'welcome', 'greetings'],
+  ['बधाई', 'badhaai', 'congratulations', 'greetings'],
+  ['फिर मिलेंगे', 'phir milenge', 'see you again', 'greetings'],
+
+  /* ============================ family ================================== */
+  ['चाचा', 'chacha', 'uncle (father’s younger brother)', 'family'],
+  ['चाची', 'chachi', 'aunt (chacha’s wife)', 'family'],
+  ['मामा', 'mama', 'uncle (mother’s brother)', 'family'],
+  ['मामी', 'mami', 'aunt (mama’s wife)', 'family'],
+  ['मौसी', 'mausi', 'aunt (mother’s sister)', 'family'],
+  ['बुआ', 'bua', 'aunt (father’s sister)', 'family'],
+  ['भैया', 'bhaiya', 'big brother — what you call him', 'family'],
+  ['दीदी', 'didi', 'big sister — what you call her', 'family'],
+  ['लड़का', 'ladka', 'boy', 'family'],
+  ['लड़की', 'ladki', 'girl', 'family'],
+  ['आदमी', 'aadmi', 'man', 'family'],
+  ['औरत', 'aurat', 'woman', 'family'],
+  ['पति', 'pati', 'husband', 'family'],
+  ['पत्नी', 'patni', 'wife', 'family'],
+  ['पड़ोसी', 'padosi', 'neighbour', 'family'],
+  ['मेहमान', 'mehmaan', 'guest', 'family'],
+
+  /* ============================= food =================================== */
+  ['सेब', 'seb', 'apple', 'food'],
+  ['संतरा', 'santara', 'orange (the fruit)', 'food'],
+  ['अंगूर', 'angoor', 'grapes', 'food'],
+  ['अनार', 'anaar', 'pomegranate', 'food'],
+  ['तरबूज़', 'tarbooz', 'watermelon', 'food'],
+  ['आलू', 'aaloo', 'potato', 'food'],
+  ['प्याज़', 'pyaaz', 'onion', 'food'],
+  ['टमाटर', 'tamaatar', 'tomato', 'food'],
+  ['गाजर', 'gaajar', 'carrot', 'food'],
+  ['मटर', 'matar', 'peas', 'food'],
+  ['भिंडी', 'bhindi', 'okra', 'food'],
+  ['पालक', 'paalak', 'spinach', 'food'],
+  ['अंडा', 'anda', 'egg', 'food'],
+  ['घी', 'ghee', 'ghee', 'food'],
+  ['मक्खन', 'makkhan', 'butter', 'food'],
+  ['दही', 'dahi', 'yoghurt', 'food'],
+  ['पनीर', 'paneer', 'paneer', 'food'],
+  ['चीनी', 'cheeni', 'sugar', 'food'],
+  ['मिर्च', 'mirch', 'chilli', 'food'],
+  ['मसाला', 'masaala', 'spice', 'food'],
+  ['हल्दी', 'haldi', 'turmeric', 'food'],
+  ['अचार', 'achaar', 'pickle', 'food'],
+  ['चटनी', 'chatni', 'chutney', 'food'],
+  ['पराठा', 'paraatha', 'paratha', 'food'],
+  ['पूरी', 'poori', 'poori', 'food'],
+  ['समोसा', 'samosa', 'samosa', 'food'],
+  ['लड्डू', 'laddoo', 'laddoo', 'food'],
+  ['खीर', 'kheer', 'kheer', 'food'],
+  ['हलवा', 'halva', 'halwa', 'food'],
+  ['बिस्कुट', 'biskut', 'biscuit', 'food'],
+  ['नाश्ता', 'naashta', 'breakfast', 'food'],
+  ['तेल', 'tel', 'oil', 'food'],
+  ['आटा', 'aata', 'flour', 'food'],
+  ['शहद', 'shahad', 'honey', 'food'],
+
+  /* ============================= body =================================== */
+  ['चेहरा', 'chehra', 'face', 'body'],
+  ['माथा', 'maatha', 'forehead', 'body'],
+  ['गाल', 'gaal', 'cheek', 'body'],
+  ['होंठ', 'honth', 'lip', 'body'],
+  ['जीभ', 'jeebh', 'tongue', 'body'],
+  ['गला', 'gala', 'throat', 'body'],
+  ['गर्दन', 'gardan', 'neck', 'body'],
+  ['कंधा', 'kandha', 'shoulder', 'body'],
+  ['बाँह', 'baanh', 'arm', 'body'],
+  ['उँगली', 'ungli', 'finger', 'body'],
+  ['अंगूठा', 'angootha', 'thumb', 'body'],
+  ['नाखून', 'naakhoon', 'nail', 'body'],
+  ['घुटना', 'ghutna', 'knee', 'body'],
+  ['टाँग', 'taang', 'leg', 'body'],
+  ['पीठ', 'peeth', 'back', 'body'],
+  ['दिल', 'dil', 'heart', 'body'],
+  ['शरीर', 'shareer', 'body', 'body'],
+  ['हड्डी', 'haddi', 'bone', 'body'],
+  ['साँस', 'saans', 'breath', 'body'],
+  ['आवाज़', 'aavaaz', 'voice', 'body'],
+  ['बुखार', 'bukhaar', 'fever', 'body'],
+
+  /* ============================= home =================================== */
+  ['दीवार', 'deewaar', 'wall', 'home'],
+  ['फ़र्श', 'farsh', 'floor', 'home'],
+  ['सीढ़ी', 'seedhi', 'stairs', 'home'],
+  ['अलमारी', 'almaari', 'cupboard', 'home'],
+  ['पंखा', 'pankha', 'fan', 'home'],
+  ['बत्ती', 'batti', 'light', 'home'],
+  ['दीया', 'diya', 'oil lamp', 'home'],
+  ['चूल्हा', 'choolha', 'stove', 'home'],
+  ['बर्तन', 'bartan', 'a pot, the washing-up', 'home'],
+  ['थाली', 'thaali', 'plate', 'home'],
+  ['गिलास', 'gilaas', 'glass', 'home'],
+  ['कटोरी', 'katori', 'small bowl', 'home'],
+  ['चम्मच', 'chammach', 'spoon', 'home'],
+  ['झाड़ू', 'jhaadu', 'broom', 'home'],
+  ['साबुन', 'saabun', 'soap', 'home'],
+  ['तौलिया', 'tauliya', 'towel', 'home'],
+  ['कंघी', 'kanghi', 'comb', 'home'],
+  ['तकिया', 'takiya', 'pillow', 'home'],
+  ['चादर', 'chaadar', 'bedsheet', 'home'],
+  ['कंबल', 'kambal', 'blanket', 'home'],
+  ['बाल्टी', 'baalti', 'bucket', 'home'],
+  ['बगीचा', 'bageecha', 'garden', 'home'],
+  ['आँगन', 'aangan', 'courtyard', 'home'],
+  ['फ़ोन', 'fon', 'phone', 'home'],
+
+  /* ===================== everyday words that glue sentences ============= */
+  ['वे', 've', 'they', 'basics'],
+  ['तुम्हारा', 'tumhaara', 'your (to a friend)', 'basics'],
+  ['आपका', 'aapka', 'your (respectful)', 'basics'],
+  ['हमारा', 'hamaara', 'our', 'basics'],
+  ['कब', 'kab', 'when', 'basics'],
+  ['क्यों', 'kyon', 'why', 'basics'],
+  ['कैसे', 'kaise', 'how', 'basics'],
+  ['कितना', 'kitna', 'how much', 'basics'],
+  ['यहाँ', 'yahaan', 'here', 'basics'],
+  ['वहाँ', 'vahaan', 'there', 'basics'],
+  ['और', 'aur', 'and, more', 'basics'],
+  ['या', 'ya', 'or', 'basics'],
+  ['लेकिन', 'lekin', 'but', 'basics'],
+  ['भी', 'bhi', 'also', 'basics'],
+  ['का', 'ka', 'of — the little word that shows belonging', 'basics'],
+  ['को', 'ko', 'to (a person)', 'basics'],
+  ['में', 'mein', 'in', 'basics'],
+  ['पर', 'par', 'on', 'basics'],
+  ['से', 'se', 'from, with', 'basics'],
+  ['तक', 'tak', 'until, up to', 'basics'],
+  ['पास', 'paas', 'near — and how you say you have something', 'basics'],
+  ['थोड़ा', 'thoda', 'a little', 'basics'],
+  ['सब', 'sab', 'all, everyone', 'basics'],
+  ['कुछ', 'kuchh', 'something', 'basics'],
+  ['अब', 'ab', 'now', 'basics'],
+  ['फिर', 'phir', 'again, then', 'basics'],
+  ['जल्दी', 'jaldi', 'quickly, soon', 'basics'],
+  ['धीरे', 'dheere', 'slowly', 'basics'],
+  ['नया', 'naya', 'new', 'basics'],
+  ['पुराना', 'puraana', 'old', 'basics'],
+  ['बुरा', 'bura', 'bad', 'basics'],
+  ['गरम', 'garam', 'hot', 'basics'],
+  ['ठंडा', 'thanda', 'cold', 'basics'],
+  ['साफ़', 'saaf', 'clean', 'basics'],
+  ['गंदा', 'ganda', 'dirty', 'basics'],
+  ['मीठा', 'meetha', 'sweet', 'basics'],
+  ['लंबा', 'lamba', 'long, tall', 'basics'],
+  ['भारी', 'bhaari', 'heavy', 'basics'],
+  ['हल्का', 'halka', 'light (not heavy)', 'basics'],
+  ['सुंदर', 'sundar', 'beautiful', 'basics'],
+  ['ज़्यादा', 'zyaada', 'more', 'basics'],
+  ['कम', 'kam', 'less', 'basics'],
+  ['ऊपर', 'oopar', 'up, above', 'basics'],
+  ['नीचे', 'neeche', 'down, below', 'basics'],
+  ['अंदर', 'andar', 'inside', 'basics'],
+  ['बाहर', 'baahar', 'outside', 'basics'],
+  ['आगे', 'aage', 'in front, ahead', 'basics'],
+  ['पीछे', 'peechhe', 'behind', 'basics'],
+  ['दाएँ', 'daaen', 'to the right', 'basics'],
+  ['बाएँ', 'baaen', 'to the left', 'basics'],
+  ['दूर', 'door', 'far', 'basics'],
+  ['बंद', 'band', 'closed, shut', 'basics'],
+  ['तैयार', 'taiyaar', 'ready', 'basics'],
+  ['याद', 'yaad', 'memory — how you say you miss someone', 'basics'],
+  ['पसंद', 'pasand', 'liking — how you say you like something', 'basics'],
+  ['मदद', 'madad', 'help', 'basics'],
+  ['उम्र', 'umr', 'age', 'basics'],
+  ['बारी', 'baari', 'turn (in a game)', 'basics'],
+  ['बात', 'baat', 'a thing said, a talk', 'basics'],
+  ['साथ', 'saath', 'together, with', 'basics'],
+  ['हर', 'har', 'every', 'basics'],
+
+  /* =========================== doing words ============================== */
+  ['सुनना', 'sunna', 'to listen', 'actions'],
+  ['बोलना', 'bolna', 'to speak', 'actions'],
+  ['पढ़ना', 'padhna', 'to read', 'actions'],
+  ['लिखना', 'likhna', 'to write', 'actions'],
+  ['बैठना', 'baithna', 'to sit', 'actions'],
+  ['उठना', 'uthna', 'to get up', 'actions'],
+  ['चलना', 'chalna', 'to walk, to go along', 'actions'],
+  ['दौड़ना', 'daudna', 'to run', 'actions'],
+  ['हँसना', 'hansna', 'to laugh', 'actions'],
+  ['रोना', 'rona', 'to cry', 'actions'],
+  ['गाना', 'gaana', 'to sing; a song', 'actions'],
+  ['नाचना', 'naachna', 'to dance', 'actions'],
+  ['बनाना', 'banaana', 'to make', 'actions'],
+  ['लेना', 'lena', 'to take', 'actions'],
+  ['धोना', 'dhona', 'to wash', 'actions'],
+  ['पहनना', 'pahanna', 'to wear', 'actions'],
+  ['खोलना', 'kholna', 'to open', 'actions'],
+  ['रखना', 'rakhna', 'to put, to keep', 'actions'],
+  ['समझना', 'samajhna', 'to understand', 'actions'],
+  ['सीखना', 'seekhna', 'to learn', 'actions'],
+  ['मिलना', 'milna', 'to meet', 'actions'],
+  ['रुकना', 'rukna', 'to stop', 'actions'],
+  ['बुलाना', 'bulaana', 'to call someone', 'actions'],
+  ['पकाना', 'pakaana', 'to cook', 'actions'],
+  ['ढूँढना', 'dhoondhna', 'to look for', 'actions'],
+  ['जलाना', 'jalaana', 'to light (a lamp)', 'actions'],
+  ['रहना', 'rahna', 'to live, to stay', 'actions'],
+  ['सकना', 'sakna', 'to be able to', 'actions'],
+  ['चाहिए', 'chaahiye', 'is wanted, is needed', 'actions'],
+  ['था', 'tha', 'was', 'actions'],
+  ['थी', 'thi', 'was (she, or a feminine word)', 'actions'],
+
+  /* ============================ animals ================================= */
+  ['बंदर', 'bandar', 'monkey', 'animals'],
+  ['शेर', 'sher', 'lion', 'animals'],
+  ['घोड़ा', 'ghoda', 'horse', 'animals'],
+  ['तितली', 'titli', 'butterfly', 'animals'],
+  ['बकरी', 'bakri', 'goat', 'animals'],
+  ['भैंस', 'bhains', 'buffalo', 'animals'],
+  ['बैल', 'bail', 'ox', 'animals'],
+  ['ऊँट', 'oont', 'camel', 'animals'],
+  ['भालू', 'bhaaloo', 'bear', 'animals'],
+  ['हिरण', 'hiran', 'deer', 'animals'],
+  ['साँप', 'saanp', 'snake', 'animals'],
+  ['चूहा', 'chooha', 'mouse', 'animals'],
+  ['मोर', 'mor', 'peacock', 'animals'],
+  ['कौआ', 'kauaa', 'crow', 'animals'],
+  ['तोता', 'tota', 'parrot', 'animals'],
+  ['कबूतर', 'kabootar', 'pigeon', 'animals'],
+  ['मुर्गा', 'murga', 'rooster', 'animals'],
+  ['मुर्गी', 'murgi', 'hen', 'animals'],
+  ['खरगोश', 'khargosh', 'rabbit', 'animals'],
+  ['गिलहरी', 'gilahri', 'squirrel', 'animals'],
+  ['मेंढक', 'mendhak', 'frog', 'animals'],
+  ['मक्खी', 'makkhi', 'fly', 'animals'],
+  ['मच्छर', 'machchhar', 'mosquito', 'animals'],
+  ['चींटी', 'cheenti', 'ant', 'animals'],
+  ['कछुआ', 'kachhua', 'tortoise', 'animals'],
+  ['बाघ', 'baagh', 'tiger', 'animals'],
+  ['गधा', 'gadha', 'donkey', 'animals'],
+  ['भेड़', 'bhed', 'sheep', 'animals'],
+
+  /* ============================ colours ================================= */
+  ['नारंगी', 'naarangi', 'orange (the colour)', 'colours'],
+  ['गुलाबी', 'gulaabi', 'pink', 'colours'],
+  ['भूरा', 'bhoora', 'brown', 'colours'],
+  ['बैंगनी', 'baingani', 'purple', 'colours'],
+  ['सुनहरा', 'sunahra', 'golden', 'colours'],
+  ['रंग', 'rang', 'colour', 'colours'],
+
+  /* ============================ numbers ================================= */
+  ['ग्यारह', 'gyaarah', 'eleven', 'numbers', 11],
+  ['बारह', 'baarah', 'twelve', 'numbers', 12],
+  ['तेरह', 'terah', 'thirteen', 'numbers', 13],
+  ['चौदह', 'chaudah', 'fourteen', 'numbers', 14],
+  ['पंद्रह', 'pandrah', 'fifteen', 'numbers', 15],
+  ['सोलह', 'solah', 'sixteen', 'numbers', 16],
+  ['सत्रह', 'satrah', 'seventeen', 'numbers', 17],
+  ['अठारह', 'athaarah', 'eighteen', 'numbers', 18],
+  ['उन्नीस', 'unnees', 'nineteen', 'numbers', 19],
+  ['बीस', 'bees', 'twenty', 'numbers', 20],
+  ['तीस', 'tees', 'thirty', 'numbers', 30],
+  ['चालीस', 'chaalees', 'forty', 'numbers', 40],
+  ['पचास', 'pachaas', 'fifty', 'numbers', 50],
+  ['सौ', 'sau', 'a hundred', 'numbers', 100],
+  ['हज़ार', 'hazaar', 'a thousand', 'numbers', 1000],
+  ['शून्य', 'shoonya', 'zero', 'numbers', 0],
+  ['आधा', 'aadha', 'half', 'numbers'],
+  ['पहला', 'pehla', 'first', 'numbers'],
+  ['दूसरा', 'doosra', 'second', 'numbers'],
+  ['तीसरा', 'teesra', 'third', 'numbers'],
+  ['रुपया', 'rupaya', 'rupee', 'numbers'],
+
+  /* ============================= school ================================= */
+  ['स्कूल', 'skool', 'school', 'school'],
+  ['किताब', 'kitaab', 'book', 'school'],
+  ['कलम', 'kalam', 'pen', 'school'],
+  ['पेंसिल', 'pensil', 'pencil', 'school'],
+  ['बस्ता', 'basta', 'school bag', 'school'],
+  ['कक्षा', 'kaksha', 'class', 'school'],
+  ['शिक्षक', 'shikshak', 'teacher', 'school'],
+  ['पाठ', 'paath', 'lesson', 'school'],
+  ['सवाल', 'savaal', 'question', 'school'],
+  ['जवाब', 'javaab', 'answer', 'school'],
+  ['नाम', 'naam', 'name', 'school'],
+  ['अक्षर', 'akshar', 'letter (of the alphabet)', 'school'],
+  ['शब्द', 'shabd', 'word', 'school'],
+  ['वाक्य', 'vaakya', 'sentence', 'school'],
+  ['कहानी', 'kahaani', 'story', 'school'],
+  ['कविता', 'kavita', 'poem', 'school'],
+  ['चित्र', 'chitra', 'picture', 'school'],
+  ['खेल', 'khel', 'a game', 'school'],
+  ['छुट्टी', 'chhutti', 'holiday', 'school'],
+  ['गिनती', 'ginti', 'counting', 'school'],
+  ['कागज़', 'kaagaz', 'paper', 'school'],
+  ['पढ़ाई', 'padhaai', 'studying', 'school'],
+  ['भाषा', 'bhaasha', 'language', 'school'],
+
+  /* ============================ clothes ================================= */
+  ['कपड़े', 'kapde', 'clothes', 'clothes'],
+  ['कुरता', 'kurta', 'kurta', 'clothes'],
+  ['साड़ी', 'saari', 'sari', 'clothes'],
+  ['सलवार', 'salvaar', 'salwar', 'clothes'],
+  ['कमीज़', 'kameez', 'shirt', 'clothes'],
+  ['पतलून', 'patloon', 'trousers', 'clothes'],
+  ['जूता', 'joota', 'shoe', 'clothes'],
+  ['चप्पल', 'chappal', 'slippers', 'clothes'],
+  ['मोज़ा', 'moza', 'sock', 'clothes'],
+  ['टोपी', 'topi', 'cap', 'clothes'],
+  ['दुपट्टा', 'dupatta', 'dupatta', 'clothes'],
+  ['चूड़ी', 'choodi', 'bangle', 'clothes'],
+  ['अंगूठी', 'angoothi', 'ring', 'clothes'],
+  ['बटन', 'batan', 'button', 'clothes'],
+  ['जेब', 'jeb', 'pocket', 'clothes'],
+  ['स्वेटर', 'sveter', 'jumper', 'clothes'],
+  ['कोट', 'kot', 'coat', 'clothes'],
+  ['धोती', 'dhoti', 'dhoti', 'clothes'],
+  ['पगड़ी', 'pagdi', 'turban', 'clothes'],
+  ['लहँगा', 'lahanga', 'lehenga', 'clothes'],
+  ['चश्मा', 'chashma', 'glasses', 'clothes'],
+
+  /* ========================= weather and sky ============================ */
+  ['मौसम', 'mausam', 'weather', 'weather'],
+  ['धूप', 'dhoop', 'sunshine', 'weather'],
+  ['बारिश', 'baarish', 'rain', 'weather'],
+  ['बादल', 'baadal', 'cloud', 'weather'],
+  ['हवा', 'hava', 'wind, air', 'weather'],
+  ['सर्दी', 'sardi', 'winter, the cold season', 'weather'],
+  ['गर्मी', 'garmi', 'summer, the heat', 'weather'],
+  ['बरसात', 'barsaat', 'the rainy season', 'weather'],
+  ['तूफ़ान', 'toofaan', 'storm', 'weather'],
+  ['बिजली', 'bijli', 'lightning; electricity', 'weather'],
+  ['सूरज', 'sooraj', 'sun', 'weather'],
+  ['चाँद', 'chaand', 'moon', 'weather'],
+  ['तारा', 'taara', 'star', 'weather'],
+  ['आसमान', 'aasmaan', 'sky', 'weather'],
+  ['बर्फ़', 'barf', 'snow, ice', 'weather'],
+  ['कोहरा', 'kohra', 'fog', 'weather'],
+  ['इंद्रधनुष', 'indradhanush', 'rainbow', 'weather'],
+  ['छाता', 'chhaata', 'umbrella', 'weather'],
+  ['आग', 'aag', 'fire', 'weather'],
+
+  /* ========================== time and days ============================= */
+  ['परसों', 'parson', 'the day before yesterday — and the day after tomorrow', 'time'],
+  ['दोपहर', 'dopahar', 'afternoon', 'time'],
+  ['शाम', 'shaam', 'evening', 'time'],
+  ['दिन', 'din', 'day', 'time'],
+  ['हफ़्ता', 'hafta', 'week', 'time'],
+  ['महीना', 'maheena', 'month', 'time'],
+  ['साल', 'saal', 'year', 'time'],
+  ['घंटा', 'ghanta', 'hour', 'time'],
+  ['मिनट', 'minat', 'minute', 'time'],
+  ['समय', 'samay', 'time', 'time'],
+  ['घड़ी', 'ghadi', 'clock, watch', 'time'],
+  ['देर', 'der', 'late', 'time'],
+  ['जन्मदिन', 'janmadin', 'birthday', 'time'],
+  ['त्योहार', 'tyohaar', 'festival', 'time'],
+  ['सोमवार', 'somvaar', 'Monday', 'time'],
+  ['मंगलवार', 'mangalvaar', 'Tuesday', 'time'],
+  ['बुधवार', 'budhvaar', 'Wednesday', 'time'],
+  ['गुरुवार', 'guruvaar', 'Thursday', 'time'],
+  ['शुक्रवार', 'shukravaar', 'Friday', 'time'],
+  ['शनिवार', 'shanivaar', 'Saturday', 'time'],
+  ['रविवार', 'ravivaar', 'Sunday', 'time'],
+
+  /* ====================== places and outdoors =========================== */
+  ['बाज़ार', 'baazaar', 'market', 'places'],
+  ['दुकान', 'dukaan', 'shop', 'places'],
+  ['मंदिर', 'mandir', 'temple', 'places'],
+  ['गुरुद्वारा', 'gurudwaara', 'gurdwara', 'places'],
+  ['मस्जिद', 'masjid', 'mosque', 'places'],
+  ['गिरजाघर', 'girjaaghar', 'church', 'places'],
+  ['अस्पताल', 'aspataal', 'hospital', 'places'],
+  ['पार्क', 'paark', 'park', 'places'],
+  ['सड़क', 'sadak', 'road', 'places'],
+  ['गली', 'gali', 'lane', 'places'],
+  ['शहर', 'shahar', 'city', 'places'],
+  ['गाँव', 'gaanv', 'village', 'places'],
+  ['देश', 'desh', 'country', 'places'],
+  ['खेत', 'khet', 'field', 'places'],
+  ['कुआँ', 'kuaan', 'well', 'places'],
+  ['स्टेशन', 'steshan', 'station', 'places'],
+  ['नदी', 'nadi', 'river', 'places'],
+  ['पहाड़', 'pahaad', 'mountain', 'places'],
+  ['समुद्र', 'samudra', 'sea', 'places'],
+  ['जंगल', 'jangal', 'forest', 'places'],
+  ['झील', 'jheel', 'lake', 'places'],
+  ['पुल', 'pul', 'bridge', 'places'],
+  ['किला', 'kila', 'fort', 'places'],
+  ['मेला', 'mela', 'fair', 'places'],
+  ['पेड़', 'ped', 'tree', 'places'],
+  ['फूल', 'phool', 'flower', 'places'],
+  ['पत्ता', 'patta', 'leaf', 'places'],
+  ['घास', 'ghaas', 'grass', 'places'],
+  ['मिट्टी', 'mitti', 'soil', 'places'],
+
+  /* ========================== getting around ============================ */
+  ['गाड़ी', 'gaadi', 'car', 'transport'],
+  ['बस', 'bas', 'bus', 'transport'],
+  ['ट्रेन', 'tren', 'train', 'transport'],
+  ['रेलगाड़ी', 'relgaadi', 'railway train', 'transport'],
+  ['साइकिल', 'saaikil', 'bicycle', 'transport'],
+  ['रिक्शा', 'riksha', 'rickshaw', 'transport'],
+  ['नाव', 'naav', 'boat', 'transport'],
+  ['स्कूटर', 'skootar', 'scooter', 'transport'],
+  ['जहाज़', 'jahaaz', 'ship', 'transport'],
+  ['हवाई जहाज़', 'havaai jahaaz', 'aeroplane', 'transport'],
+  ['टिकट', 'tikat', 'ticket', 'transport'],
+  ['पहिया', 'pahiya', 'wheel', 'transport'],
+  ['सफ़र', 'safar', 'journey', 'transport'],
+  ['रास्ता', 'raasta', 'the way, the path', 'transport'],
+  ['ट्रक', 'trak', 'lorry', 'transport'],
+
+  /* ============================ feelings ================================ */
+  ['उदास', 'udaas', 'sad', 'feelings'],
+  ['गुस्सा', 'gussa', 'anger', 'feelings'],
+  ['डर', 'dar', 'fear', 'feelings'],
+  ['हँसी', 'hansi', 'laughter', 'feelings'],
+  ['आँसू', 'aansoo', 'tears', 'feelings'],
+  ['थका', 'thaka', 'tired', 'feelings'],
+  ['प्यासा', 'pyaasa', 'thirsty', 'feelings'],
+  ['बीमार', 'beemaar', 'ill', 'feelings'],
+  ['मज़ा', 'maza', 'fun', 'feelings'],
+  ['शर्म', 'sharm', 'shyness', 'feelings'],
+  ['अकेला', 'akela', 'alone', 'feelings'],
+  ['दर्द', 'dard', 'pain', 'feelings'],
+  ['नींद', 'neend', 'sleep, sleepiness', 'feelings'],
+  ['खुशी', 'khushi', 'happiness', 'feelings'],
+  ['हिम्मत', 'himmat', 'courage', 'feelings'],
+  ['शांत', 'shaant', 'calm', 'feelings'],
+  ['दया', 'daya', 'kindness', 'feelings'],
+  ['आराम', 'aaraam', 'rest', 'feelings']
+]);
+
+/* ---- Hindi stages 4, 5 and 6 -------------------------------------------
+   These three stages are the ones a lexicon alone cannot carry, so they are
+   authored rather than derived.
+
+   NO AUDIO KEYS LIVE HERE, deliberately. A sentence is read, not played;
+   the words inside it already have voice. Every item carries `lex`, the
+   lexicon words it is built from, so the scheduler can hold a sentence back
+   until the child has met its words — and so a broken reference is a test
+   failure rather than a silent hole.
+
+   Each item holds the sentence AND its meaning. A generator decides what is
+   shown: never render `en` or `roman` beside the answer in a drill. */
+
+function hiSentences(rows) {   /* [id, grammar point, devanagari, roman, english, lex] */
+  var out = [], i;
+  for (i = 0; i < rows.length; i++) {
+    out.push({ id: rows[i][0], point: rows[i][1], hi: rows[i][2], roman: rows[i][3], en: rows[i][4], lex: rows[i][5] });
+  }
+  return out;
+}
+function hiTurns(rows) {       /* [id, scene, who, devanagari, roman, english, lex] */
+  var out = [], i;
+  for (i = 0; i < rows.length; i++) {
+    out.push({ id: rows[i][0], scene: rows[i][1], who: rows[i][2], hi: rows[i][3], roman: rows[i][4], en: rows[i][5], lex: rows[i][6] });
+  }
+  return out;
+}
+function hiPassages(rows) {    /* [id, devanagari, roman, english, lex] */
+  var out = [], i;
+  for (i = 0; i < rows.length; i++) {
+    out.push({ id: rows[i][0], kind: 'passage', hi: rows[i][1], roman: rows[i][2], en: rows[i][3], lex: rows[i][4] });
+  }
+  return out;
+}
+/* Conjunct items are DERIVED from the script module so the two can never
+   drift; the script module owns the glyph, the stage owns the sequence. */
+function conjunctItems(script) {
+  var out = [], i, c;
+  for (i = 0; i < script.hardConjuncts.length; i++) {
+    c = script.hardConjuncts[i];
+    out.push({ id: 'cj-' + c.name, kind: 'conjunct', hi: c.char, parts: c.parts, roman: c.name, word: c.word });
+  }
+  return out;
+}
+
+/* Stage 4 — Vakya. Hindi puts the verb last, marks the object with a little
+   word AFTER it rather than a preposition before it, and agrees the verb
+   with gender. Those three facts are the whole stage, met one sentence at a
+   time. */
+var HI_S4 = hiSentences([
+  /* this is that: the copula, and the two genders of "my" */
+  ['s4-01', 'copula', 'यह घर है।', 'yah ghar hai.', 'This is a house.', ['यह', 'घर', 'है']],
+  ['s4-02', 'copula', 'वह किताब है।', 'vah kitaab hai.', 'That is a book.', ['वह', 'किताब', 'है']],
+  ['s4-03', 'copula', 'यह मेरा भाई है।', 'yah mera bhai hai.', 'This is my brother.', ['मेरा', 'भाई', 'है']],
+  ['s4-04', 'gender', 'वह मेरी माँ है।', 'vah meri maa hai.', 'That is my mother.', ['मेरा', 'माँ', 'है']],
+  ['s4-05', 'gender', 'यह मेरी बहन है।', 'yah meri bahan hai.', 'This is my sister.', ['मेरा', 'बहन', 'है']],
+  ['s4-06', 'copula', 'यह लाल फूल है।', 'yah laal phool hai.', 'This is a red flower.', ['लाल', 'फूल', 'है']],
+  ['s4-07', 'plural', 'वे बच्चे हैं।', 've bachche hain.', 'They are children.', ['वे', 'बच्चा', 'हैं']],
+  ['s4-08', 'copula', 'मैं बच्चा हूँ।', 'main bachcha hoon.', 'I am a child.', ['मैं', 'बच्चा', 'हूँ']],
+  ['s4-09', 'copula', 'तुम मेरे दोस्त हो।', 'tum mere dost ho.', 'You are my friend.', ['तुम', 'दोस्त', 'हो']],
+  ['s4-10', 'respect', 'आप मेरे नाना हैं।', 'aap mere nana hain.', 'You are my grandfather.', ['आप', 'नाना', 'हैं']],
+
+  /* subject, object, verb — in that order, every time */
+  ['s4-11', 'sov', 'मैं रोटी खाता हूँ।', 'main roti khaata hoon.', 'I eat roti.', ['मैं', 'रोटी', 'खाना']],
+  ['s4-12', 'sov', 'मैं दूध पीता हूँ।', 'main doodh peeta hoon.', 'I drink milk.', ['मैं', 'दूध', 'पीना']],
+  ['s4-13', 'gender', 'बहन चाय पीती है।', 'bahan chai peeti hai.', 'My sister drinks tea.', ['बहन', 'चाय', 'पीना']],
+  ['s4-14', 'sov', 'दादी कहानी सुनती हैं।', 'dadi kahaani sunti hain.', 'Grandmother listens to a story.', ['दादी', 'कहानी', 'सुनना']],
+  ['s4-15', 'sov', 'भाई किताब पढ़ता है।', 'bhai kitaab padhta hai.', 'My brother reads a book.', ['भाई', 'किताब', 'पढ़ना']],
+  ['s4-16', 'sov', 'माँ खाना बनाती है।', 'maa khaana banaati hai.', 'Mother makes the food.', ['माँ', 'खाना', 'बनाना']],
+  ['s4-17', 'sov', 'पापा बाज़ार जाते हैं।', 'papa baazaar jaate hain.', 'Father goes to the market.', ['पापा', 'बाज़ार', 'जाना']],
+  ['s4-18', 'sov', 'दादा किताब पढ़ते हैं।', 'dada kitaab padhte hain.', 'Grandfather reads a book.', ['दादा', 'किताब', 'पढ़ना']],
+  ['s4-19', 'sov', 'बिल्ली दूध पीती है।', 'billi doodh peeti hai.', 'The cat drinks milk.', ['बिल्ली', 'दूध', 'पीना']],
+  ['s4-20', 'sov', 'बच्चे गाना गाते हैं।', 'bachche gaana gaate hain.', 'The children sing a song.', ['बच्चा', 'गाना']],
+
+  /* the little words that come AFTER, not before */
+  ['s4-21', 'postposition', 'बिल्ली मेज़ पर है।', 'billi mez par hai.', 'The cat is on the table.', ['बिल्ली', 'मेज़', 'पर']],
+  ['s4-22', 'postposition', 'किताब बस्ते में है।', 'kitaab baste mein hai.', 'The book is in the school bag.', ['किताब', 'बस्ता', 'में']],
+  ['s4-23', 'postposition', 'कुत्ता घर के बाहर है।', 'kutta ghar ke baahar hai.', 'The dog is outside the house.', ['कुत्ता', 'घर', 'बाहर']],
+  ['s4-24', 'postposition', 'चम्मच थाली के पास है।', 'chammach thaali ke paas hai.', 'The spoon is next to the plate.', ['चम्मच', 'थाली', 'पास']],
+  ['s4-25', 'postposition', 'हम स्कूल से आए।', 'ham skool se aae.', 'We came from school.', ['हम', 'स्कूल', 'से']],
+  ['s4-26', 'postposition', 'माँ को पानी दो।', 'maa ko paani do.', 'Give mother some water.', ['माँ', 'को', 'पानी']],
+  ['s4-27', 'postposition', 'चम्मच से खाओ।', 'chammach se khaao.', 'Eat with a spoon.', ['चम्मच', 'से', 'खाना']],
+  ['s4-28', 'possession', 'यह पापा की गाड़ी है।', 'yah papa ki gaadi hai.', 'This is father’s car.', ['पापा', 'का', 'गाड़ी']],
+  ['s4-29', 'possession', 'यह दादी का चश्मा है।', 'yah dadi ka chashma hai.', 'These are grandmother’s glasses.', ['दादी', 'का', 'चश्मा']],
+  ['s4-30', 'possession', 'मेरे पास दो केले हैं।', 'mere paas do kele hain.', 'I have two bananas.', ['मेरा', 'पास', 'केला']],
+
+  /* asking, and saying no */
+  ['s4-31', 'question', 'तुम कहाँ हो?', 'tum kahaan ho?', 'Where are you?', ['तुम', 'कहाँ', 'हो']],
+  ['s4-32', 'question', 'यह क्या है?', 'yah kya hai?', 'What is this?', ['यह', 'क्या', 'है']],
+  ['s4-33', 'question', 'वह कौन है?', 'vah kaun hai?', 'Who is that?', ['वह', 'कौन', 'है']],
+  ['s4-34', 'question', 'तुम्हारा नाम क्या है?', 'tumhaara naam kya hai?', 'What is your name?', ['तुम्हारा', 'नाम', 'क्या']],
+  ['s4-35', 'question', 'आप कैसे हैं?', 'aap kaise hain?', 'How are you?', ['आप', 'कैसे', 'हैं']],
+  ['s4-36', 'question', 'हम कब जाएँगे?', 'ham kab jaaenge?', 'When will we go?', ['हम', 'कब', 'जाना']],
+  ['s4-37', 'question', 'कितने बच्चे हैं?', 'kitne bachche hain?', 'How many children are there?', ['कितना', 'बच्चा', 'हैं']],
+  ['s4-38', 'negation', 'मुझे भूख नहीं है।', 'mujhe bhookh nahin hai.', 'I am not hungry.', ['नहीं', 'है', 'भूखा']],
+  ['s4-39', 'negation', 'मैं आज स्कूल नहीं जाऊँगा।', 'main aaj skool nahin jaaoonga.', 'I will not go to school today.', ['आज', 'स्कूल', 'नहीं']],
+  ['s4-40', 'negation', 'यह मेरा नहीं है।', 'yah mera nahin hai.', 'This is not mine.', ['यह', 'मेरा', 'नहीं']],
+
+  /* was, is, will be */
+  ['s4-41', 'tense-present', 'मैं गाना गाता हूँ।', 'main gaana gaata hoon.', 'I sing a song.', ['मैं', 'गाना', 'हूँ']],
+  ['s4-42', 'tense-present', 'भाई सो रहा है।', 'bhai so raha hai.', 'My brother is sleeping.', ['भाई', 'सोना', 'है']],
+  ['s4-43', 'tense-present', 'बच्चे खेल रहे हैं।', 'bachche khel rahe hain.', 'The children are playing.', ['बच्चा', 'खेलना', 'हैं']],
+  ['s4-44', 'tense-present', 'मैं किताब पढ़ रही हूँ।', 'main kitaab padh rahi hoon.', 'I am reading a book.', ['किताब', 'पढ़ना', 'हूँ']],
+  ['s4-45', 'tense-past', 'मैंने दूध पिया।', 'maine doodh piya.', 'I drank the milk.', ['मैं', 'दूध', 'पीना']],
+  ['s4-46', 'tense-past', 'दादी ने खीर बनाई।', 'dadi ne kheer banaai.', 'Grandmother made kheer.', ['दादी', 'खीर', 'बनाना']],
+  ['s4-47', 'tense-past', 'कल बारिश हुई।', 'kal baarish hui.', 'It rained yesterday.', ['कल', 'बारिश']],
+  ['s4-48', 'tense-past', 'मैं कल स्कूल गया था।', 'main kal skool gaya tha.', 'I went to school yesterday.', ['कल', 'स्कूल', 'था']],
+  ['s4-49', 'tense-future', 'कल हम मंदिर जाएँगे।', 'kal ham mandir jaaenge.', 'Tomorrow we will go to the temple.', ['कल', 'मंदिर', 'जाना']],
+  ['s4-50', 'tense-future', 'शाम को दोस्त आएँगे।', 'shaam ko dost aaenge.', 'My friends will come in the evening.', ['शाम', 'दोस्त', 'आना']],
+
+  /* telling somebody to do something, gently */
+  ['s4-51', 'imperative', 'दरवाज़ा खोलो।', 'darwaaza kholo.', 'Open the door.', ['दरवाज़ा', 'खोलना']],
+  ['s4-52', 'imperative', 'जल्दी आओ।', 'jaldi aao.', 'Come quickly.', ['जल्दी', 'आना']],
+  ['s4-53', 'imperative', 'यहाँ बैठो।', 'yahaan baitho.', 'Sit here.', ['यहाँ', 'बैठना']],
+  ['s4-54', 'imperative', 'धीरे बोलो।', 'dheere bolo.', 'Speak softly.', ['धीरे', 'बोलना']],
+  ['s4-55', 'imperative', 'हाथ धो लो।', 'haath dho lo.', 'Wash your hands.', ['हाथ', 'धोना']],
+  ['s4-56', 'imperative', 'जूते बाहर रखो।', 'joote baahar rakho.', 'Leave your shoes outside.', ['जूता', 'बाहर', 'रखना']],
+  ['s4-57', 'request', 'कृपया पानी दीजिए।', 'kripya paani deejiye.', 'Please give me some water.', ['कृपया', 'पानी', 'देना']],
+  ['s4-58', 'request', 'मुझे किताब चाहिए।', 'mujhe kitaab chaahiye.', 'I want the book.', ['किताब', 'चाहिए']],
+
+  /* describing, and agreeing the adjective */
+  ['s4-59', 'agreement', 'यह आम मीठा है।', 'yah aam meetha hai.', 'This mango is sweet.', ['आम', 'मीठा', 'है']],
+  ['s4-60', 'agreement', 'चाय गरम है।', 'chai garam hai.', 'The tea is hot.', ['चाय', 'गरम', 'है']],
+  ['s4-61', 'agreement', 'पानी ठंडा है।', 'paani thanda hai.', 'The water is cold.', ['पानी', 'ठंडा', 'है']],
+  ['s4-62', 'agreement', 'मेरी कमीज़ नीली है।', 'meri kameez neeli hai.', 'My shirt is blue.', ['कमीज़', 'नीला', 'है']],
+  ['s4-63', 'agreement', 'यह किताब नई है।', 'yah kitaab nai hai.', 'This book is new.', ['किताब', 'नया', 'है']],
+  ['s4-64', 'agreement', 'हाथी बड़ा है, चूहा छोटा है।', 'haathi bada hai, chooha chhota hai.', 'The elephant is big, the mouse is small.', ['हाथी', 'बड़ा', 'छोटा']],
+  ['s4-65', 'agreement', 'आज मौसम अच्छा है।', 'aaj mausam achchha hai.', 'The weather is good today.', ['आज', 'मौसम', 'अच्छा']],
+  ['s4-66', 'quantity', 'थोड़ा दूध और चाहिए।', 'thoda doodh aur chaahiye.', 'I want a little more milk.', ['थोड़ा', 'दूध', 'चाहिए']],
+  ['s4-67', 'quantity', 'तीन बिल्लियाँ छत पर हैं।', 'teen billiyaan chhat par hain.', 'Three cats are on the roof.', ['तीन', 'बिल्ली', 'छत']],
+  ['s4-68', 'quantity', 'सब बच्चे बगीचे में हैं।', 'sab bachche bageeche mein hain.', 'All the children are in the garden.', ['सब', 'बच्चा', 'बगीचा']]
+]);
+
+/* Stage 5 — Baat-cheet. Sunday’s video call, the dinner table, the shop.
+   Real exchanges in the order they happen, so a child can follow a whole
+   one and then take a turn in it. */
+var HI_S5 = hiTurns([
+  /* the call to Nani — the reason most of these children are here at all */
+  ['s5-01', 'phone-to-nani', 'elder', 'नमस्ते बेटा! कैसे हो?', 'namaste beta! kaise ho?', 'Hello, love! How are you?', ['नमस्ते', 'बेटा', 'कैसे']],
+  ['s5-02', 'phone-to-nani', 'child', 'नमस्ते नानी! मैं ठीक हूँ।', 'namaste nani! main theek hoon.', 'Hello Nani! I am fine.', ['नानी', 'ठीक', 'हूँ']],
+  ['s5-03', 'phone-to-nani', 'elder', 'स्कूल कैसा चल रहा है?', 'skool kaisa chal raha hai?', 'How is school going?', ['स्कूल', 'कैसे', 'चलना']],
+  ['s5-04', 'phone-to-nani', 'child', 'अच्छा चल रहा है।', 'achchha chal raha hai.', 'It is going well.', ['अच्छा', 'चलना']],
+  ['s5-05', 'phone-to-nani', 'elder', 'आज क्या खाया?', 'aaj kya khaaya?', 'What did you eat today?', ['आज', 'क्या', 'खाना']],
+  ['s5-06', 'phone-to-nani', 'child', 'मैंने रोटी और दाल खाई।', 'maine roti aur daal khaai.', 'I ate roti and daal.', ['रोटी', 'और', 'दाल']],
+  ['s5-07', 'phone-to-nani', 'elder', 'नाना को भी नमस्ते कहो।', 'nana ko bhi namaste kaho.', 'Say hello to Nana too.', ['नाना', 'भी', 'कहना']],
+  ['s5-08', 'phone-to-nani', 'child', 'नाना, आप कैसे हैं?', 'nana, aap kaise hain?', 'Nana, how are you?', ['नाना', 'आप', 'कैसे']],
+  ['s5-09', 'phone-to-nani', 'elder', 'तुम्हारी बहुत याद आती है।', 'tumhaari bahut yaad aati hai.', 'We miss you a lot.', ['बहुत', 'याद', 'आना']],
+  ['s5-10', 'phone-to-nani', 'child', 'मुझे भी आपकी याद आती है।', 'mujhe bhi aapki yaad aati hai.', 'I miss you too.', ['भी', 'आपका', 'याद']],
+  ['s5-11', 'phone-to-nani', 'child', 'हम गर्मी में आएँगे।', 'ham garmi mein aaenge.', 'We will come in the summer.', ['हम', 'गर्मी', 'आना']],
+  ['s5-12', 'phone-to-nani', 'elder', 'फिर मिलेंगे, बेटा।', 'phir milenge, beta.', 'See you again, love.', ['फिर मिलेंगे', 'बेटा']],
+
+  /* greeting the grown-ups in the room */
+  ['s5-13', 'greeting-elders', 'child', 'नमस्ते दादी।', 'namaste dadi.', 'Hello, Dadi.', ['नमस्ते', 'दादी']],
+  ['s5-14', 'greeting-elders', 'elder', 'खुश रहो, बेटा।', 'khush raho, beta.', 'Be happy, love.', ['खुश', 'रहना', 'बेटा']],
+  ['s5-15', 'greeting-elders', 'child', 'प्रणाम, दादा जी।', 'pranaam, dada ji.', 'Pranaam, Dada ji.', ['प्रणाम', 'दादा', 'जी']],
+  ['s5-16', 'greeting-elders', 'elder', 'आओ, यहाँ बैठो।', 'aao, yahaan baitho.', 'Come, sit here.', ['आना', 'यहाँ', 'बैठना']],
+  ['s5-17', 'greeting-elders', 'child', 'आप कैसे हैं?', 'aap kaise hain?', 'How are you?', ['आप', 'कैसे', 'हैं']],
+  ['s5-18', 'greeting-elders', 'elder', 'मैं ठीक हूँ, बेटा।', 'main theek hoon, beta.', 'I am well, love.', ['ठीक', 'हूँ', 'बेटा']],
+
+  /* at the table */
+  ['s5-19', 'at-the-table', 'elder', 'खाना तैयार है, आ जाओ।', 'khaana taiyaar hai, aa jaao.', 'The food is ready, come along.', ['खाना', 'तैयार', 'आना']],
+  ['s5-20', 'at-the-table', 'elder', 'पहले हाथ धो लो।', 'pehle haath dho lo.', 'Wash your hands first.', ['पहला', 'हाथ', 'धोना']],
+  ['s5-21', 'at-the-table', 'child', 'मैंने हाथ धो लिए।', 'maine haath dho liye.', 'I have washed my hands.', ['हाथ', 'धोना']],
+  ['s5-22', 'at-the-table', 'child', 'मुझे बहुत भूख लगी है।', 'mujhe bahut bhookh lagi hai.', 'I am very hungry.', ['बहुत', 'भूखा']],
+  ['s5-23', 'at-the-table', 'child', 'थोड़ा और चावल दीजिए।', 'thoda aur chaawal deejiye.', 'A little more rice please.', ['थोड़ा', 'चावल', 'देना']],
+  ['s5-24', 'at-the-table', 'elder', 'और रोटी लोगे?', 'aur roti loge?', 'Will you have more roti?', ['और', 'रोटी', 'लेना']],
+  ['s5-25', 'at-the-table', 'child', 'नहीं, बस। धन्यवाद।', 'nahin, bas. dhanyavaad.', 'No, that is enough. Thank you.', ['नहीं', 'धन्यवाद']],
+  ['s5-26', 'at-the-table', 'child', 'पानी कहाँ है?', 'paani kahaan hai?', 'Where is the water?', ['पानी', 'कहाँ', 'है']],
+  ['s5-27', 'at-the-table', 'elder', 'गिलास मेज़ पर है।', 'gilaas mez par hai.', 'The glass is on the table.', ['गिलास', 'मेज़', 'पर']],
+  ['s5-28', 'at-the-table', 'child', 'खाना बहुत अच्छा है।', 'khaana bahut achchha hai.', 'The food is very good.', ['खाना', 'बहुत', 'अच्छा']],
+
+  /* asking for something */
+  ['s5-29', 'asking-for-something', 'child', 'क्या मैं बाहर खेल सकता हूँ?', 'kya main baahar khel sakta hoon?', 'May I play outside?', ['बाहर', 'खेलना', 'सकना']],
+  ['s5-30', 'asking-for-something', 'elder', 'हाँ, लेकिन जल्दी आना।', 'haan, lekin jaldi aana.', 'Yes, but come back soon.', ['हाँ', 'लेकिन', 'जल्दी']],
+  ['s5-31', 'asking-for-something', 'child', 'मुझे पानी चाहिए, कृपया।', 'mujhe paani chaahiye, kripya.', 'I would like some water, please.', ['पानी', 'चाहिए', 'कृपया']],
+  ['s5-32', 'asking-for-something', 'child', 'क्या आप मेरी मदद करेंगे?', 'kya aap meri madad karenge?', 'Will you help me?', ['आप', 'मदद', 'करना']],
+  ['s5-33', 'asking-for-something', 'elder', 'हाँ बेटा, अभी करता हूँ।', 'haan beta, abhi karta hoon.', 'Yes, love, I will do it now.', ['हाँ', 'बेटा', 'करना']],
+  ['s5-34', 'asking-for-something', 'child', 'मुझे एक कहानी सुनाइए।', 'mujhe ek kahaani sunaaiye.', 'Tell me a story, please.', ['एक', 'कहानी', 'सुनना']],
+
+  /* answering a grown-up you have just met */
+  ['s5-35', 'answering-a-grown-up', 'elder', 'तुम्हारा नाम क्या है?', 'tumhaara naam kya hai?', 'What is your name?', ['तुम्हारा', 'नाम', 'क्या']],
+  ['s5-36', 'answering-a-grown-up', 'child', 'मेरा नाम मीरा है।', 'mera naam Meera hai.', 'My name is Meera.', ['मेरा', 'नाम', 'है']],
+  ['s5-37', 'answering-a-grown-up', 'elder', 'तुम्हारी उम्र कितनी है?', 'tumhaari umr kitni hai?', 'How old are you?', ['उम्र', 'कितना']],
+  ['s5-38', 'answering-a-grown-up', 'child', 'मैं सात साल की हूँ।', 'main saat saal ki hoon.', 'I am seven years old.', ['सात', 'साल', 'हूँ']],
+  ['s5-39', 'answering-a-grown-up', 'elder', 'घर में कौन-कौन है?', 'ghar mein kaun-kaun hai?', 'Who is at home?', ['घर', 'में', 'कौन']],
+  ['s5-40', 'answering-a-grown-up', 'child', 'माँ, पापा और मेरा भाई।', 'maa, papa aur mera bhai.', 'Mum, Dad and my brother.', ['माँ', 'पापा', 'भाई']],
+  ['s5-41', 'answering-a-grown-up', 'elder', 'तुम्हें क्या पसंद है?', 'tumhen kya pasand hai?', 'What do you like?', ['क्या', 'पसंद', 'है']],
+  ['s5-42', 'answering-a-grown-up', 'child', 'मुझे मिठाई पसंद है।', 'mujhe mithai pasand hai.', 'I like sweets.', ['मिठाई', 'पसंद', 'है']],
+
+  /* at school */
+  ['s5-43', 'at-school', 'elder', 'सब बैठ जाओ।', 'sab baith jaao.', 'Everyone sit down.', ['सब', 'बैठना']],
+  ['s5-44', 'at-school', 'child', 'मैं आ गया।', 'main aa gaya.', 'I am here.', ['मैं', 'आना']],
+  ['s5-45', 'at-school', 'elder', 'किताब खोलो।', 'kitaab kholo.', 'Open your book.', ['किताब', 'खोलना']],
+  ['s5-46', 'at-school', 'child', 'मुझे समझ नहीं आया।', 'mujhe samajh nahin aaya.', 'I did not understand.', ['समझना', 'नहीं']],
+  ['s5-47', 'at-school', 'elder', 'फिर से सुनो।', 'phir se suno.', 'Listen once more.', ['फिर', 'से', 'सुनना']],
+  ['s5-48', 'at-school', 'child', 'यह शब्द कैसे पढ़ते हैं?', 'yah shabd kaise padhte hain?', 'How do you read this word?', ['शब्द', 'कैसे', 'पढ़ना']],
+  ['s5-49', 'at-school', 'elder', 'बहुत अच्छे!', 'bahut achchhe!', 'Very good!', ['बहुत', 'अच्छा']],
+
+  /* the shop */
+  ['s5-50', 'the-market', 'child', 'यह कितने का है?', 'yah kitne ka hai?', 'How much is this?', ['यह', 'कितना', 'का']],
+  ['s5-51', 'the-market', 'elder', 'दस रुपये।', 'das rupaye.', 'Ten rupees.', ['दस', 'रुपया']],
+  ['s5-52', 'the-market', 'child', 'मुझे दो केले चाहिए।', 'mujhe do kele chaahiye.', 'I would like two bananas.', ['दो', 'केला', 'चाहिए']],
+  ['s5-53', 'the-market', 'elder', 'और कुछ?', 'aur kuchh?', 'Anything else?', ['और', 'कुछ']],
+  ['s5-54', 'the-market', 'child', 'नहीं, धन्यवाद।', 'nahin, dhanyavaad.', 'No, thank you.', ['नहीं', 'धन्यवाद']],
+  ['s5-55', 'the-market', 'child', 'क्या आम मीठे हैं?', 'kya aam meethe hain?', 'Are the mangoes sweet?', ['आम', 'मीठा', 'हैं']],
+
+  /* playing with the cousins */
+  ['s5-56', 'playing', 'child', 'चलो, खेलते हैं!', 'chalo, khelte hain!', 'Come on, let us play!', ['चलना', 'खेलना']],
+  ['s5-57', 'playing', 'child', 'अब मेरी बारी है।', 'ab meri baari hai.', 'It is my turn now.', ['अब', 'बारी', 'है']],
+  ['s5-58', 'playing', 'child', 'मुझे भी खेलना है।', 'mujhe bhi khelna hai.', 'I want to play too.', ['भी', 'खेलना']],
+  ['s5-59', 'playing', 'child', 'यह खेल बहुत मज़ेदार है।', 'yah khel bahut mazedaar hai.', 'This game is great fun.', ['खेल', 'बहुत', 'मज़ा']],
+  ['s5-60', 'playing', 'child', 'मैं थक गया हूँ।', 'main thak gaya hoon.', 'I am tired.', ['थका', 'हूँ']],
+
+  /* a festival at home — whichever one this family keeps */
+  ['s5-61', 'at-a-festival', 'elder', 'त्योहार की बधाई!', 'tyohaar ki badhaai!', 'Festival greetings!', ['त्योहार', 'बधाई']],
+  ['s5-62', 'at-a-festival', 'child', 'हम दीये जलाएँगे।', 'ham diye jalaaenge.', 'We will light the lamps.', ['दीया', 'जलाना']],
+  ['s5-63', 'at-a-festival', 'child', 'मेरे नए कपड़े सुंदर हैं।', 'mere nae kapde sundar hain.', 'My new clothes are beautiful.', ['नया', 'कपड़े', 'सुंदर']],
+  ['s5-64', 'at-a-festival', 'elder', 'दादी को प्रणाम करो।', 'dadi ko pranaam karo.', 'Greet Dadi respectfully.', ['दादी', 'को', 'प्रणाम']],
+
+  /* bedtime */
+  ['s5-65', 'bedtime', 'elder', 'सोने का समय हो गया।', 'sone ka samay ho gaya.', 'It is time to sleep.', ['सोना', 'समय']],
+  ['s5-66', 'bedtime', 'child', 'मुझे नींद आ रही है।', 'mujhe neend aa rahi hai.', 'I am sleepy.', ['नींद', 'आना']],
+  ['s5-67', 'bedtime', 'elder', 'आँखें बंद करो।', 'aankhen band karo.', 'Close your eyes.', ['आँख', 'बंद', 'करना']],
+  ['s5-68', 'bedtime', 'child', 'शुभ रात्रि, माँ।', 'shubh raatri, maa.', 'Good night, Mum.', ['शुभ रात्रि', 'माँ']],
+
+  /* not feeling well */
+  ['s5-69', 'not-well', 'child', 'मेरे पेट में दर्द है।', 'mere pet mein dard hai.', 'My tummy hurts.', ['पेट', 'में', 'दर्द']],
+  ['s5-70', 'not-well', 'elder', 'कहाँ दर्द है?', 'kahaan dard hai?', 'Where does it hurt?', ['कहाँ', 'दर्द', 'है']],
+  ['s5-71', 'not-well', 'child', 'मुझे बुखार है।', 'mujhe bukhaar hai.', 'I have a fever.', ['बुखार', 'है']],
+  ['s5-72', 'not-well', 'elder', 'चलो, थोड़ा आराम करो।', 'chalo, thoda aaraam karo.', 'Come, rest a little.', ['थोड़ा', 'आराम', 'करना']]
+]);
+
+/* Stage 6 — Padhna. The conjuncts come from the script module; these are
+   the passages a child reads once the conjuncts stop stopping them. Short,
+   three or four sentences, and every one of them is somebody’s Tuesday. */
+var HI_READ = hiPassages([
+  ['read-01', 'मेरा नाम मीरा है। मेरा घर बड़ा है। घर में माँ, पापा और मेरा भाई हैं।',
+    'mera naam Meera hai. mera ghar bada hai. ghar mein maa, papa aur mera bhai hain.',
+    'My name is Meera. My house is big. In the house are Mum, Dad and my brother.', ['नाम', 'घर', 'भाई']],
+  ['read-02', 'आज माँ ने खीर बनाई। खीर बहुत मीठी है। मैंने दो कटोरी खाईं।',
+    'aaj maa ne kheer banaai. kheer bahut meethi hai. maine do katori khaaeen.',
+    'Today Mum made kheer. The kheer is very sweet. I ate two bowls.', ['खीर', 'मीठा', 'कटोरी']],
+  ['read-03', 'बगीचे में एक बिल्ली है। बिल्ली दूध पीती है। कुत्ता उसे देखता है।',
+    'bageeche mein ek billi hai. billi doodh peeti hai. kutta use dekhta hai.',
+    'There is a cat in the garden. The cat drinks milk. The dog watches her.', ['बगीचा', 'बिल्ली', 'कुत्ता']],
+  ['read-04', 'मैं स्कूल जाता हूँ। मेरे बस्ते में किताब और कलम है। मुझे कहानी पढ़ना अच्छा लगता है।',
+    'main skool jaata hoon. mere baste mein kitaab aur kalam hai. mujhe kahaani padhna achchha lagta hai.',
+    'I go to school. In my bag are a book and a pen. I like reading stories.', ['स्कूल', 'बस्ता', 'कहानी']],
+  ['read-05', 'आज बारिश हो रही है। बादल काले हैं। मैंने छाता लिया।',
+    'aaj baarish ho rahi hai. baadal kaale hain. maine chhaata liya.',
+    'It is raining today. The clouds are black. I took an umbrella.', ['बारिश', 'बादल', 'छाता']],
+  ['read-06', 'हर रविवार मैं नानी से बात करता हूँ। नानी बहुत दूर रहती हैं। हम फ़ोन पर साथ हँसते हैं।',
+    'har ravivaar main nani se baat karta hoon. nani bahut door rahti hain. ham fon par saath hanste hain.',
+    'Every Sunday I talk to Nani. Nani lives very far away. We laugh together on the phone.', ['रविवार', 'बात', 'दूर']],
+  ['read-07', 'त्योहार पर घर में दीये जलते हैं। सब नए कपड़े पहनते हैं। दादी सबको मिठाई देती हैं।',
+    'tyohaar par ghar mein diye jalte hain. sab nae kapde pahante hain. dadi sabko mithai deti hain.',
+    'At the festival the lamps are lit at home. Everyone wears new clothes. Grandmother gives everyone sweets.', ['त्योहार', 'दीया', 'मिठाई']],
+  ['read-08', 'पापा और मैं बाज़ार गए। हमने आम और केले लिए। दुकान पर आम बहुत मीठे थे।',
+    'papa aur main baazaar gae. hamne aam aur kele liye. dukaan par aam bahut meethe the.',
+    'Dad and I went to the market. We took mangoes and bananas. At the shop the mangoes were very sweet.', ['बाज़ार', 'दुकान', 'आम']],
+  ['read-09', 'कल मैं बीमार था। मेरे सिर में दर्द था। माँ ने मुझे गरम दूध दिया। अब मैं ठीक हूँ।',
+    'kal main beemaar tha. mere sir mein dard tha. maa ne mujhe garam doodh diya. ab main theek hoon.',
+    'Yesterday I was ill. My head hurt. Mum gave me warm milk. Now I am fine.', ['बीमार', 'दर्द', 'ठीक']],
+  ['read-10', 'हम ट्रेन से गाँव गए। ट्रेन बहुत लंबी थी। खिड़की से हरे खेत दिखते थे।',
+    'ham tren se gaanv gae. tren bahut lambi thi. khidki se hare khet dikhte the.',
+    'We went to the village by train. The train was very long. Green fields showed through the window.', ['ट्रेन', 'गाँव', 'खेत']],
+  ['read-11', 'सोमवार को मेरा जन्मदिन है। मैं आठ साल का हो जाऊँगा। मेरे दोस्त घर आएँगे।',
+    'somvaar ko mera janmadin hai. main aath saal ka ho jaaoonga. mere dost ghar aaenge.',
+    'My birthday is on Monday. I will turn eight. My friends will come to the house.', ['सोमवार', 'जन्मदिन', 'दोस्त']],
+  ['read-12', 'पेड़ पर एक चिड़िया बैठी है। वह गाना गाती है। नीचे घास हरी है।',
+    'ped par ek chidiya baithi hai. vah gaana gaati hai. neeche ghaas hari hai.',
+    'A bird is sitting in the tree. She sings a song. Below, the grass is green.', ['पेड़', 'चिड़िया', 'घास']]
+]);
+
 
 /* ---- Punjabi ----------------------------------------------------------- */
-/* The same eight themes, the same shape, a different script module. This is
-   the whole thesis: the diff between these two packs is content only. */
+/* The same shared themes, the same shape, a different script module. This is
+   the whole thesis: the diff between these two packs is content only — and
+   the fact that Hindi is further along is a content backlog, not a claim
+   about either language. Punjabi has the first eight themes filled; stages
+   4, 5 and 6 still run on the derived skeleton until a Punjabi pedagogue
+   writes them. */
 
 var PA_LEX = [
   /* family */
@@ -629,8 +1477,12 @@ var PA_LEX = [
    Built from the script module and lexicon so they cannot fall out of sync. */
 function chars(list) { var i, o = []; for (i = 0; i < list.length; i++) { o.push(list[i].char || list[i].sign || list[i].word); } return o; }
 function themeWords(lex, theme) { var i, o = []; for (i = 0; i < lex.length; i++) { if (lex[i].theme === theme) o.push(lex[i].word); } return o; }
-function stageItems(script, lex) {
-  return {
+/* `authored` overrides the derived defaults for the stages a lexicon cannot
+   carry on its own — 4, 5 and 6, where somebody has to write the sentences.
+   A pack that has not been written that far keeps the derived skeleton, so
+   the ladder is never empty and the gap is visible rather than hidden. */
+function stageItems(script, lex, authored) {
+  var o = {
     s0: themeWords(lex, 'greetings').concat(themeWords(lex, 'family'), themeWords(lex, 'food')),
     s1: chars(script.vowels).concat(chars(script.consonants)),
     s2: chars(script.matras),
@@ -640,6 +1492,11 @@ function stageItems(script, lex) {
     s6: chars(script.hardConjuncts),
     s7: chars(script.consonants)
   };
+  var k;
+  for (k in (authored || {})) {
+    if (Object.prototype.hasOwnProperty.call(authored, k) && authored[k] && authored[k].length) o[k] = authored[k];
+  }
+  return o;
 }
 
 var HI_PACK = {
@@ -654,7 +1511,11 @@ var HI_PACK = {
   themes: THEMES,
   lexicon: HI_LEX,
   reviewedBy: [],                 /* a named linguist signs here before ship (docs/09 §9) */
-  stages: ladder(stageItems(DEVANAGARI, HI_LEX))
+  stages: ladder(stageItems(DEVANAGARI, HI_LEX, {
+    s4: HI_S4,
+    s5: HI_S5,
+    s6: conjunctItems(DEVANAGARI).concat(HI_READ)
+  }))
 };
 
 var PA_PACK = {
@@ -1020,6 +1881,99 @@ function readAloud(pack, opts) {
    Which exercise a stage gets is DATA (stage.types), not a switch full of
    language names. Adding a pack that sequences differently changes the pack
    file and nothing here. */
+
+/* ---------------------------------------------------------------------------
+   SENTENCE BUILD — stage 4.
+
+   The pack carries 68 authored sentences and, until this existed, nothing ever
+   showed them: stage 4's declared types all drew from the LEXICON, so the
+   sentences sat in the file as inert data. A child could learn 507 words and
+   never be asked to put three of them in order, which is the whole skill Hindi
+   word order actually needs.
+
+   Tiles are whole words, not letters — the point here is SOV order and
+   postpositions, not spelling, and that is already stage 3's job. Decoys are
+   drawn from the same sentence's neighbours in the pack so the wrong answers are
+   plausible Hindi rather than obvious filler. */
+function sentenceBuild(pack, opts) {
+  pack = resolvePack(pack);
+  opts = opts || {};
+  var rng = opts.rng || rngFrom(opts.seed);
+  var stage = stageOf(pack, 's4');
+  var items = (stage && stage.items) || [];
+  if (!items.length || typeof items[0] !== 'object') return wordBuild(pack, opts);
+  var it = opts.item || pick(rng, items);
+  /* Split on spaces; the danda stays attached to the last word so the child is
+     not asked to place punctuation as if it were a word. */
+  var words = String(it.hi).trim().split(/\s+/);
+  var tiles = shuffle(rng, words.slice());
+  var same = true, i;
+  for (i = 0; i < words.length; i++) { if (tiles[i] !== words[i]) { same = false; break; } }
+  if (same && words.length > 1) { var t = tiles[0]; tiles[0] = tiles[1]; tiles[1] = t; }
+  return {
+    type: 'sentenceBuild',
+    prompt: it.en,
+    say: it.hi,
+    roman: it.roman,
+    answer: words,
+    tiles: tiles,
+    point: it.point || null,
+    script: resolveScript(pack).id,
+    direction: resolveScript(pack).direction,
+    font: resolveScript(pack).font
+  };
+}
+
+/* ---------------------------------------------------------------------------
+   PICK THE REPLY — stage 5.
+
+   Same problem: 72 authored conversation turns that nothing rendered. A grown-up
+   says something and the child chooses what they would say back. Distractors are
+   real lines from OTHER scenes, so every option is grammatical Hindi a person
+   might say — the exercise is about what fits, not about spotting the broken
+   sentence. */
+function pickReply(pack, opts) {
+  pack = resolvePack(pack);
+  opts = opts || {};
+  var rng = opts.rng || rngFrom(opts.seed);
+  var stage = stageOf(pack, 's5');
+  var items = (stage && stage.items) || [];
+  if (!items.length || typeof items[0] !== 'object') return wordBuild(pack, opts);
+
+  /* A turn that has a following turn in the same scene is a turn with a reply. */
+  var pairs = [], i;
+  for (i = 0; i < items.length - 1; i++) {
+    if (items[i].scene && items[i].scene === items[i + 1].scene) pairs.push([items[i], items[i + 1]]);
+  }
+  if (!pairs.length) return wordBuild(pack, opts);
+  var pr = opts.item || pick(rng, pairs);
+  var ask = pr[0], reply = pr[1];
+
+  var others = [];
+  for (i = 0; i < items.length; i++) {
+    if (items[i].scene !== ask.scene && items[i].hi !== reply.hi) others.push(items[i]);
+  }
+  var opts3 = shuffle(rng, others).slice(0, 2).map(function (o) {
+    return { word: o.hi, roman: o.roman, en: o.en };
+  });
+  opts3.push({ word: reply.hi, roman: reply.roman, en: reply.en });
+  opts3 = shuffle(rng, opts3);
+  var ai = 0;
+  for (i = 0; i < opts3.length; i++) if (opts3[i].word === reply.hi) ai = i;
+
+  return {
+    type: 'pickReply',
+    prompt: ask.hi,
+    promptRoman: ask.roman,
+    promptEn: ask.en,
+    scene: ask.scene || null,
+    options: opts3,
+    answerIndex: ai,
+    script: resolveScript(pack).id,
+    font: resolveScript(pack).font
+  };
+}
+
 var GENERATORS = {
   barakhadi:     function (pack, script, rng, o) { return barakhadi(script, o.consonant, { rng: rng }); },
   matraAttach:   function (pack, script, rng, o) { return matraAttach(script, { rng: rng, options: o.options }); },
@@ -1027,6 +1981,8 @@ var GENERATORS = {
   wordBuild:     function (pack, script, rng, o) { return wordBuild(pack, { rng: rng, theme: o.theme, maxTiles: o.maxTiles }); },
   oddOneOut:     function (pack, script, rng, o) { return oddOneOut(script, { rng: rng, strategy: o.strategy }); },
   conjunctSplit: function (pack, script, rng, o) { return conjunctSplit(script, { rng: rng }); },
+  sentenceBuild: function (pack, script, rng, o) { return sentenceBuild(pack, { rng: rng, item: o.item }); },
+  pickReply:     function (pack, script, rng, o) { return pickReply(pack, { rng: rng, item: o.item }); },
   listenPoint:   function (pack, script, rng, o) { return listenPoint(pack, { rng: rng, theme: o.theme, options: o.options }); },
   readAloud:     function (pack, script, rng, o) { return readAloud(pack, { rng: rng }); }
 };
@@ -1095,6 +2051,8 @@ W.IND_BHASHA = {
   isCombiningMark: isCombiningMark,
 
   /* exercise generators */
+  sentenceBuild: sentenceBuild,
+  pickReply: pickReply,
   barakhadi: barakhadi,
   matraAttach: matraAttach,
   soundMatch: soundMatch,

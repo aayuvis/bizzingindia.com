@@ -580,3 +580,26 @@ button, input, select, textarea { font: inherit; color: inherit; }
   content: '◆'; position: absolute; left: 6px; top: 11px;
   color: var(--accent2); font-size: 12px;
 }
+
+/* ------------------------------------------------------------- EPIC DECK
+   One beat per card, a page-turn each time. No score, no timer, no quiz. */
+.deckcard {
+  position: relative; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
+  padding: var(--space-2xl) var(--space-xl) var(--space-xl);
+  min-height: 260px; display: grid; gap: var(--space-lg); align-content: start;
+  animation: turn .26s ease-out;
+}
+/* the two cards behind, so it reads as a deck you are moving through */
+.deckcard::before, .deckcard::after {
+  content: ''; position: absolute; left: 14px; right: 14px; bottom: -7px; height: 22px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl); z-index: -1;
+}
+.deckcard::after { left: 26px; right: 26px; bottom: -13px; opacity: .65; }
+.deckcard .who { display: grid; place-items: center; }
+.deckcard p {
+  font-size: 19px; line-height: 1.62; color: var(--text); margin: 0;
+  max-width: 46ch; justify-self: center; text-align: center;
+}
+@keyframes turn { from { opacity: 0; transform: translateX(14px) } }
+@media (max-width: 560px) { .deckcard p { font-size: 17.5px; } }

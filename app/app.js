@@ -518,6 +518,12 @@
       '<button class="btn lg" style="margin-top:14px" data-act="tellone">' + icon('play', 20) +
       ' Tell me one</button></div>' +
 
+      (epics().length ? '<button class="tile" style="margin:var(--space-lg) 0" data-act="go" data-v="epics">' +
+        '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art('rama', 58) +
+        '<div style="flex:1"><h3 style="margin:0">The Epics</h3>' +
+        '<p class="tiny" style="margin:5px 0 0">The Ramayana and the Mahabharata, one card at a ' +
+        'time. Read one, stop, come back tomorrow — nobody finishes these in a night.</p></div></div></button>' : '') +
+
       shelf('Again', 'The ones you loved. A story is not used up.', loved) +
       cols.map(function (c) {
         return shelf(c.name, c.note, all.filter(function (x) { return x.collection === c.id; }));
@@ -740,6 +746,123 @@
           '<p class="tiny" style="margin:5px 0 0">' + esc(g.blurb || '') + '</p>' +
           '<div class="mono" style="margin-top:6px">' + (g.minutes || 2) + ' min</div></div></div></button>';
       }).join('') + '</div>';
+  };
+
+
+  /* ---------------------------------------------------------------- EPICS */
+  /* Card-by-card serialised reading. One beat a card, a page-turn each time.
+     Deliberately NOT a quiz and NOT scored — docs/10 §3.5: this is a library.
+     The only affordances are forward, back, hear it again, and stop. */
+
+  function epics() {
+    var out = [];
+    if (window.IND_EPIC_RAMAYANA) out.push(window.IND_EPIC_RAMAYANA);
+    if (window.IND_EPIC_MAHABHARATA) out.push(window.IND_EPIC_MAHABHARATA);
+    return out;
+  }
+  function epicById(id) {
+    return epics().filter(function (e) { return e.id === id; })[0];
+  }
+
+  V.epics = function () {
+    var list = epics();
+    if (!list.length) return '<div class="card"><h1>The Epics</h1><p>Not loaded yet.</p></div>';
+    return '<div class="card"><h1>The Epics</h1>' +
+      '<p>Two very long stories that India has been telling for well over two thousand years. ' +
+      'They come one card at a time — read one, stop, come back tomorrow. Nobody finishes ' +
+      'these in a night; your grandparents are still not finished.</p></div>' +
+      list.map(function (e) {
+        var seen = (S.epic && S.epic[e.id] && S.epic[e.id].done) ? Object.keys(S.epic[e.id].done).length : 0;
+        var img = 'art/banner/stories.jpg';
+        return '<button class="journey" style="margin-bottom:var(--space-lg)" data-act="epic" data-id="' + e.id + '">' +
+          '<div class="banner" style="background-image:url(' + img + ')">' +
+          '<span class="chip">' + art(e.avatar, 28) + '</span>' +
+          '<span class="tag">' + e.episodes.length + ' episodes</span></div>' +
+          '<div class="body"><div class="tiny muted">' + esc(e.subtitle || '') + '</div>' +
+          '<h2 style="margin:2px 0 6px">' + esc(e.title) + '</h2>' +
+          '<p class="tiny" style="margin:0 0 12px">' + esc(e.blurb || '') + '</p>' +
+          '<span class="btn">' + (seen ? 'Keep going' : 'Start at the beginning') + '</span></div></button>';
+      }).join('');
+  };
+
+  V.epic = function (id) {
+    var e = epicById(id);
+    if (!e) return '<div class="card">Not found.</div>';
+    var st = (S.epic && S.epic[id]) || { done: {} };
+    var byBook = {};
+    e.episodes.forEach(function (ep) { (byBook[ep.book] = byBook[ep.book] || []).push(ep); });
+
+    return '<button class="backlink" data-act="go" data-v="epics">' + icon('back', 18) + ' The Epics</button>' +
+      '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(e.avatar, 84) +
+      '<div style="flex:1"><h1 style="margin:0">' + esc(e.title) + '</h1>' +
+      '<div class="mono">' + esc(e.subtitle || '') + '</div>' +
+      '<p style="margin:10px 0 0">' + esc(e.blurb || '') + '</p></div></div></div>' +
+      (e.books || []).map(function (b) {
+        var eps = byBook[b.id] || [];
+        if (!eps.length) return '';
+        return '<div class="card"><h3 style="margin:0 0 2px">' + esc(b.name) + '</h3>' +
+          '<div class="mono" style="margin-bottom:4px">' + esc(b.meaning || '') + '</div>' +
+          (b.note ? '<p class="tiny muted" style="margin:0 0 12px">' + esc(b.note) + '</p>' : '<div style="height:8px"></div>') +
+          eps.map(function (ep) {
+            var gated = (S.age || 8) < (ep.gate || 0);
+            var done = !!st.done[ep.n];
+            return '<button class="tile" style="margin-bottom:9px' + (gated ? ';opacity:.5' : '') + '"' +
+              (gated ? ' disabled' : '') + ' data-act="episode" data-id="' + e.id + '" data-n="' + ep.n + '">' +
+              '<div class="spread"><b>' + ep.n + '. ' + esc(ep.title) + '</b>' +
+              (done ? '<span class="badge aaj">read</span>' : gated ? '<span class="badge">a bit older</span>' : '') + '</div>' +
+              '<div class="tiny muted" style="margin-top:4px">' + esc(ep.hook) + '</div>' +
+              (ep.note ? '<div class="tiny muted" style="margin-top:6px"><i>' + esc(ep.note) + '</i></div>' : '') +
+              '</button>';
+          }).join('') + '</div>';
+      }).join('') +
+      '<div class="card flat tiny"><b>Where this comes from.</b> ' + esc(e.source || '') + '</div>';
+  };
+
+  var deck = { epic: null, n: 0, i: 0 };
+
+  V.episode = function () {
+    var e = epicById(deck.epic);
+    if (!e) return '<div class="card">Not found.</div>';
+    var ep = e.episodes.filter(function (x) { return x.n === deck.n; })[0];
+    if (!ep) return '<div class="card">Not found.</div>';
+    var last = deck.i >= ep.cards.length;
+    var nextEp = e.episodes.filter(function (x) { return x.n === deck.n + 1; })[0];
+
+    if (last) {
+      return '<button class="backlink" data-act="epic" data-id="' + e.id + '">' + icon('back', 18) + ' ' + esc(e.title) + '</button>' +
+        '<div class="card center">' + mascot('mithu', 'wink', 96) +
+        '<div class="mono">End of episode ' + ep.n + '</div>' +
+        '<h1 style="margin:6px 0 12px">' + esc(ep.title) + '</h1>' +
+        '<p style="font-size:18px;max-width:44ch;margin:0 auto var(--space-lg)">' + esc(ep.ends_on || '') + '</p>' +
+        (nextEp ? '<button class="btn lg" data-act="episode" data-id="' + e.id + '" data-n="' + nextEp.n + '">' +
+          'Next: ' + esc(nextEp.title) + ' →</button>' :
+          '<p class="tiny muted">That is the last one we have written. More is coming.</p>') +
+        '<div class="row" style="justify-content:center;margin-top:12px">' +
+        '<button class="btn ghost" data-act="episode" data-id="' + e.id + '" data-n="' + ep.n + '">' + icon('play', 18) + ' Again</button>' +
+        '<button class="btn ghost" data-act="epic" data-id="' + e.id + '">All episodes</button></div></div>' +
+        (ep.words_hi && ep.words_hi.length ? '<div class="card"><h3>Three words from this one</h3><div class="grid g3">' +
+          ep.words_hi.map(function (w) {
+            return '<button class="tile center" data-act="say" data-k="hi/w-' + slug(w[1]) + '">' +
+              '<div class="deva" style="font-size:26px">' + esc(w[0]) + '</div>' +
+              '<div class="mono">' + esc(w[1]) + '</div><div class="tiny">' + esc(w[2]) + '</div></button>';
+          }).join('') + '</div></div>' : '');
+    }
+
+    var c = ep.cards[deck.i];
+    var who = c.who;
+    var speaker = who === 'mithu' ? null : who;
+    return '<button class="backlink" data-act="epic" data-id="' + e.id + '">' + icon('back', 18) + ' ' + esc(e.title) + '</button>' +
+      '<div class="spread" style="margin-bottom:12px">' +
+      '<span class="mono">' + esc(ep.title) + ' · ' + (deck.i + 1) + ' of ' + ep.cards.length + '</span>' +
+      '<div class="dots">' + ep.cards.map(function (_, i) { return '<i class="' + (i <= deck.i ? 'on' : '') + '"></i>'; }).join('') + '</div></div>' +
+      '<div class="deckcard">' +
+        '<div class="who">' + (who === 'mithu' ? mascot('mithu', 'talk', 76) : speaker ? art(speaker, 84) : art(e.avatar, 84)) + '</div>' +
+        '<p>' + esc(c.text) + '</p>' +
+      '</div>' +
+      '<div class="row" style="margin-top:14px">' +
+      (deck.i > 0 ? '<button class="btn ghost" data-act="cardback">' + icon('back', 18) + '</button>' : '') +
+      '<button class="btn" style="flex:1" data-act="cardnext">' + (deck.i === ep.cards.length - 1 ? 'End of episode →' : 'Turn the page →') + '</button>' +
+      '</div>';
   };
 
   /* ---------------------------------------------------------------- SHLOK */
@@ -1159,6 +1282,9 @@
       case 'game': h = V.game(); break;
       case 'learn': h = V.learn(); break;
       case 'play': h = V.play(); break;
+      case 'epics': h = V.epics(); break;
+      case 'epic': h = V.epic(view.arg); break;
+      case 'episode': h = V.episode(); break;
       case 'shlok': h = V.shlok(); break;
       case 'verses': h = V.verses(view.arg); break;
       case 'neeti': h = V.neeti(); break;
@@ -1179,7 +1305,7 @@
     var alias = { state: 'learn', map: 'learn', itihaas: 'learn', era: 'learn', dharma: 'learn', faith: 'learn',
                   story: 'stories', pack: 'bhasha',
                   game: 'play', mela: 'play', rishtey: 'play', rishquiz: 'play',
-                  value: 'neeti', shlok: 'neeti', verses: 'neeti',
+                  value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
                   worlds: 'me' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
@@ -1232,6 +1358,26 @@
     if (a === 'rishnext') { rish.i++; rish.picked = null; return render(); }
     if (a === 'value')  return go('value', t.getAttribute('data-id'));
     if (a === 'verses') return go('verses', t.getAttribute('data-id'));
+    if (a === 'epic')   return go('epic', t.getAttribute('data-id'));
+    if (a === 'episode') {
+      deck = { epic: t.getAttribute('data-id'), n: +t.getAttribute('data-n'), i: 0 };
+      return go('episode');
+    }
+    if (a === 'cardnext') {
+      var ed = epicById(deck.epic);
+      var epd = ed && ed.episodes.filter(function (x) { return x.n === deck.n; })[0];
+      deck.i++;
+      if (epd && deck.i >= epd.cards.length) {
+        S.epic = S.epic || {}; S.epic[deck.epic] = S.epic[deck.epic] || { done: {} };
+        if (!S.epic[deck.epic].done[deck.n]) {
+          S.epic[deck.epic].done[deck.n] = today();
+          earn(10, 'an episode'); markToday();
+        }
+        save();
+      }
+      return render();
+    }
+    if (a === 'cardback') { if (deck.i > 0) deck.i--; return render(); }
     if (a === 'recite') {
       /* saying it aloud is the whole exercise; nothing is recorded or scored */
       S.recited = S.recited || {};

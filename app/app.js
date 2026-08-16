@@ -420,8 +420,8 @@
           /* Not "next on your yatra" — there is no next. It is a library and you pick.
              The Tell-me-one button lives in Today; a second copy here just made the same
              offer twice on one screen. */
-          '<div class="body"><div class="tiny muted">The whole library</div>' +
-          '<h2 style="margin:2px 0 6px">Under the Banyan</h2>' +
+          '<div class="body"><div class="tiny muted">The whole library, under the banyan</div>' +
+          '<h2 style="margin:2px 0 6px">Stories</h2>' +
           '<p class="tiny" style="margin:0">Panchatantra, Jataka, the Puranas, the Ramayana and ' +
           'the Mahabharata, and the folk tales of every state — with your favourite always ' +
           'there to hear again.</p></div></button>' +
@@ -431,7 +431,7 @@
             '<span class="chip">' + icon('map', 20) + '</span>' +
             '<span class="tag">' + lit + ' of 34 remembered</span></div>' +
           '<div class="body"><div class="tiny muted">Your long journey</div>' +
-          '<h2 style="margin:2px 0 6px">The Great Forgetting</h2>' +
+          '<h2 style="margin:2px 0 6px">India</h2>' +
           '<p class="tiny" style="margin:0 0 14px">Vismriti is eating India’s memory. Every story you finish pushes the grey back off one more place.</p>' +
           '<div class="meter"><i style="width:' + Math.round(lit / 34 * 100) + '%"></i></div></div></button>' +
       '</div>' +
@@ -709,8 +709,8 @@
 
     return '<div class="card">' +
       '<div class="spread" style="margin-bottom:14px">' +
-        '<div><h2 style="margin:0">The Living Map</h2>' +
-        '<div class="tiny muted">' + lit + ' of ' + total + ' places remembered · tap a state</div></div>' +
+        '<div><h2 style="margin:0">India</h2>' +
+        '<div class="tiny muted">The living map — ' + lit + ' of ' + total + ' places remembered · tap a state</div></div>' +
         '<span class="pill stat">🪔 ' + S.streak.count + '</span></div>' +
       '<div class="mapwrap">' +
         '<svg class="mapsvg" viewBox="' + M.viewBox + '" role="img" aria-label="Map of India">' +
@@ -1039,7 +1039,8 @@
     var I = window.IND_ITIHAAS;
     if (!I) return '<div class="card"><h1>Itihaas</h1><p>Not loaded.</p></div>';
     var eras = I.eras;
-    return '<div class="card"><h1>The River of Time</h1><p>' + esc(I.intro) + '</p>' +
+    return '<div class="card"><h1>Itihaas</h1>' +
+      '<div class="mono" style="margin-bottom:10px">The river of time</div><p>' + esc(I.intro) + '</p>' +
       '<div class="row" style="margin-top:6px">' +
       '<span class="badge itihaas">itihaas — what evidence shows</span>' +
       '<span class="badge katha">katha — a story as it is told</span></div></div>' +
@@ -1076,7 +1077,7 @@
     if (!e) return '<div class="card">Not found.</div>';
     var big = (S.age || 8) >= 9;
     var img = eraArt(e);
-    return '<button class="backlink" data-act="go" data-v="itihaas">' + icon('back', 18) + ' The River of Time</button>' +
+    return '<button class="backlink" data-act="go" data-v="itihaas">' + icon('back', 18) + ' Itihaas</button>' +
 
       (img ? '<div class="statehero" style="background-image:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.6)),url(' + img + ')">' +
         '<div class="cap"><span class="badge itihaas">itihaas</span>' +

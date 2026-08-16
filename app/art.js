@@ -171,6 +171,7 @@ window.IND_ICONS = {
   lamp:    '<path d="M12 3c-1.5 2-1.5 3.5 0 5 1.5-1.5 1.5-3 0-5zM4 12c5 4 11 4 16 0-1 5-4 7-8 7s-7-2-8-7z"/>',
   parent:  '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11a2.5 2.5 0 100-5M21 20c0-2.5-1.5-4.5-4-5"/>',
   chart:   '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  run:     '<circle cx="14" cy="4.5" r="2"/><path d="M13 8l-3 4 3 3 1 6M10 12L6 11M13 15l-4 5M14 9l4 3"/>',
   gear:    '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/>',
   play:    '<path d="M7 4l13 8-13 8z"/>',
   sound:   '<path d="M4 9v6h4l5 4V5L8 9H4zM17 8a5 5 0 010 8"/>',

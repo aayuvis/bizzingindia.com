@@ -388,11 +388,19 @@ PROMPTS = {
     # =============================================== data-stories-more.js =====
     # -- Jataka --
     "jt.golden-goose": p(
-        "a goose whose every feather is bright beaten gold, standing on the low tiled "
-        "roof of a small village house at sunrise and letting one glowing gold feather "
-        "drift down onto the doorstep below; a mother and three daughters in simple "
-        "patched saris stand in the doorway with their hands at their mouths, looking up "
-        "at him. Rose and amber dawn, sewing baskets on the step, a mango tree, doves."),
+        "a magnificent hamsa goose made entirely of metal — every single feather a "
+        "separate leaf of beaten gold, drawn individually and overlapping like scale "
+        "armour or goldsmith's work, each one catching the light with bright highlights "
+        "and deep amber, bronze and copper shadow between them, so the whole bird reads "
+        "as burnished treasure and glows against the sky; he has the graceful arched "
+        "neck, rounded crown and short pale coral bill of a bar-headed goose, ruby eye, "
+        "wings half-lifted with long gold flight feathers fanned. He stands on the low "
+        "terracotta-tiled roof of a small village house at sunrise, letting one glowing "
+        "gold feather drift down onto the doorstep below; a mother and three daughters "
+        "in patched saris of deep indigo, crimson and marigold stand in the doorway with "
+        "their hands at their mouths, looking up at him. Rose, amber and saffron dawn, "
+        "sewing baskets on the step, a mango tree in deep emerald leaf, white doves. "
+        "Richly saturated, warm and jewel-like."),
 
     "jt.woodpecker-lion": p(
         "a calm golden lion lying on the forest floor with his head resting sideways on "
@@ -440,18 +448,32 @@ PROMPTS = {
         "a flock of birds returning across a golden sky, the Ganga wide below."),
 
     "jt.partridge-elders": p(
-        "under an enormous spreading banyan tree, three friends stacked one on another "
-        "and walking along together: a big patterned elephant below, a monkey sitting on "
-        "his back, and a small brown partridge perched on the monkey's shoulder, all "
-        "three looking pleased with themselves; hanging aerial roots, ripe figs, painted "
-        "birds and leaves, a stone gateway carved with the same three animals beyond."),
+        "in deep saturated jewel tones, rich full-strength colour running right out to "
+        "all four corners of the frame: under an enormous spreading banyan tree in full "
+        "emerald and viridian leaf, three friends stacked one on another and walking "
+        "along together — a big grey elephant painted with marigold and vermilion and "
+        "turquoise ornament on a crimson caparison below, a warm russet-brown monkey "
+        "sitting on his back, and a small partridge with chestnut and cream barred "
+        "plumage perched on the monkey's shoulder, all three looking pleased with "
+        "themselves; hanging aerial roots, ripe purple figs, scarlet and emerald and "
+        "sapphire painted birds, dense flowering creepers, and a honey-coloured "
+        "sandstone gateway carved with the same three animals beyond, warm ochre earth "
+        "underfoot. Strong warm golden afternoon light, deep glowing shadows under the "
+        "canopy, luminous and richly painted from edge to edge."),
 
     "jt.quail-fire": p(
-        "a tiny downy quail chick sitting up bright and unafraid in a grass nest at the "
-        "centre of a perfect circle of green untouched grass, while the orange line of a "
-        "grass fire curves respectfully away all around the outside of that circle and "
-        "goes off up the slope; dawn light through smoke, deer and birds moving away in "
-        "the distance, painted grasses. Calm, radiant, protected."),
+        "in deep saturated jewel tones with rich full-strength colour: a tiny downy "
+        "quail chick sitting up bright, serene and unafraid in a grass nest at the "
+        "centre of a perfect circle of deep emerald and viridian untouched grass, while "
+        "a low grass fire curves gently and respectfully away all around the outside of "
+        "that circle and travels off up the slope — the fire painted as living "
+        "atmosphere, molten amber and vermilion and gold at its base, its warm glow "
+        "washing across the grass and lighting the underside of drifting smoke that "
+        "catches the light in soft rose and bronze plumes; a deep marigold and saffron "
+        "dawn sky above with a band of ultramarine at the top, deer and painted birds "
+        "moving calmly away across the hillside in the warm haze, dense flowering herbs "
+        "and grasses in emerald and teal in the foreground. Radiant, glowing, protected, "
+        "utterly gentle, colour rich to all four corners."),
 
     "jt.guttila-veena": p(
         "a great open assembly ground in Benares at night: an old master musician "
@@ -567,9 +589,16 @@ PROMPTS = {
         "Himalayan peak with his eyes closed and a crescent moon in his piled-up matted "
         "hair, and the whole white torrent of a heavenly river falling out of the sky "
         "into that hair and disappearing, then coming out below as one clear bright "
-        "stream that runs down the rock; a prince stands lower on the slope with his "
-        "hands joined, walking ahead of the new river as it goes down to the plain. "
-        "Deodar pines, snow, blue and silver and gold, spray and rainbows."),
+        "stream that runs down the rock; a prince in a saffron and vermilion dhoti "
+        "stands lower on the slope with his hands joined, walking ahead of the new river "
+        "as it goes down to the plain. The slope is held by enormous ancient Himalayan "
+        "deodar cedars with thick furrowed reddish-brown trunks and broad tiers of long "
+        "drooping blue-green needled branches sweeping downward and outward. Warm golden "
+        "hour light: the snow and the rock lit rose-gold and honey-amber, deep marigold "
+        "and saffron in the sky behind the peak, warm ochre and terracotta in the stone, "
+        "rich viridian and emerald in the meadow below with marigold and crimson "
+        "wildflowers. Silver spray, small rainbows, gold ornament. Deeply warm and "
+        "saturated, glowing, richly painted to all four corners."),
 
     "pu.durga-mahisha": p(
         "drawn reverently in a folk-art idiom, the moment of calm victory: the goddess "
@@ -581,13 +610,18 @@ PROMPTS = {
         "full of golden light. Marigolds, drums, festival banners, deeply warm."),
 
     "pu.narasimha-prahlad": p(
-        "drawn reverently in a folk-art idiom, the quiet moment after: in a marble "
-        "palace hall at dusk, the lion-faced Narasimha sits calmly on the threshold "
-        "step, entirely at peace, with a small boy in a yellow dhoti standing at his "
-        "knee with his hands joined and his eyes shining; one hand rests gently on the "
-        "boy's head. Behind them a great stone pillar stands cracked open with warm "
-        "golden light pouring out of it. Lamps, scalloped arches, courtiers bowing far "
-        "back in the shadows. Tender, radiant, gentle."),
+        "drawn reverently in a folk-art idiom, the quiet moment after: in a warm "
+        "honey-coloured sandstone and cream marble palace hall at dusk, every surface "
+        "washed golden and amber by lamplight, the lion-faced Narasimha sits calmly on "
+        "the threshold step, entirely at peace and resting, his mane a deep flame-orange "
+        "and russet, his silks marigold and crimson, his ornaments heavy gold; a small "
+        "boy in a saffron dhoti stands at his knee with his hands joined and his eyes "
+        "shining, and one great hand rests gently on the boy's head. Behind them a great "
+        "carved pillar stands cracked open with warm golden light pouring out of it and "
+        "spilling across the floor. Many small oil lamps with amber flames, scalloped "
+        "arches, deep indigo and umber shadow in the far hall, courtiers bowing in the "
+        "warm gloom, garlands of marigold, painted floral borders in vermilion and "
+        "turquoise. Tender, radiant, richly saturated, deeply warm."),
 
     "pu.dhruva-star": p(
         "a small boy standing alone and very straight in a clearing in a dark forest at "

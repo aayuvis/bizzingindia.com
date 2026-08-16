@@ -355,6 +355,19 @@ button, input, select, textarea { font: inherit; color: inherit; }
   font-size: 26px; line-height: 1; color: var(--accent2);
 }
 
+/* Numbered rules, in the order you would explain them to an eight-year-old standing in a
+   park. Big numerals because this gets read on a phone held at arm's length outdoors. */
+.rules { margin: 0 0 var(--space-md); padding-left: 0; list-style: none; counter-reset: r; }
+.rules li {
+  counter-increment: r; position: relative; padding: 0 0 var(--space-md) 40px; line-height: 1.6;
+}
+.rules li::before {
+  content: counter(r); position: absolute; left: 0; top: 0;
+  width: 26px; height: 26px; border-radius: var(--radius-pill);
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--mono); font-size: 13px; display: grid; place-items: center;
+}
+
 /* the ambient strip under the map, so the map is never a dead surface */
 .mfacts {
   margin-top: var(--space-lg); padding: var(--space-lg);

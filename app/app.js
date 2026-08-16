@@ -972,11 +972,98 @@
             '</b><span class="tiny muted">the story that goes with it</span></button>' : '');
   };
 
+  /* ------------------------------------------------------------------ GULLY
+
+     docs/11 §4.6. The parent had a street and fifteen cousins; the child has scheduled
+     soccer. An app cannot give back the street, but it can hand over the rules well enough
+     that the game gets played in a driveway on Saturday.
+
+     So this pillar is the one place where success is the app being CLOSED. There is no
+     scoring, no "games played" count, no photo upload, no proof. The takeout copy in the
+     data says so and the view honours it: the last thing on a game page is how to start,
+     not a button that brings you back. */
+  function gullyById(id) {
+    var G = window.IND_GULLY;
+    return G ? G.games.filter(function (g) { return g.id === id; })[0] : null;
+  }
+
+  V.gully = function () {
+    var G = window.IND_GULLY;
+    if (!G) return '<div class="card">Nothing here yet.</div>';
+    /* Sorted by what you need, because "we have nothing and four kids" is the real question
+       a child is answering when they open this. */
+    var free = G.games.filter(function (g) { return (g.needs || [])[0] === 'nothing'; });
+    var rest = G.games.filter(function (g) { return free.indexOf(g) < 0; });
+    var card = function (g) {
+      return '<button class="tile" data-act="gullyg" data-id="' + g.id + '">' +
+        '<b>' + esc(g.name) + (g.script ? ' <span class="fscript">' + esc(g.script) + '</span>' : '') + '</b>' +
+        '<span class="tiny muted">' + esc(g.players) + ' players · ' + esc(g.where) + ' · ' + esc(g.age) + '</span>' +
+        '<p class="tiny">' + esc(g.kid) + '</p></button>';
+    };
+    return '<button class="backlink" data-act="go" data-v="play">' + icon('back', 18) + ' Play</button>' +
+      '<div class="card"><h1>Gully</h1><p>' + esc(G.intro) + '</p></div>' +
+      '<div class="card"><h2 style="margin-top:0">Needs nothing at all</h2>' +
+        '<p class="tiny muted">No bat, no ball, no board. Just people.</p>' +
+        '<div class="grid g2">' + free.map(card).join('') + '</div></div>' +
+      '<div class="card"><h2 style="margin-top:0">Everything else</h2>' +
+        '<div class="grid g2">' + rest.map(card).join('') + '</div></div>';
+  };
+
+  V.gullygame = function (id) {
+    var G = window.IND_GULLY, g = gullyById(id);
+    if (!g) return '<div class="card">Not found.</div>';
+    var adapt = (G.adapt || []).filter(function (a) { return a.gameId === id; })[0];
+    return '<button class="backlink" data-act="go" data-v="gully">' + icon('back', 18) + ' Gully</button>' +
+      '<div class="card">' +
+        '<h1 style="margin-bottom:2px">' + esc(g.name) +
+          (g.script ? ' <span class="fscript">' + esc(g.script) + '</span>' : '') + '</h1>' +
+        '<p class="tiny muted">' + esc(g.players) + ' players · ' + esc(g.where) + ' · best from ' + esc(g.age) + '</p>' +
+        '<p>' + esc(g.kid) + '</p>' +
+        '<p class="tiny"><b>You need:</b> ' + esc((g.needs || []).join(' · ')) + '</p>' +
+      '</div>' +
+      /* The names first, deliberately. This game has five names and a child whose family
+         calls it something else should find their word here, not learn the Hindi one. */
+      '<div class="card"><h2 style="margin-top:0">What it is called</h2>' +
+        (g.alsoCalled || []).map(function (n) {
+          return '<p class="tiny" style="margin:0 0 6px">' + esc(n) + '</p>'; }).join('') +
+        '<p class="tiny muted" style="margin-top:10px">' + esc((g.region || []).join(' · ')) + '</p></div>' +
+      '<div class="card"><h2 style="margin-top:0">How to play</h2>' +
+        '<p>' + esc(g.setup) + '</p>' +
+        '<ol class="rules">' + (g.rules || []).map(function (r) {
+          return '<li>' + esc(r) + '</li>'; }).join('') + '</ol>' +
+        (g.win ? '<p class="tiny"><b>It ends when:</b> ' + esc(g.win) + '</p>' : '') + '</div>' +
+      ((g.words || []).length
+        ? '<div class="card"><h2 style="margin-top:0">What you shout</h2>' +
+          '<p class="tiny muted">This is how the words go in without anybody teaching them.</p>' +
+          '<div class="grid g3">' + g.words.map(function (w) {
+            return '<div class="tile center"><b lang="hi">' + esc(w.term) + '</b>' +
+              '<span class="tiny">' + esc(w.roman) + '</span>' +
+              '<span class="tiny muted">' + esc(w.en) + '</span></div>'; }).join('') + '</div></div>'
+        : '') +
+      ((g.variants || []).length
+        ? '<div class="card"><h2 style="margin-top:0">Played differently elsewhere</h2>' +
+          (g.variants || []).map(function (v) {
+            return '<p class="tiny">' + esc(v) + '</p>'; }).join('') + '</div>'
+        : '') +
+      (adapt ? '<div class="card"><h2 style="margin-top:0">With four kids and a driveway</h2>' +
+               '<p>' + esc(adapt.note) + '</p></div>' : '') +
+      ((g.safe || []).length
+        ? '<div class="card"><h3 style="margin-top:0">Worth knowing</h3>' +
+          '<ul class="dolist">' + g.safe.map(function (s) {
+            return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></div>'
+        : '') +
+      '<div class="card center"><p>' + esc((G.takeout && G.takeout.handoff) || 'Go and play it.') + '</p></div>';
+  };
+
   V.play = function () {
     var G = window.IND_GAMES || [];
     return '<div class="card"><h1>Play</h1><p>The Mela. Every stall is a drill wearing a costume.</p></div>' +
       '<div class="grid g2">' +
       hubCard('rishtey', 'Rishtey', 'Thirty exact words for your family, where English has one. Build your own tree.', 'parent') +
+      (window.IND_GULLY
+        ? hubCard('gully', 'Gully', window.IND_GULLY.games.length +
+            ' street games, with the rules — to take outside and actually play.', 'run')
+        : '') +
       G.map(function (g) {
         return '<button class="tile" data-act="game" data-id="' + g.id + '">' +
           '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
@@ -1535,6 +1622,8 @@
       case 'era': h = V.era(view.arg); break;
       case 'dharma': h = V.dharma(); break;
       case 'utsav': h = V.utsav(); break;
+      case 'gully': h = V.gully(); break;
+      case 'gullygame': h = V.gullygame(view.arg); break;
       case 'festival': h = V.festival(view.arg); break;
       case 'faith': h = V.faith(view.arg); break;
       case 'worlds': h = V.worlds(); break;
@@ -1595,6 +1684,7 @@
     }
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
     if (a === 'fest')   return go('festival', t.getAttribute('data-id'));
+    if (a === 'gullyg') return go('gullygame', t.getAttribute('data-id'));
     if (a === 'era')    return go('era', t.getAttribute('data-id'));
     if (a === 'rishquiz') {
       if (t.getAttribute('data-reset') || rish.i >= window.IND_RISHTEY.tree.length) rish = { i: 0, picked: null, right: 0 };

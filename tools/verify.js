@@ -32,12 +32,13 @@ const ARG_VIEWS = {
   verses: 'window.IND_SHLOK && window.IND_SHLOK.collections.map(function(c){return c.id})',
   pack: 'window.IND_PACKS && Object.keys(window.IND_PACKS)',
   festival: 'window.IND_UTSAV && window.IND_UTSAV.festivals.map(function(f){return f.id})',
+  gullygame: 'window.IND_GULLY && window.IND_GULLY.games.map(function(g){return g.id})',
   epic: '(window.IND_EPIC_RAMAYANA||window.IND_EPIC_MAHABHARATA) ? ' +
         '[window.IND_EPIC_RAMAYANA,window.IND_EPIC_MAHABHARATA].filter(Boolean).map(function(e){return e.id}) : []',
 };
 
 const NO_ARG = ['home', 'map', 'stories', 'itihaas', 'dharma', 'learn', 'play', 'epics',
-                'shlok', 'neeti', 'rishtey', 'worlds', 'bhasha', 'me', 'utsav'];
+                'shlok', 'neeti', 'rishtey', 'worlds', 'bhasha', 'me', 'utsav', 'gully'];
 
 async function main() {
   const i = process.argv.indexOf('--url');

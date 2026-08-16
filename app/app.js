@@ -553,7 +553,11 @@
 
   function stateName(c) {
     var G = window.IND_GEO;
-    return (G && G.states[c] && G.states[c].name) || c;
+    /* States that have data but no map geometry yet — Telangana and Ladakh are known,
+       documented gaps — must still have names. A raw code on screen ("Today, from TG")
+       reads as a bug because it is one. */
+    var PENDING = { TG: 'Telangana', LA: 'Ladakh' };
+    return (G && G.states[c] && G.states[c].name) || PENDING[c] || c;
   }
 
   /* The facts on the callout. Deliberately the things a child repeats to someone else — the
@@ -707,7 +711,28 @@
         '<span><i class="lg-lit"></i>remembered</span>' +
         '<span><i style="background:var(--accent3)"></i>a place to visit</span></div></div>' +
       (lit === 0 ? '<div class="card center"><p>Every state is painted under the mist. Read a story and the mist lifts off the place it came from.</p>' +
-        '<button class="btn" data-act="go" data-v="stories">Open the story library</button></div>' : '');
+        '<button class="btn" data-act="go" data-v="stories">Open the story library</button></div>' : '') +
+
+      /* THE RIVER OF TIME, on the same page as the map — India is one pillar: the places
+         and what time did to them. The eras themselves sit here, not a door that hides
+         them; the full river with its long tellings is one tap further. */
+      (window.IND_ITIHAAS
+        ? '<div class="card"><div class="spread" style="margin-bottom:4px">' +
+          '<h2 style="margin:0">The River of Time</h2>' +
+          '<button class="btn ghost sm" data-act="go" data-v="itihaas">The whole river →</button></div>' +
+          '<p class="tiny muted">The same land, age after age. Pick any bend.</p>' +
+          '<div class="riverstrip">' + window.IND_ITIHAAS.eras.map(function (e) {
+            return '<button class="bend" data-act="era" data-id="' + e.id + '">' +
+              '<span class="yr">' + esc(e.when) + '</span>' +
+              '<span class="node">' + art(e.avatar, 46) + '</span>' +
+              '<span class="ttl">' + esc(e.title) + '</span></button>';
+          }).join('') + '</div></div>' +
+          (window.IND_GAMES
+            ? '<button class="tile" data-act="game" data-id="statehunt" style="margin-top:var(--space-lg)">' +
+              '<b>State Hunt</b><span class="tiny muted">A capital, a fort, a rhino, a mountain — ' +
+              'which state is it? The map, as a game.</span></button>'
+            : '')
+        : '');
   };
 
 
@@ -907,6 +932,13 @@
       '<button class="btn lg" style="margin-top:14px" data-act="tellone">' + icon('play', 20) +
       ' Tell me one</button></div>' +
 
+      (window.IND_NANI
+        ? '<button class="tile" style="margin:var(--space-lg) 0 0" data-act="go" data-v="nani">' +
+          '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + icon('mic', 36) +
+          '<div style="flex:1"><h3 style="margin:0">' + esc(window.IND_NANI.archive.title) + '</h3>' +
+          '<p class="tiny" style="margin:5px 0 0">Stories in your own family\u2019s voice \u2014 the ' +
+          'warmest shelf in this library. Record a grandparent, keep it forever.</p></div></div></button>'
+        : '') +
       (epics().length ? '<button class="tile" style="margin:var(--space-lg) 0" data-act="go" data-v="epics">' +
         '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art('rama', 58) +
         '<div style="flex:1"><h3 style="margin:0">The Epics</h3>' +
@@ -1166,7 +1198,18 @@
       '<div class="card"><h2 style="margin-top:0">All year</h2>' +
       '<div class="grid g2">' + rest.map(festCard).join('') + '</div></div>' +
       '<div class="card"><h3 style="margin-top:0">Why the dates move</h3>' +
-        '<p class="tiny">' + esc(U.calendarNote.childLine || U.calendarNote.text || '') + '</p></div>';
+        '<p class="tiny">' + esc(U.calendarNote.childLine || U.calendarNote.text || '') + '</p></div>' +
+
+      /* The rest of living culture keeps the festivals company: the game that drills them,
+         the songs that are sung at them, and the street games played on their afternoons. */
+      '<div class="grid g2" style="margin-top:var(--space-lg)">' +
+        (window.IND_GAMES ? '<button class="tile" data-act="game" data-id="festival"><b>Festival Frenzy</b>' +
+          '<span class="tiny muted">Twelve festivals, one year — match each to its month and its home.</span></button>' : '') +
+        (window.IND_GEET ? '<button class="tile" data-act="go" data-v="geet"><b>Geet</b>' +
+          '<span class="tiny muted">The rhymes and lullabies your parents knew by heart.</span></button>' : '') +
+        (window.IND_GULLY ? '<button class="tile" data-act="go" data-v="gully"><b>Gully</b>' +
+          '<span class="tiny muted">' + window.IND_GULLY.games.length + ' street games to take outside.</span></button>' : '') +
+      '</div>';
   };
 
   V.festival = function (id) {
@@ -1233,7 +1276,7 @@
         '<span class="tiny muted">' + esc(g.players) + ' players · ' + esc(g.where) + ' · ' + esc(g.age) + '</span>' +
         '<p class="tiny">' + esc(g.kid) + '</p></button>';
     };
-    return '<button class="backlink" data-act="go" data-v="play">' + icon('back', 18) + ' Play</button>' +
+    return '<button class="backlink" data-act="go" data-v="utsav">' + icon('back', 18) + ' Utsav</button>' +
       '<div class="card"><h1>Gully</h1><p>' + esc(G.intro) + '</p></div>' +
       '<div class="card"><h2 style="margin-top:0">Needs nothing at all</h2>' +
         '<p class="tiny muted">No bat, no ball, no board. Just people.</p>' +
@@ -1451,7 +1494,7 @@
         (s.text_pending ? '<span class="tiny muted">words not written down yet</span>' : '') +
         '</button>';
     };
-    return '<button class="backlink" data-act="go" data-v="play">' + icon('back', 18) + ' Play</button>' +
+    return '<button class="backlink" data-act="go" data-v="utsav">' + icon('back', 18) + ' Utsav</button>' +
       '<div class="card"><h1>Geet</h1><p>' + esc(G.intro) + '</p></div>' +
       '<div class="card"><h2 style="margin-top:0">Sing these</h2>' +
         '<div class="grid g2">' + ready.map(card).join('') + '</div></div>' +
@@ -2121,6 +2164,21 @@
           '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc ? sc.name : p.script) + '</div>' +
           '<div class="tiny muted" style="margin-top:8px">' + st.correct + ' right of ' + st.asked + '</div></button>';
       }).join('') + '</div>' +
+      /* Practice wearing a costume. With Play gone from the bar, the drills live beside the
+         path they drill for — the Duolingo move: the game is the treat at the rung. The Mela
+         keeps every stall for whoever wants the whole fairground. */
+      '<div class="card"><h3 style="margin:0 0 4px">Khel</h3>' +
+      '<p class="tiny muted">Games that are secretly practice.</p>' +
+      '<div class="grid g2">' +
+        '<button class="tile" data-act="game" data-id="rangoli"><b>Rangoli Rush</b>' +
+        '<span class="tiny muted">See it, lose it, draw it back — memory in patterns.</span></button>' +
+        '<button class="tile" data-act="go" data-v="rishtey"><b>Rishtey</b>' +
+        '<span class="tiny muted">Thirty exact words for your family, where English has one.</span></button>' +
+        '<button class="tile" data-act="game" data-id="jataka"><b>Jataka Jump</b>' +
+        '<span class="tiny muted">Hear a tiny fable, find the lesson hiding in it.</span></button>' +
+        '<button class="tile" data-act="go" data-v="play"><b>The whole Mela</b>' +
+        '<span class="tiny muted">Every stall in one place.</span></button>' +
+      '</div></div>' +
       '<div class="card flat tiny"><b>Note.</b> The Hindi and Punjabi audio here is synthesised, as a placeholder. ' +
       'Per <code>docs/09</code> it must be replaced with human voice before launch — children imitate these sounds, ' +
       'and TTS teaches errors a native-speaker parent hears instantly.</div>';
@@ -2307,13 +2365,14 @@
   };
 
   /* ================================================================== SHELL */
-  /* Map and Itihaas earn bar placement: each is a destination a child returns to, not a
-     sub-page of a hub called Learn — a hub whose only job was to hold three doors. Dharma
-     and Utsav fold into Neeti, where they belong: the values, the faiths that carry them,
-     and the festivals where they are lived. */
-  var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['map', 'Map', 'map'],
-              ['itihaas', 'Itihaas', 'clock'], ['neeti', 'Neeti', 'star'],
-              ['bhasha', 'Bhasha', 'script'], ['play', 'Play', 'game']];
+  /* FIVE TABS, one per verb. Stories is everything told; India is everything that is a
+     place or a time (the map with the River of Time inside it); Neeti is everything
+     carried (values, faiths, festivals, verses); Bhasha is everything practised — the
+     games live inside the pillars they drill, because play is how this app practises,
+     not a separate subject. A child holds a phone by the bottom half, so on a phone this
+     bar moves to the bottom edge (see app.css). */
+  var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['map', 'India', 'map'],
+              ['neeti', 'Neeti', 'star'], ['bhasha', 'Bhasha', 'script']];
 
   function chrome() {
     return '<header class="topbar"><div class="barrow">' +
@@ -2381,11 +2440,12 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'map', mon: 'map', learn: 'map',
-                  era: 'itihaas',
+    var alias = { state: 'map', mon: 'map', learn: 'map', itihaas: 'map', era: 'map',
                   dharma: 'neeti', faith: 'neeti', utsav: 'neeti', festival: 'neeti',
-                  story: 'stories', pack: 'bhasha',
-                  game: 'play', mela: 'play', rishtey: 'play', rishquiz: 'play',
+                  gully: 'neeti', gullygame: 'neeti', geet: 'neeti', song: 'neeti',
+                  story: 'stories', pack: 'bhasha', chart: 'bhasha',
+                  game: 'bhasha', mela: 'bhasha', play: 'bhasha', rishtey: 'bhasha', rishquiz: 'bhasha',
+                  nani: 'stories', shelf: 'stories', invite: 'stories',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
                   worlds: 'me' };
     var cur = alias[view.name] || view.name;

@@ -967,3 +967,36 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pnode .pbody b { font-family: var(--display); font-size: 16.5px; }
 .pnode.ahead .pbody b { color: var(--text2); }
 .meter.sm { height: 6px; margin-top: 6px; max-width: 220px; }
+
+/* ----------------------------------------------------- the river, in India
+   The eras as a horizontal band under the map — on the page, not behind a door. */
+.riverstrip {
+  display: flex; gap: var(--space-md); overflow-x: auto; padding: var(--space-md) 2px;
+  scrollbar-width: none;
+}
+.riverstrip::-webkit-scrollbar { display: none; }
+.riverstrip .bend { flex: 0 0 128px; }
+
+/* ----------------------------------------------------- bottom bar on phones
+   A child holds a phone by the bottom half; top tabs are desktop furniture. The same five
+   tabs move to the bottom edge, thumb-height, with the safe-area respected. The header keeps
+   the brand, the kauris and the grown-up door. */
+@media (max-width: 700px) {
+  .topbar .nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+    background: var(--card); border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 24px rgba(30, 20, 70, .10);
+    padding: 6px max(8px, env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom))
+             max(8px, env(safe-area-inset-right));
+    margin: 0; overflow: visible;
+  }
+  .topbar .nav .navtab {
+    flex-direction: column; gap: 3px; justify-content: center;
+    font-size: 11px; padding: 6px 2px; border-radius: var(--radius-md);
+    min-height: 52px;   /* a real touch target */
+  }
+  .topbar .nav .navtab svg { width: 22px; height: 22px; }
+  /* room so the last card is never hidden behind the bar */
+  .wrap { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+}

@@ -608,6 +608,7 @@
       var onBtn = e.target && e.target.closest && e.target.closest('button');
       if (onBtn) return;
       if (mode === 'intro') { e.preventDefault(); renderPlay(); return; }
+      if (mode === 'over') { e.preventDefault(); endGame(winFlag); return; }
       if (mode === 'play' && phase === 'roll') {
         e.preventDefault();
         setRollEnabled(false);
@@ -1067,6 +1068,7 @@
       var onBtn = e.target && e.target.closest && e.target.closest('button');
       if (onBtn) return;
       if (mode === 'intro') { e.preventDefault(); renderPlay(); return; }
+      if (mode === 'over') { e.preventDefault(); endGame(winFlag); return; }
       if (mode === 'play' && phase === 'roll') {
         e.preventDefault();
         youRoll();

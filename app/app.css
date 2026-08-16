@@ -312,7 +312,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
   cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
 .gcover:hover, .gcover:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
 .gart { position: relative; display: grid; place-items: center; height: 112px; color: #fff; }
-.gart svg { display: block; overflow: visible; filter: drop-shadow(0 3px 6px rgba(0,0,0,.22)); }
+/* the scene SVGs arrive with a 48-unit viewBox and no reliable width attribute —
+   size them here or one ladder swallows its whole card */
+.gart svg { display: block; width: 64px; height: 64px; overflow: visible;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,.22)); }
 .gtag { position: absolute; top: 10px; right: 10px; font: 700 10px/1 var(--mono);
   letter-spacing: .12em; text-transform: uppercase; background: rgba(0,0,0,.28); color: #fff;
   padding: 5px 8px; border-radius: 999px; }

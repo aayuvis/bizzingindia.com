@@ -393,6 +393,210 @@ window.IND_STORIES_MODERN = [
   source: 'FIDE records: grandmaster at 12 (2019), Candidates winner at 17 (2024), world championship victory over Ding Liren in game 14 at Singapore, December 2024 — world champion at 18, the youngest in classical chess history; his training at the WestBridge Anand Chess Academy and his father’s travels are documented in FIDE and championship coverage.'
 },
 
+/* ---- Khel, the second bench (2026-08): six more real athletes, most of them
+   women — written as athletes first, "first woman" stated as the fact it is,
+   never the whole personality. Living-people rules from the file header hold.
+   kh.mithali carries IN-TG deliberately, exactly like kh.sindhu — same known
+   geometry gap, same graceful degradation, same self-heal when the map lands. */
+
+{
+  id: 'kh.dhoni',
+  collection: 'khel',
+  badge: 'itihaas',
+  title: 'The Ticket Collector Who Finished It',
+  hook: 'For two years he checked tickets on a railway platform. Then one night in Mumbai he hit the most famous six India has ever seen.',
+  hero: 'dhoni',
+  cast: ['dhoni'],
+  minutes: 4,
+  place: ['IN-JH'],
+  words_hi: [['छक्का', 'chhakka', 'six'], ['रेलगाड़ी', 'relgaadi', 'train'], ['धीरज', 'dheeraj', 'patience']],
+  scenes: [
+    { art: ['dhoni'], who: null,
+      text: 'Mahendra Singh Dhoni grew up in Ranchi — a town of forests and iron country, in what is now Jharkhand, about as far from cricket’s famous cities as an Indian boy could be. He was his school’s football goalkeeper, and it was a games teacher who asked the goalkeeper to try the wicketkeeping gloves instead. The hands, it turned out, worked either way.' },
+    { art: ['dhoni'], who: null, mood: 'think',
+      text: 'At twenty he got the kind of job families pray for: a post with Indian Railways, checking tickets at Kharagpur station in Bengal. For two years he lived in the railway quarters, worked the platforms, and played cricket whenever the job allowed. A government job is a warm coat — his family knew what it was worth. And every day, trains full of other people’s journeys pulled out in front of him.',
+      ask: {
+        q: 'A safe job for life on one hand. On the other, a game that has promised you nothing at all. What do you do?',
+        options: ['Keep the job — a promise beats a maybe', 'Leave — some maybes have to be answered before they expire', 'Wait for someone to decide for you'],
+        answer: 1,
+        right: 'That is what he did, in 2003: he left the platform for the game. Not recklessly — he had given cricket a deadline, and cricket had shown just enough. But the leaving was still a leap.',
+        wrong: 'A fair answer — it is what almost everyone chooses, and there is no shame in a warm coat. But in 2003 Dhoni left the platform for the game, and the rest of this story is what came through the door he risked.'
+      } },
+    { art: ['dhoni'], who: null, mood: 'wow',
+      text: 'Within two years the long-haired wicketkeeper from Ranchi was smashing 148 against Pakistan for India. And in 2007, handed the captaincy of a young squad for the very first Twenty20 World Cup, he did something coaches still teach: with the final match hanging on its last over, he gave the ball not to a star but to a bowler almost nobody had heard of — and the gamble, calmly made, won India the cup.' },
+    { art: ['dhoni'], who: null, mood: 'wow',
+      text: 'Then Mumbai, the night of 2 April 2011 — the World Cup final, India chasing 275 against Sri Lanka, a billion people holding their breath. Dhoni, out of form all tournament, promoted himself up the batting order — the captain taking the hardest job in the house for himself. He finished on 91 not out, and ended the match with a six lifted high over long-on. That shot has been replayed more than any stroke in Indian cricket. It ended a twenty-eight-year wait — the cup Kapil’s team had won in 1983, home at last, in Sachin’s own city.' },
+    { art: ['dhoni'], who: null,
+      text: 'The newspapers called him Captain Cool, and the name stuck because it named something real: in the loudest moments cricket can produce, he moved and thought like a man reading a timetable. In 2013 his team added the Champions Trophy — making him the only captain ever to win all three of cricket’s world titles. Calm, it turns out, is not something you have. It is something you practise.' },
+    { art: ['dhoni'], who: 'mithu',
+      text: 'From a ticket window at Kharagpur to the balcony at Wankhede is not a distance trains can cover. He crossed it the slow way — by being ready, every single day, for the day the game finally asked.' }
+  ],
+  moral: 'The loudest moments belong to the people who have practised staying quiet inside them.',
+  source: 'BCCI and ICC match records — the 2007 World Twenty20 final and the 2011 World Cup final at Mumbai (India 277/4 chasing 275; Dhoni 91 not out, the winning six), and the 2013 Champions Trophy that completed the set of ICC titles; his 2001–03 years as a travelling ticket examiner at Kharagpur railway station are on Indian Railways’ own record and in contemporary reporting.'
+},
+
+{
+  id: 'kh.kohli',
+  collection: 'khel',
+  badge: 'itihaas',
+  title: 'The Boy Who Batted That Morning',
+  hook: 'Delhi cricket still talks about one innings by an eighteen-year-old — not for the runs, but for the morning on which he made them.',
+  hero: 'kohli',
+  cast: ['kohli'],
+  minutes: 4,
+  place: ['IN-DL'],
+  words_hi: [['पिता', 'pita', 'father'], ['जज़्बा', 'jazba', 'fighting spirit'], ['अनुशासन', 'anushasan', 'discipline']],
+  scenes: [
+    { art: ['kohli'], who: null,
+      text: 'In the summer of 1998, a nine-year-old from West Delhi joined a brand-new cricket academy in his neighbourhood, and his father began a routine that lasted years: driving the boy to practice and back on his scooter, day after day, through Delhi’s traffic and Delhi’s weather. Virat Kohli’s cricket was, from the very start, a thing he and his father did together.' },
+    { art: ['kohli'], who: null, mood: 'sad',
+      text: 'December 2006. Virat, eighteen, was playing for Delhi in a big match, not out overnight with his team in trouble. In the small hours of that night, at home, his father died suddenly. What happened next is told quietly in Delhi dressing rooms to this day: at dawn the boy telephoned his coach and said he wanted to bat. He came to the ground, batted through the morning for his team, made 90 — and went from the field to say goodbye to his father. Nobody who was there has ever described that innings as just runs.' },
+    { art: ['kohli'], who: null,
+      text: 'Cricket had been the language between him and his father, and he kept speaking it. In 2008 he captained India’s under-19s to a World Cup. In 2011, at twenty-two, he was in the team that won the World Cup itself — he is the young man in Sachin’s story on this shelf, one of the teammates who carried the great man around the ground on their shoulders that night.' },
+    { art: ['kohli'], who: null, mood: 'think',
+      text: 'Then came the part of the story that changed Indian cricket’s daily habits. In 2012, by his own telling, he took an honest look at himself and decided his talent deserved a better keeper. He rebuilt everything — what he ate, how he trained, how he slept — until he was among the fittest athletes in world sport, and the fitness became runs: chase after impossible chase hunted down, so often that people simply started calling him the chase master. And where the captain’s standards went, a whole team’s followed. Indian cricket trains differently today because one player raised the bar on himself first.' },
+    { art: ['kohli'], who: null, mood: 'wow',
+      text: 'The hundreds kept coming. In November 2023, in Mumbai, he scored his fiftieth one-day international century — passing the record of Sachin Tendulkar, the man he had helped carry, who stood applauding in the stands of his own home ground. The record books hold the number. The photographs hold the passing of something from one pair of hands to another.' },
+    { art: ['kohli'], who: 'mithu',
+      text: 'A scooter, a father, a terrible morning, and a promise kept for twenty years and counting. When people talk about his fire on the field, remember where it was lit — and that the hardest innings of his life was played for love, not for a scoreboard.' }
+  ],
+  moral: 'Grief and love sometimes ask the same thing of us: keep faith with what the person who is gone helped you build.',
+  source: 'BCCI Ranji Trophy records for the Delhi–Karnataka match of December 2006 (Kohli, resuming the morning after his father’s death, scored 90 — an episode his Delhi coach and senior teammates have recounted on the record many times); ICC records for the 2008 under-19 World Cup, the 2011 World Cup, and the fiftieth ODI century at Mumbai, November 2023; the fitness transformation of 2012 onwards is his own public telling. He is a living, playing athlete — the story keeps strictly to the documented record.'
+},
+
+{
+  id: 'kh.mithali',
+  collection: 'khel',
+  badge: 'itihaas',
+  title: 'The Dancer at the Crease',
+  hook: 'She trained for years to be a bharatanatyam dancer. The stage she filled instead was Lord’s.',
+  hero: 'mithali',
+  cast: ['mithali'],
+  minutes: 4,
+  /* IN-TG: deliberate, same as kh.sindhu — Hyderabad is Telangana; the map
+     geometry gap (docs/07) means no state lights yet, but the Telugu family
+     shelf matches TG today and the code is correct the day the map is fixed. */
+  place: ['IN-TG'],
+  words_hi: [['नृत्य', 'nritya', 'dance'], ['कप्तान', 'kaptaan', 'captain'], ['धुन', 'dhun', 'absorption']],
+  scenes: [
+    { art: ['mithali'], who: null,
+      text: 'Mithali Raj grew up in Hyderabad, in an Air Force family, and for eight years her mornings belonged to bharatanatyam — the anklets, the postures held until they burned, the discipline of classical dance. Cricket arrived sideways: she was taken along to her elder brother’s coaching camp, picked up a bat while she waited, and the coaches stopped watching the boys.' },
+    { art: ['mithali'], who: null, mood: 'think',
+      text: 'By her early teens, both dance and cricket wanted every morning she had, and she has told the story of the choice many times: it could not be both.',
+      ask: {
+        q: 'Eight years of dance in your feet, a new game in your hands, and one pair of mornings. How do you even choose?',
+        options: ['Keep the older love — eight years must not be wasted', 'Choose one — and trust that nothing truly practised is ever wasted', 'Do both badly'],
+        answer: 1,
+        right: 'She chose cricket — and always said the dance never really left her: the balance, the footwork, the stillness before movement all walked to the crease with her.',
+        wrong: 'She chose the game — and here is the lovely part: the dance never really left her. The balance, the footwork, the stillness before movement all walked to the crease with her. Eight years of practice simply changed costumes.'
+      } },
+    { art: ['mithali'], who: null, mood: 'wow',
+      text: 'At sixteen, in 1999, she played her first match for India and scored a century — 114 not out. At nineteen she batted for days against England and made 214, then the highest score in the history of women’s Test cricket. Bowlers changed, decades changed; the calm at the other end of the pitch did not.' },
+    { art: ['mithali'], who: null,
+      text: 'She captained India across two different decades — leading the team to a World Cup final in 2005, and again in 2017. At that 2017 World Cup, a photograph went around the world: Mithali, padded up, waiting to bat in a World Cup match — quietly reading a book. The world found it astonishing. Anyone who knew her found it exact: a mind trained since childhood to be perfectly where it chooses to be.' },
+    { art: ['mithali'], who: null, mood: 'wow',
+      text: 'The 2017 final filled Lord’s — the home of cricket, sold out, for a women’s match, with millions more watching across India. England won by nine runs, and it barely mattered to what happened next: girls’ academies filled, the players won contracts, and women’s cricket in India stopped asking for attention because it finally had it. When Mithali retired in 2022, her 10,868 international runs were the most ever scored in women’s cricket, by anyone, from any country.' },
+    { art: ['mithali'], who: 'mithu',
+      text: 'Two decades a captain, the world’s runs record, and a book open on her lap while a World Cup waited. The dance teacher lost a dancer and the dance lost nothing — it just moved to a different stage.' }
+  ],
+  moral: 'What you practise first is never wasted — discipline changes costumes and walks with you wherever you go next.',
+  source: 'ICC and BCCI records: her debut century at sixteen (114 not out, 1999), the Test 214 against England in 2002, the World Cup finals of 2005 and 2017 (the sold-out Lord’s final), and 10,868 international runs — the most in women’s cricket at her retirement in 2022; the bharatanatyam years and the choice between dance and cricket are her own oft-recorded telling, and the 2017 book-reading photograph is a matter of record.'
+},
+
+{
+  id: 'kh.saina',
+  collection: 'khel',
+  badge: 'itihaas',
+  title: 'The First Shuttle Through the Door',
+  hook: 'Before her, no Indian had ever won an Olympic badminton medal — not one, in the whole history of the Games. She was eight when her family bet everything on changing that.',
+  hero: 'saina',
+  cast: ['saina'],
+  minutes: 4,
+  place: ['IN-HR'],
+  words_hi: [['पदक', 'padak', 'medal'], ['सवेरा', 'savera', 'daybreak'], ['जुनून', 'junoon', 'passion']],
+  scenes: [
+    { art: ['saina'], who: null,
+      text: 'Saina Nehwal was born in 1990 in Hisar, in Haryana — wrestling country, wheat country, not badminton country. But her mother had been a state-level badminton player whose own game had stopped early, the way women’s games mostly did in those days, and the house held that unfinished dream the way houses do: quietly, and completely.' },
+    { art: ['saina'], who: null,
+      text: 'When Saina was eight, her scientist father’s work moved the family to Hyderabad — and Hyderabad had real badminton. The academy was on the far side of the city, so her father woke her before daybreak and rode her there on his scooter, tens of kilometres, morning after morning, then waited through practice to ride her back. If those dawn rides sound familiar, they should: years later another Hyderabad girl, P. V. Sindhu, would live the same mornings on the way to the same badminton world — her story sits just above this one on the shelf.' },
+    { art: ['saina'], who: null, mood: 'wow',
+      text: 'The mornings compounded. In 2008 she became junior world champion — the first Indian ever. In 2009 she won the Indonesia Open, one of the sport’s biggest crowns, in front of the loudest badminton crowd on Earth — again the first Indian woman to take a title that size. The girl from Hisar was no longer coming up. She had arrived.' },
+    { art: ['saina'], who: null, mood: 'wow',
+      text: 'London, 2012. In more than a century of Olympic Games, India had won badminton nothing. Saina fought her way to the bronze medal — the first Olympic badminton medal in Indian history. It is a strange kind of medal, a first: it weighs what every other bronze weighs, and also carries everything that was previously called impossible.' },
+    { art: ['saina'], who: null,
+      text: 'In April 2015 she reached the top of the world rankings — the first Indian woman ever ranked world number one in badminton. And look at what stands behind her now: Sindhu’s silver and world title came through a door the country had watched Saina hit open. Champions make results; first champions make belief.' },
+    { art: ['saina'], who: 'mithu',
+      text: 'A mother’s unfinished game, a father’s scooter in the dark, and a girl from wrestling country who decided badminton belonged to her. Firsts are heavy — someone has to lift the proof that a thing can be done, and she lifted it for everyone after her.' }
+  ],
+  moral: 'The first one through pays for the door — and everyone who walks through afterwards walks through her win.',
+  source: 'BWF and Olympic records: world junior gold 2008, the Indonesia Open title of 2009, the London 2012 bronze — the first Olympic badminton medal for India — and the world No. 1 ranking of April 2015; her autobiography "Playing to Win" and documented profiles for the Hisar beginnings, her mother’s state-level badminton years, and the dawn scooter rides to the Hyderabad academy.'
+},
+
+{
+  id: 'kh.malleswari',
+  collection: 'khel',
+  badge: 'itihaas',
+  title: 'Iron in the Village',
+  hook: 'The gym had a mud floor and a thatched roof. Its student became the first Indian woman ever to stand on an Olympic podium.',
+  hero: 'malleswari',
+  cast: ['malleswari'],
+  minutes: 4,
+  place: ['IN-AP'],
+  words_hi: [['लोहा', 'loha', 'iron'], ['ताक़त', 'taaqat', 'strength'], ['पहली', 'pahli', 'first']],
+  scenes: [
+    { art: ['malleswari'], who: null,
+      text: 'Voosavanipeta is a village in Srikakulam district, on the Andhra coast, and in the 1980s it held something unusual: a little gymnasium with a mud floor where a local coach taught the iron game — weightlifting. Karnam Malleswari came to it at twelve, following her sisters; theirs became a household of girls who lifted, in a country that had barely imagined such a household.' },
+    { art: ['malleswari'], who: null, mood: 'think',
+      text: 'People picture weightlifting as brute force. It is closer to watchmaking done with a hundred kilograms. The two lifts — the snatch, one clean movement from floor to sky, and the clean and jerk, floor to shoulders to sky — are exercises in precision, timing and nerve, where a centimetre of error drops the world on you. Strength gets you into the room. Craft wins.' },
+    { art: ['malleswari'], who: null, mood: 'wow',
+      text: 'Malleswari’s craft took her out of the village gym and onto the world stage — and in 1994, in Istanbul, she became champion of the world. In 1995 she did it again. A woman from Srikakulam district, twice world champion in the iron game, years before most of India had ever watched a women’s weightlifting competition.' },
+    { art: ['malleswari'], who: null, mood: 'wow',
+      text: 'Sydney, September 2000: the first Olympic Games ever to include women’s weightlifting. Malleswari lifted 110 kilograms in the snatch and 130 in the clean and jerk — 240 in all — and won bronze. Read the next sentence slowly, because whole generations waited for it: in more than a hundred years of the modern Olympics, no Indian woman had ever won a medal of any colour, in any sport. She was the first.' },
+    { art: ['malleswari'], who: null,
+      text: 'Now look around this shelf at who came after: Mary Kom’s bronze, Saina’s bronze, Sindhu’s silver, Mirabai’s silver, Avani’s golds. Every one of those champions stepped onto a podium that, for Indian women, Malleswari reached first. That is what a first medal actually buys — not one place in the record books, but a permission slip for a whole country’s daughters.' },
+    { art: ['malleswari'], who: 'mithu',
+      text: 'A mud-floored gym, a household of lifting sisters, and 240 kilograms in Sydney. The barbell weighs the same for everyone — history was the extra weight on hers, and she lifted that too.' }
+  ],
+  moral: 'The barbell weighs the same for everyone. Being first is the extra weight — and someone has to lift it before anyone else can.',
+  source: 'IWF and Olympic records: world championship golds in 1994 (Istanbul) and 1995, and the Sydney 2000 bronze (110 kg snatch, 130 kg clean and jerk, 240 kg total) — the first Olympic medal won by an Indian woman, at the first Games to include women’s weightlifting; her documented beginnings, from age twelve, in a village gymnasium in Srikakulam district, Andhra Pradesh.'
+},
+
+{
+  id: 'kh.mirabai',
+  collection: 'khel',
+  badge: 'itihaas',
+  title: 'The Girl Who Carried the Firewood',
+  hook: 'Her elder brother could not lift the bundle, so his little sister carried it home. The village noticed. Eventually, the whole world did.',
+  hero: 'mirabai',
+  cast: ['mirabai'],
+  minutes: 4,
+  place: ['IN-MN'],
+  words_hi: [['लकड़ी', 'lakdi', 'firewood'], ['बोझ', 'bojh', 'load'], ['चाँदी', 'chaandi', 'silver']],
+  scenes: [
+    { art: ['mirabai'], who: null,
+      text: 'Nongpok Kakching is a village in the hills of Manipur, a bumpy hour from Imphal, and like most village children Saikhom Mirabai Chanu grew up doing chores — among them, fetching firewood from the hillsides. Her family loves telling what happened when she was about twelve: her elder brother could not manage a heavy bundle, and Mirabai picked it up and carried it home, easily, as if the hill had made a mistake about who was strong.' },
+    { art: ['mirabai'], who: null,
+      text: 'She had wanted to be an archer. But Manipur is a state that produces champions the way other places produce rice — Mary Kom’s story on this shelf begins in these same hills — and its greatest weightlifter, Kunjarani Devi, was a legend in every Manipuri household. Mirabai chose the barbell, and got herself to training in Imphal however she could — often by waving down the sand trucks that ran past her village, riding to practice in the cab with the drivers.' },
+    { art: ['mirabai'], who: null, mood: 'sad',
+      text: 'Rio, 2016: her first Olympics, twenty-one years old, a nation newly watching — and disaster. In the clean and jerk she failed all three attempts. No total, no result; beside her name the record shows the letters that lifters dread. She wept in front of the cameras, and the cameras did not look away.',
+      ask: {
+        q: 'The worst day of your life has just happened in front of the whole world. What does the next morning look like?',
+        options: ['You quit — the message could not be clearer', 'You go back to training, and let the worst day become information instead of an ending', 'You pretend it never happened'],
+        answer: 1,
+        right: 'That is the morning she chose. She and her coaches took the failure apart like engineers — what broke, when, why — and rebuilt her lifting around the answers.',
+        wrong: 'Plenty of athletes have chosen exactly that, and nobody could blame them. Mirabai went back to training — and let the worst day become information: she and her coaches took the failure apart like engineers and rebuilt her lifting around the answers.'
+      } },
+    { art: ['mirabai'], who: null, mood: 'wow',
+      text: 'One year after Rio, at the 2017 world championships in America, Mirabai Chanu was champion of the world. And in Tokyo, on 24 July 2021 — the first morning of the delayed Olympics — she lifted 87 kilograms in the snatch and 115 in the clean and jerk, 202 in all, and won silver: India’s first medal of those Games, on their first day, from the girl whose Games five years earlier had ended in tears.' },
+    { art: ['mirabai'], who: null,
+      text: 'Back home in Manipur she did something the record books do not usually bother with, but this shelf does: she tracked down the sand-truck drivers who had carried a village girl to practice all those years, and thanked them with gifts and a feast in her village. Champions are made of training. They are also made of everyone who gave them a lift.' },
+    { art: ['mirabai'], who: 'mithu',
+      text: 'A firewood bundle, a truck cab, the worst day of her life, and then silver in Tokyo. Strength is what you can lift. Character is what you carry away from your worst day — and she carried hers all the way back up.' }
+  ],
+  moral: 'Strength is what you can lift; character is what you carry away from your worst day and back into training.',
+  source: 'IWF and Olympic records: the Rio 2016 did-not-finish, the 2017 world championship gold at Anaheim, and the Tokyo silver of 24 July 2021 (87 kg snatch, 115 kg clean and jerk, 202 kg total — India’s first medal of those Games); the firewood story of Nongpok Kakching, the sand-truck rides to Imphal and the thank-you feast for the drivers are her own and her family’s documented tellings, widely reported.'
+},
+
 /* ========================================================== NAYA ========== */
 {
   id: 'ny.kurien',

@@ -21,9 +21,9 @@
      · suno          the word never appears as text in the prompt, and no
                      romanisation under the options — the child heard the
                      sound; roman letters would spell it out for them.
-     · meaning→word targets whose English gloss contains their own
-                     romanisation (loanwords: "roti — roti, bread") are
-                     re-dealt to word→meaning, where nothing leaks.
+     · loanwords     a word whose gloss IS its romanisation (ghee, dosa,
+                     kurta) leaks in BOTH text modes — so it is only ever
+                     dealt as Suno, where no text of it appears.
 
    House rules, same as games.js: keyboard AND touch always; reduced
    motion respected; no lives, no shaming — a wrong tap shows the right
@@ -255,12 +255,19 @@
 
   function lowEn(e) { return String(e.en || '').toLowerCase(); }
 
-  /* Loanword guard for meaning→word: if the gloss contains the word's own
-     romanisation ("roti, bread" for roti), showing the gloss shows the
-     answer. Those targets go to word→meaning instead. */
-  function romanLeaks(entry) {
+  /* The loanword guard. English borrowed half the Indian kitchen, so the
+     lexicons hold rows where gloss and romanisation are the same word —
+     घी "ghee", தோசை "dosa", کرتا "kurta". Ask those as text and the answer
+     is printed in the question: word→meaning shows the roman, and there is
+     the gloss; meaning→word shows the gloss, and there is the roman. The
+     one mode where they cannot leak is Suno — no text of the word appears
+     at all — so that is the only mode that may deal them. */
+  function textLeaks(entry) {
     var r = String(entry.roman || '').toLowerCase();
-    return r.length > 1 && lowEn(entry).indexOf(r) >= 0;
+    var e = lowEn(entry);
+    if (r.length > 1 && e.indexOf(r) >= 0) return true;
+    if (e.length > 1 && r.indexOf(e) >= 0) return true;
+    return false;
   }
 
   /* First grapheme cluster, for Suno's "visually distinct" rule — a learner
@@ -332,15 +339,19 @@
     for (i = 0; i < 5; i++) { w = grab(ramp); if (w) targets.push(w); }
     while (targets.length < 10) { w = grab(lex); if (!w) break; targets.push(w); }
 
-    /* 4 : 3 : 3 across the three modes, shuffled, then the loanword fix-up */
+    /* 4 : 3 : 3 across the three modes, shuffled, then the loanword fix-up:
+       a leaking target trades places with a Suno target that does not need
+       the shelter, or simply becomes Suno when nobody can trade. */
     var modes = shuffle(['a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c', 'a']).slice(0, targets.length);
     for (i = 0; i < targets.length; i++) {
-      if (modes[i] === 'b' && romanLeaks(targets[i])) {
+      if (modes[i] !== 'c' && textLeaks(targets[i])) {
         var swapped = false;
         for (var j = 0; j < targets.length; j++) {
-          if (modes[j] === 'a' && !romanLeaks(targets[j])) { modes[j] = 'b'; modes[i] = 'a'; swapped = true; break; }
+          if (modes[j] === 'c' && !textLeaks(targets[j])) {
+            modes[j] = modes[i]; modes[i] = 'c'; swapped = true; break;
+          }
         }
-        if (!swapped) modes[i] = 'a';
+        if (!swapped) modes[i] = 'c';
       }
     }
 

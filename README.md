@@ -33,6 +33,7 @@ Then, by depth:
 | [06 — Commerce & Books](docs/06-commerce-and-books.md) | Free/paid split, pricing, paywall design, the book funnel, cross-sell |
 | [07 — Tech Architecture](docs/07-tech-architecture.md) | Stack, module map, content pipeline, data model, offline, privacy law |
 | [08 — Roadmap](docs/08-roadmap.md) | Phases, MVP, gates, metrics, risks |
+| [10 — The Corpus](docs/10-the-corpus.md) | **What our 128,040 is.** The five countable corpora, the Shlok pillar, the Katha Sagar ladder, and the one-line promise |
 | [09 — The Bhasha Engine](docs/09-language-engine.md) | The language platform: script modules vs language packs, the heritage learner, exercise design, sequencing, one-price pricing |
 
 ## The shape of it, in one table

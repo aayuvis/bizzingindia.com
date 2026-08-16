@@ -359,8 +359,8 @@ window.IND_UTSAV = {
       review: 'Held at Anandpur Sahib and centred on the Khalsa; the fuller history involves ' +
               'conflict. Kept here to the practice — the horsemanship, the kirtan, the langar. ' +
               'A named Sikh reviewer before ship.',
-      kid: 'The day after Holi, at Anandpur Sahib, thousands of people gather to watch riders on ' +
-           'horses do things that look impossible, and everybody is fed for free for three days.',
+      kid: 'The day after Holi, thousands of people gather at Anandpur Sahib in Punjab to watch ' +
+           'riders on horses do things that look impossible. Everybody there is fed for free, for days.',
       big: 'Hola Mohalla is a Sikh gathering held over several days at Anandpur Sahib in Punjab. ' +
            'There is gatka — a martial art done with wooden weapons — bareback horsemanship by the ' +
            'Nihang orders, poetry and kirtan competitions, and langar on an enormous scale, cooked ' +
@@ -598,8 +598,8 @@ window.IND_UTSAV = {
       region: 'south', states: ['KL', 'KA', 'TN', 'PY'],
       months: ['April'],
       badge: 'aaj', needs_review: false,
-      kid: 'On Vishu morning, a grown-up leads you to a table with your eyes shut, and then you open ' +
-           'them — because the first thing you see on New Year should be something good.',
+      kid: 'On Vishu morning a grown-up leads you to a table with your eyes shut, and then you open ' +
+           'them. The first thing you see on New Year is supposed to be something good.',
       big: 'The Malayalam new year. The night before, the Vishukkani is arranged: a lamp, a mirror, ' +
            'rice, fruit, coins, a cloth, and above all the golden kanikkonna flowers, which happen to ' +
            'bloom exactly now. Children are led to it with their eyes closed and open them onto it, so ' +
@@ -701,7 +701,7 @@ window.IND_UTSAV = {
               'children’s product; a human author and a named reviewer before anything further.',
       kid: 'This is the day Rama was born. In many houses the Ramayana is read aloud, and in the ' +
            'south people drink a sweet cardamom drink made specially for it.',
-      big: 'Ram Navami falls on the ninth day of Chaitra and marks the birth of Rama. Many families ' +
+      big: 'Ram Navami is kept on the ninth day of Chaitra and marks the birth of Rama. Many families ' +
            'read or hear the Ramayana across these days; temples hold recitations; in much of the ' +
            'south the day is marked with panakam, a jaggery-and-cardamom drink, and kosambari. In ' +
            'many families it is also a fasting day until noon.',
@@ -765,9 +765,9 @@ window.IND_UTSAV = {
       region: 'south', states: ['KL'],
       months: ['April', 'May'],
       badge: 'aaj', needs_review: false,
-      kid: 'In one town in Kerala, thirty elephants stand in a row in front of a temple while ' +
-           'hundreds of drummers play together — and the people on the elephants swap enormous ' +
-           'silk parasols above their heads, over and over, while the crowd roars.',
+      kid: 'In one town in Kerala, rows of elephants stand facing each other in front of a temple ' +
+           'while hundreds of drummers play together. The people up on the elephants swap enormous ' +
+           'silk parasols above their heads, over and over, and the crowd roars every time.',
       big: 'Thrissur Pooram is a temple festival held in the Kerala summer. Its famous hour is the ' +
            'kudamattam: two lines of caparisoned elephants face each other, and the men on their ' +
            'backs exchange great silk parasols, one after another, each more astonishing than the ' +
@@ -802,8 +802,8 @@ window.IND_UTSAV = {
       months: ['June', 'July'],
       badge: 'aaj', needs_review: false,
       kid: 'Once a year at Puri, three deities come out of their temple and ride through the town on ' +
-           'three enormous wooden chariots — and the chariots are pulled along the road by the crowd, ' +
-           'with ropes, by hand.',
+           'three enormous wooden chariots. The chariots are pulled along the road by the crowd, on ' +
+           'long ropes, by hand.',
       big: 'At Puri in Odisha, Jagannath, Balabhadra and Subhadra leave the temple and travel by ' +
            'chariot. The chariots are built new each year from fresh wood, they are pulled by ' +
            'thousands of people on long ropes, and before the journey the road is swept with a golden ' +
@@ -937,7 +937,7 @@ window.IND_UTSAV = {
       id: 'ganesh-chaturthi',
       name: 'Ganesh Chaturthi', script: 'गणेश चतुर्थी', roman: 'Gaṇeś Chaturthī',
       faith: 'hindu',
-      region: 'west', states: ['MH', 'GA', 'KA', 'TG', 'AP', 'TN', 'GJ', 'MP', 'CT', 'OR'],
+      region: 'west', states: ['MH', 'GA', 'KA', 'TG', 'AP', 'TN', 'GJ', 'MP', 'CT', 'OR', 'DD', 'DN'],
       months: ['August', 'September'],
       badge: 'aaj', needs_review: false,
       kid: 'Ganesha comes to stay. A clay Ganesha is brought into the house, looked after like a ' +
@@ -1195,7 +1195,7 @@ window.IND_UTSAV = {
       id: 'diwali',
       name: 'Diwali · Deepavali', script: 'दिवाली · दीपावली', roman: 'Dīvālī · Dīpāvalī',
       faith: 'hindu', also: ['jain', 'sikh'],
-      region: 'pan-india', states: ['UP', 'MH', 'GJ', 'RJ', 'MP', 'DL', 'HR', 'PB', 'BR', 'JH', 'CT', 'KA', 'TN', 'AP', 'TG', 'WB', 'OR', 'GA', 'UK', 'HP'],
+      region: 'pan-india', states: ['UP', 'MH', 'GJ', 'RJ', 'MP', 'DL', 'HR', 'PB', 'BR', 'JH', 'CT', 'KA', 'TN', 'AP', 'TG', 'WB', 'OR', 'GA', 'UK', 'HP', 'DD', 'DN'],
       months: ['October', 'November'],
       badge: 'aaj', needs_review: false,
       kid: 'The whole country puts little lamps outside on the darkest night of the month, so that ' +

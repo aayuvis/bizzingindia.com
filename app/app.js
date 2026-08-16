@@ -99,12 +99,18 @@
       '</button>';
   }
 
-  /* stories live in two files now: the core set and the regional set */
+  /* Stories arrive one file at a time and the library only ever grows, so each source is
+     folded in defensively — a file that has not loaded yet costs an empty array, not a
+     crash. Add the next batch here and everywhere downstream picks it up. */
   function allStories() {
-    return (window.IND_STORIES || []).concat(window.IND_STORIES_REGIONAL || []);
+    return (window.IND_STORIES || [])
+      .concat(window.IND_STORIES_REGIONAL || [])
+      .concat(window.IND_STORIES_MORE || []);
   }
   function allCollections() {
-    return (window.IND_COLLECTIONS || []).concat(window.IND_COLLECTIONS_REGIONAL || []);
+    return (window.IND_COLLECTIONS || [])
+      .concat(window.IND_COLLECTIONS_REGIONAL || [])
+      .concat(window.IND_COLLECTIONS_MORE || []);
   }
 
   function toast(m) {

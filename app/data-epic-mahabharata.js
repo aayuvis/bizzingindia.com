@@ -815,7 +815,7 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Two nights before, everybody stopped fighting to bring an old man water," said Mithu. "That is how fast it goes. Nobody wakes up in the morning and decides to become the sort of person who does this. It happens in about a week, one reasonable step at a time."' }
   ],
   ends_on: 'The next problem is Drona, and there is only one thing in the world that will make him put his bow down.',
-  words_hi: [['चक्र', 'chakra', 'wheel'], ['घेरा', 'ghera', 'a ring'], ['सोलह', 'solah', 'sixteen']]
+  words_hi: [['चक्र', 'chakra', 'a circle'], ['घेरा', 'ghera', 'a ring'], ['सोलह', 'solah', 'sixteen']]
 },
 
 {

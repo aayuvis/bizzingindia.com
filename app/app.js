@@ -561,6 +561,11 @@
   function mapFacts(c) {
     var X = (window.IND_STATES || {})[c] || {}, out = [];
     if (X.capital) out.push(['Capital', X.capital]);
+    if (X.population) {
+      var pr = stateRank(c, 'population');
+      out.push(['People', bigNum(X.population).split('  ·  ')[0] +
+        (pr ? ' · ' + ordinal(pr.rank) + ' of ' + pr.of : '')]);
+    }
     if (X.languages && X.languages.length) out.push(['Speaks', X.languages.slice(0, 2).join(', ')]);
     if (X.symbols && X.symbols.animal) out.push(['State animal', X.symbols.animal]);
     if (X.symbols && X.symbols.bird) out.push(['State bird', X.symbols.bird]);
@@ -705,6 +710,42 @@
         '<button class="btn" data-act="go" data-v="stories">Open the story library</button></div>' : '');
   };
 
+
+  /* Numbers a child can hold. "199,812,341 people" is not a fact anybody carries away;
+     "20 crore" or "200 million" is. Both are given, because a diaspora child hears crore at
+     home and million at school, and knowing they are the same number is itself the lesson.
+
+     Rank is COMPUTED from the state data rather than stored, so it cannot drift when a
+     population is corrected, and it is honest about its own basis — these are 2011 census
+     figures and the rank is among the states this app actually carries. */
+  function bigNum(n) {
+    if (!n) return '';
+    if (n >= 1e7) {                                   /* a crore and up */
+      var cr = n / 1e7;
+      return (cr >= 10 ? Math.round(cr) : cr.toFixed(1).replace(/\.0$/, '')) + ' crore' +
+             '  ·  ' + (n / 1e6 >= 10 ? Math.round(n / 1e6) : (n / 1e6).toFixed(1)) + ' million';
+    }
+    if (n >= 1e5) return (n / 1e5).toFixed(n / 1e5 >= 10 ? 0 : 1).replace(/\.0$/, '') + ' lakh';
+    return (Math.round(n / 1000)) + ' thousand';
+  }
+  function areaNum(km2) {
+    if (!km2) return '';
+    if (km2 >= 1000) return Math.round(km2 / 1000) + ',000 km²';
+    return km2 + ' km²';
+  }
+  /* Where this state sits among the others on a given field, largest first. */
+  function stateRank(code, field) {
+    var ST = window.IND_STATES || {};
+    var list = Object.keys(ST).filter(function (c) { return typeof ST[c][field] === 'number'; })
+      .sort(function (a, b) { return ST[b][field] - ST[a][field]; });
+    var i = list.indexOf(code);
+    return i < 0 ? null : { rank: i + 1, of: list.length };
+  }
+  function ordinal(n) {
+    var t = n % 100, s = n % 10;
+    return n + (t >= 11 && t <= 13 ? 'th' : s === 1 ? 'st' : s === 2 ? 'nd' : s === 3 ? 'rd' : 'th');
+  }
+
   V.state = function (code) {
     var G = window.IND_GEO, s = G && G.states[code];
     var X = (window.IND_STATES || {})[code] || {};
@@ -715,9 +756,10 @@
     var pend = (G.pending || []).filter(function (p) { return p.inside === code; });
     var lit = !!S.lit[code];
 
-    function fact(k, v) {
+    function fact(k, v, sub) {
       if (!v) return '';
-      return '<div class="fct"><span class="mono">' + esc(k) + '</span><b>' + esc(v) + '</b></div>';
+      return '<div class="fct"><span class="mono">' + esc(k) + '</span><b>' + esc(v) + '</b>' +
+        (sub ? '<span class="tiny muted">' + esc(sub) + '</span>' : '') + '</div>';
     }
     function callout(title, note, body) {
       if (!body) return '';
@@ -739,8 +781,17 @@
       '<div class="card"><div class="facts">' +
         fact('Capital', X.capital || s.capital) +
         fact('Formed', X.formed) +
-        (X.population ? fact('People (' + (X.population_year || 2011) + ' census)', X.population) : '') +
-        (X.area_km2 ? fact('Area', X.area_km2 + ' km²') : '') +
+        (X.population ? (function () {
+          var r = stateRank(code, 'population');
+          return fact('People', bigNum(X.population),
+            (r ? ordinal(r.rank) + ' most people of ' + r.of + ' · ' : '') +
+            (X.population_year || 2011) + ' census');
+        }()) : '') +
+        (X.area_km2 ? (function () {
+          var r = stateRank(code, 'area_km2');
+          return fact('Area', areaNum(X.area_km2),
+            r ? ordinal(r.rank) + ' biggest of ' + r.of : '');
+        }()) : '') +
         (X.languages && X.languages.length ? fact('Languages', X.languages.join(', ')) : '') +
         (X.script ? fact('Script', X.script) : '') +
       '</div>' +

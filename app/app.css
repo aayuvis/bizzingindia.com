@@ -740,6 +740,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-md); }
 .fct { display: grid; gap: 2px; padding: 12px 14px; background: var(--card2); border-radius: var(--radius-md); }
 .fct b { font-family: var(--display); font-size: 17px; line-height: 1.25; }
+/* The rank and the caveat sit under the number, quieter than it — the figure is the fact,
+   where it places is the context. */
+.fct .tiny { line-height: 1.35; margin-top: 1px; }
 
 .triv { margin: 0; padding-left: 0; list-style: none; }
 .triv li {

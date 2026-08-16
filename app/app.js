@@ -426,11 +426,13 @@
        It is now three invitations instead of three numbers, one for each way this app is
        used, and every one of them works without a subscription:
 
-         HEAR one — a story. No counter on it, ever. Stories are a library, not a ladder
-                    (docs/10 §3.5), so the verb is "tell me one", not "3 of 3 done".
          DO one   — the day's deed. This is the payoff system: a bead for something you
                     DID, never for something you read.
          CARRY one — the word of the day. This one is masterable, so a count is honest here.
+
+       HEAR one retired (user call): the Stories tab and its Tell-me-one already make that
+       offer properly, and Today now lives inside the greeting card rather than a second
+       card below it — one card says hello and hands you the day.
 
        The streak stays because a rhythm is not a completion target, but it is a footnote
        now rather than the headline. */
@@ -444,19 +446,12 @@
         art(S.buddy, 72) +
         '<div style="flex:1"><div class="tiny muted">' + greet + ',</div>' +
         '<h2 style="margin:0 0 10px">' + esc(S.name || 'Yatri') + '</h2>' +
-        '<div class="bubble">' + esc(hello) + '</div></div></div></div>' +
-
-      '<div class="card"><div class="spread" style="margin-bottom:var(--space-lg)">' +
-        '<h3 style="margin:0">Today</h3>' +
-        '<span class="tiny muted">' + (S.streak.count
+        '<div class="bubble">' + esc(hello) + '</div></div>' +
+        '<span class="tiny muted" style="white-space:nowrap">' + (S.streak.count
           ? '🪔 ' + S.streak.count + '-day streak'
-          : 'Nothing yet today') + '</span></div>' +
+          : '') + '</span></div>' +
 
-        '<div class="today">' +
-          '<div class="td"><span class="mono">Hear one</span>' +
-            '<p>A story, the way it would be told to you.</p>' +
-            '<button class="btn" data-act="tellone">' + icon('play', 18) + ' Tell me one</button></div>' +
-
+        '<div class="today" style="margin-top:var(--space-lg)">' +
           (todayValue
             ? '<div class="td"><span class="mono">Do one</span>' +
               '<p><b>' + esc(todayValue.roman) + '</b> — ' + esc(todayValue.en) + '.<br>' +
@@ -973,26 +968,57 @@
   };
 
   /* --------------------------------------------------------------- STORIES */
+  /* THE THEME DOORS. Twenty-nine collections stacked as rails made the library a
+     wall — 323 stories of scroll. The shelf is now eight painted doors, each
+     opening a themed room (V.kahani) that holds its collections as rails. The
+     grouping is presentation only: a collection the map below doesn't know still
+     shows up behind the last door, so nothing ever silently vanishes. */
+  var STORY_THEMES = [
+    { id: 'jungle',  name: 'Animal Wisdom',     kicker: 'Panchatantra and the Jataka tales',
+      cols: ['panchatantra', 'panch-more', 'jataka', 'jataka-more'] },
+    { id: 'chatur',  name: 'The Clever Ones',   kicker: 'Birbal, and every quick mind since',
+      cols: ['birbal', 'chatur'] },
+    { id: 'sacred',  name: 'Sacred Stories',    kicker: 'The gods, the gurus, the tirthankaras — side by side',
+      cols: ['mythology', 'purana', 'epics', 'jain', 'sikh'] },
+    { id: 'south',   name: 'The South',         kicker: 'Backwaters, temple towns, the long coast',
+      cols: ['desh-south', 'coast-forest'] },
+    { id: 'north',   name: 'The North & the Hills', kicker: 'Dilli to the high passes',
+      cols: ['dilli', 'naya-shehar', 'pahad', 'wadi', 'panj-ab'] },
+    { id: 'east',    name: 'The East & the Dawn', kicker: 'Bengal, the islands, the seven sisters',
+      cols: ['desh-east', 'desh-ne-a', 'desh-ne-b'] },
+    { id: 'west',    name: 'The West & the Heart', kicker: 'Desert, coast and the middle lands',
+      cols: ['west-lands', 'heart-lands', 'desh', 'desh-more'] },
+    { id: 'modern',  name: 'Modern India',      kicker: 'Players, builders, scientists, pathbreakers',
+      cols: ['khel', 'naya', 'vigyan', 'rah'] }
+  ];
+
+  function themeStories(t, all) {
+    return all.filter(function (x) { return t.cols.indexOf(x.collection) >= 0; });
+  }
+
+  function storyShelf(title, note, list, favs) {
+    if (!list.length) return '';
+    return '<h3 style="margin:26px 0 4px">' + esc(title) + '</h3>' +
+      (note ? '<p class="tiny muted" style="margin:0 0 12px">' + esc(note) + '</p>' : '') +
+      '<div class="rail">' + list.map(function (x) { return storyCard(x, favs); }).join('') + '</div>';
+  }
+  function storyCard(x, favs) {
+    var img = storyArt(x.id);
+    return '<button class="scard" data-act="story" data-id="' + x.id + '">' +
+      (img ? '<span class="pic" style="background-image:url(' + img + ')"></span>'
+           : '<span class="pic noart">' + art(x.hero, 84) + '</span>') +
+      (favs[x.id] ? '<span class="fav">♥</span>' : '') +
+      '<span class="nm">' + esc(x.title) + '</span>' +
+      '<span class="hk">' + esc(x.hook) + '</span></button>';
+  }
+
   V.stories = function () {
-    var cols = allCollections(), all = allStories();
+    var all = allStories();
     var favs = S.favs || {};
     var loved = all.filter(function (x) { return favs[x.id]; });
 
-    function shelf(title, note, list) {
-      if (!list.length) return '';
-      return '<h3 style="margin:26px 0 4px">' + esc(title) + '</h3>' +
-        (note ? '<p class="tiny muted" style="margin:0 0 12px">' + esc(note) + '</p>' : '') +
-        '<div class="rail">' + list.map(card).join('') + '</div>';
-    }
-    function card(x) {
-      var img = storyArt(x.id);
-      return '<button class="scard" data-act="story" data-id="' + x.id + '">' +
-        (img ? '<span class="pic" style="background-image:url(' + img + ')"></span>'
-             : '<span class="pic noart">' + art(x.hero, 84) + '</span>') +
-        (favs[x.id] ? '<span class="fav">♥</span>' : '') +
-        '<span class="nm">' + esc(x.title) + '</span>' +
-        '<span class="hk">' + esc(x.hook) + '</span></button>';
-    }
+    function shelf(title, note, list) { return storyShelf(title, note, list, favs); }
+    function card(x) { return storyCard(x, favs); }
 
     return '<div class="card"><div class="spread"><div>' +
       '<h1 style="margin:0">Stories</h1>' +
@@ -1028,8 +1054,46 @@
         return shelf('From your family’s places', 'The ' + t.en + ' country — ' + where + '.', mine);
       })() +
       shelf('Again', 'The ones you loved. A story is not used up.', loved) +
+
+      /* the eight painted doors */
+      '<h3 style="margin:26px 0 4px">The shelves</h3>' +
+      '<p class="tiny muted" style="margin:0 0 12px">Eight rooms, every story in one of them. ' +
+      'Step in anywhere.</p>' +
+      '<div class="grid g2 doors">' + STORY_THEMES.map(function (t) {
+        var list = themeStories(t, all);
+        if (!list.length) return '';
+        var pic = null;
+        for (var i = 0; i < list.length && !pic; i++) pic = storyArt(list[i].id);
+        return '<button class="tdoor" data-act="kahani" data-id="' + t.id + '">' +
+          '<span class="tpic"' + (pic ? ' style="background-image:url(' + pic + ')"' : '') + '></span>' +
+          '<span class="tbody"><b>' + esc(t.name) + '</b>' +
+          '<span class="tiny muted">' + esc(t.kicker) + '</span>' +
+          '<span class="mono">' + list.length + ' stories</span></span></button>';
+      }).join('') + '</div>' +
+
+      /* a collection no door claims still gets its rail — nothing ever vanishes */
+      (function () {
+        var claimed = {};
+        STORY_THEMES.forEach(function (t) { t.cols.forEach(function (c) { claimed[c] = 1; }); });
+        return allCollections().filter(function (c) { return !claimed[c.id]; }).map(function (c) {
+          return shelf(c.name, c.note, all.filter(function (x) { return x.collection === c.id; }));
+        }).join('');
+      })();
+  };
+
+  /* one themed room: the door's collections as rails */
+  V.kahani = function (id) {
+    var t = null, i;
+    for (i = 0; i < STORY_THEMES.length; i++) if (STORY_THEMES[i].id === id) t = STORY_THEMES[i];
+    if (!t) return '<div class="card">This shelf is not here.</div>';
+    var all = allStories(), favs = S.favs || {};
+    var cols = allCollections().filter(function (c) { return t.cols.indexOf(c.id) >= 0; });
+    var n = themeStories(t, all).length;
+    return '<button class="backlink" data-act="go" data-v="stories">' + icon('back', 18) + ' Stories</button>' +
+      '<div class="card"><h1 style="margin:0">' + esc(t.name) + '</h1>' +
+      '<p style="margin:6px 0 0">' + esc(t.kicker) + ' — ' + n + ' stories, nothing to finish.</p></div>' +
       cols.map(function (c) {
-        return shelf(c.name, c.note, all.filter(function (x) { return x.collection === c.id; }));
+        return storyShelf(c.name, c.note, all.filter(function (x) { return x.collection === c.id; }), favs);
       }).join('');
   };
 
@@ -2665,6 +2729,7 @@
       case 'map': h = V.map(); break;
       case 'state': h = V.state(view.arg); break;
       case 'stories': h = V.stories(); break;
+      case 'kahani': h = V.kahani(view.arg); break;
       case 'story': h = V.story(view.arg); break;
       case 'bhasha': h = V.bhasha(); break;
       case 'pack': h = V.pack(view.arg); break;
@@ -2717,7 +2782,7 @@
                   gully: 'neeti', gullygame: 'neeti', geet: 'neeti', song: 'neeti',
                   story: 'stories', pack: 'bhasha', chart: 'bhasha',
                   game: 'bhasha', mela: 'bhasha', play: 'bhasha', rishtey: 'bhasha', rishquiz: 'bhasha',
-                  nani: 'stories', shelf: 'stories', invite: 'stories',
+                  nani: 'stories', shelf: 'stories', invite: 'stories', kahani: 'stories',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
                   worlds: 'me', tongue: 'home' };
     var cur = alias[view.name] || view.name;
@@ -2972,6 +3037,7 @@
     if (a === 'mon')    { var mo = (window.IND_GEO.monuments || []).filter(function (x) { return x.id === t.getAttribute('data-id'); })[0]; if (mo) toast(mo.name + ' — ' + mo.fact); return; }
     if (a === 'pack')   { quiz = { packId: null, stage: null, q: null, done: 0, right: 0 }; return go('pack', t.getAttribute('data-id')); }
     if (a === 'game')   return go('game', t.getAttribute('data-id'));
+    if (a === 'kahani') return go('kahani', t.getAttribute('data-id'));
     if (a === 'quiz')   {
       quiz.stage = t.getAttribute('data-s') || quiz.stage;
       quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now());
@@ -3024,6 +3090,7 @@
     // Also the handle tools/verify.js drives the app by, so the headless walk exercises the
     // real navigation rather than a parallel test path.
     window.BI = { S: S, go: go, render: render, Store: Store,
-                  allStories: allStories, epics: epics };
+                  allStories: allStories, epics: epics,
+                  storyThemes: function () { return STORY_THEMES.map(function (t) { return t.id; }); } };
   });
 })();

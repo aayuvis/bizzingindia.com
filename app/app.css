@@ -322,6 +322,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .gbody { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 14px; }
 .gbody b { font: 800 17px/1.2 var(--display); }
 @media (prefers-reduced-motion: reduce) { .gart * { animation: none !important; } }
+
+/* The story shelf's theme doors — a painting for a doorway, the room behind it.
+   Same card grammar as the Mela covers, but the cover is a real story painting. */
+.tdoor { display: flex; flex-direction: column; text-align: left; padding: 0; overflow: hidden;
+  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface);
+  cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
+.tdoor:hover, .tdoor:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
+.tpic { height: 128px; background-size: cover; background-position: center 30%;
+  background-color: var(--accent-soft); }
+.tbody { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 14px; }
+.tbody b { font: 800 18px/1.2 var(--display); }
+@media (min-width: 700px) { .doors { grid-template-columns: repeat(4, 1fr); } }
 .mapsvg .terrg:focus-visible { outline: none; }
 
 .mapsvg .tlab {

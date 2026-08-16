@@ -464,5 +464,29 @@
  },
  "logo": {
   "prompt": "A proud little peacock, the Bizzing India mark: a royal-blue peacock with a tiny golden three-point crest, big friendly glossy eyes, and a fanned tail of five bold simplified feathers in teal, deep blue and gold, each with one golden eye-spot, standing tall and symmetrical like an emblem, no text anywhere."
+ },
+ "raman": {
+  "prompt": "C. V. Raman, the physicist of light: a dignified smiling man in a dark suit with his famous white South Indian turban, holding up a glass prism that splits a beam into colours, natural Indian skin."
+ },
+ "ramanujan": {
+  "prompt": "Srinivasa Ramanujan, the self-taught mathematician: a gentle round-faced young man with dark combed-back hair, in a simple white shirt, hugging a worn notebook overflowing with handwritten equations, a soft glow around it, natural Indian skin."
+ },
+ "bhabha": {
+  "prompt": "Homi Bhabha, the physicist and builder of institutes: an elegant smiling man with neat side-parted black hair in a sharp 1950s suit, holding a small model of an atom with orbiting electrons, natural Indian skin."
+ },
+ "sarabhai": {
+  "prompt": "Vikram Sarabhai, the father of the Indian space programme: a warmly smiling man with wavy black hair in a simple white kurta, holding a small model rocket in one hand and a paper star chart in the other, natural Indian skin."
+ },
+ "jcbose": {
+  "prompt": "Jagadish Chandra Bose, the scientist who listened to plants: a thoughtful smiling man with a full grey-streaked beard and round spectacles, in a dark Bengali coat, holding a potted plant with a tiny antenna beside it, natural Indian skin."
+ },
+ "janaki_ammal": {
+  "prompt": "Janaki Ammal, the botanist: a serene smiling woman with grey-streaked hair in a low bun, wearing a simple cotton sari, holding a flowering sugarcane stem and a magnifying glass, natural Indian skin."
+ },
+ "swaminathan": {
+  "prompt": "M. S. Swaminathan, the scientist of the harvest: a kindly smiling older man with glasses and combed grey hair in a plain shirt, cradling a golden sheaf of wheat like a treasure, natural Indian skin."
+ },
+ "salimali": {
+  "prompt": "Salim Ali, the Birdman of India: a wiry smiling older man with a white beard, in a khaki field jacket and cap, binoculars around his neck and a tiny sparrow perched on one finger, natural Indian skin."
  }
 }

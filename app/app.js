@@ -215,7 +215,8 @@
       .concat(window.IND_STORIES_WEST || [])
       .concat(window.IND_STORIES_NE_A || [])
       .concat(window.IND_STORIES_NE_B || [])
-      .concat(window.IND_STORIES_MODERN || []);
+      .concat(window.IND_STORIES_MODERN || [])
+      .concat(window.IND_STORIES_VIGYAN || []);
   }
   function allCollections() {
     return (window.IND_COLLECTIONS || [])
@@ -227,7 +228,8 @@
       .concat(window.IND_COLLECTIONS_WEST || [])
       .concat(window.IND_COLLECTIONS_NE_A || [])
       .concat(window.IND_COLLECTIONS_NE_B || [])
-      .concat(window.IND_COLLECTIONS_MODERN || []);
+      .concat(window.IND_COLLECTIONS_MODERN || [])
+      .concat(window.IND_COLLECTIONS_VIGYAN || []);
   }
 
   function toast(m) {

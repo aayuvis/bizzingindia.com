@@ -594,6 +594,8 @@ window.IND_AVATAR_PACKS = [
     ids: ['dhyanchand','milkha','kapil','sachin','marykom','sindhu','neeraj','anand','gukesh','avani'] },
   { id: 'naya',   name: 'The Builders',    note: 'Milk, software, rockets and startups — made here.',
     ids: ['kurien','n_murthy','sudha_murty','falguni','ritesh','rocket','unicorn'] },
+  { id: 'vigyan', name: 'The Scientists',  note: 'They asked why, and kept asking. Kalam, Kalpana and Aryabhata keep their place among the Great Indians.',
+    ids: ['raman','ramanujan','bhabha','sarabhai','jcbose','janaki_ammal','swaminathan','salimali'] },
 
   /* The epic casts. All 30 PNGs live under app/art and in art-manifest.js.
      Rama, Hanuman and Krishna stay in the Devas pack and are deliberately not repeated
@@ -625,6 +627,10 @@ window.IND_AVATAR_NAMES = {
   /* The Builders */
   kurien:'Verghese Kurien', n_murthy:'Narayana Murthy', sudha_murty:'Sudha Murty',
   falguni:'Falguni Nayar', ritesh:'Ritesh Agarwal', rocket:'The Rocket', unicorn:'The Unicorn',
+  /* The Scientists */
+  raman:'C. V. Raman', ramanujan:'Srinivasa Ramanujan', bhabha:'Homi Bhabha',
+  sarabhai:'Vikram Sarabhai', jcbose:'Jagadish Chandra Bose', janaki_ammal:'Janaki Ammal',
+  swaminathan:'M. S. Swaminathan', salimali:'Salim Ali',
   /* Ramayana. Names are the ones a child will hear at home; no epithets, no titles
      that would rank one character above another. */
   sita:'Sita', lakshmana:'Lakshmana', bharata:'Bharata', dasharatha:'Dasharatha',

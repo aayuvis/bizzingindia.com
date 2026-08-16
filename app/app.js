@@ -2039,25 +2039,101 @@
 
   var quiz = { packId: null, stage: null, q: null, done: 0, right: 0 };
 
+  /* ------------------------------------------------------------- A PACK
+
+     The front door used to be a wall of 46 letters with an eight-row list underneath, and a
+     child arriving had no idea what to press. It is now a PATH — Duolingo's spine, because a
+     single obvious next thing is the whole reason that app works — carrying Bizzing Bee's
+     ladder and its sense that you are climbing something.
+
+     One CTA at the top: the stage you are on, with what it will make you able to do. Then the
+     path itself, each stage a node showing how far in you are. The letter chart is no longer
+     the front page; it lives behind its own door, because a chart is a reference and a
+     reference is not a lesson. */
+  function stageStat(packId, sid) {
+    var rec = (S.lang[packId] || {}).stages || {};
+    return rec[sid] || { asked: 0, correct: 0 };
+  }
+  /* A stage counts as done at 12 right answers — enough to have met most of its items
+     without turning a library into a grind. */
+  var STAGE_TARGET = 12;
+  function stagePct(packId, sid) {
+    return Math.min(100, Math.round(stageStat(packId, sid).correct / STAGE_TARGET * 100));
+  }
+  function nextStage(p) {
+    var list = p.stages || [];
+    for (var i = 0; i < list.length; i++) if (stagePct(p.id, list[i].id) < 100) return list[i];
+    return list[list.length - 1];
+  }
+
   V.pack = function (id) {
     var p = window.IND_PACKS[id]; if (!p) return '<div class="card">Pack not found.</div>';
     var sc = window.IND_SCRIPTS[p.script];
     if (quiz.packId !== id) quiz = { packId: id, stage: null, q: null, done: 0, right: 0 };
-    if (quiz.q) return '<button class="backlink" data-act="pack" data-id="' + id + '">' + icon('back', 18) + ' ' + esc(p.name.en) + '</button>' + V.question(quiz.q);
+    if (quiz.q) return '<button class="backlink" data-act="pack" data-id="' + id + '">' +
+      icon('back', 18) + ' ' + esc(p.name.en) + '</button>' + V.question(quiz.q);
+
+    var stages = p.stages || [];
+    var nxt = nextStage(p);
+    var doneN = stages.filter(function (s) { return stagePct(id, s.id) >= 100; }).length;
+
     return '<button class="backlink" data-act="go" data-v="bhasha">' + icon('back', 18) + ' Bhasha</button>' +
-      '<div class="card"><h1 class="deva">' + esc(p.name.native) + '</h1>' +
-      '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc.name) + ' · tap any letter to hear it</div>' +
-      '<h3 style="margin-top:20px">Vowels</h3><div class="gridscript">' + (sc.vowels || []).map(function (v) {
-        return '<button class="glyph" data-act="say" data-k="' + esc(v.audio || '') + '">' + esc(v.char) + '<small>' + esc(v.name) + '</small></button>';
-      }).join('') + '</div>' +
-      '<h3 style="margin-top:18px">Consonants</h3><div class="gridscript">' + (sc.consonants || []).map(function (c) {
-        return '<button class="glyph" data-act="say" data-k="' + esc(c.audio || '') + '">' + esc(c.char) + '<small>' + esc(c.name) + '</small></button>';
-      }).join('') + '</div></div>' +
-      '<div class="card"><h3>The ladder</h3><p class="tiny">The same ladder in every language — that is the point of the engine.</p>' +
-      (p.stages || []).map(function (s) {
-        return '<button class="tile" style="margin-bottom:9px" data-act="quiz" data-s="' + esc(s.id) + '"><b>' + esc(s.name) + '</b>' +
-          (s.desc ? '<div class="tiny muted">' + esc(s.desc) + '</div>' : '') + '</button>';
+
+      '<div class="card"><div class="spread">' +
+        '<div><h1 class="deva" style="margin:0">' + esc(p.name.native) + '</h1>' +
+        '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc.name) + '</div></div>' +
+        '<span class="pill stat">' + doneN + ' / ' + stages.length + '</span></div>' +
+        '<div class="meter" style="margin-top:14px"><i style="width:' +
+          Math.round(doneN / Math.max(1, stages.length) * 100) + '%"></i></div></div>' +
+
+      /* The one obvious thing to do next. */
+      (nxt ? '<button class="card nextup" data-act="quiz" data-s="' + esc(nxt.id) + '">' +
+        '<div class="row" style="flex-wrap:nowrap;align-items:center">' +
+        mascot('gattu', 'happy', 64) +
+        '<div style="flex:1;text-align:left"><div class="mono">Carry on with</div>' +
+        '<h2 style="margin:2px 0 4px">' + esc(nxt.name) + '</h2>' +
+        '<p class="tiny" style="margin:0">' + esc(nxt.outcome || '') + '</p></div>' +
+        '<span class="btn">' + icon('play', 18) + ' Go</span></div></button>' : '') +
+
+      '<div class="card"><h3 style="margin:0 0 4px">The path</h3>' +
+        '<p class="tiny muted">The same eight rungs in every language — that is the point of ' +
+        'the engine.</p>' +
+        '<div class="path">' + stages.map(function (s, i) {
+          var pct = stagePct(id, s.id);
+          var state = pct >= 100 ? 'done' : (s.id === nxt.id ? 'now' : 'ahead');
+          return '<button class="pnode ' + state + '" data-act="quiz" data-s="' + esc(s.id) + '">' +
+            '<span class="pdisc">' + (pct >= 100 ? '✓' : (i + 1)) + '</span>' +
+            '<span class="pbody"><b>' + esc(s.name) + '</b>' +
+            '<span class="tiny muted">' + esc(s.outcome || '') + '</span>' +
+            (pct > 0 && pct < 100 ? '<span class="meter sm"><i style="width:' + pct + '%"></i></span>' : '') +
+            '</span></button>';
+        }).join('') + '</div></div>' +
+
+      /* The chart, behind its own door. */
+      '<button class="tile" data-act="chart" data-id="' + id + '">' +
+        '<b>The ' + esc(sc.name) + ' chart</b>' +
+        '<span class="tiny muted">All ' + ((sc.vowels || []).length + (sc.consonants || []).length) +
+        ' letters, with the sound of each. Look things up here any time.</span></button>';
+  };
+
+  /* The letter chart. A reference, deliberately separate from the lessons. */
+  V.chart = function (id) {
+    var p = window.IND_PACKS[id]; if (!p) return '<div class="card">Not found.</div>';
+    var sc = window.IND_SCRIPTS[p.script];
+    var grid = function (list) {
+      return '<div class="gridscript">' + (list || []).map(function (v) {
+        return '<button class="glyph" data-act="say" data-k="' + esc(v.audio || '') + '">' +
+          esc(v.char) + '<small>' + esc(v.name) + '</small></button>';
       }).join('') + '</div>';
+    };
+    return '<button class="backlink" data-act="pack" data-id="' + id + '">' + icon('back', 18) +
+      ' ' + esc(p.name.en) + '</button>' +
+      '<div class="card"><h1>' + esc(sc.name) + '</h1>' +
+      '<div class="mono">tap any letter to hear it</div>' +
+      '<h3 style="margin-top:20px">Vowels</h3>' + grid(sc.vowels) +
+      '<h3 style="margin-top:18px">Consonants</h3>' + grid(sc.consonants) +
+      ((sc.matras || []).length ? '<h3 style="margin-top:18px">Matras</h3>' + grid(sc.matras) : '') +
+      '</div>';
   };
 
   function optLabel(o) { if (o == null) return ''; if (typeof o === 'string') return o; return o.char || o.word || o.sign || o.syllable || o.en || o.roman || ''; }
@@ -2176,6 +2252,7 @@
       case 'story': h = V.story(view.arg); break;
       case 'bhasha': h = V.bhasha(); break;
       case 'pack': h = V.pack(view.arg); break;
+      case 'chart': h = V.chart(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'game': h = V.game(); break;
       case 'learn': h = V.learn(); break;
@@ -2277,6 +2354,7 @@
     if (a === 'peekgo') { mapFocus = t.getAttribute('data-code'); return go('map'); }
     if (a === 'faith')  return go('faith', t.getAttribute('data-id'));
     if (a === 'fest')   return go('festival', t.getAttribute('data-id'));
+    if (a === 'chart')  return go('chart', t.getAttribute('data-id'));
     if (a === 'gullyg') return go('gullygame', t.getAttribute('data-id'));
     if (a === 'song')   return go('song', t.getAttribute('data-id'));
 
@@ -2463,7 +2541,12 @@
       var want = (typeof q.answerIndex === 'number') ? q.answerIndex : q.answer;
       var ok = (idx === want);
       var rec = S.lang[quiz.packId] || (S.lang[quiz.packId] = { asked: 0, correct: 0, seen: {} });
-      rec.asked++; if (ok) rec.correct++; save();
+      rec.asked++; if (ok) rec.correct++;
+      /* Per stage as well as per pack, or the path has nothing to draw. */
+      rec.stages = rec.stages || {};
+      var sst = rec.stages[quiz.stage] || (rec.stages[quiz.stage] = { asked: 0, correct: 0 });
+      sst.asked++; if (ok) sst.correct++;
+      save();
       t.classList.add(ok ? 'right' : 'wrong');
       if (!ok && typeof want === 'number') {
         var w = document.querySelector('[data-act="ans"][data-i="' + want + '"]'); if (w) w.classList.add('right');

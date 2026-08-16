@@ -926,3 +926,41 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .castchip b { display: block; font-family: var(--display); font-weight: 800; font-size: 15px; }
 .castchip > span { display: block; font-size: 12px; line-height: 1.45; color: var(--text2); }
 .castchip.on b { color: var(--accent); }
+
+/* --------------------------------------------------------------- bhasha path
+   Duolingo's spine — one obvious next thing, then a vertical run of nodes you can see
+   yourself moving along — carrying Bizzing Bee's ladder and mascot. The letter chart moved
+   out from under this: a chart is a reference, and a reference is not a lesson. */
+.nextup {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  border: 2px solid var(--accent); background: var(--card);
+}
+.nextup:hover { box-shadow: var(--shadow-lg); }
+
+.path { display: grid; gap: 0; margin-top: var(--space-md); }
+.pnode {
+  position: relative; display: flex; gap: var(--space-lg); align-items: flex-start;
+  width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+  padding: var(--space-md) 0 var(--space-lg);
+}
+/* The line joining the rungs, so it reads as one climb rather than eight buttons. */
+.pnode::before {
+  content: ''; position: absolute; left: 21px; top: 44px; bottom: -4px; width: 2px;
+  background: var(--line2);
+}
+.pnode:last-child::before { display: none; }
+.pdisc {
+  flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--display); font-weight: 800; font-size: 17px;
+  background: var(--ground2); color: var(--muted); border: 2px solid var(--line2);
+  position: relative; z-index: 1;
+}
+.pnode.done .pdisc { background: var(--good, #4fbf8b); color: #fff; border-color: transparent; }
+.pnode.now .pdisc {
+  background: var(--accent); color: #fff; border-color: transparent;
+  box-shadow: 0 0 0 5px var(--accent-soft);
+}
+.pnode .pbody { display: grid; gap: 3px; padding-top: 4px; }
+.pnode .pbody b { font-family: var(--display); font-size: 16.5px; }
+.pnode.ahead .pbody b { color: var(--text2); }
+.meter.sm { height: 6px; margin-top: 6px; max-width: 220px; }

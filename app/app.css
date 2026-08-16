@@ -789,10 +789,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
   position: relative; background: var(--card); border: 1px solid var(--line);
   border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
   overflow: hidden; animation: turn .26s ease-out;
-  /* Narrower than the page. A card is one beat of a story being told to you, and at 1100px
-     wide it stopped reading like a card at all. */
   max-width: 720px; margin: 0 auto;
 }
+/* Everything in the deck shares one narrow column — stage, bubble, cast and controls — so
+   the card reads as a single object rather than a full-width page. */
+.stage, .speech, .castrow, .deckbar { max-width: 720px; margin-left: auto; margin-right: auto; }
 .deckcard.hasart .deckbody { padding-top: var(--space-lg); }
 .deckbody { padding: var(--space-xl); display: grid; gap: var(--space-lg); }
 
@@ -874,7 +875,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ------------------------------------------------------- stage additions --
    Names under the figures, and a stand-in for a character with no painting yet, so the
    epic stage works before the avatars exist. */
-.stage { flex-wrap: wrap; }
+/* The card column is narrow; the stage must not be short as well. min-height alone left the
+   painting as a thin letterbox band once the column came in to 720px, which is not what
+   "narrower" meant. An aspect ratio ties the height to the (now narrower) width, so the
+   picture keeps its shape and its presence. */
+.stage {
+  flex-wrap: wrap;
+  aspect-ratio: 4 / 3; min-height: 0;
+  max-height: 62vh;
+}
+@media (min-width: 700px) { .stage { aspect-ratio: 3 / 2; } }
 .stage > div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .stagename {
   font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;

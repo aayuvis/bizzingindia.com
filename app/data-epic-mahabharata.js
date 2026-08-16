@@ -131,7 +131,9 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"People have been arguing about who was right for a very, very long time," said Mithu, "and nobody has finished. Which means you are allowed to join in."' }
   ],
   ends_on: 'Long before the cousins, before the throne, before any of it — a king walked down to a river and fell in love.',
-  words_hi: [['कहानी', 'kahani', 'story'], ['कवि', 'kavi', 'poet'], ['लिखना', 'likhna', 'to write']]
+  words_hi: [['कहानी', 'kahani', 'story'], ['कवि', 'kavi', 'poet'], ['लिखना', 'likhna', 'to write']],
+  value: 'vidya',
+  wonder: 'Ganesha would not write a line until he had understood it, and Vyasa tied knots in the poem so that he would have to stop and work them out. Is there a difference between knowing something and having got it written down?'
 },
 
 {
@@ -157,7 +159,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"So that is where this family starts," said Mithu. "A promise kept far too long, and a question asked far too late. Remember that shape. This whole poem is built out of promises."' }
   ],
   ends_on: 'Shantanu falls in love a second time. This time the price is paid by his son.',
-  words_hi: [['नदी', 'nadi', 'river'], ['राजा', 'raja', 'king'], ['वचन', 'vachan', 'a given word']]
+  words_hi: [['नदी', 'nadi', 'river'], ['राजा', 'raja', 'king'], ['वचन', 'vachan', 'a given word']],
+  wonder: 'Shantanu promised never to ask why, and kept it seven times at the water, and every time it took something out of him. What is a promise worth once keeping it means watching something you cannot bear?'
 },
 
 {
@@ -183,7 +186,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"He never broke his word," said Mithu. "Not once, not for anyone. Grown-ups still argue about whether that makes him the best man in the poem or the saddest one."' }
   ],
   ends_on: 'Somewhere else entirely, a girl is given a gift she has not been told how to use.',
-  words_hi: [['प्रतिज्ञा', 'pratigya', 'a vow'], ['सिंहासन', 'sinhasan', 'throne'], ['बेटा', 'beta', 'son']]
+  words_hi: [['प्रतिज्ञा', 'pratigya', 'a vow'], ['सिंहासन', 'sinhasan', 'throne'], ['बेटा', 'beta', 'son']],
+  wonder: 'A young man gave away his whole life in one sentence at a river to make his father happy, and never bent it a finger\'s width for sixty years. Should anybody be held for a lifetime to a thing they said at twenty?'
 },
 
 {
@@ -207,7 +211,9 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Keep him in your head," said Mithu, quietly. "You are going to meet him again in about ten minutes, walking into a stadium, and the whole poem turns on what happens to him there."' }
   ],
   ends_on: 'Pritha grows up, and is married, and is given a new name: Kunti.',
-  words_hi: [['सूरज', 'sooraj', 'sun'], ['टोकरी', 'tokri', 'basket'], ['कवच', 'kavach', 'armour']]
+  words_hi: [['सूरज', 'sooraj', 'sun'], ['टोकरी', 'tokri', 'basket'], ['कवच', 'kavach', 'armour']],
+  value: 'kritagyata',
+  wonder: 'Karna named Adhiratha and Radha as his parents in rooms where it made people snigger, and never once said otherwise, not even when it would have helped him. What is it that makes somebody your family?'
 },
 
 {
@@ -233,7 +239,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"A hundred and five children," said Mithu. "And not one grown-up in that palace with the nerve to sit them down and sort it out early, while it was still small."' }
   ],
   ends_on: 'It does not stay small.',
-  words_hi: [['पट्टी', 'patti', 'a cloth band'], ['सौ', 'sau', 'a hundred'], ['पाँच', 'paanch', 'five']]
+  words_hi: [['पट्टी', 'patti', 'a cloth band'], ['सौ', 'sau', 'a hundred'], ['पाँच', 'paanch', 'five']],
+  wonder: 'Gandhari tied a cloth over her own eyes on the day she understood that her husband would never see, and never took it off again. Was that a way of being with him, or a way of not looking at anything?'
 },
 
 {
@@ -258,7 +265,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"That is the whole war, right there, in a boy who was never once told no and a boy who was never once told sorry," said Mithu. "It just takes another forty years to arrive."' }
   ],
   ends_on: 'And then a stranger walks into the palace to teach them all how to fight.',
-  words_hi: [['भाई', 'bhai', 'brother'], ['गुस्सा', 'gussa', 'anger'], ['ताकत', 'taakat', 'strength']]
+  words_hi: [['भाई', 'bhai', 'brother'], ['गुस्सा', 'gussa', 'anger'], ['ताकत', 'taakat', 'strength']],
+  wonder: 'Duryodhana had a real complaint and not one grown-up in that palace ever sat down and dealt with it honestly. What happens to something unfair that never gets said out loud?'
 },
 
 {
@@ -283,7 +291,9 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Best teacher in the world," said Mithu. "Hold on to that. You are about to need it, and it is not going to help."' }
   ],
   ends_on: 'A boy from the forest has been standing at the edge of that school for some time, listening.',
-  words_hi: [['गेंद', 'gend', 'ball'], ['घास', 'ghaas', 'grass'], ['चिड़िया', 'chidiya', 'bird']]
+  words_hi: [['गेंद', 'gend', 'ball'], ['घास', 'ghaas', 'grass'], ['चिड़िया', 'chidiya', 'bird']],
+  value: 'buddhi',
+  wonder: 'Arjuna could see only the eye of the bird, and nothing else at all, and that was the answer his teacher was waiting for. Is being able to see only one thing a gift, or something to be careful with?'
 },
 {
   n: 8, book: 'adi',
@@ -310,7 +320,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"That is the story," said Mithu. "The poem does not say Drona was right and it does not say he was wrong. It just writes down what he did and moves on, and it has been sitting there ever since. It is one of the most argued-over pages in all of Indian literature — and you are allowed to argue with it too."' }
   ],
   ends_on: 'The school is finished. Drona announces a tournament, and the whole city buys a seat.',
-  words_hi: [['अंगूठा', 'angootha', 'thumb'], ['मिट्टी', 'mitti', 'clay'], ['गुरु', 'guru', 'teacher']]
+  words_hi: [['अंगूठा', 'angootha', 'thumb'], ['मिट्टी', 'mitti', 'clay'], ['गुरु', 'guru', 'teacher']],
+  wonder: 'Ekalavya called a man his teacher who had refused to teach him, and then gave him what he asked for without a single question. What was that boy owed, and who owed it?'
 },
 
 {
@@ -338,7 +349,9 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Duryodhana meant it," said Mithu. "That is what makes it hard. He was not being clever. He saw somebody being turned away at a door and he opened it, and after that Karna would have walked into fire for him — and eventually he did."' }
   ],
   ends_on: 'The city has now seen who the best of them are. That turns out to be dangerous.',
-  words_hi: [['निशाना', 'nishana', 'aim'], ['धनुष', 'dhanush', 'bow'], ['नाम', 'naam', 'name']]
+  words_hi: [['निशाना', 'nishana', 'aim'], ['धनुष', 'dhanush', 'bow'], ['नाम', 'naam', 'name']],
+  value: 'karuna',
+  wonder: 'Duryodhana saw somebody being turned away at a door and opened it, in front of thirty thousand people, and he meant it. Does it change what a kind act is worth if the person doing it gains by it too?'
 },
 
 {
@@ -364,7 +377,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Everyone in India thought they were dead," said Mithu. "So did their cousins. So, for the next while, the five most famous princes alive get to be nobody. It suits some of them better than others."' }
   ],
   ends_on: 'A king in another country announces a contest for his daughter, and one of the prizes is a bow nobody can bend.',
-  words_hi: [['आग', 'aag', 'fire'], ['घर', 'ghar', 'house'], ['सुरंग', 'surang', 'tunnel']]
+  words_hi: [['आग', 'aag', 'fire'], ['घर', 'ghar', 'house'], ['सुरंग', 'surang', 'tunnel']],
+  wonder: 'The brothers knew that house was built to burn and lived in it for a year, smiling at the man who built it — and other people died in it, and nobody ever explained that. What is a person allowed to do to stay alive?'
 },
 
 {
@@ -391,7 +405,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"And in Hastinapura," said Mithu, "somebody came running into the hall to say that the cousins everyone had buried a year ago had just turned up at a wedding. You can imagine the faces."' }
   ],
   ends_on: 'The dead princes are alive, and the kingdom now has to be cut in half.',
-  words_hi: [['मछली', 'machhli', 'fish'], ['परछाई', 'parchhai', 'reflection'], ['तीर', 'teer', 'arrow']]
+  words_hi: [['मछली', 'machhli', 'fish'], ['परछाई', 'parchhai', 'reflection'], ['तीर', 'teer', 'arrow']],
+  wonder: 'Kunti said "share it between you" without turning round, and then turned round, and nobody in that house would take the sentence back. Why do people hold each other to words that were said by accident?'
 },
 
 /* ================================================== SABHA PARVA (12–15) ==== */
@@ -418,7 +433,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"And Shakuni," said Mithu, "who had been waiting for exactly this sentence for about thirty years, said: then do not fight him. Invite him to play a game. He cannot say no to a game. It is the one thing in the world that man cannot do."' }
   ],
   ends_on: 'An invitation goes out to Indraprastha. It is beautifully worded, and it is for a game of dice.',
-  words_hi: [['शहर', 'shahar', 'city'], ['महल', 'mahal', 'palace'], ['हँसी', 'hansi', 'laughter']]
+  words_hi: [['शहर', 'shahar', 'city'], ['महल', 'mahal', 'palace'], ['हँसी', 'hansi', 'laughter']],
+  wonder: 'Duryodhana climbed out of that water, changed his clothes, came back and was perfectly polite for the rest of the visit. What is going on inside somebody who has decided not to let it show?'
 },
 
 {
@@ -445,7 +461,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Nobody in that room is enjoying this now," said Mithu. "Not even Duryodhana. But he has won, and he is not going to stop, and he sends a man to go and fetch her."' }
   ],
   ends_on: 'She does not come. She sends the messenger back with a question instead.',
-  words_hi: [['पासा', 'pasa', 'dice'], ['खेल', 'khel', 'game'], ['हार', 'haar', 'a loss']]
+  words_hi: [['पासा', 'pasa', 'dice'], ['खेल', 'khel', 'game'], ['हार', 'haar', 'a loss']],
+  wonder: 'Yudhishthira could have stopped after any throw, and picked the dice up every single time. What do you do when somebody you love cannot stop doing the thing that is ruining them?'
 },
 
 {
@@ -473,7 +490,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Nobody answered her," said Mithu, quietly. "Not that day. Not since. It is still sitting there in the middle of the poem, and every single thing that happens afterwards happens because of it."' }
   ],
   ends_on: 'They are free. They are packed. They are already at the gate — and Duryodhana asks his father for one more throw.',
-  words_hi: [['सवाल', 'sawal', 'question'], ['जवाब', 'jawab', 'answer'], ['सभा', 'sabha', 'assembly hall']]
+  words_hi: [['सवाल', 'sawal', 'question'], ['जवाब', 'jawab', 'answer'], ['सभा', 'sabha', 'assembly hall']],
+  wonder: 'Draupadi asked whether a man who had already lost himself could stake anybody else, and the wisest man in the room said he could not see the bottom of it. Nobody has answered her since. Is a question still worth asking if nobody can answer it?'
 },
 {
   n: 15, book: 'sabha',
@@ -498,7 +516,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Thirteen years," said Mithu. "Draupadi walked out with her hair loose, exactly as she had promised. And Vidura resigned from his own family and went with them for a while, because he could not stand to stay."' }
   ],
   ends_on: 'Twelve years of forest. And a wife who is not going to let her husband forget one single day of it.',
-  words_hi: [['तेरह', 'terah', 'thirteen'], ['जंगल', 'jangal', 'forest'], ['साल', 'saal', 'year']]
+  words_hi: [['तेरह', 'terah', 'thirteen'], ['जंगल', 'jangal', 'forest'], ['साल', 'saal', 'year']],
+  wonder: 'Gandhari told her husband to send their own son away that morning, and he said he could not, because it was his son. Is there anything somebody you love could do that would stop you protecting them?'
 },
 
 /* ================================================== VANA PARVA (16–19) ===== */
@@ -526,7 +545,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Twelve years," said Mithu. "And out of all of it, that is the bit the grandmothers always tell. A very large man losing a fight with a tail."' }
   ],
   ends_on: 'Arjuna goes north on his own, to ask a mountain for a weapon.',
-  words_hi: [['हवा', 'hawa', 'wind'], ['पूँछ', 'poonchh', 'tail'], ['धीरज', 'dheeraj', 'patience']]
+  words_hi: [['हवा', 'hawa', 'wind'], ['पूँछ', 'poonchh', 'tail'], ['धीरज', 'dheeraj', 'patience']],
+  wonder: 'Draupadi asked her husband to be angry for one hour and he would not, and they had that argument for twelve years and never settled it. Can two people both be right and still not be able to live with each other\'s answer?'
 },
 
 {
@@ -552,7 +572,9 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Nothing in this poem is wasted," said Mithu. "Not even the dancing lessons. Especially not the dancing lessons."' }
   ],
   ends_on: 'Down on the plain, a man in golden armour is about to be asked for it.',
-  words_hi: [['पहाड़', 'pahaad', 'mountain'], ['शिकारी', 'shikari', 'hunter'], ['फूल', 'phool', 'flower']]
+  words_hi: [['पहाड़', 'pahaad', 'mountain'], ['शिकारी', 'shikari', 'hunter'], ['फूल', 'phool', 'flower']],
+  value: 'namrata',
+  wonder: 'Shiva told Arjuna that nobody climbs that mountain to be told they are wonderful. What is a person actually looking for when they go looking for a teacher?'
 },
 
 {
@@ -577,7 +599,9 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Remember the spear," said Mithu. "One throw. He is going to have to choose, and the choosing is going to cost him everything, and he still will not break his rule. Not once, all the way to the end."' }
   ],
   ends_on: 'Back in the forest, five brothers are extremely thirsty, and there is a lake.',
-  words_hi: [['दान', 'daan', 'giving'], ['सुबह', 'subah', 'morning'], ['ढाल', 'dhaal', 'shield']]
+  words_hi: [['दान', 'daan', 'giving'], ['सुबह', 'subah', 'morning'], ['ढाल', 'dhaal', 'shield']],
+  value: 'vachan',
+  wonder: 'Karna said he had exactly one thing in the world that was his own, and cut the armour away from his own body rather than lose it. Is a rule you made for yourself worth more than one somebody gave you?'
 },
 
 {
@@ -604,7 +628,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Remember the dog at the gate, later on," said Mithu. "This is not the last time somebody stops him at a doorway and asks him a question. And it is not the last time he gives up the thing he wants most, in one sentence, without arguing."' }
   ],
   ends_on: 'Twelve years are up. Now they have to be invisible for one more.',
-  words_hi: [['झील', 'jheel', 'lake'], ['प्यास', 'pyaas', 'thirst'], ['पहेली', 'paheli', 'riddle']]
+  words_hi: [['झील', 'jheel', 'lake'], ['प्यास', 'pyaas', 'thirst'], ['पहेली', 'paheli', 'riddle']],
+  wonder: 'Yudhishthira said the most astonishing thing in the world is that people watch other people die and then get up and live as though it will never happen to them. Why do you think everybody does that?'
 },
 
 /* ================================================= VIRATA PARVA (20–21) ==== */
@@ -632,7 +657,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Eleven months down," said Mithu. "A few days left. And then the army of Hastinapura turns up at the border to steal Virata\'s cows, which is the single unluckiest piece of timing in Indian literature."' }
   ],
   ends_on: 'Every fighting man in the kingdom is away at the other border. There is one person left in the palace who says he can drive a chariot.',
-  words_hi: [['रसोई', 'rasoi', 'kitchen'], ['नाच', 'naach', 'dance'], ['छिपना', 'chhipna', 'to hide']]
+  words_hi: [['रसोई', 'rasoi', 'kitchen'], ['नाच', 'naach', 'dance'], ['छिपना', 'chhipna', 'to hide']],
+  wonder: 'Draupadi was told to put up with it, by the man who had already staked her once, for the sake of a promise she had not made. How much should one person be asked to carry for a plan that other people made?'
 },
 
 {
@@ -658,7 +684,9 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"And when they got back," said Mithu, "the prince stood in front of his father and said: I did not win that. Not one bit of it. Which, after everything he had said at dinner for years, is the bravest thing anybody does in this whole book."' }
   ],
   ends_on: 'The hiding is over. Now messengers start riding, and there is one last chance to stop it.',
-  words_hi: [['रथ', 'rath', 'chariot'], ['डर', 'dar', 'fear'], ['पेड़', 'ped', 'tree']]
+  words_hi: [['रथ', 'rath', 'chariot'], ['डर', 'dar', 'fear'], ['पेड़', 'ped', 'tree']],
+  value: 'satya',
+  wonder: 'Uttara ran away from an army in the open, and then stood in front of his father and said he had not won any of it. Which of those two took more out of him?'
 },
 /* ================================================= UDYOGA PARVA (22–24) ==== */
 
@@ -684,7 +712,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"So Krishna went to that war as a charioteer," said Mithu. "Holding reins, not weapons. Which is why the most famous conversation in Indian literature happens in a chariot, between the man driving and the man behind him."' }
   ],
   ends_on: 'One last messenger goes to Hastinapura, to ask for the smallest thing anybody has asked for yet.',
-  words_hi: [['दोस्त', 'dost', 'friend'], ['सेना', 'sena', 'army'], ['चुनना', 'chunna', 'to choose']]
+  words_hi: [['दोस्त', 'dost', 'friend'], ['सेना', 'sena', 'army'], ['चुनना', 'chunna', 'to choose']],
+  wonder: 'Arjuna could have had an entire army and chose instead one friend who had already said he would not fight. When is one person worth more than everything they could give you?'
 },
 
 {
@@ -709,7 +738,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"What Krishna says to him at that gate," said Mithu, "is the hardest offer in the whole poem. And Karna is not the only person who comes looking for him that week."' }
   ],
   ends_on: 'His mother has waited forty years to tell him. She picks this week.',
-  words_hi: [['गाँव', 'gaanv', 'village'], ['सुई', 'sui', 'needle'], ['ज़मीन', 'zameen', 'land']]
+  words_hi: [['गाँव', 'gaanv', 'village'], ['सुई', 'sui', 'needle'], ['ज़मीन', 'zameen', 'land']],
+  wonder: 'Krishna said at the gate that nobody would be able to say afterwards that there had been no other way. Does it help anybody, later, to know that there was one?'
 },
 
 {
@@ -735,7 +765,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"There are two people on that battlefield who know Karna is a brother," said Mithu. "Krishna and Kunti. Neither of them tells the five men holding the weapons. You are allowed to have opinions about that."' }
   ],
   ends_on: 'Eighteen armies come to a flat plain called Kurukshetra, and camp on opposite sides of it.',
-  words_hi: [['माँ', 'maa', 'mother'], ['आँसू', 'aansu', 'tears'], ['सच', 'sach', 'truth']]
+  words_hi: [['माँ', 'maa', 'mother'], ['आँसू', 'aansu', 'tears'], ['सच', 'sach', 'truth']],
+  wonder: 'Kunti came forty years late, and Karna told her to her face that she had come as their mother and not as his. Is there a right time to say a thing like that, or only a less wrong one?'
 },
 
 /* ================================================ BHISHMA PARVA (25–27) ==== */
@@ -763,7 +794,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"That," said Mithu, "is the last ordinary sentence anybody says for a while."' }
   ],
   ends_on: 'Krishna drives him out between the two armies and stops the chariot, and Arjuna looks.',
-  words_hi: [['मैदान', 'maidan', 'field'], ['शंख', 'shankh', 'conch'], ['नियम', 'niyam', 'rule']]
+  words_hi: [['मैदान', 'maidan', 'field'], ['शंख', 'shankh', 'conch'], ['नियम', 'niyam', 'rule']],
+  wonder: 'Both sides sat down together the night before and wrote the rules of their own war, in daylight, and meant every line. Why would people about to do a thing like that want rules for it?'
 },
 
 {
@@ -790,7 +822,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Two friends," said Mithu. "One of them does not want to fight, and the other one has to talk to him with an army waiting on either side. That is what it is, underneath. It is about doing the right thing when the right thing is hard and you would much rather go home."' }
   ],
   ends_on: 'Arjuna picks the bow up. And then the poem stops talking about right and wrong and starts counting days.',
-  words_hi: [['मन', 'man', 'mind'], ['काम', 'kaam', 'work'], ['हिम्मत', 'himmat', 'courage']]
+  words_hi: [['मन', 'man', 'mind'], ['काम', 'kaam', 'work'], ['हिम्मत', 'himmat', 'courage']],
+  wonder: 'Krishna told Arjuna that sitting down in the chariot was also a choice, and that other people would pay for it. Is there anywhere in something like that where a person can stand and not be part of it?'
 },
 
 {
@@ -817,7 +850,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"A whole life spent keeping one promise," said Mithu, "and he spends the end of it lying in a field, being visited. If you want to know what this poem thinks about vows — it is all in that picture, and it does not say a word."' }
   ],
   ends_on: 'Drona takes command. And on the thirteenth day he builds a shape that only two men alive know how to get out of.',
-  words_hi: [['दादा', 'dada', 'grandfather'], ['पानी', 'paani', 'water'], ['इंतज़ार', 'intezaar', 'waiting']]
+  words_hi: [['दादा', 'dada', 'grandfather'], ['पानी', 'paani', 'water'], ['इंतज़ार', 'intezaar', 'waiting']],
+  wonder: 'Bhishma told the men trying to beat him exactly how to do it, because he had said he would answer. What is somebody doing when they hand another person the way to end them?'
 },
 /* ================================================== DRONA PARVA (28–29) ==== */
 
@@ -844,7 +878,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Two nights before, everybody stopped fighting to bring an old man water," said Mithu. "That is how fast it goes. Nobody wakes up in the morning and decides to become the sort of person who does this. It happens in about a week, one reasonable step at a time."' }
   ],
   ends_on: 'The next problem is Drona, and there is only one thing in the world that will make him put his bow down.',
-  words_hi: [['चक्र', 'chakra', 'a circle'], ['घेरा', 'ghera', 'a ring'], ['सोलह', 'solah', 'sixteen']]
+  words_hi: [['चक्र', 'chakra', 'a circle'], ['घेरा', 'ghera', 'a ring'], ['सोलह', 'solah', 'sixteen']],
+  wonder: 'Nobody woke up that morning meaning to become the sort of person who would do that; it took about a week, one reasonable step at a time. Where in that week was the step that should have been refused?'
 },
 
 {
@@ -870,7 +905,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Ask yourself the question the poem is actually asking," said Mithu. "Not was it a lie. Of course it was. The question is whether a true sentence said in a voice nobody can hear is any better — and whether he knew the answer while he was saying it."' }
   ],
   ends_on: 'Karna takes command. And on the seventeenth day the two of them finally face each other.',
-  words_hi: [['झूठ', 'jhooth', 'a lie'], ['हाथी', 'haathi', 'elephant'], ['ढोल', 'dhol', 'drum']]
+  words_hi: [['झूठ', 'jhooth', 'a lie'], ['हाथी', 'haathi', 'elephant'], ['ढोल', 'dhol', 'drum']],
+  wonder: 'He said no, and said no again, and then stood there while people he had grown up with were carried past the tent, and stopped saying no. Which part of that was the moment he decided?'
 },
 
 /* ================================================== KARNA PARVA (30) ======= */
@@ -900,7 +936,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"That is the only time in the whole book he cries," said Mithu. "Not for a throne. For his friend. Whatever else you decide about him, do not lose that."' }
   ],
   ends_on: 'One cousin left, one day left, and a lake with a man hiding at the bottom of it.',
-  words_hi: [['पहिया', 'pahiya', 'wheel'], ['कीचड़', 'keechad', 'mud'], ['बोझ', 'bojh', 'a weight']]
+  words_hi: [['पहिया', 'pahiya', 'wheel'], ['कीचड़', 'keechad', 'mud'], ['बोझ', 'bojh', 'a weight']],
+  wonder: 'Karna asked for the rule both sides had written together to be kept, and was answered with a list of every time his own side had broken it. Is a rule still a rule for somebody who broke it first?'
 },
 
 /* ================================================= SHALYA PARVA (31) ======= */
@@ -928,7 +965,9 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Eighteen days," said Mithu. "Eleven armies and seven armies. And at the end of it about a dozen people are still standing on that field, and every single one of them wishes they were not."' }
   ],
   ends_on: 'In the morning the women come out of the city and walk onto the field.',
-  words_hi: [['गदा', 'gada', 'mace'], ['रात', 'raat', 'night'], ['राख', 'raakh', 'ash']]
+  words_hi: [['गदा', 'gada', 'mace'], ['रात', 'raat', 'night'], ['राख', 'raakh', 'ash']],
+  value: 'kshama',
+  wonder: 'Duryodhana asked the people standing over him what exactly any of them had won, and nobody on that field answered him. Was there anything they could have said?'
 },
 
 /* ==================================================== STRI PARVA (32) ====== */
@@ -957,7 +996,8 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"That is the last thing that happens in the war," said Mithu. "Two mothers at a river, doing exactly the same thing for exactly the same reason. It took eighteen days and a hundred thousand people to get to something they could have done in the first week."' }
   ],
   ends_on: 'They rule for years afterwards. It is not happy. And then, one morning, they start walking north.',
-  words_hi: [['गिनना', 'ginna', 'to count'], ['माफ़ी', 'maafi', 'forgiveness'], ['चुप', 'chup', 'quiet']]
+  words_hi: [['गिनना', 'ginna', 'to count'], ['माफ़ी', 'maafi', 'forgiveness'], ['चुप', 'chup', 'quiet']],
+  wonder: 'Two mothers went down to the water together and did the same rites for everybody, without sorting them into sides. What stops people doing that before a war instead of after one?'
 },
 
 /* ========================================= MAHAPRASTHANIKA PARVA (33) ===== */
@@ -987,7 +1027,9 @@ window.IND_EPIC_MAHABHARATA = {
     { who: 'mithu', text: '"Go and ask somebody old in your family which bit they were told when they were your age," said Mithu. "I promise you it will not be exactly the one you just heard. That is not a mistake. That is how this poem has stayed alive."' }
   ],
   ends_on: 'Ask your family. Somebody in it knows a version of this that nobody has written down.',
-  words_hi: [['कुत्ता', 'kutta', 'dog'], ['दरवाज़ा', 'darwaza', 'door'], ['साथ', 'saath', 'together']]
+  words_hi: [['कुत्ता', 'kutta', 'dog'], ['दरवाज़ा', 'darwaza', 'door'], ['साथ', 'saath', 'together']],
+  value: 'karuna',
+  wonder: 'Yudhishthira gave up everything he had walked all that way for rather than leave behind an animal that had followed him and was never asked to. What do you owe something that chose to come with you?'
 }
 
   ]

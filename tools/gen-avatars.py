@@ -21,7 +21,13 @@ with "_" are settings rather than ids:
 Sending two or three finished tiles alongside the words is what keeps 48 avatars looking
 like one artist drew them; the words alone drift.
 
-Requires: pillow.
+Tiles come out with a real alpha channel. The model always paints on a white studio
+background; that surround is flood-filled away from the border at full resolution and the
+tile is then downscaled premultiplied, so the subject keeps its own whites (a heron, a
+white sari, the Buddha's robe) and the edges land soft instead of ringed. Pass --matte to
+get the old opaque-white behaviour back.
+
+Requires: pillow, numpy.
 """
 
 import argparse
@@ -34,7 +40,9 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from collections import deque
 
+import numpy as np
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -94,45 +102,112 @@ def call_api(prompt, key, refs=()):
 
 # ------------------------------------------------------------------ images
 
-MARGIN = 0.05        # share of the tile left as white air around the subject
+MARGIN = 0.05        # share of the tile left as air around the subject
+WHITE_TOL = 18       # how far off pure white still counts as studio background
 
 
-def to_tile(png_bytes):
-    """Square, white-matted, auto-trimmed, 256x256, palette-optimised PNG bytes.
+def surround(rgb):
+    """Boolean mask of the white studio background, flood-filled in from the border.
+
+    Flood-filling rather than thresholding is the whole point: a heron, a white sari,
+    the Buddha's robe and Gandhi's shawl are white too, and a plain threshold would
+    punch holes straight through them. Only white that is reachable from the edge of
+    the frame is background.
+    """
+    w, h = rgb.size
+    a = np.asarray(rgb, dtype=np.uint8)
+    white = (a >= (255 - WHITE_TOL)).all(axis=2).reshape(-1).tolist()
+    seen = bytearray(w * h)
+    q = deque()
+
+    def push(i):
+        if white[i] and not seen[i]:
+            seen[i] = 1
+            q.append(i)
+
+    for x in range(w):
+        push(x)
+        push((h - 1) * w + x)
+    for y in range(h):
+        push(y * w)
+        push(y * w + w - 1)
+    while q:
+        i = q.popleft()
+        x = i % w
+        if x:            push(i - 1)
+        if x < w - 1:    push(i + 1)
+        if i >= w:       push(i - w)
+        if i < w * (h - 1): push(i + w)
+
+    return np.frombuffer(bytes(seen), dtype=np.uint8).reshape(h, w).astype(bool)
+
+
+def _resize_rgba(im, size):
+    """LANCZOS down to size x size with the colour premultiplied by alpha.
+
+    Resizing straight RGBA averages the RGB of fully transparent white pixels into
+    the edge, which is exactly the pale halo that makes a cut-out look like a sticker
+    someone peeled badly. Premultiplying, resizing, then dividing back out keeps the
+    edge the colour of the ink.
+    """
+    a = np.asarray(im, dtype=np.float32)
+    al = a[:, :, 3:4] / 255.0
+    pre = Image.fromarray(np.concatenate([a[:, :, :3] * al, a[:, :, 3:4]], axis=2)
+                          .round().clip(0, 255).astype(np.uint8), "RGBA")
+    pre = pre.resize((size, size), Image.LANCZOS)
+    b = np.asarray(pre, dtype=np.float32)
+    bl = np.maximum(b[:, :, 3:4], 1.0) / 255.0
+    rgb = (b[:, :, :3] / bl).round().clip(0, 255)
+    return Image.fromarray(np.concatenate([rgb, b[:, :, 3:4]], axis=2)
+                           .astype(np.uint8), "RGBA")
+
+
+def to_tile(png_bytes, matte=False):
+    """Square, auto-trimmed, 256x256 RGBA PNG bytes with a real alpha channel.
 
     The model leaves an unpredictable amount of white air around the subject, which
-    makes the set look ragged in a grid. Trimming to the ink and re-matting with a
+    makes the set look ragged in a grid. Trimming to the ink and re-padding with a
     fixed margin is what makes every tile sit at the same visual weight.
+
+    The background is cleared at full resolution and only then downscaled, so the 4x
+    supersample does the antialiasing and the cut edge stays soft. With matte=True the
+    surround is left opaque white instead (the pre-alpha behaviour).
     """
     im = Image.open(io.BytesIO(png_bytes)).convert("RGBA")
     flat = Image.new("RGB", im.size, (255, 255, 255))
     flat.paste(im, (0, 0), im)
 
-    # trim the white surround (245 keeps soft shadows and pale sparkles in)
+    bg = surround(flat)
+    share = float(bg.mean())
+    alpha = np.where(bg, 0, 255).astype(np.uint8)
+    if matte or share < 0.02 or share > 0.98:
+        # nothing sane to cut away: a coloured background, or an image that is all ink
+        alpha = np.full(flat.size[::-1], 255, dtype=np.uint8)
+
+    cut = Image.fromarray(np.dstack([np.asarray(flat, dtype=np.uint8), alpha]), "RGBA")
+
+    # trim to the ink (245 keeps soft shadows and pale sparkles in)
     mask = flat.convert("L").point(lambda v: 255 if v < 245 else 0)
     box = mask.getbbox()
     if box:
         w, h = box[2] - box[0], box[3] - box[1]
         # ignore a degenerate trim (a stray speck, or an image that is nearly all ink)
         if w > im.width * 0.2 and h > im.height * 0.2:
-            flat = flat.crop(box)
+            cut = cut.crop(box)
 
-    side = int(max(flat.size) * (1 + 2 * MARGIN))
-    canvas = Image.new("RGB", (side, side), (255, 255, 255))
-    canvas.paste(flat, ((side - flat.width) // 2, (side - flat.height) // 2))
-    flat = canvas
-
-    flat = flat.resize((SIZE, SIZE), Image.LANCZOS)
-    pal = flat.quantize(colors=192, method=Image.MEDIANCUT, dither=Image.NONE)
+    side = int(max(cut.size) * (1 + 2 * MARGIN))
+    fill = (255, 255, 255, 255) if matte else (255, 255, 255, 0)
+    canvas = Image.new("RGBA", (side, side), fill)
+    canvas.paste(cut, ((side - cut.width) // 2, (side - cut.height) // 2))
 
     buf = io.BytesIO()
-    pal.save(buf, "PNG", optimize=True)
+    _resize_rgba(canvas, SIZE).save(buf, "PNG", optimize=True)
     return buf.getvalue()
 
 
 # -------------------------------------------------------------------- main
 
-def generate(aid, spec, key, log, style=None):
+def generate(aid, spec, key, log, style=None, matte=False):
     """Generate one id. Returns 'ok' | 'refused' | 'error'."""
     style = style or {}
     prompt = spec["prompt"] if isinstance(spec, dict) else spec
@@ -167,7 +242,7 @@ def generate(aid, spec, key, log, style=None):
                 os.makedirs(OUT_DIR, exist_ok=True)
                 with open(os.path.join(RAW_DIR, aid + ".png"), "wb") as f:
                     f.write(png)
-                tile = to_tile(png)
+                tile = to_tile(png, matte)
                 with open(os.path.join(OUT_DIR, aid + ".png"), "wb") as f:
                     f.write(tile)
                 log("  ok   %-16s %6.1fkB raw -> %5.1fkB tile  (%s)"
@@ -187,6 +262,8 @@ def main():
     ap.add_argument("--force", action="store_true", help="regenerate existing")
     ap.add_argument("--reprocess", action="store_true",
                     help="rebuild tiles from the cached raws, no API calls")
+    ap.add_argument("--matte", action="store_true",
+                    help="leave the background opaque white instead of cutting it out")
     args = ap.parse_args()
 
     if args.reprocess:
@@ -195,7 +272,7 @@ def main():
             if not f.endswith(".png"):
                 continue
             with open(os.path.join(RAW_DIR, f), "rb") as fh:
-                tile = to_tile(fh.read())
+                tile = to_tile(fh.read(), args.matte)
             with open(os.path.join(OUT_DIR, f), "wb") as fh:
                 fh.write(tile)
             n += 1
@@ -235,7 +312,7 @@ def main():
     results = {}
     for i, aid in enumerate(todo, 1):
         log("[%d/%d] %s" % (i, len(todo), aid))
-        results[aid] = generate(aid, prompts[aid], key, log, style)
+        results[aid] = generate(aid, prompts[aid], key, log, style, args.matte)
         if i < len(todo):
             time.sleep(SLEEP)
 

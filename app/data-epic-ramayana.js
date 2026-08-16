@@ -102,7 +102,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'Then one morning, with no messenger and no warning, an old man in a bark robe walked straight into the throne room, and the entire court stood up so fast that chairs fell over. Dasharatha came down the steps to touch his feet.' }
   ],
-  ends_on: 'The sage did not want gold, or land, or a share of the kingdom. He wanted to take the king\'s eldest son into the forest, tonight, and he would not say for how long.'
+  ends_on: 'The sage did not want gold, or land, or a share of the kingdom. He wanted to take the king\'s eldest son into the forest, tonight, and he would not say for how long.',
+  wonder: 'Dasharatha had won everything there was to win, and stood on his own roof saying there was nobody to hand it to. What does a person need before what they have starts to feel like enough?'
 },
 
 {
@@ -137,7 +138,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'In the morning Vishwamitra rolled up his mat and pointed north-east instead of home. "There is a city called Mithila," he said, "and a king there called Janaka who collects difficult questions. He also has something in his courtyard that a hundred kings have failed to pick up."' }
   ],
-  ends_on: 'Rama laughed. "Then let us go and look at it," he said — which is the most ordinary sentence anybody in this story ever says, and it changed everything that came after.'
+  ends_on: 'Rama laughed. "Then let us go and look at it," he said — which is the most ordinary sentence anybody in this story ever says, and it changed everything that came after.',
+  wonder: 'Vishwamitra could have dealt with that forest himself, and said that then it would have been his story instead. When is doing a thing for somebody the wrong sort of help?'
 },
 
 {
@@ -172,7 +174,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: 'mithu',
       text: 'In some tellings Rama\'s foot touches the stone. In others he only speaks. In Tulsidas\'s telling the dust of his feet is the whole point of it. Ask at home which one yours has.' }
   ],
-  ends_on: 'They reached Mithila at noon the next day, and heard the noise before they saw the walls. Every king in the world seemed to be there, and all of them were queuing for something.'
+  ends_on: 'They reached Mithila at noon the next day, and heard the noise before they saw the walls. Every king in the world seemed to be there, and all of them were queuing for something.',
+  value: 'karuna',
+  wonder: 'Ahalya was turned to stone for something that was done to her, and for years people went round that garden rather than through it. Why is walking round somebody so much easier than going in?'
 },
 
 {
@@ -207,7 +211,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: 'rama',
       text: 'On the road home Sita asked him what he had been thinking about while the whole world watched him lift it. "Honestly," said Rama, "that if I dropped it on my foot in front of that many people I would have to go and live in a cave."' }
   ],
-  ends_on: 'They came home to Ayodhya, and for twelve years absolutely nothing went wrong. Which, in a story, is how you know something is about to.'
+  ends_on: 'They came home to Ayodhya, and for twelve years absolutely nothing went wrong. Which, in a story, is how you know something is about to.',
+  wonder: 'A hundred kings could not shift a bow that Sita had moved with one hand at six, because it was in the way of her ball. Why is a thing sometimes only heavy when people are watching?'
 },
 
 /* ================================================= AYODHYA KANDA ========== */
@@ -243,7 +248,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'There was a room in the palace they called the anger-room, an old custom, where a queen went when she wanted the king to know something was wrong. Kaikeyi took off her jewellery, piece by piece, and left it on the floor. Then she went in and lay down on the bare ground in the dark.' }
   ],
-  ends_on: 'Because years ago, in a war, Kaikeyi had saved Dasharatha\'s life — and he had promised her two things, any two things, whenever she wanted them. She had never asked. She had been saving them.'
+  ends_on: 'Because years ago, in a war, Kaikeyi had saved Dasharatha\'s life — and he had promised her two things, any two things, whenever she wanted them. She had never asked. She had been saving them.',
+  wonder: 'Kaikeyi loved Rama, and one evening of somebody talking quietly on a roof changed what she wanted. How does a person\'s mind get changed without them noticing it is happening?'
 },
 
 {
@@ -280,7 +286,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'Outside, the streets were still full of flags. Nobody had told them yet. Rama walked through his own crowning decorations to his mother\'s rooms to tell her, and then across the courtyard to tell Sita, and he was working out on the way how to say it gently.' }
   ],
-  ends_on: 'He need not have bothered. Sita had already heard, and she was packing.'
+  ends_on: 'He need not have bothered. Sita had already heard, and she was packing.',
+  value: 'vachan',
+  wonder: 'Dasharatha kept a promise he had made years before, and it was Rama and Sita and Lakshmana who paid for it. If keeping your word costs somebody who never gave it, whose word is it then?'
 },
 
 {
@@ -317,7 +325,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'Guha rowed them across. On the far bank the three of them stood and watched the boat go back, and behind them was a forest that went on for six hundred miles, and Sita said, "Right then," and picked up her bundle.' }
   ],
-  ends_on: 'Sumantra drove the empty chariot back into Ayodhya alone. Dasharatha was at the window. He had been at that window for six days.'
+  ends_on: 'Sumantra drove the empty chariot back into Ayodhya alone. Dasharatha was at the window. He had been at that window for six days.',
+  wonder: 'Rama slipped away in the dark from the people who had walked out of the city behind him, because he knew that in daylight they would refuse to go home. Is it kinder to spare somebody a choice, or to let them make it?'
 },
 
 {
@@ -354,7 +363,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'He would not enter Ayodhya. He put the sandals on the throne, sat on the floor beside them, and ruled from a village called Nandigram outside the walls — in bark cloth, sleeping on the ground, eating what a hermit eats, for fourteen years, as a kind of substitute.' }
   ],
-  ends_on: 'Fourteen years. In Nandigram, Bharata started counting them that same evening. Out in the forest, so did Sita.'
+  ends_on: 'Fourteen years. In Nandigram, Bharata started counting them that same evening. Out in the forest, so did Sita.',
+  value: 'namrata',
+  wonder: '"I did it for you," said Kaikeyi, and Bharata said she had done it and given it his name. What do you owe somebody who does a thing for you that you never asked for?'
 },
 
 /* =================================================== ARANYA KANDA ========= */
@@ -390,7 +401,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'Thirteen years went by like that. Thirteen. A whole childhood of years, and almost nothing in them worth telling.' }
   ],
-  ends_on: 'Then, one afternoon in the fourteenth, somebody came out of the trees at the edge of the clearing and stood there watching them, and had been watching for rather longer than that.'
+  ends_on: 'Then, one afternoon in the fourteenth, somebody came out of the trees at the edge of the clearing and stood there watching them, and had been watching for rather longer than that.',
+  wonder: 'Sita told Rama that a person who carries a weapon every day will find a use for it in the end, and he said she might be right and carried it anyway. Do the things we carry change what we end up doing with them?'
 },
 
 {
@@ -425,7 +437,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'So she went south instead. Down to the sea, and across it, to the island city, to the brother nobody sends for lightly. She walked into his hall and stood in front of the throne with her face still bandaged and said, "Look at me. Look at what two men in bark cloth did to your sister."' }
   ],
-  ends_on: 'He had ten heads, a flying chariot, a library nobody could match, and every king in the world paying him tribute — and in his whole life, not one person had ever said no to him.'
+  ends_on: 'He had ten heads, a flying chariot, a library nobody could match, and every king in the world paying him tribute — and in his whole life, not one person had ever said no to him.',
+  wonder: 'Two well brought-up princes made a joke one afternoon, and a war came out of it. How is anybody supposed to know at the time which joke is the expensive one?'
 },
 
 {
@@ -460,7 +473,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'Then there was an old monk at the edge of the trees, leaning on a staff, asking for alms. Sita brought out food. He would not come and take it. He said, in a pleasant, patient voice, that he was not permitted to step onto another man\'s ground — that she would have to bring it out to him.' }
   ],
-  ends_on: 'Far above the trees, much too high up for a bird of that size, a very old vulture who had been friends with her father-in-law opened one eye.'
+  ends_on: 'Far above the trees, much too high up for a bird of that size, a very old vulture who had been friends with her father-in-law opened one eye.',
+  wonder: 'Sita said one cruel thing to Lakshmana when she was frightened, and spent the rest of her life wishing it back. What do you do with something you have said and cannot unsay?'
 },
 
 {
@@ -495,7 +509,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'They built the fire for him themselves and did every one of the rites, in full, for a bird — which Rama said, to nobody in particular, he had not been permitted to do for his own father.' }
   ],
-  ends_on: 'South. It was one word from a dying bird. It was also the entire map. They picked up their bows and started walking.'
+  ends_on: 'South. It was one word from a dying bird. It was also the entire map. They picked up their bows and started walking.',
+  value: 'sahas',
+  wonder: 'Jatayu knew exactly how that fight would go before he went up, and went up anyway, and apologised while he was dying for not being enough. Is a thing worth doing when you already know you cannot win it?'
 },
 
 /* ================================================ KISHKINDHA KANDA ======== */
@@ -534,7 +550,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'Down at Pampa the water was so blue that Lakshmana said something rude about the palace lake, and lotuses were out all over it, and there was nobody about at all except a young monk coming down the path towards them with his hands folded.' }
   ],
-  ends_on: 'He spoke the most beautiful Sanskrit either brother had ever heard, and asked them who they were, and where they had come from, and why two princes were in the woods dressed as hermits. He was not a monk.'
+  ends_on: 'He spoke the most beautiful Sanskrit either brother had ever heard, and asked them who they were, and where they had come from, and why two princes were in the woods dressed as hermits. He was not a monk.',
+  value: 'dhairya',
+  wonder: 'Shabari swept that path every morning for fifty years, and nobody had ever promised her anything. What keeps a person going when there is no sign at all that they are right?'
 },
 
 {
@@ -571,7 +589,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'Tara, Vali\'s widow, came down into the valley and said things to all of them that are still quoted, being the cleverest person on that hillside by some distance. And Angada stood next to his uncle at the crowning with a completely still face.' }
   ],
-  ends_on: 'Sugriva was crowned that month. Then the rains came, and the palace was warm and dry and full of music, and he forgot.'
+  ends_on: 'Sugriva was crowned that month. Then the rains came, and the palace was warm and dry and full of music, and he forgot.',
+  wonder: 'Rama gave Vali a reason for the arrow, and Vali said it was a good answer and not a good enough one, and people have argued about it for two thousand years. What would a good enough answer have sounded like?'
 },
 
 {
@@ -608,7 +627,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'The old bear Jambavan went and sat down beside him. "Do you know what you are?" he said. "You went up at the sun before you could walk, thinking it was a fruit. They knocked you out of the sky for it and you have not remembered properly since. Nobody here can do this. You can. You are sitting at the back."' }
   ],
-  ends_on: 'Hanuman stood up. And then he kept standing up — past the treetops, past the cliff, until the vanaras below him were the size of grains of sand and had all stopped talking.'
+  ends_on: 'Hanuman stood up. And then he kept standing up — past the treetops, past the cliff, until the vanaras below him were the size of grains of sand and had all stopped talking.',
+  wonder: 'Jambavan had to tell Hanuman what he was before Hanuman could do it. Can somebody else know a true thing about you that you do not know about yourself?'
 },
 
 /* =================================================== SUNDARA KANDA ======== */
@@ -644,7 +664,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'He came down in the trees outside the wall and waited for dark. Then he made himself the size of a cat and went over the top of the gate, and the city of Lanka never noticed a thing.' }
   ],
-  ends_on: 'Somewhere in there, in a garden he had never seen, was a woman he had never met. He had until sunrise, and he did not know one street from another.'
+  ends_on: 'Somewhere in there, in a garden he had never seen, was a woman he had never met. He had until sunrise, and he did not know one street from another.',
+  value: 'sahas',
+  wonder: 'A mountain came up out of the sea and offered Hanuman a rest, and said nobody would know. He said that if he sat down he would still be sitting there at sunset. How do you tell wanting a rest from not wanting to go on?'
 },
 
 {
@@ -685,7 +707,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'She gave him a jewel out of her hair — one she had kept hidden all this time, from the wedding, which Rama would know at once — and Hanuman tucked it away and bowed, and looked around at that beautiful garden with all its beautiful trees.' }
   ],
-  ends_on: 'Two months, he thought. That is a long time to wait. And a message is a small thing to leave behind, when I could leave rather a large one.'
+  ends_on: 'Two months, he thought. That is a long time to wait. And a message is a small thing to leave behind, when I could leave rather a large one.',
+  wonder: 'Sita could have been across that sea by breakfast, and said no, because being carried out was how she got there in the first place. When is the quickest way out of something the wrong way out?'
 },
 
 {
@@ -724,7 +747,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'He put the fire out in the sea, which steamed for an hour, and went up off the mountain and out over the water for home, and this time he did not stop for anybody.' }
   ],
-  ends_on: 'They saw him coming from a long way off, and knew from how he was flying. He landed, and could not get the words in the right order, and finally said: "I have seen her." Nobody heard anything else for quite a while.'
+  ends_on: 'They saw him coming from a long way off, and knew from how he was flying. He landed, and could not get the words in the right order, and finally said: "I have seen her." Nobody heard anything else for quite a while.',
+  value: 'buddhi',
+  wonder: 'Hanuman set fire to a whole golden city and then went cold on a wall remembering who was still sitting in it. When somebody is angry and winning, what is the thing they stop being able to see?'
 },
 
 /* ==================================================== YUDDHA KANDA ======== */
@@ -762,7 +787,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'And then he did something nobody expected. He had Vibhishana crowned king of Lanka on the spot, on the beach, in the sand, before a single stone of the bridge existed. "So that everyone here is clear," he said, "about what we are doing and what we are not."' }
   ],
-  ends_on: 'And then there was only the sea. A hundred miles of it, flat and bright and impossible, and behind them an army that could not swim.'
+  ends_on: 'And then there was only the sea. A hundred miles of it, flat and bright and impossible, and behind them an army that could not swim.',
+  value: 'satya',
+  wonder: 'Mandodari told Ravana that he was not frightened of losing — he was frightened of everybody watching him be wrong. Which of those two do you think moves people more often?'
 },
 
 {
@@ -797,7 +824,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: 'mithu',
       text: 'You can go and see the line of shoals it is named after, between the tip of India and Sri Lanka. Look up Rama Setu on a map at home. It is a real place with a real argument attached to it, which is its own kind of interesting.' }
   ],
-  ends_on: 'On the fifth morning an army walked out onto the sea. Every single one of them looked down at least once.'
+  ends_on: 'On the fifth morning an army walked out onto the sea. Every single one of them looked down at least once.',
+  value: 'kritagyata',
+  wonder: 'The vanaras were carrying hills and the squirrel was carrying sand, and only one of them was laughed at. How do you tell which part of a job is the part that matters?'
 },
 
 {
@@ -834,7 +863,9 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'Sushena took his four herbs off the top of it, unhurried, while the sky went orange. And Lakshmana opened his eyes and said, "Why is there a mountain," and Rama could not answer him because of what he was doing with his face.' }
   ],
-  ends_on: 'Hanuman flew the mountain back and put it where he had found it, because it was somebody\'s mountain. And on the tenth morning the gates of Lanka opened, and Ravana came out himself.'
+  ends_on: 'Hanuman flew the mountain back and put it where he had found it, because it was somebody\'s mountain. And on the tenth morning the gates of Lanka opened, and Ravana came out himself.',
+  value: 'namrata',
+  wonder: 'Hanuman stood on a mountain in the dark and said out loud that he did not know which plant it was. What happens to a problem in the moment somebody admits they cannot solve it the way they meant to?'
 },
 
 {
@@ -871,7 +902,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'Vibhishana was crowned king of Lanka the next morning, in the burnt city, by the man who had beaten his brother, exactly as promised on that beach before there was a bridge.' }
   ],
-  ends_on: 'And then Rama sent Hanuman to the grove with a message: tell her it is finished, and tell her to come. This is the last happy hour in the book, and it is worth sitting in for a moment.'
+  ends_on: 'And then Rama sent Hanuman to the grove with a message: tell her it is finished, and tell her to come. This is the last happy hour in the book, and it is worth sitting in for a moment.',
+  wonder: 'Ravana stood in the doorway of his own hall knowing exactly what he ought to do, and said "I cannot." What is it that a person cannot do, even when they can see what it is?'
 },
 
 {
@@ -913,7 +945,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: null,
       text: 'And that night Ayodhya, which had not lit a lamp in fourteen years, put a lamp on every doorstep, and on every wall, and on every step down to the river, so that a man coming home in the dark could see the shape of his own city from the air. In many families that is why the lamps go out every year at Diwali — and in Bengal and Odisha that same night belongs to Kali, and in much of the south people get up before dawn for an oil bath instead. Ask what happens in yours.' }
   ],
-  ends_on: 'Rama was crowned the next morning, and they will tell you the rains came on time for eleven thousand years afterwards. It is a perfect place to stop. Most tellings do stop there.'
+  ends_on: 'Rama was crowned the next morning, and they will tell you the rains came on time for eleven thousand years afterwards. It is a perfect place to stop. Most tellings do stop there.',
+  wonder: 'Rama said afterwards that the fire had been for the army and for the world and not for him, and nobody has ever found that answer satisfying. What is anybody allowed to ask of somebody else for the sake of how it will look?'
 },
 
 /* ==================================================== UTTARA KANDA ======== */
@@ -958,7 +991,8 @@ window.IND_EPIC_RAMAYANA = {
     { who: 'mithu',
       text: 'So: some families stop at the lamps and never tell this book. Some tell it and say Sita walking away is the strongest thing in the whole story. The Jain Ramayanas tell the ending differently again. Nobody is doing it wrong — ask at home where yours stops, and ask why.' }
   ],
-  ends_on: 'And that is why, when somebody finishes telling you the Ramayana, the very next thing they usually do is offer to start it again from the beginning.'
+  ends_on: 'And that is why, when somebody finishes telling you the Ramayana, the very next thing they usually do is offer to start it again from the beginning.',
+  wonder: 'Sita had answered that question once, in a fire, in front of an army, and would not answer it a second time. When is refusing to answer the only answer left?'
 }
 
   ],

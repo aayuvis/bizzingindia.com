@@ -65,7 +65,24 @@ def load_lexicon(path=LEXICON):
             for k, v in raw.items()
             if not k.startswith('_') and v.get('ipa')}
 
+
+def load_case_strict(path=LEXICON):
+    """lowercased term -> the one spelling that may be pinned.
+
+    Matching is case-insensitive, which is right for almost everything — a name
+    is a name wherever it appears. It is wrong for a name that is also an
+    ordinary English word in lower case: Rama's son Lava is LUV-a, but molten
+    lava is not, and a geography card must not inherit the epic's vowel. Such an
+    entry carries "case_sensitive": true and then only matches its own capitalised
+    spelling; anything else falls through to the voice's own reading."""
+    raw = json.load(open(path, encoding='utf-8'))
+    return {' '.join(k.split()).lower(): ' '.join(k.split())
+            for k, v in raw.items()
+            if not k.startswith('_') and v.get('ipa') and v.get('case_sensitive')}
+
+
 LEX = load_lexicon()
+CASE_STRICT = load_case_strict()
 
 # Longest term first so "Kisa Gotami" wins over "Gotami" and "Andhra Pradesh"
 # over "Pradesh". Interior spaces match any run of whitespace.
@@ -98,6 +115,9 @@ def possessive_suffix(ipa):
 
 
 def _wrap(m):
+    hit = ' '.join(m.group(1).split())
+    if CASE_STRICT.get(hit.lower(), hit) != hit:
+        return m.group(0)                     # right spelling, wrong case: leave it alone
     ipa = LEX[' '.join(m.group(1).split()).lower()]
     if m.group(2):
         ipa += possessive_suffix(ipa)
@@ -187,33 +207,54 @@ def audit(clips, words_path=None, common_path=None):
 
 # ------------------------------------------------------- lexicon check ------
 
-def check_lexicon(terms=None):
-    """Does the API actually honour each <phoneme>, or silently fall back?
+# A spelling no phoneme string will ever be read as, used as the control below.
+_DECOY = 'Zqwlfrixthorb'
 
-    Synthesise the bare term and the tagged term. If the two clips are the same
-    bytes, the tag did nothing and the entry is a lie — the voice is reading the
-    spelling. Any difference at all means the IPA was parsed and used."""
+
+def check_lexicon(terms=None, verbose=True):
+    """Does the API actually honour each <phoneme>, or silently drop it?
+
+    Comparing the bare term against the tagged term does NOT answer that. Both
+    "the tag was dropped" and "the IPA happens to agree with the spelling
+    reading" give byte-identical audio, and the second is a perfectly good entry.
+    Drona is the example: DROH-na either way.
+
+    So the tag is put on a decoy spelling instead. If the IPA is honoured the
+    clip says the IPA; if it is rejected the clip says "Zqwlfrixthorb". Those can
+    never be the same audio, so a byte match against the untagged decoy is proof
+    the tag was thrown away — which is the only real defect.
+
+    The term-vs-tagged comparison is still run and reported, but only as
+    information: "accepted, and changes nothing" is a fine outcome and means the
+    voice was already saying it right."""
     raw = json.load(open(LEXICON, encoding='utf-8'))
     todo = [(k, v['ipa']) for k, v in raw.items()
             if not k.startswith('_') and v.get('ipa')
             and (not terms or k.lower() in {t.lower() for t in terms})]
-    bad = []
+    control = _say_ssml('<speak>%s</speak>' % _DECOY)
+    bad, noop = [], []
     for i, (term, ipa) in enumerate(todo):
-        plain = '<speak>%s</speak>' % escape(term)
-        tagged = '<speak><phoneme alphabet="ipa" ph="%s">%s</phoneme></speak>' % (
-            escape(ipa), escape(term))
+        tag = '<phoneme alphabet="ipa" ph="%s">%%s</phoneme>' % escape(ipa)
         try:
-            a, b = _say_ssml(plain), _say_ssml(tagged)
+            decoy = _say_ssml('<speak>%s</speak>' % (tag % _DECOY))
+            plain = _say_ssml('<speak>%s</speak>' % escape(term))
+            tagged = _say_ssml('<speak>%s</speak>' % (tag % escape(term)))
         except Exception as e:
             print('ERROR', term, str(e)[:100], flush=True)
             bad.append((term, ipa, 'request failed'))
             continue
-        if a == b or abs(len(a) - len(b)) < 8:
-            print('FALLBACK %-24s %s' % (term, ipa), flush=True)
-            bad.append((term, ipa, 'tag dropped'))
+        if decoy == control or abs(len(decoy) - len(control)) < 8:
+            print('REJECTED %-24s %s' % (term, ipa), flush=True)
+            bad.append((term, ipa, 'tag dropped - unsupported symbol'))
+        elif plain == tagged or abs(len(plain) - len(tagged)) < 8:
+            noop.append(term)
+            if verbose:
+                print('  no-op  %-24s %s  (voice already said it this way)'
+                      % (term, ipa), flush=True)
         if (i + 1) % 25 == 0:
             print('  ...', i + 1, '/', len(todo), flush=True)
-    print('checked %d, %d fell back' % (len(todo), len(bad)))
+    print('checked %d: %d rejected, %d accepted-but-no-op, %d accepted-and-changed'
+          % (len(todo), len(bad), len(noop), len(todo) - len(bad) - len(noop)))
     return bad
 
 

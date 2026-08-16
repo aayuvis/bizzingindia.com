@@ -11,7 +11,18 @@
    EDITORIAL NOTE (see docs/05): the Sikh tradition is represented by the Khanda and
    Harmandir Sahib rather than by a portrait of a Guru. Many Sikhs hold that the Gurus
    should not be depicted; the symbols carry the meaning without taking that risk.
-   Deities are drawn reverently and identified by their traditional attributes. */
+   Deities are drawn reverently and identified by their traditional attributes.
+
+   The two epic packs (Ramayana, Mahabharata) are raster-only: they ship as painted
+   256x256 PNGs under app/art and have no inline-SVG fallback here, because the point
+   of them is a face a child can recognise across twenty-four episodes and the SVG
+   idiom cannot carry thirty distinguishable human faces. app.js art() prefers the PNG
+   anyway, so nothing else changes.
+
+   ON THE ANTAGONISTS (docs/05 §7): Ravana, Duryodhana, Shakuni and Kaikeyi are painted
+   as people — proud, formidable, human — and never as villains' faces. No snarl, no
+   horns, no monstrous colouring. The epics in this app refuse to flatten them and the
+   art has to hold that line, because a child reads the face before the words. */
 
 window.IND_AVATAR_ART = window.IND_AVATAR_ART || {};
 
@@ -574,7 +585,13 @@ window.IND_AVATAR_PACKS = [
   { id: 'darbar', name: "Akbar's Darbar",  note: 'The cleverest court in the world.',
     ids: ['akbar','birbal','tansen','courtier','guard','royal_elephant'] },
   { id: 'great',  name: 'Great Indians',   note: 'Real people. Every one has an Itihaas card.',
-    ids: ['ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','aryabhata','tagore','kalpana','sarojini'] }
+    ids: ['ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','aryabhata','tagore','kalpana','sarojini'] },
+  /* The epic casts. Rama, Hanuman and Krishna already live in the Devas pack and are
+     not repeated here — an id in two packs renders twice in the picker. */
+  { id: 'ramayana', name: 'The Ramayana',    note: 'Everyone the story is about, not only the ones who win.',
+    ids: ['sita','lakshmana','bharata','dasharatha','kaikeyi','ravana','vibhishana','sugriva','jatayu','shabari','vishwamitra','mandodari','valmiki'] },
+  { id: 'mahabharata', name: 'The Mahabharata', note: 'One family that could not stop. Nobody here is only a villain.',
+    ids: ['draupadi','arjuna','bhima','yudhishthira','nakula','sahadeva','karna','bhishma','drona','dhritarashtra','gandhari','kunti','duryodhana','shakuni','vidura','ekalavya','abhimanyu'] }
 ];
 
 window.IND_AVATAR_NAMES = {
@@ -590,7 +607,19 @@ window.IND_AVATAR_NAMES = {
   ashoka:'Ashoka', chanakya:'Chanakya', shivaji:'Shivaji', lakshmibai:'Rani Lakshmibai',
   gandhi:'Mohandas Gandhi', ambedkar:'B. R. Ambedkar', bhagat:'Bhagat Singh',
   kalam:'A. P. J. Abdul Kalam', aryabhata:'Aryabhata', tagore:'Rabindranath Tagore',
-  kalpana:'Kalpana Chawla', sarojini:'Sarojini Naidu'
+  kalpana:'Kalpana Chawla', sarojini:'Sarojini Naidu',
+  /* Ramayana. Names are the ones a child will hear at home; no epithets, no titles
+     that would rank one character above another. */
+  sita:'Sita', lakshmana:'Lakshmana', bharata:'Bharata', dasharatha:'Dasharatha',
+  kaikeyi:'Kaikeyi', ravana:'Ravana', vibhishana:'Vibhishana', sugriva:'Sugriva',
+  jatayu:'Jatayu', shabari:'Shabari', vishwamitra:'Vishwamitra', mandodari:'Mandodari',
+  valmiki:'Valmiki',
+  /* Mahabharata */
+  draupadi:'Draupadi', arjuna:'Arjuna', bhima:'Bhima', yudhishthira:'Yudhishthira',
+  nakula:'Nakula', sahadeva:'Sahadeva', karna:'Karna', bhishma:'Bhishma',
+  drona:'Drona', dhritarashtra:'Dhritarashtra', gandhari:'Gandhari', kunti:'Kunti',
+  duryodhana:'Duryodhana', shakuni:'Shakuni', vidura:'Vidura', ekalavya:'Ekalavya',
+  abhimanyu:'Abhimanyu'
 };
 
 
@@ -628,6 +657,19 @@ window.IND_AVATAR_RARITY = {
   ashoka:'legendary', chanakya:'epic', shivaji:'legendary', lakshmibai:'legendary',
   gandhi:'legendary', ambedkar:'legendary', bhagat:'epic', kalam:'legendary',
   aryabhata:'epic', tagore:'epic', kalpana:'epic', sarojini:'rare',
+  /* Ramayana — graded by how much of the story rests on them, NOT by whether the
+     story approves of them. Ravana is legendary because he carries half the epic;
+     Kaikeyi is epic for the same reason. Nothing here grades a person as worse. */
+  sita:'legendary', ravana:'legendary', lakshmana:'epic', kaikeyi:'epic',
+  jatayu:'epic', vishwamitra:'epic', valmiki:'epic', bharata:'rare',
+  dasharatha:'rare', vibhishana:'rare', sugriva:'rare', shabari:'rare',
+  mandodari:'rare',
+  /* Mahabharata */
+  draupadi:'legendary', arjuna:'legendary', karna:'legendary', bhishma:'legendary',
+  duryodhana:'legendary', bhima:'epic', yudhishthira:'epic', drona:'epic',
+  gandhari:'epic', kunti:'epic', shakuni:'epic', ekalavya:'epic',
+  nakula:'rare', sahadeva:'rare', dhritarashtra:'rare', vidura:'rare',
+  abhimanyu:'rare',
   /* Mascots — always yours */
   gattu:'free', gattu_happy:'free', gattu_think:'free', gattu_wow:'free',
   mithu:'free', vismriti:'rare'

@@ -170,5 +170,245 @@
  },
  "vismriti": {
   "prompt": "Vismriti, the Forgetting: a soft faceless little mist spirit. A rounded puffy cloud body in clearly visible dove-grey and muted lavender-grey, distinctly darker than the white background so its shape reads at small sizes, with soft violet-grey shading underneath, drooping and sagging as if tired, wispy trailing tails at the bottom that fade away and two small wispy arm-like curls that hang down. It has NO face at all: no eyes, no mouth, no expression, no features of any kind. It looks lonely and sad, never scary: no teeth, no claws, no glowing eyes, not a monster, not a ghost. A few tiny grey dust motes drift around it, and a soft pale lavender glow sits behind it."
+ },
+ "sita": {
+  "prompt": "Sita, princess of Mithila: a chibi princess with warm brown skin in a golden-yellow silk sari with a deep red and gold border, long black hair in one thick braid with small white jasmine flowers woven through it, a small round red bindi, gold jhumka earrings and one simple gold necklace, standing straight and level with her chin up and both hands quietly at her sides, holding one small green leafy sprig. Calm, clear-eyed, warm and completely self-possessed — she is drawn with exactly the weight and presence of a king, never shy, never decorative, never waiting to be rescued. Drawn reverently, dignified and serene, never comic, never a caricature. A soft warm golden glow behind the figure. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "lakshmana": {
+  "prompt": "Lakshmana, Rama's younger brother, in the forest years: a chibi young prince with warm brown skin, plain saffron-ochre forest cloth over one shoulder and a simple dhoti, his hair tied up in a neat topknot, no crown and almost no ornament, a small quiver of arrows on his back and a plain wooden longbow held UNSTRUNG at rest, pointing straight down at his side, never raised and never drawn. Alert, watchful and standing a half step forward, the way somebody stands when they are guarding a person they love. Drawn reverently, dignified and serene, never comic, never a caricature. A soft warm golden glow behind the figure. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "bharata": {
+  "prompt": "Bharata, who would not sit on his brother's throne: a chibi young prince in plain undyed cream cloth with a simple brown shawl, his hair in a matted ascetic's knot, barefoot, wearing no crown and no ornament at all, carrying very carefully in both hands in front of him one pair of small golden sandals resting on a small red cushion. Grave, gentle, tired and completely upright. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "dasharatha": {
+  "prompt": "Dasharatha, the old king of Ayodhya: a chibi elderly king with warm brown skin, a kind deeply lined face, a full white beard and white moustache, a tall gold crown with one red jewel, cream and gold robes with a deep red sash, both hands resting quietly one over the other in front of him. Grandfatherly, warm, and carrying an old sadness. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "kaikeyi": {
+  "prompt": "Kaikeyi, the youngest queen of Ayodhya: a chibi queen with warm brown skin in a rich crimson and gold silk sari, long black hair with a gold maang-tikka on the parting, a red bindi, gold armlets and jhumka earrings, standing very straight with her chin up and one hand resting on her hip. She is proud, sharp, brave and entirely certain of herself: a formidable woman who loves fiercely and makes one terrible choice. Draw her as a real person with the same weight and presence as any king in the story — NOT a villain: no scowl, no sneer, no cruel or cunning face, no dark shadow, nothing frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "ravana": {
+  "prompt": "Ravana, king of Lanka, drawn as the SCHOLAR AND MUSICIAN he is first: a chibi king with warm brown skin, ONE single calm handsome face, a neat black moustache and a short trimmed beard, a tall many-tiered gold crown, deep blue and gold royal robes with heavy gold necklaces and armlets, holding at rest in both hands one small veena, a long-necked Indian string instrument. Proud, brilliant, learned, formidable and completely human. He is NOT a monster and NOT a villain's face: exactly one head and one face, no extra heads, no fangs, no horns, no claws, no green or grey or blue skin, no red or glowing eyes, no snarl, no sneer, no weapon, no fire, no dark shadow, nothing frightening for a four-year-old. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "vibhishana": {
+  "prompt": "Vibhishana, Ravana's younger brother, the one who says the true thing out loud: a chibi man with warm brown skin, a modest thin gold circlet instead of a crown, a plain white and gold dhoti with a green sash, one string of rudraksha beads, both hands folded together quietly in front of him, a gentle troubled honest face. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "sugriva": {
+  "prompt": "Sugriva, the vanara king of Kishkindha: a chibi monkey person standing upright on two stubby legs, with warm reddish-copper fur, a paler cream muzzle and chest, big round ears, a long curled tail, a small gold crown, one broad gold armband and a red sash across his chest, no weapon. Friendly, hearty and a little rueful, like somebody who knows he once forgot a promise. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "hanuman.png",
+   "pt_monkey.png"
+  ]
+ },
+ "jatayu": {
+  "prompt": "Jatayu, the great old bird of the forest: a chibi giant vulture standing upright with his wings folded, a very big round head, a soft white ruff of feathers around his neck, deep chestnut-brown and warm tan wing feathers, a short hooked grey-gold beak and two sturdy grey feet, huge gentle tired kind eyes. Old, brave and grandfatherly. Never scary: no blood, no wounds, no torn feathers, no raised wings, no menace, nothing frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "pt_heron.png",
+   "hanuman.png"
+  ]
+ },
+ "shabari": {
+  "prompt": "Shabari, the old forest woman who waited her whole life: a chibi elderly tribal woman with warm dark brown skin, soft white hair tied back, deep laughter lines and a face lit right up with joy, a simple faded orange cotton sari with a green border, a few small clay and seed beads at her throat, holding out in both hands one small woven leaf basket of dark purple berries. Poor, plain, radiant and completely dignified. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "vishwamitra": {
+  "prompt": "Vishwamitra, the sage who walked into a throne room and asked for a boy: a chibi sage with warm brown skin, a long grey-white beard, matted hair piled in a topknot, a bark-brown and saffron robe over one shoulder, one plain wooden staff held upright at his side, strong dark eyebrows and a sharp impatient kindly face. Fierce and warm at the same time. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "mandodari": {
+  "prompt": "Mandodari, queen of Lanka, who tells her husband to his face that he is wrong: a chibi queen with warm brown skin in a deep emerald-green and gold silk sari, an elaborate gold crown, gold jhumka earrings and a red bindi, standing perfectly straight with both hands clasped quietly in front of her, a calm steady intelligent sorrowful face. Drawn with the full weight and presence of a ruler, never decorative and never passive. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "valmiki": {
+  "prompt": "Valmiki, the poet who first told the Ramayana: a chibi sage with warm brown skin, long white hair and a long white beard, a plain cream robe over one shoulder, holding one bundled palm-leaf manuscript in one hand and a slim reed pen in the other, with one small brown songbird perched on his shoulder. Gentle, thoughtful and listening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "draupadi": {
+  "prompt": "Draupadi, queen of the Pandavas, who asks the question nobody in the hall can answer: a chibi woman with warm brown skin in a deep red and gold silk sari, very long thick black hair loose over one shoulder, a gold maang-tikka, a red bindi and gold jhumka earrings, standing perfectly straight with her chin level and both hands at her sides, meeting the viewer's eye with a steady unflinching intelligent gaze. Drawn with exactly the weight and presence of a king: never decorative, never passive, never distressed, never in disarray. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "arjuna": {
+  "prompt": "Arjuna, the third Pandava and the archer: a chibi young man with warm brown skin, a white and gold dhoti with a deep blue sash, a simple thin gold circlet, tidy dark hair, a quiver of arrows on his back and his tall bow held UNSTRUNG at rest, pointing straight down at his side, never raised, never drawn, no arrow on the string. Focused, calm and completely unshowy. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "bhima": {
+  "prompt": "Bhima, the second Pandava, the strong one: a big broad cheerful chibi man with warm brown skin and round shoulders, a saffron and gold dhoti, one heavy gold armband, a wide open grin, and his great mace standing head-down on the ground beside him with one hand resting loosely on the top of the handle, never lifted and never swung. Huge, warm, hungry and enormously good-natured. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "yudhishthira": {
+  "prompt": "Yudhishthira, the eldest Pandava, the one who cannot make himself lie: a chibi man with warm brown skin, a plain white and gold dhoti with a pale gold sash, a simple thin gold circlet, a short neat beard, no weapon of any kind, both hands resting quietly one over the other. Calm, upright, kind and visibly troubled — the face of somebody weighing something. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "nakula": {
+  "prompt": "Nakula, the fourth Pandava, the handsome twin who understands horses: a chibi young man with warm brown skin, neatly combed hair, a pale blue and silver dhoti with a cream sash, holding a soft rope halter in one hand, with one small friendly chibi brown pony standing beside him; the pony has the same big round eyes and rounded chibi shapes. Bright, quick and good-humoured. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "sahadeva": {
+  "prompt": "Sahadeva, the fifth Pandava, the quiet one who already knows what happens next: a chibi young man with warm brown skin, a soft sage-green and cream dhoti, a small silver armband, holding one bundled palm-leaf almanac in both hands, a thoughtful watchful face and a very slight closed-mouth smile, as though he has decided not to say. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "karna": {
+  "prompt": "Karna, born to the sun and raised by a charioteer: a chibi young man with warm golden-brown skin, soft glowing golden natural armour across his chest like a burnished breastplate and large golden earrings that are part of him, a saffron and deep red dhoti, his bow held UNSTRUNG at rest pointing straight down at his side. Proud, generous and lonely — a good and open face. Never a villain: no sneer, no scowl, nothing dark or frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "bhishma": {
+  "prompt": "Bhishma, the grandsire who gave up everything and kept his word too well: a tall chibi elder with warm brown skin, white hair and a full white beard, a plain white dhoti with a silver-grey shawl over one shoulder, a modest silver circlet, no weapon at all, standing very straight with both hands resting one over the other. Grand, immovable, sad and kind. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "drona": {
+  "prompt": "Drona, the teacher who trained both sides: a chibi brahmin teacher with warm brown skin, a shaved head with one small tuft of hair at the back, a short white beard, a cream dhoti with a saffron shawl and a sacred thread across his chest, one bundled palm-leaf book held against his chest and a plain longbow standing UNSTRUNG at rest beside him pointing down. A stern, brilliant, proud teacher's face. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "dhritarashtra": {
+  "prompt": "Dhritarashtra, the blind king of Hastinapura: a chibi elderly king with warm brown skin, a full grey beard, a tall gold crown, cream and gold royal robes, his eyes drawn simply and gently closed with soft curved lashes, one hand resting on a plain wooden staff and the other reaching very slightly forward. Soft, worried and loving; his blindness shown only as closed eyes, never grotesque, never milky, never frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "gandhari": {
+  "prompt": "Gandhari, the queen who tied a cloth over her own eyes so as not to see what her husband could not: a chibi queen with warm brown skin in a deep indigo and gold silk sari, gold jhumka earrings and gold bangles, and a plain folded cream cloth tied smoothly and neatly across her eyes — worn like a crown, because it was her own choice. Her mouth is calm and set and she stands absolutely straight, with the full weight and presence of a ruler. Formidable, sorrowful and dignified: never helpless, never pitiable, never frightening, no blank staring eyes. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "kunti": {
+  "prompt": "Kunti, mother of the Pandavas: a chibi woman with warm brown skin in a soft cream and deep red sari with a gold border, black hair drawn back with a few silver strands at the temples, a small red bindi and simple gold earrings, standing straight with both hands clasped quietly in front of her, a steady careful watchful face. Drawn with real weight and authority, a woman carrying an old secret. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "duryodhana": {
+  "prompt": "Duryodhana, eldest of the hundred Kaurava brothers, drawn as a person with a real grievance and NEVER as a villain: a chibi young prince with warm brown skin, broad square shoulders, rich royal purple and gold robes with heavy gold ornaments, a tall gold crown, a neat short black moustache, standing squarely and evenly with his chin up and both hands relaxed at his sides. Proud, strong, generous to his friends and absolutely certain he has been wronged. No snarl, no sneer, no scowl, no cruel or cunning face, no dark shadow, no weapon, nothing monstrous, nothing frightening for a four-year-old. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "shakuni": {
+  "prompt": "Shakuni, the prince of Gandhara, drawn as a real person and never as a villain: a chibi man with warm brown skin, a neat grey-flecked beard, a fine grey and gold northern robe with a soft round embroidered cap, one small pair of ivory dice resting in his open upturned palm, and a slight thoughtful half-smile. Clever, patient, watchful and entirely human. No leer, no sneer, no cunning grin, no dark shadow, nothing frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "vidura": {
+  "prompt": "Vidura, the counsellor who always says the true thing: a chibi man with warm brown skin, a short neat beard, a completely plain undyed cream dhoti and shawl with no ornament of any kind, holding one small folded palm-leaf letter in one hand, a calm honest steady face. The quietest and most trustworthy person in the room. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "ekalavya": {
+  "prompt": "Ekalavya, the forest boy who taught himself: a chibi boy with warm dark brown skin, simple undyed cloth, a single feather and a few coloured beads in his tied-back hair, both hands whole and open, a small plain bow held at rest pointing straight down at his side, standing beside one small clay figure of a teacher. Bright, determined and proud of what he learned on his own. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
+ },
+ "abhimanyu": {
+  "prompt": "Abhimanyu, Arjuna's young son: a chibi BOY, clearly smaller and younger than the grown princes, with warm brown skin, a bright blue and gold dhoti, a small gold circlet, a small bow held at rest pointing straight down at his side, and an eager fearless open smile. Young, quick and completely unafraid. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+  "refs": [
+   "ganesha.png",
+   "akbar.png",
+   "lakshmibai.png"
+  ]
  }
 }

@@ -14,3 +14,7 @@ tools/.art-raw/
 
 # Epic card masters are book assets, not app assets — deploy.sh only copies app/.
 # They are committed deliberately so they survive the container.
+
+# Python bytecode from the generator scripts.
+__pycache__/
+*.pyc

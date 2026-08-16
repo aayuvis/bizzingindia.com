@@ -1898,7 +1898,12 @@ function barakhadi(script, consonant, opts) {
       audio: script.audioNs + '/bk-' + cons.name + '-' + m.name
     });
   }
-  var target = cells[rint(rng, cells.length)];
+  /* PHASE 1: the planner can pin WHICH cell is asked for — `opts.matra` names
+     the sign whose cell becomes the target, so a session can drill the matra
+     it just introduced instead of a random one. Random when absent. */
+  var target = null;
+  if (opts.matra) { for (i = 0; i < cells.length; i++) { if (cells[i].matra === opts.matra) { target = cells[i]; break; } } }
+  if (!target) target = cells[rint(rng, cells.length)];
   var n = Math.min(opts.options || 4, cells.length);
   var wrong = sample(rng, cells, n - 1, function (c) { return c.syllable === target.syllable; });
   var row = shuffle(rng, [target].concat(wrong));
@@ -1914,6 +1919,7 @@ function barakhadi(script, consonant, opts) {
     options: opt, answerIndex: ai,
     target: target.syllable, targetRoman: target.roman,
     audio: target.audio, say: target.syllable,
+    itemKey: target.matra ? 'matra:' + target.matra : 'letter:' + cons.char,
     prompt: 'Find the one that says “' + target.roman + '”.'
   };
 }
@@ -1931,7 +1937,10 @@ function matraAttach(script, opts) {
   var n = opts.options || 4;
   var ms = gridMatras(script);
   var cons = opts.consonant ? (consonantByChar(script, opts.consonant) || pick(rng, script.consonants)) : pick(rng, script.consonants);
-  var m = opts.matra ? (function () { var i; for (i = 0; i < ms.length; i++) { if (ms[i].sign === opts.matra) return ms[i]; } return pick(rng, ms); }()) : pick(rng, ms);
+  /* A pinned matra is looked up in the FULL matra list, not just the grid —
+     ृ is taught (it is a stage 2 item) even though it is not a barakhadi
+     column, and the planner must be able to drill it. */
+  var m = opts.matra ? (function () { var i; for (i = 0; i < script.matras.length; i++) { if (script.matras[i].sign === opts.matra) return script.matras[i]; } return pick(rng, ms); }()) : pick(rng, ms);
   var wrong = sample(rng, ms, n - 1, function (x) { return x.sign === m.sign; });
   var options = shuffle(rng, [m].concat(wrong));
   var opt = [], i;
@@ -1945,6 +1954,7 @@ function matraAttach(script, opts) {
     options: opt, answer: m.sign, answerIndex: (function () { var i; for (i = 0; i < opt.length; i++) { if (opt[i].sign === m.sign) return i; } return -1; }()),
     audio: script.audioNs + '/bk-' + cons.name + '-' + m.name,
     say: syllable(cons.char, m.sign),           /* TTS fallback for the prompt sound; spoken, never shown */
+    itemKey: 'matra:' + m.sign,
     promptRoman: cons.r + m.vowel,
     target: syllable(cons.char, m.sign),        /* reveal only after answering */
     targetName: cons.r + m.vowel,
@@ -1963,21 +1973,33 @@ function soundMatch(script, opts) {
   var n = opts.options || 4;
   var kind = opts.kind || 'letter';
   var pool, item, i;
+  var wantItem = opts.item;      /* the planner's pin; a local so opts is never mutated */
 
   if (kind === 'vowel') pool = script.vowels;
   else if (kind === 'matra') pool = gridMatras(script);
   else if (kind === 'numeral') pool = script.numerals;
   else if (kind === 'syllable') {
-    /* build a small pool of barakhadi syllables across random consonants */
+    /* build a small pool of barakhadi syllables across random consonants.
+       PHASE 1: when the planner pins a MATRA (opts.item is a sign), the first
+       syllable is built with that matra and becomes the answer, so a session
+       can drill the sign it just introduced through syllable discrimination. */
     pool = [];
+    var pinnedM = null;
+    if (wantItem) { for (i = 0; i < script.matras.length; i++) { if (script.matras[i].sign === wantItem) { pinnedM = script.matras[i]; break; } } }
     var cons = sample(rng, script.consonants, 6), ms = gridMatras(script), c, m;
     for (i = 0; i < cons.length; i++) {
-      c = cons[i]; m = pick(rng, ms);
-      pool.push({ char: syllable(c.char, m.sign), name: c.r + m.vowel, audio: script.audioNs + '/bk-' + c.name + '-' + m.name, group: 'syllable' });
+      c = cons[i]; m = (i === 0 && pinnedM) ? pinnedM : pick(rng, ms);
+      pool.push({ char: syllable(c.char, m.sign), name: c.r + m.vowel, matra: m.sign, audio: script.audioNs + '/bk-' + c.name + '-' + m.name, group: 'syllable' });
     }
-  } else pool = script.consonants;
+    if (pinnedM) wantItem = pool[0].char;   /* the pin now names a pool member */
+  } else {
+    pool = script.consonants;
+    /* stage 1's items are vowels AND consonants; a pinned vowel flips the
+       pool so the drill discriminates vowel-against-vowel, the useful cut */
+    if (wantItem) { for (i = 0; i < script.vowels.length; i++) { if (script.vowels[i].char === wantItem) { pool = script.vowels; break; } } }
+  }
 
-  item = opts.item ? (function () { var k; for (k = 0; k < pool.length; k++) { if (pool[k].char === opts.item || pool[k].sign === opts.item) return pool[k]; } return pick(rng, pool); }()) : pick(rng, pool);
+  item = wantItem ? (function () { var k; for (k = 0; k < pool.length; k++) { if (pool[k].char === wantItem || pool[k].sign === wantItem) return pool[k]; } return pick(rng, pool); }()) : pick(rng, pool);
   var key = item.char || item.sign;
   /* Prefer distractors from the same sound family — that is the hard, and
      therefore the useful, discrimination. Fill from anywhere if short. */
@@ -1996,6 +2018,9 @@ function soundMatch(script, opts) {
   return {
     type: 'soundMatch', script: script.id, direction: script.direction, font: script.font,
     kind: kind, audio: item.audio, say: key, options: opt,
+    itemKey: kind === 'syllable' ? (item.matra ? 'matra:' + item.matra : null)
+           : kind === 'matra' ? 'matra:' + key
+           : kind === 'numeral' ? null : 'letter:' + key,
     answer: key, answerName: item.name,
     answerIndex: (function () { var k; for (k = 0; k < opt.length; k++) { if (opt[k].char === key) return k; } return -1; }()),
     prompt: 'Listen, then tap the one you heard.'
@@ -2034,6 +2059,7 @@ function wordBuild(pack, opts) {
   }
   return {
     type: 'wordBuild', pack: pack.id, script: script.id, direction: script.direction, font: script.font,
+    itemKey: 'word:' + w.word,
     word: w.word, roman: w.roman, en: w.en, theme: w.theme,
     audio: audioFor(w.audio, pack), say: w.word,
     tiles: shuffle(rng, tiles.concat(extras)),
@@ -2051,6 +2077,22 @@ function oddOneOut(script, opts) {
   opts = opts || {};
   var rng = opts.rng || rngFrom(opts.seed);
   var strategies = opts.strategy ? [opts.strategy] : ['family', 'length', 'kind'];
+  /* PHASE 1: the planner can pin the LETTER being drilled — the pinned letter
+     becomes the odd one out, so answering the question is meeting that letter.
+     A consonant pins the family strategy, a vowel with a length pins length;
+     anything else (अं, numerals) falls back to the unpinned draw. */
+  var pinned = null;
+  if (opts.item) {
+    pinned = consonantByChar(script, opts.item);
+    if (pinned && pinned.group) strategies = ['family'];
+    else {
+      pinned = null;
+      for (var pv = 0; pv < script.vowels.length; pv++) {
+        var vv = script.vowels[pv];
+        if (vv.char === opts.item && !vv.sign && typeof vv.short === 'boolean') { pinned = vv; strategies = ['length']; break; }
+      }
+    }
+  }
   var strategy = pick(rng, strategies);
   var items = [], answer = null, why = '', prompt = '', i;
 
@@ -2069,13 +2111,20 @@ function oddOneOut(script, opts) {
     var G = groupsOf(script.consonants);
     var big = [];
     for (i = 0; i < G.keys.length; i++) { if (G.map[G.keys[i]].length >= 3) big.push(G.keys[i]); }
-    var homeKey = pick(rng, big);
-    var otherKey = pick(rng, (function () { var o = [], k; for (k = 0; k < big.length; k++) { if (big[k] !== homeKey) o.push(big[k]); } return o; }()));
+    var homeKey, one;
+    if (pinned && pinned.group) {
+      /* pinned drill: the introduced letter is the odd one */
+      one = pinned;
+      homeKey = pick(rng, (function () { var o = [], k; for (k = 0; k < big.length; k++) { if (big[k] !== pinned.group) o.push(big[k]); } return o; }()));
+    } else {
+      homeKey = pick(rng, big);
+      var otherKey = pick(rng, (function () { var o = [], k; for (k = 0; k < big.length; k++) { if (big[k] !== homeKey) o.push(big[k]); } return o; }()));
+      one = pick(rng, G.map[otherKey]);
+    }
     var three = sample(rng, G.map[homeKey], 3);
-    var one = pick(rng, G.map[otherKey]);
     answer = one.char;
     items = shuffle(rng, three.concat([one]));
-    why = 'Three of them are ' + homeKey + ' sounds. That one is ' + otherKey + '.';
+    why = 'Three of them are ' + homeKey + ' sounds. That one is ' + one.group + '.';
     prompt = 'Three of these belong together. Which one does not?';
   } else if (strategy === 'length') {
     /* three long vowels and one short, or the other way round */
@@ -2086,9 +2135,10 @@ function oddOneOut(script, opts) {
       if (v.short === true) shorts.push(v); else if (v.short === false) longs.push(v);
     }
     var oddIsShort = rng() < 0.5 && shorts.length >= 1 && longs.length >= 3;
+    if (pinned) oddIsShort = pinned.short === true;   /* pinned drill: the introduced vowel is the odd one */
     var many = oddIsShort ? longs : shorts, few = oddIsShort ? shorts : longs;
-    if (many.length < 3) { many = longs; few = shorts; oddIsShort = true; }
-    var m3 = sample(rng, many, 3), odd = pick(rng, few);
+    if (many.length < 3) { many = longs; few = shorts; oddIsShort = true; pinned = null; }
+    var m3 = sample(rng, many, 3), odd = pinned || pick(rng, few);
     answer = odd.char;
     items = shuffle(rng, m3.concat([odd]));
     why = oddIsShort ? 'Three of them are long vowels. That one is short.' : 'Three of them are short vowels. That one is long.';
@@ -2109,6 +2159,7 @@ function oddOneOut(script, opts) {
   }
   return {
     type: 'oddOneOut', script: script.id, direction: script.direction, font: script.font,
+    itemKey: strategy === 'kind' ? null : 'letter:' + answer,
     strategy: strategy, items: out, answer: answer,
     answerIndex: (function () { var k; for (k = 0; k < out.length; k++) { if (out[k].char === answer) return k; } return -1; }()),
     why: why, prompt: prompt
@@ -2133,6 +2184,7 @@ function conjunctSplit(script, opts) {
   for (i = 0; i < wrong.length; i++) tiles.push({ char: wrong[i].char, name: wrong[i].name, audio: wrong[i].audio });
   return {
     type: 'conjunctSplit', script: script.id, direction: script.direction, font: script.font,
+    itemKey: 'conjunct:' + cj.char,
     conjunct: cj.char, conjunctName: cj.name, audio: cj.audio, word: cj.word,
     tiles: shuffle(rng, tiles), answer: cj.parts, parts: cj.parts,
     virama: script.virama,
@@ -2167,6 +2219,7 @@ function listenPoint(pack, opts) {
   }
   return {
     type: 'listenPoint', pack: pack.id, script: resolveScript(pack).id,
+    itemKey: 'word:' + w.word,
     audio: audioFor(w.audio, pack), say: w.word, theme: w.theme,
     options: opt, answer: w.en, answerWord: w.word, roman: w.roman,
     answerIndex: (function () { var k; for (k = 0; k < opt.length; k++) { if (opt[k].word === w.word) return k; } return -1; }()),
@@ -2185,6 +2238,7 @@ function readAloud(pack, opts) {
   var w = opts.word ? (function () { var k; for (k = 0; k < pack.lexicon.length; k++) { if (pack.lexicon[k].word === opts.word) return pack.lexicon[k]; } return pick(rng, pack.lexicon); }()) : pick(rng, pack.lexicon);
   return {
     type: 'readAloud', pack: pack.id, script: script.id, direction: script.direction, font: script.font,
+    itemKey: 'word:' + w.word,
     word: w.word, clusters: clusters(w.word), roman: w.roman, en: w.en,
     audio: audioFor(w.audio, pack), selfMark: true,
     prompt: 'Read it out loud, then listen and see how you did.'
@@ -2216,7 +2270,7 @@ function sentenceBuild(pack, opts) {
   var stage = stageOf(pack, 's4');
   var items = (stage && stage.items) || [];
   if (!items.length || typeof items[0] !== 'object') return wordBuild(pack, opts);
-  var it = opts.item || pick(rng, items);
+  var it = (opts.item && opts.item.hi) ? opts.item : pick(rng, items);
   /* Split on spaces; the danda stays attached to the last word so the child is
      not asked to place punctuation as if it were a word. */
   var words = String(it.hi).trim().split(/\s+/);
@@ -2226,6 +2280,7 @@ function sentenceBuild(pack, opts) {
   if (same && words.length > 1) { var t = tiles[0]; tiles[0] = tiles[1]; tiles[1] = t; }
   return {
     type: 'sentenceBuild',
+    itemKey: 'sent:' + (it.id || it.hi),
     prompt: it.en,
     say: it.hi,
     roman: it.roman,
@@ -2260,7 +2315,9 @@ function pickReply(pack, opts) {
      content pass lands. */
   var authored = (pack.id === 'hi' && W.IND_HI_DIALOGUES && W.IND_HI_DIALOGUES.length) ? W.IND_HI_DIALOGUES : null;
   if (authored) {
-    var d = opts.item || pick(rng, authored);
+    /* a pin only counts if it is an authored dialogue (has a reply) — the
+       planner may still hold a derived pair from before the content landed */
+    var d = (opts.item && opts.item.reply) ? opts.item : pick(rng, authored);
     var os = [{ word: d.reply.hi, roman: d.reply.roman, en: d.reply.en }];
     for (i = 0; i < (d.distractors || []).length && os.length < 3; i++) {
       os.push({ word: d.distractors[i].hi, roman: d.distractors[i].roman, en: d.distractors[i].en, whyWrong: d.distractors[i].whyWrong });
@@ -2270,6 +2327,7 @@ function pickReply(pack, opts) {
     for (i = 0; i < os.length; i++) { if (os[i].word === d.reply.hi) aa = i; }
     return {
       type: 'pickReply',
+      itemKey: 'dlg:' + (d.id || d.prompt),
       prompt: d.prompt, promptRoman: d.roman, promptEn: d.en,
       scene: d.scene || null, sceneEn: d.sceneEn || null, who: d.who || null,
       options: os, answerIndex: aa, answerEn: d.reply.en,
@@ -2287,7 +2345,7 @@ function pickReply(pack, opts) {
     if (items[i].scene && items[i].scene === items[i + 1].scene) pairs.push([items[i], items[i + 1]]);
   }
   if (!pairs.length) return wordBuild(pack, opts);
-  var pr = opts.item || pick(rng, pairs);
+  var pr = (opts.item && opts.item.length === 2 && opts.item[0] && opts.item[0].hi) ? opts.item : pick(rng, pairs);
   var ask = pr[0], reply = pr[1];
 
   var others = [];
@@ -2304,6 +2362,7 @@ function pickReply(pack, opts) {
 
   return {
     type: 'pickReply',
+    itemKey: 'dlg:' + (ask.id || ask.hi),
     prompt: ask.hi,
     promptRoman: ask.roman,
     promptEn: ask.en,
@@ -2336,13 +2395,14 @@ function readPassage(pack, opts) {
   var items = (stage && stage.items) || [], ps = [], i;
   for (i = 0; i < items.length; i++) { if (items[i] && items[i].kind === 'passage') ps.push(items[i]); }
   if (ps.length < 3) return wordBuild(pack, opts);      /* need two plausible wrong meanings */
-  var p = opts.item || pick(rng, ps);
+  var p = (opts.item && opts.item.kind === 'passage') ? opts.item : pick(rng, ps);
   var others = sample(rng, ps, 2, function (x) { return x.id === p.id; });
   var os = shuffle(rng, [{ en: p.en }, { en: others[0].en }, { en: others[1].en }]);
   var ai = 0;
   for (i = 0; i < os.length; i++) { if (os[i].en === p.en) ai = i; }
   return {
     type: 'readPassage', pack: pack.id,
+    itemKey: 'passage:' + p.id,
     hi: p.hi, roman: p.roman,
     options: os, answerIndex: ai, answerEn: p.en,
     script: resolveScript(pack).id, direction: resolveScript(pack).direction, font: resolveScript(pack).font,
@@ -2370,28 +2430,39 @@ function trace(pack, opts) {
   if (!script || script.id !== 'devanagari') return wordBuild(pack, opts);
   var rng = opts.rng || rngFrom(opts.seed);
   var ramp = script.vowels.concat(script.consonants);
-  var L = ramp[typeof opts.index === 'number' ? (opts.index % ramp.length) : rint(rng, ramp.length)];
+  /* PHASE 1: a pinned letter (opts.letter) beats the running index beats the
+     seeded draw — the planner names the exact letter a session drills. */
+  var L = null, i;
+  if (opts.letter) { for (i = 0; i < ramp.length; i++) { if (ramp[i].char === opts.letter) { L = ramp[i]; break; } } }
+  if (!L) L = ramp[typeof opts.index === 'number' ? (opts.index % ramp.length) : rint(rng, ramp.length)];
   return {
     type: 'trace', pack: pack.id, script: script.id, direction: script.direction, font: script.font,
+    itemKey: 'letter:' + L.char,
     letter: { char: L.char, name: L.name, audio: audioFor(L.audio, pack) },
     audio: audioFor(L.audio, pack), say: L.char,
     prompt: 'Trace the letter.'
   };
 }
 
+/* PHASE 1 — ITEM-AWARE GENERATION. `opts.item` on nextQuestion pins the exact
+   thing a question drills (a letter, a matra sign, a word, a sentence object)
+   so the session planner can teach an item and then ask about THAT item, not
+   a random cousin. Each wrapper translates the pin into its generator's own
+   parameter; every generator falls back to its pool when the pin is absent or
+   does not fit (a wrong-shaped pin is ignored, never an error). */
 var GENERATORS = {
-  barakhadi:     function (pack, script, rng, o) { return barakhadi(script, o.consonant, { rng: rng }); },
-  matraAttach:   function (pack, script, rng, o) { return matraAttach(script, { rng: rng, options: o.options }); },
-  soundMatch:    function (pack, script, rng, o) { return soundMatch(script, { rng: rng, kind: o.kind, options: o.options }); },
-  wordBuild:     function (pack, script, rng, o) { return wordBuild(pack, { rng: rng, theme: o.theme, maxTiles: o.maxTiles }); },
-  oddOneOut:     function (pack, script, rng, o) { return oddOneOut(script, { rng: rng, strategy: o.strategy }); },
-  conjunctSplit: function (pack, script, rng, o) { return conjunctSplit(script, { rng: rng }); },
+  barakhadi:     function (pack, script, rng, o) { return barakhadi(script, o.consonant, { rng: rng, matra: typeof o.item === 'string' ? o.item : undefined }); },
+  matraAttach:   function (pack, script, rng, o) { return matraAttach(script, { rng: rng, options: o.options, matra: typeof o.item === 'string' ? o.item : undefined }); },
+  soundMatch:    function (pack, script, rng, o) { return soundMatch(script, { rng: rng, kind: o.kind, options: o.options, item: typeof o.item === 'string' ? o.item : undefined }); },
+  wordBuild:     function (pack, script, rng, o) { return wordBuild(pack, { rng: rng, theme: o.theme, maxTiles: o.maxTiles, word: typeof o.item === 'string' ? o.item : undefined }); },
+  oddOneOut:     function (pack, script, rng, o) { return oddOneOut(script, { rng: rng, strategy: o.strategy, item: typeof o.item === 'string' ? o.item : undefined }); },
+  conjunctSplit: function (pack, script, rng, o) { return conjunctSplit(script, { rng: rng, conjunct: (o.item && o.item.hi) ? o.item.hi : (typeof o.item === 'string' ? o.item : undefined) }); },
   sentenceBuild: function (pack, script, rng, o) { return sentenceBuild(pack, { rng: rng, item: o.item }); },
   pickReply:     function (pack, script, rng, o) { return pickReply(pack, { rng: rng, item: o.item }); },
-  listenPoint:   function (pack, script, rng, o) { return listenPoint(pack, { rng: rng, theme: o.theme, options: o.options }); },
-  readAloud:     function (pack, script, rng, o) { return readAloud(pack, { rng: rng }); },
+  listenPoint:   function (pack, script, rng, o) { return listenPoint(pack, { rng: rng, theme: o.theme, options: o.options, word: typeof o.item === 'string' ? o.item : undefined }); },
+  readAloud:     function (pack, script, rng, o) { return readAloud(pack, { rng: rng, word: typeof o.item === 'string' ? o.item : undefined }); },
   readPassage:   function (pack, script, rng, o) { return readPassage(pack, { rng: rng, item: o.item }); },
-  trace:         function (pack, script, rng, o) { return trace(pack, { rng: rng, index: o.index }); }
+  trace:         function (pack, script, rng, o) { return trace(pack, { rng: rng, index: o.index, letter: typeof o.item === 'string' ? o.item : undefined }); }
 };
 
 function stageOf(pack, stageId) {
@@ -2450,6 +2521,311 @@ function srsItems(packId) {
   return out;
 }
 
+/* ================================================= THE SESSION PLANNER ===
+   Phase 1 of the rebuild. nextQuestion() picks a fair random question; a
+   LESSON is not random. session() plans an arc of ~12 graded beats:
+
+       INTRODUCE  the first unseen items of stage.items IN LIST ORDER —
+                  "order is the ramp" made true at last. An introduction is a
+                  teach-first beat (show the thing plainly, one Got-it), and
+                  each new item is then drilled twice straight away.
+       DRILL      the new and the recent — items whose SRS cards sit in the
+                  low boxes (0–2), the ones still wet.
+       CLOSE      with review — whatever IND_SRS.due() says has slipped,
+                  longest-overdue first.
+
+   The planner reads the child's per-pack state (srs cards, rolling window,
+   band, path) and never writes it — the app owns the writes. */
+
+var SESSION_GRADED = 12;   /* graded beats per session; matches the stage target */
+var MAX_INTRO = 4;         /* never more than four brand-new things in one sitting */
+var TESTOUT_N = 6;         /* the test-out challenge: six questions, five to pass */
+
+/* which generators can be PINNED to an item of each kind — type variety for a
+   drilled item comes from intersecting this with the stage's legal types */
+var PIN_TYPES = {
+  letter:   ['soundMatch', 'oddOneOut', 'trace'],
+  matra:    ['matraAttach', 'barakhadi', 'soundMatch'],
+  word:     ['listenPoint', 'wordBuild'],
+  sent:     ['sentenceBuild'],
+  dlg:      ['pickReply'],
+  conjunct: ['conjunctSplit'],
+  passage:  ['readPassage']
+};
+
+/* kid-warm nouns for the session preview — [singular, plural] per stage */
+var STAGE_NOUN = {
+  s0: ['word', 'words'], s1: ['letter', 'letters'], s2: ['matra', 'matras'],
+  s3: ['word', 'words'], s4: ['sentence', 'sentences'], s5: ['reply', 'replies'],
+  s6: ['conjunct', 'conjuncts'], s7: ['letter', 'letters']
+};
+
+function uniq(a) { var o = [], i; for (i = 0; i < a.length; i++) { if (indexOf(o, a[i]) < 0) o.push(a[i]); } return o; }
+
+/* The rolling window: the last 12 graded answers for a pack, each
+   { ok: 0|1, nw: 0|1 } where nw marks the item as new-ish (its card sat in
+   box ≤ 2 when asked). acc is null until anything is in it. */
+function windowAcc(win) {
+  var i, n = 0, right = 0, newish = 0;
+  for (i = 0; i < (win || []).length; i++) { n++; right += win[i].ok ? 1 : 0; newish += win[i].nw ? 1 : 0; }
+  return { n: n, acc: n ? right / n : null, newish: newish };
+}
+
+/* THE BAND — a per-pack ability band 1–5, the Bee's proven rules simplified.
+   CLIMB FAST, FALL SLOW: promotion needs only 10 answers at ≥80% (with at
+   least 3 new-ish items among them, so coasting on old cards cannot promote);
+   demotion needs a full window of 12 under 65%. A child on a good day rises
+   in one session; a child on a bad day has to have a genuinely bad stretch
+   before anything gets easier, and even then nothing is ever taken away —
+   the band only paces how much NEW arrives. */
+function bandStep(band, win) {
+  var w = windowAcc(win);
+  band = Math.max(1, Math.min(5, band || 1));
+  if (w.n >= 10 && w.acc >= 0.80 && w.newish >= 3) return Math.min(5, band + 1);
+  if (w.n >= 12 && w.acc < 0.65) return Math.max(1, band - 1);
+  return band;
+}
+
+/* Every drillable unit of a stage, in ramp order, each with the stable key
+   its SRS card lives under. Kinds mirror PIN_TYPES. Stages whose items are
+   still the derived skeleton (a Punjabi s4's grammar-point ids) yield no
+   units — the session runs unpinned there and the authoring gap stays
+   visible, never papered over. */
+function unitsOf(pack, stage) {
+  var items = stage.items || [], out = [], i, it;
+  if (!items.length) return out;
+  if (stage.id === 's5') {
+    /* the authored-dialogue seam first (what pickReply itself prefers) */
+    var dlg = (pack.id === 'hi' && W.IND_HI_DIALOGUES && W.IND_HI_DIALOGUES.length) ? W.IND_HI_DIALOGUES : null;
+    if (dlg) {
+      for (i = 0; i < dlg.length; i++) out.push({ key: 'dlg:' + (dlg[i].id || dlg[i].prompt), kind: 'dlg', item: dlg[i] });
+      return out;
+    }
+    if (typeof items[0] !== 'object') return [];
+    /* derived pairs: a turn followed by a turn in the same scene */
+    for (i = 0; i < items.length - 1; i++) {
+      if (items[i].scene && items[i].scene === items[i + 1].scene) {
+        out.push({ key: 'dlg:' + (items[i].id || items[i].hi), kind: 'dlg', item: [items[i], items[i + 1]] });
+      }
+    }
+    return out;
+  }
+  for (i = 0; i < items.length; i++) {
+    it = items[i];
+    if (typeof it === 'object') {
+      if (it.kind === 'passage') out.push({ key: 'passage:' + it.id, kind: 'passage', item: it });
+      else if (it.kind === 'conjunct') out.push({ key: 'conjunct:' + it.hi, kind: 'conjunct', item: it.hi });
+      else if (it.hi) out.push({ key: 'sent:' + (it.id || it.hi), kind: 'sent', item: it });
+    }
+    else if (stage.id === 's1' || stage.id === 's7') out.push({ key: 'letter:' + it, kind: 'letter', item: it });
+    else if (stage.id === 's2') out.push({ key: 'matra:' + it, kind: 'matra', item: it });
+    else if (stage.id === 's6') out.push({ key: 'conjunct:' + it, kind: 'conjunct', item: it });
+    else out.push({ key: 'word:' + it, kind: 'word', item: it });   /* s0, s3 */
+  }
+  return out;
+}
+
+/* the teach payload for an introduce beat: the thing shown plainly */
+function teachShow(pack, script, u) {
+  var i, j, it = u.item;
+  if (u.kind === 'letter') {
+    var lists = [script.vowels, script.consonants, script.nuktaLetters || []];
+    for (j = 0; j < lists.length; j++) {
+      for (i = 0; i < lists[j].length; i++) {
+        var L = lists[j][i];
+        if (L.char === it) return { char: it, sub: 'it says “' + (L.roman || L.name) + '”', en: null, audio: audioFor(L.audio, pack), say: it };
+      }
+    }
+    return { char: it, say: it };
+  }
+  if (u.kind === 'matra') {
+    for (i = 0; i < script.matras.length; i++) {
+      var m = script.matras[i];
+      if (m.sign === it) return { char: m.example, sub: m.name + ' — the sign adds “' + m.vowel + '”', en: null, audio: audioFor(m.audio, pack), say: m.example };
+    }
+    return { char: it, say: it };
+  }
+  if (u.kind === 'word') {
+    for (i = 0; i < pack.lexicon.length; i++) {
+      var w = pack.lexicon[i];
+      if (w.word === it) return { char: it, sub: w.roman, en: w.en, audio: audioFor(w.audio, pack), say: it };
+    }
+    return { char: it, say: it };
+  }
+  if (u.kind === 'conjunct') {
+    for (i = 0; i < (script.hardConjuncts || []).length; i++) {
+      var c = script.hardConjuncts[i];
+      if (c.char === it) return { char: it, sub: c.parts.join(' + ') + ' holding hands', en: c.word ? 'as in ' + c.word : null, audio: c.audio ? audioFor(c.audio, pack) : null, say: it };
+    }
+    return { char: it, say: it };
+  }
+  if (u.kind === 'sent') return { char: it.hi, sub: it.roman, en: it.en, small: true, say: it.hi };
+  if (u.kind === 'dlg') {
+    var line = it && it.reply ? it.reply : ((it && it.length === 2) ? it[1] : it);   /* the child's own line */
+    return { char: line.hi, sub: line.roman, en: line.en, small: true, say: line.hi };
+  }
+  if (u.kind === 'passage') return { char: it.hi, sub: it.roman, en: it.en, small: true, say: it.hi };
+  return { char: String(it), say: String(it) };
+}
+
+/* the k-th drill of a unit gets the k-th legal pinnable type — that is where
+   the "same item, different renderable types" variety comes from */
+function pinTypeFor(u, types, k) {
+  var legal = [], all = PIN_TYPES[u.kind] || [], i;
+  for (i = 0; i < all.length; i++) { if (indexOf(types, all[i]) >= 0) legal.push(all[i]); }
+  if (!legal.length) legal = types;
+  return legal[k % legal.length];
+}
+
+function sessionSay(stage, newN, midN, reviewN) {
+  var noun = STAGE_NOUN[stage.id] || ['thing', 'things'];
+  var bits = [];
+  if (newN) bits.push(newN + ' new ' + (newN === 1 ? noun[0] : noun[1]));
+  if (!newN && midN) bits.push('practice with your ' + noun[1]);
+  if (reviewN) bits.push(bits.length ? 'then your review' : 'review — catching what slipped');
+  if (!bits.length) bits.push('a round of ' + noun[1]);
+  return bits.join(', ');
+}
+
+/* session(packId, stageId, st, opts) -> the planned arc.
+
+   `st` is the child's per-pack record, read-only here:
+       { srs: {key: card}, window: [{ok,nw}...], band: 1-5, path: 'heritage'|'beginner' }
+
+   opts: { now, seed, testout }. Returns:
+       { specs: [...], graded, newN, drillN, reviewN, say }
+   spec: { kind: 'introduce', item, key, show }         (ungraded, one Got-it)
+         { kind: 'drill'|'review', item, key, type }    (graded) */
+function session(packId, stageId, st, opts) {
+  var pack = resolvePack(packId);
+  if (!pack) return null;
+  var script = resolveScript(pack);
+  var stage = stageOf(pack, stageId);
+  opts = opts || {};
+  var now = opts.now || Date.now();
+  var rng = rngFrom(opts.seed !== undefined ? opts.seed : (packId + ':' + stageId + ':' + Math.floor(now / 86400000)));
+  var srs = (st && st.srs) || {};
+  var units = unitsOf(pack, stage);
+  var types = uniq(stage.types || ['soundMatch']);
+  var i, u;
+
+  /* TEST-OUT: six pinned questions spread evenly across the WHOLE ramp — full
+     difficulty by construction, because the far end of the list is in it. */
+  if (opts.testout) {
+    var ts = [], n = Math.min(TESTOUT_N, units.length || TESTOUT_N);
+    for (i = 0; i < n; i++) {
+      if (units.length) {
+        u = units[Math.min(units.length - 1, Math.floor((i + 0.5) * units.length / n))];
+        ts.push({ kind: 'drill', item: u.item, key: u.key, type: pinTypeFor(u, types, i) });
+      } else ts.push({ kind: 'drill', item: null, key: null, type: types[i % types.length] });
+    }
+    while (ts.length < TESTOUT_N) ts.push({ kind: 'drill', item: null, key: null, type: types[ts.length % types.length] });
+    return { specs: ts, graded: ts.length, testout: true, newN: 0, drillN: ts.length, reviewN: 0,
+             say: 'Six questions, full difficulty. Five right opens it.' };
+  }
+
+  /* split the ramp by what the cards say */
+  var unseen = [], learning = [], byKey = {};
+  for (i = 0; i < units.length; i++) {
+    u = units[i]; u.idx = i; byKey[u.key] = u;
+    var c = srs[u.key];
+    if (!c) unseen.push(u);
+    else if (srsBox(c) <= 2) learning.push(u);
+  }
+  /* the review pool: IND_SRS.due() over the child's cards for this stage,
+     keeping only real reviews (box ≥ 1) — box-0 cards are still "learning" */
+  var cards = [];
+  for (i = 0; i < units.length; i++) { if (srs[units[i].key]) cards.push(srs[units[i].key]); }
+  var dueCards = srsDue(cards, now), dueUnits = [];
+  for (i = 0; i < dueCards.length; i++) {
+    u = byKey[dueCards[i].key];
+    if (u && srsBox(dueCards[i]) >= 1) dueUnits.push(u);
+  }
+
+  /* 85% STEERING. The window is the last 12 graded answers for this pack.
+     Under ~70% the next session brings nothing new and leans on review of
+     what slipped; over ~90% it brings one extra new item. In between, the
+     band alone sets the pace. Simple, honest, and it never punishes — a bad
+     stretch only means the session gets gentler. */
+  var w = windowAcc(st && st.window);
+  var band = Math.max(1, Math.min(5, (st && st.band) || 1));
+  var newN = band >= 4 ? 3 : band >= 2 ? 2 : 1;
+  if (w.n >= 8 && w.acc < 0.70) newN = 0;
+  else if (w.n >= 8 && w.acc > 0.90) newN += 1;
+  /* a brand-new stage has nothing recent to drill: rather than pound one new
+     item twelve times, seed the sitting with up to four introductions */
+  var anySeen = false;
+  for (i = 0; i < units.length; i++) { if (srs[units[i].key]) { anySeen = true; break; } }
+  if (!anySeen && newN > 0) newN = MAX_INTRO;
+
+  /* BAND DEPTH GATE (word stages): a low band only draws NEW words from the
+     front of the ramp — band 1 sees the first fifth (never fewer than 24),
+     band 5 the whole list. Letters and matras are short ladders and are not
+     gated. Since introduction is first-unseen-in-order, this only bites when
+     a child has raced ahead of their band. */
+  var depth = (stage.id === 's0' || stage.id === 's3')
+    ? Math.max(24, Math.ceil(units.length * band / 5)) : units.length;
+  var inReach = [];
+  for (i = 0; i < unseen.length; i++) { if (unseen[i].idx < depth) inReach.push(unseen[i]); }
+  newN = Math.min(newN, MAX_INTRO, inReach.length);
+
+  /* INTRODUCE — the first unseen items IN LIST ORDER, each taught then
+     drilled twice in different renderable types */
+  var specs = [], intro = inReach.slice(0, newN);
+  for (i = 0; i < intro.length; i++) {
+    u = intro[i];
+    specs.push({ kind: 'introduce', item: u.item, key: u.key, show: teachShow(pack, script, u) });
+    specs.push({ kind: 'drill', item: u.item, key: u.key, type: pinTypeFor(u, types, 0) });
+    specs.push({ kind: 'drill', item: u.item, key: u.key, type: pinTypeFor(u, types, 1) });
+  }
+  var graded = intro.length * 2;
+
+  /* CLOSE with review — a struggling window turns most of the session over
+     to it; a normal one keeps a steady tail of up to three */
+  var reviewN = Math.min(dueUnits.length, (w.n >= 8 && w.acc < 0.70) ? (SESSION_GRADED - graded) : 3, SESSION_GRADED - graded);
+
+  /* DRILL the middle — recent low-box items first, then the just-introduced
+     again, then anywhere on the ramp; a stage with no units at all (an
+     unauthored s4/s5) drills unpinned through its legal types */
+  var midN = SESSION_GRADED - graded - reviewN;
+  var pool = shuffle(rng, learning);
+  for (i = 0; i < midN; i++) {
+    u = pool.length ? pool[i % pool.length]
+      : intro.length ? intro[i % intro.length]
+      : units.length ? units[rint(rng, units.length)] : null;
+    specs.push(u ? { kind: 'drill', item: u.item, key: u.key, type: pinTypeFor(u, types, i) }
+                 : { kind: 'drill', item: null, key: null, type: types[i % types.length] });
+  }
+  for (i = 0; i < reviewN; i++) {
+    u = dueUnits[i];
+    specs.push({ kind: 'review', item: u.item, key: u.key, type: pinTypeFor(u, types, i) });
+  }
+
+  return { specs: specs, graded: SESSION_GRADED, newN: intro.length, drillN: midN, reviewN: reviewN,
+           say: sessionSay(stage, intro.length, midN, reviewN) };
+}
+
+/* READINESS — what the pack page paints per stage, straight off the boxes:
+   box 0 unseen → new · box 0 seen and 1–2 → learning · 3–4 → review ·
+   5 → mastered. */
+function readiness(packId, stageId, srs) {
+  var pack = resolvePack(packId);
+  if (!pack) return null;
+  var stage = stageOf(pack, stageId);
+  var units = unitsOf(pack, stage);
+  srs = srs || {};
+  var out = { total: units.length, unseen: 0, learning: 0, review: 0, mastered: 0 }, i, c, b;
+  for (i = 0; i < units.length; i++) {
+    c = srs[units[i].key];
+    if (!c || (!c.seen && !c.intro)) { out.unseen++; continue; }
+    b = srsBox(c);
+    if (b >= 5) out.mastered++;
+    else if (b >= 3) out.review++;
+    else out.learning++;
+  }
+  return out;
+}
+
 W.IND_BHASHA = {
   version: 1,
 
@@ -2483,9 +2859,12 @@ W.IND_BHASHA = {
   trace: trace,
   generators: GENERATORS,
 
-  /* the one the UI actually calls */
+  /* the ones the UI actually calls */
   nextQuestion: nextQuestion,
   srsItems: srsItems,
+  session: session,        /* the planned lesson arc (Phase 1) */
+  bandStep: bandStep,      /* climb fast, fall slow */
+  readiness: readiness,    /* per-stage new/learning/review/mastered counts */
 
   /* deterministic randomness, exposed so a caller can drive a whole
      session from one seed */

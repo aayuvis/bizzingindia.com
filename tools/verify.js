@@ -66,6 +66,13 @@ async function main() {
   page.on('pageerror', e => errors.push(`[${where}] ${e.message}`));
   page.on('requestfailed', r => {
     // file:// serves 404s as failed requests; http gives us a response instead.
+    //
+    // But a request the BROWSER cancels is not a missing file: the walk navigates fast, and
+    // any painting still in flight when the next view renders is aborted mid-download. Those
+    // were being reported as 404s — a false alarm that cried wolf about ninety perfectly
+    // present paintings. Only genuine failures count.
+    const why = (r.failure() || {}).errorText || '';
+    if (/ABORTED/i.test(why)) return;
     if (/\.(png|jpg|jpeg|svg|webp|mp3)$/i.test(r.url())) missing.add(r.url().split('/').slice(-2).join('/'));
   });
   page.on('response', r => {
@@ -143,6 +150,96 @@ async function main() {
   await page.evaluate(() => { window.BI_FAST = true; });
   const PER_STAGE = 12;   // the stage-completion target: prove all 12 are winnable
 
+  // Answer `count` graded questions correctly through the real UI. Phase 1 put a planned
+  // SESSION behind the stage button: introduce beats (teach cards with a Got-it) arrive
+  // between graded questions and must be drivable too, and the arc ENDS (quiz.over) after
+  // its 12 graded beats instead of running forever. Returns false on any dead end.
+  async function driveQuestions(count) {
+    for (let k = 0; k < count; k++) {
+      // drain introduce beats: each must render its Got-it and move on when tapped
+      let intros = 0;
+      for (;;) {
+        try {
+          await page.waitForFunction(() => { const z = window.BI.quizState(); return !!((z.q || z.over) && !z.lock); }, { timeout: 4000 });
+        } catch { deadEnds.push(`${where} q#${k}: no question appeared`); return false; }
+        const isIntro = await page.evaluate(() => { const z = window.BI.quizState(); return !!(z.q && z.q.type === 'introduce'); });
+        if (!isIntro) break;
+        if (++intros > 6) { deadEnds.push(`${where} q#${k}: stuck on introduce beats`); return false; }
+        const gotit = await page.evaluate(() => {
+          const b = document.querySelector('[data-act="gotit"]'); if (b) { b.click(); return true; } return false;
+        });
+        if (!gotit) { deadEnds.push(`${where} q#${k}: introduce beat without a Got-it button`); return false; }
+      }
+      const st = await page.evaluate(() => {
+        const z = window.BI.quizState(), q = z.q;
+        if (!q) return { over: z.over };
+        return {
+          type: q.type, done: z.done, right: z.right,
+          answerIndex: typeof q.answerIndex === 'number' ? q.answerIndex : null,
+          answer: Array.isArray(q.answer) ? q.answer : null,
+          letter: q.letter ? q.letter.char : null,
+          nAns: document.querySelectorAll('[data-act="ans"]').length,
+          nTiles: document.querySelectorAll('.btile').length,
+          hasCanvas: !!document.getElementById('tInk'),
+        };
+      });
+      if (st.over) { deadEnds.push(`${where} q#${k}: session ended after only ${k} graded questions`); return false; }
+      if (!st.nAns && !st.nTiles && !st.hasCanvas) {
+        deadEnds.push(`${where} q#${k} type=${st.type}: renders ZERO interactive elements`); return false;
+      }
+
+      let answered = true;
+      if (st.type === 'trace') {
+        // the canvas mounting IS the assertion; then pass it for real: paint the glyph
+        // itself as ink (same font call as the guide, so coverage is total either way),
+        // flip likhna's drew-flag with a genuine pointer stroke, and press Check.
+        if (!st.hasCanvas) { deadEnds.push(`${where} q#${k}: trace question without a canvas`); return false; }
+        await page.evaluate(ch => {
+          const c = document.getElementById('tInk').getContext('2d');
+          c.fillStyle = '#000'; c.textAlign = 'center'; c.textBaseline = 'middle';
+          c.font = '360px Mukta, "Noto Sans Devanagari", sans-serif';
+          c.fillText(ch, 256, 268);
+        }, st.letter);
+        const box = await page.locator('#tInk').boundingBox();
+        const cx = box.x + box.width / 2, cy = box.y + box.height / 2;
+        await page.mouse.move(cx, cy); await page.mouse.down();
+        await page.mouse.move(cx + 6, cy + 3, { steps: 2 }); await page.mouse.up();
+        await page.evaluate(() => document.querySelector('[data-act="tcheck"]').click());
+      } else if (st.answer && st.nTiles) {
+        // ordered build: tap the tiles that spell the answer, in order
+        for (const part of st.answer) {
+          const tapped = await page.evaluate(p => {
+            const b = [...document.querySelectorAll('.btile:not(.used)')].find(x => x.getAttribute('data-ch') === p);
+            if (b) { b.click(); return true; } return false;
+          }, part);
+          if (!tapped) { deadEnds.push(`${where} q#${k} type=${st.type}: no tile for "${part}"`); answered = false; break; }
+        }
+      } else if (st.answerIndex !== null && st.answerIndex >= 0) {
+        const tapped = await page.evaluate(i => {
+          const b = document.querySelector(`[data-act="ans"][data-i="${i}"]`); if (b) { b.click(); return true; } return false;
+        }, st.answerIndex);
+        if (!tapped) { deadEnds.push(`${where} q#${k} type=${st.type}: answerIndex ${st.answerIndex} has no button`); answered = false; }
+      } else {
+        deadEnds.push(`${where} q#${k} type=${st.type}: no way to answer it (no answerIndex, no ordered answer)`); answered = false;
+      }
+      if (!answered) return false;
+
+      // the correct answer must GRADE correct and the session must move on — to the
+      // next beat, or to the honest end of the arc
+      try {
+        await page.waitForFunction(([d, r]) => {
+          const z = window.BI.quizState(); return z.done === d + 1 && z.right === r + 1 && !!(z.q || z.over);
+        }, [st.done, st.right], { timeout: 4000 });
+      } catch {
+        const after = await page.evaluate(() => { const z = window.BI.quizState(); return { done: z.done, right: z.right }; });
+        deadEnds.push(`${where} q#${k} type=${st.type}: correct answer did not score ` +
+          `(done ${st.done}->${after.done}, right ${st.right}->${after.right})`);
+        return false;
+      }
+    }
+    return true;
+  }
+
   for (const packId of ['hi', 'pa']) {
     const stages = await page.evaluate(p => (window.IND_PACKS[p] || { stages: [] }).stages.map(s => s.id), packId);
     if (!stages.length) { deadEnds.push(`pack ${packId} has no stages`); continue; }
@@ -151,79 +248,33 @@ async function main() {
       // enter through the real doors: Bhasha page -> pack tile (resets the quiz) -> stage node
       await page.evaluate(() => window.BI.go('bhasha'));
       await page.evaluate(p => { const b = document.querySelector(`[data-act="pack"][data-id="${p}"]`); if (b) b.click(); }, packId);
-      const opened = await page.evaluate(s => {
+      let opened = await page.evaluate(s => {
         const b = document.querySelector(`[data-act="quiz"][data-s="${s}"]`); if (b) { b.click(); return true; } return false;
       }, sid);
-      if (!opened) { deadEnds.push(`${where}: no stage button on the pack page`); continue; }
 
-      for (let k = 0; k < PER_STAGE; k++) {
-        try {
-          await page.waitForFunction(() => { const z = window.BI.quizState(); return !!(z && z.q && !z.lock); }, { timeout: 4000 });
-        } catch { deadEnds.push(`${where} q#${k}: no question appeared`); break; }
-        const st = await page.evaluate(() => {
-          const z = window.BI.quizState(), q = z.q;
-          return {
-            type: q.type, done: z.done, right: z.right,
-            answerIndex: typeof q.answerIndex === 'number' ? q.answerIndex : null,
-            answer: Array.isArray(q.answer) ? q.answer : null,
-            letter: q.letter ? q.letter.char : null,
-            nAns: document.querySelectorAll('[data-act="ans"]').length,
-            nTiles: document.querySelectorAll('.btile').length,
-            hasCanvas: !!document.getElementById('tInk'),
-          };
-        });
-        if (!st.nAns && !st.nTiles && !st.hasCanvas) {
-          deadEnds.push(`${where} q#${k} type=${st.type}: renders ZERO interactive elements`); break;
-        }
-
-        let answered = true;
-        if (st.type === 'trace') {
-          // the canvas mounting IS the assertion; then pass it for real: paint the glyph
-          // itself as ink (same font call as the guide, so coverage is total either way),
-          // flip likhna's drew-flag with a genuine pointer stroke, and press Check.
-          if (!st.hasCanvas) { deadEnds.push(`${where} q#${k}: trace question without a canvas`); break; }
-          await page.evaluate(ch => {
-            const c = document.getElementById('tInk').getContext('2d');
-            c.fillStyle = '#000'; c.textAlign = 'center'; c.textBaseline = 'middle';
-            c.font = '360px Mukta, "Noto Sans Devanagari", sans-serif';
-            c.fillText(ch, 256, 268);
-          }, st.letter);
-          const box = await page.locator('#tInk').boundingBox();
-          const cx = box.x + box.width / 2, cy = box.y + box.height / 2;
-          await page.mouse.move(cx, cy); await page.mouse.down();
-          await page.mouse.move(cx + 6, cy + 3, { steps: 2 }); await page.mouse.up();
-          await page.evaluate(() => document.querySelector('[data-act="tcheck"]').click());
-        } else if (st.answer && st.nTiles) {
-          // ordered build: tap the tiles that spell the answer, in order
-          for (const part of st.answer) {
-            const tapped = await page.evaluate(p => {
-              const b = [...document.querySelectorAll('.btile:not(.used)')].find(x => x.getAttribute('data-ch') === p);
-              if (b) { b.click(); return true; } return false;
-            }, part);
-            if (!tapped) { deadEnds.push(`${where} q#${k} type=${st.type}: no tile for "${part}"`); answered = false; break; }
-          }
-        } else if (st.answerIndex !== null && st.answerIndex >= 0) {
-          const tapped = await page.evaluate(i => {
-            const b = document.querySelector(`[data-act="ans"][data-i="${i}"]`); if (b) { b.click(); return true; } return false;
-          }, st.answerIndex);
-          if (!tapped) { deadEnds.push(`${where} q#${k} type=${st.type}: answerIndex ${st.answerIndex} has no button`); answered = false; }
-        } else {
-          deadEnds.push(`${where} q#${k} type=${st.type}: no way to answer it (no answerIndex, no ordered answer)`); answered = false;
-        }
-        if (!answered) break;
-
-        // the correct answer must GRADE correct and the quiz must move on
-        try {
-          await page.waitForFunction(([d, r]) => {
-            const z = window.BI.quizState(); return z.done === d + 1 && z.right === r + 1 && !!z.q;
-          }, [st.done, st.right], { timeout: 4000 });
-        } catch {
-          const after = await page.evaluate(() => { const z = window.BI.quizState(); return { done: z.done, right: z.right }; });
-          deadEnds.push(`${where} q#${k} type=${st.type}: correct answer did not score ` +
-            `(done ${st.done}->${after.done}, right ${st.right}->${after.right})`);
-          break;
-        }
+      // A LOCKED stage is still never a wall (Phase 2): the node must open the test-out
+      // offer, and passing its six questions must unlock the stage for the ordinary walk.
+      if (!opened) {
+        where = `winnability ${packId}/${sid} (test-out)`;
+        const offered = await page.evaluate(s => {
+          const b = document.querySelector(`[data-act="testout"][data-s="${s}"]`); if (b) { b.click(); return true; } return false;
+        }, sid);
+        if (!offered) { deadEnds.push(`${where}: stage has neither a lesson nor a test-out button`); continue; }
+        const started = await page.evaluate(s => {
+          const b = document.querySelector(`[data-act="totstart"][data-s="${s}"]`); if (b) { b.click(); return true; } return false;
+        }, sid);
+        if (!started) { deadEnds.push(`${where}: the offer card has no start button`); continue; }
+        if (!await driveQuestions(6)) continue;
+        // six right of six unlocks: back through the pack page into the stage proper
+        where = `winnability ${packId}/${sid}`;
+        await page.evaluate(p => { const b = document.querySelector(`[data-act="pack"][data-id="${p}"]`); if (b) b.click(); }, packId);
+        opened = await page.evaluate(s => {
+          const b = document.querySelector(`[data-act="quiz"][data-s="${s}"]`); if (b) { b.click(); return true; } return false;
+        }, sid);
+        if (!opened) { deadEnds.push(`${where}: passed the test-out but the stage stayed locked`); continue; }
       }
+
+      await driveQuestions(PER_STAGE);
     }
   }
   await page.evaluate(() => { window.BI_FAST = false; });

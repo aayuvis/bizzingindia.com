@@ -394,8 +394,21 @@
   /* Picking a chip re-renders the whole form, so the typed name is carried
      across renders by hand — otherwise choosing your buddy erased your name. */
   var obName = '';
+  /* PLACEMENT (Phase 2, docs/09 §3): the three questions that route Bhasha —
+     does anyone speak it at home, does the child answer back, in which
+     language. The third reuses the tongue picker above and is skipped when a
+     tongue is already chosen. Heritage = spoken at home; the ear is ahead of
+     the eye and the child starts at the script, not at listening. */
+  var obPlace = { home: null, back: null };
+  function placeChips(q, opts) {
+    return '<div class="row" style="margin-top:10px">' + opts.map(function (o) {
+      return '<button class="pill' + (obPlace[q] === o[0] ? ' on' : '') + '" data-act="place" data-q="' +
+        q + '" data-v="' + o[0] + '">' + o[1] + '</button>';
+    }).join('') + '</div>';
+  }
   V.onboard = function () {
     var packs = window.IND_AVATAR_PACKS || [];
+    var tg = tongue();
     return '<div class="wrap" style="max-width:640px">' +
       '<div class="dots center" style="justify-content:center;margin-bottom:18px"><i class="on"></i><i></i></div>' +
       '<div class="card" style="padding:var(--space-2xl)">' +
@@ -411,6 +424,17 @@
         'shelf, your state glows on the map, and the grandparent words become your own. Nothing is ' +
         'hidden either way — skip it or change it whenever you like.</p>' +
         tongueChips() +
+        '<h3 style="margin-top:22px">Does anyone speak ' + (tg ? esc(tg.en) : 'it') + ' at home?</h3>' +
+        '<p class="tiny muted" style="margin:4px 0 0">This decides where the language path starts. A child ' +
+        'who already understands the spoken words skips straight to reading them.</p>' +
+        placeChips('home', [['yes', 'Yes'], ['no', 'Not really']]) +
+        (obPlace.home === 'yes'
+          ? '<h3 style="margin-top:18px">Does your child answer back?</h3>' +
+            placeChips('back', [['yes', 'Yes'], ['some', 'A little'], ['no', 'Not yet']]) +
+            (!S.tongue
+              ? '<h3 style="margin-top:18px">In which language?</h3>' + tongueChips()
+              : '')
+          : '') +
         '<h3 style="margin-top:22px">Pick who travels with you</h3>' +
         packs.map(function (p) {
           return '<div class="tiny muted" style="margin:14px 0 8px;font-weight:700">' + esc(p.name) + '</div>' +
@@ -485,7 +509,9 @@
        wrapping only when the screen genuinely cannot hold them */
     return '<div class="card notch"><div class="herorow">' +
         '<div class="greetblk"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
-        art(S.buddy, 72) +
+        /* the companion, at twice the size and tappable: it opens the deck */
+        '<button class="buddybtn" data-act="deck" aria-label="Your companions">' +
+        art(S.buddy, 216) + '</button>' +
         '<div style="flex:1"><div class="tiny muted">' + greet + ',' +
         (S.streak.count ? ' <span style="white-space:nowrap">· 🪔 ' + S.streak.count + '-day streak</span>' : '') + '</div>' +
         '<h2 style="margin:0 0 10px">' + esc(S.name || 'Yatri') + '</h2>' +
@@ -2487,29 +2513,121 @@
      correct arrangement after a wrong build. */
   function quizReset(packId) {
     return { packId: packId || null, stage: null, q: null, done: 0, right: 0,
-             build: null, fb: null, lock: false, reveal: false };
+             build: null, fb: null, lock: false, reveal: false,
+             /* Phase 1-2: the planned session — plan is IND_BHASHA.session()'s
+                arc, pi the pointer into its specs, over marks the arc spent;
+                mode 'lesson' or 'testout'; offer is a locked stage showing its
+                test-out card. */
+             plan: null, pi: 0, over: false, mode: 'lesson', offer: null };
   }
   var quiz = quizReset(null);
   function isBuild(type) { return type === 'wordBuild' || type === 'sentenceBuild' || type === 'conjunctSplit'; }
   function tileChar(t) { return typeof t === 'string' ? t : (t && t.char) || ''; }
   function packLang() { return (quiz.packId || 'hi') + '-IN'; }
 
-  /* Fetch the next question through the real engine path. `index` rides along
-     so stage 7 can ramp through the varnamala instead of jumping about. */
-  function quizNext(bump) {
-    quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now() + (bump || 0),
-                                            { index: stageStat(quiz.packId, quiz.stage).asked });
+  /* ---------------------------------------------------- THE LANG RECORD
+     One per pack in S.lang[id]. Phase 1-2 grew it from bare counters into
+     the child's whole standing in that language:
+       asked/correct    lifetime counters (pre-date the rebuild)
+       stages{sid}      per-stage {asked, correct, testout}
+       srs{key}         one Leitner card per item, moved by IND_SRS.review
+       window[]         the last 12 graded answers, {ok, nw} — steering + band
+       band 1-5         the ability band (seeded by placement)
+       path             'heritage' | 'beginner' (docs/09 §3) */
+  function ensureLang(id) {
+    var rec = S.lang[id] || (S.lang[id] = { asked: 0, correct: 0 });
+    if (!rec.srs) rec.srs = {};
+    if (!rec.stages) rec.stages = {};
+    if (!rec.window) rec.window = [];
+    if (!rec.path) {
+      /* PLACEMENT ROUTING. Placement answers route new profiles; existing
+         profiles without placement default sensibly — heritage if the family
+         tongue matches this pack, beginner otherwise. Nobody is re-onboarded. */
+      var t = tongue();
+      var match = !!(t && (t.pack === id || t.id === id));
+      rec.path = (S.placement ? (S.placement.home === 'yes' && (match || !S.tongue)) : match)
+        ? 'heritage' : 'beginner';
+    }
+    if (!rec.band) rec.band = rec.path === 'heritage' ? 2 : 1;   /* heritage ear is ahead */
+    return rec;
+  }
+
+  /* Step the planned session: an introduce beat is a teach card with one
+     Got-it; everything else goes through the real nextQuestion, pinned to
+     the item the plan names. */
+  function planStep() {
+    var specs = quiz.plan && quiz.plan.specs;
+    if (!specs || quiz.pi >= specs.length) {
+      quiz.q = null; quiz.over = true;
+      /* test-out verdict: five of six opens the stage and marks it */
+      if (quiz.mode === 'testout' && quiz.right >= TESTOUT_PASS && quiz.stage) {
+        var rec = ensureLang(quiz.packId);
+        var sst = rec.stages[quiz.stage] || (rec.stages[quiz.stage] = { asked: 0, correct: 0 });
+        if (!sst.testout) { sst.testout = true; save(); earn(8, 'tested out'); }
+      }
+      if (quiz.mode === 'lesson' && quiz.done > 0) markToday();
+      return;
+    }
+    var sp = specs[quiz.pi];
     quiz.build = { placed: [], kfocus: 0, kb: false };
     quiz.fb = null; quiz.lock = false; quiz.reveal = false;
+    if (sp.kind === 'introduce') {
+      var sh = sp.show || {};
+      quiz.q = { type: 'introduce', spec: sp, char: sh.char, sub: sh.sub, en: sh.en,
+                 audio: sh.audio, say: sh.say, small: sh.small };
+      speak(quiz.q.audio, quiz.q.say, packLang());
+      return;
+    }
+    quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now() + quiz.pi,
+      { item: sp.item, type: sp.type, index: stageStat(quiz.packId, quiz.stage).asked });
     if (quiz.q) speak(quiz.q.audio, quiz.q.say, packLang());
   }
+  function startSession(sid, mode) {
+    if (!sid) return;
+    var rec = ensureLang(quiz.packId);
+    quiz.stage = sid; quiz.mode = mode || 'lesson';
+    quiz.offer = null; quiz.over = false; quiz.done = 0; quiz.right = 0; quiz.pi = 0;
+    quiz.plan = window.IND_BHASHA.session(quiz.packId, sid, rec,
+      { now: Date.now(), testout: quiz.mode === 'testout' });
+    planStep();
+  }
+  function specNow() {
+    return (quiz.plan && quiz.plan.specs && quiz.pi < quiz.plan.specs.length)
+      ? quiz.plan.specs[quiz.pi] : null;
+  }
   function recordAnswer(ok) {
-    var rec = S.lang[quiz.packId] || (S.lang[quiz.packId] = { asked: 0, correct: 0, seen: {} });
+    var rec = ensureLang(quiz.packId);
     rec.asked++; if (ok) rec.correct++;
     /* Per stage as well as per pack, or the path has nothing to draw. */
-    rec.stages = rec.stages || {};
     var sst = rec.stages[quiz.stage] || (rec.stages[quiz.stage] = { asked: 0, correct: 0 });
     sst.asked++; if (ok) sst.correct++;
+
+    /* SRS, FOR REAL (Phase 1): every graded answer moves the item's Leitner
+       card. The key comes from the question itself (generators stamp itemKey
+       on what they actually asked), falling back to the plan's pin. */
+    var sp = specNow();
+    var key = (quiz.q && quiz.q.itemKey) || (sp && sp.key) || null;
+    var fresh = 0;
+    if (key && window.IND_SRS) {
+      var card = rec.srs[key] || (rec.srs[key] = { key: key });
+      fresh = window.IND_SRS.box(card) <= 2 ? 1 : 0;   /* new-ish at the moment of asking */
+      window.IND_SRS.review(card, ok, Date.now());
+    }
+    /* the rolling window (last 12 graded answers for this pack) feeds the 85%
+       steering and the band; the band resets the window when it moves so one
+       hot streak is not counted twice */
+    rec.window.push({ ok: ok ? 1 : 0, nw: fresh });
+    if (rec.window.length > 12) rec.window.shift();
+    var b = window.IND_BHASHA.bandStep(rec.band || 1, rec.window);
+    if (b !== (rec.band || 1)) { rec.band = b; rec.window = []; }
+
+    /* MISS REPLAY: an item answered wrong comes back later in this same
+       session — once, a couple of beats ahead, Duolingo's in-session replay */
+    if (!ok && sp && sp.kind !== 'introduce' && !sp.replay && quiz.plan) {
+      quiz.plan.specs.splice(Math.min(quiz.pi + 3, quiz.plan.specs.length), 0,
+        { kind: 'drill', item: sp.item, key: sp.key, type: sp.type, replay: true });
+      sp.replay = true;
+    }
     save();
     if (ok) { earn(2, 'correct'); quiz.right++; }
     quiz.done++;
@@ -2522,7 +2640,8 @@
          child (or the test) who starts another stage mid-beat gets their
          fresh question silently swapped from under them by the stale timer. */
       if (quiz.q !== token) return;
-      quizNext(quiz.done);
+      quiz.pi++;
+      planStep();
       render();
     }, ms);
   }
@@ -2645,56 +2764,159 @@
   /* A stage counts as done at 12 right answers — enough to have met most of its items
      without turning a library into a grind. */
   var STAGE_TARGET = 12;
+  var TESTOUT_PASS = 5;          /* of the six test-out questions */
   function stagePct(packId, sid) {
     return Math.min(100, Math.round(stageStat(packId, sid).correct / STAGE_TARGET * 100));
   }
+  /* STAGE GATES (Phase 2). A stage is MASTERED by any one of: the 12 correct
+     answers of old; a passed test-out; or SRS coverage — enough of its items
+     living in boxes 3+ that the reviews themselves prove the ground is held. */
+  function stageMastered(packId, s) {
+    var st = stageStat(packId, s.id);
+    if (st.correct >= STAGE_TARGET || st.testout) return true;
+    var r = window.IND_BHASHA.readiness(packId, s.id, (S.lang[packId] || {}).srs || {});
+    return !!r && r.total > 0 && (r.review + r.mastered) >= Math.min(r.total, STAGE_TARGET);
+  }
+  /* A stage unlocks when the one before it is mastered — but a locked stage
+     is never a wall (docs/09): tapping it opens the test-out offer, and a
+     passed test-out unlocks it directly. The heritage path starts at s1 —
+     the ear is ahead of the eye, so Listening is skippable from day one. */
+  function stageUnlocked(packId, i, stages) {
+    if (i === 0) return true;
+    var rec = ensureLang(packId);
+    if (rec.path === 'heritage' && i === 1) return true;
+    if ((rec.stages[stages[i].id] || {}).testout) return true;
+    return stageMastered(packId, stages[i - 1]);
+  }
   function nextStage(p) {
-    var list = p.stages || [];
-    for (var i = 0; i < list.length; i++) if (stagePct(p.id, list[i].id) < 100) return list[i];
+    var list = p.stages || [], rec = ensureLang(p.id), i;
+    for (i = 0; i < list.length; i++) {
+      /* the heritage child starts at the script, not at listening */
+      if (rec.path === 'heritage' && i === 0 && !stageMastered(p.id, list[0])) continue;
+      if (!stageUnlocked(p.id, i, list)) break;
+      if (!stageMastered(p.id, list[i])) return list[i];
+    }
+    for (i = 0; i < list.length; i++) { if (!stageMastered(p.id, list[i])) return list[i]; }
     return list[list.length - 1];
+  }
+
+  /* The band, worn as a travel name — NEVER a grade, never a number on
+     screen. Five stops on a journey: a new traveller, then walking, then
+     water finding its way, then a bird up on the wind, then the mountain. */
+  var BAND_LABELS = ['Naya yatri', 'Chalta hua', 'Behta paani', 'Udta panchhi', 'Parvat'];
+
+  /* the per-stage readiness chips, straight off the SRS boxes */
+  function readinessChips(r) {
+    if (!r || !r.total) return '';
+    var bits = [];
+    if (r.unseen) bits.push('<i class="rc rc-new">' + r.unseen + ' new</i>');
+    if (r.learning) bits.push('<i class="rc rc-learn">' + r.learning + ' learning</i>');
+    if (r.review) bits.push('<i class="rc rc-rev">' + r.review + ' review</i>');
+    if (r.mastered) bits.push('<i class="rc rc-mast">' + r.mastered + ' mastered</i>');
+    return bits.length ? '<span class="rchips">' + bits.join('') + '</span>' : '';
   }
 
   V.pack = function (id) {
     var p = window.IND_PACKS[id]; if (!p) return '<div class="card">Pack not found.</div>';
     var sc = window.IND_SCRIPTS[p.script];
     if (quiz.packId !== id) quiz = quizReset(id);
+    var rec = ensureLang(id);
     if (quiz.q) return '<button class="backlink" data-act="pack" data-id="' + id + '">' +
       icon('back', 18) + ' ' + esc(p.name.en) + '</button>' + V.question(quiz.q);
 
     var stages = p.stages || [];
     var nxt = nextStage(p);
-    var doneN = stages.filter(function (s) { return stagePct(id, s.id) >= 100; }).length;
+    var doneN = stages.filter(function (s) { return stageMastered(id, s); }).length;
+    var stageById = {};
+    stages.forEach(function (s) { stageById[s.id] = s; });
+
+    /* a locked stage was tapped: the test-out offer, never a wall (docs/09) */
+    var offerCard = '';
+    if (quiz.offer && stageById[quiz.offer]) {
+      var os = stageById[quiz.offer];
+      offerCard = '<div class="card totoffer"><div class="mono">Test out</div>' +
+        '<h2 style="margin:6px 0 4px">Already know ' + esc(os.name) + '?</h2>' +
+        '<p class="tiny" style="margin:0 0 12px">Six questions at full difficulty. Five right opens the ' +
+        'stage and marks it done. Fewer costs nothing — the path simply waits.</p>' +
+        '<div class="row"><button class="btn" data-act="totstart" data-s="' + esc(os.id) + '">Try the six</button>' +
+        '<button class="btn ghost" data-act="totclose">Not yet</button></div></div>';
+    }
+
+    /* the arc just finished: say what happened, warmly, and offer the next one */
+    var overCard = '';
+    if (quiz.over && quiz.stage) {
+      if (quiz.mode === 'testout') {
+        overCard = quiz.right >= TESTOUT_PASS
+          ? '<div class="card tint"><h2 style="margin:0">Tested out! ' +
+            esc((stageById[quiz.stage] || {}).name || '') + ' is open</h2>' +
+            '<p class="tiny">' + quiz.right + ' of ' + quiz.done + ' — you already carry this one.</p></div>'
+          : '<div class="card"><h2 style="margin:0">Not this time — and that is fine</h2>' +
+            '<p class="tiny">' + quiz.right + ' of ' + quiz.done + '. The stage will open the ordinary ' +
+            'way, and the six questions are always here.</p></div>';
+      } else {
+        overCard = '<div class="card tint"><h2 style="margin:0">Shabash — session done</h2>' +
+          '<p class="tiny">' + quiz.right + ' right of ' + quiz.done + '. Every answer moved one of your ' +
+          'cards along its boxes.</p>' +
+          '<button class="btn" data-act="quiz" data-s="' + esc(quiz.stage) + '">Another round</button></div>';
+      }
+    }
+
+    /* CARRY ON says what the planned session will actually do — "2 new
+       letters, then your review" — because the plan already exists. */
+    var plan = nxt ? window.IND_BHASHA.session(id, nxt.id, rec, { now: Date.now() }) : null;
 
     return '<button class="backlink" data-act="go" data-v="bhasha">' + icon('back', 18) + ' Bhasha</button>' +
 
       '<div class="card"><div class="spread">' +
         '<div><h1 class="deva" style="margin:0">' + esc(p.name.native) + '</h1>' +
         '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc.name) + '</div></div>' +
-        '<span class="pill stat">' + doneN + ' / ' + stages.length + '</span></div>' +
+        '<div style="text-align:right"><span class="pill stat">' + doneN + ' / ' + stages.length + '</span> ' +
+        /* the band as a warm travel name — never a grade, never a number */
+        '<span class="pill stat bandlbl">' + esc(BAND_LABELS[Math.max(0, Math.min(4, (rec.band || 1) - 1))]) + '</span></div></div>' +
         '<div class="meter" style="margin-top:14px"><i style="width:' +
           Math.round(doneN / Math.max(1, stages.length) * 100) + '%"></i></div></div>' +
 
-      /* The one obvious thing to do next. */
+      offerCard + overCard +
+
+      /* The one obvious thing to do next — and what it will do. */
       (nxt ? '<button class="card nextup" data-act="quiz" data-s="' + esc(nxt.id) + '">' +
         '<div class="row" style="flex-wrap:nowrap;align-items:center">' +
         mascot('gattu', 'happy', 64) +
         '<div style="flex:1;text-align:left"><div class="mono">Carry on with</div>' +
         '<h2 style="margin:2px 0 4px">' + esc(nxt.name) + '</h2>' +
-        '<p class="tiny" style="margin:0">' + esc(nxt.outcome || '') + '</p></div>' +
+        '<p class="tiny" style="margin:0">' + esc(plan && plan.say ? plan.say : (nxt.outcome || '')) + '</p></div>' +
         '<span class="btn">' + icon('play', 18) + ' Go</span></div></button>' : '') +
 
       '<div class="card"><h3 style="margin:0 0 4px">The path</h3>' +
         '<p class="tiny muted">The same eight rungs in every language — that is the point of ' +
         'the engine.</p>' +
         '<div class="path">' + stages.map(function (s, i) {
+          var done = stageMastered(id, s);
+          var unlocked = stageUnlocked(id, i, stages);
           var pct = stagePct(id, s.id);
-          var state = pct >= 100 ? 'done' : (s.id === nxt.id ? 'now' : 'ahead');
-          return '<button class="pnode ' + state + '" data-act="quiz" data-s="' + esc(s.id) + '">' +
-            '<span class="pdisc">' + (pct >= 100 ? '✓' : (i + 1)) + '</span>' +
+          var chips = readinessChips(window.IND_BHASHA.readiness(id, s.id, rec.srs));
+          if (!unlocked) {
+            /* locked LOOKS locked but stays tappable — into the test-out offer */
+            return '<button class="pnode locked" data-act="testout" data-s="' + esc(s.id) + '">' +
+              '<span class="pdisc">' + icon('lock', 14) + '</span>' +
+              '<span class="pbody"><b>' + esc(s.name) + '</b>' +
+              '<span class="tiny muted">' + esc(s.outcome || '') + '</span>' +
+              '<span class="tiny totlink">Opens after ' + esc(stages[i - 1].name) +
+              ' — or test out with six questions</span>' + chips + '</span></button>';
+          }
+          var state = done ? 'done' : (s.id === nxt.id ? 'now' : 'ahead');
+          var node = '<button class="pnode ' + state + '" data-act="quiz" data-s="' + esc(s.id) + '">' +
+            '<span class="pdisc">' + (done ? '✓' : (i + 1)) + '</span>' +
             '<span class="pbody"><b>' + esc(s.name) + '</b>' +
             '<span class="tiny muted">' + esc(s.outcome || '') + '</span>' +
             (pct > 0 && pct < 100 ? '<span class="meter sm"><i style="width:' + pct + '%"></i></span>' : '') +
-            '</span></button>';
+            chips + '</span></button>';
+          /* the heritage child starts at the script; s0 stays skippable */
+          if (i === 0 && rec.path === 'heritage' && !done) {
+            node += '<button class="totmini" data-act="testout" data-s="' + esc(s.id) + '">' +
+              'Ears ahead of eyes? Test out of ' + esc(s.name) + ' →</button>';
+          }
+          return node;
         }).join('') + '</div></div>' +
 
       /* The chart, behind its own door. */
@@ -2744,6 +2966,24 @@
       ? '<button class="btn ghost block" style="margin-bottom:14px" data-act="say" data-k="' + esc(q.audio || '') +
         '" data-t="' + esc(q.say || '') + '" data-l="' + esc(packLang()) + '">' + icon('sound', 20) + ' Hear it</button>'
       : '';
+
+    /* --- the introduce beat (Phase 1): teach first, then drill ---
+       Not a question and not graded: the new thing shown plainly — glyph,
+       name, meaning, voice — with a single Got-it (tap, or just Enter).
+       The example-sentence seam gives a word its sentence on first meeting. */
+    if (q.type === 'introduce') {
+      var isent = q.char ? exampleSentence(q.char) : null;
+      return '<div class="card introcard' + (q.small ? ' smallglyph' : '') + '">' +
+        '<div class="mono">Something new</div>' +
+        '<div class="bigglyph deva">' + esc(q.char || '') + '</div>' +
+        (q.sub ? '<p class="introsub">' + esc(q.sub) + '</p>' : '') +
+        (q.en ? '<p class="introen">' + esc(q.en) + '</p>' : '') +
+        (isent ? '<p class="tiny" style="margin:4px 0 10px"><span class="deva">' + esc(isent.s) + '</span><br>' +
+          '<span class="muted">' + esc(isent.roman) + ' — ' + esc(isent.en) + '</span></p>' : '') +
+        hear +
+        '<button class="btn lg block" data-act="gotit">Got it →</button>' +
+        '<p class="tiny muted" style="margin-top:10px">You’ll meet it again in a moment.</p></div>';
+    }
 
     /* --- trace (stage 7): the Likhna canvas, mounted after render --- */
     if (q.type === 'trace') {
@@ -3000,13 +3240,49 @@
               ['itihaas', 'Itihaas', 'clock'], ['neeti', 'Neeti', 'star'], ['bhasha', 'Bhasha', 'script'],
               ['khel', 'Khel', 'game']];
 
+  /* ------------------------------------------------------------- THE DECK */
+  /* Tapping your companion opens the whole deck as a popup — the Bee's move.
+     Every card is here, grouped by pack, each in its glow-in-the-dark finish;
+     tapping one opens its full card, and the card is where you choose to
+     travel with them. Escape or the scrim closes it. */
+  var deckOpen = false;
+
+  function deckModal() {
+    if (!deckOpen) return '';
+    var packs = window.IND_AVATAR_PACKS || [];
+    return '<div class="deckscrim" data-act="deckclose">' +
+      '<div class="deckwrap" role="dialog" aria-modal="true" aria-label="Your companions">' +
+        '<div class="deckhead"><div><h2 style="margin:0">Your deck</h2>' +
+        '<div class="tiny muted">' + (window.IND_ART_IMG || []).length +
+        ' companions · tap any card to meet them</div></div>' +
+        '<button class="iconbtn" data-act="deckclose" aria-label="Close">✕</button></div>' +
+        '<div class="deckscroll">' + packs.map(function (p) {
+          return '<div class="tiny muted deckpack">' + esc(p.name) + '</div>' +
+            '<div class="deckgrid">' + p.ids.map(function (id) {
+              var C = window.IND_AV_CARD ? window.IND_AV_CARD(id) : null;
+              return '<button class="minicard' + (C && C.sacred ? ' sacred' : '') +
+                (S.buddy === id ? ' on' : '') + '" data-act="avcard" data-id="' + id + '">' +
+                '<span class="mhalo">' + art(id, 66) + '</span>' +
+                '<b>' + esc((window.IND_AVATAR_NAMES || {})[id] || id) + '</b>' +
+                (C && C.stats
+                  ? '<span class="mstat">' + C.overall + '</span>'
+                  : (C && C.sacred ? '<span class="mstat gold">॥</span>' : '')) +
+                (S.buddy === id ? '<span class="mnow">with you</span>' : '') +
+                '</button>';
+            }).join('') + '</div>';
+        }).join('') + '</div>' +
+      '</div></div>';
+  }
+
   function chrome() {
     return '<header class="topbar"><div class="barrow">' +
       /* the mark is the peacock, not a mascot — Gattu still narrates, he just
          doesn't have to BE the logo (and the user said as much) */
-      '<div class="brand">' + (window.IND_ART_IMG && window.IND_ART_IMG.indexOf('logo') >= 0
+      /* the whole lockup — peacock and wordmark — is the way home */
+      '<button class="brand" data-act="go" data-v="home" aria-label="Bizzing India — home">' +
+      (window.IND_ART_IMG && window.IND_ART_IMG.indexOf('logo') >= 0
         ? '<img src="art/logo.png" alt="" width="68" height="68">'
-        : '') + 'Bizzing <em>India</em></div>' +
+        : '') + 'Bizzing <em>India</em></button>' +
       '<span class="pill stat">🐚 <span id="kauriCount">' + S.kauris + '</span></span>' +
       /* the family-language chip: shows the tongue in its own script, opens the picker */
       (window.IND_TONGUE
@@ -3015,7 +3291,7 @@
           '</button>'
         : '') +
       '<button class="iconbtn" data-act="sound" aria-label="sound">' + icon('sound', 20) + '</button>' +
-      '<button class="iconbtn" data-act="go" data-v="me" aria-label="you" style="overflow:hidden;padding:0">' +
+      '<button class="iconbtn" data-act="deck" aria-label="Your companions" style="overflow:hidden;padding:0">' +
       art(S.buddy, 40) + '</button>' +
       '</div><nav class="nav">' + TABS.map(function (t) {
         return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 19) + '<span>' + t[1] + '</span></button>';
@@ -3077,7 +3353,7 @@
       case 'me': h = V.me(); break;
       default: h = V.home();
     }
-    m.innerHTML = h;
+    m.innerHTML = h + deckModal();
     /* Scroll to the top only when the page actually changes. render() runs for lots of
        small things — opening a map callout, earning a bead, answering a quiz — and
        yanking the scroll position on those threw the reader back to the top of a page
@@ -3335,6 +3611,16 @@
       if (view.name === 'onboard') { var nmKeep = $('#nm'); if (nmKeep) obName = nmKeep.value; }
       S.buddy = t.getAttribute('data-id'); save(); return render();
     }
+    /* a placement chip: carry the typed name and the age slider across the
+       re-render, same care the tongue chips take */
+    if (a === 'place') {
+      if (view.name === 'onboard') {
+        var nmP = $('#nm'); if (nmP) obName = nmP.value;
+        var agP = $('#ageIn'); if (agP) S.age = +agP.value;
+      }
+      obPlace[t.getAttribute('data-q')] = t.getAttribute('data-v');
+      return render();
+    }
     if (a === 'settongue') {
       if (view.name === 'onboard') { var nmKeep2 = $('#nm'); if (nmKeep2) obName = nmKeep2.value; }
       S.tongue = t.getAttribute('data-id') || null; save();
@@ -3351,6 +3637,9 @@
       S.age = ag ? +ag.value : 8;
       S.mode = S.age <= 7 ? 'chhote' : 'bade';
       S.goal = S.age <= 7 ? 2 : 3;
+      /* the placement answers travel with the profile; ensureLang() reads
+         them the first time each pack is opened (Phase 2, docs/09 §3) */
+      if (obPlace.home) S.placement = { home: obPlace.home, back: obPlace.back, lang: S.tongue || null };
       S.started = today(); save(); return go('home');
     }
     if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); toast('Sound ' + (soundOn ? 'on' : 'off')); return render(); }
@@ -3360,10 +3649,31 @@
     if (a === 'pack')   { quiz = quizReset(null); return go('pack', t.getAttribute('data-id')); }
     if (a === 'game')   return go('game', t.getAttribute('data-id'));
     if (a === 'kahani') return go('kahani', t.getAttribute('data-id'));
-    if (a === 'avcard') return go('avcard', t.getAttribute('data-id'));
+    if (a === 'deck')      { deckOpen = true; return render(); }
+    if (a === 'deckclose') { deckOpen = false; return render(); }
+    if (a === 'avcard') { deckOpen = false; return go('avcard', t.getAttribute('data-id')); }
     if (a === 'quiz')   {
-      quiz.stage = t.getAttribute('data-s') || quiz.stage;
-      quizNext(0);
+      startSession(t.getAttribute('data-s') || quiz.stage, 'lesson');
+      return render();
+    }
+    /* the introduce beat's acknowledge: the item now has a card (box 0, due
+       straight away) so the planner counts it met — then on with the drill */
+    if (a === 'gotit') {
+      if (!quiz.q || quiz.q.type !== 'introduce') return;
+      var gsp = quiz.q.spec, grec = ensureLang(quiz.packId);
+      if (gsp && gsp.key) {
+        var gcard = grec.srs[gsp.key] || (grec.srs[gsp.key] = { key: gsp.key });
+        if (!gcard.intro) gcard.intro = Date.now();
+        save();
+      }
+      quiz.pi++; planStep();
+      return render();
+    }
+    /* a locked stage was tapped: open the test-out offer (never a wall) */
+    if (a === 'testout') { quiz.offer = t.getAttribute('data-s'); quiz.over = false; return render(); }
+    if (a === 'totclose') { quiz.offer = null; return render(); }
+    if (a === 'totstart') {
+      startSession(t.getAttribute('data-s'), 'testout');
       return render();
     }
     /* choice questions: tap an option */
@@ -3446,6 +3756,18 @@
         e.preventDefault(); return;
       }
     }
+    /* the introduce beat answers to Enter as well as touch (when the button
+       itself is focused, its native Enter click is left alone) */
+    if (e.key === 'Enter' && S.started && view.name === 'pack' && quiz.q && quiz.q.type === 'introduce' &&
+        !(e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) &&
+        !(document.activeElement && document.activeElement.getAttribute &&
+          document.activeElement.getAttribute('data-act') === 'gotit')) {
+      var gi = document.querySelector('[data-act="gotit"]');
+      if (gi) { e.preventDefault(); gi.click(); return; }
+    }
+    /* Escape closes the deck first — a popup swallows the key that would
+       otherwise navigate away underneath it */
+    if (e.key === 'Escape' && deckOpen) { deckOpen = false; return render(); }
     if (e.key === 'Escape' && S.started && view.name !== 'home') go('home');
     if (e.key === 'ArrowRight' && view.name === 'story') { var n = document.querySelector('[data-act="next"]'); if (n) n.click(); }
     /* Map states are SVG <g>, which a browser will focus but will not activate on Enter the

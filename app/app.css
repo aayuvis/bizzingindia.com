@@ -498,3 +498,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .bend, .bend:nth-child(odd) { width: 100%; margin: 0 0 var(--space-lg) 0; padding-left: 74px; }
   .bend .node, .bend:nth-child(odd) .node, .bend:nth-child(even) .node { left: -4px; right: auto; width: 54px; height: 54px; }
 }
+
+/* ------------------------------------------------------------------- MALA
+   The payoff. Not a ladder — a garland that grows and is never finished,
+   which is also true of the thing it stands for. */
+.mala { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; padding: 4px 0; }
+.mala i {
+  width: 22px; height: 22px; border-radius: 50%;
+  box-shadow: inset 0 -3px 5px rgba(0,0,0,.18), 0 1px 3px rgba(30,20,70,.22);
+  animation: beadIn .32s ease-out;
+}
+@keyframes beadIn { from { transform: scale(.2); opacity: 0 } }

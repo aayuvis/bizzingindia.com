@@ -306,6 +306,9 @@
         }).join('') +
       '</div>' +
 
+      /* the mala — deeds, not levels. See docs/12. */
+      (S.mala && S.mala.length ? V.malaStrip() : '') +
+
       /* rank ladder — the Bizzing Bee evolution row */
       '<div class="card" style="margin-top:var(--space-lg)">' +
         '<div class="spread" style="margin-bottom:14px"><h3 style="margin:0">Your yatra</h3>' +
@@ -564,6 +567,95 @@
   };
 
 
+
+  /* ------------------------------------------------------------- SANSKAAR */
+  /* The payoff here is deliberately NOT a ladder. Nobody acquires a value by
+     consuming stories, so levels would be a lie. What earns a bead is DOING the
+     small thing — and a grown-up witnessing it. The mala grows and is never
+     finished, which is also true of the thing it represents. */
+
+  V.sanskaar = function () {
+    var K = window.IND_SANSKAAR;
+    if (!K) return '<div class="card"><h1>Sanskaar</h1><p>Not loaded.</p></div>';
+    var beads = (S.mala || []).length;
+    return '<div class="card"><h1>Sanskaar</h1><p>' + esc(K.intro) + '</p>' +
+      '<p class="tiny muted">No levels here, and nothing to finish. You get a bead when you ' +
+      '<b>do</b> one of these, not when you read about it.</p></div>' +
+      (beads ? V.malaStrip() : '') +
+      '<div class="grid g2">' + K.values.map(function (v) {
+        var n = (S.mala || []).filter(function (b) { return b.v === v.id; }).length;
+        return '<button class="tile" data-act="value" data-id="' + v.id + '">' +
+          '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(v.avatar, 58) +
+          '<div style="flex:1">' +
+          '<span class="deva" style="font-size:22px;font-weight:700;color:' + v.colour + '">' + esc(v.term) + '</span> ' +
+          '<span class="mono" style="text-transform:none">' + esc(v.roman) + '</span>' +
+          '<div style="font-family:var(--display);font-weight:800;font-size:17px;margin:4px 0 3px">' + esc(v.en) + '</div>' +
+          '<div class="tiny muted">' + esc(v.kid) + '</div>' +
+          (n ? '<div class="tiny" style="margin-top:7px;color:' + v.colour + '"><b>' + n + ' bead' + (n > 1 ? 's' : '') + '</b></div>' : '') +
+          '</div></div></button>';
+      }).join('') + '</div>';
+  };
+
+  V.malaStrip = function () {
+    var K = window.IND_SANSKAAR, beads = S.mala || [];
+    var col = function (id) { var v = K.values.filter(function (x) { return x.id === id; })[0]; return v ? v.colour : 'var(--accent)'; };
+    return '<div class="card"><div class="spread" style="margin-bottom:10px">' +
+      '<div><h3 style="margin:0">Your mala</h3>' +
+      '<div class="tiny muted">One bead for every time you did something, not read something.</div></div>' +
+      '<span class="pill stat">' + beads.length + '</span></div>' +
+      '<div class="mala">' + beads.slice(-40).map(function (b) {
+        return '<i style="background:' + col(b.v) + '" title="' + esc(b.v) + '"></i>';
+      }).join('') + '</div></div>';
+  };
+
+  V.value = function (id) {
+    var K = window.IND_SANSKAAR;
+    var v = K && K.values.filter(function (x) { return x.id === id; })[0];
+    if (!v) return '<div class="card">Not found.</div>';
+    var mine = allStories().filter(function (s) { return (v.stories || []).indexOf(s.id) >= 0; });
+    var done = (S.mala || []).filter(function (b) { return b.v === v.id; });
+    var big = (S.age || 8) >= 9;
+
+    return '<button class="backlink" data-act="go" data-v="sanskaar">' + icon('back', 18) + ' Sanskaar</button>' +
+      '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(v.avatar, 92) +
+      '<div style="flex:1"><span class="deva" style="font-size:34px;font-weight:700;color:' + v.colour + '">' + esc(v.term) + '</span>' +
+      '<div class="mono" style="text-transform:none">' + esc(v.roman) + '</div>' +
+      '<h1 style="margin:6px 0 8px">' + esc(v.en) + '</h1>' +
+      '<p style="margin:0;font-size:17px">' + esc(v.kid) + '</p></div></div>' +
+      (big ? '<div class="card flat" style="margin-top:14px">' + esc(v.big) + '</div>' : '') + '</div>' +
+
+      /* THE DEED — the only thing that earns anything */
+      '<div class="card tint notch"><div class="mono">Do this one</div>' +
+      '<p style="font-family:var(--display);font-size:21px;margin:8px 0 14px">' + esc(v.doit) + '</p>' +
+      '<div class="row">' +
+      '<button class="btn" data-act="deed" data-id="' + v.id + '">I did it</button>' +
+      '<button class="btn ghost" data-act="deednani" data-id="' + v.id + '">Tell Nani</button></div>' +
+      (done.length ? '<div class="tiny muted" style="margin-top:12px">You have done this ' +
+        done.length + ' time' + (done.length > 1 ? 's' : '') + '. Last: ' + esc(done[done.length - 1].on) + '</div>' : '') +
+      '<p class="tiny muted" style="margin-top:10px">Nobody is checking. That is rather the point.</p></div>' +
+
+      (mine.length ? '<div class="card"><h3>Told this way</h3>' +
+        '<p class="tiny muted">The same idea, from different traditions. None of them is the right one.</p>' +
+        mine.map(function (s) {
+          return '<button class="tile" style="margin-bottom:9px" data-act="story" data-id="' + s.id + '">' +
+            '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(s.hero, 48) +
+            '<div style="flex:1"><b>' + esc(s.title) + '</b>' +
+            '<div class="tiny muted">' + esc(s.hook) + '</div></div></div></button>';
+        }).join('') + '</div>' : '') +
+
+      '<div class="card"><h3>Somebody who actually did it</h3>' +
+      '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(v.person.avatar, 76) +
+      '<div style="flex:1"><b>' + esc(v.person.name) + '</b>' +
+      '<div class="tiny" style="margin-top:5px">' + esc(v.person.did) + '</div></div></div></div>' +
+
+      '<div class="card flat"><div class="mono">Recited</div>' +
+      '<p style="margin:8px 0 0">' + esc(v.verse) + '</p>' +
+      '<p class="tiny muted" style="margin-top:8px">Ask a grown-up if they know this one. They ' +
+      'very likely learned it at your age.</p></div>' +
+
+      '<div class="card flat tiny"><b>Why more than one tradition.</b> ' + esc(v.note) + '</div>';
+  };
+
   /* -------------------------------------------------------------- RISHTEY */
   /* The kinship words. docs/11: the single most immediately usable thing here —
      learn it Saturday, use it on Sunday's call. */
@@ -783,7 +875,7 @@
 
   /* ================================================================== SHELL */
   var TABS = [['home', 'Home', 'chart'], ['map', 'Map', 'map'], ['stories', 'Stories', 'tree'],
-              ['bhasha', 'Bhasha', 'script'], ['rishtey', 'Rishtey', 'parent'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
+              ['bhasha', 'Bhasha', 'script'], ['sanskaar', 'Sanskaar', 'star'], ['rishtey', 'Rishtey', 'parent'], ['itihaas', 'Itihaas', 'clock'], ['dharma', 'Dharma', 'temple'], ['mela', 'Mela', 'game'], ['worlds', 'Worlds', 'star'], ['me', 'Me', 'parent']];
 
   function chrome() {
     return '<header class="topbar"><div class="bar">' +
@@ -818,6 +910,8 @@
       case 'pack': h = V.pack(view.arg); break;
       case 'mela': h = V.mela(); break;
       case 'game': h = V.game(); break;
+      case 'sanskaar': h = V.sanskaar(); break;
+      case 'value': h = V.value(view.arg); break;
       case 'rishtey': h = V.rishtey(); break;
       case 'rishquiz': h = V.rishquiz(); break;
       case 'itihaas': h = V.itihaas(); break;
@@ -831,7 +925,7 @@
     m.innerHTML = h;
     window.scrollTo(0, 0);
 
-    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas', rishquiz: 'rishtey' };
+    var alias = { state: 'map', story: 'stories', pack: 'bhasha', game: 'mela', faith: 'dharma', era: 'itihaas', rishquiz: 'rishtey', value: 'sanskaar' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
@@ -881,6 +975,22 @@
       return render();
     }
     if (a === 'rishnext') { rish.i++; rish.picked = null; return render(); }
+    if (a === 'value')  return go('value', t.getAttribute('data-id'));
+    if (a === 'deed') {
+      var vid = t.getAttribute('data-id');
+      S.mala = S.mala || [];
+      S.mala.push({ v: vid, on: today() });
+      save(); earn(5, 'you did it');
+      toast('A bead for your mala.');
+      return render();
+    }
+    if (a === 'deednani') {
+      var vv = window.IND_SANSKAAR.values.filter(function (x) { return x.id === t.getAttribute('data-id'); })[0];
+      var msg = (S.name || 'Your grandchild') + ' did this today: ' + (vv ? vv.doit : '');
+      if (navigator.share) { navigator.share({ text: msg }).catch(function () {}); }
+      else { toast('Copy this: ' + msg); }
+      return;
+    }
     if (a === 'story') {
       var id = t.getAttribute('data-id');
       play = { story: null, i: 0, answered: false }; go('story', id);

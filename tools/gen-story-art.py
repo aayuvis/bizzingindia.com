@@ -783,6 +783,18 @@ PROMPTS = {
     #   * indigenous communities where depiction risks caricature — the fk.andaman-fire
     #     pattern: paint the place and the animals.
 
+    # Composed automatically this one paints the caller's cry as lettering in the sky —
+    # the scene prose quotes it — so the call is described here without quoting it.
+    "fk.kabootarbaz": p(
+        "an Old Delhi rooftop at golden dusk: a grey-bearded kabootarbaz in a kurta "
+        "standing at the parapet waving a long cloth in a great arc, his mouth open in "
+        "a wordless call, while an enormous wheeling flock of pigeons turns as one "
+        "above him across a marigold sky; a boy beside him watches with shining eyes, "
+        "a wooden pigeon-loft full of roosting birds behind them, bowls of grain and "
+        "water on the roof; below, the packed rooftops, domes and minarets of the old "
+        "city, other tiny figures on distant roofs waving their own flocks. Warm amber "
+        "and indigo, painted wings filling the sky."),
+
     "fk.cheraman-moon": p(
         "a Kerala coastal evening at Kodungallur, told through place and light: the old "
         "Cheraman mosque in pure Kerala style — sloping tiled roofs, white walls, carved "
@@ -877,6 +889,18 @@ PROMPTS = {
         "spray of silver drops; on the far bank a gourd vine and a wild plum tree grow "
         "impossibly green. Assamese river country, mist and gold, painted ripples, "
         "tender and full of becoming."),
+
+    # Composed automatically this one drifted to a generic backwater scene; the Meitei
+    # world is anchored by hand instead.
+    "fk.sandrembi": p(
+        "a Manipuri homestead at golden evening, the moment of reunion: a gentle young "
+        "woman in a fine striped phanek and a light innaphi shawl stepping back into "
+        "human form from a soft grey glow, a grey dove's feather still drifting to the "
+        "ground beside her, while the king takes both her hands with his head bowed and "
+        "her young son runs to her arms; a Meitei house with a steep thatched roof and "
+        "a walled courtyard behind, lotus and fish in a small pond, the wide waters of "
+        "Loktak lake with its round floating phumdi islands and snowy egrets beyond. "
+        "Warm gold and deep green, painted lotus borders, tender and just."),
 
     "fk.tree-that-counts": p(
         "a Nicobar island painted as place and plenty: a curve of white beach where a "

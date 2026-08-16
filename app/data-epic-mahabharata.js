@@ -66,6 +66,9 @@ window.IND_EPIC_MAHABHARATA = {
      does not have a five-year-old episode in it. */
   age_gate: 7,
 
+  /* For grown-ups, not for the child. */
+  gate_note: 'The age numbers on these episodes are one storyteller\'s suggestion, not a verdict on your child — the Mahabharata has no easy half, so nearly every episode here carries a number and a plain line saying what is in it. Families draw this line in very different places, and they are not wrong to. Any episode can be opened by a grown-up at any time, to read first or to read alongside; nothing here is closed to you.',
+
   source: 'Attributed to the poet Vyasa, who is also a character inside his own poem. ' +
           'Scholars work from the Critical Edition assembled over decades at the ' +
           'Bhandarkar Oriental Research Institute in Pune by comparing hundreds of ' +
@@ -138,6 +141,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 8,
+  why: 'A mother carries seven of her newborn sons down to the river and gives each one to the water, and their father watches every time and says nothing, because he promised never to ask her why.',
   cards: [
     { who: null, text: 'King Shantanu of Hastinapura was walking by the Ganga one morning when he saw a woman standing in the shallow water, and he stopped walking, and that was more or less that.' },
     { who: null, text: '"Marry me," he said. She looked at him for a while. "I will," she said. "On one condition. You will never ask me why I do anything. Not once, not about anything. The day you ask, I leave."' },
@@ -163,6 +167,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 8,
+  why: 'A father stops eating over a woman he wants to marry, and his son settles it by vowing in public to give up the throne and never marry or have a child, and holds himself to that for the rest of his life.',
   cards: [
     { who: null, text: 'Years later, by a different stretch of water, Shantanu met a ferryman\'s daughter called Satyavati, and stopped walking again. He went to her father and asked for her.' },
     { who: null, text: '"Yes," said the ferryman, who was nobody\'s fool. "On one condition. Her son will be king after you. Not your son. Hers."' },
@@ -188,6 +193,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 9,
+  why: 'An unmarried girl of thirteen tries out a gift nobody has explained to her, gives birth that evening, and pushes the baby out into the river before it is light.',
   cards: [
     { who: null, text: 'In a kingdom to the south, a girl called Pritha was given the job of looking after guests. One of the guests was a sage with a famously short temper, and she looked after him so well, for so long, that he went away pleased — which almost never happened.' },
     { who: null, text: 'He left her a gift on his way out: a few words she could say to call any of the shining ones down to her, and they would have to come. Then he left. Nobody explained to her what that actually meant. She was thirteen.' },
@@ -211,6 +217,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: ['courtier'],
   gate: 8,
+  why: 'With the family line about to end, a grandmother arranges for another man to father the next generation, a queen ties a cloth over her own eyes for the rest of her life, and people in the palace say out loud that the newborn eldest should be sent away.',
   cards: [
     { who: null, text: 'Satyavati got her wish and her sons got the throne, and then both of them died young without children, and the family that Bhishma had given up everything to protect was suddenly one generation from ending.' },
     { who: null, text: 'She asked Bhishma to marry. "No," he said. That was the whole conversation, and she knew it would be. So she sent instead for her eldest son, born long before she ever met a king — the poet Vyasa. That is how the next two boys came into the family.' },
@@ -236,6 +243,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 8,
+  why: 'Boys bully each other badly — one holds his cousins underwater and counts — and then somebody puts a sleeping boy into deep water at night and the grown-ups decide it is better not to find out who.',
   cards: [
     { who: null, text: 'Bhima was the difficulty. Not because he was cruel — because he was fourteen and built like a door and did not know his own strength, and he thought a hundred cousins was the funniest thing that had ever happened to him.' },
     { who: null, text: 'He would climb a tree with all of them in it and shake the branch until they fell out like fruit. He would hold four of them underwater in the river and count. He always let go. They always came up. And every single time, a hundred boys walked home dripping and humiliated in front of the whole city.' },
@@ -284,6 +292,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: [],
   gate: 9,
+  why: 'A teacher refuses to take a boy because of the family he was born into, and years later, finding that the boy taught himself anyway, asks him for his right thumb as the teaching fee, and the boy cuts it off and hands it over.',
   cards: [
     { who: null, text: 'A boy came out of the forest to Drona\'s school. His father was the head of a forest people who lived beyond the fields, and his name was Ekalavya, and he had walked a long way.' },
     { who: null, text: 'He put his head on the ground in front of Drona. "Teach me the bow," he said. "I will do anything. I will sweep. I will carry. I have wanted this since I was small."' },
@@ -311,6 +320,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: ['courtier', 'guard'],
   gate: 9,
+  why: 'A young man is asked in front of a whole city who his father is, has no answer, and is laughed at for the family that raised him, while the mother who gave him away watches from the gallery and says nothing.',
   cards: [
     { who: null, text: 'They built an arena outside Hastinapura and the whole city came — Bhishma in the front row with Dhritarashtra beside him, Kunti and Gandhari up in the covered gallery, and not a spare inch of ground anywhere. Yudhishthira was elegant with a spear, and the twins rode. Then Bhima and Duryodhana came out with maces and went at each other so hard that the crowd split straight down the middle and started shouting for different cousins, and Drona had to send his own son in to pull them apart.' },
     { who: null, text: 'Then Arjuna came out and the arena stopped arguing. He put out fire with water arrows and made water with fire ones. He shot twenty-one arrows into a moving cow-horn. People stood on their seats.' },
@@ -338,6 +348,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: ['courtier'],
   gate: 9,
+  why: 'A family builds its cousins a guest house made to burn with them inside it, and when it burns, other people die in it and the brothers who escaped never explain that.',
   cards: [
     { who: null, text: 'After the tournament the city made its feelings clear, loudly, in the streets: make Yudhishthira the crown prince. He was the eldest of that generation. He was fair. People liked him.' },
     { who: null, text: 'Dhritarashtra did it, because he had to. And then he went and sat with his son, who did not say a single word for two days, and eventually Duryodhana said, "You gave away my throne in a corridor because a crowd shouted at you," and his father did not have an answer.' },
@@ -363,6 +374,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: ['courtier'],
   gate: 8,
+  why: 'A man who stands up to compete is refused out loud in front of every king in the world, and the woman won as the prize of that contest is then married to all five brothers because of a careless sentence at a doorway.',
   cards: [
     { who: null, text: 'King Drupada — yes, that Drupada, Drona\'s old friend — had a daughter called Draupadi, and he set a contest for her that was designed so that exactly one man in the world could win it.' },
     { who: null, text: 'A wooden fish turned on a pole high up under the roof. On the floor beneath it stood a shallow bowl of water. You had to bend a bow that most men could not lift, look only at the reflection in the water, and put an arrow through the fish\'s eye.' },
@@ -391,6 +403,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: ['courtier'],
   gate: 8,
+  why: 'A man falls into water in front of a hall of servants and kings and is laughed at — in many tellings with a joke about his father being blind — and goes home deciding to take everything his cousins own.',
   cards: [
     { who: null, text: 'Dhritarashtra split the kingdom. The brothers got the half that was scrub and rock and old forest, with no city on it and nothing growing, and the family kept Hastinapura. Yudhishthira said thank you and went, and Bhima did not speak for a week.' },
     { who: null, text: 'And then they built a city on it. It took years. They called it Indraprastha, and by the end of it people were coming a long way just to walk down the streets and look.' },
@@ -415,6 +428,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: ['courtier'],
   gate: 10,
+  why: 'There is a game of dice in which a man gambles away his property, his kingdom, his four brothers, himself and finally his wife, unable to stop, while a court full of elders watches and only one man objects.',
   cards: [
     { who: null, text: 'The invitation came from Dhritarashtra, an uncle to a nephew, and it was for a friendly game in the new hall at Hastinapura. Vidura carried it, and hated carrying it, and said so on the way in and was told to be quiet.' },
     { who: null, text: 'By the custom of the time a king who was invited to play did not refuse. Yudhishthira knew what it was. He went anyway. He said afterwards that he could not have refused and stayed a king, and people have been picking that answer apart ever since.' },
@@ -441,6 +455,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: ['courtier', 'guard'],
   gate: 10,
+  why: 'A woman is dragged into a public hall by force and something is done to her there that this episode deliberately refuses to describe, and every powerful man in the room — including her husbands and her elders — does nothing.',
   cards: [
     { who: null, text: 'The messenger went to the women\'s rooms and told her, and she did not scream and did not weep. She asked him a question and sent him back with it, and the question is the sharpest thing in the whole poem.' },
     { who: null, text: '"Go and ask my husband this. When he staked me — had he already lost himself? Because if he had, then he was not his own man. And a man who does not own himself cannot stake anybody else. So ask the hall: whose was I, at that moment?"' },
@@ -467,6 +482,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 4,
   cast: ['courtier'],
   gate: 9,
+  why: 'A mother asks her husband plainly to send their own son away before he destroys them all, he says he cannot because it is his son, and the gambler is called back to the board and loses thirteen years of his family\'s life.',
   cards: [
     { who: null, text: 'They were on the road. The chariots were loaded. The kingdom had been handed back, the brothers were free, and for about an hour it looked as if the whole disaster was going to end in an apology and a long silence at family dinners.' },
     { who: null, text: 'Then Duryodhana went to his father, with Shakuni behind him, and said what people say when they are winning and have been made to stop: "You gave it all back. In one afternoon you gave away everything I won. Do you know what they will do with it?"' },
@@ -494,6 +510,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: ['hanuman'],
   gate: 9,
+  why: 'A wife tells her husband, over and over for twelve years, that she cannot forgive him for sitting still and looking at the floor while she was dragged into that hall, and the argument is never settled.',
   cards: [
     { who: null, text: 'The Vana Parva is the longest book in the whole poem, and almost nothing happens in it. Twelve years of walking, and camping, and listening to other people\'s stories, and having the same argument over and over again around a fire.' },
     { who: null, text: 'The argument is this. Draupadi and Bhima want to go back and take the kingdom now. Yudhishthira gave his word for thirteen years and will not move. And Arjuna, mostly, sits between them and says nothing, which does not help.' },
@@ -519,6 +536,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: ['shiva'],
   gate: 8,
+  why: 'A man starves himself on a mountain for weeks to be given a weapon, kills a boar, and then fights a stranger with arrows, then hands, until he is beaten flat on the stones.',
   cards: [
     { who: null, text: 'Arjuna went north by himself, up past the snow line, to ask for weapons they were going to need. He stood on one leg for a long time and ate almost nothing and did not speak, and the mountain took its time about noticing.' },
     { who: null, text: 'Then a wild boar came crashing through the scrub straight at him, and he had a bow in his hands before he had finished thinking about it, and he shot.' },
@@ -544,6 +562,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 9,
+  why: 'A man is deliberately tricked into giving away the armour that is part of his own skin, and cuts it off his body and hands it over rather than break a rule he made for himself.',
   cards: [
     { who: null, text: 'Karna had a rule, and the whole country knew it. After his morning prayers at the water, he did not refuse anybody anything. Whatever you asked for, if you asked him then, you got it.' },
     { who: null, text: 'It was not a boast. It was the one thing he had made entirely by himself, without a father\'s name or a kingdom given to him by somebody else. It was his, and it was the only thing that was.' },
@@ -568,6 +587,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 8,
+  why: 'A man finds his four brothers lying dead beside a lake, kneels between them answering riddles about death, and is then made to choose which one of them gets to come back.',
   cards: [
     { who: null, text: 'Late in the twelve years they were deep in dry country, chasing a deer that had run off with a holy man\'s fire sticks, and they lost it, and then they lost the water, and then they were in real trouble.' },
     { who: null, text: 'Nakula climbed a tree and saw green, and went off to bring water back, and did not come back. Sahadeva went to look for him and did not come back. Arjuna went. Bhima went. Nobody came back.' },
@@ -596,6 +616,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: ['courtier'],
   gate: 9,
+  why: 'A woman working as a servant is pursued by a powerful man, is told by her husband to put up with it for the sake of a promise, and the man is found dead in the morning and the court agrees not to ask any questions.',
   cards: [
     { who: null, text: 'The thirteenth year had to be spent somewhere in the world where nobody recognised them. If anyone did, the whole thirteen started again. So they picked the court of an old king called Virata, walked in through the front door, and asked for jobs.' },
     { who: null, text: 'First they had to hide the weapons. They wrapped them in cloth and tied them high in a tree near the burning ground and told the local people it was a body, because nobody goes near one of those, which is the only reason it worked.' },
@@ -621,6 +642,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 8,
+  why: 'A boy who has boasted for years about how he would fight sees a real army, drops his bow and runs, and is caught by the hair in the open and walked back to the chariot.',
   cards: [
     { who: null, text: 'Duryodhana had worked out roughly where they must be, and came to raid Virata\'s cattle partly for the cattle and mostly to flush them out before the thirteenth year ended. The whole family came: Bhishma, Drona, Karna, all of them.' },
     { who: null, text: 'Virata and his army were away at the far border. The only person left in the palace was his son, Prince Uttara, who had spent his whole life explaining at dinner exactly what he would do if he ever got the chance.' },
@@ -647,6 +669,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 4,
   cast: ['krishna'],
   gate: 8,
+  why: 'Two cousins sit in the same room and calmly divide an army between them, which is the moment the war stops being something that might be avoided.',
   cards: [
     { who: null, text: 'Everybody now went looking for allies, and the two cousins had the same idea on the same day, which is how they both ended up in Krishna\'s room in Dwaraka while he was asleep.' },
     { who: null, text: 'Duryodhana got there first and took the chair at the head of the bed, because he was a king and that is where a king sits. Arjuna came in after and sat down on the floor at the foot, and waited.' },
@@ -671,6 +694,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: ['krishna', 'courtier'],
   gate: 9,
+  why: 'The last attempt to prevent the war fails in front of the whole court, and the court then gives an order to seize the man who came to ask for peace.',
   cards: [
     { who: null, text: 'Krishna went to Hastinapura himself, as a messenger, to try to stop it. The whole city came out onto the road to see him come in, which tells you how badly ordinary people wanted this not to happen.' },
     { who: null, text: 'He stood up in that hall — the same hall — and put the case in front of them plainly. Thirteen years had been served, exactly as agreed, down to the last day. The kingdom was owed back. It was not a favour. It was the terms.' },
@@ -695,6 +719,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 9,
+  why: 'A mother tells the son she abandoned as a newborn who he is, forty years late and a week before a war, and he tells her to her face that she has come as her other sons\' mother and not as his.',
   cards: [
     { who: null, text: 'Karna prayed at the water every morning, facing the sun, and did not turn round for anybody until he had finished. So Kunti stood behind him in the heat, in the open, and waited, and he did not know she was there.' },
     { who: null, text: 'When he finished he turned round and found the mother of the five men he was about to fight standing in the sun with her head uncovered, and he bowed and gave her his proper name — the son of the chariot driver and Radha — because that is who he had decided long ago that he was.' },
@@ -722,6 +747,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: ['hanuman', 'krishna'],
   gate: 9,
+  why: 'Eighteen armies camp for war and the elders write down the rules of it together, and the episode tells you plainly that almost every one of those rules is going to be broken, mostly by the side the story is following.',
   cards: [
     { who: null, text: 'Kurukshetra is flat, and dry, and enormous, and by the end of that week there were eighteen armies camped on it — eleven on one side and seven on the other, which tells you how the odds looked to anybody counting tents.' },
     { who: null, text: 'The night before, the elders from both camps met in the middle and wrote down the rules, together, in daylight, agreed by everybody.' },
@@ -747,6 +773,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: ['krishna'],
   gate: 10,
+  why: 'A man says between two armies that he would rather be killed than fight his own family, and the answer he is given — the long conversation that is the Bhagavad Gita — is a hard argument that sitting down is also a choice, and other people pay for it.',
   cards: [
     { who: null, text: 'The chariot stopped in the middle, between the two lines, with everybody watching. And Arjuna, who had wanted this war for thirteen years, stood up and looked along the other side properly for the first time.' },
     { who: null, text: 'His grandfather. The teacher who had taught him to hold a bow. Kripa, who had taught him before that. Cousins he had grown up with. Boys he had wrestled. Men whose houses he had eaten in.' },
@@ -773,6 +800,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 10,
+  why: 'Five men go to their own grandfather and ask him how to kill him, he tells them, they do it the next day by putting in front of him a fighter he has sworn never to shoot at, and he then lies on the arrows that felled him, alive and refusing to die, for the rest of the war.',
   cards: [
     { who: null, text: 'For nine days Bhishma held the whole field. He was old enough to be everybody\'s grandfather and there was nothing anybody on the other side could do about him, and every evening Yudhishthira came back to his tent and sat with his head in his hands.' },
     { who: null, text: 'So on the ninth night the five of them walked across to the other camp, unarmed, at night, and went into the tent of the man who was destroying them. Nobody stopped them. Everybody in both armies understood exactly what this family was.' },
@@ -800,6 +828,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 10,
+  why: 'Six grown warriors surround a sixteen-year-old boy who is alone and cannot get out, break the rules they wrote themselves to do it, and kill him — and after that both sides stop keeping the rules at all.',
   cards: [
     { who: null, text: 'On the thirteenth day Drona set out a formation shaped like a turning wheel, with the army spiralling inward, and there were only two men on the other side who knew how to break into it — Krishna and Arjuna. So the other camp arranged for both of them to be drawn far away to the south, and then closed the wheel.' },
     { who: null, text: 'And Abhimanyu, who was sixteen years old, and who was Arjuna\'s son, said he could get in.' },
@@ -825,6 +854,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: ['krishna', 'royal_elephant'],
   gate: 10,
+  why: 'The one man in the story who has never told a lie is worn down into telling a technically true one so that his old teacher will put his weapons down, and the teacher is killed sitting unarmed on the ground.',
   cards: [
     { who: null, text: 'By the fifteenth day Drona could not be stopped. He was old, and he was the best teacher of weapons who had ever lived, and he was going through the army he had taught like a man mowing.' },
     { who: null, text: 'There was exactly one thing on earth that would make him stop, and everybody knew what it was. He had a son called Ashwatthama, and he loved him past all sense, and if he believed his son was dead he would put the bow down where he stood.' },
@@ -852,6 +882,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: ['krishna'],
   gate: 10,
+  why: 'A man is shot dead while unarmed and on foot, asking for the rule both sides wrote to be kept, on the advice of a friend who answers by listing every rule the other side has already broken.',
   cards: [
     { who: null, text: 'Karna took command, and he had one day and a night of it, and he was every bit as good as everybody had always been afraid he was.' },
     { who: null, text: 'He kept his word to Kunti the whole way through. He had Yudhishthira in front of him and let him go. He had Bhima and let him go. Four times he could have ended it and four times he stepped back, and nobody on his own side ever understood why.' },
@@ -881,6 +912,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 10,
+  why: 'A duel is won by a deliberate foul blow struck on a signal from the bank, and that night men are killed in their sleep, including all five of one woman\'s sons after everything else she has already lost.',
   cards: [
     { who: null, text: 'On the eighteenth day there was almost nothing left of either army, and Duryodhana was alone. Every one of his brothers was gone. Bhishma was lying on his arrows. Drona was gone. Karna was gone. Shakuni, who had started it, was gone.' },
     { who: null, text: 'He walked away from the field with his mace and went into a lake and lay down at the bottom of it, in the cold water, and stayed there. Not hiding, he said afterwards. Resting. There is nobody left to fight beside, he said, so what exactly am I hurrying for.' },
@@ -908,6 +940,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 6,
   cast: [],
   gate: 10,
+  why: 'The women walk out onto the battlefield at first light and a mother finds and counts all hundred of her dead sons one after another, and in the same scene a grieving man curses all women, which the episode writes down and does not defend.',
   cards: [
     { who: null, text: 'This is the shortest book in the poem and it is the one people cannot read out loud. The fighting is over. The women come out of Hastinapura at first light and walk onto the field, and the poem hands them the whole story and stands back.' },
     { who: null, text: 'They had been in the city for eighteen days, hearing drums. Now they are outside, in the grey light, looking for particular people among a great many.' },
@@ -936,6 +969,7 @@ window.IND_EPIC_MAHABHARATA = {
   minutes: 5,
   cast: [],
   gate: 9,
+  why: 'Five brothers and their wife walk up into the mountains to die, and they fall one by one on the road while the eldest keeps walking and does not look back.',
   cards: [
     { who: null, text: 'They ruled for a long time, and it was fine, and it was quiet, and nobody in the palace ever quite got the field out of their head. And then one morning they took off the crowns, left them on a chair, and walked out of the city going north, with Draupadi, on foot.' },
     { who: null, text: 'A dog joined them somewhere on the road out. Nobody invited it and nobody sent it away. It simply fell in beside them and kept up, the way dogs do.' },

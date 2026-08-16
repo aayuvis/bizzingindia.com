@@ -49,6 +49,9 @@ window.IND_EPIC_RAMAYANA = {
   avatar: 'rama',
   age_gate: 5,
 
+  /* For grown-ups, not for the child. */
+  gate_note: 'The age numbers on these episodes are one storyteller\'s suggestion, not a verdict on your child. Families draw this line in different places for good reasons, and a child who is ready for one hard episode may not be ready for the next one. Any episode can be opened by a grown-up at any time — nothing here is kept from you, and every gated episode says in plain words what is in it, so you can decide rather than guess.',
+
   books: [
     { id: 'bala',       name: 'Bala Kanda',       meaning: 'The Book of Childhood',
       note: 'Four boys, a sage with a request, and a bow that had been waiting a very long time.' },
@@ -921,6 +924,7 @@ window.IND_EPIC_RAMAYANA = {
   hook: 'Some storytellers close the book at the lamps. Some do not. This is what the ones who do not tell you.',
   minutes: 6,
   gate: 10,
+  why: 'A king sends his pregnant wife away without telling her, because of one remark about her made in the street; years later he asks her to swear to her honesty again in public, she refuses, and she leaves the world rather than answer it twice.',
   note: 'Families genuinely differ about this book. A great many tellings — and a great many households — end at the return to Ayodhya and the lamps and never tell the Uttara Kanda at all; a great many others tell it in full and say it is the heart of Sita\'s story and the reason the poem exists. Both are how it is told. This app does not choose between them: the episode is here, kept for older children, and stopping at the lamps is a completely real way to have told the Ramayana.',
   cast: ['rama'],
   words_hi: [['कहानी', 'kahani', 'story'], ['धरती', 'dharti', 'the earth'], ['विदा', 'vida', 'farewell']],

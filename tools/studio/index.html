@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bizzing India — recording booth</title>
+<style>
+  /* Deliberately plain. This is a tool for one person in a quiet room, not a
+     product surface; the only things that need to be beautiful are the Hindi
+     line (large, real Devanagari, generous line-height) and the record button. */
+  :root {
+    --bg:#14102a; --card:#1e1840; --card2:#171233; --line:rgba(255,255,255,.12);
+    --text:#f2eeff; --muted:#9f95c9; --accent:#7c5cff; --good:#3fbd8a; --rec:#e2544f;
+    --deva:"Mukta","Noto Sans Devanagari","Nirmala UI",sans-serif;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  header { position:sticky; top:0; z-index:5; background:rgba(20,16,42,.96);
+           backdrop-filter:blur(6px); border-bottom:1px solid var(--line); padding:12px 18px; }
+  .bar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; max-width:900px; margin:0 auto; }
+  h1 { font-size:16px; margin:0; font-weight:700; letter-spacing:.01em; }
+  .grow { flex:1; }
+  .prog { height:6px; background:var(--card2); border-radius:99px; overflow:hidden; min-width:160px; flex:1; }
+  .prog i { display:block; height:100%; background:var(--good); width:0; transition:width .3s; }
+  main { max-width:900px; margin:0 auto; padding:22px 18px 120px; }
+
+  .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  button, select { font:inherit; color:inherit; }
+  .chip { background:var(--card); border:1px solid var(--line); color:var(--muted);
+          border-radius:99px; padding:6px 14px; cursor:pointer; }
+  .chip.on { background:var(--accent); border-color:transparent; color:#fff; }
+
+  .line { background:var(--card); border:1px solid var(--line); border-radius:16px;
+          padding:18px; margin-bottom:14px; }
+  .line.done { border-color:rgba(63,189,138,.45); }
+  .meta { display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+          font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .tag { background:var(--card2); border-radius:6px; padding:2px 8px; letter-spacing:.04em; }
+  .tag.opt { color:#c9a227; }
+  .hi { font-family:var(--deva); font-size:29px; line-height:1.75; margin:2px 0 6px; }
+  .rom { color:var(--muted); font-size:13px; font-style:italic; }
+  .en { color:var(--muted); font-size:13px; margin-top:2px; }
+  .note { color:var(--muted); font-size:12px; margin-top:8px; }
+
+  .takes { display:flex; gap:16px; flex-wrap:wrap; margin-top:14px; }
+  .take { flex:1 1 220px; background:var(--card2); border:1px solid var(--line);
+          border-radius:12px; padding:12px; }
+  .take h4 { margin:0 0 8px; font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+             color:var(--muted); font-weight:700; }
+  .take.has h4 { color:var(--good); }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .btn { background:var(--accent); border:none; border-radius:10px; padding:9px 15px;
+         cursor:pointer; font-weight:600; }
+  .btn.ghost { background:transparent; border:1px solid var(--line); color:var(--muted); }
+  .btn.rec { background:var(--rec); }
+  .btn:disabled { opacity:.4; cursor:default; }
+  .btn.recording { background:var(--rec); animation:pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity:.55; } }
+  audio { width:100%; margin-top:8px; height:34px; }
+  .size { font-size:11px; color:var(--muted); }
+
+  footer { position:fixed; left:0; right:0; bottom:0; background:rgba(20,16,42,.97);
+           border-top:1px solid var(--line); padding:12px 18px; }
+  .fbar { max-width:900px; margin:0 auto; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .msg { font-size:13px; color:var(--muted); }
+  .msg.ok { color:var(--good); }
+  .msg.err { color:var(--rec); }
+  kbd { background:var(--card2); border:1px solid var(--line); border-radius:5px;
+        padding:1px 6px; font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>Recording booth — Hindi dialogues</h1>
+    <div class="prog"><i id="pbar"></i></div>
+    <span class="size" id="pcount">…</span>
+  </div>
+</header>
+
+<main>
+  <div class="filters">
+    <button class="chip on" data-f="essential">Essential first (prompts + replies)</button>
+    <button class="chip" data-f="all">Everything</button>
+    <button class="chip" data-f="todo">Not yet recorded</button>
+    <span class="grow"></span>
+    <span class="size" id="hint">Space records the focused line · Chrome gives the smallest files</span>
+  </div>
+  <div id="list"></div>
+</main>
+
+<footer>
+  <div class="fbar">
+    <button class="btn" id="send">Send to git</button>
+    <span class="msg" id="msg">Recordings are saved as you go. Send commits them.</span>
+  </div>
+</footer>
+
+<script>
+'use strict';
+/* ---------------------------------------------------------------- state */
+var SCRIPT = null, DONE = {}, FILTER = 'essential', MEDIA = null, REC = null, RECKEY = null;
+
+var el = function (t, c, h) { var e = document.createElement(t); if (c) e.className = c; if (h != null) e.innerHTML = h; return e; };
+var esc = function (s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+var msg = function (t, k) { var m = document.getElementById('msg'); m.textContent = t; m.className = 'msg' + (k ? ' ' + k : ''); };
+
+/* Pick the smallest format this browser can actually produce. Opus in WebM is
+   the target; Safari will fall through to mp4/AAC, which is bigger but works. */
+function bestMime() {
+  var want = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/webm', 'audio/mp4'];
+  for (var i = 0; i < want.length; i++) {
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported(want[i])) return want[i];
+  }
+  return '';
+}
+
+async function mic() {
+  if (MEDIA) return MEDIA;
+  MEDIA = await navigator.mediaDevices.getUserMedia({
+    audio: {
+      channelCount: 1,            /* mono: it is one voice, and it halves the file */
+      echoCancellation: true, noiseSuppression: true, autoGainControl: true,
+      sampleRate: 48000
+    }
+  });
+  return MEDIA;
+}
+
+/* ------------------------------------------------------------ recording */
+async function startRec(key, voice, btn) {
+  if (REC) { stopRec(); return; }
+  var stream;
+  try { stream = await mic(); }
+  catch (e) { msg('No microphone: ' + e.message, 'err'); return; }
+  var mime = bestMime();
+  if (!mime) { msg('This browser cannot record audio. Use Chrome.', 'err'); return; }
+  var chunks = [];
+  REC = new MediaRecorder(stream, { mimeType: mime, audioBitsPerSecond: 24000 });
+  RECKEY = key + ':' + voice;
+  REC.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+  REC.onstop = function () {
+    var blob = new Blob(chunks, { type: mime });
+    REC = null; RECKEY = null;
+    btn.classList.remove('recording'); btn.textContent = 'Re-record';
+    upload(key, voice, blob, mime);
+  };
+  REC.start();
+  btn.classList.add('recording'); btn.textContent = 'Stop';
+  msg('Recording… press again, or Space, to stop.');
+}
+function stopRec() { if (REC && REC.state !== 'inactive') REC.stop(); }
+
+async function upload(key, voice, blob, mime) {
+  msg('Saving…');
+  try {
+    var r = await fetch('/take?key=' + encodeURIComponent(key) + '&voice=' + voice +
+                        '&mime=' + encodeURIComponent(mime),
+                        { method: 'POST', body: blob, headers: { 'Content-Type': mime } });
+    var j = await r.json();
+    if (!r.ok) throw new Error(j.error || r.status);
+    DONE[key] = DONE[key] || {};
+    DONE[key][voice] = { ext: j.file.split('.').pop(), bytes: j.bytes };
+    msg('Saved ' + j.file + ' — ' + Math.round(j.bytes / 102.4) / 10 + ' kB', 'ok');
+    paint();
+  } catch (e) { msg('Could not save: ' + e.message, 'err'); }
+}
+
+/* ------------------------------------------------------------- painting */
+function visible() {
+  if (!SCRIPT) return [];
+  return SCRIPT.lines.filter(function (l) {
+    if (FILTER === 'essential') return l.tier === 'essential';
+    if (FILTER === 'todo') { var d = DONE[l.key] || {}; return !(d.f && d.m); }
+    return true;
+  });
+}
+
+function takeBox(l, v) {
+  var d = (DONE[l.key] || {})[v.id];
+  var box = el('div', 'take' + (d ? ' has' : ''));
+  box.appendChild(el('h4', null, esc(v.label) + (d ? ' ✓' : '')));
+  var row = el('div', 'row');
+  var b = el('button', 'btn rec', d ? 'Re-record' : 'Record');
+  b.onclick = function () { startRec(l.key, v.id, b); };
+  row.appendChild(b);
+  if (d) {
+    var s = el('span', 'size', Math.round(d.bytes / 102.4) / 10 + ' kB');
+    row.appendChild(s);
+  }
+  box.appendChild(row);
+  if (d) {
+    var a = el('audio'); a.controls = true; a.preload = 'none';
+    a.src = '/audio?key=' + encodeURIComponent(l.key) + '&voice=' + v.id + '&ext=' + d.ext;
+    box.appendChild(a);
+  }
+  return box;
+}
+
+function paint() {
+  var list = document.getElementById('list');
+  list.innerHTML = '';
+  var rows = visible();
+  rows.forEach(function (l) {
+    var d = DONE[l.key] || {};
+    var card = el('div', 'line' + (d.f && d.m ? ' done' : ''));
+    var meta = el('div', 'meta');
+    meta.appendChild(el('span', 'tag', esc(l.key)));
+    meta.appendChild(el('span', 'tag' + (l.tier === 'optional' ? ' opt' : ''), esc(l.part)));
+    meta.appendChild(el('span', null, esc(l.sceneEn || l.scene)));
+    card.appendChild(meta);
+    card.appendChild(el('div', 'hi', esc(l.hi)));
+    card.appendChild(el('div', 'rom', esc(l.roman)));
+    card.appendChild(el('div', 'en', '“' + esc(l.en) + '”'));
+    card.appendChild(el('div', 'note', esc(l.note || '')));
+    var takes = el('div', 'takes');
+    SCRIPT.voices.forEach(function (v) { takes.appendChild(takeBox(l, v)); });
+    card.appendChild(takes);
+    list.appendChild(card);
+  });
+
+  var total = SCRIPT.lines.length * SCRIPT.voices.length;
+  var got = 0;
+  Object.keys(DONE).forEach(function (k) { got += Object.keys(DONE[k]).length; });
+  var ess = SCRIPT.lines.filter(function (l) { return l.tier === 'essential'; });
+  var essGot = 0;
+  ess.forEach(function (l) { essGot += Object.keys(DONE[l.key] || {}).length; });
+  document.getElementById('pbar').style.width = Math.round(got / total * 100) + '%';
+  document.getElementById('pcount').textContent =
+    got + ' of ' + total + ' takes · essential ' + essGot + '/' + (ess.length * 2);
+}
+
+/* -------------------------------------------------------------- wiring */
+document.querySelectorAll('.chip').forEach(function (c) {
+  c.onclick = function () {
+    document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
+    c.classList.add('on'); FILTER = c.getAttribute('data-f'); paint();
+  };
+});
+
+/* Space stops whatever is recording — the recordist's hands are busy holding a
+   script, and reaching for the mouse mid-take is how you get a rustle on tape. */
+document.addEventListener('keydown', function (e) {
+  if (e.code === 'Space' && REC) { e.preventDefault(); stopRec(); }
+});
+
+document.getElementById('send').onclick = async function () {
+  var b = this; b.disabled = true; msg('Committing…');
+  try {
+    var r = await fetch('/commit', { method: 'POST' });
+    var j = await r.json();
+    if (!r.ok) throw new Error(j.error || r.status);
+    if (j.nothing) msg('Nothing new to commit — ' + j.takes + ' takes already in git.', 'ok');
+    else msg('Committed ' + j.commit + ' — ' + j.takes + ' takes, ' +
+             Math.round(j.bytes / 1024) + ' kB. Push when you are ready.', 'ok');
+  } catch (e) { msg('Commit failed: ' + e.message, 'err'); }
+  b.disabled = false;
+};
+
+(async function boot() {
+  try {
+    SCRIPT = await (await fetch('/script.json')).json();
+    if (SCRIPT.error) throw new Error(SCRIPT.error);
+    DONE = await (await fetch('/done')).json();
+    paint();
+    msg(SCRIPT.counts.dialogues + ' dialogues · ' + SCRIPT.counts.essential +
+        ' essential lines · recording as ' + (bestMime() || 'nothing this browser supports'));
+  } catch (e) {
+    document.getElementById('list').innerHTML =
+      '<div class="line"><b>Could not load the script.</b><div class="note">' +
+      esc(e.message) + '</div></div>';
+  }
+}());
+</script>
+</body>
+</html>

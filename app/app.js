@@ -71,6 +71,7 @@
     schemaVersion: 1, name: '', age: 8, mode: 'bade',
     tongue: null,                 /* mother-tongue id from data-tongue.js; null = lean nowhere */
     buddy: 'ganesha', world: 'delhi6',
+    voice: 'f',                   /* which recorded voice to hear — see humanClip() */
     kauris: 0, xp: 0,
     lit: {}, read: {}, lang: {},
     streak: { days: [], last: null, count: 0 },
@@ -280,16 +281,46 @@
      preferred — it is a real voice with the vowel lengths right — but when one does not
      exist yet, the device speaks the text instead, in the right language, so the child
      always hears something and a missing clip is obvious rather than invisible. */
+  /* A HUMAN TAKE BEATS A SYNTHESISED ONE, ALWAYS.
+     tools/studio.js records real Hindi speakers straight to Opus and
+     gen-voice-manifest.js registers what it finds as IND_VOICE_HUMAN:
+         "hi/d-01-p": { e: "webm", v: "fm" }
+     `e` is the container the recording browser produced and `v` the voices that
+     exist. docs/09 §9 is blunt about why this ordering matters — synthesised
+     Indic speech mispronounces in ways that TEACH the error, and a child
+     imitates what they hear. So when a human clip exists, nothing else is
+     considered.
+
+     Voice choice is the child's, held on the profile, and falls back to
+     whichever voice was actually recorded — a line with only a female take
+     plays the female take rather than going silent. */
+  function humanClip(key) {
+    var H = window.IND_VOICE_HUMAN, h = H && H[key];
+    if (!h || !h.v) return null;
+    var want = S.voice === 'm' ? 'm' : 'f';
+    var v = h.v.indexOf(want) >= 0 ? want : h.v.charAt(0);
+    return 'voice/' + key + '-' + v + '.' + (h.e || 'webm');
+  }
   function speak(key, text, lang) {
     if (!soundOn) return;
-    if (key && (!window.IND_VOICE || window.IND_VOICE.indexOf(key) >= 0)) {
+    var src = key ? humanClip(key) : null;
+    if (src || (key && (!window.IND_VOICE || window.IND_VOICE.indexOf(key) >= 0))) {
       try {
         if (audio) audio.pause();
         /* Stamped, like every other asset. Without this a browser that cached a
            clip keeps playing it forever — which is exactly what happened when the
            whole story library was re-narrated in an Indian voice and listeners
            went on hearing the old American one from their own disk. */
-        audio = new Audio('voice/' + key + '.mp3?v=' + (window.IND_BUILD || '1'));
+        audio = new Audio((src || ('voice/' + key + '.mp3')) + '?v=' + (window.IND_BUILD || '1'));
+        /* A container this browser cannot decode must not mean silence: an old
+           iPad cannot play Opus in WebM, and the honest fallback is the
+           synthesised clip rather than nothing at all. */
+        if (src) audio.onerror = function () {
+          try {
+            audio = new Audio('voice/' + key + '.mp3?v=' + (window.IND_BUILD || '1'));
+            audio.play().catch(function () {});
+          } catch (e) {}
+        };
         audio.play().catch(function () {});
         return;
       } catch (e) {}
@@ -3614,7 +3645,7 @@
 
     /* --- choice questions --- */
     var opts = q.options || q.items || [], prompt = q.prompt || 'Pick the right one';
-    var big = '', lead = '', subFor = null, grid = true;
+    var big = '', lead = '', subFor = null, grid = true, optAudio = null;
     switch (q.type) {
       case 'listenPoint':
         prompt = 'Listen — which one is it?'; grid = false;
@@ -3670,6 +3701,13 @@
           (q.promptRoman ? '<span class="muted tiny" style="display:block;margin-top:2px">' + esc(q.promptRoman) + '</span>' : '') +
           '</div>';
         subFor = function (o) { return o.roman; };   /* roman, not en — the gloss comes after the answer */
+        /* Each option gets its own listen button once a human has recorded it.
+           A four-year-old cannot read the choices, so an unrecorded option is a
+           choice they cannot make; the button appears only when the clip is
+           real, which keeps the affordance honest. */
+        optAudio = function (o) {
+          return (o.audio && window.IND_VOICE_HUMAN && window.IND_VOICE_HUMAN[o.audio]) ? o.audio : null;
+        };
         break;
       case 'readPassage':
         prompt = q.prompt || 'Read it. What is it about?'; grid = false;
@@ -3697,10 +3735,18 @@
     }
     var choices = opts.map(function (o, i) {
       var l = esc(optLabel(o)), s = subFor ? esc(subFor(o) || '') : '';
-      return grid
+      var ak = optAudio ? optAudio(o) : null;
+      /* the listen button sits OUTSIDE the answer button — nesting one button in
+         another is invalid and makes the whole option unclickable on iOS */
+      var ear = ak
+        ? '<button class="optear" data-act="say" data-k="' + esc(ak) + '" data-l="' + esc(packLang()) +
+          '" aria-label="hear this choice">' + icon('sound', 15) + '</button>'
+        : '';
+      var btn = grid
         ? '<button class="glyph" data-act="ans" data-i="' + i + '">' + l + (s ? '<small>' + s + '</small>' : '') + '</button>'
         : '<button class="opt" data-act="ans" data-i="' + i + '"><span class="deva" style="font-size:22px">' + l + '</span>' +
           (s ? ' <span class="muted tiny">' + s + '</span>' : '') + '</button>';
+      return ear ? '<div class="optrow">' + btn + ear + '</div>' : btn;
     }).join('');
     return '<div class="card">' + arcStrip() + '<h3>' + prompt + '</h3>' + lead + big + hear +
       (grid ? '<div class="gridscript">' + choices + '</div>' : choices) +
@@ -3813,6 +3859,16 @@
       '<button class="pill' + (soundOn ? ' on' : '') + '" data-act="sound">' + icon('sound', 18) + ' Sound</button>' +
       '<button class="pill' + (night ? ' on' : '') + '" data-act="night">' +
       icon(night ? 'sun' : 'moon', 18) + ' Night mode</button>' +
+      /* Only worth offering once a human has actually recorded both — before
+         that there is one synthesised voice and a switch would be a lie. */
+      (function () {
+        var H = window.IND_VOICE_HUMAN || {}, k, both = false;
+        for (k in H) { if (H[k] && H[k].v && H[k].v.length > 1) { both = true; break; } }
+        return both
+          ? '<button class="pill' + (S.voice === 'm' ? ' on' : '') + '" data-act="voice">' +
+            icon('sound', 18) + ' ' + (S.voice === 'm' ? 'Man’s voice' : 'Woman’s voice') + '</button>'
+          : '';
+      })() +
       '<button class="pill" data-act="reset">Start again</button></div>' +
       '<p class="tiny muted" style="margin-top:12px">Build <b>' + esc(window.IND_BUILD || 'dev') + '</b>' +
       ' — if something looks wrong, quote this number so we know which version you are on.</p>' +
@@ -4373,6 +4429,7 @@
     }
     if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); toast('Sound ' + (soundOn ? 'on' : 'off')); paintChrome(); return render(); }
     if (a === 'night')  { night = !night; Store.saveDevice('night', night); toast(night ? 'Night' : 'Day'); paintChrome(); return render(); }
+    if (a === 'voice')  { S.voice = S.voice === 'm' ? 'f' : 'm'; save(); toast(S.voice === 'm' ? 'Man’s voice' : 'Woman’s voice'); return render(); }
     if (a === 'reset')  { if (confirm('Clear everything on this device and start again?')) { localStorage.removeItem(Store.KEY); location.reload(); } return; }
     if (a === 'mon')    { var mo = (window.IND_GEO.monuments || []).filter(function (x) { return x.id === t.getAttribute('data-id'); })[0]; if (mo) toast(mo.name + ' — ' + mo.fact); return; }
     if (a === 'pack')   { quiz = quizReset(null); return go('pack', t.getAttribute('data-id')); }

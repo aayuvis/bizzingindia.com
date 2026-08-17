@@ -749,6 +749,34 @@ hdr('phase B — write it');
   console.log('  phase B: produce family + script-aware near-miss grading, 9 packs typeable');
 }());
 
+/* ========= THE DIALOGUE CLIP KEYS MATCH THE RECORDING SCRIPT ========= */
+/* Two files derive these independently — the engine from the bank's order,
+   tools/gen-voice-script.js from the same order — and if they ever disagree a
+   recordist spends an evening recording keys nothing will ever ask for. */
+hdr('dialogue audio keys');
+(function () {
+  var fs = require('fs'), p = __dirname + '/studio/script.json';
+  if (!fs.existsSync(p)) { console.log('  (no studio script yet — skipped)'); return; }
+  var script = JSON.parse(fs.readFileSync(p, 'utf8'));
+  var known = {}; script.lines.forEach(function (l) { known[l.key] = 1; });
+  var bank = B.dialogues('hi') || [];
+  eq('the script covers every dialogue', script.counts.dialogues, bank.length);
+
+  var missing = [], n = 0;
+  for (var i = 0; i < 40; i++) {
+    var q = B.pickReply('hi', { seed: 'audio' + i });
+    if (!q || q.type !== 'pickReply' || !q.audio) continue;
+    n++;
+    [q.audio].concat(q.options.map(function (o) { return o.audio; }))
+      .filter(Boolean).forEach(function (k) { if (!known[k]) missing.push(k); });
+  }
+  ok('pickReply actually emits clip keys', n > 0);
+  eq('every key the engine asks for is one the studio records', missing.length, 0);
+  ok('the prompt key ends -p and the reply key -r',
+     /-p$/.test(B.pickReply('hi', { seed: 'z' }).audio));
+  console.log('  dialogue keys: engine and recording script agree');
+}());
+
 /* ================= PHASE A: the seams are generic ================= */
 /* The engine reached Hindi's sentences and dialogues through IND_HI_* globals
    that sentenceMap() and pickReply() special-cased by pack id. Invisible while

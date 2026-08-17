@@ -1821,3 +1821,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .pkey { min-width: 32px; min-height: 36px; font-size: 17px; }
   .pbox { font-size: 26px; }
 }
+
+/* an option with its own listen button — the ear sits beside the choice, never
+   inside it (a button inside a button is invalid and dead on iOS) */
+.optrow { display: flex; align-items: stretch; gap: 8px; margin-bottom: 8px; }
+.optrow .opt { flex: 1; margin-bottom: 0; }
+.optear { flex: none; width: 44px; display: grid; place-items: center;
+  background: var(--card2); border: 1px solid var(--line2); border-radius: var(--radius-md);
+  color: var(--text2); cursor: pointer; }
+.optear:hover { color: var(--accent); border-color: var(--accent); }

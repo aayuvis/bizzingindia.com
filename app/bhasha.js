@@ -2746,9 +2746,24 @@ function pickReply(pack, opts) {
     /* a pin only counts if it is an authored dialogue (has a reply) — the
        planner may still hold a derived pair from before the content landed */
     var d = (opts.item && opts.item.reply) ? opts.item : pick(rng, authored);
-    var os = [{ word: d.reply.hi, roman: d.reply.roman, en: d.reply.en }];
+    /* THE CLIP KEYS, derived exactly the way tools/gen-voice-script.js derives
+       them: position in the bank, 1-based, zero-padded. The dialogues had no
+       audio keys at all, which is why the conversation stage was silent even
+       once recordings existed — a clip nothing asks for never plays. Derived
+       rather than stored so the recording script and the engine cannot drift.
+
+       A distractor without a recording simply has no button; the reply and the
+       prompt are what the stage needs to be usable. */
+    var dn = indexOf(authored, d) + 1;
+    var ns = (pack.voice && pack.voice.ns) || pack.id;
+    var dk = dn > 0 ? ns + '/d-' + (dn < 10 ? '0' + dn : dn) : null;
+
+    var os = [{ word: d.reply.hi, roman: d.reply.roman, en: d.reply.en,
+                audio: dk ? dk + '-r' : null }];
     for (i = 0; i < (d.distractors || []).length && os.length < 3; i++) {
-      os.push({ word: d.distractors[i].hi, roman: d.distractors[i].roman, en: d.distractors[i].en, whyWrong: d.distractors[i].whyWrong });
+      os.push({ word: d.distractors[i].hi, roman: d.distractors[i].roman, en: d.distractors[i].en,
+                whyWrong: d.distractors[i].whyWrong,
+                audio: dk ? dk + '-x' + (i + 1) : null });
     }
     os = shuffle(rng, os);
     var aa = 0;
@@ -2757,6 +2772,7 @@ function pickReply(pack, opts) {
       type: 'pickReply',
       itemKey: 'dlg:' + (d.id || d.prompt),
       prompt: d.prompt, promptRoman: d.roman, promptEn: d.en,
+      audio: dk ? dk + '-p' : null, say: d.prompt,
       scene: d.scene || null, sceneEn: d.sceneEn || null, who: d.who || null,
       options: os, answerIndex: aa, answerEn: d.reply.en,
       script: resolveScript(pack).id, font: resolveScript(pack).font

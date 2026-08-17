@@ -461,48 +461,89 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .buddybtn img, .buddybtn svg { display: block; width: 216px; height: 216px; }
 @media (max-width: 430px) { .buddybtn img, .buddybtn svg { width: 150px; height: 150px; } }
 
-.deckscrim { position: fixed; inset: 0; z-index: 120; background: rgba(14, 10, 34, .55);
-  backdrop-filter: blur(3px); display: grid; place-items: end center;
-  /* minmax(0,1fr), not the implicit auto track: the pack pills are a sideways
-     scroller whose max-content width is every pack name laid end to end, and
-     an auto track would size to that and shove the sheet off-screen. */
+.deckscrim { position: fixed; inset: 0; z-index: 120; background: rgba(14, 10, 34, .74);
+  backdrop-filter: blur(5px); display: grid; place-items: end center;
+  /* minmax(0,1fr), not the implicit auto track: an auto track sizes to the
+     widest thing inside and would shove the whole popup off-screen. */
   grid-template-columns: minmax(0, 1fr); }
-.deckwrap { width: min(100%, 620px); min-width: 0; max-height: 86vh; display: flex; flex-direction: column;
-  background: var(--card); border-radius: 26px 26px 0 0; box-shadow: var(--shadow-lg);
+/* NO SHEET. The popup used to be a white card holding a dark card, which read
+   as a card inside a card and stole the width the real card needed. The pills
+   and the card now stand on the scrim itself. */
+.deckwrap { width: min(100%, 560px); min-width: 0; max-height: 94vh; display: flex;
+  flex-direction: column; background: none; box-shadow: none;
   animation: deckup .22s ease-out; }
 @keyframes deckup { from { transform: translateY(28px); opacity: .4; } }
 @media (prefers-reduced-motion: reduce) { .deckwrap { animation: none; } }
-@media (min-width: 700px) { .deckscrim { place-items: center; } .deckwrap { border-radius: 26px; } }
-.deckhead { display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 18px 20px 10px; border-bottom: 1px solid var(--line); }
+@media (min-width: 700px) { .deckscrim { place-items: center; } }
+.deckhead { display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 16px 8px; }
+.deckhead .tiny { color: rgba(255,255,255,.72); }
+/* on a transparent sheet the close button needs its own ground */
+.deckhead .iconbtn { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.2);
+  color: #fff; width: 34px; height: 34px; }
+.deckhead .iconbtn:hover { background: rgba(255,255,255,.24); color: #fff;
+  border-color: rgba(255,255,255,.4); }
 
 /* THE DECK IS A STEPPER, not a fanned run of tiles. One whole card at a time,
-   an arrow either side, pack pills across the top — the Bizzing Bee grammar.
-   The fanned version showed 109 postage stamps and no card, which is exactly
-   backwards: the card IS the thing. */
-.deckpills { display: flex; gap: 8px; overflow-x: auto; padding: 12px 18px 10px;
-  border-bottom: 1px solid var(--line); scrollbar-width: none; }
-.deckpills::-webkit-scrollbar { display: none; }
-.deckpills .pill { flex: 0 0 auto; white-space: nowrap; }
+   an arrow either side, pack pills across the top — the Bizzing Bee grammar. */
+/* The pills WRAP rather than scroll sideways: nine packs at two rows is the
+   whole set visible at once, where a sideways scroller hid six of them behind
+   an edge nobody thinks to drag. */
+.deckpills { display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 5px; padding: 0 10px 9px; }
+.deckpills .pill { flex: 0 0 auto; white-space: nowrap;
+  font-size: 10px; padding: 4px 9px; letter-spacing: 0;
+  background: rgba(255,255,255,.9); color: #221b3d; border-color: transparent; }
+.deckpills .pill:hover { background: #fff; color: #221b3d; }
+.deckpills .pill.on { background: var(--accent); color: #fff; }
 
 .deckstage { position: relative; display: flex; align-items: center; justify-content: center;
-  gap: 10px; padding: 18px 12px 22px; overflow-y: auto; min-height: 0; }
-.avslot { flex: 0 1 320px; min-width: 0; animation: deckflip .2s ease-out; }
+  gap: 8px; padding: 4px 10px 18px; overflow-y: auto; min-height: 0; }
+.avslot { flex: 0 1 280px; min-width: 0; animation: deckflip .2s ease-out; }
 @keyframes deckflip { from { opacity: 0; transform: translateY(8px) scale(.985); } }
 @media (prefers-reduced-motion: reduce) { .avslot { animation: none; } }
 
-.deckarrow { flex: none; display: grid; place-items: center; width: 46px; height: 46px;
-  border-radius: 50%; border: 1px solid var(--line2); background: var(--card);
-  color: var(--text2); cursor: pointer; box-shadow: var(--shadow);
-  transition: transform .12s ease, color .12s ease, border-color .12s ease; }
-.deckarrow:hover, .deckarrow:focus-visible { color: var(--accent); border-color: var(--accent);
-  transform: scale(1.08); }
+.deckarrow { flex: none; display: grid; place-items: center; width: 42px; height: 42px;
+  border-radius: 50%; border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.92); color: #221b3d; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(6, 3, 24, .45);
+  transition: transform .12s ease, background .12s ease; }
+.deckarrow:hover, .deckarrow:focus-visible { background: #fff; transform: scale(1.08); }
 .deckarrow:active { transform: scale(.96); }
 /* one back chevron, mirrored — no second glyph to keep in sync with the first */
 .deckarrow.next .ic { transform: rotate(180deg); }
 
-/* the card inside the popup is the SAME face as the full page, just narrower */
-.avslot .avcard { width: 100%; margin: 0; }
+/* THE CARD IN THE POPUP IS THE SAME FACE, SET SMALLER. It was rendered at full
+   page size inside a 86vh sheet and ran off the bottom — a child never saw the
+   button. Everything steps down together so the card keeps its proportions
+   rather than becoming a squashed version of itself. */
+.avslot .avcard { width: 100%; margin: 0; padding: 14px 13px 14px; border-radius: 18px;
+  animation: none; }
+.avslot .avhalo { width: 96px; height: 96px; }
+.avslot .avhalo img, .avslot .avhalo svg { width: 82px; height: 82px; }
+.avslot .avcard h1 { font-size: 17px; margin: 7px 0 2px; }
+.avslot .avtitle { font-size: 9px; letter-spacing: .09em; }
+.avslot .avlore { font-size: 11.5px; line-height: 1.4; margin: 6px 0 2px; }
+.avslot .avstats { margin: 10px 0 2px; }
+.avslot .avstat { margin: 6px 0; gap: 7px; }
+.avslot .avlbl { width: 70px; font-size: 9.5px; }
+.avslot .avbar { height: 7px; }
+.avslot .avstat b { width: 22px; font-size: 12px; }
+.avslot .avbeyond { margin: 10px 0 2px; font-size: 11px; letter-spacing: .2em; }
+.avslot .avbadge { margin: 12px 0 2px; padding-top: 10px; }
+.avslot .avbadge b { font-size: 9px; }
+.avslot .avbadge span:not(.avbmark) { font-size: 10px; }
+.avslot .avdeeds li { font-size: 11.5px; line-height: 1.42; margin-bottom: 7px; padding-left: 20px; }
+.avslot .avalias b { font-size: 10.5px; padding: 3px 8px; }
+.avslot .avquote { margin-top: 12px; padding: 12px 12px 11px 34px; border-radius: 13px; }
+.avslot .avquote::before { font-size: 42px; left: 10px; }
+.avslot .avquote blockquote { font-size: 12px; line-height: 1.45; }
+.avslot .avcite { font-size: 10px; margin-top: 8px; }
+.avslot .avcite span { font-size: 10.5px; }
+.avslot .avfact { margin-top: 9px; font-size: 11.5px; line-height: 1.45;
+  padding: 9px 10px; border-radius: 11px; }
+.avslot .btn.lg { font-size: 13px; padding: 9px 20px; margin-top: 10px !important; }
+
 /* The card face is dark in every theme, so a page-coloured pill lands as burnt
    orange on near-black. Give the "travelling with you" mark the card's own
    palette rather than the page's. */
@@ -511,9 +552,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .avcard .pill.stat:hover { color: #EDE9FF; }
 
 @media (max-width: 430px) {
-  .deckstage { gap: 4px; padding: 14px 6px 18px; }
-  .deckarrow { width: 38px; height: 38px; }
+  .deckstage { gap: 2px; padding: 4px 4px 14px; }
+  .deckarrow { width: 34px; height: 34px; }
   .avslot { flex: 1 1 auto; }
+  .deckpills .pill { font-size: 9.5px; padding: 3px 8px; }
+  .deckpills { gap: 4px; padding: 0 6px 7px; }
 }
 
 /* the one-tap new-version bar (see the update nudge in app.js) */

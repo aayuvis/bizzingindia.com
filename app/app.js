@@ -3808,9 +3808,14 @@
            through eleven cards to reach it */
         '<div class="deckpills" role="tablist" aria-label="Packs">' + packs.map(function (p) {
           if (!p.ids || !p.ids.length) return '';
+          /* "The " earns nothing on a chip and costs four characters nine times
+             over, which is the difference between two rows and three. The full
+             pack name still stands in the head line above. */
+          var label = p.name.replace(/^The\s+/, '');
           return '<button class="pill' + (p.id === here.packId ? ' on' : '') + '" role="tab"' +
             ' aria-selected="' + (p.id === here.packId ? 'true' : 'false') + '"' +
-            ' data-act="deckpack" data-p="' + esc(p.id) + '">' + esc(p.name) + '</button>';
+            ' title="' + esc(p.name) + '"' +
+            ' data-act="deckpack" data-p="' + esc(p.id) + '">' + esc(label) + '</button>';
         }).join('') + '</div>' +
 
         '<div class="deckstage">' +

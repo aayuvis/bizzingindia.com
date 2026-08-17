@@ -4173,6 +4173,17 @@
       (window.IND_ART_IMG && window.IND_ART_IMG.indexOf('logo') >= 0
         ? '<img src="art/logo.png" alt="" width="68" height="68">'
         : '') + 'Bizzing <em>India</em></button>' +
+      /* THE WORLD'S EMBLEM. The wordmark used to run the full width and then leave a
+         stretch of dead space before the coin count. The wordmark is smaller now and
+         that space carries the one object you would name if somebody asked what this
+         world looks like -- the Taj's dome, a cricket ball, the rocket, the dhaak, the
+         painted truck's eyes. It re-draws whenever the world changes, and it is
+         decorative: aria-hidden, and it never carries anything not written in words
+         elsewhere. Tapping it opens the picker, which is what a child will try. */
+      (window.IND_WORLDS && window.IND_WORLDS.mark
+        ? '<button class="worldmark" data-act="go" data-v="worlds" aria-label="Change world">' +
+          window.IND_WORLDS.mark(S.world, 40) + '</button>'
+        : '') +
       /* One group, so when the bar is too narrow the WHOLE set of controls drops
          to the next line together. Loose in the row, the wordmark would push
          them over the edge one at a time and strand sound on a line by itself. */
@@ -4238,6 +4249,13 @@
       n.setAttribute('aria-pressed', night ? 'true' : 'false');
       n.setAttribute('aria-label', night ? 'Switch to day' : 'Switch to night');
     }
+    /* The world's emblem lives in the bar, and the bar is built ONCE — so without this
+       the emblem stayed on whichever world the app booted in and never changed again.
+       Every screenshot I took of six different worlds showed the Taj. */
+    var wm = $('.worldmark');
+    if (wm && window.IND_WORLDS && window.IND_WORLDS.mark) {
+      wm.innerHTML = window.IND_WORLDS.mark(S.world, 40);
+    }
   }
 
   function render() {
@@ -4251,6 +4269,12 @@
       return;
     }
     if (!$('.topbar')) root.innerHTML = chrome();
+    /* The bar is built ONCE, so anything in it that depends on state has to be repainted
+       on every render or it silently freezes at whatever it was when the app booted. The
+       world emblem did exactly that: six different worlds, six screenshots, all showing
+       the Taj. paintChrome() is not enough on its own -- it is called from a handful of
+       toggle handlers, not from render(). */
+    paintChrome();
 
     var m = $('#main'), h;
     switch (view.name) {

@@ -436,6 +436,13 @@
          is behind them now with everything else, and held lower still, so it
          tints the page's open ground rather than veiling what is on it. */
       '.wa-air{position:absolute;inset:0;overflow:hidden;opacity:.6}',
+      /* THE DESKTOP GUTTERS. A wide window leaves a hand's width of empty ground down
+         each side of the 1100px content column, and a soft wash there is a colour, not
+         a thing to look at. Each world hangs one real object in each gutter instead.
+         Hidden below 1180px, where there is no gutter to fill and it would collide. */
+      '.wa-side{position:absolute;top:0;bottom:0;display:none;opacity:.55}',
+      '.wa-side.left{left:0}.wa-side.right{right:0;transform:scaleX(-1)}',
+      '@media (min-width:1180px){.wa-side{display:block}}',
       '.wa-band{position:absolute;left:0;right:0;top:var(--wa-top-off,0px);height:var(--wa-band-h);overflow:hidden}',
       '.wa-sky{position:absolute;left:0;right:0;top:calc(var(--wa-top-off,0px) + var(--wa-band-h));' +
       '  bottom:calc(var(--wa-foot-off,0px) + var(--wa-foot-h) - 24px);overflow:hidden}',
@@ -1966,14 +1973,93 @@
       if (x > 100 && x < 320) return '';
       return '<path class="waf-f" opacity=".55" d="M' + x + ' 166q-6-10-6-24t6-22q6 8 6 22t-6 24Z"/>';
     });
-    var taj = spr('left:50%;bottom:0;width:clamp(300px,86vw,720px);height:auto;transform:translateX(-50%)',
-      '0 0 420 200',
-      '<g opacity=".97">' + minarets + body + dome + '</g>' + cypress +
-      /* the char-bagh's canal, and the reflection standing in it */
-      '<rect class="waf-a" opacity=".18" x="150" y="166" width="120" height="34" rx="3"/>' +
-      '<g opacity=".22" transform="translate(0 332) scale(1 -1)">' + body + dome + '</g>' +
-      '<g class="wa-night"><ellipse class="wam-glow" style="transform-box:view-box;transform-origin:210px 90px;animation-duration:9s"' +
-      ' cx="210" cy="90" rx="120" ry="70" fill="rgba(230,220,255,.16)"/></g>');
+    /* THE WHOLE COMPLEX, in the band's own proportions. At 420x200 stretched to the
+       window this was 343px tall in a 212px band, so the dome and the minaret finials
+       were simply cut off -- "the Taj Mahal does not render fully", exactly.
+
+       And it is the whole char-bagh now, not one silhouette: the great gateway on the
+       left, the mosque and the jawab flanking the plinth, the four minarets with their
+       chhatris, the dome with its two flanking chhatris and the finial, the pishtaq
+       arches, the pietra-dura spandrels, the cypress avenue, and the long canal with
+       its fountains and the building standing in it. */
+    var chhatri = function (x, y, r) {
+      return '<g><path class="waf-s" d="M' + (x - r) + ' ' + y + 'q' + r + '-' + (r * 1.5) + ' ' + (r * 2) + ' 0Z"/>' +
+        '<path class="was-i waf-n" stroke-width="1" opacity=".3" d="M' + (x - r) + ' ' + y + 'h' + (r * 2) + '"/>' +
+        '<path class="was-s waf-n" stroke-width="2" d="M' + (x - r + 2) + ' ' + y + 'v' + (r * 1.6) +
+        'M' + (x + r - 2) + ' ' + y + 'v' + (r * 1.6) + '"/>' +
+        '<circle class="waf-b" cx="' + x + '" cy="' + (y - r * 1.7) + '" r="1.8"/></g>';
+    };
+    var pishtaq = function (x, w, h, y) {
+      return '<path class="waf-g" opacity=".7" d="M' + (x - w / 2) + ' ' + y + 'v-' + (h - w / 2) +
+        'q0-' + (w / 2) + ' ' + (w / 2) + '-' + (w / 2) + 't' + (w / 2) + ' ' + (w / 2) + 'V' + y + 'Z"/>' +
+        '<path class="was-i waf-n" stroke-width="1.4" opacity=".3" d="M' + (x - w / 2) + ' ' + y + 'v-' + (h - w / 2) +
+        'q0-' + (w / 2) + ' ' + (w / 2) + '-' + (w / 2) + 't' + (w / 2) + ' ' + (w / 2) + 'V' + y + '"/>';
+    };
+    var mausoleum =
+      /* the plinth */
+      '<rect class="waf-s" x="560" y="150" width="280" height="14" rx="2"/>' +
+      '<rect class="waf-s" x="588" y="96" width="224" height="56"/>' +
+      /* the four minarets, each with its chhatri */
+      rep(4, function (i) {
+        var x = [566, 606, 794, 834][i];
+        return '<g><rect class="waf-s" x="' + (x - 5) + '" y="58" width="10" height="94" rx="2"/>' +
+          '<path class="was-b waf-n" stroke-width="1.2" opacity=".4" d="M' + (x - 5) + ' 86h10M' + (x - 5) + ' 114h10"/>' +
+          chhatri(x, 58, 7) + '</g>';
+      }) +
+      /* the great dome, its drum and its two flanking chhatris */
+      '<path class="waf-s" d="M700 40q42 0 42 42q0 32-42 54q-42-22-42-54q0-42 42-42Z"/>' +
+      '<rect class="waf-s" x="678" y="82" width="44" height="16" rx="3"/>' +
+      '<path class="was-b waf-n" stroke-width="1.6" opacity=".45" d="M700 30v10"/>' +
+      '<circle class="waf-b" cx="700" cy="27" r="4"/>' +
+      chhatri(636, 96, 12) + chhatri(764, 96, 12) +
+      /* the pishtaq — the great arch, and the two smaller ones either side */
+      pishtaq(700, 46, 56, 152) + pishtaq(628, 24, 34, 152) + pishtaq(772, 24, 34, 152) +
+      /* pietra dura in the spandrels: the inlay the building is actually famous for */
+      rep(8, function (i) {
+        var x = 600 + i * 28, y = i % 2 ? 108 : 116;
+        if (x > 660 && x < 744) return '';
+        return '<g opacity=".55"><circle class="waf-a" cx="' + x + '" cy="' + y + '" r="2.4"/>' +
+          rep(6, function (k) {
+            return '<ellipse class="waf-b" cx="' + x + '" cy="' + (y - 5) + '" rx="1.1" ry="2.6" transform="rotate(' +
+              (k * 60) + ' ' + x + ' ' + y + ')"/>';
+          }) + '</g>';
+      });
+    /* the mosque and the jawab — the two red buildings that flank the plinth */
+    var flank = function (x) {
+      return '<g opacity=".8"><rect class="waf-a" x="' + (x - 44) + '" y="116" width="88" height="36" rx="2"/>' +
+        '<path class="waf-a" d="M' + (x - 20) + ' 116q20-22 40 0Z"/>' +
+        '<path class="waf-g" opacity=".5" d="M' + (x - 8) + ' 152v-18q0-8 8-8t8 8v18Z"/>' +
+        '<rect class="waf-s" opacity=".5" x="' + (x - 40) + '" y="112" width="80" height="4"/></g>';
+    };
+    /* the darwaza — the great gateway you actually walk through first */
+    var gate = '<g><rect class="waf-a" x="150" y="86" width="120" height="66" rx="3"/>' +
+      '<path class="waf-g" opacity=".6" d="M188 152V116q0-22 22-22t22 22v36Z"/>' +
+      '<path class="was-s waf-n" stroke-width="2" opacity=".5" d="M188 152V116q0-22 22-22t22 22v36"/>' +
+      rep(4, function (i) {
+        return chhatri(160 + i * 33, 86, 7);
+      }) +
+      '<rect class="waf-s" opacity=".4" x="146" y="82" width="128" height="5" rx="2"/></g>';
+    /* the canal, its fountains, and the cypress avenue down both sides */
+    var garden = '<rect class="waf-a" opacity=".16" x="300" y="164" width="800" height="30" rx="3"/>' +
+      '<path class="was-s waf-n" stroke-width="1.4" opacity=".35" d="M300 164h800M300 194h800"/>' +
+      rep(9, function (i) {
+        var x = 340 + i * 90;
+        return '<g class="wam-bob" style="animation-duration:' + (3 + (i % 3) * 0.7) + 's;animation-delay:' +
+          dly('tjF' + i, 3000) + '"><path class="was-s waf-n" stroke-width="1.6" opacity=".5" d="M' + x + ' 178v-9"/>' +
+          '<circle class="waf-s" opacity=".65" cx="' + x + '" cy="167" r="2"/></g>';
+      }) +
+      rep(16, function (i) {
+        var x = i < 8 ? 306 + i * 96 : 306 + (i - 8) * 96;
+        var y = i < 8 ? 162 : 196;
+        return '<path class="waf-f" opacity=".6" d="M' + x + ' ' + y + 'q-7-12-7-28t7-26q7 10 7 26t-7 28Z"/>';
+      });
+    var taj = spr('left:50%;bottom:0;width:max(1400px,104vw);height:auto;transform:translateX(-50%)',
+      '0 0 1400 210',
+      garden + gate + flank(516) + flank(884) + mausoleum +
+      /* the building standing in its own water */
+      '<g opacity=".2" transform="translate(0 328) scale(1 -1)">' + mausoleum + '</g>' +
+      '<g class="wa-night"><ellipse class="wam-glow" style="transform-box:view-box;transform-origin:700px 90px;animation-duration:9s"' +
+      ' cx="700" cy="90" rx="200" ry="90" fill="rgba(230,220,255,.16)"/></g>');
     return '<i class="wa-fade" style="bottom:34px;height:56px"></i>' +
       '<i class="wa-floor" style="height:22px;background:var(--wa-ink);opacity:.14"></i>' + taj;
   }
@@ -2714,6 +2800,184 @@
       rep(4, function (i) { return '<circle class="waf-i" cx="' + (62 + (i % 2) * 12) + '" cy="' + (43 + Math.floor(i / 2) * 10) + '" r="1.2"/>'; }))
   };
 
+
+
+  /* ================================================================== SIDES
+     THE DESKTOP GUTTERS. On a wide screen the content column is about 1100px and the
+     window is 1400-1900, which leaves a hand's width of empty ground down each side.
+     The air layer put a soft wash there and the founder's read was correct: a wash is
+     not a thing to look at, it is a colour.
+
+     So each world hangs one REAL object down each gutter -- a bolt of cloth, a bamboo
+     pole with a string of lights, a cypress, a ladder of scaffolding. They are tall and
+     narrow by design, they are the only thing on the page that uses that space, and
+     they are hidden below 1180px where there is no gutter to fill and they would
+     collide with the content. */
+  function sidePair(inner, w) {
+    var wide = w || 'clamp(60px,7vw,120px)';
+    return '<i class="wa-side left" style="width:' + wide + '">' + inner + '</i>' +
+      '<i class="wa-side right" style="width:' + wide + '">' + inner + '</i>';
+  }
+  var SIDES = {
+    /* a bolt of cloth hung out to dry over the lane, swinging */
+    delhi6: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<g class="wam-sway" style="transform-box:view-box;transform-origin:30px 0px;animation-duration:5.5s">' +
+        '<path class="waf-a" opacity=".8" d="M14 0h32v300q0 12-16 12t-16-12z"/>' +
+        rep(10, function (i) { return '<path class="was-b waf-n" stroke-width="2.4" opacity=".5" d="M14 ' + (30 + i * 28) + 'h32"/>'; }) +
+        '</g>'));
+    },
+    /* the ropes and pulleys of a dock crane, and a gull */
+    mumbai: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<path class="was-i waf-n" stroke-width="4" opacity=".5" d="M30 0v250"/>' +
+        rep(7, function (i) { return '<path class="was-i waf-n" stroke-width="2" opacity=".35" d="M14 ' + (26 + i * 34) + 'h32"/>'; }) +
+        '<g class="wam-bob" style="animation-duration:6s"><rect class="waf-b" x="18" y="250" width="24" height="18" rx="3"/></g>'));
+    },
+    /* the bamboo of the pandal scaffold, lashed, with a light string */
+    pujo: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<path class="was-b waf-n" stroke-width="6" opacity=".55" d="M20 0v400M42 0v400"/>' +
+        rep(9, function (i) { return '<path class="was-b waf-n" stroke-width="3" opacity=".45" d="M20 ' + (24 + i * 42) + 'L42 ' + (44 + i * 42) + '"/>'; }) +
+        rep(11, function (i) { return '<circle class="waf-a wam-twinkle" cx="31" cy="' + (18 + i * 36) + '" r="3.4" style="animation-delay:' + (-i * 0.22).toFixed(2) + 's"/>'; })));
+    },
+    /* a chinar branch, its leaves letting go one at a time */
+    dallake: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<path class="was-i waf-n" stroke-width="5" opacity=".45" d="M30 0v170q0 26 22 40"/>' +
+        rep(9, function (i) {
+          var x = 30 + (i % 2 ? 16 : -16), y = 34 + i * 30;
+          return '<path class="waf-f" opacity=".6" d="M' + x + ' ' + y + 'q-11-8-11-18t11-10q11 0 11 10t-11 18Z"/>';
+        })));
+    },
+    /* a jharokha window, one above the other, the way a fort wall carries them */
+    rajasthan: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        rep(4, function (i) {
+          var y = 30 + i * 96;
+          return '<g><rect class="waf-b" opacity=".4" x="10" y="' + y + '" width="40" height="56" rx="4"/>' +
+            '<path class="waf-a" opacity=".55" d="M10 ' + y + 'q20-20 40 0Z"/>' +
+            rep(4, function (k) { return '<path class="was-i waf-n" stroke-width="2" opacity=".4" d="M' + (16 + k * 9) + ' ' + (y + 8) + 'v40"/>'; }) +
+            '</g>';
+        })));
+    },
+    /* the double-outlined fish and lotus border Mithila draws down every edge */
+    madhubani: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        rep(6, function (i) {
+          var y = 34 + i * 64;
+          return '<g opacity=".55"><path class="was-a waf-n" stroke-width="3" d="M14 ' + y + 'q16-18 32 0q-16 18-32 0Z"/>' +
+            '<path class="was-a waf-n" stroke-width="1.6" d="M18 ' + y + 'q12-12 24 0q-12 12-24 0Z"/>' +
+            '<circle class="waf-b" cx="30" cy="' + (y + 30) + '" r="5"/></g>';
+        })));
+    },
+    /* the cypress avenue, which is what actually lines the char-bagh */
+    taj: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        rep(3, function (i) {
+          var y = 90 + i * 110;
+          return '<path class="waf-f" opacity=".5" d="M30 ' + y + 'q-16-26-16-58t16-52q16 20 16 52t-16 58Z"/>';
+        })));
+    },
+    cricket: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<path class="was-i waf-n" stroke-width="4" opacity=".5" d="M30 400V90"/>' +
+        '<rect class="waf-b" x="8" y="50" width="44" height="34" rx="5"/>' +
+        rep(6, function (i) { return '<circle class="waf-s" opacity=".9" cx="' + (17 + (i % 3) * 13) + '" cy="' + (60 + Math.floor(i / 3) * 14) + '" r="4"/>'; })));
+    },
+    /* a strip of film running down the gutter */
+    bollywood: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<rect class="waf-i" opacity=".28" x="10" y="0" width="40" height="400"/>' +
+        rep(13, function (i) { return '<rect class="waf-s" opacity=".55" x="14" y="' + (8 + i * 30) + '" width="6" height="10" rx="1.5"/>' +
+          '<rect class="waf-s" opacity=".55" x="40" y="' + (8 + i * 30) + '" width="6" height="10" rx="1.5"/>'; })));
+    },
+    antariksh: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<path class="was-i waf-n" stroke-width="3.4" opacity=".5" d="M18 400V40M42 400V40M18 40h24"/>' +
+        rep(9, function (i) { return '<path class="was-i waf-n" stroke-width="2" opacity=".35" d="M18 ' + (60 + i * 38) + 'h24"/>'; }) +
+        rep(8, function (i) { return '<path class="was-i waf-n" stroke-width="1.4" opacity=".28" d="M18 ' + (60 + i * 38) + 'L42 ' + (98 + i * 38) + '"/>'; })));
+    },
+    /* a string of marigolds down the doorframe */
+    diwali: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<path class="was-f waf-n" stroke-width="2.4" opacity=".5" d="M30 0v380"/>' +
+        rep(13, function (i) {
+          return '<g class="wam-sway" style="transform-box:view-box;transform-origin:30px ' + (i * 30) + 'px;animation-duration:' +
+            (4 + (i % 3)) + 's;animation-delay:' + dly('dwS' + i, 3000) + '">' +
+            '<circle class="waf-b" cx="30" cy="' + (16 + i * 30) + '" r="7"/>' +
+            '<circle class="waf-a" cx="30" cy="' + (16 + i * 30) + '" r="3"/></g>';
+        })));
+    },
+    /* thrown colour, landing down the edge */
+    holi: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        rep(7, function (i) {
+          var y = 30 + i * 54, r = 14 + (i % 3) * 7;
+          return '<circle class="' + ['waf-a', 'waf-b', 'waf-f'][i % 3] + '" opacity=".4" cx="' +
+            (30 + (i % 2 ? 10 : -10)) + '" cy="' + y + '" r="' + r + '"/>';
+        })));
+    },
+    /* the painted chain and tassels that hang off a truck's tailboard */
+    truck: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<path class="was-b waf-n" stroke-width="3" opacity=".5" d="M30 0v340"/>' +
+        rep(9, function (i) {
+          return '<g class="wam-sway" style="transform-box:view-box;transform-origin:30px ' + (i * 38) + 'px;animation-duration:' + (3.4 + (i % 3) * 0.6) + 's">' +
+            '<path class="' + ['waf-a', 'waf-f', 'waf-b'][i % 3] + '" opacity=".7" d="M22 ' + (20 + i * 38) + 'h16l-8 22z"/></g>';
+        })));
+    },
+    /* a hanging line of ghungroo */
+    dance: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<path class="was-a waf-n" stroke-width="2.4" opacity=".5" d="M30 0v370"/>' +
+        rep(15, function (i) { return '<circle class="waf-b" opacity=".7" cx="' + (30 + (i % 2 ? 7 : -7)) + '" cy="' + (18 + i * 25) + '" r="5"/>'; })));
+    },
+    /* the block printer's repeat, running the full height */
+    patterns: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        rep(10, function (i) {
+          var y = 22 + i * 40;
+          return '<g opacity=".5" transform="translate(30 ' + y + ') rotate(45)">' +
+            '<rect class="waf-a" x="-12" y="-12" width="24" height="24" rx="3"/>' +
+            '<circle class="waf-b" r="5"/></g>';
+        })));
+    },
+    chitrakatha: function () {
+      return sidePair(spr('left:0;top:0;width:100%;height:100%', '0 0 60 400',
+        '<rect class="waf-b" opacity=".35" x="12" y="0" width="36" height="400" rx="6"/>' +
+        rep(12, function (i) { return '<path class="was-i waf-n" stroke-width="2" opacity=".35" d="M18 ' + (22 + i * 32) + 'h24"/>'; })));
+    }
+  };
+
+  /* ================================================================= MARKS
+     THE EMBLEM IN THE TOP BAR. The wordmark used to run into the coin count with a
+     stretch of dead space between them; the founder asked for that space to carry
+     something of the world you are in. So each world has a small emblem -- one object,
+     drawn plainly enough to read at 34px, and the single thing you would name if
+     somebody asked what that world looks like.
+
+     It is decorative and marked aria-hidden: the world's NAME is already on the picker
+     and the emblem never carries information that is not written somewhere in words. */
+  var MARKS = {
+    delhi6:   '<path class="was-b waf-n" stroke-width="7" stroke-linecap="round" d="M50 30q-22 0-22 22t30 16q-36 8-36-22t38-28q36 3 36 33"/>',
+    mumbai:   '<path class="waf-i" d="M20 84V52h60v32Z"/><path class="waf-g" d="M40 84V60q0-10 10-10t10 10v24Z"/><path class="waf-i" d="M28 52q22-20 44 0Z"/><circle class="waf-b" cx="50" cy="22" r="5"/><path class="was-b waf-n" stroke-width="3" d="M50 27v9"/>',
+    pujo:     '<path class="waf-a" d="M50 14q22 0 22 26v44H28V40q0-26 22-26Z" opacity=".35"/><path class="was-b waf-n" stroke-width="4" d="M50 84V44"/><circle class="waf-s" cx="50" cy="36" r="9"/><path class="waf-b" d="M50 22l6 10q-6-3-12 0z"/>',
+    dallake:  '<path class="waf-i" d="M12 62q34 10 76 0q-10 14-38 14T12 62Z"/><path class="waf-b" d="M28 54q22-8 44 0l-2 4q-20-7-40 0z"/><path class="was-i waf-n" stroke-width="3" d="M34 54V40M66 54V40"/>',
+    rajasthan:'<path class="waf-b" d="M14 84V44h72v40Z"/><path class="waf-a" d="M22 44V30q0-8 8-9 2-6 8-6t8 6q8 1 8 9v14Z"/><path class="waf-a" d="M56 44V32q0-7 7-8 2-5 7-5t7 5q7 1 7 8v12Z"/>',
+    madhubani:'<circle class="was-a waf-n" stroke-width="4" cx="50" cy="50" r="26"/><circle class="was-b waf-n" stroke-width="3" cx="50" cy="50" r="15"/>' + rep(8, function (i) { return '<ellipse class="waf-a" cx="50" cy="16" rx="3" ry="7" transform="rotate(' + (i * 45) + ' 50 50)"/>'; }),
+    taj:      '<path class="waf-s" d="M50 22q20 0 20 22q0 16-20 26q-20-10-20-26q0-22 20-22Z"/><rect class="waf-s" x="28" y="66" width="44" height="18" rx="2"/><rect class="waf-s" x="16" y="46" width="6" height="38" rx="2"/><rect class="waf-s" x="78" y="46" width="6" height="38" rx="2"/><circle class="waf-b" cx="50" cy="16" r="3.4"/>',
+    cricket:  '<circle class="waf-f" cx="50" cy="50" r="26"/><path class="was-s waf-n" stroke-width="3" d="M34 34q10 16 0 32M66 34q-10 16 0 32"/>',
+    bollywood:'<circle class="was-i waf-n" stroke-width="6" cx="50" cy="50" r="30"/>' + rep(6, function (i) { return '<circle class="waf-i" cx="' + (50 + 18 * Math.cos(i * 1.047)).toFixed(1) + '" cy="' + (50 + 18 * Math.sin(i * 1.047)).toFixed(1) + '" r="5"/>'; }) + '<circle class="waf-i" cx="50" cy="50" r="5"/>',
+    antariksh:'<path class="waf-s" d="M50 10q13 20 13 46v20H37V56Q37 30 50 10Z"/><path class="waf-a" d="M50 10q7 11 10 26H40q3-15 10-26Z"/><circle class="waf-b" cx="50" cy="52" r="6"/><path class="waf-a" d="M37 66L26 90h11zM63 66l11 24H63z"/>',
+    diwali:   '<path class="waf-i" d="M18 60h64q-8 22-32 22T18 60Z"/><path class="waf-b" d="M50 56q9-13 0-26q-9 13 0 26Z"/>',
+    holi:     '<circle class="waf-a" cx="36" cy="42" r="20" opacity=".8"/><circle class="waf-b" cx="62" cy="38" r="16" opacity=".8"/><circle class="waf-f" cx="52" cy="64" r="18" opacity=".8"/>',
+    truck:    '<rect class="waf-a" x="16" y="34" width="68" height="38" rx="5"/><ellipse class="waf-s" cx="36" cy="50" rx="9" ry="6"/><ellipse class="waf-s" cx="64" cy="50" rx="9" ry="6"/><circle class="waf-i" cx="36" cy="50" r="3.4"/><circle class="waf-i" cx="64" cy="50" r="3.4"/><circle class="waf-i" cx="32" cy="80" r="8"/><circle class="waf-i" cx="68" cy="80" r="8"/>',
+    dance:    '<circle class="waf-i" cx="50" cy="22" r="9"/><path class="waf-a" d="M32 84q0-32 18-32t18 32Z"/><path class="was-i waf-n" stroke-width="6" stroke-linecap="round" d="M42 44L22 28M58 44L78 28"/><circle class="waf-b" cx="22" cy="28" r="4"/><circle class="waf-b" cx="78" cy="28" r="4"/>',
+    patterns: rep(9, function (i) { return '<g transform="translate(' + (24 + (i % 3) * 26) + ' ' + (24 + Math.floor(i / 3) * 26) + ') rotate(45)"><rect class="waf-a" x="-8" y="-8" width="16" height="16" rx="2"/><circle class="waf-b" r="3.4"/></g>'; }),
+    chitrakatha: '<rect class="waf-b" x="14" y="30" width="72" height="40" rx="4"/><path class="was-i waf-n" stroke-width="3" opacity=".5" d="M24 42h52M24 52h40M24 62h30"/>'
+  };
+
   /* ============================================================ MANIFEST OUT */
   var list = W.map(function (w) {
     return { id: w.id, name: w.name, region: w.region, note: w.note, credit: w.credit,
@@ -2721,6 +2985,25 @@
   });
   window.IND_WORLDS = {
     list: list,
+    /* the world's emblem, sized by the caller. Decorative only — aria-hidden. */
+    mark: function (id, size) {
+      var m = MARKS[id];
+      if (!m) return '';
+      var t = null, i;
+      for (i = 0; i < W.length; i++) if (W[i].id === id) t = W[i].t;
+      var vars = t ? '--wa-ground:' + t.ground + ';--wa-surface:' + t.surface + ';--wa-ink:' + t.ink +
+        ';--wa-accent:' + t.accent + ';--wa-accent2:' + t.accent2 + ';--wa-festive:' + t.festive + ';' : '';
+      /* A PLATE BEHIND IT, always. The Taj's emblem is a white dome and the app's bar is
+         near-white, so without this the mark for half the worlds is invisible on its own
+         background. The plate is the world's own ground colour with a hairline of its
+         ink, which also makes the emblem read as a badge rather than as loose shapes. */
+      return '<svg class="wa-mark" style="' + vars + '" width="' + (size || 34) + '" height="' + (size || 34) +
+        '" viewBox="-8 -8 116 116" aria-hidden="true">' +
+        '<rect class="waf-g" x="-8" y="-8" width="116" height="116" rx="28"/>' +
+        '<rect class="waf-a" opacity=".18" x="-8" y="-8" width="116" height="116" rx="28"/>' +
+        '<rect class="was-i waf-n" stroke-width="2" opacity=".16" x="-7" y="-7" width="114" height="114" rx="27"/>' +
+        m + '</svg>';
+    },
     get: function (id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; }
   };
 
@@ -2767,7 +3050,8 @@
       return;
     }
     slots.bd.innerHTML = sc.bd ? sc.bd() : '';
-    slots.air.innerHTML = sc.air ? sc.air() : '';
+    /* the world's air wash, plus the two gutter objects that stand in the desktop margins */
+    slots.air.innerHTML = (sc.air ? sc.air() : '') + (SIDES[id] ? SIDES[id]() : '');
     slots.band.innerHTML = sc.band ? sc.band() : '';
     slots.sky.innerHTML = sc.sky ? sc.sky() : '';
     slots.foot.innerHTML = sc.foot ? sc.foot() : '';

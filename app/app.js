@@ -274,7 +274,11 @@
     if (key && (!window.IND_VOICE || window.IND_VOICE.indexOf(key) >= 0)) {
       try {
         if (audio) audio.pause();
-        audio = new Audio('voice/' + key + '.mp3');
+        /* Stamped, like every other asset. Without this a browser that cached a
+           clip keeps playing it forever — which is exactly what happened when the
+           whole story library was re-narrated in an Indian voice and listeners
+           went on hearing the old American one from their own disk. */
+        audio = new Audio('voice/' + key + '.mp3?v=' + (window.IND_BUILD || '1'));
         audio.play().catch(function () {});
         return;
       } catch (e) {}

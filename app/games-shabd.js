@@ -241,7 +241,8 @@
     if (W.IND_BHASHA && W.IND_BHASHA.audioFor) key = W.IND_BHASHA.audioFor(key, pack);
     if (!key) return tts();
     try {
-      var a = new W.Audio('voice/' + key + '.mp3');
+      /* stamped so a re-recorded clip actually reaches a returning child */
+      var a = new W.Audio('voice/' + key + '.mp3?v=' + (W.IND_BUILD || '1'));
       audioEl = a;
       a.onerror = tts;
       var p = a.play();

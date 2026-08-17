@@ -74,12 +74,21 @@
     voice: 'f',                   /* which recorded voice to hear — see humanClip() */
     hindi: false,                 /* read stories in Hindi alongside English */
     rate: 1,                      /* how fast the voice reads — see speakRate() */
-    kauris: 0, xp: 0,
+    sikke: 0, xp: 0,
+    /* what has been bought or drawn. Sacred and epic packs are never in here — they are
+       open to everyone from the first minute (economy.js, rule 2). */
+    own: { worlds: [], packs: [], avatars: [] },
     lit: {}, read: {}, lang: {},
     streak: { days: [], last: null, count: 0 },
     goal: 3, todayCount: 0, todayOn: null,
     started: null
   };
+  /* MIGRATION. The currency used to be called kauris and lived in S.kauris. Same coins,
+     new name, so the balance carries over instead of a child waking up broke. */
+  if (S.sikke == null) S.sikke = S.kauris || 0;
+  if (!S.own) S.own = { worlds: [], packs: [], avatars: [] };
+  S.own.worlds = S.own.worlds || []; S.own.packs = S.own.packs || []; S.own.avatars = S.own.avatars || [];
+
   var view = { name: 'home', arg: null };
   var lastScrollSig = '';
   var soundOn = Store.loadDevice('sound', true);
@@ -256,9 +265,9 @@
     document.body.appendChild(t); setTimeout(function () { t.remove(); }, 2300);
   }
   function earn(n, why) {
-    S.kauris += n; S.xp += n; save();
+    S.sikke += n; S.xp += n; save();
     toast('🐚 +' + n + (why ? ' · ' + why : ''));
-    var el = $('#kauriCount'); if (el) el.textContent = S.kauris;
+    var el = $('#kauriCount'); if (el) el.textContent = S.sikke;
   }
   function markToday() {
     var d = today();
@@ -1691,12 +1700,12 @@
             var hits = e.stories.map(function (sid) { return byId[sid]; }).filter(Boolean);
             return hits.length
               ? '<div class="card"><h3 style="margin-top:0">Stories from this world</h3><div class="rail">' +
-                hits.map(function (st) {
-                  var im = storyArt(st.id);
-                  return '<button class="scard" data-act="story" data-id="' + st.id + '">' +
-                    (im ? '<img src="' + im + '" alt="" loading="lazy">' : '') +
-                    '<b>' + esc(st.title) + '</b></button>';
-                }).join('') + '</div></div>'
+                /* The SAME card the rest of the app builds. This was hand-rolling a bare
+                   <img> and a bare <b> inside a .scard, and .scard is styled for a .pic
+                   span and a .nm title -- so the painting rendered at its natural size,
+                   blowing the card out, and the title ran on with no padding and no clamp.
+                   That is the "too long and not rendering properly". Use storyCard(). */
+                hits.map(function (st) { return storyCard(st, {}); }).join('') + '</div></div>'
               : '';
           })()
         : '') +
@@ -2801,7 +2810,11 @@
         'one changes at night: lamps come on, windows light, a city switches itself on. Try the ' +
         'moon button.</p></div>' +
       '<div class="grid g2">' + list.map(function (w) {
-        return '<button class="tile' + (S.world === w.id ? ' on' : '') + '" data-act="world" data-w="' + w.id + '">' +
+        var E = window.IND_ECONOMY;
+        var open = !E || E.worldOpen(S, w.id);
+        var price = E ? E.worldPrice(w.id) : 0;
+        return '<button class="tile' + (S.world === w.id ? ' on' : '') + (open ? '' : ' locked') +
+          '" data-act="' + (open ? 'world' : 'buyworld') + '" data-w="' + w.id + '">' +
           (w.tile
             ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>'
             : '<div class="wpreview" data-world="' + w.id + '">' +
@@ -2811,9 +2824,14 @@
               '<span class="aa">आ Aa</span></div>') +
           '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3>' +
           (S.world === w.id ? '<span class="badge aaj">on</span>'
-                            : (w.full ? '<span class="badge">alive</span>' : '')) + '</div>' +
+            : (open ? '<span class="badge">alive</span>'
+                    : '<span class="badge price">🪙 ' + price + '</span>')) + '</div>' +
           '<div class="mono">' + esc(w.region) + '</div>' +
-          '<p class="tiny" style="margin:8px 0 0">' + esc(w.note) + '</p></button>';
+          '<p class="tiny" style="margin:8px 0 0">' + esc(w.note) + '</p>' +
+          (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent);font-weight:700">' +
+            (E && E.canAfford(S, price) ? 'Tap to open it with your sikke'
+                                        : 'Keep going — ' + (price - (S.sikke || 0)) + ' more sikke') + '</p>') +
+          '</button>';
       }).join('') + '</div>' +
       '<div class="card flat tiny"><b>Credit.</b> Every world names the tradition and the place it comes from, ' +
       'and says when the art is ours: ' + esc((worldList()[0] || {}).credit || '') + ' In the real product a ' +
@@ -3922,7 +3940,7 @@
     return '<div class="card"><div class="row" style="flex-wrap:nowrap">' + art(S.buddy, 92) +
       '<div><h1 style="margin:0">' + esc(S.name || 'Yatri') + '</h1>' +
       '<div class="row" style="margin-top:8px">' +
-      '<span class="pill stat">🐚 ' + S.kauris + '</span>' +
+      '<span class="pill stat">🪙 ' + S.sikke + '</span>' +
       '<span class="pill stat">' + esc(rank()) + '</span>' +
       '<span class="pill stat">' + Object.keys(S.lit).length + ' places</span>' +
       '<span class="pill stat">' + Object.keys(S.read).length + ' stories</span></div></div></div></div>' +
@@ -3984,6 +4002,19 @@
       }).join('') + '</div>' +
       '<p class="tiny muted" style="margin:8px 0 0">Slows every voice in the app — stories, ' +
       'words and the Hindi lessons. The words stay the same pitch, just slower.</p>' +
+      /* THE DEVELOPER UNLOCK. Sits at the bottom of the grown-ups' page, says plainly what
+         it does, and is loud while it is on so nobody ships a screenshot of a "finished"
+         collection that was actually a test switch. It opens the SIKKE economy only —
+         worlds and avatar packs. It cannot and must not open a paid entitlement, which is
+         server-side by rule (CLAUDE.md). */
+      '<h4 class="setlbl">Developer unlock</h4>' +
+      '<div class="row"><button class="pill' + (S.dev ? ' on' : '') + '" data-act="devmode"' +
+      ' aria-pressed="' + (S.dev ? 'true' : 'false') + '">' +
+      (S.dev ? 'ON — everything is open' : 'Off') + '</button></div>' +
+      '<p class="tiny muted" style="margin:8px 0 0">For testing. Opens every world and every ' +
+      'avatar pack and stops sikke being spent, so you can walk the whole app without ' +
+      'grinding for it. Nothing is bought and nothing is lost — turn it off and your real ' +
+      'sikke and your real collection are exactly as you left them.</p>' +
       '<p class="tiny muted" style="margin-top:12px">Build <b>' + esc(window.IND_BUILD || 'dev') + '</b>' +
       ' — if something looks wrong, quote this number so we know which version you are on.</p>' +
       '<p class="tiny muted">This demo keeps everything on this device. No account, ' +
@@ -4102,7 +4133,31 @@
         '<div class="deckstage">' +
           '<button class="deckarrow prev" data-act="deckstep" data-d="-1" aria-label="Previous card">' +
           icon('back', 24) + '</button>' +
-          '<div class="avslot" id="avslot">' + avCardHTML(here.id) + '</div>' +
+          '<div class="avslot" id="avslot">' +
+            /* A LOCKED CARD SHOWS WHAT IT IS AND WHAT IT COSTS — never a blank grey box.
+               A child has to be able to want it. The published drop rate is on the card
+               too: an undisclosed rate is the part of a draw that is actually
+               indefensible, and this way a parent can read it before a coin is spent. */
+            ((window.IND_ECONOMY && !window.IND_ECONOMY.avatarOpen(S, here.id))
+              ? (function () {
+                  var E = window.IND_ECONOMY;
+                  var left = E.unheld(S, here.packId).length;
+                  var pp = E.packPrice(here.packId);
+                  return '<div class="avlocked">' +
+                    '<div class="avlockart">' + art(here.id, 96) + '</div>' +
+                    '<h3 style="margin:10px 0 2px">' + esc(avatarName(here.id) || 'Not met yet') + '</h3>' +
+                    '<p class="tiny muted" style="margin:0 0 12px">You have not met this one yet · ' +
+                      'drop rate ' + E.dropRate(here.packId, here.id) + '% · ' + left + ' left in this pitara</p>' +
+                    '<button class="btn sm" data-act="draw" data-p="' + esc(here.packId) + '">' +
+                      'Open the pitara — 🪙 ' + E.DRAW_PRICE + '</button>' +
+                    (pp == null ? '' :
+                      '<button class="pill" style="margin-top:8px" data-act="buypack" data-p="' +
+                      esc(here.packId) + '">Take the whole pack — 🪙 ' + pp + '</button>') +
+                    '<p class="tiny muted" style="margin:10px 0 0">A draw never gives you one you ' +
+                      'already have, so nothing is ever wasted.</p>' +
+                    '</div>';
+                })()
+              : avCardHTML(here.id)) + '</div>' +
           '<button class="deckarrow next" data-act="deckstep" data-d="1" aria-label="Next card">' +
           icon('back', 24) + '</button>' +
         '</div>' +
@@ -4122,7 +4177,7 @@
          to the next line together. Loose in the row, the wordmark would push
          them over the edge one at a time and strand sound on a line by itself. */
       '<span class="barctl">' +
-      '<span class="pill stat">🐚 <span id="kauriCount">' + S.kauris + '</span></span>' +
+      '<span class="pill stat" title="Sikke — earned, never bought">🪙 <span id="kauriCount">' + S.sikke + '</span></span>' +
       /* the family-language chip: shows the tongue in its own script, opens the picker */
       (window.IND_TONGUE
         ? '<button class="pill stat" data-act="go" data-v="tongue" aria-label="Your family’s language">' +
@@ -4356,7 +4411,7 @@
     try {
       gameTeardown = g.engine(host, {}, function (res) {
         res = res || {};
-        earn(res.kauris || (res.win ? 10 : 4), g.name); markToday();
+        earn(res.sikke || res.kauris || (res.win ? 10 : 4), g.name); markToday();
         setTimeout(function () { go('mela'); }, 900);
       });
     } catch (e) { host.innerHTML = '<p class="muted">This stall could not open: ' + esc(e.message) + '</p>'; }
@@ -4591,6 +4646,72 @@
       if ($('.topbar')) document.getElementById('app').innerHTML = chrome();
       return render();
     }
+    /* BUYING A WORLD. One place that spends, so no view can go negative, and the
+       purchase is permanent — a world you paid for never re-locks. */
+    if (a === 'buyworld') {
+      var bw = t.getAttribute('data-w');
+      var BE = window.IND_ECONOMY;
+      var bp = BE ? BE.worldPrice(bw) : 0;
+      if (!BE || !BE.canAfford(S, bp)) {
+        toast('That one costs ' + bp + ' sikke. You have ' + (S.sikke || 0) + '.');
+        return;
+      }
+      BE.spend(S, bp);
+      S.own.worlds.push(bw);
+      S.world = bw; save(); paintChrome();
+      var BW = (window.IND_WORLDS && window.IND_WORLDS.get(bw)) || null;
+      toast('Opened ' + (BW ? BW.name : bw) + ' — it is yours for good.');
+      if (window.IND_WORLDS_ART && window.IND_WORLDS_ART.refresh) window.IND_WORLDS_ART.refresh();
+      return render();
+    }
+
+    /* THE PITARA. One card, from the ones you do NOT have, so a draw is never wasted
+       and never a duplicate. Sacred and epic packs are not in here at all. */
+    if (a === 'draw') {
+      var dp = t.getAttribute('data-p');
+      var DE = window.IND_ECONOMY;
+      if (!DE) return;
+      var left = DE.unheld(S, dp);
+      if (!left.length) { toast('You have every card in this one already.'); return; }
+      if (!DE.canAfford(S, DE.DRAW_PRICE)) {
+        toast('A draw is ' + DE.DRAW_PRICE + ' sikke. You have ' + (S.sikke || 0) + '.');
+        return;
+      }
+      var got = DE.draw(S, dp);
+      if (!got) return;
+      DE.spend(S, DE.DRAW_PRICE);
+      S.own.avatars.push(got);
+      save(); paintChrome();
+      toast('You met ' + (avatarName(got) || got) + '!');
+      return render();
+    }
+
+    /* BUYING A WHOLE PACK outright, for a child who would rather not draw. */
+    if (a === 'buypack') {
+      var bk = t.getAttribute('data-p');
+      var PE = window.IND_ECONOMY;
+      var pp = PE ? PE.packPrice(bk) : null;
+      if (!PE || pp == null) return;
+      if (!PE.canAfford(S, pp)) {
+        toast('That pack is ' + pp + ' sikke. You have ' + (S.sikke || 0) + '.');
+        return;
+      }
+      PE.spend(S, pp);
+      S.own.packs.push(bk);
+      save(); paintChrome();
+      toast('The whole pack is open.');
+      return render();
+    }
+
+    /* DEVELOPER UNLOCK — for testing. Device-scoped and profile-scoped both, loud on
+       screen while it is on, and it never touches a paid entitlement: it opens the
+       sikke economy only. */
+    if (a === 'devmode') {
+      S.dev = !S.dev; save();
+      toast(S.dev ? 'Developer unlock ON — everything is open.' : 'Developer unlock off.');
+      return render();
+    }
+
     if (a === 'world')  {
       S.world = t.getAttribute('data-w'); save();
       var W = (window.IND_WORLDS && window.IND_WORLDS.get(S.world)) || null;

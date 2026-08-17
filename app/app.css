@@ -1988,3 +1988,15 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .setlbl { font: 700 11px var(--mono); letter-spacing: .12em; text-transform: uppercase;
   color: var(--muted); margin: 20px 0 8px; }
 .row.seg { gap: 6px; }
+
+/* ------------------------------------------------------- the locked avatar card
+   A card you have not met shows its silhouette, its name, its published drop rate
+   and its price — never a blank grey box. A child has to be able to want it, and a
+   grown-up has to be able to read the odds before a coin is spent. */
+.avlocked { text-align: center; padding: var(--space-xl) var(--space-lg); }
+.avlocked .avlockart { opacity: .3; filter: grayscale(1); }
+.avlocked h3 { font-size: 19px; }
+/* a price on a world tile reads as a price, not as a status badge */
+.badge.price { background: var(--accent-soft); color: var(--accent); font-weight: 800; }
+.tile.locked { opacity: .82; }
+.tile.locked .wpreview { filter: saturate(.35); }

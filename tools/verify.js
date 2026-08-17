@@ -308,6 +308,18 @@ async function main() {
       for (let i = 0; i < total; i++) {
         scored.push(...await page.evaluate(() => {
           const out = [];
+          /* A LOCKED card is a legitimate render now (economy.js): a card the child has
+             not drawn yet shows its silhouette, its name, its published drop rate and its
+             price. It is checked for its OWN rule instead — a locked card must never leak
+             the card's stats or its quotation, which would make paying for it pointless
+             and, on a real person, would be a score on someone who has not been met. */
+          const locked = document.querySelector('.avslot .avlocked');
+          if (locked) {
+            if (locked.querySelector('.avstat')) out.push('a locked deck card leaks its stat bars');
+            if (locked.querySelector('blockquote')) out.push('a locked deck card leaks its quotation');
+            if (!locked.querySelector('[data-act="draw"]')) out.push('a locked deck card offers no way to open it');
+            return out;
+          }
           const card = document.querySelector('.avslot .avcard');
           if (!card) { out.push('a step in the deck rendered no card'); return out; }
           const name = (card.querySelector('h1') || {}).textContent || '(unnamed)';

@@ -245,6 +245,10 @@ window.IND_STORIES = [
 /* ======================================================= AKBAR & BIRBAL === */
 {
   id: 'ab.shorter-line',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'birbal',
   badge: 'katha',
   title: 'The Line Nobody Could Shorten',
@@ -256,12 +260,16 @@ window.IND_STORIES = [
   words_hi: [['रेखा', 'rekha', 'line'], ['छोटा', 'chhota', 'small'], ['बड़ा', 'bada', 'big']],
   scenes: [
     { art: ['akbar'], who: null,
+      hi: 'बादशाह अकबर को अपने दरबार के सामने नामुमकिन पहेलियाँ रखना बहुत पसंद था, ख़ास तौर पर इसलिए क्योंकि उन्हें बीरबल को वे पहेलियाँ सुलझाते देखना अच्छा लगता था। एक सुबह उन्होंने चाक के एक टुकड़े से फ़र्श पर एक लंबी लकीर खींच दी।',
       text: 'The Emperor Akbar liked to set his court impossible problems, mostly because he liked watching Birbal solve them. One morning he drew a long line across the floor with a piece of chalk.' },
     { art: ['akbar'], who: 'akbar',
+      hi: '"इस लकीर को छोटा करो," अकबर ने कहा। "मगर तुम इसका कोई भी हिस्सा मिटा नहीं सकते। तुम इसे बिल्कुल छू भी नहीं सकते।"',
       text: '"Make this line shorter," said Akbar. "But you may not rub out any part of it. You may not touch it at all."' },
     { art: ['courtier', 'akbar'], who: 'courtier', mood: 'think',
+      hi: 'मंत्री उसके चारों तरफ़ चक्कर लगाने लगे। वे झुककर आँखें सिकोड़ते हुए उसे ग़ौर से देखने लगे। एक ने उसका छोर कपड़े से ढकने की सलाह दी, जिस पर बादशाह ने टोका कि यह भी तो उसे छूना ही हुआ। कोई कुछ भी नहीं कर पाया।',
       text: 'The ministers walked around it. They crouched down and squinted at it. One suggested covering the end with a cloth, which the Emperor pointed out was still touching it. Nobody could do anything at all.' },
     { art: ['birbal'], who: null,
+      hi: 'फिर बीरबल आगे बढ़े, चाक उठाई, और बस एक काम किया।',
       text: 'Then Birbal walked up, took the chalk, and did one thing.',
       ask: {
         q: 'You may not touch the line. But you have chalk. What do you do?',
@@ -271,8 +279,10 @@ window.IND_STORIES = [
         wrong: 'Birbal did something simpler — he drew a much LONGER line right beside it.'
       } },
     { art: ['birbal', 'akbar'], who: 'birbal',
+      hi: 'उन्होंने पहली लकीर के ठीक बगल में एक दूसरी लकीर खींच दी — बहुत, बहुत ज़्यादा लंबी। फिर वे पीछे हटे और झुककर आदाब किया। "जहाँपनाह, आपकी लकीर अब दोनों में छोटी हो गई है। मैंने तो इसे छुआ भी नहीं।"',
       text: 'He drew a second line right beside the first — much, much longer. Then he stepped back and bowed. "Your line, Jahanpanah, is now the shorter of the two. I did not touch it."' },
     { art: ['akbar'], who: 'akbar', mood: 'wow',
+      hi: 'अकबर इतना हँसे कि आख़िरकार उन्हें बैठना ही पड़ा।',
       text: 'Akbar laughed until he had to sit down.' }
   ],
   moral: 'You do not always have to attack the problem. Sometimes you just change what it stands next to.',
@@ -281,6 +291,10 @@ window.IND_STORIES = [
 
 {
   id: 'ab.khichdi',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'birbal',
   badge: 'katha',
   title: "Birbal's Khichdi",
@@ -292,12 +306,16 @@ window.IND_STORIES = [
   words_hi: [['पानी', 'paani', 'water'], ['ठंडा', 'thanda', 'cold'], ['आग', 'aag', 'fire']],
   scenes: [
     { art: ['akbar'], who: 'akbar',
+      hi: 'साल का सबसे ठंडा हफ़्ता चल रहा था। "एक हज़ार सोने के सिक्के मिलेंगे," अकबर ने ऐलान किया, "उस इंसान को जो बिना आग और बिना कंबल के, सारी रात महल की झील में गले तक पानी में खड़ा रह सके।"',
       text: 'It was the coldest week of the year. "A thousand gold coins," announced Akbar, "to anyone who can stand in the palace lake all night, up to his neck, with no fire and no blanket."' },
     { art: ['courtier'], who: null,
+      hi: 'एक गरीब आदमी आगे आया। उसे अपने परिवार का पेट भरना था और बेचने के लिए उसके पास कुछ भी नहीं बचा था। सूरज ढलते ही वह उस काले पानी में उतर गया और रात भर थर-थर काँपते हुए वहीं खड़ा रहा, जब तक कि सुबह सूरज नहीं निकल आया।',
       text: 'A poor man came forward. He had a family to feed and nothing else to sell. He walked into the black water at sunset and stood there, all night, shaking, until the sun came up.' },
     { art: ['akbar'], who: 'akbar', mood: 'think',
+      hi: '"तुम ज़िंदा कैसे बच गए?" अकबर ने पूछा। "जहाँपनाह, दूर एक खिड़की में एक दीया जल रहा था," उस आदमी ने कहा। "मैं सारी रात उसी को देखता रहा।" "तो तुम्हें उस दीये से गर्मी मिल रही थी!" एक मंत्री बोला। "इसने बेईमानी की है। कोई इनाम नहीं मिलेगा।"',
       text: '"How did you survive?" asked Akbar. "There was a lamp burning in a window far away, Jahanpanah," the man said. "I looked at it all night." "Then you were warmed by the lamp!" said a minister. "He cheated. No payment."' },
     { art: ['akbar', 'birbal'], who: null,
+      hi: 'बादशाह, जो थके हुए थे और ठीक से सोच नहीं पा रहे थे, मान गए। उस आदमी को खाली हाथ भेज दिया गया। बीरबल एक शब्द भी नहीं बोले — और अगले दिन दरबार में भी नहीं आए।',
       text: 'The Emperor, who was tired and not thinking clearly, agreed. The man was sent away with nothing. Birbal said not one word — and did not come to court the next day.',
       ask: {
         q: 'Birbal wants to show the Emperor he was wrong — without insulting him in front of the court. What would you do?',
@@ -307,12 +325,16 @@ window.IND_STORIES = [
         wrong: 'Birbal did something better than arguing. He invited the Emperor to lunch.'
       } },
     { art: ['birbal', 'akbar'], who: 'birbal',
+      hi: 'जब बादशाह ने उन्हें बुलवाया, तो बीरबल ने जवाब भिजवाया कि वे शाही दोपहर के खाने के लिए खिचड़ी पका रहे हैं और उसे छोड़कर बिल्कुल नहीं आ सकते। अकबर उत्सुक भी थे और अब तक उन्हें अच्छी-खासी भूख भी लग आई थी, इसलिए वे खुद देखने पहुँचे।',
       text: 'When the Emperor sent for him, Birbal replied that he was cooking khichdi for the royal lunch and could not possibly leave it. Akbar, curious and by now quite hungry, came to see for himself.' },
     { art: ['akbar', 'birbal'], who: null, mood: 'wow',
+      hi: 'आँगन में बीरबल एक छोटी सी आग के पास बैठे थे। उस आग से बहुत ऊपर, एक खंभे से पूरे चार फीट की ऊँचाई पर, खिचड़ी की हाँडी लटक रही थी।',
       text: 'In the courtyard Birbal sat beside a small fire. High above it, dangling from a pole a good four feet up, hung the pot of khichdi.' },
     { art: ['akbar'], who: 'akbar',
+      hi: '"बीरबल, हाँडी आग से चार फ़ुट ऊपर है। वह खिचड़ी कभी नहीं पकेगी।" बीरबल ने कहा, "बिल्कुल पकेगी, जहाँपनाह। अगर एक मील दूर खिड़की में जलता हुआ दीया रात भर झील में खड़े आदमी को गरमाहट दे सकता है — तो यह आग मेरा दोपहर का खाना ज़रूर पका सकती है।"',
       text: '"Birbal. The pot is four feet above the flame. That khichdi will never cook." "Of course it will, Jahanpanah," said Birbal. "If a lamp in a window a mile away can warm a man standing in a lake all night — then this fire can certainly cook my lunch."' },
     { art: ['akbar', 'birbal'], who: null,
+      hi: 'अकबर बिल्कुल चुप हो गए। फिर उन्होंने उस गरीब आदमी को बुलवाया और उसे दोगुने पैसे दिए।',
       text: 'Akbar went very quiet. Then he sent for the poor man and paid him double.' }
   ],
   moral: 'The best way to change someone\'s mind is to let them find the answer themselves.',
@@ -321,6 +343,10 @@ window.IND_STORIES = [
 
 {
   id: 'ab.crows',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'birbal',
   badge: 'katha',
   title: 'How Many Crows in the Kingdom?',
@@ -332,8 +358,10 @@ window.IND_STORIES = [
   words_hi: [['कौआ', 'kauva', 'crow'], ['गिनना', 'ginna', 'to count'], ['कितने', 'kitne', 'how many']],
   scenes: [
     { art: ['akbar', 'pt_crow'], who: 'akbar', mood: 'think',
+      hi: 'अकबर महल की दीवार पर कौवों को आपस में लड़ते देख रहे थे, तभी उनके मन में एक विचार आया। उन्होंने पूछा, "बीरबल, हमारे राज्य में कुल कितने कौवे हैं?"',
       text: 'Akbar was watching crows squabble on the palace wall when a thought struck him. "Birbal," he said. "How many crows are there in my kingdom?"' },
     { art: ['birbal'], who: null,
+      hi: 'यह एक ऐसा सवाल था जिसका कोई जवाब नहीं हो सकता था। पूरा दरबार मुस्कुरा उठा, क्योंकि इस बार सबको पक्का यकीन था कि बीरबल फँस गया है।',
       text: 'It was the sort of question that has no answer. The court smiled, because for once they were sure Birbal was finished.',
       ask: {
         q: 'Nobody can count every crow in an empire. What is the one thing you can do?',
@@ -343,12 +371,16 @@ window.IND_STORIES = [
         wrong: 'Birbal did the boldest thing. He gave an exact number.'
       } },
     { art: ['birbal', 'akbar'], who: 'birbal',
+      hi: '"पंचानवे हज़ार चार सौ तिरेसठ, जहाँपनाह।"',
       text: '"Ninety-five thousand, four hundred and sixty-three, Jahanpanah."' },
     { art: ['akbar'], who: 'akbar', mood: 'wow',
+      hi: '"और अगर मेरे आदमियों ने गिना और इससे ज़्यादा निकले तो?"',
       text: '"And if my men count them and find MORE than that?"' },
     { art: ['birbal'], who: 'birbal',
+      hi: '"तो फिर ज़्यादा कौवे पड़ोसी राज्य से अपने रिश्तेदारों से मिलने आए हैं, जहाँपनाह।"',
       text: '"Then the extra crows are visiting relatives from the neighbouring kingdom, Jahanpanah."' },
     { art: ['akbar', 'birbal'], who: 'akbar',
+      hi: '"और अगर कम मिले तो?" "तो फिर हमारे यहाँ के कुछ कौवे अपने रिश्तेदारों से मिलने गए हैं।" अकबर ने कुछ देर तक उन्हें देखा, और फिर हार मानकर हँस पड़े।',
       text: '"And if they find fewer?" "Then some of ours have gone visiting their relatives." Akbar looked at him for a long moment, and then gave up and laughed.' }
   ],
   moral: 'Confidence is not the same as knowledge — but a question with no answer deserves an answer with no holes.',
@@ -358,6 +390,10 @@ window.IND_STORIES = [
 /* ============================================================ MYTHOLOGY === */
 {
   id: 'ka.ganesha-race',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'mythology',
   badge: 'katha',
   title: 'The Race Around the World',
@@ -369,10 +405,13 @@ window.IND_STORIES = [
   words_hi: [['आम', 'aam', 'mango'], ['दौड़', 'daud', 'race'], ['दुनिया', 'duniya', 'world']],
   scenes: [
     { art: ['shiva'], who: null,
+      hi: 'एक बार एक ऋषि कैलाश पर सोने का एक अकेला आम लेकर आए — ज्ञान का फल, जो सिर्फ़ एक ही व्यक्ति के लिए था। शिव और पार्वती के दो बेटे थे: गोल-मटोल और विचारशील गणेश, और तेज़-तर्रार और जोशीले कार्तिकेय।',
       text: 'A sage once brought a single golden mango to Kailash — a fruit of wisdom, meant for one person only. Shiva and Parvati had two sons: Ganesha, round and thoughtful, and Kartikeya, quick and fierce.' },
     { art: ['shiva', 'ganesha'], who: 'shiva',
+      hi: '"आम एक है और तुम दो," शिव ने कहा। "तो फिर — एक दौड़ हो जाए। जो पूरी दुनिया का चक्कर लगाकर सबसे पहले यहाँ वापस लौटेगा, यह आम उसी को मिलेगा।"',
       text: '"There is one mango and two of you," said Shiva. "So — a race. Whoever goes around the whole world and returns here first may have it."' },
     { art: ['ganesha'], who: null, mood: 'think',
+      hi: 'बात पूरी होने से पहले ही, कार्तिकेय अपने मोर पर सवार होकर पहाड़ों के पार निकल गए। गणेश ने अपनी छोटी-छोटी टाँगों की तरफ़ देखा, और उस नन्हे-से चूहे को देखा जिसकी वे सवारी करते थे। फिर वे बैठ गए और सोचने लगे।',
       text: 'Kartikeya leapt onto his peacock and was gone over the mountains before the sentence was finished. Ganesha looked down at his own short legs, and at the very small mouse he rode. Then he sat down and thought.',
       ask: {
         q: 'Your brother rides a peacock. You ride a mouse. How do you win a race around the world?',
@@ -382,10 +421,13 @@ window.IND_STORIES = [
         wrong: 'Ganesha did something cleverer. He asked himself what "the whole world" actually meant.'
       } },
     { art: ['ganesha', 'shiva'], who: null,
+      hi: 'गणेश खड़े हुए, धीरे-धीरे अपने माता-पिता के पास गए, और उनके चारों ओर पूरा चक्कर लगाया। एक बार। दो बार। तीन बार। फिर उन्होंने सिर झुकाया और अपना हाथ आगे बढ़ा दिया।',
       text: 'Ganesha stood up, walked slowly to his mother and father, and walked all the way around them. Once. Twice. Three times. Then he bowed and held out his hand.' },
     { art: ['ganesha'], who: 'ganesha',
+      hi: '"मेरी पूरी दुनिया तो यहीं है," उन्होंने कहा। "मैंने इसके तीन चक्कर लगा लिए हैं।"',
       text: '"My whole world is right here," he said. "I have been around it three times."' },
     { art: ['shiva', 'ganesha'], who: null, mood: 'wow',
+      hi: 'शिव ने उन्हें वह आम दे दिया। काफ़ी देर बाद कार्तिकेय हाँफते हुए पहुँचे, जो सचमुच पूरी दुनिया का चक्कर लगाकर आए थे — और यही वजह है कि कई परिवारों में यह कहानी कार्तिकेय के प्रति बड़ी हमदर्दी के साथ सुनाई जाती है।',
       text: 'Shiva gave him the mango. Kartikeya arrived some considerable time later, out of breath, having actually been around the entire world — which is why, in many families, this is told with a great deal of sympathy for Kartikeya.' }
   ],
   moral: 'The clever answer and the loving answer are sometimes the same answer.',
@@ -394,6 +436,10 @@ window.IND_STORIES = [
 
 {
   id: 'ka.hanuman-leap',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'mythology',
   badge: 'katha',
   title: "Hanuman's Leap",
@@ -405,10 +451,13 @@ window.IND_STORIES = [
   words_hi: [['समुद्र', 'samudra', 'sea'], ['छलांग', 'chhalaang', 'leap'], ['याद', 'yaad', 'memory']],
   scenes: [
     { art: ['rama', 'hanuman'], who: null,
+      hi: 'सीता को समंदर पार लंका ले जाया जा चुका था। वानरों की सेना धरती की आखिरी चट्टान पर खड़ी होकर सौ मील फैले खुले समंदर को देख रही थी, और उनमें से हर कोई जानता था कि वे इसे पार नहीं कर सकते।',
       text: 'Sita had been carried away across the water to Lanka. The army of vanaras stood on the last rock of the mainland and looked at a hundred miles of open sea, and every one of them knew they could not cross it.' },
     { art: ['hanuman'], who: null, mood: 'sad',
+      hi: 'हनुमान सबसे पीछे चुपचाप बैठे थे। बचपन में वे सूरज को आम समझकर उसकी ओर उछल पड़े थे, और इसके बदले उन्हें नीचे गिरा दिया गया था — और उस गिरने के साथ ही वे भूल गए थे कि वे क्या कुछ कर सकते थे।',
       text: 'Hanuman sat at the back, saying nothing. As a child he had leapt at the sun thinking it was a mango, and been struck down for it — and along with the fall he had lost the memory of what he could do.' },
     { art: ['hanuman'], who: null,
+      hi: 'बुजुर्ग भालू जामवंत उनके पास आकर बैठ गए।',
       text: 'The old bear Jambavan came and sat beside him.',
       ask: {
         q: 'Hanuman can cross the sea. He simply does not remember it. What does Jambavan need to do?',
@@ -418,12 +467,16 @@ window.IND_STORIES = [
         wrong: 'Jambavan did not command him. He reminded him.'
       } },
     { art: ['hanuman'], who: null,
+      hi: '"क्या तुम नहीं जानते कि तुम कौन हो?" जामवंत ने कहा। "पवनपुत्र! तुम चलना सीखने से पहले सूरज की ओर छलांग लगा चुके थे। इस पूरे तट पर तुम सबसे शक्तिशाली हो, और तुम यहाँ सबसे पीछे बैठे हो!"',
       text: '"Do you not know what you are?" said Jambavan. "Son of the wind. You leapt at the sun before you could walk. You are the strongest creature on this shore, and you are sitting at the back."' },
     { art: ['hanuman'], who: null, mood: 'wow',
+      hi: 'और सुनते-सुनते हनुमान का आकार बढ़ने लगा। वे समंदर किनारे के पहाड़ पर चढ़े, और उनके पैरों के नीचे की चट्टान चटक गई। उन्होंने दूर क्षितिज की ओर देखा। और छलांग लगा दी।',
       text: 'And as he listened, Hanuman began to grow. He climbed the mountain at the water\'s edge, and the rock cracked under his feet. He looked at the horizon. And he jumped.' },
     { art: ['hanuman'], who: null,
+      hi: 'वे इतनी ऊँचाई पर गए कि पहाड़ के पेड़ उखड़कर उनके पीछे-पीछे उड़ने लगे, और उनके नीचे का समंदर एक चमकती हुई सड़क जैसा सपाट हो गया। बीच समंदर में उन्हें विश्राम देने के लिए पानी से एक पर्वत ऊपर उठा। हनुमान ने आदर से उसे छुआ, धन्यवाद दिया, और आगे बढ़ते चले गए।',
       text: 'He went so high the trees on the mountain were torn up behind him and flew along in his wake, and the sea beneath him flattened into a bright road. Somewhere over the middle of it a mountain rose out of the water to offer him a rest. He touched it politely, thanked it, and kept going.' },
     { art: ['hanuman', 'rama'], who: 'mithu',
+      hi: '"यही वजह है कि जब भारतीय बच्चे किसी ऐसी चीज़ से डर जाते हैं जो उनसे बहुत बड़ी हो, तो अक्सर कोई न कोई उनसे कहता है: हनुमान को याद करो। उन्हें कभी ऐसा कुछ नहीं दिया गया जो उनके पास पहले से मौजूद न रहा हो।"',
       text: 'This is why, when Indian children are frightened of something too big for them, someone will often say: remember Hanuman. He was never given anything he did not already have.' }
   ],
   moral: 'Most of the time you are not short of strength. You are short of the memory of your own strength.',
@@ -432,6 +485,10 @@ window.IND_STORIES = [
 
 {
   id: 'ka.buddha-mustard',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'mythology',
   badge: 'katha',
   title: 'The Mustard Seed',
@@ -443,10 +500,13 @@ window.IND_STORIES = [
   words_hi: [['बीज', 'beej', 'seed'], ['घर', 'ghar', 'house'], ['दुख', 'dukh', 'sorrow']],
   scenes: [
     { art: ['buddha'], who: null,
+      hi: '"किसा गोतमी नाम की एक औरत का इकलौता बच्चा चल बसा। वह यह बात मानने को तैयार ही नहीं थी। वह बच्चे को उठाए पूरे शहर में घूमी और हर एक इंसान से उसे वापस लाने की दवा माँगती रही, पर सबने मुँह मोड़ लिया — आखिरकार एक बूढ़े आदमी ने कहा: \\"बुद्ध के पास जाओ।\\""',
       text: 'A woman called Kisa Gotami lost her only child. She would not accept it. She carried him through the town asking every single person for medicine to bring him back, and everyone turned away — until one old man said: "Go to the Buddha."' },
     { art: ['buddha'], who: 'buddha',
+      hi: '"\\"मैं तुम्हारी मदद कर सकता हूँ,\\" बुद्ध ने कहा। \\"मेरे लिए एक मुट्ठी सरसों के दाने ले आओ।\\" वह दौड़ने को मुड़ी। \\"लेकिन वो ऐसे घर से आने चाहिए,\\" उन्होंने कहा, \\"जहाँ कभी किसी की मौत न हुई हो।\\""',
       text: '"I can help you," said the Buddha. "Bring me a handful of mustard seed." She turned to run. "But it must come from a house," he said, "where nobody has ever died."' },
     { art: ['buddha'], who: null,
+      hi: '"वह पहले घर पहुँची। उन्होंने खुशी-खुशी उसे सरसों दे दी — भारत के हर रसोईघर में सरसों होती ही है। \\"और क्या इस घर में किसी की मौत हुई है?\\" उसने पूछा। उस औरत के चेहरे का रंग बदल गया। \\"मेरे पति की। पिछली बसंत में।\\""',
       text: 'She went to the first house. They gladly offered her mustard seed — every kitchen in India has mustard seed. "And has anyone died in this house?" she asked. The woman\'s face changed. "My husband. Last spring."',
       ask: {
         q: 'She has a whole town left to ask. What do you think she found?',
@@ -456,10 +516,13 @@ window.IND_STORIES = [
         wrong: 'She found no such house. There has never been one.'
       } },
     { art: ['buddha'], who: null,
+      hi: '"एक के बाद एक, घर-घर। सरसों तो हर किसी के पास थी। पर ऐसा घर किसी का न था जहाँ कभी मौत न आई हो। कहीं दादी। कहीं भाई। कहीं नन्हा बच्चा। कहीं कोई दोस्त। शाम होते-होते वह पूरा शहर नाप चुकी थी और उसके हाथ खाली थे।"',
       text: 'House after house after house. Everyone had mustard seed. Nobody had a house that death had never entered. A grandmother. A brother. A baby. A friend. By evening she had walked the whole town and her hands were empty.' },
     { art: ['buddha'], who: null,
+      hi: '"वह सड़क किनारे बैठ गई। और दूसरों के दुख-दर्द से भरे उस लंबे दिन में, उसे पता भी न चला कि कब वह अकेली नहीं रही थी।"',
       text: 'She sat down at the edge of the road. And somewhere in that long day of other people\'s losses, without noticing it happening, she had stopped being alone.' },
     { art: ['buddha'], who: 'mithu',
+      hi: 'वह सरसों का एक भी दाना लिए बिना बुद्ध के पास वापस लौटी, और उनकी शिष्या बन गई।',
       text: 'She went back to the Buddha with no mustard seed at all, and became one of his students.' }
   ],
   moral: 'Grief feels like the only one of its kind. It never is — and that is the beginning of comfort.',
@@ -468,6 +531,10 @@ window.IND_STORIES = [
 
 {
   id: 'ka.mahavira-elephant',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'mythology',
   badge: 'katha',
   title: 'Six Blind Men and an Elephant',
@@ -479,10 +546,13 @@ window.IND_STORIES = [
   words_hi: [['हाथी', 'haathi', 'elephant'], ['सच', 'sach', 'truth'], ['छूना', 'chhuna', 'to touch']],
   scenes: [
     { art: ['pt_elephant'], who: null,
+      hi: 'जन्म से अंधे छह आदमियों को एक हाथी के पास लाया गया और बताने को कहा गया कि वह कैसा होता है। उन सबने हाथ आगे बढ़ाया और उसके अलग-अलग हिस्से को छुआ।',
       text: 'Six men who had been blind from birth were brought to an elephant and asked to say what it was like. Each of them reached out and touched a different part.' },
     { art: ['pt_elephant'], who: null,
+      hi: '"एक मोटा साँप," सूँड पकड़े हुए आदमी ने कहा। "एक पंखा," कान के पास वाले ने कहा। "पेड़ का तना," पैर को बाहों में घेरे आदमी ने कहा। "एक दीवार।" "एक भाला।" "एक रस्सी," आखिरी आदमी ने कहा, जिसके हाथ पूँछ लगी थी।',
       text: '"A thick snake," said the one holding the trunk. "A fan," said the one at the ear. "A tree trunk," said the one with his arms round a leg. "A wall." "A spear." "A rope," said the last one, who had found the tail.' },
     { art: ['pt_elephant'], who: null,
+      hi: 'उनमें बहस हुई। फिर वे चिल्लाने लगे। हर एक को लग रहा था कि वही सही है, क्योंकि हर कोई सही था भी।',
       text: 'They argued. Then they shouted. Each of them could feel that he was right, because each of them was.',
       ask: {
         q: 'Who is telling the truth?',
@@ -492,8 +562,10 @@ window.IND_STORIES = [
         wrong: 'The answer is stranger: all of them are right, and not one of them is right completely.'
       } },
     { art: ['mahavira'], who: 'mahavira',
+      hi: 'जैन गुरु इसे अनेकांतवाद कहते हैं — यानी कई पहलू होना। सच के इतने पहलू होते हैं कि कोई भी एक इंसान उन सबको एक साथ नहीं समझ सकता। तुमने जो छुआ वह सच है। बस, वही पूरा सच नहीं है।',
       text: 'The Jain teachers call this *anekantavada* — many-sidedness. Truth has more sides than any one person can hold at once. What you touched is real. It is simply not all of it.' },
     { art: ['mahavira'], who: 'mithu',
+      hi: 'इसीलिए, जैन परंपरा में अक्सर वाक्य \'स्यात्\' से शुरू होते हैं — "एक तरह से"। एक तरह से यह एक रस्सी है। कभी किसी बहस की शुरुआत ऐसे करके देखना।',
       text: 'Which is why, in Jain tradition, sentences often begin with *syat* — "in some way". In some way it is a rope. Try starting an argument like that.' }
   ],
   moral: 'You can be completely right and still be missing most of the elephant.',

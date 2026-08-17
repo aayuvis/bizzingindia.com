@@ -35,6 +35,10 @@ window.IND_STORIES_MORE = [
 /* ============================================================= JATAKA ====== */
 {
   id: 'jt.golden-goose',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Goose Who Gave Gold',
@@ -46,14 +50,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['सोना', 'sona', 'gold'], ['हंस', 'hans', 'goose'], ['लालच', 'laalach', 'greed']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'एक आदमी की मौत हो गई और पीछे छूट गईं उसकी पत्नी और तीन बेटियाँ, और इसके अलावा लगभग कुछ भी नहीं। वे कपड़े सिलने का काम करने लगीं। वे कम-कम खाकर गुज़ारा करती थीं। घर में किसी ने भी बोलकर यह नहीं कहा कि दिन कितने तंगी भरे होते जा रहे हैं, क्योंकि कहने से कोई फ़ायदा नहीं होता।',
       text: 'A man died and left behind a wife and three daughters and almost nothing else. They took in sewing. They ate small. Nobody in the house said out loud how thin the year was getting, because saying it would not have helped.' },
     { art: ['pt_heron'], who: null, mood: 'wow',
+      hi: 'फिर एक सुबह छत पर एक हंस आकर उतरा — और उसका हर एक पंख सोने का था। असली सोना, भारी वाला, ऐसा जो गिराने पर खनक उठता है।',
       text: 'Then one morning a goose came down onto the roof — and every feather on him was gold. Real gold, the heavy kind, the kind that rings when you drop it.' },
     { art: ['pt_heron', 'courtier'], who: 'pt_heron',
+      hi: '"मैं इस घर को जानता हूँ," हंस ने कहा। "कैसे, यह मैं नहीं बताऊँगा। यह लो।" और उसने हिलाकर एक पंख सीढ़ी पर गिरा दिया। "इसे बेच देना। जब तक तुम्हें मेरी ज़रूरत रहेगी, मैं हर कुछ दिनों में आकर एक और पंख छोड़ जाऊँगा।"',
       text: '"I know this house," said the goose. "I will not explain how. Here." And he shook one feather loose onto the step. "Sell that. I will come every few days and leave another, for as long as you need me."' },
     { art: ['courtier', 'guard'], who: 'courtier',
+      hi: 'और उसने ऐसा ही किया। छत की मरम्मत हो गई। बच्चियों को जूते मिल गए। माँ फिर से बातों पर हँसने लगीं। हर कुछ दिनों में छत पर एक हल्की-सी धप की आवाज़ होती और सीढ़ी पर एक और पंख मिलता, और घर ने जैसे चैन की साँस ली।',
       text: 'And he did. The roof got mended. The girls got shoes. The mother laughed at things again. Every few days there was a soft thump on the roof and one more feather on the step, and the house breathed out.' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'महीने बीतते गए। फिर एक शाम माँ खाली सीढ़ी को देखते हुए बैठी थीं और उनके मन में वही ख़याल आया जो हफ़्तों से धीरे-धीरे उनके दिमाग में घर कर रहा था। उसके पास सैकड़ों पंख हैं। सैकड़ों। और वह हमेशा बस एक ही छोड़ कर जाता है।',
       text: 'Months went by. Then one evening the mother sat looking at the empty step and thought a thought that had been creeping up on her for weeks. He has hundreds of feathers. Hundreds. And he only ever leaves one.',
       ask: {
         q: 'A whole bird made of gold lands on your roof every few days. What do you do?',
@@ -63,12 +72,16 @@ window.IND_STORIES_MORE = [
         wrong: 'That is what she decided. She waited behind the water pot with her hands ready.'
       } },
     { art: ['courtier', 'pt_heron'], who: 'courtier', mood: 'wow',
+      hi: '"बस इस एक बार," उन्होंने बच्चियों से कहा, "और फिर हमें कभी कोई चिंता नहीं करनी पड़ेगी।" सबसे बड़ी बेटी ने कहा, "माँ, वह अपने आप ही तो आता है।" पर उसकी माँ असल में सुन ही नहीं रही थीं।',
       text: '"Just this once," she told the girls, "and then we never have to worry again." The eldest said, "Ma, he comes on his own." Her mother was not really listening.' },
     { art: ['pt_heron'], who: null, mood: 'sad',
+      hi: 'उसने उसे बड़े प्यार से ही पकड़ा। पंख भी उसने बड़े आराम से ही खींचे। और जैसे ही एक-एक पंख उससे अलग हुआ, वह एक मामूली सफ़ेद पंख बन गया — कबूतर के पंख जैसा सादा, जिसकी कोई क़ीमत ही नहीं थी।',
       text: 'She caught him gently enough. She pulled the feathers out gently enough. And every single one of them, the moment it left him, turned into an ordinary white feather — plain as a pigeon, worth nothing at all.' },
     { art: ['pt_heron', 'courtier'], who: 'pt_heron',
+      hi: 'हंस ने देर तक उसकी तरफ़ देखा। "वह एक तोहफ़ा था," उसने कहा। "इसीलिए तो वह सोने का था।" और क्योंकि वह उड़ नहीं सकता था, वह चलकर छत के किनारे तक गया और सड़क पर आगे बढ़ गया।',
       text: 'The goose looked at her for a long moment. "It was a gift," he said. "That is what made it gold." And he walked to the edge of the roof, because he could not fly, and went away down the road.' },
     { art: ['courtier'], who: 'mithu',
+      hi: 'लड़कियों ने उन सफ़ेद पंखों को एक डिब्बे में रख दिया और सँभाल कर रखा। उनकी माँ ने उन्हें एक बार भी नहीं बताया कि वे आने क्यों बंद हो गए, और उन्होंने भी कभी नहीं पूछा।',
       text: 'The girls put the white feathers in a box and kept them anyway. Their mother never once told them why they had stopped coming, and they never once asked.' }
   ],
   moral: 'Take what is given and it stays gold. Grab, and it turns to feathers in your hand.',
@@ -77,6 +90,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.woodpecker-lion',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Bird Who Went Down the Lion\'s Throat',
@@ -88,10 +105,13 @@ window.IND_STORIES_MORE = [
   words_hi: [['गला', 'gala', 'throat'], ['मदद', 'madad', 'help'], ['काँटा', 'kaanta', 'thorn']],
   scenes: [
     { art: ['pt_lion'], who: null,
+      hi: 'एक शेर ने अपनी पुरानी आदत के मुताबिक़ बहुत जल्दी-जल्दी खा लिया, और कोई नुकीली चीज़ टेढ़ी होकर गले में फँस गई। न वह निगल पा रहा था, न दहाड़ पा रहा था। आँखों में पानी भरे वह एक पेड़ के नीचे पड़ा रहा और उसके गले से एक हल्की, बेबस सी सीटी जैसी आवाज़ निकलती रही।',
       text: 'A lion ate too fast, the way he always did, and something sharp went in sideways and stuck. He could not swallow. He could not roar. He lay under a tree with his eyes watering and made a small, undignified, whistling noise.' },
     { art: ['pt_crow', 'pt_lion'], who: 'pt_crow',
+      hi: 'एक कठफोड़वा डाली पर फुदककर नीचे आई और उसे देखने लगी। "वह तो हड्डी है," वह बोली। "अंदर। मुझे उसका सिरा दिख रहा है।" शेर ने और ज़्यादा छटपटाते हुए फिर वही सीटी जैसी आवाज़ निकाली।',
       text: 'A woodpecker hopped down a branch and looked at him. "That is a bone," she said. "In there. I can see the end of it." The lion made the whistling noise again, more urgently.' },
     { art: ['pt_crow'], who: null, mood: 'think',
+      hi: 'कठफोड़वा सोचने लगी। उसका पूरा सिर एक शेर के मुँह के अंदर जाना होगा। उसका पूरा सिर। अंदर। मुँह के। एक शेर के।',
       text: 'The woodpecker considered the situation. Her whole head would have to go inside the mouth of a lion. Her whole head. Inside. The mouth. Of a lion.',
       ask: {
         q: 'She can reach the bone. But the only way to reach it is to put her head in a lion\'s mouth. What would you do?',
@@ -101,16 +121,22 @@ window.IND_STORIES_MORE = [
         wrong: 'The woodpecker was more careful than that. She jammed a stick upright between his teeth first — and then went in.'
       } },
     { art: ['pt_crow', 'pt_lion'], who: null,
+      hi: 'वह फुदककर अंदर गई, हड्डी को पकड़ा, अपने पैर जमाए और उसे खींचकर निकाल लिया। फिर वह बाहर आई, लकड़ी को हटा दिया और डाल पर बैठकर थर-थर काँपने लगी।',
       text: 'She hopped in, took hold of the bone, braced her feet, and pulled it free. Then she came out, knocked the stick away, and sat on the branch shaking rather a lot.' },
     { art: ['pt_lion'], who: 'pt_lion', mood: 'wow',
+      hi: 'शेर उठकर बैठ गया। उसने खाँसा। उसने धीरे से दहाड़ने की कोशिश की और दहाड़ निकल आई। "हा! अब कुछ ठीक लगा।" और बिना कुछ और बोले वह उठकर लंबी घास में चला गया।',
       text: 'The lion sat up. He coughed. He tried a small roar and it worked. "Ha! That is better." And he got up and walked off into the long grass without another word.' },
     { art: ['pt_crow'], who: null,
+      hi: 'कुछ हफ़्तों बाद कठफोड़वा भूखी थी, और उसने शेर को खाते हुए देखा, तो वह नीचे आई और विनम्रता से एक किनारे खड़ी हो गई। "दोस्त," उसने कहा। "क्या तुम्हें मैं याद हूँ?"',
       text: 'Some weeks later the woodpecker was hungry, and she saw the lion eating, and she came down and stood politely at the edge of it. "Friend," she said. "Do you remember me?"' },
     { art: ['pt_lion', 'pt_crow'], who: 'pt_lion',
+      hi: '"मुझे तुम याद हो," बिना ऊपर देखे शेर ने कहा। "तुमने एक शेर के मुँह में अपना सिर डाला था, और वह सलामत तुम्हारे धड़ पर लगा हुआ ही बाहर निकल आया। तुम्हें और क्या चाहिए? ज़्यादातर जानवरों को तो इतना भी नसीब नहीं होता।"',
       text: '"I remember you," said the lion, not looking up. "You put your head inside the mouth of a lion, and you came out again with it still attached. What more do you want? Most creatures do not get that."' },
     { art: ['pt_crow'], who: 'pt_crow',
+      hi: 'कठफोड़वा ने इस बात पर सोचा। फिर वह उड़कर अपनी डाल पर जा बैठी और कीड़े ढूँढने के लिए चोंच मारने लगी, जिसमें वह शुरू से ही बहुत माहिर थी।',
       text: 'The woodpecker thought about that. Then she flew up to her branch and started tapping for grubs, which she had been perfectly good at all along.' },
     { art: ['pt_crow'], who: 'mithu',
+      hi: 'सालों बाद, जब उसके गले में दोबारा कुछ अटका, तो उसने फिर उसकी मदद की। इसलिए नहीं कि वह इसके लायक था। बल्कि इसलिए कि वह खुद ऐसी ही थी।',
       text: 'She helped him again, years later, when he got something stuck a second time. Not because he deserved it. Because that is what she was.' }
   ],
   moral: 'Do the kind thing because it is yours to do — not because of what you expect back.',
@@ -119,6 +145,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.elephant-dog',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Elephant Who Stopped Eating',
@@ -130,16 +160,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['हाथी', 'haathi', 'elephant'], ['कुत्ता', 'kutta', 'dog'], ['साथी', 'saathi', 'companion']],
   scenes: [
     { art: ['pt_elephant'], who: null,
+      hi: 'राजा का हाथी ऐसे हाथीखाने में रहता था जो ज़्यादातर घरों से भी बड़ा था, उसे दिन में दो बार नहलाया जाता था, और घी में पके चावल खाने को मिलते थे। किसी भी नज़र से देखें, तो वह पूरे राज्य का सबसे किस्मत वाला हाथी था।',
       text: 'The king\'s elephant lived in a stable bigger than most houses, and was washed twice a day, and was given rice cooked with ghee. He was, by every measure anybody had, the luckiest elephant in the kingdom.' },
     { art: ['pt_jackal', 'pt_elephant'], who: null,
+      hi: 'एक दोपहर एक दुबला-पतला गली का कुत्ता खाने की तलाश में बाड़े में आ गया और उसे हाथी की नाँद के नीचे बचा-खुचा खाना मिल गया। हाथी कुछ देर उसे नीचे देखता रहा। फिर उसने अपने पैर से थोड़ा और चावल किनारे से नीचे धकेल दिया।',
       text: 'A thin street dog got into the yard one afternoon looking for scraps and found the leftovers under the elephant\'s trough. The elephant looked down at him for a while. Then he pushed a little more rice over the edge with his foot.' },
     { art: ['pt_elephant', 'pt_jackal'], who: null,
+      hi: 'बस, ऐसे ही शुरुआत हुई। कुत्ता रोज़ आने लगा। वह हाथी के आगे वाले पैरों के बीच सोता था। हाथी उसे अपनी सूँड से बीच से उठाता और इधर-उधर झुलाता, और कुत्ता पैर चलाते हुए भौंकता, जो कि कुत्तों के हँसने का तरीका होता है।',
       text: 'That was how it started. The dog came every day. He slept between the elephant\'s front feet. The elephant picked him up by the middle with his trunk and swung him about, and the dog barked with his legs going, which is a dog\'s way of laughing.' },
     { art: ['courtier', 'pt_jackal'], who: 'courtier',
+      hi: 'फिर एक किसान बाड़े से निकला, उसने बिना पट्टे का एक अच्छा-भला कुत्ता देखा और कहा, "तुम ठीक रहोगे।" वह उसे उठाकर अपने गाँव ले गया, और महल में किसी ने एक पल के लिए भी इस पर ध्यान नहीं दिया।',
       text: 'Then a farmer came through the yard, saw a good-looking dog with nobody\'s rope on him, and said, "You will do." He picked him up and carried him off to his village, and nobody in the palace thought about it for one second.' },
     { art: ['pt_elephant'], who: null, mood: 'sad',
+      hi: 'हाथी ने उस रात कुछ नहीं खाया। न ही अगले दिन। वह दीवार की तरफ मुँह किए खड़ा रहा। देख-रेख करने वालों ने उसे गन्ना दिया, फिर गुड़, फिर उसका मनपसंद हरा चारा, लेकिन वह पीछे मुड़ा तक नहीं।',
       text: 'The elephant did not eat that night. Or the next day. He stood facing the wall. The keepers offered him sugarcane, then jaggery, then his favourite green fodder, and he did not turn round.' },
     { art: ['courtier', 'pt_elephant'], who: 'courtier', mood: 'think',
+      hi: 'राजा ने अपने सबसे समझदार मंत्री को भेजा। मंत्री जी हाथी के चारों तरफ दो बार घूमे और फिर उन्होंने वह किया जो किसी भी देखभाल करने वाले ने नहीं सोचा था। उन्होंने हाथीखाने के लड़कों से पूछा कि क्या बदला था।',
       text: 'The king sent his wisest minister, who walked round the elephant twice and then did something none of the keepers had thought to do. He asked the stable boys what had changed.',
       ask: {
         q: 'The elephant is not ill, and not hurt, and will not eat. What is the minister going to ask about?',
@@ -149,10 +185,13 @@ window.IND_STORIES_MORE = [
         wrong: 'The minister asked a different question: who is missing? "There was a dog," said the smallest stable boy. "He slept just there."'
       } },
     { art: ['courtier'], who: 'courtier',
+      hi: '"आपका हाथी बीमार नहीं है," मंत्री ने राजा से कहा। "वह अकेला है। हर गाँव में संदेश भेज दीजिए: जिसके पास भी वह कुत्ता है, उसे छोड़ दे। वह कोई लावारिस नहीं है। वह किसी का दोस्त है।"',
       text: '"Your elephant is not sick," the minister told the king. "He is lonely. Send a message to every village: whoever has that dog, let him go. He is not a stray. He is somebody\'s friend."' },
     { art: ['pt_elephant', 'pt_jackal'], who: null, mood: 'wow',
+      hi: 'चार दिन बाद वह कुत्ता सड़क से वापस आया, मैला-कुचैला और बेहद खुश। हाथी ने उसे अपनी सूँड से उठाकर अपने सिर पर बिठा लिया, और तभी, जब कुत्ता ऊपर बैठ गया, वह आगे बढ़ा और खाना खाने लगा।',
       text: 'The dog came back up the road four days later, filthy and delighted. The elephant lifted him with his trunk and set him on his own head, and only then, with the dog sitting up there, did he walk over and start eating.' },
     { art: ['pt_elephant'], who: 'mithu',
+      hi: 'इसके बाद राजा ने एक नियम बना दिया। अब उस बाड़े से हाथी से पूछे बिना कोई कभी कुछ नहीं हटाएगा।',
       text: 'The king made a rule about it afterwards. Nobody was ever again to remove anything from that yard without asking the elephant.' }
   ],
   moral: 'Somebody can have everything and still be starving for one small friend.',
@@ -161,6 +200,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.nandivisala',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Ox Who Would Not Be Shouted At',
@@ -172,18 +215,25 @@ window.IND_STORIES_MORE = [
   words_hi: [['बैल', 'bail', 'ox'], ['बोली', 'boli', 'the way you speak'], ['इनाम', 'inaam', 'prize']],
   scenes: [
     { art: ['pt_bull', 'courtier'], who: null,
+      hi: 'एक आदमी ने एक बछड़े को बचपन से पाला, उसे अपने हाथों से खिलाया और हर वक़्त उससे यूँ ही इधर-उधर की बातें करता रहता। वह बछड़ा बड़ा होकर दरवाज़े जैसे चौड़े कंधों वाला एक बैल बन गया, और वे दोनों एक-दूसरे को बखूबी समझते थे।',
       text: 'A man raised a calf from a baby, feeding him by hand, talking to him the whole time about nothing in particular. The calf grew into an ox with shoulders like a doorway, and the two of them understood each other perfectly.' },
     { art: ['pt_bull'], who: 'pt_bull',
+      hi: '"आपने मुझे बहुत अच्छे से रखा है," एक सुबह बैल ने कहा। "अब मुझे आपका कर्ज़ चुकाने दीजिए। जाइए और शहर के सबसे अमीर सेठ से यह शर्त लगाइए कि मैं एक ही जगह खड़े-खड़े आपस में जुड़ी हुई सामान से भरी सौ गाड़ियाँ खींच सकता हूँ।"',
       text: '"You have kept me well," said the ox one morning. "Let me pay you back. Go and find the richest merchant in town and bet him that I can pull a hundred loaded carts, all joined together, from a standing start."' },
     { art: ['guard', 'courtier'], who: 'guard', mood: 'wow',
+      hi: 'सेठ इतनी ज़ोर से हँसा कि उसे बैठना ही पड़ गया। "सौ गाड़ियाँ? हज़ार रुपये की शर्त रही कि यह बीस भी नहीं हिला पाएगा।" "मंज़ूर," उस आदमी ने कहा, जिसके पास हज़ार रुपये थे ही नहीं और जिसने इस बारे में अभी तक सोचा भी नहीं था।',
       text: 'The merchant laughed so hard he had to sit down. "A hundred? A thousand rupees says he cannot shift twenty." "Done," said the man, who did not have a thousand rupees and had not thought about that yet.' },
     { art: ['pt_bull', 'courtier'], who: null,
+      hi: 'पूरे गाँव के देखते-देखते उन्होंने सड़क पर गाड़ियाँ कतार में लगा दीं। सबसे आगे वाली गाड़ी में बैल को जोता गया। उसका मालिक ऊपर चढ़ा, छड़ी उठाई — और इतने सारे लोगों के सामने न जाने उसे क्या हो गया।',
       text: 'They lined the carts up on the road with the whole town watching. The ox was yoked to the front one. His owner climbed up, took the goad — and something got into him, in front of all those people.' },
     { art: ['courtier', 'pt_bull'], who: 'courtier', mood: 'wow',
+      hi: '"खींचो, अरे ज़िद्दी जानवर!" वह चिल्लाया। "आगे बढ़ो, निकम्मे कहीं के!"',
       text: '"PULL, you stubborn brute!" he shouted. "Get ON with it, you useless animal!"' },
     { art: ['pt_bull'], who: null, mood: 'sad',
+      hi: 'बैल अपनी जगह से बाल बराबर भी नहीं हिला। एक खुर तक नहीं। भीड़ शोर मचाती रही और वह दीवार की तरह वहीं खड़ा रहा, और उसके मालिक को उधार माँगकर पूरे हज़ार रुपये चुकाने पड़े और वह बिना किसी की तरफ़ देखे चुपचाप घर लौट गया।',
       text: 'The ox did not move a hair. Not one hoof. He stood there like a wall while the crowd howled, and his owner paid over a thousand rupees he had to borrow, and walked home not looking at anybody.' },
     { art: ['pt_bull', 'courtier'], who: 'pt_bull', mood: 'sad',
+      hi: 'उस शाम बैल आया और उसने बाड़े के ऊपर अपना सिर टिका दिया। "क्या मैंने कभी आपका कोई बर्तन तोड़ा?" उसने पूछा। "क्या कभी किसी बच्चे पर पैर रखा? क्या मैं कभी एक बार भी अड़ियल बना?" "नहीं," आदमी ने कहा। "तो फिर आपने पूरे गाँव के सामने मुझे ऐसी बातें क्यों कहीं?"',
       text: 'That evening the ox came and put his head over the fence. "Have I ever broken a pot of yours?" he said. "Have I ever stepped on a child? Have I ever once been stubborn?" "No," said the man. "Then why did you call me those things in front of the whole town?"',
       ask: {
         q: 'The ox could have pulled the carts easily. Why did he stand still?',
@@ -193,10 +243,13 @@ window.IND_STORIES_MORE = [
         wrong: 'It was none of those. "Go back," said the ox. "Bet him two thousand. And this time, speak to me the way you always used to."'
       } },
     { art: ['pt_bull', 'courtier'], who: 'courtier', mood: 'wow',
+      hi: 'तो उन्होंने फिर से गाड़ियों की कतार लगाई। और इस बार आदमी आगे झुका और हौले से बोला, बिल्कुल वैसे ही जैसे वह तब बोलता था जब बैल बछड़ा था: "शाबाश मेरे प्यारे, चलो। अब आगे बढ़ते हैं।"',
       text: 'So they lined the carts up again. And this time the man leaned forward and said, quietly, the way he had said it when the ox was a calf: "Come on then, my beauty. Off we go."' },
     { art: ['pt_bull'], who: null, mood: 'wow',
+      hi: 'बैल ने जुए पर ज़ोर लगाया। सौ गाड़ियों की लंबी कतार में एक-एक करके सारी रस्सियाँ तनती चली गईं — और पूरी सड़क ही जैसे आगे बढ़ने लगी।',
       text: 'The ox leaned into the yoke. The ropes came up tight one by one all down the line, a hundred carts long — and the whole road began to move.' },
     { art: ['courtier'], who: 'mithu',
+      hi: 'उसने अपने दो हज़ार वापस जीत लिए, और फिर अपनी ज़िंदगी में कभी उस बैल से कड़वे बोल नहीं बोले। और अगर सोचकर देखो, तो असली इनाम तो यही था।',
       text: 'He won two thousand back, and he never in his life spoke to that ox sharply again. Which was, if you think about it, the actual prize.' }
   ],
   moral: 'Harsh words cost you nothing to say and everything to be answered.',
@@ -205,6 +258,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.monkey-gardener',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Monkeys Who Watered the Garden',
@@ -216,16 +273,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['बगीचा', 'bageecha', 'garden'], ['जड़', 'jad', 'root'], ['पानी', 'paani', 'water']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'राजा के बाग में कतारों में लगे छोटे-छोटे पौधे भरे थे, जिनमें से हर एक लगभग किसी बच्चे जितना लंबा था। माली एक महीने से हर शाम उन्हें पानी दे रहा था, और अब जाकर उनके पत्ते ठीक से संभलने लगे थे।',
       text: 'The king\'s pleasure garden was full of young saplings, planted in rows, each one about as tall as a child. The gardener had watered them every evening for a month, and they were just beginning to hold their leaves properly.' },
     { art: ['courtier', 'pt_monkey'], who: 'courtier',
+      hi: 'फिर एक त्योहार आया, और माली वहां जाना चाहता था। पास ही आम के पेड़ पर बंदरों की एक पूरी टोली रहती थी, जो हर रोज़ उसे काम करते देखती थी। "सुनो," उसने कहा। "तुमने मुझे यह काम सौ बार करते देखा है। आज शाम इन पौधों को पानी दे देना, तो बदले में तुम सबको बढ़िया फल मिलेंगे।"',
       text: 'Then a festival came, and the gardener wanted to go, and there was a whole troop of monkeys living in the mango tree who watched him work every single day. "You," he said. "You have seen me do it a hundred times. Water the saplings this evening and there is fruit in it for all of you."' },
     { art: ['pt_monkey'], who: 'pt_monkey', mood: 'wow',
+      hi: '"पौधों को पानी देना!" बंदरों का सरदार खुश होकर चहका। "यह तो हम कर ही सकते हैं। पानी के काम में तो हम बड़े उस्ताद हैं।" और माली, जो इतने सस्ते में काम निपटते देख बहुत खुश था, मजे से अपने त्योहार में चला गया।',
       text: '"Water the saplings!" cried the monkey chief, delighted. "We can do that. We are extremely good at water." And the gardener, who had never wanted a job done so cheaply, went off happily to his festival.' },
     { art: ['pt_monkey'], who: null,
+      hi: 'बंदर सारे मटके और चमड़े की बाल्टियां उठा लाए और कतार लगाकर खड़े हो गए। वे बस शुरू करने ही वाले थे कि सरदार ने हाथ उठाकर सबको रोका।',
       text: 'The monkeys fetched every pot and every leather bucket and lined up along the row, and they were about to start, when the chief held up a hand.' },
     { art: ['pt_monkey'], who: 'pt_monkey', mood: 'think',
+      hi: '"रुको," उसने कहा। "पानी बड़ा अनमोल है। बड़े पौधे को थोड़ा-सा पानी देना और छोटे को बहुत सारा, यह तो बर्बादी होगी। हमें हर पौधे को बिल्कुल सही नाप से पानी देना होगा — उसकी जड़ों के हिसाब से।"',
       text: '"Wait," he said. "Water is precious. It would be wasteful to give a big tree a small drink and a small tree a big one. We must give each sapling exactly the right amount — according to the size of its roots."' },
     { art: ['pt_monkey'], who: null, mood: 'think',
+      hi: 'पूरे झुंड ने सिर हिलाया। बात बड़ी ही समझदारी भरी लगी। बस एक ही मुश्किल थी: जड़ें तो किसी को दिख नहीं रही थीं।',
       text: 'The whole troop nodded. It sounded extremely wise. There was only one difficulty: nobody could see the roots.',
       ask: {
         q: 'To water each sapling exactly right, they think they need to know how big its roots are. What are they about to do?',
@@ -235,10 +298,13 @@ window.IND_STORIES_MORE = [
         wrong: 'Something much worse. Up came every sapling, one by one, to be measured — and then pushed back in.'
       } },
     { art: ['pt_monkey'], who: null,
+      hi: 'उन्होंने यह काम बड़े ध्यान से किया। एक-एक पेड़ को बाहर निकाला गया, उसकी जड़ों को देखकर नापा-परखा गया, बिल्कुल सही मात्रा में पानी दिया गया, और फिर वापस गड्ढे में दबा दिया गया। करते-करते अंधेरा हो गया। वे अपने आप से बेहद खुश थे।',
       text: 'They were very thorough about it. Every single tree came up, got its roots inspected and carefully compared, received precisely the correct amount of water, and was pushed back into its hole. It took them until dark. They were extremely pleased with themselves.' },
     { art: ['courtier', 'pt_monkey'], who: 'courtier', mood: 'sad',
+      hi: 'अगली सुबह जब माली लौटा, तो बगीचे में बस मुरझाई हुई सूखी टहनियाँ बची थीं। वह काफी देर तक वहीं खड़ा रहा। बंदरों का सरदार नीचे उतरा और उम्मीद भरी आवाज़ में बोला, "हमने एक-एक को नापा था।"',
       text: 'The gardener came back the next morning to a garden of wilted sticks. He stood there a long time. The monkey chief came down and said, hopefully, "We measured every one."' },
     { art: ['courtier'], who: 'mithu',
+      hi: 'वे कोई शैतानी नहीं कर रहे थे। उनमें से एक भी नहीं। यही बात तो मुझे हमेशा हैरान कर देती है।',
       text: 'They were not being naughty. Not one of them. That is the part that always gets me.' }
   ],
   moral: 'Willing hands with no idea what they are doing can undo a month of work in an evening — so explain the why, not just the what.',
@@ -247,6 +313,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.crocodile-rock',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Rock That Answered Back',
@@ -258,12 +328,16 @@ window.IND_STORIES_MORE = [
   words_hi: [['मगर', 'magar', 'crocodile'], ['पत्थर', 'patthar', 'stone'], ['चालाकी', 'chalaki', 'cleverness']],
   scenes: [
     { art: ['pt_monkey'], who: null,
+      hi: 'एक बंदर था जो नदी के एक किनारे रहता था और दूसरे किनारे जाकर खाता था, क्योंकि फलों के सारे पेड़ उस पार थे। वह रोज़ दो बार उसी रास्ते से नदी पार करता: किनारा, बीच की चट्टान, टापू। किनारा, चट्टान, टापू। वह तो आँखें मूँदकर भी यह कर सकता था।',
       text: 'There was a monkey who lived on one bank of a river and ate on the other, because the fruit trees were all on the far side. He crossed twice a day by the same route: bank, rock in the middle, island. Bank, rock, island. He could have done it with his eyes shut.' },
     { art: ['pt_crocodile'], who: 'pt_crocodile', mood: 'think',
+      hi: 'एक मगरमच्छ दो हफ़्तों से उसे ऐसा करते देख रहा था। "दिन में दो बार," उसने अपने आप से कहा। "उसी चट्टान के ऊपर से। एक बार भी देखता तक नहीं।"',
       text: 'A crocodile had been watching him do it for a fortnight. "Twice a day," he said to himself. "Over the same rock. He never once looks."' },
     { art: ['pt_crocodile'], who: null,
+      hi: 'तो उस शाम मगरमच्छ चुपचाप तैरकर नदी के बीच पहुँचा और चट्टान पर जा बैठा—नीचा, मटमैला और बिल्कुल शांत। और किनारे से देखने पर ऐसा लगता था मानो वह चट्टान थोड़ी और बड़ी हो गई हो।',
       text: 'So that evening the crocodile swam quietly to the middle of the river and settled himself on top of the rock, low and grey and absolutely still, and became — as far as anybody could tell from the bank — a slightly larger rock.' },
     { art: ['pt_monkey'], who: null, mood: 'think',
+      hi: 'शाम ढलते ही बंदर नीचे आया, किनारे पर एक पैर रखा और ठिठक गया। उसने चट्टान की ओर देखा। वह सालों से रोज़ उस चट्टान को देखता आ रहा था। आज रात वह पानी से हाथ भर ज़्यादा ऊपर उठी हुई दिख रही थी, जितनी पहले कभी नहीं दिखी थी।',
       text: 'The monkey came down at dusk, put one foot on the bank, and stopped. He looked at the rock. He had looked at that rock every day for years. Tonight it was sitting a hand\'s width higher out of the water than it had ever sat before.',
       ask: {
         q: 'Something is wrong with the rock and he cannot say what. What should he do?',
@@ -273,14 +347,19 @@ window.IND_STORIES_MORE = [
         wrong: 'The monkey did something odder than that. He stood on the bank and had a conversation with a rock.'
       } },
     { art: ['pt_monkey'], who: 'pt_monkey',
+      hi: '"अरे, ओ चट्टान!" बंदर पानी के पार ज़ोर से चिल्लाया। सन्नाटा। "ओ चट्टान! मैं तुमसे बात कर रहा हूँ!" सन्नाटा। "बड़ी अजीब बात है। तुम तो हमेशा मुझे जवाब देती हो। हर एक शाम। आज रात तुम मुझे जवाब क्यों नहीं दे रही हो?"',
       text: '"HEY, ROCK!" shouted the monkey across the water. Silence. "ROCK! I am talking to you!" Silence. "That is strange. You always answer me. Every single evening. Why are you not answering me tonight?"' },
     { art: ['pt_crocodile'], who: 'pt_crocodile', mood: 'wow',
+      hi: 'मगरमच्छ वहीं पड़ा-पड़ा सोचने लगा: यह सही कह रहा है, मैंने कभी इस चट्टान को सुना नहीं, यह ज़रूर इसे जवाब देती होगी, अगर मैंने कुछ नहीं कहा तो इसे शक हो जाएगा। इसलिए उसने अपना भारी-भरकम मुँह खोला और चट्टान जैसी आवाज़ बनाकर बोला, "शुभ संध्या।"',
       text: 'The crocodile lay there and thought: he is right, I have never heard this rock, it must answer him, if I say nothing he will know. So he opened his enormous mouth and said, in his best rock voice, "GOOD EVENING."' },
     { art: ['pt_monkey', 'pt_crocodile'], who: 'pt_monkey', mood: 'wow',
+      hi: '"अच्छा," बंदर ने कहा। "तो तुम वहाँ हो। तुम्हें भी शुभ संध्या—और तुम्हारा बहुत-बहुत शुक्रिया।" और वह आराम से किनारे पर बैठ गया, इस इंतज़ार में कि कब मगरमच्छ ऊब जाए और अपने घर लौट जाए।',
       text: '"Ah," said the monkey. "There you are. Good evening to you too — and thank you very much." And he sat down comfortably on the bank to wait until the crocodile got bored and went home.' },
     { art: ['pt_crocodile'], who: null,
+      hi: 'मगरमच्छ खुद पर बुरी तरह झल्लाता हुआ पानी में सरक गया। "पत्थर तो कभी बोलता ही नहीं," नदी की धार के साथ बहते हुए वह बार-बार यही बुदबुदाता रहा। "वह तो कभी एक बार भी नहीं बोला।"',
       text: 'The crocodile slid off into the water absolutely sick with himself. "It has never spoken," he said, over and over, all the way downstream. "It has never once spoken."' },
     { art: ['pt_monkey'], who: 'mithu',
+      hi: 'बंदर एक घंटे बाद उस चट्टान के सहारे पार निकल गया, जिसने कुछ भी नहीं कहा — क्योंकि वह तो एक चट्टान थी।',
       text: 'The monkey went across an hour later, using the rock, which said nothing at all — because it was a rock.' }
   ],
   moral: 'When something you know well is behaving oddly, ask it a question. A trap will usually answer.',
@@ -289,6 +368,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.parrot-figtree',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Parrot Who Stayed With the Tree',
@@ -300,16 +383,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['तोता', 'tota', 'parrot'], ['सूखा', 'sookha', 'dry'], ['दोस्ती', 'dosti', 'friendship']],
   scenes: [
     { art: ['pt_crow'], who: null,
+      hi: 'गंगा के किनारे अंजीर का एक ऐसा पुराना और विशाल पेड़ था कि उस पर हज़ारों पक्षी रहते थे। फलों के मौसम में वहाँ ज़बरदस्त शोर मचता था। हर किसी के लिए हमेशा भरपूर फल होते थे, और बहुत-से तो पैरों तले भी कुचल जाते थे।',
       text: 'On the bank of the Ganga stood a fig tree so old and so wide that a thousand birds lived in it. In fruiting season the noise was tremendous. There was always enough for everybody and a good deal squashed underfoot besides.' },
     { art: ['pt_crow'], who: null, mood: 'sad',
+      hi: 'फिर एक साल पेड़ रुक गया। न कोई नया पत्ता आया, न कोई अंजीर। बस सलेटी लकड़ी बची थी और जहाँ से डालियाँ टूटकर गिरी थीं, वहाँ खोखले छेद। एक हफ़्ते के भीतर हज़ार पक्षियों में से सिर्फ़ सौ बचे, और दो हफ़्तों में एक भी नहीं — सिवाय एक हरे तोते के, जो वहीं बैठा रहा जहाँ वह हमेशा बैठा करता था।',
       text: 'Then one year the tree stopped. No new leaves. No figs. Just grey wood and holes where the branches had come away. Within a week the thousand birds were a hundred, and within a fortnight they were none — except one green parrot, sitting where he had always sat.' },
     { art: ['pt_heron', 'pt_crow'], who: 'pt_heron',
+      hi: 'सुबह की धूप जैसे सुनहरे पंखों वाला एक हंस उसके पास नीचे उतरा। "पंछी," हंस ने कहा, "यहाँ से एक दिन की उड़ान पर ऐसे पेड़ हैं जहाँ फल ज़मीन पर टपक रहे हैं। तुम इस सूखे ठूँठ पर क्यों बैठे हो?"',
       text: 'A goose with wings the colour of morning came down beside him. "Bird," said the goose, "there are trees a day\'s flight from here dropping fruit on the ground. Why are you sitting on a dead stump?"' },
     { art: ['pt_crow'], who: 'pt_crow',
+      hi: '"क्योंकि इसने मुझे खिलाया है," तोते ने कहा। "सालों तक। हर साल। जब यहाँ भरमार थी तब मैंने यहाँ खाया, इसलिए मैं ऐसा जीव नहीं बनूँगा जो सिर्फ़ तभी यहाँ रहे जब सब कुछ भरपूर हो।"',
       text: '"Because he fed me," said the parrot. "For years. Every year. I ate here when there was plenty, so I am not going to be the sort of creature who is only here when there is plenty."' },
     { art: ['pt_heron'], who: 'pt_heron', mood: 'think',
+      hi: '"वफ़ादारी पेट नहीं भरती," हंस ने कहा। "तुम दुबले हो जाओगे। तुम बीमार पड़ जाओगे। और पेड़ को तो वैसे भी कुछ पता नहीं चलने वाला — वह तो सिर्फ़ लकड़ी है।"',
       text: '"You cannot eat loyalty," said the goose. "You will get thin. You will get ill. And the tree will not know either way — it is wood."' },
     { art: ['pt_crow'], who: null, mood: 'think',
+      hi: 'तोते ने कुछ देर सूखी टहनियों की ओर देखा। वह पहले से ही दुबला-पतला हो चुका था। हंस की कोई भी बात गलत नहीं थी।',
       text: 'The parrot looked at the bare branches for a while. He was already thin. The goose was not wrong about any of it.',
       ask: {
         q: 'The tree cannot feed him and cannot even know he is there. Should he go?',
@@ -319,12 +408,16 @@ window.IND_STORIES_MORE = [
         wrong: 'The parrot stayed. And the answer he gave the goose is the whole story.'
       } },
     { art: ['pt_crow', 'pt_heron'], who: 'pt_crow',
+      hi: '"तुम उलटा समझ रहे हो," तोते ने कहा। "मैं यहाँ अंजीरों के लिए नहीं रुका हूँ। मैं कभी भी अंजीरों के लिए यहाँ था ही नहीं। यहाँ मेरा दोस्त रहता है, और इस साल मेरे दोस्त पर बुरा वक्त आया हुआ है।"',
       text: '"You have got it backwards," said the parrot. "I am not here for the figs. I was never here for the figs. This is where my friend lives, and my friend is having a bad year."' },
     { art: ['pt_heron'], who: null, mood: 'wow',
+      hi: 'हंस बिल्कुल शांत बैठा रहा। फिर उसने कहा: "मुझसे कुछ भी माँग लो।" और जब तोते ने माँगा — अपने खाने के लिए नहीं, बल्कि पेड़ के फिर से ठीक हो जाने के लिए — तो सूखी डालियों पर एक हरी सी छटा छा गई, और शाम होते-होते पूरा पेड़ पत्तों से लहलहा उठा।',
       text: 'The goose sat very still. Then he said: "Ask me for anything." And when the parrot asked — not for food, but for the tree to be well again — a green haze came out along the dead branches, and by evening the whole crown was in leaf.' },
     { art: ['pt_crow'], who: null,
+      hi: 'उस मौसम में अंजीर फिर से आ गए। और वैसे ही चहकते-शोर मचाते हज़ारों पक्षी भी लौट आए, मानो वे कभी कहीं गए ही न हों। किसी ने कोई पुरानी बात नहीं छेड़ी और न ही किसी को नीचा महसूस कराया गया, क्योंकि तोते का स्वभाव ही ऐसा नहीं था।',
       text: 'The figs came back that season. So did the thousand birds, noisily, as though they had never been away. Nobody mentioned anything and nobody was made to feel small about it, because that was not the parrot\'s way either.' },
     { art: ['pt_crow'], who: 'mithu',
+      hi: 'पर वह अपनी पुरानी डाल पर ही बैठा। बाईं तरफ की वही ऊँची डाल, जिस पर वह बचपन से रहता आया था।',
       text: 'He kept his old branch, though. The high one on the left, that he had had since he was young.' }
   ],
   moral: 'Anyone will sit in your tree when it is full of fruit. Notice who is still there when it is not.',
@@ -333,6 +426,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.partridge-elders',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'Who Was Here First?',
@@ -344,18 +441,25 @@ window.IND_STORIES_MORE = [
   words_hi: [['तीतर', 'teetar', 'partridge'], ['बड़ा', 'bada', 'big / elder'], ['आदर', 'aadar', 'respect']],
   scenes: [
     { art: ['pt_elephant', 'pt_monkey'], who: null,
+      hi: 'एक बहुत बड़े बरगद के पेड़ के नीचे तीन दोस्त रहते थे: एक हाथी, एक बंदर और एक तीतर। वैसे तो ज़्यादातर समय उनकी खूब पटती थी, यानी तब तक पटती थी जब तक किसी को अच्छी छाँव न चाहिए होती थी।',
       text: 'Under one enormous banyan tree lived three friends: an elephant, a monkey and a partridge. They got on well most of the time, which is to say they got on well until somebody wanted the good shade.' },
     { art: ['pt_elephant'], who: 'pt_elephant', mood: 'wow',
+      hi: '"मैं सबसे बड़ा हूँ," एक तपती दोपहर को अच्छी छाँव घेरते हुए हाथी ने ऐलान किया, "इसलिए पहले मैं जाऊँगा। ज़ाहिर सी बात है।"',
       text: '"I am the eldest," announced the elephant one hot afternoon, taking the good shade, "so I go first. Obviously."' },
     { art: ['pt_monkey', 'pt_elephant'], who: 'pt_monkey',
+      hi: '"ऐसा कौन कहता है?" बंदर बोला। "तुम आकार में सबसे बड़े हो। ये दोनों बातें बिल्कुल एक जैसी नहीं हैं।"',
       text: '"Says who?" said the monkey. "You are the biggest. That is not the same thing at all."' },
     { art: ['pt_crow'], who: 'pt_crow', mood: 'think',
+      hi: 'तीतर, जो मुट्ठी भर बड़ा था और टहनी पर बैठा सब सुन रहा था, बोला: "तो फिर चलो इसका ठीक से फ़ैसला कर लेते हैं। तुम दोनों को यह पेड़ कितना पुराना याद है?"',
       text: 'The partridge, who was the size of a fist and had been listening from a twig, said: "Then let us settle it properly. How far back can each of you remember this tree?"' },
     { art: ['pt_elephant'], who: 'pt_elephant',
+      hi: '"यह तो बहुत आसान है," हाथी बोला। "जब मैं छोटा बच्चा था, तो इस पेड़ के ऊपर से निकल जाता था और इस पर अपना पेट खुजलाता था। यह बस यहाँ तक आता था।" उसने अपने घुटने के पास कहीं इशारा किया।',
       text: '"Easy," said the elephant. "When I was a calf I used to walk over the top of this tree and scratch my stomach on it. It came up to about here." He indicated somewhere around his knee.' },
     { art: ['pt_monkey'], who: 'pt_monkey', mood: 'wow',
+      hi: '"मेरी बात इससे भी पुरानी है," बंदर ने कहा। "जब मैं छोटा था, तो ज़मीन पर ठीक यहीं बैठकर, बिना ज़रा भी उचके, इसकी सबसे ऊपर वाली कोंपल खा लेता था।"',
       text: '"Better than that," said the monkey. "When I was small I sat on the ground, right here, and ate the topmost shoot off it without stretching."' },
     { art: ['pt_crow'], who: null, mood: 'think',
+      hi: 'वे दोनों मुड़े और तीतर की तरफ़ देखा, जिसका वज़न बस एक आम जितना था और जो साफ़ तौर पर हारने ही वाला था।',
       text: 'Both of them turned and looked at the partridge, who weighed about as much as a mango and was clearly going to lose.',
       ask: {
         q: 'The elephant knew it as a bush. The monkey knew it as a shoot. What could a small bird possibly say?',
@@ -365,10 +469,13 @@ window.IND_STORIES_MORE = [
         wrong: 'The partridge had a better answer. "There was a fig tree over that hill," she said. "I ate the seed. I brought it here."'
       } },
     { art: ['pt_crow', 'pt_elephant'], who: 'pt_crow',
+      hi: '"उस पहाड़ी के पार अंजीर का एक पेड़ था," तीतर ने कहा। "जब मैं छोटा था, मैं उड़कर वहाँ गया और उसका एक बीज खाया, और फिर मैंने वह बीज ठीक यहीं, खाली ज़मीन पर गिरा दिया, जब यहाँ कुछ भी नहीं था। तो — मुझे लगता है कि वह मैं ही हूँ।"',
       text: '"There was a fig tree over that hill," said the partridge. "When I was young I flew across and ate a seed off it, and I dropped that seed right here, on bare ground, before there was anything here at all. So — I think it is me."' },
     { art: ['pt_elephant', 'pt_monkey'], who: null, mood: 'wow',
+      hi: 'हाथी उस अच्छी छांव से उठ खड़ा हुआ। बंदर नीचे आकर बैठ गया। और उसके बाद, वे तीनों जब भी कहीं जाते, तीतर बंदर के कंधे पर सवार होता और बंदर हाथी की पीठ पर, और वे पूरे जंगल में इसी तरह एक के ऊपर एक होकर घूमा करते थे।',
       text: 'The elephant got up out of the good shade. The monkey came down and sat lower. And after that, when the three of them went anywhere, the partridge rode on the monkey\'s shoulder and the monkey rode on the elephant\'s back, and they went about the forest like that in a stack.' },
     { art: ['pt_crow'], who: 'mithu',
+      hi: 'तुम्हें पूरे भारत में पत्थर के पुराने दरवाज़ों पर ये तीनों एक के ऊपर एक खड़े उकेरे हुए मिल जाएँगे। अब तुम्हें पता है कि ऐसा क्यों है।',
       text: 'You will find the three of them carved on old stone gateways all over India, one standing on the other. Now you know why.' }
   ],
   moral: 'Big is not the same as first, and loud is not the same as either.',
@@ -377,6 +484,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.quail-fire',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Chick Who Could Not Fly Yet',
@@ -388,14 +499,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['बटेर', 'bater', 'quail'], ['आग', 'aag', 'fire'], ['सच', 'sach', 'truth']],
   scenes: [
     { art: ['pt_crow'], who: null,
+      hi: 'जंगल की ज़मीन पर बने एक घोंसले में बटेर का कुछ ही दिन का एक बच्चा बैठा था, जिसके पंख दो रुपये के सिक्के जितने छोटे थे। उसके माता-पिता खाना खोजने बाहर गए थे, और बटेर माता-पिता दिन भर यही करते हैं।',
       text: 'In a nest on the forest floor sat a quail chick, days old, with wings the size of two rupee coins. His parents were out looking for food, which is what quail parents do all day long.' },
     { art: ['pt_deer'], who: null, mood: 'sad',
+      hi: 'और फिर जंगल में आग लग गई। पहाड़ी की कगार पर सब कुछ गर्म और नारंगी हो गया, और सबसे पहले हिरण निकले, फिर सूअर, और फिर बाकी सब जानवर, सब के सब बहुत तेज़ी से एक ही तरफ भागे जा रहे थे।',
       text: 'And then the forest caught. Everything went hot and orange along the ridge, and the deer came through first, and then the pigs, and then everything else, all going the same way very fast.' },
     { art: ['pt_crow', 'pt_deer'], who: 'pt_deer',
+      hi: 'उसके माता-पिता घास के ऊपर-ऊपर उड़ते हुए वापस आए। "भागो!" वे पुकारे। "आग ढलान से नीचे उतर रही है!" लेकिन वह भाग नहीं सका। उसकी टाँगें अभी पूरी बनी नहीं थीं। "उड़ो!" वे पुकारे। लेकिन उसके पंख भी अभी पूरे बने नहीं थे।',
       text: 'His parents came back low over the grass. "Run!" they called. "It is coming down the slope!" But he could not run. His legs were not finished. "Fly!" they called. But his wings were not finished either.' },
     { art: ['pt_crow'], who: null, mood: 'sad',
+      hi: 'वे उतनी देर रुके जितनी देर कोई भी रुक सकता था, और फिर वे चले गए, क्योंकि इसके अलावा कुछ और किया ही नहीं जा सकता था, और उसने उन्हें जाते हुए देखा और उन्हें ज़रा भी दोष नहीं दिया।',
       text: 'They stayed as long as anybody could have stayed, and then they went, because there was nothing else to do, and he watched them go and did not blame them for it even a little bit.' },
     { art: ['pt_crow'], who: null, mood: 'think',
+      hi: 'तो वह वहीं था: एक चूज़ा, एक घोंसला, और पहाड़ से नीचे उतरती तपती गर्मी की एक दीवार। वह न तो भाग सकता था और न ही उड़ सकता था।',
       text: 'So there he was: one chick, one nest, and a wall of heat coming down the hill. He could not run and he could not fly.',
       ask: {
         q: 'He has no legs to run on and no wings to fly with. What has he actually got?',
@@ -405,12 +521,16 @@ window.IND_STORIES_MORE = [
         wrong: 'He had neither of those. What he had was his voice, and one true thing to say with it.'
       } },
     { art: ['pt_crow'], who: 'pt_crow',
+      hi: 'इसलिए वह घोंसले में उठकर बैठ गया और आग से ज़ोर से बोला, जितनी साफ़ आवाज़ में एक नन्हा सा पक्षी बोल सकता है। "मेरे पास पंख हैं और मैं उड़ नहीं सकता। मेरे पास पैर हैं और मैं चल नहीं सकता। मेरी माँ और पिताजी चले गए हैं। आग — कहीं और जाओ।"',
       text: 'So he sat up in the nest and said it out loud to the fire, as clearly as a very small bird can. "I have wings and I cannot fly. I have feet and I cannot walk. My mother and father have gone. Fire — go somewhere else."' },
     { art: ['pt_crow'], who: null, mood: 'wow',
+      hi: 'और आग — जैसा कि कहानी कहती है — घास के उस हिस्से के किनारे तक आई, और रुक गई, और घूमकर निकल गई। घोंसले के चारों तरफ़ सोलह नाप ज़मीन हरी ही रही, जबकि उसके ऊपर की पूरी ढलान जल गई।',
       text: 'And the fire — the story says — came to the edge of that patch of grass, and stopped, and went round. Sixteen lengths of ground all about the nest stayed green while the whole slope above it burned.' },
     { art: ['pt_deer', 'pt_crow'], who: null,
+      hi: 'शाम ढले उसके माता-पिता किसी अनहोनी की आशंका लिए लौटे और उन्होंने उसे काले जंगल के बीच एक हरे घेरे में बैठे पाया, बेहद भूखा और खुद से काफ़ी खुश।',
       text: 'His parents came back at dusk expecting the worst and found him sitting in a green circle in a black forest, extremely hungry and rather pleased with himself.' },
     { art: ['pt_crow'], who: 'mithu',
+      hi: 'बौद्ध इस तरह की बात को \'सत्य-क्रिया\' कहते हैं — आप ऐसी बात कहते हैं जो पूरी तरह, बिना किसी शक के सच हो, और उसी पर टिक जाते हैं। चूज़े के पास टिकने के लिए इसके अलावा कुछ नहीं था। और वह बात सच साबित हुई।',
       text: 'Buddhists call this kind of thing an act of truth — you say a thing that is completely, unarguably so, and stand on it. The chick had nothing else to stand on. It held.' }
   ],
   moral: 'When you have nothing else, you still have the truth about who you are — and that is not nothing.',
@@ -419,6 +539,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.guttila-veena',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Music Teacher and His Best Student',
@@ -430,16 +554,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['वीणा', 'veena', 'veena'], ['संगीत', 'sangeet', 'music'], ['गुरु', 'guru', 'teacher']],
   scenes: [
     { art: ['tansen'], who: null,
+      hi: 'गुत्तिल बनारस के सबसे बेहतरीन वीणा वादक थे, और वे बिना कुछ लिए सिखाते थे, क्योंकि संगीत सिखाने के पैसे लेना उन्हें बड़ी अजीब बात लगती थी। दूर-दूर से शिष्य उनके घर आते और वे उन्हें खाना भी खिलाते थे।',
       text: 'Guttila was the finest veena player in Benares, and he taught for nothing, because he thought charging for music was a strange thing to do. Students came to his house from a long way off and he fed them too.' },
     { art: ['tansen', 'courtier'], who: null,
+      hi: 'उनमें से एक शिष्य, मुसिल, कमाल का बजाता था। दो ही साल में वह वह सब कुछ बजा लेता था जो गुत्तिल बजा सकते थे। तीन साल में, वह उसे और भी तेज़ बजाने लगा।',
       text: 'One of them, Musila, was frighteningly good. In two years he could play everything Guttila could play. In three, he could play it faster.' },
     { art: ['courtier', 'tansen'], who: 'courtier', mood: 'wow',
+      hi: '"गुरुजी," एक सुबह मुसिल ने कहा, "मैं आपके जितना ही अच्छा बजाता हूँ। मुझे राजदरबार में आपकी आधी जगह चाहिए।" गुत्तिल ने वीणा नीचे रख दी। "तुम बहुत अच्छा बजाते हो," उन्होंने कहा। "पर तुम मेरे जितने अच्छे नहीं हो। बैठो, मैं तुम्हें बताता हूँ कि क्यों।" "नहीं," मुसिल बोला। "पूरे शहर को फ़ैसला करने दीजिए। आज से सात दिन बाद। सबके सामने।"',
       text: '"Teacher," said Musila one morning, "I am as good as you are. I want half your position at court." Guttila put down the veena. "You are very good," he said. "You are not as good as I am. Sit down and I will show you why." "No," said Musila. "Let the city decide. Seven days from now. In front of everybody."' },
     { art: ['tansen'], who: null, mood: 'sad',
+      hi: 'उस हफ़्ते गुत्तिल ज़्यादा सो नहीं पाए। उनकी उम्र हो चली थी। उनके हाथ बूढ़े हो गए थे। और उस लड़के को जो कुछ भी आता था, वह सब उन्होंने ही सिखाया था, जिसका मतलब था कि उनके पास ऐसा कुछ नहीं बचा था जिससे वे उसे हैरान कर सकें।',
       text: 'Guttila did not sleep much that week. He was older. His hands were older. And he had taught the boy every single thing the boy knew, which meant there was nothing left that would surprise him.' },
     { art: ['guard', 'tansen'], who: null,
+      hi: 'उस दिन पूरा शहर उमड़ पड़ा। राजा सबसे आगे बैठे थे। पहले मुसिल ने बजाया और उसने बेहद खूबसूरत बजाया — न एक भी गलत सुर, न ज़रा सी भी हिचकिचाहट, और पूरी भीड़ खुशी से वाह-वाह कर उठी।',
       text: 'On the day, the whole city came. The king sat at the front. Musila played first and he played beautifully — not one wrong note, not one hesitation, and the crowd roared for him.' },
     { art: ['tansen'], who: null, mood: 'think',
+      hi: 'फिर गुत्तिल अपनी पुरानी वीणा लेकर बैठे, और वे जानते थे कि वही धुन उसी तरह बजाने से सिर्फ यही साबित होगा कि एक जैसा बजाने वाले दो लोगों में से उनकी उम्र ज़्यादा है।',
       text: 'Then Guttila sat down with his old veena, and knew that playing the same piece the same way would only prove he was the older of two identical players.',
       ask: {
         q: 'His student can play everything he taught him, perfectly. So what does the teacher do?',
@@ -449,12 +579,16 @@ window.IND_STORIES_MORE = [
         wrong: 'Guttila did something else. He played something Musila had never been taught — and it was not a new tune.'
       } },
     { art: ['tansen'], who: 'tansen', mood: 'wow',
+      hi: '"गुत्तिल ने नीचे झुककर अपनी वीणा का एक तार तोड़ दिया। फिर उन्होंने बचे हुए छह तारों पर बजाया, और संगीत और भी मधुर हो गया। इसलिए उन्होंने एक और तार तोड़ दिया। और फिर एक और। और हर बार जैसे-जैसे साज़ छोटा होता गया, संगीत उतना ही बड़ा और भव्य होता गया।"',
       text: 'Guttila reached down and broke one string off his veena. Then he played on the six that were left, and it was better. So he broke another. And another. And every time the instrument got smaller, the playing got larger.' },
     { art: ['guard'], who: null, mood: 'wow',
+      hi: '"उन्होंने सिर्फ़ एक तार पर संगीत समाप्त किया, ऐसे सन्नाटे में जिस पर कोई चल सके। बनारस में कभी किसी ने ऐसा कुछ नहीं सुना था, क्योंकि सुनने के लिए कभी ऐसा कुछ बना ही नहीं था।"',
       text: 'He finished on one string, in a silence you could have walked on. Nobody in Benares had ever heard anything like it, because there had never been anything like it to hear.' },
     { art: ['courtier', 'tansen'], who: 'courtier', mood: 'sad',
+      hi: '"मुसिल सातों तारों वाले अपने एकदम सही-सलामत साज़ को देखता बैठा रहा। फिर वह मंच से नीचे उतरा और अपने गुरु के पैर छूने लगा, लेकिन इससे पहले कि वह पूरी तरह झुक पाता, गुत्तिल ने उसे कोहनियों से थामकर ऊपर उठा लिया।"',
       text: 'Musila sat looking at his own perfect instrument with all seven strings on it. Then he came down off the platform and touched his teacher\'s feet, and Guttila pulled him up by the elbows before he had got all the way there.' },
     { art: ['tansen'], who: 'mithu',
+      hi: '"वे उसे आगे भी सिखाते रहे। यही बात लोग भूल जाते हैं। यह सबक यह नहीं था कि "तुम हार गए" — बल्कि यह था कि "अभी और भी बहुत कुछ है, और मेरा तुम्हें सिखाना अभी पूरा नहीं हुआ है।""',
       text: 'He went on teaching him. That is the bit people forget. The lesson was not "you lost" — it was "there is more, and I have not finished giving it to you."' }
   ],
   moral: 'Skill is what you were taught. Mastery is what you do when the strings start breaking.',
@@ -463,6 +597,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.three-birds-king',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The King Who Asked Three Birds',
@@ -474,16 +612,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['पक्षी', 'pakshi', 'bird'], ['राजा', 'raja', 'king'], ['सीख', 'seekh', 'lesson']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: '"एक बार शिकार पर निकले राजा को एक ही दोपहर तीन अलग-अलग जगहों पर तीन अंडे मिले, और वे उन्हें घर ले आए, जहाँ उनके अपने कमरों में अंडों से बच्चे निकले। और इसी तरह बनारस के राजा ने तीन पक्षियों को अपने बच्चों की तरह पाल-पोसकर बड़ा किया।"',
       text: 'A king out hunting once found three eggs in three different places on the same afternoon, and brought them home, and they hatched in his own rooms. Which is how the king of Benares ended up raising three birds as his children.' },
     { art: ['pt_crow', 'pt_heron'], who: null,
+      hi: '"वे बड़े होकर बातें करने लगे। राजदरबार के पक्षी ऐसा ही करते हैं। और राजा को उनसे चीज़ें पूछने की आदत पड़ गई, क्योंकि उन्होंने महल की हर बातचीत सुनी थी और वे राजा से बिल्कुल नहीं डरते थे — जो बात वे अपने मंत्रियों के बारे में नहीं कह सकते थे।"',
       text: 'They grew up talking. Court birds do. And the king got into the habit of asking them things, because they had heard every conversation in the palace and were not frightened of him, which was more than he could say for his ministers.' },
     { art: ['courtier'], who: 'courtier', mood: 'think',
+      hi: 'एक रात उन्हें नींद नहीं आ रही थी। वे उठे, पक्षियों के बसेरे के पास जाकर बैठ गए और बोले, "मैं तुम तीनों से कुछ पूछना चाहता हूँ, और मुझे सच्चा जवाब चाहिए, कोई बनावटी बात नहीं। एक राजा को क्या करना चाहिए?"',
       text: 'One night he could not sleep. He got up and went and sat by the perches and said, "I want to ask you three something, and I want the true answer, not the polite one. What must a king do?"' },
     { art: ['pt_heron'], who: 'pt_heron',
+      hi: 'सबसे बड़े, यानी उल्लू ने देर तक सोचा। "गुस्से में कभी कोई काम मत कीजिए," उसने कहा, "और कभी कोई ऐसा काम मत कीजिए जिसे कोई आपके सामने दोहराए तो आपको शर्मिंदगी हो। बस ये दो बातें संभाल लीजिए, बाकी सब अपने-आप ठीक हो जाता है।"',
       text: 'The eldest, an owl, thought about it a long time. "Never do a thing in a temper," he said, "and never do a thing you would be ashamed to have explained back to you. Do those two and most of the rest looks after itself."' },
     { art: ['pt_crow'], who: 'pt_crow',
+      hi: 'दूसरे, यानी तोते ने कहा: "पता लगाइए कि सच में क्या हो रहा है। वह नहीं जो दरबार में लोग आपको बताते हैं। ज़रूरत पड़े तो रात में मुँह ढककर बाहर निकलिए। जो राजा सिर्फ़ वही जानता है जो उसे बताया जाता है, वह राजा नहीं, बस एक दर्शक है।"',
       text: 'The second, a parrot, said: "Find out what is actually happening. Not what people tell you at court. Go out at night with your face covered if you have to. A king who only knows what he is told is not a king, he is an audience."' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'फिर राजा सबसे छोटी की तरफ़ मुड़े, जो एक नन्ही मुर्गी थी। वह बिल्कुल चुप थी, और सब यही मान रहे थे कि उसके पास कहने के लिए कुछ नहीं है।',
       text: 'Then the king turned to the youngest, who was a small hen and had said nothing at all, and who everybody assumed had nothing to add.',
       ask: {
         q: 'The owl said keep your temper. The parrot said find out the truth. What is left for the smallest one to say?',
@@ -493,10 +637,13 @@ window.IND_STORIES_MORE = [
         wrong: 'She said something the others had left out. "Ask about the ones who never come to court. They are the ones it happens to."'
       } },
     { art: ['pt_crow', 'courtier'], who: 'pt_crow',
+      hi: '"जो कोई भी आपसे बात करता है," मुर्गी ने कहा, "वह दरवाज़ा पार करके ही आया है। किसी ने उसे अंदर आने दिया है। उनके बारे में पूछिए जो कभी दरवाज़े के पार नहीं पहुँच पाते — जो बहुत दूर हैं, बहुत गरीब हैं, बहुत व्यस्त हैं, या बहुत डरे हुए हैं। उनके साथ जो होता है, असल में वही आपका राज्य है।"',
       text: '"Everyone who talks to you," said the hen, "got past the gate. Somebody let them through. Ask about the people who never get past the gate — the ones too far away, too poor, too busy, or too frightened. What happens to them is what your kingdom actually is."' },
     { art: ['courtier'], who: null,
+      hi: 'राजा कुछ देर अँधेरे में वहीं बैठे रहे। फिर उन्होंने तीनों जवाब सोने की तख्ती पर लिखवाए और उस दालान में टँगवा दिए जहाँ से हर सुबह मंत्रियों को गुज़रना पड़ता था — और यह बात किसी को भी अच्छी नहीं लगती थी।',
       text: 'The king sat there in the dark for a while. Then he had all three answers written on gold plate and hung in the hall where the ministers had to walk past them every morning, which nobody enjoyed.' },
     { art: ['courtier'], who: 'mithu',
+      hi: 'वह पक्षियों को अपने पास रखता था। लेकिन वह किसी को उन्हें पालतू नहीं कहने देता था।',
       text: 'He kept the birds. He would not have anybody call them pets.' }
   ],
   moral: 'The best advice usually comes from whoever you were not planning to ask.',
@@ -505,6 +652,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'jt.trees-together',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'jataka-more',
   badge: 'katha',
   title: 'The Tree That Stood Alone',
@@ -516,16 +667,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['पेड़', 'ped', 'tree'], ['तूफ़ान', 'toofan', 'storm'], ['जंगल', 'jangal', 'forest']],
   scenes: [
     { art: ['pt_crow'], who: null,
+      hi: 'उस जंगल के बूढ़े राजा ने मौसम की शुरुआत में सब पेड़ों को एक साथ बुलाया — सुनने में यह अजीब लगता है, लेकिन यह कहानी बुद्ध ने सुनाई है, और उनकी कहानियों में पेड़ों की भी अपनी राय होती है।',
       text: 'The old king of that forest called the trees together at the start of the season — which sounds odd, but this is a story told by the Buddha, and in his stories the trees have opinions.' },
     { art: ['pt_crow'], who: 'pt_crow',
+      hi: '"चुन लो कि इस साल तुम कहाँ उगना चाहते हो," उन्होंने कहा। "और सुनो: सब मिलकर साथ उगना। बाकी सब के साथ जंगल में ही खड़े रहना, भले ही ज़मीन थोड़ी कम उपजाऊ हो और धूप थोड़ी कम मिले। अकेले जाकर किसी बढ़िया खुले मैदान पर मत जम जाना।"',
       text: '"Choose where you will grow this year," he said. "And listen: grow together. Stand in the wood with the others, even if the ground is a little poorer and the light is a little less. Do not go off and take a fine open field on your own."' },
     { art: ['pt_deer'], who: null, mood: 'think',
+      hi: 'आधों ने उनकी बात सुन ली। बाकी आधों ने खुले मैदानों की तरफ देखा — गहरी मिट्टी, भरपूर धूप, जड़ों की कोई छीना-झपटी नहीं, और चेहरे पर किसी की टहनियाँ भी नहीं — और सोचा: ये तो पुराने ज़माने की बातें कर रहे हैं।',
       text: 'Half of them listened. The other half looked out at the open fields — deep soil, full sun, no roots fighting yours, nobody\'s branches in your face — and thought: he is being old-fashioned.' },
     { art: ['pt_deer'], who: 'pt_deer', mood: 'wow',
+      hi: '"माफ़ कीजिएगा," एक छोटे पेड़ ने कहा, "जब पूरा का पूरा मैदान खाली पड़ा है, तो मैं कमज़ोर ज़मीन पर भीड़ में क्यों खड़ा रहूँ? पतझड़ आते-आते मैं आपसे दुगने आकार का हो जाऊँगा।" और वे सब चल दिए।',
       text: '"With respect," said one of the young ones, "why would I stand in a crowd on thin ground when there is a whole field going spare? I will be twice your size by autumn." And off they went.' },
     { art: ['pt_deer'], who: null,
+      hi: 'और कुछ समय के लिए तो वे सही भी साबित हुए। पूरी गर्मियाँ मैदान वाले पेड़ मोटे और चमकदार होते गए, और उन पर ऐसे फूल खिले जिन्हें जंगल के पेड़ बस देखते ही रह गए।',
       text: 'And they were right, for a while. All summer the field trees grew fat and glossy and had blossom the wood trees could only look at.' },
     { art: ['pt_crow'], who: null, mood: 'think',
+      hi: 'फिर बारिश शुरू होने से पहले वाले आखिरी हफ़्ते में आसमान का रंग चोट के नीले निशान जैसा हो गया, और मैदान के पार से एक ऐसी हवा चली कि उसके पहुँचने से पूरे एक मिनट पहले ही उसकी आवाज़ सुनाई देने लगी थी।',
       text: 'Then in the last week before the rains the sky went the colour of a bruise, and a wind came across the plain that you could hear coming for a full minute before it arrived.',
       ask: {
         q: 'A huge wind is coming. Which trees do you think come through it?',
@@ -535,12 +692,16 @@ window.IND_STORIES_MORE = [
         wrong: 'The other way round. And the reason is not that the wood trees were stronger.'
       } },
     { art: ['pt_deer'], who: null, mood: 'sad',
+      hi: 'खेत के पेड़ों ने अकेले ही पूरी हवा का वार झेला, एक-एक करके, जड़ से चोटी तक, और सुबह होते-होते वे सब के सब कीचड़ में ढेर हो चुके थे, उनकी जड़ें हवा में थीं।',
       text: 'The field trees took the whole wind on their own, one at a time, from root to crown, and by morning they were lying down in the mud with their roots in the air, every last one.' },
     { art: ['pt_crow'], who: null,
+      hi: 'जंगल में हवा बाहर की तरफ़ वाले पेड़ों से टकराई, वे झुके, और उनकी डालियाँ अंदर वाले पेड़ों की डालियों में फँसकर कस गईं, और पूरे जंगल ने मिलकर उसे झेला और हवा को कहीं पकड़ बनाने की जगह नहीं दी। कुछ पत्ते ज़रूर गिरे। बस, इतना ही हुआ।',
       text: 'In the wood the wind hit the outside trees, and they leaned, and their branches locked into the branches of the next ones in, and the whole wood took it together and gave the wind nowhere to get a grip. Some leaves came off. That was all.' },
     { art: ['pt_crow', 'pt_deer'], who: 'pt_crow',
+      hi: '"बात कभी मिट्टी की थी ही नहीं," बूढ़े राजा ने बाद में वहाँ से गुज़रते हुए कहा। "तुममें से हर एक को लगता था कि दूसरे तुम्हारे रास्ते में आ रहे हैं। तुम सब एक-दूसरे का आसरा थे और मंगलवार से पहले तुममें से किसी को यह मालूम ही नहीं था।"',
       text: '"It was never about the soil," said the old king, walking through afterwards. "You each thought the others were in your way. You were each other\'s shelter and none of you knew it until Tuesday."' },
     { art: ['pt_deer'], who: 'mithu',
+      hi: 'कभी तेज़ हवा में किसी असली जंगल में जाकर खड़े होओ। ऊपर की आवाज़ सुनो और फिर नीचे सुनो जहाँ तुम हो। वे दो बिल्कुल अलग मौसम हैं।',
       text: 'Go and stand in a real forest in a wind sometime. Listen to the top of it and then listen down where you are. It is two different weathers.' }
   ],
   moral: 'The ones crowding you are usually the ones breaking the wind for you.',
@@ -550,6 +711,10 @@ window.IND_STORIES_MORE = [
 /* ======================================= PANCHATANTRA & HITOPADESHA ======== */
 {
   id: 'pt.mongoose-baby',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'The Mongoose at the Door',
@@ -561,14 +726,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['नेवला', 'newla', 'mongoose'], ['बच्चा', 'bachcha', 'baby'], ['जल्दबाज़ी', 'jaldbaazi', 'haste']],
   scenes: [
     { art: ['courtier', 'pt_jackal'], who: null,
+      hi: 'एक आदमी और उसकी पत्नी का एक छोटा बेटा था, और उसी महीने वे नेवले के एक अनाथ बच्चे को भी अपने घर ले आए, और वे दोनों एक ही फ़र्श पर साथ-साथ बड़े हुए। नेवला पालने से सटकर गोल होकर सोता था। वह वहाँ से हटने का नाम ही नहीं लेता था।',
       text: 'A man and his wife had a baby son, and in the same month they took in an orphaned mongoose kit, and the two of them grew up on the same floor. The mongoose slept curled against the cradle. He would not be moved from it.' },
     { art: ['guard', 'courtier'], who: 'guard', mood: 'think',
+      hi: '"मुझे यह ठीक नहीं लगता," कभी-कभी माँ कहती। "वह एक जंगली जानवर है।" "वह बहुत ही छोटा जंगली जानवर है," पिता कहते, "जो हमेशा बहुत सीधा और शांत रहा है। ज़रा उसे देखो तो।"',
       text: '"I do not like it," said the mother sometimes. "He is a wild animal." "He is a very small wild animal," said the father, "who has never once been anything but gentle. Look at him."' },
     { art: ['guard'], who: null,
+      hi: 'एक सुबह उसे नदी पर जाना था और बच्चा सो रहा था। "उसका ध्यान रखना," उसने अपने पति से कहा और चली गई। फिर उसके पति को भी किसी काम से जाना पड़ा, और उसने पालने के पास बैठे नेवले को देखा और सोचा: चलो, ठीक है। यह तो यहीं है।',
       text: 'One morning she had to go to the river and the baby was asleep. "Watch him," she told her husband, and left. And then her husband was called away too, and he looked at the mongoose sitting by the cradle, and thought: well. He is there.' },
     { art: ['courtier'], who: null, mood: 'wow',
+      hi: 'वह दोपहर को वापस लौटा। नेवला उसे देखकर खुशी से दौड़ता हुआ दरवाज़े पर आया — और उसकी मूंछें और उसका छोटा-सा सीना चटक लाल थे।',
       text: 'He came back at midday. The mongoose met him at the doorway, running, delighted to see him — and his whiskers and his little chest were bright red.' },
     { art: ['courtier'], who: null, mood: 'sad',
+      hi: 'उस आदमी के मन में सोचने से भी तेज़ कुछ कौंध गया, जो पूरी तरह उसकी सबसे भयानक कल्पना से बना था। उसका हाथ ऊपर उठा, जिसमें अभी भी डंडा थमा हुआ था।',
       text: 'Something went through the man that was faster than thinking, and it was made entirely of the worst thing he could imagine. His hand came up with the stick still in it.',
       ask: {
         q: 'He is certain. He is also holding a stick and has not looked in the room yet. What has to happen in the next half-second?',
@@ -578,14 +748,19 @@ window.IND_STORIES_MORE = [
         wrong: 'The whole story is in that half-second — and what saved it was that he looked in the room first.'
       } },
     { art: ['courtier'], who: null, mood: 'wow',
+      hi: 'और कमरे के अंदर से एक आवाज़ आई। किलकारी की आवाज़। एक बच्चे की वही बेहद आम, बेहद तेज़ आवाज़, जो अभी-अभी सोकर उठा हो और चाहता हो कि कोई उस पर ध्यान दे।',
       text: 'And from inside the room came a sound. A gurgle. The extremely ordinary, extremely loud sound of a baby who has just woken up and would like some attention.' },
     { art: ['courtier', 'guard'], who: 'courtier',
+      hi: 'वह अंदर गया। उसका बेटा पालने में लेटा अपने दोनों पैर चला रहा था। और पालने के पास, फ़र्श पर, एक साँप पड़ा था — मरा हुआ, और नेवले से भिड़ने के बाद जिसका बुरा हाल हो चुका था।',
       text: 'He went in. His son was lying in the cradle kicking both legs. And beside the cradle, on the floor, was a snake — dead, and very much the worse for having met a mongoose.' },
     { art: ['pt_jackal', 'courtier'], who: null, mood: 'sad',
+      hi: 'वह आदमी अचानक ही फ़र्श पर बैठ गया। नेवला पास आया और उसने अपने आगे के पंजे आदमी के घुटने पर रख दिए, अपने आप से अब भी ख़ुश, अब भी इस इंतज़ार में कि कोई उससे कहे कि उसने बहुत अच्छा काम किया है।',
       text: 'The man sat down on the floor rather suddenly. The mongoose came and put his front feet on the man\'s knee, still pleased with himself, still waiting to be told he had done well.' },
     { art: ['courtier'], who: 'courtier',
+      hi: '"हाँ, तुमने किया," जब आदमी के मुँह से आवाज़ निकली, तो उसने कहा। "तुमने सच में बहुत अच्छा काम किया।" और उसने काफ़ी देर तक वह लाठी नीचे नहीं रखी, क्योंकि उसके हाथ काँपना बंद ही नहीं हो रहे थे।',
       text: '"You did," said the man, when he could speak. "You did do well." And he did not put that stick down for a long time, because his hands would not stop shaking.' },
     { art: ['pt_jackal'], who: 'mithu',
+      hi: 'इस कहानी के सबसे पुराने रूपों में आदमी पहले देखता नहीं है, और इसका अंत उतना ही बुरा होता है जितना किसी कहानी का हो सकता है। इसे सुनाने वाला हर परिवार इसे थोड़ी अलग जगह पर रोकता है। मैं इसे यहीं रोकता हूँ।',
       text: 'In the oldest versions of this story the man does not look first, and it ends about as badly as a story can end. Every family that tells it stops in a slightly different place. I stop here.' }
   ],
   moral: 'Look before you act. The half-second you spend looking is the cheapest half-second of your life.',
@@ -594,6 +769,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pt.four-friends',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'Four Friends and One Hunter',
@@ -605,14 +784,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['कौआ', 'kauaa', 'crow'], ['चूहा', 'chooha', 'mouse'], ['जाल', 'jaal', 'net']],
   scenes: [
     { art: ['pt_crow', 'pt_mouse'], who: null,
+      hi: 'लघुपतनक कौआ और हिरण्यक चूहा आपस में दोस्त थे, जो बाक़ी हर कौए और हर चूहे की नज़र में बेतुकी बात थी। वे दोनों मिलकर एक ऐसी झील पर रहने चले गए जहाँ मंथरक कछुआ रहता था, और उन तीनों की आपस में इतनी जमने लगी कि दोपहरें कब बीत जातीं, पता ही नहीं चलता था।',
       text: 'Laghupatanaka the crow and Hiranyaka the mouse were friends, which every other crow and every other mouse thought was ridiculous. They moved together to a lake where Mantharaka the tortoise lived, and the three of them got on so well that afternoons went missing.' },
     { art: ['pt_deer', 'pt_tortoise'], who: null,
+      hi: 'एक शाम एक हिरण सरकंडों को चीरता हुआ हाँफता-काँपता वहाँ आ पहुँचा। "कुत्ते," उसने कहा। "मेरे पीछे पड़े हैं। शिकारी।" "बैठ जाओ," कछुए ने कहा। "यहाँ पानी है, यहाँ घास है, और हम तीन हैं। यहीं रुको।"',
       text: 'One evening a deer came crashing through the reeds with his sides heaving. "Dogs," he said. "Behind me. Hunters." "Sit down," said the tortoise. "There is water here, there is grass, and there are three of us. Stay."' },
     { art: ['pt_deer'], who: 'pt_deer',
+      hi: 'उसका नाम चित्रांग था, और वह वहीं रुक गया, और उसके बाद से वे चार हो गए। वे हर रोज़ उसी चट्टान पर मिलते थे। कौआ उन्हें बताता था कि उसने ऊपर हवा से क्या-क्या देखा है — यानी सब कुछ।',
       text: 'His name was Chitranga, and he stayed, and there were four of them after that. They met every day at the same rock. The crow told them what he had seen from the air, which was everything.' },
     { art: ['pt_deer'], who: null, mood: 'sad',
+      hi: 'फिर एक दोपहर चित्रांग नहीं आया। कौआ ऊपर उड़ा, दो चक्कर लगाए, और तेज़ी से नीचे आया। "वह जाल में फँसा है," उसने कहा। "पूरब में आधा मील दूर। रस्सियों का जाल है, खूँटियों से बँधा हुआ। और शाम ढलते ही एक शिकारी उसे लेने वापस आ रहा है।"',
       text: 'Then one afternoon Chitranga did not come. The crow went up, circled twice, and came down fast. "He is in a net," he said. "Half a mile east. Rope net, pegged down. And there is a hunter coming back for him at dusk."' },
     { art: ['pt_mouse'], who: null, mood: 'think',
+      hi: 'चार दोस्त। एक जाल। एक कौआ जो रस्सी काट नहीं सकता, एक कछुआ जो जल्दी नहीं कर सकता, और एक चूहा जो दोनों काम कर सकता है — सिवाय इसके कि वह वहाँ पहुँचे कैसे।',
       text: 'Four friends. One net. A crow who cannot chew rope, a tortoise who cannot hurry, and a mouse who can do both jobs except the getting there.',
       ask: {
         q: 'The mouse can chew the net. The mouse cannot possibly run half a mile in time. What is the plan?',
@@ -622,16 +806,22 @@ window.IND_STORIES_MORE = [
         wrong: 'There was a faster way. "Get on," said the crow to the mouse. "And do not wriggle."'
       } },
     { art: ['pt_crow', 'pt_mouse'], who: 'pt_crow',
+      hi: '"सवार हो जाओ," कौए ने कहा। हिरण्यक उसकी पीठ पर चढ़ गया और अपनी मुट्ठियों में दो पंख थाम लिए, और वे पेड़ों के ऊपर से इतनी तेज़ी से उड़े जितनी तेज़ी से किसी चूहे का उड़ना बनता ही नहीं।',
       text: '"Get on," said the crow. Hiranyaka climbed onto his back and held two feathers in his fists, and they went over the trees at a speed no mouse has any business travelling at.' },
     { art: ['pt_tortoise'], who: null,
+      hi: 'और मंथरक कछुआ — जिसे साफ़-साफ़ कहा गया था कि वह झील पर ही रुके, क्योंकि वह धीमा था, छिप नहीं सकता था और जल्दीबाज़ी में किसी काम का नहीं था — फिर भी उनके पीछे-पीछे निकल पड़ा। क्योंकि उसका दोस्त जाल में फँसा था।',
       text: 'And Mantharaka the tortoise — who had been told very clearly to stay at the lake, because he was slow and could not hide and was no use in a hurry — set off after them anyway. Because his friend was in a net.' },
     { art: ['pt_mouse', 'pt_deer'], who: null, mood: 'wow',
+      hi: 'चूहे ने कुतरना शुरू किया। एक-एक रस्सी, एक-एक गाँठ, इतनी तेज़ी से जितना मुमकिन भी नहीं लग रहा था। आख़िरी रेशा कटा और चित्रांग जाल से ऐसे बाहर निकला जैसे कोई कमानी झटके से खुल गई हो — और ठीक उसी पल, टीले के उस पार से शिकारी आ पहुँचा।',
       text: 'The mouse chewed. Rope by rope, knot by knot, faster than seemed possible. The last strand went and Chitranga came out of that net like a spring uncoiling — and at exactly that moment, over the ridge, came the hunter.' },
     { art: ['pt_tortoise', 'pt_deer'], who: null, mood: 'sad',
+      hi: 'हिरण भागा। कौआ उड़ गया। चूहा ज़मीन की एक दरार में घुस गया। और वहाँ उस खाली मैदान के बीचों-बीच, शिकारी से बस बीस कदम दूर, अपनी पूरी जान लगाकर भागता हुआ अकेला कछुआ रह गया।',
       text: 'The deer ran. The crow flew. The mouse went down a crack in the ground. And there in the middle of the empty field, twenty paces from the hunter and going as fast as he possibly could, was one tortoise.' },
     { art: ['pt_deer', 'pt_tortoise'], who: 'pt_deer', mood: 'wow',
+      hi: '"ठीक है," चित्रांग ने कहा और मुड़ गया। वह एक पैर को बड़े सलीके से घसीटता हुआ, लंगड़ाते हुए शिकारी के ठीक सामने आ गया, और शिकारी को अपने पीछे दौड़ाने लगा — इतनी ही तेज़ी से कि शिकारी उम्मीद न छोड़े — एक मील, फिर दो मील, पहाड़ी के उस पार तक। उधर पीछे चूहे ने कछुए की बोरी को कुतर कर खोल दिया, और सब सही-सलामत घर पहुँच गए।',
       text: '"Right," said Chitranga, and turned round. He limped out in front of the hunter, dragging one leg beautifully, and let himself be chased just fast enough to be worth chasing — a mile, then two, away over the hill. Behind them the mouse chewed the tortoise\'s sack open, and everyone got home.' },
     { art: ['pt_crow', 'pt_mouse'], who: 'mithu',
+      hi: 'उन चारों में से कोई भी अकेला यह काम नहीं कर सकता था। एक भी नहीं। यह इस कहानी की कोई कमज़ोरी नहीं है — यही तो पूरी कहानी है।',
       text: 'Nobody in that four could do the job on their own. Not one of them. That is not a weakness in the story — that is the story.' }
   ],
   moral: 'Friends are not decoration. Friends are what you have instead of being strong enough on your own.',
@@ -640,6 +830,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pt.mice-iron',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'The Mice Who Ate the Iron',
@@ -651,18 +845,25 @@ window.IND_STORIES_MORE = [
   words_hi: [['लोहा', 'loha', 'iron'], ['तराज़ू', 'taraazoo', 'scales'], ['बेटा', 'beta', 'son']],
   scenes: [
     { art: ['courtier', 'guard'], who: null,
+      hi: 'एक व्यापारी का धंधा मंदा पड़ गया और उसे कहीं और जाकर नई शुरुआत करने के लिए शहर छोड़ना पड़ा। उसके पास काम की बस एक ही चीज़ बची थी — लोहे की एक बड़ी सी तराज़ू की डंडी, जो किसी इंसान जितनी भारी थी, और वह उसे अपने साथ नहीं ले जा सकता था।',
       text: 'A merchant\'s business went bad and he had to leave town to start again somewhere else. The one thing he owned that was worth anything was a great iron balance-beam, heavy as a man, and he could not carry it with him.' },
     { art: ['courtier', 'guard'], who: 'courtier',
+      hi: '"इसे मेरे लिए संभाल कर रख लो," उसने खानदानी दोस्त रहे एक दूसरे व्यापारी से कहा। "मैं लौटकर इसे ले जाऊँगा।" "हाँ-हाँ, बिल्कुल," दोस्त ने डंडी को तौलते हुए कहा, और मन ही मन हिसाब लगाने लगा कि इन दिनों बाज़ार में लोहे का क्या भाव चल रहा है।',
       text: '"Keep this for me," he said to another merchant, an old friend of the family. "I will be back for it." "Of course," said the friend, hefting it and thinking privately about what iron was fetching that season.' },
     { art: ['guard'], who: 'guard', mood: 'sad',
+      hi: 'बरसों बाद पहला व्यापारी खूब कमा-खाकर लौटा और अपनी तराज़ू की डंडी मांगी। उसके दोस्त ने ज़मीन की तरफ देखा और अपनी आवाज़ में उदासी भरकर बोला, "अरे मेरे भाई! उसे तो चूहे खा गए। एक-एक रत्ती। मुझे तो बहुत शर्म आ रही है।"',
       text: 'Years later the first merchant came back, having done well, and asked for his beam. His friend looked at the floor and made his voice go sad. "Oh, my brother. The mice ate it. Every gram. I am so ashamed."' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'व्यापारी न तो चिल्लाया, न ही उसने कोई बहस की। उसने बस इतना कहा, "चूहे! अच्छा! चूहों की तो आदत ही ऐसी होती है," और फिर बोला, "कल अपने लड़के को मेरे साथ नदी पर भेज देना — मैं नहाने जा रहा हूँ, और साथ में कोई हो तो अच्छा रहेगा।"',
       text: 'The merchant did not shout. He did not argue. He said, "Mice. Well. Mice will do that," and then he said, "Send your boy down to the river with me tomorrow — I am going to bathe, and I would like the company."' },
     { art: ['courtier'], who: null,
+      hi: 'अगली सुबह वह लड़के को नदी पर ले गया, और तीन मील दूर एक गाँव में उसे अपने एक दोस्त के पास छोड़ आया, और फिर अकेले ही बड़ा परेशान सा चेहरा बनाकर वापस लौटा।',
       text: 'The next morning he took the boy to the river, and left him with a friend in a village three miles off, and came back on his own looking extremely upset.' },
     { art: ['guard', 'courtier'], who: 'guard', mood: 'wow',
+      hi: '"कहाँ है मेरा बेटा?" "बड़ी ही भयानक बात हो गई," व्यापारी ने कहा। "आसमान से एक चील झपटी और उसे उड़ा ले गई।" "चील? बारह साल के लड़के को उड़ा ले गई? क्या तुमने मुझे बेवकूफ़ समझ रखा है?" "बिल्कुल नहीं," व्यापारी बोला। "जहाँ चूहे लोहा खा जाते हैं, वहाँ चीलें लड़कों को उड़ा ही ले जाती हैं।"',
       text: '"Where is my son?" "The most terrible thing," said the merchant. "A hawk came down out of the sky and carried him off." "A HAWK? Carried off a boy of twelve? Do you take me for a fool?" "Not at all," said the merchant. "Where mice eat iron, hawks carry boys."' },
     { art: ['courtier', 'guard'], who: null, mood: 'think',
+      hi: 'बात बढ़ते-बढ़ते दोनों न्यायाधीशों के सामने पहुँच गए, और लोगों से भरे कमरे में अपनी-अपनी नामुमकिन कहानियाँ सुनाने लगे, जहाँ हर कोई अपनी हँसी रोकने की कोशिश कर रहा था।',
       text: 'They ended up in front of the judges, both of them, telling their impossible stories to a room full of people trying not to laugh.',
       ask: {
         q: 'The judges cannot prove what happened to the iron. So what do they do about it?',
@@ -672,8 +873,10 @@ window.IND_STORIES_MORE = [
         wrong: 'The judges saw the joke straight away. "Give the man his iron," they said, "and you may have your son back the moment it is on the floor."'
       } },
     { art: ['guard'], who: null,
+      hi: 'वह शहतीर गोदाम में बोरियों के ढेर के नीचे से निकाली गई, पूरी तरह साबुत, जिस पर कहीं दाँत का एक निशान तक नहीं था।',
       text: 'The beam came out from under a pile of sacks in the storeroom, entirely un-eaten, with not a single tooth-mark on it anywhere.' },
     { art: ['pt_mouse'], who: 'mithu',
+      hi: 'और उसी गोदाम में कहीं बैठा एक असली चूहा, जिसने अपनी पूरी ज़िंदगी सीधा-सादा अनाज खाते हुए बिताई थी, उस बात का इल्ज़ाम झेल रहा था जो वह सौ साल और बड़े तेज़ दाँत मिलने पर भी कभी नहीं कर पाता।',
       text: 'And somewhere in that storeroom, a real mouse, who had spent his whole life eating perfectly ordinary grain, was being blamed for something he could not have done with a hundred years and a very good set of teeth.' }
   ],
   moral: 'A ridiculous lie is best answered with a ridiculous lie of exactly the same size.',
@@ -682,6 +885,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pt.crane-crab',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'The Crane Who Offered a Lift',
@@ -693,16 +900,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['बगुला', 'bagula', 'crane'], ['केकड़ा', 'kekda', 'crab'], ['तालाब', 'taalaab', 'pond']],
   scenes: [
     { art: ['pt_heron'], who: null,
+      hi: '"एक बूढ़ा बगुला था जो इतना सुस्त हो गया था कि ठीक से मछलियाँ नहीं पकड़ पाता था। और जब ज़िंदगी में आपका काम ही सिर्फ़ मछली पकड़ना हो, तो यह बहुत बड़ी मुसीबत है। वह दिन भर उथले पानी में खड़ा रहता, एक भी मछली हाथ न आती, और वह दुबला और चिड़चिड़ा होता जा रहा था।"',
       text: 'There was an old crane who had got too slow to fish properly, which is a serious problem when fishing is the only thing you do. He stood in the shallows all day catching nothing and getting thinner and crosser.' },
     { art: ['pt_heron'], who: null, mood: 'think',
+      hi: '"फिर उसने मछली पकड़ने की कोशिश करना ही छोड़ दिया, और सिर झुकाकर बिल्कुल चुपचाप खड़ा रहने लगा। पानी के नीचे से देखने वाले किसी को भी वह ऐसा पक्षी लगता जो गहरे से गहरे दुख में डूबा हो।"',
       text: 'Then he stopped trying to catch fish, and started standing very still with his head down, looking, to anyone watching from underwater, like a bird in the deepest possible sorrow.' },
     { art: ['pt_heron', 'pt_tortoise'], who: 'pt_heron', mood: 'sad',
+      hi: '""क्या बात है?" आख़िरकार एक मछली ने पूछा। "मैंने मछुआरों की बातें सुन ली हैं," बगुले ने बिना ऊपर देखे कहा। "वे अगले हफ़्ते इस तालाब में जाल डालने आ रहे हैं। तुममें से एक-एक को पकड़ने। मैं ज़िंदगी भर तुम सबको देखता आया हूँ और अब कुछ भी नहीं कर सकता।" और उसने एक बहुत लंबी आह भरी।"',
       text: '"What is wrong?" asked a fish, eventually. "I overheard the fishermen," said the crane, without looking up. "They are coming to net this pond next week. Every one of you. I have known you all my life and there is nothing I can do." And he sighed enormously.' },
     { art: ['pt_tortoise'], who: null,
+      hi: '"तालाब में खलबली मच गई। बूढ़ी मछलियाँ एक टोली बनाकर आईं। "आप तो उड़ते हैं," उन्होंने कहा। "आपको ज़रूर कोई जगह मालूम होगी।" "पहाड़ी के पार एक गहरा कुंड है," बगुले ने मान लिया। "मैं तुम्हें वहाँ पहुँचा सकता हूँ। एक बार में दो को। मुझे हफ़्तों लग जाएँगे और मुझमें अब पहले जैसी ताक़त भी नहीं रही—मगर मैं यह करूँगा।""',
       text: 'The pond went into a panic. The old fish came in a delegation. "You fly," they said. "You must know somewhere." "There is a deep pool over the hill," admitted the crane. "I could carry you. Two at a time. It would take me weeks and I am not as strong as I was — but I will do it."' },
     { art: ['pt_heron'], who: null,
+      hi: '"और इस तरह सिलसिला शुरू हुआ। एक चक्कर में दो मछलियाँ, दिन भर, रोज़। वह उन्हें लेकर पेड़ों के ऊपर उड़ जाता और ख़ाली, थका-हारा और गंभीर होकर वापस लौटता। मछलियाँ कतार में लग गईं। वे आपस में बहस करने लगीं कि अगली बारी किसकी है।"',
       text: 'And so it began. Two fish a trip, all day, every day. He flew off over the trees with them and came back empty and tired and dignified. The fish queued up. They argued about whose turn was next.' },
     { art: ['pt_tortoise'], who: null, mood: 'think',
+      hi: '"तालाब में सबसे आख़िर में बचा एक केकड़ा, जो तलहटी में बैठा दो हफ़्तों से यह सब देख रहा था और जिसने एक छोटी-सी बात भाँप ली थी: किसी भी मछली ने कभी, एक बार भी, वहाँ से कोई ख़बर नहीं भेजी थी।"',
       text: 'The last one left in the pond was a crab, sitting on the bottom, who had watched the whole thing for a fortnight and had noticed one small detail: no fish had ever, once, sent word back.',
       ask: {
         q: 'The crab is fairly sure the crane is lying. But he still has to get out of a drying pond. What does he do?',
@@ -712,12 +925,16 @@ window.IND_STORIES_MORE = [
         wrong: 'The crab had a better idea. He went — but he went holding on to the crane\'s neck with both claws.'
       } },
     { art: ['pt_tortoise', 'pt_heron'], who: 'pt_tortoise',
+      hi: '"अगली बारी मेरी," केकड़े ने कहा। "लेकिन मैं भारी भी हूँ और फिसलता भी हूँ, और अगर तुमने मुझे अपनी चोंच में उठाया तो मैं गिर जाऊँगा। मुझे अपनी गर्दन पर बैठने दो ताकि मैं पकड़ बनाए रखूँ।" "हाँ, बिल्कुल," बगुले ने कहा, जो अपने दोपहर के खाने के बारे में सोच रहा था।',
       text: '"Take me next," said the crab. "But I am heavy and slippery, and if you carry me in your beak I will fall. Let me ride on your neck and hold on." "Naturally," said the crane, who was thinking about lunch.' },
     { art: ['pt_heron', 'pt_tortoise'], who: null, mood: 'wow',
+      hi: 'वे पहाड़ी के ऊपर से उड़े। वहाँ कोई गहरा तालाब नहीं था। धूप में एक चपटी चट्टान पड़ी थी जिस पर मछलियों के ढेर सारे कांटे बिखरे थे। केकड़े ने नीचे उन कांटों को देखा और अपने पंजों की पकड़ ज़रा-सी कस ली, और कहा, "वापस मुड़ो।"',
       text: 'They flew over the hill. There was no deep pool. There was a flat rock in the sun with a great many fish bones on it. The crab looked down at the bones and tightened his claws very slightly, and said, "Turn round."' },
     { art: ['pt_heron'], who: 'pt_heron', mood: 'sad',
+      hi: 'बगुला वापस मुड़ गया। वह बहुत सावधानी से पूरा रास्ता उड़कर लौटा, और केकड़े को उसी के तालाब के उथले पानी में उतार दिया, और फिर कहीं और जाकर बहुत देर तक खड़ा रहा।',
       text: 'The crane turned round. He flew all the way back, very carefully, and set the crab down in the shallows of his own pond, and then he went and stood somewhere else for a long time.' },
     { art: ['pt_tortoise'], who: 'mithu',
+      hi: 'केकड़े ने पानी में सबको बताया कि उसने क्या देखा था, और उस साल तालाब सूखा नहीं, और मछुआरे कभी नहीं आए। वहाँ कभी कोई मछुआरे थे ही नहीं।',
       text: 'The crab told everyone in the water what he had seen, and the pond did not dry up that year, and the fishermen never came. There had never been any fishermen.' }
   ],
   moral: 'Somebody who is the only one who knows the way is somebody to ask questions of.',
@@ -726,6 +943,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pt.elephants-rabbits',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'The Rabbit Who Spoke for the Moon',
@@ -737,12 +958,16 @@ window.IND_STORIES_MORE = [
   words_hi: [['हाथी', 'haathi', 'elephant'], ['खरगोश', 'khargosh', 'rabbit'], ['चाँद', 'chaand', 'moon']],
   scenes: [
     { art: ['pt_rabbit'], who: null,
+      hi: 'दो साल तक बारिश नहीं हुई और जंगल के तालाब सूखकर फटी हुई मिट्टी बन गए। पूरे एक दिन की दूरी तक सिर्फ़ एक ही जगह पानी था — चंद्र-सरोवर — और चंद्र-सरोवर के चारों तरफ़, नरम रेतीली ज़मीन पर बने बिलों में सैकड़ों खरगोश रहते थे।',
       text: 'The rains failed for two years and the forest ponds went to cracked mud. The only water for a day\'s walk was Chandra-sarovar — Moon Lake — and around Moon Lake, in the soft sandy ground, lived several hundred rabbits in burrows.' },
     { art: ['pt_elephant'], who: null, mood: 'sad',
+      hi: 'हाथियों का झुंड सुबह-सवेरे वहाँ उतरा। वे कोई बेरहमी नहीं कर रहे थे। उन्हें बहुत ज़बरदस्त प्यास लगी थी और वे बस चलते आ रहे थे, और उनके पैरों तले बिल धंसते चले गए, और खरगोशों को एक-दूसरे को खोदकर बाहर निकालने में पूरी सुबह लग गई।',
       text: 'The elephant herd came down at dawn. They were not being cruel. They were enormously thirsty and they simply walked, and burrows collapsed under them, and it took the rabbits all morning to dig each other out.' },
     { art: ['pt_rabbit'], who: 'pt_rabbit',
+      hi: '"वे कल फिर आएँगे," खरगोशों ने कहा। "और परसों भी। हम उनसे लड़ नहीं सकते और जितनी तेज़ वे चलते हैं, हम उतनी तेज़ बिल भी नहीं खोद सकते।" पीछे से लंबकर्ण नाम का एक छोटा खरगोश — जिसके लंबे-लंबे कान थे — खड़ा हुआ। "तो फिर मुझे जाने दीजिए और उनसे बात करने दीजिए।"',
       text: '"They will come again tomorrow," said the rabbits. "And the day after. We cannot fight them and we cannot dig faster than they can walk." A young rabbit called Lambakarna — long-ears — stood up at the back. "Then let me go and talk to them."' },
     { art: ['pt_rabbit'], who: null, mood: 'think',
+      hi: 'वह रास्ते के पास एक ऊँची चट्टान पर चढ़ गया, जहाँ कोई भी हाथी उसे बिना नीचे देखे देख सके। वह झुंड का इंतज़ार करने लगा और गहराई से सोचने लगा कि भला एक खरगोश हज़ार हाथियों से क्या कह सकता है।',
       text: 'He climbed up onto a high rock near the path, where an elephant could see him without having to look down, and he waited for the herd, and he thought very hard about what a rabbit could possibly say to a thousand elephants.',
       ask: {
         q: 'A rabbit cannot threaten an elephant and cannot beg one. What is left?',
@@ -752,16 +977,22 @@ window.IND_STORIES_MORE = [
         wrong: 'He did something cleverer. He spoke as the messenger of somebody the elephants could see for themselves.'
       } },
     { art: ['pt_elephant', 'pt_rabbit'], who: 'pt_rabbit', mood: 'wow',
+      hi: '"रुकिए!" लंबकर्ण अपनी पूरी भारी आवाज़ में पुकारा। "मैं चंद्रमा का दूत हूँ, और मुझे आपको यह बताने भेजा गया है कि यह चंद्र-झील उनकी है, और आप उस ज़मीन को रौंद रहे हैं जहाँ उनके खरगोश रहते हैं।"',
       text: '"STOP," called Lambakarna, in the biggest voice he had. "I am the messenger of the moon, and I am to tell you that Moon Lake is hers, and that you have been trampling the ground where her rabbits live."' },
     { art: ['pt_elephant'], who: 'pt_elephant', mood: 'think',
+      hi: 'हाथियों का मुखिया, जिसका नाम चतुर्दंत था, रुका और उसे देखा। "चंद्रमा," उसने धीरे से कहा, "खरगोशों को भेजते हैं?" "हाँ, भेजते हैं," लंबकर्ण ने कहा। "आज रात चाँद निकलने पर आइए और खुद देख लीजिए कि वे कितने नाराज़ हैं।"',
       text: 'The chief elephant, whose name was Chaturdanta, stopped and looked at him. "The moon," he said slowly, "sends rabbits?" "She does," said Lambakarna. "Come at moonrise tonight and see for yourself whether she is angry."' },
     { art: ['pt_elephant'], who: null,
+      hi: 'उस रात अंधेरे में हाथियों का झुंड पानी के पास उतरा। झील काँच की तरह बिल्कुल शांत थी, और पूरा चाँद उस पर साफ़, विशाल और सफ़ेद दिखाई दे रहा था।',
       text: 'That night the herd came down to the water in the dark. The lake was flat as glass, and the full moon lay on it, perfect and enormous and white.' },
     { art: ['pt_elephant', 'pt_rabbit'], who: 'pt_rabbit',
+      hi: '"झुकिए," लंबकर्ण ने कहा, "और अपनी सूंड से पानी को छूकर उनसे माफ़ी माँगिए।" चतुर्दंत ने अपनी सूंड नीचे की और पानी की सतह को छुआ — और पानी में हलचल हुई, और चाँद पूरी झील पर काँपते हुए सैकड़ों टुकड़ों में बिखर गया।',
       text: '"Bow," said Lambakarna, "and touch the water with your trunk, and beg her pardon." Chaturdanta lowered his trunk and touched the surface — and the water broke, and the moon shattered into a hundred shivering pieces all over the lake.' },
     { art: ['pt_elephant'], who: null, mood: 'wow',
+      hi: '“वह बहुत ग़ुस्से में हैं,” लंबकर्ण ने फुसफुसाकर कहा। चतुरदंत उस पानी से इतनी तेज़ी से पीछे हटा कि धड़ाम से बैठ ही गया। भोर होने से पहले ही पूरा झुंड उत्तर की तरफ़ निकल गया और नदी से पानी पिया, जो हमेशा से वहीं बह रही थी।',
       text: '"She is FURIOUS," whispered Lambakarna. Chaturdanta backed away from that water so fast he sat down. The whole herd went off north before dawn and drank from the river instead, which had been there the entire time.' },
     { art: ['pt_rabbit'], who: 'mithu',
+      hi: 'ख़रगोशों ने अपने बिल फिर से बना लिए। और उसके बाद हर पूर्णिमा को, उस बस्ती में से कोई न कोई पानी की तरफ़ देखता और बड़े प्यार से कहता, “लो वो रहीं। अभी भी नाराज़ हैं।”',
       text: 'The rabbits rebuilt their burrows. And every full moon after that, somebody in that warren would look at the water and say, quite fondly, "There she is. Still cross."' }
   ],
   moral: 'When you cannot make somebody stop, you can sometimes make them look.',
@@ -770,6 +1001,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pt.two-headed-bird',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'The Bird With Two Heads',
@@ -781,14 +1016,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['चिड़िया', 'chidiya', 'bird'], ['दो', 'do', 'two'], ['फल', 'phal', 'fruit']],
   scenes: [
     { art: ['pt_crow'], who: null,
+      hi: 'नदी के किनारे भारुंड नाम का एक पक्षी रहता था, जिसका एक शरीर, एक पेट, दो लंबी गर्दनें और दो सिर थे। दोनों सिर बोल सकते थे। दोनों सिरों की अपनी-अपनी राय थी। कुल मिलाकर, साथ रहने का यह बड़ा ही अच्छा तरीक़ा था।',
       text: 'On a riverbank there lived a bird called Bharunda who had one body, one stomach, two long necks and two heads. Both heads could talk. Both heads had opinions. It was, on the whole, a companionable way to live.' },
     { art: ['pt_crow'], who: null,
+      hi: 'एक दिन दाएँ सिर को बहकर आई लकड़ियों में खोजते हुए एक फल मिला — लाल रंग का, मीठा-मीठा फल, वैसा जो साल में बस दो बार ही मिलता है। उसने चटकारे लेते हुए और यह जताते हुए कि वह कितना स्वादिष्ट था, उसे धीरे-धीरे खाया।',
       text: 'One day the right head, poking about in the driftwood, found a fruit — a red one, the sweet kind, the kind you get about twice a year. It ate it slowly, making a great deal of noise about how good it was.' },
     { art: ['pt_crow'], who: 'pt_crow', mood: 'sad',
+      hi: '“मुझे भी एक टुकड़ा दो,” बाएँ सिर ने कहा। “आधा टुकड़ा ही दे दो। ज़रा चखने तो दो।” “क्यों?” दाएँ सिर ने चबाते हुए कहा। “जाना तो एक ही पेट में है। तुम्हें भी उतना ही मिलेगा। इससे क्या फ़र्क पड़ता है?”',
       text: '"Give me a piece," said the left head. "Half a piece. A taste." "Why?" said the right head, chewing. "It goes into the same stomach either way. You will get it just the same. What difference does it make?"' },
     { art: ['pt_crow'], who: null, mood: 'sad',
+      hi: 'और यह बात सच भी थी, और इसका असल बात से कोई लेना-देना भी नहीं था, और बायाँ सिर कुछ इस तरह चुप हुआ कि वह ख़ामोशी हफ़्तों तक खिंची।',
       text: 'And that was true, and it was also completely beside the point, and the left head went quiet in a way that lasted for weeks.' },
     { art: ['pt_crow'], who: null, mood: 'think',
+      hi: 'फिर एक दोपहर बाएँ सिर को किनारे पर कुछ मिला: एक अलग ही तरह का फल, फीका और स्लेटी, ऐसा फल जिसे चूज़े रहते कभी न छूने की सीख दी जाती है।',
       text: 'Then one afternoon the left head found something on the shore: a fruit of a different sort, dull and grey, the kind you are taught as a chick never to touch.',
       ask: {
         q: 'The left head is still hurt, and it is holding something poisonous. What should it do?',
@@ -798,10 +1038,13 @@ window.IND_STORIES_MORE = [
         wrong: 'That is what it should have done. Instead it lifted the grey fruit up and said: "Now watch."'
       } },
     { art: ['pt_crow'], who: 'pt_crow', mood: 'wow',
+      hi: '"मत खाओ," दाएँ सिर ने अचानक डरकर कहा। "यह हम दोनों की जान ले लेगा।" "\'हम\'," बाएँ सिर ने कहा। "कितनी दिलचस्प बात है। जब फल मिला तो \'मैं\' था, और जब मुसीबत आई तो \'हम\'।"',
       text: '"Do not," said the right head, suddenly frightened. "That will kill us both." "Us," said the left head. "How interesting. It was ME when there was fruit and US when there is trouble."' },
     { art: ['pt_crow'], who: null, mood: 'sad',
+      hi: 'उसने वह स्लेटी फल खा लिया। और ज़ाहिर है, वह उसी पेट में गया, क्योंकि पेट तो हमेशा से एक ही था — और वह दो सिरों वाला पक्षी रेत पर गिरा और फिर नहीं उठा।',
       text: 'It ate the grey fruit. And of course it went to the same stomach, because there was only ever one stomach — and the bird with two heads came down on the sand and did not get up.' },
     { art: ['pt_crow'], who: 'mithu',
+      hi: 'पता है, दोनों ही अपनी जगह सही थे। यही बात सबसे ज़्यादा चुभती है। दायाँ सिर सही था कि सब कुछ उसी एक पेट में जाता है। बायाँ सिर भी सही था कि किसी को अपने हाथ से कुछ देना मायने रखता है। पर दोनों में से किसी ने भी असली बात तब तक नहीं कही, जब तक कि कहने का वक्त बहुत पीछे नहीं छूट गया।',
       text: 'Both of them were right, you know. That is what makes this one sting. The right head was right that it all goes to the same stomach. The left head was right that being handed something matters. Neither of them said the true thing until it was far too late to say it.' }
   ],
   moral: 'You cannot hurt one half of a family. There is only ever one stomach.',
@@ -810,6 +1053,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pt.lion-makers',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'The Four Clever Men and the Lion',
@@ -821,16 +1068,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['शेर', 'sher', 'lion'], ['किताब', 'kitaab', 'book'], ['अक्ल', 'akl', 'sense']],
   scenes: [
     { art: ['courtier', 'guard'], who: null,
+      hi: 'चार नौजवान अपनी किस्मत आज़माने एक ही शहर से निकले। उनमें से तीन ने बरसों तक पढ़ाई की थी और वे सचमुच हैरान कर देने वाले काम कर सकते थे। चौथे ने कुछ ख़ास पढ़ाई नहीं की थी, और बाकी तीनों अक्सर यह बात छेड़ दिया करते थे।',
       text: 'Four young men set out from the same town to make their fortunes. Three of them had studied for years and could do genuinely astonishing things. The fourth had not studied much at all, and the other three brought it up rather often.' },
     { art: ['guard', 'courtier'], who: 'guard',
+      hi: '"इसके साथ आने का क्या फ़ायदा?" पहले ने कहा। "इसके पास कोई विद्या नहीं है।" "आने दो उसे," तीसरे ने कहा। "वह दोस्त है, और दोस्ती की भी कुछ क़ीमत होती है।" "विद्या जितनी नहीं," दूसरे ने कहा, और वे आगे चल पड़े।',
       text: '"What is the point of him coming?" said the first. "He has no learning." "Let him come," said the third. "He is a friend, and friendship is worth something." "Not as much as learning," said the second, and they walked on.' },
     { art: ['courtier'], who: null,
+      hi: 'जंगल के बीचों-बीच, एक खुली जगह में उन्हें पुरानी हड्डियों का एक ढेर पड़ा मिला — किसी बड़े जानवर की हड्डियाँ, जो बहुत पहले मर चुका था, धूप में सूखकर सफ़ेद पड़ चुकी थीं और इधर-उधर बिखरी थीं।',
       text: 'Halfway through a forest they came upon a heap of old bones lying in a clearing — a big animal, long dead, bleached white and scattered about.' },
     { art: ['guard'], who: 'guard', mood: 'wow',
+      hi: 'पहला बोला, "यह दिखाने का अच्छा मौका है कि हम क्या कर सकते हैं। मैं इन हड्डियों को वापस जोड़ सकता हूँ।" और उसने ऐसा कर दिखाया। इसमें एक घंटा लगा, और आखिर में उस खुली जगह में एक पूरा कंकाल खड़ा था।',
       text: '"Here is our chance to show what we can do," said the first. "I can put these bones back together." He did. It took an hour, and at the end of it there was a complete skeleton standing in the clearing.' },
     { art: ['guard', 'courtier'], who: null, mood: 'wow',
+      hi: '"मैं इस पर माँस और चमड़ी चढ़ा सकता हूँ," दूसरे ने कहा — और उसने ऐसा ही किया, और अब घास पर एक शेर पड़ा था, बिल्कुल पूरा, सही-सलामत और एकदम शांत। "और मैं," तीसरे ने अपनी आस्तीनें चढ़ाते हुए कहा, "इसमें जान डाल सकता हूँ।"',
       text: '"I can clothe it in flesh and skin," said the second — and did, and now there was a lion lying in the grass, whole and perfect and entirely still. "And I," said the third, rolling up his sleeves, "can give it life."' },
     { art: ['courtier'], who: 'courtier', mood: 'think',
+      hi: 'चौथा आदमी, जो पूरी सुबह कुछ नहीं बोला था, बोला: "ऐसा करने से पहले, क्या कोई ज़रा ज़ोर से बोलकर बताएगा कि यह क्या है?"',
       text: 'The fourth man, who had said nothing all morning, said: "Before you do that. Does anybody want to say out loud what it is?"',
       ask: {
         q: 'They can bring it to life. Nobody has asked whether they should. What does the fourth man do?',
@@ -840,12 +1093,16 @@ window.IND_STORIES_MORE = [
         wrong: 'He was quicker than that. "Wait until I am up that tree," he said, "and then do exactly as you like."'
       } },
     { art: ['courtier'], who: 'courtier',
+      hi: '"यह एक शेर है," चौथे आदमी ने कहा। "वह शेर है। मुझे पता है कि मैंने पढ़ाई नहीं की, लेकिन मैंने शेर देखा ज़रूर है। मुझे ज़रा एक पल दो।" और वह गिलहरी की तरह सबसे पास वाले पेड़ पर चढ़ गया और तने को दोनों हाथों से थामकर एक ऊँची डाल पर बैठ गया।',
       text: '"It is a lion," said the fourth man. "That is a lion. I know I did not study, but I have seen one. Give me a moment." And he went up the nearest tree like a squirrel and sat on a high branch with his arms round the trunk.' },
     { art: ['pt_lion', 'guard'], who: null, mood: 'wow',
+      hi: 'तीसरे आदमी ने अपना काम पूरा किया। शेर ने अपनी आँखें खोलीं, खड़ा हुआ, बारी-बारी से अपने पैर फैलाए और दहाड़ा — और इससे पहले कि उसकी दहाड़ पूरी होती, उस इलाके के तीनों सबसे होशियार नौजवान पहाड़ी के पार भागकर आँखों से ओझल हो चुके थे।',
       text: 'The third man finished his work. The lion opened its eyes, stood up, stretched every leg in turn, and roared — and the three cleverest young men in that province were over the hill and out of sight before it had finished.' },
     { art: ['pt_lion'], who: null,
+      hi: 'शेर ने खाली मैदान में चारों तरफ़ देखा, जम्हाई ली, और यह जानने के लिए पेड़ों के बीच चल पड़ा कि आख़िर जंगल होता क्या है। यूँ भी, उसे ज़िंदा हुए बस कोई एक ही मिनट तो हुआ था।',
       text: 'The lion looked round the empty clearing, yawned, and wandered off into the trees to find out what a forest was. It had, after all, only been alive for about a minute.' },
     { art: ['courtier'], who: 'mithu',
+      hi: 'उस शाम वे सब सड़क पर मिले, सबकी सांसें फूली हुई थीं और कोई एक-दूसरे की तरफ़ नहीं देख रहा था। इस कहानी के पुराने रूपों में तो वे तीनों उस मैदान से बाहर निकल ही नहीं पाते हैं। मुझे अच्छा लगता है कि वे सिर्फ़ डर गए और उन्हें घर तक लंबा रास्ता पैदल नापना पड़ा।',
       text: 'They all met up on the road that evening, out of breath and not looking at each other. In the older tellings of this one the three do not make it out of the clearing at all. I like them getting a fright and a long walk home.' }
   ],
   moral: 'Cleverness tells you that you can. Common sense asks whether you should.',
@@ -854,6 +1111,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pt.drum-jackal',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'The Thing That Boomed in the Bushes',
@@ -865,12 +1126,16 @@ window.IND_STORIES_MORE = [
   words_hi: [['ढोल', 'dhol', 'drum'], ['आवाज़', 'aawaaz', 'sound'], ['डर', 'dar', 'fear']],
   scenes: [
     { art: ['pt_jackal'], who: null,
+      hi: 'गोमय नाम के एक सियार को ढंग का खाना खाए तीन दिन बीत चुके थे, और भूख ने उसे वैसे ही हिम्मतवर बना दिया था जैसा वह अक्सर बना देती है। वह पेड़ों से निकलकर एक खुले मैदान में आया, जहाँ एक सेना ने डेरा डाला था और फिर अपना वही रोज़ का कूड़ा-कबाड़ पीछे छोड़कर आगे बढ़ गई थी।',
       text: 'A jackal called Gomaya had gone three days without anything worth calling a meal, and hunger had made him bold in the way it does. He came out of the trees into an open field where an army had camped and moved on, leaving the usual mess behind.' },
     { art: ['pt_jackal'], who: null, mood: 'wow',
+      hi: 'और दूर कोने में झाड़ियों के एक झुरमुट से ऐसी आवाज़ आई कि उसका दिल ही थम गया: बूम! फिर कुछ नहीं। फिर दोबारा बूम!, और भी गहरी।',
       text: 'And out of a clump of bushes at the far end came a noise that stopped his heart: BOOM. Then nothing. Then BOOM again, deeper.' },
     { art: ['pt_jackal'], who: 'pt_jackal', mood: 'sad',
+      hi: '"वह," गोमय पीछे हटते हुए खुद से बोला, "कोई बहुत ही भारी-भरकम चीज़ है। जो भी ऐसी आवाज़ निकाल सकता है, वह मुझे एक ही झटके में चट कर जाएगा। घर। अभी के अभी।"',
       text: '"That," said Gomaya to himself, backing away, "is enormous. Anything that makes a noise like that could eat me sideways. Home. Now."' },
     { art: ['pt_jackal'], who: null, mood: 'think',
+      hi: 'वह कोई तीस कदम ही चला होगा कि रुक गया, क्योंकि उसने एक बात पर गौर किया। वह गूँजती आवाज़ तभी आती थी जब मैदान में हवा चलती थी। जब हवा रुक जाती, तो वह विशाल भयानक चीज़ बिल्कुल कुछ नहीं बोलती थी।',
       text: 'He got about thirty paces. Then he stopped, because he had noticed something. The booming only happened when the wind came across the field. When the wind dropped, the enormous terrible thing said nothing at all.',
       ask: {
         q: 'It only makes the noise when the wind blows. What does that tell him?',
@@ -880,12 +1145,16 @@ window.IND_STORIES_MORE = [
         wrong: 'He worked out something better. "A living thing," he said, "does not wait for the weather before it speaks."'
       } },
     { art: ['pt_jackal'], who: 'pt_jackal', mood: 'think',
+      hi: '"बाघ सिर्फ़ तभी नहीं दहाड़ता जब हवा चलती है," गोमय ने कहा। "कोई भी ज़िंदा जीव ऐसा नहीं करता। उन झाड़ियों में जो कुछ भी है, उसे कोई बजा रहा है, वह ख़ुद आवाज़ नहीं निकाल रहा।" और वह वापस गया — ध्यान रहे, हौले-हौले, ज़मीन से सटकर, क्योंकि सही अंदाज़ा होने और बात बिल्कुल पक्की होने में फ़र्क होता है।',
       text: '"A tiger does not roar only when the wind blows," said Gomaya. "Nothing alive does that. Whatever is in those bushes is being played, not making a sound of its own." And he went back — slowly, mind, keeping low, because being right and being certain are not the same thing.' },
     { art: ['pt_jackal'], who: null, mood: 'wow',
+      hi: 'झाड़ियों में एक बड़ा नगाड़ा पड़ा हुआ था, जिसे सेना अपना पड़ाव समेटते वक़्त छोड़ गई थी। वह गोमय के कद से भी ऊँचा था और करवट के बल लेटा था। हवा में एक टहनी झूलकर उसके चमड़े से टकराती। धम! उसने तीन बार ऐसा होते देखा।',
       text: 'In the bushes lay a war drum, abandoned when the army broke camp, taller than he was and lying on its side. A branch swung over it in the wind and hit the skin. BOOM. He watched it do it three times.' },
     { art: ['pt_jackal'], who: null,
+      hi: 'वह उसके चारों तरफ़ घूमा, उसे सूँघा, और फिर उसे वह चीज़ मिली जो नगाड़े के पीछे छिपी थी: सेना के खाने का एक पूरा बोरा, जो छूटकर वहीं भुला दिया गया था, जिसे गोमय ने अगले चार दिनों तक बड़े ही मस्त मिज़ाज में बैठकर खाया।',
       text: 'He walked round it, sniffed it, and then found what the drum had been hiding: a whole sack of the army\'s food, dropped and forgotten, which Gomaya ate over the next four days in a very good mood indeed.' },
     { art: ['pt_jackal'], who: 'mithu',
+      hi: 'बड़ी आवाज़ और बड़ा जानवर दो अलग-अलग चीज़ें होती हैं। सामने इनमें से क्या है, यह जानने के लिए तीस क़दम जितनी हिम्मत जुटाना कोई घाटे का सौदा नहीं है।',
       text: 'A big noise and a big animal are two different things. It is worth about thirty paces of your courage to find out which one you have got.' }
   ],
   moral: 'Go and look. Most of the things that boom in the dark are hollow.',
@@ -894,6 +1163,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pt.monkey-wedge',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'The Monkey and the Wedge',
@@ -905,14 +1178,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['लकड़ी', 'lakdi', 'wood'], ['बढ़ई', 'badhai', 'carpenter'], ['कील', 'keel', 'wedge']],
   scenes: [
     { art: ['guard'], who: null,
+      hi: 'शहर के छोर पर एक मंदिर बन रहा था, और अहाते में बढ़इयों की भीड़ थी, और बढ़इयों के पास अपनी-अपनी राय की भरमार थी, और अगर आप संयोग से एक बंदर होते, तो वह पूरी जगह बेहद मज़ेदार थी।',
       text: 'A temple was being built at the edge of town, and the yard was full of carpenters, and the carpenters were full of opinions, and the whole place was extremely interesting if you happened to be a monkey.' },
     { art: ['pt_monkey', 'guard'], who: null,
+      hi: 'बंदरों की एक टोली कई दिनों से दीवार पर बैठकर देख रही थी। उन्होंने आरियाँ, छेनियाँ और मूँगरी देखी थीं, और मोटा-मोटी समझ लिया था कि इंसान लकड़ी को बदलकर नए-नए रूप दे रहे हैं, जो ज़िंदगी बिताने का एक ठीक-ठाक तरीक़ा लगता था।',
       text: 'A troop of them had been watching from the wall for days. They had seen the saws and the chisels and the mallets, and had understood, roughly, that the men were making wood into other shapes, which seemed a reasonable enough way to spend a life.' },
     { art: ['guard'], who: 'guard',
+      hi: 'दोपहर को बढ़इयों ने अपने औज़ार रखे और खाना खाने चले गए। उन्होंने एक बड़ा लट्ठा बीच से आधा चीरा हुआ ही छोड़ दिया था, और दोनों हिस्सों को अलग रखने के लिए उस चीरे में लकड़ी की एक पच्चर ठोंक रखी थी।',
       text: 'At noon the carpenters put down their tools and went off to eat. They left a great log half sawn down the middle, with a wooden wedge hammered into the split to hold the two halves apart while they worked.' },
     { art: ['pt_monkey'], who: null, mood: 'wow',
+      hi: 'जैसे ही अहाता खाली हुआ, बंदर नीचे उतर आए। उन्होंने आरी चलाकर देखी। वे बाल्टी में बैठे। और एक छोटा बंदर — जो उन सब में सबसे चुस्त और मददगार था — लट्ठे के ऊपर दोनों तरफ़ पैर पसार कर ठीक चीरे के ऊपर बैठ गया, और उसने पच्चर को पकड़ लिया।',
       text: 'The moment the yard was empty, down came the monkeys. They tried the saw. They sat in the bucket. And one young monkey — the busiest and the most helpful of them — sat himself down astride the log, right over the gap, and took hold of the wedge.' },
     { art: ['pt_monkey'], who: null, mood: 'think',
+      hi: 'आखिर पूरे अहाते में वही एक चीज़ थी जो साफ़-साफ़ रास्ते में अड़ती दिख रही थी। वह इतने भले-चंगे लट्ठे में फँसी हुई थी। ज़रूर कोई उसे गलती से वहाँ छोड़ गया था।',
       text: 'It was, after all, the one thing in the whole yard that was obviously in the way. It was stuck in a perfectly good log. Somebody had clearly left it there by mistake.',
       ask: {
         q: 'He does not know what the wedge is for. He is sitting over the gap it is holding open. What should he do?',
@@ -922,10 +1200,13 @@ window.IND_STORIES_MORE = [
         wrong: 'That is the sensible answer, and it is not what happened. He got both hands on the wedge and heaved.'
       } },
     { art: ['pt_monkey'], who: 'pt_monkey', mood: 'wow',
+      hi: 'उसने दोनों हाथों से उसे पकड़ा और ज़ोर लगाया। वह हिली। उसने फिर ज़ोर लगाया — और पच्चर बाहर निकल आई, और लट्ठे के दोनों हिस्से ताली बजाने की तरह आपस में भिड़ गए, और बीच में बंदर की पूँछ का एक अच्छा-खासा हिस्सा फँस गया।',
       text: 'He got both hands on it and heaved. It shifted. He heaved again — and the wedge came out, and the two halves of that log came together like a pair of hands clapping, with a considerable portion of monkey tail in the middle.' },
     { art: ['guard', 'pt_monkey'], who: 'guard',
+      hi: 'बढ़ई जब खाना खाकर लौटे तो बहुत चीख-पुकार मची हुई थी। उन्होंने ज़ोर लगाकर लट्ठे को खोला, और बंदर दीवार पर चढ़ा, उसे फाँदा, और तीन गलियाँ दूर जाकर ही दम लिया।',
       text: 'The carpenters came back from lunch to a great deal of shouting. They levered the log open, and the monkey went up the wall and over it and did not stop until he was three streets away.' },
     { art: ['pt_monkey'], who: 'mithu',
+      hi: 'पुरानी कहानियों में वह लट्ठा फिर कभी नहीं खुलता। पर इस वाली में खुल जाता है, क्योंकि वह तो सिर्फ़ मदद करने की कोशिश कर रहा था — और इसलिए भी कि पूँछ में दर्द और भारी फ़ज़ीहत कराकर उसके बच निकलने के बाद भी कहानी की सीख कायम रहती है।',
       text: 'In the old tellings that log does not open again. This one does, because he was only ever trying to help — and because the point of the story survives him getting away with a sore tail and a great deal of dignity lost.' }
   ],
   moral: 'If you do not know what something is holding up, do not pull it out.',
@@ -934,6 +1215,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pt.singing-donkey',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panch-more',
   badge: 'katha',
   title: 'The Donkey Who Wanted an Audience',
@@ -945,16 +1230,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['गधा', 'gadha', 'donkey'], ['गाना', 'gaana', 'song'], ['खीरा', 'kheera', 'cucumber']],
   scenes: [
     { art: ['pt_bull'], who: null,
+      hi: 'उद्धत नाम का एक धोबी का गधा था, जो दिन भर काम करता था और जिसे खाने को बहुत ही बुरा-भला मिलता था, और इसी हाल के चलते उसकी एक सियार से दोस्ती हो गई थी।',
       text: 'There was a washerman\'s donkey called Uddhata who worked all day and was fed extremely badly, and who had struck up a friendship with a jackal on the strength of it.' },
     { art: ['pt_jackal', 'pt_bull'], who: 'pt_jackal',
+      hi: 'एक रात सियार बोला, "मुझे खीरों का एक खेत पता है। खीरे बिल्कुल तैयार हैं। कोई कुत्ता नहीं है। और बाड़ भी नाम-मात्र की ही है।" और वे दोनों साथ में अँधेरे में निकल पड़े, और गधे ने एक घंटे में इतना खा लिया जितना उसने पिछले पंद्रह दिनों में भी नहीं खाया था।',
       text: '"I know a cucumber field," said the jackal one night. "Full grown. No dog. No fence to speak of." And the two of them went off through the dark together, and the donkey ate more in one hour than he had eaten in the previous fortnight.' },
     { art: ['pt_bull'], who: null,
+      hi: 'वे अगली रात फिर गए, और उसके बाद वाली रात भी। देखा जाए तो वह उस गधे की पूरी ज़िंदगी का सबसे बेहतरीन हफ़्ता था।',
       text: 'They went back the next night, and the night after. It was, by any measure, the best week of that donkey\'s entire life.' },
     { art: ['pt_bull'], who: 'pt_bull', mood: 'wow',
+      hi: 'चौथी रात, जब उसका पेट गले तक भर गया, तो उद्धत ने चबाना बंद किया और चाँद को निहारने लगा। उसने कहा, "भांजे, रात कितनी सुंदर है। मेरा मन कर रहा है कि मैं कोई गाना गाऊँ।"',
       text: 'On the fourth night, full to the eyebrows, Uddhata stopped chewing and gazed at the moon. "Nephew," he said. "The night is beautiful. I feel that I would like to sing."' },
     { art: ['pt_jackal', 'pt_bull'], who: 'pt_jackal', mood: 'wow',
+      hi: '"मामा," सियार ने बहुत संभलकर कहा, "हम खीरे के खेत में चोर हैं। चोर गाना नहीं गाते।" "तुम्हें सुर-ताल की कोई समझ ही नहीं है," गधे ने कहा। "यही तो तुम्हारी मुसीबत है। तुम्हें संगीत की ज़रा भी समझ नहीं है।"',
       text: '"Uncle," said the jackal, very carefully, "we are thieves in a cucumber field. Thieves do not sing." "You have no ear," said the donkey. "That is your trouble. You have no ear at all."' },
     { art: ['pt_bull'], who: null, mood: 'think',
+      hi: 'सियार ने कोई सौ कदम दूर बनी किसान की उस झोपड़ी की तरफ़ देखा, जिसमें रोशनी जल रही थी।',
       text: 'The jackal looked at the farmer\'s hut, which had a light in it, about a hundred paces away.',
       ask: {
         q: 'The donkey is going to sing. The jackal cannot stop him. What is the jackal going to do?',
@@ -964,12 +1255,16 @@ window.IND_STORIES_MORE = [
         wrong: 'The jackal did something more practical. "Do sing," he said. "Only let me get outside the fence first — the sound will carry better."'
       } },
     { art: ['pt_jackal'], who: 'pt_jackal',
+      hi: '"आप बिल्कुल ठीक कह रहे हैं, मामा," सियार ने कहा। "गाइए। बस पहले मुझे ज़रा बाड़ के बाहर हो लेने दीजिए — सुरीली आवाज़ दूर से कहीं बेहतर सुनाई देती है।" और वह बाड़ के छेद से निकलकर दूसरी तरफ़ आराम से लेट गया।',
       text: '"You are quite right, uncle," said the jackal. "Sing. Only let me step outside the fence first — one hears a fine voice much better from a distance." And he went through the gap and lay down comfortably on the far side.' },
     { art: ['pt_bull', 'guard'], who: null, mood: 'wow',
+      hi: 'उद्धत ने फेफड़ों में हवा भरी, सिर पीछे किया, और शुरू हो गया। वह कोई गाना नहीं था। वह तो ऐसी आवाज़ थी जैसे किसी फाटक की जान ली जा रही हो। तीन घरों में बत्तियाँ जल उठीं। किसान झोपड़ी से सरपट दौड़ता हुआ बाहर निकला।',
       text: 'Uddhata filled his lungs, put his head back, and let go. It was not a song. It was the sound a gate makes when it is being murdered. Lights came on in three houses. The farmer came out of the hut at a dead run.' },
     { art: ['guard', 'pt_bull'], who: null,
+      hi: 'उस रात गधा बहुत धीरे-धीरे घर लौटा, और उसे सियार से हमदर्दी का एक बोल तक नहीं मिला, जो पंजों पर ठुड्डी टिकाए गड्ढे से यह सारा तमाशा देख रहा था।',
       text: 'The donkey walked home very slowly that night, and got not one word of sympathy from the jackal, who had watched the whole thing from the ditch with his chin on his paws.' },
     { art: ['pt_jackal'], who: 'mithu',
+      hi: 'खीरे तो कभी कोई मसला थे ही नहीं। यह बड़ी हैरानी की बात है कि इंसान अक्सर जुर्म की वजह से नहीं पकड़ा जाता — बल्कि इस चाहत की वजह से पकड़ा जाता है कि कोई उसे करते हुए देखे।',
       text: 'The cucumbers were never the problem. It is astonishing how often the thing that catches you is not the crime — it is wanting somebody to notice you doing it.' }
   ],
   moral: 'Know when you are having a wonderful time quietly, and do not go looking for applause.',
@@ -979,6 +1274,10 @@ window.IND_STORIES_MORE = [
 /* ============================================================ PURANIC ====== */
 {
   id: 'pu.samudra-manthan',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'purana',
   badge: 'katha',
   title: 'The Day They Churned the Sea',
@@ -990,14 +1289,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['समुद्र', 'samudra', 'ocean'], ['अमृत', 'amrit', 'nectar'], ['नीला', 'neela', 'blue']],
   scenes: [
     { art: ['shiva'], who: null,
+      hi: 'यह सबसे बड़ी कहानियों में से एक है, और इसकी शुरुआत एक बहुत छोटी सी बात से होती है: देवताओं की सारी शक्ति चली गई थी, और उन्हें जो कुछ भी कभी मिला था, वह सब समुद्र में समा चुका था, और कोई भी उसे वापस बाहर नहीं निकाल पा रहा था।',
       text: 'This is one of the biggest stories there is, and it starts with something quite small: the devas had lost their strength, and everything they had ever been given had gone into the sea, and nobody could get it back out.' },
     { art: ['shiva'], who: null, mood: 'think',
+      hi: 'जब इसका उपाय मिला, तो वह बड़ा अनोखा था। समुद्र को मथो। दही की कोई मटकी नहीं — पूरा समुद्र। पूरे समुद्र को वैसे ही मथ डालो जैसे दूध को मथकर मक्खन निकाला जाता है, और जो कुछ भी खोया था, वह सब ऊपर आ जाएगा।',
       text: 'The answer, when it came, was extraordinary. Churn the ocean. Not a pot of curd — the ocean. Turn the whole sea over the way you turn milk into butter, and everything that was lost will come up.' },
     { art: ['shiva', 'pt_tortoise'], who: null,
+      hi: 'उन्होंने मथानी के लिए मंदार पर्वत को लिया और रस्सी के लिए विशाल नाग वासुकि को, जिन्हें पर्वत के बीच में लपेटा गया। और चूँकि कोई एक पक्ष इसे अकेले नहीं कर सकता था, इसलिए देवताओं ने पूँछ पकड़ी और असुरों ने सिर, और बस इस एक काम के लिए दोनों ने मिलकर ज़ोर लगाया।',
       text: 'They took Mount Mandara for the churning stick and the great serpent Vasuki for the rope, wound round the middle. And because one side could not do it alone, the devas took the tail and the asuras took the head, and for the length of this one job the two of them pulled together.' },
     { art: ['pt_tortoise'], who: null, mood: 'wow',
+      hi: 'पर्वत लगभग तुरंत ही समुद्र के तल में धँसने लगा। तब भगवान विष्णु विशाल और धैर्यवान कछुए, यानी कूर्म के रूप में आए, और अपनी पीठ उसके नीचे लगा दी — और समुद्र के बीचों-बीच कछुए की पीठ पर घूमते पहाड़ के साथ मंथन चलता रहा।',
       text: 'The mountain began to sink into the seabed almost at once. So Vishnu came as Kurma the tortoise, enormous and patient, and put his back under it — and the churning went on with a mountain spinning on the shell of a turtle in the middle of the sea.' },
     { art: ['shiva'], who: null, mood: 'sad',
+      hi: 'और जो पहली चीज़ बाहर निकली, वह कोई खज़ाना नहीं थी। वह था हलाहल — एक विष, जो फैलते हुए अंधेरे की तरह पानी से बाहर आ रहा था, और तीनों लोकों में ऐसी कोई जगह नहीं थी जहाँ पहुँचकर वह अपनी छुअन से सब कुछ तबाह न कर देता।',
       text: 'And the first thing that came up was not treasure. It was halahala — a poison, coming out of the water as a spreading dark, and there was nowhere in the three worlds it could go where it would not ruin everything it touched.',
       ask: {
         q: 'The poison is out and rising. Everyone is pulling on a rope. Somebody has to do something about it. Who, and what?',
@@ -1007,12 +1311,16 @@ window.IND_STORIES_MORE = [
         wrong: 'What happened was harder than that. Shiva drank it, and held it in his throat, and would not let it go anywhere.'
       } },
     { art: ['shiva'], who: null, mood: 'wow',
+      hi: 'भगवान शिव ने हलाहल लिया और उसे पी लिया। और माता पार्वती ने उनके गले पर हाथ रखकर विष को वहीं थाम लिया, ताकि वह नीचे न उतर सके — और वह विष उनके कंठ में ही ठहर गया, और उनका कंठ गहरा नीला पड़ गया, और इसीलिए उन्हें नीलकंठ, यानी नीले कंठ वाले कहा जाता है।',
       text: 'Shiva took the halahala and drank it. And Parvati put her hand at his throat and held it there, so that it went no further down — and it stayed in his throat, and his throat turned dark blue, and that is why he is called Nilakantha, the blue-throated one.' },
     { art: ['lakshmi'], who: null,
+      hi: 'फिर मंथन चलता रहा। और समुद्र में से एक के बाद एक अनोखे चमत्कार बाहर आए: हर इच्छा पूरी करने वाली गाय, चंद्रमा, देवताओं के वैद्य, कल्पवृक्ष — और कमल पर खड़ी, पानी से ऊपर आतीं स्वयं लक्ष्मी।',
       text: 'Then the churning went on. And the sea gave up wonder after wonder: the wish-granting cow, the moon, the divine physician, the celestial tree — and Lakshmi herself, standing on a lotus, come up out of the water.' },
     { art: ['lakshmi', 'shiva'], who: null, mood: 'wow',
+      hi: 'और सबसे अंत में, एक कलश में आया अमृत — वह रस जो मौत को मिटा देता है। और यहीं पर रस्सी थामे दोनों पक्षों ने मिलकर खींचना बंद कर दिया, और इसके आगे की कहानी सौ अलग-अलग जगहों पर सौ तरह से सुनाई जाती है।',
       text: 'And last of all, carried up in a pot, came amrita — the nectar that ends death. Which is where the two sides on the rope stopped pulling together, and the rest of that story is told a hundred different ways in a hundred different places.' },
     { art: ['shiva'], who: 'mithu',
+      hi: 'परिवार जिस बात पर लौटकर आते हैं, वह अमृत नहीं है। वह तो वह गला है। किसी न किसी को तो ज़हर पीना पड़ता है, उसे वहीं थामे रखना होता है, और किसी और तक पहुँचने नहीं देना होता।',
       text: 'The bit families come back to is not the nectar. It is the throat. Somebody has to take the poison, and hold it, and not pass it on to anybody else.' }
   ],
   moral: 'Everything worth having takes both sides of the rope — and someone willing to hold the poison.',
@@ -1021,6 +1329,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pu.ganga-shiva',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'purana',
   badge: 'katha',
   title: 'Catching a River in Your Hair',
@@ -1032,12 +1344,16 @@ window.IND_STORIES_MORE = [
   words_hi: [['गंगा', 'Ganga', 'the Ganga'], ['जटा', 'jataa', 'matted hair'], ['पहाड़', 'pahaad', 'mountain']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'भगीरथ नाम के एक राजकुमार की बस एक ही इच्छा थी, और वह कोई राजपाट नहीं था। उनके पूर्वजों का — कहानी कहती है कि वे साठ हज़ार थे, और कहानियों को ऐसी बातें कहने की छूट होती है — बहुत पहले एक बुरा अंत हुआ था, और उनकी राख को कभी जल नहीं मिला था। किसी और चीज़ से बात नहीं बनती। सिर्फ़ गंगा से, और गंगा तो स्वर्ग में थीं।',
       text: 'A prince called Bhagiratha had one thing he wanted, and it was not a kingdom. His ancestors — sixty thousand of them, the story says, and stories are allowed to say things like that — had come to a bad end long ago, and their ashes had never been given water. Nothing else would do it. Only the Ganga, and the Ganga was in heaven.' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'इसलिए वे पहाड़ों में ऊपर चले गए और वहीं खड़े रहे। एक हफ़्ते के लिए नहीं। किसी एक मौसम के लिए नहीं। सालों-साल, उस कड़ाके की ठंड और पतली हवा में, बस एक ही बात माँगते रहे, जब तक कि उस पुकार ने दुनिया पर अपनी गहरी छाप न छोड़ दी।',
       text: 'So he went up into the mountains and stood there. Not for a week. Not for a season. For years, in the cold and the thin air, asking for one thing, until the asking wore a groove in the world.' },
     { art: ['courtier'], who: 'courtier',
+      hi: '"नदी को नीचे आने दीजिए," उन्होंने कहा। और आखिरकार उनसे कहा गया: वह आ तो जाएगी। लेकिन ज़रा देखो कि तुम माँग क्या रहे हो। वह आसमान से गिरेगी। जब वह नीचे उतरेगी, तो धरती को चीरकर बहा ले जाएगी, और फिर जल देने के लिए कुछ बचेगा ही नहीं।',
       text: '"Let the river come down," he said. And at last he was told: it will come. But look at what you are asking for. She falls from the sky. When she lands, she will split the earth open and carry it away, and there will not be anything left to water.' },
     { art: ['shiva', 'courtier'], who: null, mood: 'think',
+      hi: 'और इसलिए भगीरथ फिर से निश्चल खड़े हो गए, और इस बार उन्होंने शिवजी से विनती की।',
       text: 'And so Bhagiratha went back to standing still, and this time he asked Shiva.',
       ask: {
         q: 'A river the size of the sky is about to fall on the earth. How do you land it gently?',
@@ -1047,12 +1363,16 @@ window.IND_STORIES_MORE = [
         wrong: 'The answer was stranger. Shiva stood in her way and took the whole fall on his head.'
       } },
     { art: ['shiva'], who: null, mood: 'wow',
+      hi: 'शिवजी आए और पहाड़ पर खड़े होकर बस अपना सिर आगे कर दिया। और गंगा गिरीं — अपने पूरे गरजते हुए भार के साथ — और उनकी जटाओं के घेरे में समाकर गायब हो गईं।',
       text: 'Shiva came and stood on the mountain and simply put his head in the way. And the Ganga fell — the whole roaring weight of her — and went into the coils of his matted hair, and disappeared.' },
     { art: ['shiva'], who: null,
+      hi: 'वे काफी देर तक अंदर ही बाहर निकलने का रास्ता खोजती रहीं। जब वे बाहर आईं, तो एक ऐसी धारा बनकर आईं जिसके किनारे आप खड़े हो सकें: ठंडी, साफ़ और तेज़, चट्टानों से नीचे मैदानों की ओर बहती हुई, ठीक उसी रास्ते पर जहाँ आगे-आगे भगीरथ चल रहे थे।',
       text: 'She was in there a long time, looking for the way out. When she came, she came as a stream you could stand beside: cold and clear and quick, running down the rock and out onto the plain, going where Bhagiratha walked in front of her.' },
     { art: ['courtier', 'shiva'], who: null,
+      hi: 'वे पूरे रास्ते आगे चलते गए। पहाड़ों से निकलकर, मैदानों को पार करते हुए, पूरे देश से होकर समुद्र तक, और नदी पूरे रास्ते उनके पीछे-पीछे चलती रही — और जहाँ-जहाँ वे चले, आज भी गंगा वहीं बहती है।',
       text: 'He walked all the way down. Out of the mountains, across the plain, down through the whole length of the country to the sea, with a river following him the entire way — and where he walked is where the Ganga still runs.' },
     { art: ['shiva'], who: 'mithu',
+      hi: 'इसीलिए गंगा को उनके नाम पर भागीरथी भी कहा जाता है। और इसीलिए हिंदी में, जब कोई बहुत बड़ा, धैर्य से भरा और लगभग नामुमकिन काम हाथ में लेता है, तो लोग आज भी उसे भगीरथ प्रयास कहते हैं — भगीरथ जैसी बड़ी कोशिश।',
       text: 'This is why Ganga is also called Bhagirathi, after him. And why in Hindi, when somebody takes on an enormous, patient, near-impossible task, people still call it a bhagirath prayatna — a Bhagiratha-sized effort.' }
   ],
   moral: 'Enormous things arrive safely only when somebody is willing to take the first shock of them.',
@@ -1061,6 +1381,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pu.durga-mahisha',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'purana',
   badge: 'katha',
   title: 'The One They All Made Together',
@@ -1072,10 +1396,13 @@ window.IND_STORIES_MORE = [
   words_hi: [['देवी', 'devi', 'goddess'], ['शेर', 'sher', 'lion'], ['साहस', 'saahas', 'courage']],
   scenes: [
     { art: ['shiva'], who: null,
+      hi: 'महिषासुर को एक वरदान मिला था, और उस वरदान के शब्द बड़े सोच-समझकर चुने गए थे, जैसे ऐसे वरदानों के हमेशा होते हैं: कोई भी पुरुष या कोई भी देवता उसे हरा नहीं सकेगा। उसने अच्छी तरह जाँच-परख लिया था। उसने हर तरफ से सोच-विचार कर लिया था। जहाँ तक उसे दिखाई दे रहा था, उसकी चिंता का तो अब नामो-निशान नहीं बचा था।',
       text: 'Mahishasura had been given a promise, and the promise was carefully worded the way these promises always are: no man and no god would be able to defeat him. He had checked. He had thought about it from every angle. He was, as far as he could see, finished with worrying.' },
     { art: ['shiva'], who: null, mood: 'sad',
+      hi: 'तो उसने सब कुछ छीन लिया, और कोई कुछ नहीं कर सका, और देवता बिना स्वर्ग के और बिना किसी उपाय के यूँ ही पहाड़ियों में खड़े रह गए।',
       text: 'So he took everything, and there was nothing anybody could do about it, and the devas found themselves standing about in the hills with no heaven and no idea.' },
     { art: ['shiva'], who: null, mood: 'think',
+      hi: 'वे सब साथ बैठे और शब्दों को फिर से एक-एक करके परखा, ठीक वैसे ही जैसे किसी बिगड़े हुए वादे के साथ किया जाता है।',
       text: 'They sat down together and worked through the wording again, word by word, the way you do with a promise that has gone wrong.',
       ask: {
         q: 'No man and no god can defeat him. Read that again carefully. What did he forget?',
@@ -1085,16 +1412,22 @@ window.IND_STORIES_MORE = [
         wrong: 'Look at the wording again. No man. No god. He had never once thought about a woman.'
       } },
     { art: ['shiva', 'durga'], who: null, mood: 'wow',
+      hi: 'और फिर उन्होंने कुछ ऐसा किया जो उनमें से किसी ने कभी नहीं किया था। हर एक ने अपनी सबसे शक्तिशाली चीज़ दे दी। शिव ने अपना तेज दिया। विष्णु ने अपना। हर देवता ने अपनी शक्ति उसी एक जगह अर्पित कर दी, और वह पहाड़ी पर आग की तरह धधक उठी और बुझी नहीं।',
       text: 'And then they did something none of them had ever done. Each one gave away the strongest thing they had. Shiva gave his light. Vishnu gave his. Every deva put their own power into the same place, and it went up like a fire on a hilltop and did not go out.' },
     { art: ['durga'], who: null, mood: 'wow',
+      hi: 'और उस आग में से एक स्त्री निकलीं, जिनकी बहुत सारी भुजाएँ थीं, और हर हाथ में उसी देवता का अस्त्र था जिसने उसे दिया था। पेड़ों के बीच से एक शेर चलकर आया और उनके पास खड़ा हो गया, और वे उस पर सवार हो गईं। किसी ने उसे आने के लिए नहीं कहा था। वह बस आ गया।',
       text: 'And out of that fire came a woman, with a great many arms, and in each hand was the weapon of whichever god had given it. A lion walked up out of the trees and stood beside her, and she got on. Nobody told him to come. He simply came.' },
     { art: ['durga', 'pt_lion'], who: 'durga',
+      hi: '"आप सबने मुझे अपना सब कुछ दे दिया है," उन्होंने सबकी तरफ देखते हुए कहा। "अच्छा है। अब पीछे हट जाइए — यह काम मेरा है।"',
       text: '"You have all given me everything you have," she said, looking round at them. "Good. Now stand back — this part is mine."' },
     { art: ['durga', 'pt_lion'], who: null, mood: 'wow',
+      hi: 'उस युद्ध के मैदान में जो हुआ उसे सुनाने में नौ रातें लगती हैं, और लोग इसे सुनाने में सचमुच उतना ही समय लेते हैं। महिषासुर उनसे बचने के लिए बार-बार अपना रूप बदलता रहा — और दसवें दिन सब समाप्त हो गया, और दुनिया वापस लौटा दी गई।',
       text: 'What happened on that battlefield takes nine nights in the telling, which is exactly how long people take over it. Mahishasura changed his shape again and again to get away from her — and on the tenth day it was finished, and the world was handed back.' },
     { art: ['durga'], who: null,
+      hi: 'इसीलिए यह त्योहार नौ रातों तक चलता है और दसवें दिन ख़त्म होता है। बंगाल में वे माँ दुर्गा हैं, जो चार दिनों के लिए अपने मायके आती हैं, और उनके लिए पूरा शहर एक बड़ी प्रदर्शनी जैसा सज जाता है। मैसूरु में राजमहल रोशनी से जगमगा उठता है और चामुंडेश्वरी माता की सवारी सड़कों पर निकलती है। गुजरात में हर कोई नौ रातों तक नाचता है। कई परिवारों में यह फिर कुछ अलग ही तरह से मनाया जाता है।',
       text: 'That is why the festival runs nine nights and finishes on the tenth. In Bengal she is Ma Durga coming home to her parents for four days, and the whole city is built into a gallery for her. In Mysuru the palace is lit up and Chamundeshwari goes through the streets. In Gujarat everybody dances for nine nights. In many families it looks different again.' },
     { art: ['durga', 'shiva'], who: 'mithu',
+      hi: 'घर पर पूछो कि तुम्हारा परिवार इन नौ रातों में क्या करता है। जवाब जो भी हो, वही सही होगा — इसे मनाने का कोई एक ही तरीक़ा नहीं है।',
       text: 'Ask at home what your family does in those nine nights. Whatever the answer is, it will be the right one — there is no single way this is done.' }
   ],
   moral: 'Sometimes the answer is not one more hero. It is everybody handing over their best thing at once.',
@@ -1103,6 +1436,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pu.narasimha-prahlad',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'purana',
   badge: 'katha',
   title: 'The Boy Who Would Not Stop Saying the Name',
@@ -1114,16 +1451,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['खंभा', 'khambha', 'pillar'], ['भक्ति', 'bhakti', 'devotion'], ['नाम', 'naam', 'name']],
   scenes: [
     { art: ['guard'], who: null,
+      hi: 'हिरण्यकशिपु को भी एक वरदान मिला था, और उसका वरदान तो सबसे सोच-समझकर माँगा गया था: उसे न कोई इंसान मार सके न जानवर, न घर के अंदर न बाहर, न दिन में न रात में, न ज़मीन पर न हवा में, और न ही किसी भी हथियार से। उसने इस बारे में बहुत लंबे समय तक सोचा था।',
       text: 'Hiranyakashipu had a promise too, and his was the most carefully written of all of them: he could not be killed by man or animal, indoors or outdoors, by day or by night, on the ground or in the air, by any weapon at all. He had thought about it for a very long time.' },
     { art: ['guard', 'courtier'], who: null,
+      hi: 'और वरदान हाथ में आते ही उसने सब कुछ अपने कब्ज़े में ले लिया, और एक नियम बना दिया: उसके राज्य में कोई भी विष्णु का नाम नहीं लेगा। न किसी मंदिर में, न किसी घर में, और न ही दबी ज़बान से। हर जगह बस उसी का नाम लिया जाना था।',
       text: 'And with the promise in hand he took everything, and made one rule: nobody in his kingdom was to speak the name of Vishnu. Not in a temple, not in a house, not under their breath. His own name was to be said instead.' },
     { art: ['courtier'], who: 'courtier',
+      hi: 'उसका बेटा प्रह्लाद एक छोटा सा बालक था, जिसे विष्णु का नाम वैसे ही पसंद था जैसे कोई ऐसी धुन जो दिमाग़ से निकलती ही न हो। वह खाते-खाते भी वही नाम लेता था। वह नींद में भी वही बोलता था। उसने पाठशाला में बाकी बच्चों को भी यही सिखा दिया, और यह देखकर गुरुओं के चेहरे पीले पड़ गए।',
       text: 'His son Prahlad was a small boy who liked the name of Vishnu the way you like a song you cannot get out of your head. He said it while he ate. He said it in his sleep. He taught it to the other children in the schoolroom, and the teachers went pale.' },
     { art: ['guard', 'courtier'], who: 'guard', mood: 'wow',
+      hi: '"तुम मेरे बेटे हो," हिरण्यकशिपु ने कहा। "मेरा नाम लो।" "मैं आपसे बहुत प्यार करता हूँ," प्रह्लाद ने कहा, "और आप जो भी कहेंगे, मैं करूँगा। लेकिन वह नाम ऐसी चीज़ नहीं है जिसे मैं छोड़ सकूँ। वह मेरे हाथ में नहीं है। वह तो मेरे भीतर है।"',
       text: '"You are my son," said Hiranyakashipu. "Say my name." "I love you," said Prahlad, "and I will do anything you ask me. But that name is not something I can put down. It is not in my hand. It is in me."' },
     { art: ['courtier'], who: null, mood: 'sad',
+      hi: 'उसके पिता ने वह सब कुछ करके देखा जो एक डरा हुआ राजा करता है। उन्होंने बालक को दूर भिजवा दिया, डराया-धमकाया और अकेला छोड़ दिया। इनमें से कुछ भी काम नहीं आया, और इनमें से कोई भी बात कहानी का कोई अच्छा हिस्सा नहीं है, और प्रह्लाद हर एक मुसीबत से वही नाम लेते हुए बाहर आ गया।',
       text: 'His father tried everything a frightened king tries. He had the boy taken away and frightened and left alone. None of it worked, and none of it is a nice part of the story, and Prahlad came back from every single one of it still saying the name.' },
     { art: ['guard', 'courtier'], who: 'guard', mood: 'wow',
+      hi: 'आख़िरकार, उस बड़े दरबार में, हिरण्यकशिपु का गुस्सा पूरी तरह फूट पड़ा। "तो फिर कहाँ है वो? तुम्हारा यह विष्णु! क्या वह इस दरबार में है? क्या वह उस खंभे में है?"',
       text: 'At last, in the great hall, Hiranyakashipu lost his temper completely. "WHERE IS HE THEN? This Vishnu of yours! Is he in this hall? Is he in that pillar?"',
       ask: {
         q: 'His father is pointing at a stone pillar and shouting. What does a small boy say?',
@@ -1133,14 +1476,19 @@ window.IND_STORIES_MORE = [
         wrong: 'Prahlad said the braver thing. "He is in the pillar. He is in you. He is in everything — that is rather the point."'
       } },
     { art: ['courtier'], who: 'courtier',
+      hi: '"वे खंभे में हैं," प्रह्लाद ने कहा। "और उस दरवाज़े में, और फ़र्श में, और आप में भी। ऐसी कोई जगह नहीं जहाँ वे न हों। मुझे माफ़ कर दीजिए, पिताजी। मैं ज़िद नहीं कर रहा हूँ।"',
       text: '"He is in the pillar," said Prahlad. "And in that door, and in the floor, and in you. There is nowhere he is not. I am sorry, Father. I am not being difficult."' },
     { art: ['pt_lion', 'guard'], who: null, mood: 'wow',
+      hi: 'हिरण्यकशिपु ने अपनी पूरी ताक़त से खंभे पर वार किया। और खंभा टूटकर फट गया — और उसमें से नरसिंह बाहर निकले: न तो मनुष्य और न ही सिंह, बल्कि दोनों एक साथ, जो उस सूची में नहीं था।',
       text: 'Hiranyakashipu struck the pillar with everything he had. And the pillar broke open — and out of it came Narasimha: not a man and not a lion but both at once, which was not on the list.' },
     { art: ['pt_lion'], who: null,
+      hi: 'वह शाम का समय था, जो न दिन होता है न रात। वे राजा को दरवाज़े की चौखट पर ले गए, जो न अंदर है न बाहर, और उसे अपनी जांघों पर रख लिया, जो न ज़मीन है न हवा, और किसी भी हथियार का इस्तेमाल नहीं किया। उस वादे का एक-एक शब्द निभाया गया, और फिर भी वह उसे बचा न सका।',
       text: 'It was dusk, which is neither day nor night. He carried the king to the threshold of the door, which is neither indoors nor out, and set him across his knees, which is neither ground nor air, and used no weapon at all. Every single word of that promise was kept, and it did not save him.' },
     { art: ['pt_lion', 'courtier'], who: null, mood: 'wow',
+      hi: 'और फिर वह भयानक रूप दरबार में खड़ा रहा, सब ज़मीन पर थर-थर काँपते पड़े थे और किसी की साँस लेने की भी हिम्मत नहीं थी — जब तक कि एक छोटा बालक सीधे उनके पास चलकर नहीं गया, हाथ जोड़े, और प्रणाम किया। और नरसिंह शांत हो गए, नीचे बैठ गए, और बालक को अपनी गोद में बिठा लिया।',
       text: 'And then the terrible form stood in the hall with everyone flat on the floor and nobody daring to breathe — until one small boy walked straight up to it, put his hands together, and said hello. And Narasimha grew quiet, and sat down, and put the boy on his knee.' },
     { art: ['courtier'], who: 'mithu',
+      hi: 'बाद में प्रह्लाद राजा बने, और वे बहुत अच्छे राजा थे, और उन्होंने कभी किसी से अपने पिता के ख़िलाफ़ एक शब्द भी नहीं कहा। आंध्र प्रदेश का अहोबिलम उन जगहों में से एक है जहाँ यह बात सबसे ज़्यादा सुनाई जाती है।',
       text: 'Prahlad became king afterwards, and he was a good one, and he never said a word against his father to anybody. Ahobilam in Andhra Pradesh is one of the places this is told about most.' }
   ],
   moral: 'Loopholes are only ever as clever as the person who wrote them. Love is not a loophole.',
@@ -1149,6 +1497,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pu.dhruva-star',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'purana',
   badge: 'katha',
   title: 'The Boy Who Became a Star',
@@ -1160,12 +1512,16 @@ window.IND_STORIES_MORE = [
   words_hi: [['तारा', 'taara', 'star'], ['बालक', 'baalak', 'child'], ['जंगल', 'jangal', 'forest']],
   scenes: [
     { art: ['courtier', 'guard'], who: null,
+      hi: 'राजा उत्तानपाद की दो पत्नियाँ और दो छोटे बेटे थे, और वे एक परिवार को दूसरे से ज़्यादा आसानी से प्यार करते थे, जो एक ऐसी बात है जो परिवारों में हो जाती है और जिसका दर्द कभी ख़त्म नहीं होता।',
       text: 'King Uttanapada had two wives and two small sons, and he loved one household more easily than the other, which is a thing that happens in families and never stops hurting.' },
     { art: ['guard', 'courtier'], who: 'guard', mood: 'sad',
+      hi: 'ध्रुव पाँच साल का था। एक दोपहर वह अपने पिता की गोद में वैसे ही चढ़ गया जैसे कोई भी पाँच साल का बच्चा चढ़ता है, और उसे तुरंत वहाँ से नीचे उतार दिया गया। पूरे कमरे के सामने उससे कहा गया, "वह जगह तुम्हारे लिए नहीं है।"',
       text: 'Dhruva was five. He climbed onto his father\'s lap one afternoon the way any five-year-old does, and was lifted straight off it again. "That place is not for you," he was told, in front of the whole room.' },
     { art: ['courtier'], who: 'courtier', mood: 'sad',
+      hi: 'वह अपनी माँ सुनीति के पास गया और काँपती ठुड्डी के साथ उनके सामने खड़ा हो गया। उसने पूछा, "क्या कोई ऐसी जगह है जहाँ से मुझे कोई नहीं उतार सकता?"',
       text: 'He went and found his mother, Suniti, and stood in front of her with his chin going. "Is there anywhere," he said, "where nobody can take me off?"' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'वे उससे कह सकती थीं कि इससे कोई फ़र्क़ नहीं पड़ता। वे उससे धीरज रखने को कह सकती थीं। लेकिन इसके बजाय उन्होंने इस बारे में गंभीरता से सोचा, क्योंकि उसने उनसे पूरी गंभीरता से पूछा था।',
       text: 'She could have told him it did not matter. She could have told him to be patient. Instead she thought about it seriously, because he had asked her seriously.',
       ask: {
         q: 'A five-year-old has asked his mother for a place nobody can take him from. What does she tell him?',
@@ -1175,16 +1531,22 @@ window.IND_STORIES_MORE = [
         wrong: 'She did not comfort him. She told him where to go and ask — and he went, that afternoon, on his own two feet.'
       } },
     { art: ['courtier'], who: 'courtier',
+      hi: '"एक गोद ऐसी है जिससे कोई किसी को नहीं उतारता," उन्होंने कहा। "जाओ और वही माँगो।" और ध्रुव ने, पाँच साल का होने के नाते, उनकी बात को बिल्कुल सच मान लिया, वह महल से निकलकर जंगल में चला गया, और माँगने लगा।',
       text: '"There is one lap nobody takes anybody off," she said. "Go and ask for that one." And Dhruva, being five, took her completely literally, walked out of the palace and into the forest, and started asking.' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'उस जंगल के ऋषियों को पेड़ों के बीच खड़ा एक छोटा सा लड़का मिला, जो आसमान से कोई सवाल पूछ रहा था। उन्होंने उसे घर वापस भेजने की बहुत कोशिश की, पर वह जाने को तैयार ही नहीं हुआ। तो आखिरकार उन्होंने उसे अच्छी तरह से सिखाया, जपने के लिए एक नाम बताया, और फिर उसे वहीं छोड़ दिया।',
       text: 'The sages of that forest found a small boy standing among the trees asking the sky a question, and they tried very hard to send him home, and he would not go. So in the end they taught him properly, and they taught him a name to say, and left him to it.' },
     { art: ['krishna', 'courtier'], who: null, mood: 'wow',
+      hi: 'वह वहीं खड़ा रहा। कहानी कहती है, महीनों तक। और जब आखिरकार विष्णु जी आए और उसके सामने खड़े हुए, तो ध्रुव ने सिर उठाकर देखा और पाया कि वह हर उस बात को भूल चुका था, जिसकी शिकायत करने वह आया था।',
       text: 'He stood there. Months, the story says. And when Vishnu came at last and stood in front of him, Dhruva looked up and found that he had forgotten every single thing he had come to complain about.' },
     { art: ['krishna', 'courtier'], who: 'courtier',
+      hi: '"मैं यहाँ गुस्से में आया था," उसने कहा, "और मुझे नहीं पता कि वह गुस्सा कहाँ चला गया। अब मुझे कोई गोद नहीं चाहिए। मैं तो बस ठीक से आपका नाम ले पाना चाहता हूँ।"',
       text: '"I came here because I was angry," he said, "and I do not know where the anger has gone. I do not want a lap any more. I would just like to be able to say your name properly."' },
     { art: ['courtier'], who: null,
+      hi: 'वह घर लौट आया। वह लंबे समय तक एक अच्छा राजा रहा। और जब सब पूरा हो गया, तो कहते हैं कि उसे उत्तर के आसमान में उस एक जगह पर स्थापित कर दिया गया जो कभी नहीं हिलती — वह तारा जिसके चारों ओर बाकी सब घूमते हैं, जिसे देखकर नाविक और मुसाफ़िर अपनी दिशा तय करते हैं। भारत में इसे ध्रुव तारा कहते हैं।',
       text: 'He went home. He was a good king for a long time. And when it was finished, they say he was set in the northern sky at the one point that does not move — the star everything else turns around, the one sailors and travellers steer by. In India it is called Dhruva Tara.' },
     { art: ['courtier'], who: 'mithu',
+      hi: 'किसी साफ़ रात में बाहर निकलो और ध्रुव तारे को ढूँढ़ो। वह वही पाँच साल का बच्चा है जिसे गोद से उतर जाने को कहा गया था, और वह जाकर ऐसी जगह बैठ गया जहाँ से उसे कोई हटा ही नहीं सकता।',
       text: 'Go out on a clear night and find the Pole Star. That is a five-year-old who was told to get off a lap, and went and found somewhere nobody could move him from.' }
   ],
   moral: 'Set off after the thing you were denied, and you may come back having stopped wanting it.',
@@ -1193,6 +1555,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pu.krishna-kaliya',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'purana',
   badge: 'katha',
   title: 'The Boy Who Danced on the Snake',
@@ -1204,12 +1570,16 @@ window.IND_STORIES_MORE = [
   words_hi: [['साँप', 'saanp', 'snake'], ['यमुना', 'Yamuna', 'the Yamuna'], ['नाच', 'naach', 'dance']],
   scenes: [
     { art: ['krishna'], who: null,
+      hi: 'वृंदावन में यमुना का एक ऐसा मोड़ था जहाँ पानी काला पड़ चुका था और किनारे के पेड़ सूख गए थे, गायें वहाँ पानी नहीं पीती थीं, और ग्वाल-बालों को हर सुबह समझाया जाता था कि उसके पास भी मत फटकना।',
       text: 'There was a bend in the Yamuna at Vrindavan where the water had gone black and the trees on the bank had died, and the cows would not drink there, and the cowherd boys were told every single morning not to go anywhere near it.' },
     { art: ['pt_crocodile'], who: null, mood: 'sad',
+      hi: 'उस कुंड में कालिया रहता था। वह कई सारे फनों वाला एक नाग था और उसका गुस्सा भी उतना ही तेज़ था। वह अपने से भी बड़े किसी जीव से बचकर भागता हुआ वहाँ आया था, फिर वहीं बस गया, और बिना किसी खास इरादे के उसने नदी के उस पूरे मोड़ को ज़हरीला बना दिया था।',
       text: 'Kaliya lived in that pool. He was a serpent with a great many heads and a temper to match, and he had come there running from something bigger than himself, and had stayed, and had poisoned the whole bend of the river without particularly meaning to.' },
     { art: ['krishna'], who: null,
+      hi: 'एक दोपहर लड़के किनारे पर गेंद खेल रहे थे, और किसी ने उसे ऐसे उछाला कि वह काले पानी के ऊपर जाकर नीचे समा गई। और कृष्ण, जो कहानी के इस मोड़ पर बस एक बालक थे और बच्चों जैसा ही बर्ताव करते थे, सीधे किनारे पर लगे कदंब के पेड़ पर चढ़ गए।',
       text: 'One afternoon the boys were playing ball on the bank, and somebody threw it badly, and it went out over the black water and down. And Krishna, who was a boy at this point in the story and behaved like one, went straight up a kadamba tree on the bank.' },
     { art: ['krishna'], who: null, mood: 'think',
+      hi: 'बाकी लड़के घास पर से ही उन्हें पुकारने लगे। उन्होंने नीचे पानी की तरफ देखा, फिर सूखे पेड़ों को देखा, और फिर किनारे पर बसे उस पूरे गाँव को देखा, जिसकी नदी छिन चुकी थी।',
       text: 'The other boys shouted at him from the grass. He looked down at the water, and then at the dead trees, and then along the bank at the whole village that had lost a river.',
       ask: {
         q: 'He could climb down and go home and everyone would forget about the ball. What does he do?',
@@ -1219,16 +1589,22 @@ window.IND_STORIES_MORE = [
         wrong: 'He jumped. Not really for the ball, and everybody in Vrindavan knew it.'
       } },
     { art: ['krishna', 'pt_crocodile'], who: null, mood: 'wow',
+      hi: 'वे कूद पड़े। पानी ने उन्हें ढक लिया और बाकी लड़के चीखते-चिल्लाते गाँव की ओर दौड़े, और जब तक पूरा वृंदावन किनारे पहुँचा, तब तक पानी की सतह चूल्हे पर रखी हांडी की तरह खौल रही थी और वहाँ किसी का कोई नामो-निशान न था।',
       text: 'He jumped. The water closed over him and the boys ran for the village screaming, and by the time the whole of Vrindavan was on the bank the surface was churning like a pot on a fire and there was no sign of anybody.' },
     { art: ['pt_crocodile', 'krishna'], who: null,
+      hi: 'पहले कालिया अपने सारे फनों के साथ ऊपर आया, और उसकी कुंडलियों में वह बालक जकड़ा हुआ था। और फिर कुछ ऐसा हुआ जिसे लोग तब से लेकर आज तक चित्रों में उकेरते आए हैं: कृष्ण एकदम हल्के होकर कुंडलियों से बाहर निकल आए, उस विशाल नाग के फनों पर कदम रखा — और नाचने लगे।',
       text: 'Kaliya came up first, with all his heads, and the boy wrapped in the coils. And then something happened that people have been painting ever since: Krishna came up out of the coils, light as anything, and stepped onto the great serpent\'s heads — and began to dance.' },
     { art: ['krishna', 'pt_crocodile'], who: null, mood: 'wow',
+      hi: 'वे एक फन से दूसरे फन पर थिरकते रहे, और जैसे ही कोई फन ऊपर उठता, वे पहले से उस पर मौजूद होते और वह फिर नीचे दब जाता। नदी में झाग ही झाग होकर पानी सफ़ेद हो गया और पूरा गाँव उथले पानी में खड़ा होकर देखता रहा।',
       text: 'He danced across them one to the next, and every time a head came up he was already on it and it went down again, and the river went white and the whole village stood in the shallows and watched.' },
     { art: ['pt_crocodile'], who: 'pt_crocodile', mood: 'sad',
+      hi: 'और तभी, पानी से एक ऐसी आवाज़ आई जिसकी किसी को उम्मीद नहीं थी—हाथ जोड़े हुए कालिया की पत्नियाँ। "वह यहाँ कोई दुष्टता करने नहीं आया था। वह यहाँ इसलिए आया क्योंकि उसका शिकार किया जा रहा था। उसे ख़त्म मत कीजिए। उसे दूर भेज दीजिए।"',
       text: 'And then, from the water, came a voice that nobody expected: the wives of Kaliya, with their hands together. "He did not come here to be wicked. He came here because he was hunted. Do not finish him. Send him away."' },
     { art: ['krishna', 'pt_crocodile'], who: 'krishna',
+      hi: 'कृष्ण ने नाचना बंद कर दिया। "जाओ और समुद्र में रहो," उन्होंने कहा। "वहाँ तुम्हारा शिकार नहीं होगा। और इस नदी में वापस मत आना।" और कालिया चला गया—चोट खाए हुए, ज़िंदा, और कहते हैं कि अपने सिर पर एक बालक के पैर की छाप लिए, ताकि फिर कभी कोई उसे परेशान न करे।',
       text: 'Krishna stopped dancing. "Go and live in the sea," he said. "You will not be hunted there. And do not come back to this river." And Kaliya went — bruised, and alive, and carrying, they say, the print of a boy\'s foot on his head so that nothing would ever trouble him again.' },
     { art: ['krishna'], who: 'mithu',
+      hi: 'शाम होते-होते उस मोड़ का पानी एकदम साफ़ बहने लगा। और नहीं, उसे वह गेंद कभी नहीं मिली।',
       text: 'The water at that bend ran clear by evening. And no, he never did find the ball.' }
   ],
   moral: 'Deal with the harm and let the one who did it go. The two are not the same job.',
@@ -1237,6 +1613,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pu.govardhan',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'purana',
   badge: 'katha',
   title: 'The Hill That Became an Umbrella',
@@ -1248,14 +1628,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['पहाड़', 'pahaad', 'hill'], ['बारिश', 'baarish', 'rain'], ['छाता', 'chhata', 'umbrella']],
   scenes: [
     { art: ['guard'], who: null,
+      hi: 'हर साल वृन्दावन के ग्वाले बारिश बरसाने वाले इंद्र के लिए एक बहुत बड़ा चढ़ावा तैयार करते थे। यह उनके साल का सबसे बड़ा दिन होता था। गाड़ियों भर-भरकर खाना, सबके सबसे बढ़िया कपड़े, और हफ़्तों की रसोई।',
       text: 'Every year the cowherds of Vrindavan held a great offering to Indra, who sends the rain. It was the biggest day of their year. Carts of food, everybody\'s best clothes, weeks of cooking.' },
     { art: ['krishna', 'guard'], who: 'krishna', mood: 'think',
+      hi: '"क्या मैं कुछ पूछ सकता हूँ?" कृष्ण ने कहा, जो अभी छोटे थे और अटपटे मौकों पर सवाल पूछ बैठते थे। "गाएँ कहाँ चरती हैं?" "गोवर्धन पर्वत पर।" "घास कहाँ से आती है?" "पर्वत से।" "और हमारी पूरी ज़िंदगी हमारे साथ खड़ा रहकर, हमें घास, पानी, जलाने की लकड़ी और छाँव किसने दी है?"',
       text: '"Can I ask something?" said Krishna, who was young and had a way of asking things at awkward moments. "Where do the cows eat?" "On Govardhan hill." "Where does the grass come from?" "The hill." "And who has stood over us our whole lives, giving us grass and water and firewood and shade?"' },
     { art: ['guard', 'krishna'], who: 'guard',
+      hi: 'बुज़ुर्गों ने एक-दूसरे की तरफ़ देखा। "पर्वत ने," उनमें से एक ने धीरे से कहा। "तो फिर पर्वत को ही भोग लगाइए," कृष्ण ने कहा। "यह खाना गोवर्धन ले चलिए। उसकी परिक्रमा कीजिए। उसका धन्यवाद कीजिए जो सचमुच आपको खिला रहा है।"',
       text: 'The elders looked at each other. "The hill," said one of them slowly. "Then offer it to the hill," said Krishna. "Take the food to Govardhan. Walk round it. Thank the thing that is actually feeding you."' },
     { art: ['pt_bull', 'guard'], who: null, mood: 'wow',
+      hi: 'और हैरानी की बात यह कि उन्होंने सचमुच ऐसा ही किया। पूरा गाँव दावत की चीज़ें लेकर पहाड़ी पर पहुँचा और गाते-बजाते उसके फेरे लगाने लगा। किसी को भी इतना बढ़िया दिन कभी याद नहीं था — ठीक तब तक, जब तक आसमान का रंग लोहे जैसा नहीं हो गया।',
       text: 'And, astonishingly, they did. The whole village carried the feast up to the hill and walked round it singing, and it was the best day anybody could remember — right up until the sky went the colour of iron.' },
     { art: ['guard'], who: null, mood: 'sad',
+      hi: 'इंद्र ने, जिन्हें ज़माने से हर साल यह भेंट मिलती आ रही थी, बारिश बरसा दी। कोई आम बारिश नहीं। ऐसी बारिश मानो कोई नदी ही तिरछी होकर बरस रही हो, कई दिनों तक, जब तक कि खेत गायब नहीं हो गए, मवेशी घुटनों तक पानी में खड़े नहीं हो गए, और घर टूटने-बिखरने नहीं लगे।',
       text: 'Indra, who had had that offering every year since anyone could remember, sent rain. Not ordinary rain. Rain like a river falling sideways, for days, until the fields were gone and the cattle were standing in water up to their knees and the houses began to come apart.',
       ask: {
         q: 'The village is drowning, and it is because they listened to him. What is he going to do about it?',
@@ -1265,14 +1650,19 @@ window.IND_STORIES_MORE = [
         wrong: 'He did something enormous. He picked up the hill — and the part everybody misses is what the village did next.'
       } },
     { art: ['krishna'], who: null, mood: 'wow',
+      hi: 'कृष्ण गोवर्धन के पास पहुँचे, पहाड़ी के किनारे के नीचे अपना हाथ लगाया, और पूरी पहाड़ी को अपने बाएँ हाथ की सबसे छोटी उँगली पर उठा लिया, और उसे एक छाते की तरह थामे खड़े रहे।',
       text: 'Krishna walked to Govardhan, got his hand under the edge of it, and lifted the whole hill up on the little finger of his left hand, and held it there like an umbrella.' },
     { art: ['krishna', 'guard'], who: 'guard',
+      hi: '“अंदर आओ!” बड़ों ने आवाज़ लगाई, और पूरा का पूरा वृंदावन नीचे आ गया — हर इंसान, हर गाय, हर बछड़ा, कुत्ते, गाड़ियाँ, सब कुछ — और सब सूखी ज़मीन पर खड़े होकर ऊपर उस पहाड़ी को देखने लगे।',
       text: '"IN!" shouted the elders, and the whole of Vrindavan went in underneath — every person, every cow, every calf, the dogs, the carts, all of it — and stood there in the dry and looked up at a hill.' },
     { art: ['krishna', 'pt_bull'], who: null,
+      hi: 'और फिर ग्वालों ने कुछ ऐसा किया, जिसकी बातें आज भी घरों में एक-दूसरे को सुनाई जाती हैं। उन्होंने अपनी लाठियाँ और डंडे उठाए, पहाड़ी के किनारे के नीचे जाकर खड़े हो गए और उन्हें भी ऊपर टिका दिया — सब के सब, उसे सहारा देते हुए, अपने हिस्से का बोझ सँभालने लगे।',
       text: 'And then the cowherds did something that families still tell each other about. They took their staffs and their sticks, and they went and stood under the rim of that hill and held them up too — all of them, propping it, taking their share of the weight.' },
     { art: ['krishna'], who: null,
+      hi: 'सात दिनों तक बारिश होती रही। सात दिनों तक उन्होंने उसे थामे रखा। जब आसमान साफ़ हुआ, तो उन्होंने पहाड़ी को वापस ठीक वहीं रख दिया जहाँ वह थी, और सब लोग बाहर निकलकर एक भीगी, उजली और पूरी तरह सलामत सुबह में आ गए।',
       text: 'Seven days it rained. Seven days he held it. When the sky cleared he put the hill back exactly where it had been, and everybody walked out into a wet, bright, completely undamaged morning.' },
     { art: ['krishna'], who: 'mithu',
+      hi: 'दिवाली के अगले दिन, बहुत से परिवारों में यही मनाया जाता है — गोवर्धन पूजा, जब लोग खाने-पीने की चीज़ों का एक छोटा-सा पहाड़ बनाते हैं और उसके चारों तरफ़ घूमते हैं। तुम्हारे परिवार में शायद कुछ अलग होता हो। पूछकर देखना।',
       text: 'On the day after Diwali, in many families, this is what is celebrated — Govardhan Puja, when people build a little hill of food and walk round it. In your family it might be different. Ask.' }
   ],
   moral: 'Thank whatever actually feeds you — and then get your own stick under the hill.',
@@ -1281,6 +1671,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'pu.markandeya',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'purana',
   badge: 'katha',
   title: 'The Boy Who Held On to the Stone',
@@ -1292,14 +1686,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['समय', 'samay', 'time'], ['दीया', 'diya', 'lamp'], ['आशीर्वाद', 'aashirvad', 'blessing']],
   scenes: [
     { art: ['courtier', 'guard'], who: null,
+      hi: 'मृकंडु और उनकी पत्नी सालों से एक बच्चा चाहते थे, और जब आख़िरकार उन्हें संतान का वरदान मिला, तो पहले उनसे एक सवाल पूछा गया। क्या आप एक साधारण बच्चा चाहते हैं जो लंबी, साधारण ज़िंदगी जिए — या फिर एक अनोखा बच्चा जो बस सोलह साल जिए?',
       text: 'Mrikandu and his wife had wanted a child for years, and when they were finally granted one they were asked a question first. Would you like an ordinary child who lives a long, ordinary life — or an extraordinary one who lives sixteen years?' },
     { art: ['guard'], who: 'guard', mood: 'sad',
+      hi: 'उन्होंने सोलह साल को चुना। लोग उनके इस फ़ैसले पर बहस करते हैं और हमेशा करते रहेंगे। पर सच तो यह है कि उन्हें वह बच्चा मिला, उन्होंने उसका नाम मार्कंडेय रखा, उसे जी-जान से चाहा, और वे दिन गिनते रहे।',
       text: 'They chose the sixteen years. People argue about that choice and always will. What is certain is that they had him, and they called him Markandeya, and they loved him with everything they had, and they counted.' },
     { art: ['courtier'], who: null,
+      hi: 'वह यह बात जानते हुए बड़ा हुआ। किसी ने उससे कुछ नहीं छुपाया। और यह जानकर उसने बचपन में ही यह तय कर लिया कि वह अपना वक़्त उसी एक काम में लगाएगा जो उसे सचमुच पसंद था — समुद्र किनारे छोटे-से शिव मंदिर में बैठना, नाम जपना, और दीया जलाए रखना।',
       text: 'He grew up knowing. Nobody hid it from him. And what he did with the knowing was decide, quite early, that he was going to spend his time on the one thing he actually liked — sitting in the little Shiva shrine by the sea, saying the name, keeping the lamp going.' },
     { art: ['courtier', 'guard'], who: null, mood: 'sad',
+      hi: 'उसके सोलहवें जन्मदिन की सुबह, उसकी माँ के आँसू रुक नहीं रहे थे और उसके पिता से कुछ बोला नहीं जा रहा था। मार्कंडेय नहाया-धोया, और हर रोज़ की तरह नीचे मंदिर गया, और चिकने पत्थर के शिवलिंग को अपनी बाहों में भरकर थाम लिया।',
       text: 'On the morning of his sixteenth birthday his mother could not stop crying and his father could not speak. Markandeya washed, and went down to the shrine as he did every day, and put his arms round the smooth stone lingam and held on to it.' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'और दोपहर में, यमराज उसे लेने आ पहुँचे। किसी क्रूरता से नहीं — यमराज क्रूर नहीं हैं, उनका बस एक काम है और वे उसे बिल्कुल ठीक समय पर करते हैं।',
       text: 'And in the afternoon, Yama came for him. Not cruelly — Yama is not cruel, he simply has a job and does it exactly on time.',
       ask: {
         q: 'Time is up and Yama is at the door. What is a sixteen-year-old boy going to do?',
@@ -1309,14 +1708,19 @@ window.IND_STORIES_MORE = [
         wrong: 'He did neither. He held on to the stone and went on saying the name, and did not let go.'
       } },
     { art: ['courtier'], who: 'courtier',
+      hi: 'मार्कंडेय न तो भागे और न ही उन्होंने कोई बहस की। उन्होंने दोनों हाथों से उस पत्थर को कसकर पकड़ लिया और ज़ोर-ज़ोर से नाम जपते रहे, ठीक वैसे ही जैसे वे सोलह साल से हर दिन करते आ रहे थे, और जब फ़र्श पर परछाईं आ पहुँची, तब भी वे नहीं रुके।',
       text: 'Markandeya did not run and did not argue. He held on to that stone with both arms and went on saying the name out loud, the way he had every day for sixteen years, and did not stop when the shadow came across the floor.' },
     { art: ['shiva'], who: null, mood: 'wow',
+      hi: 'और शिव उस पत्थर से प्रकट हो गए। ठीक उसी में से जिसे उस बालक ने पकड़ रखा था — क्योंकि बालक उससे ऐसे लिपट गया था कि उस तक पहुँचने की कोई ऐसी जगह ही नहीं थी जो शिव न हो।',
       text: 'And Shiva came out of the stone. Out of the very thing the boy was holding — because the boy had wrapped himself round it and there was nowhere for anybody to reach him that was not Shiva.' },
     { art: ['shiva', 'courtier'], who: 'shiva',
+      hi: '"इसे नहीं," शिव ने कहा। "इसने मुझे पकड़ रखा है।" और यम, जो कोई खलनायक नहीं हैं और न ही मुँह फुलाते हैं, जो लाए थे उसे नीचे रख दिया और अपने बाकी दिन के काम के लिए चले गए।',
       text: '"Not this one," said Shiva. "He is holding on to me." And Yama, who is not a villain and does not sulk, put down what he had brought and went away to the rest of his day.' },
     { art: ['shiva', 'courtier'], who: null,
+      hi: 'मार्कंडेय को एक बड़ी अनोखी चीज़ मिली: वे सोलह साल के ही रहे। कुछ समय के लिए नहीं — हमेशा के लिए। वे चिरंजीवी हैं, यानी सदा जीने वालों में से एक, और इसके बाद वे पूरे पुराणों में हर जगह नज़र आते हैं, वही सोलह साल के, दूसरों की कहानियाँ सुनाते हुए।',
       text: 'Markandeya was given something rather odd: he stayed sixteen. Not for a while — for good. He is one of the chiranjivi, the long-living ones, and he turns up all over the Puranas afterwards, still sixteen, telling other people\'s stories.' },
     { art: ['shiva'], who: 'mithu',
+      hi: 'तमिलनाडु के तिरुक्कडैयूर में, जब कोई साठ साल का होता है और फिर अस्सी का, तो परिवार एक अनुष्ठान के लिए आते हैं — ज़िंदगी के इन सालों का शुक्रिया अदा करने। यह वही कहानी है, जो आज भी ज़िंदा रखी गई है।',
       text: 'At Tirukkadaiyur in Tamil Nadu, families come for a ceremony when someone turns sixty and again at eighty — a thank-you for the years. That is this story, still being kept.' }
   ],
   moral: 'Hold on to the thing you love, and keep saying its name. That is most of what he did.',
@@ -1326,6 +1730,10 @@ window.IND_STORIES_MORE = [
 /* ======================================================= REGIONAL FOLK ==== */
 {
   id: 'fk.bhekuli-biya',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'The Frogs\' Wedding',
@@ -1337,14 +1745,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['मेंढक', 'mendhak', 'frog'], ['बारिश', 'baarish', 'rain'], ['शादी', 'shaadi', 'wedding']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'असम में बारिश कोई ऐसी चीज़ नहीं है जो शायद कभी-कभार हो जाए। वह तो पूरे साल की जान है। ब्रह्मपुत्र नदी लबालब भर जाती है, धान की रोपाई शुरू हो जाती है, और हरियाली इतनी तेज़ी से फैलती है मानो आप उसे अपनी आँखों से बढ़ते देख सकते हों। गाँव के हर काम का हिसाब इसी भरोसे चलता है कि बारिश तो ज़रूर आएगी।',
       text: 'In Assam the rain is not something that might happen. It is the whole year. The Brahmaputra fills up, the paddy goes in, and the green comes up so fast you can practically watch it. Everything in the village calendar assumes the rain will arrive.' },
     { art: ['guard'], who: null, mood: 'sad',
+      hi: 'और एक साल ऐसा हुआ कि बारिश आई ही नहीं। बादल पहाड़ियों के छोर तक आते और वहीं रुक जाते, दिन-ब-दिन यही होता रहा। खेतों में दरारें पड़ गईं, चाय की दुकान पर बड़ों की हँसी-मज़ाक बंद हो गई और वे बस खड़े होकर आसमान की तरफ़ ताकने लगे।',
       text: 'And one year it did not. The clouds came to the edge of the hills and stopped there, day after day, and the fields cracked, and the grown-ups stopped joking at the tea stall and started standing about looking at the sky.' },
     { art: ['courtier', 'guard'], who: 'courtier',
+      hi: 'जुनाकी नाम की एक लड़की बोली, "दादी, मेंढक चुप हो गए हैं।" और यह सच था। असम में पूरी गर्मियों में जो एक आवाज़ गूँजती रहती है — जब पूरा तालाब एक साथ टर्र-टर्र करने लगता है — वह आवाज़ बिल्कुल शांत पड़ चुकी थी।',
       text: '"Grandmother," said a girl called Junaki, "the frogs have stopped." It was true. The one sound you get all summer in Assam — the whole pond going at once — had gone quiet.' },
     { art: ['guard', 'courtier'], who: 'guard', mood: 'think',
+      hi: 'उसकी दादी ने जो भी काम हाथ में था, उसे रख दिया। उन्होंने कहा, "तो फिर हमें वही करना होगा। जब भी बारिश आने में देर होती है, हम हमेशा से यही करते आए हैं। लेकिन यह काम बड़े नहीं कर सकते। यह तो बच्चों को ही करना होगा।"',
       text: 'Her grandmother put down what she was doing. "Then that is what we do," she said. "It is what we have always done when the rain is late. But it is not a thing grown-ups can do. It has to be the children."' },
     { art: ['pt_tortoise', 'courtier'], who: null, mood: 'think',
+      hi: 'और उन्होंने बात समझाई। दो मेंढक ढूँढो। उनकी शादी करवाओ। पूरे रीति-रिवाज़ से — मंगल-गीत, हल्दी, दावत, छोटी-सी बारात, सब कुछ के साथ। मज़ाक में नहीं, पूरी तरह से।',
       text: 'And she explained it. Find two frogs. Marry them. Properly — with the songs, the turmeric, the feast, the little procession, the lot. Not as a joke.',
       ask: {
         q: 'A wedding for two frogs, done properly, by the children. What is the one rule?',
@@ -1354,14 +1767,19 @@ window.IND_STORIES_MORE = [
         wrong: 'The rule was stricter than that. It had to be done exactly as seriously as a real wedding — everything, properly.'
       } },
     { art: ['courtier', 'pt_tortoise'], who: null,
+      hi: 'तो उन्होंने दो मेंढक ढूँढ निकाले — एक स्कूल के पास वाले नाले से और दूसरा नामघर के पीछे वाले पोखर से। उन्होंने उन पर थोड़ी हल्दी लगाई। केले के पत्तों से एक छोटा-सा मंडप बनाया। और किसी के भाई को छाता पकड़ने के काम पर लगा दिया गया।',
       text: 'So they found two frogs, one from the ditch by the school and one from the tank behind the namghar. They rubbed a little turmeric on. They made a tiny pandal out of banana leaf. Somebody\'s brother was made to carry the umbrella.' },
     { art: ['courtier', 'guard'], who: null, mood: 'wow',
+      hi: 'और फिर लड़कियों ने शादी के गीत गाए, असली वाले, पूरे के पूरे — वे गीत भी जिनसे दुल्हन के घरवालों को रुलाना तय होता है — और पूरा गाँव देखने निकल आया, और अस्सी साल की एक अम्मा इतना हँसीं कि उन्हें एक सीढ़ी पर बैठना पड़ा।',
       text: 'And then the girls sang the wedding songs, the real ones, all the way through — including the ones that are supposed to make the bride\'s family cry — and the whole village came out to watch, and a woman of eighty laughed until she had to sit down on a step.' },
     { art: ['pt_tortoise'], who: null,
+      hi: 'आखिर में उन्होंने उन दोनों को एक साथ तालाब में छोड़ दिया। मेंढक, जिनकी दोपहर काफी लंबी रही थी, सीधे तलहटी में चले गए और वहीं टिके रहे।',
       text: 'They let the two of them go into the pond together at the end. The frogs, who had had a long afternoon, went straight to the bottom and stayed there.' },
     { art: ['courtier'], who: null, mood: 'wow',
+      hi: 'उस रात बारिश हुई। टिन की छत पर पड़ती बूँदों की आवाज़ से जुनाकी की नींद खुली, जो दुनिया की सबसे तेज़ और सबसे प्यारी आवाज़ है, और वह लेटे-लेटे उसे सुनती रही और पूरे एक घंटे तक उसे दोबारा नींद नहीं आई।',
       text: 'It rained that night. Junaki woke up to it on the tin roof, which is the loudest and best sound in the world, and she lay there listening and did not go back to sleep for an hour.' },
     { art: ['guard'], who: 'mithu',
+      hi: 'क्या शादी से बारिश आती है? असम में दस लोगों से पूछिए तो दस जवाब मिलेंगे, और उनमें से लगभग नौ इस बात पर खत्म होंगे कि "लेकिन हम फिर भी ऐसा करते हैं।" एक गाँव जो मिलकर डरता है और फिर मिलकर गाता है, वह कोई छोटी बात नहीं है।',
       text: 'Does the wedding bring the rain? Ask ten people in Assam and you will get ten answers, and about nine of them will end with "but we do it anyway." A village that is frightened together and then sings together is not a small thing.' }
   ],
   moral: 'When you cannot make the sky do anything, you can still get everybody out of the house and singing.',
@@ -1370,6 +1788,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'fk.lepcha-tower',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'The Tower of Cooking Pots',
@@ -1381,14 +1803,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['घड़ा', 'ghada', 'clay pot'], ['चोटी', 'choti', 'summit'], ['भाषा', 'bhasha', 'language']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'लेप्चा लोग खुद को मुतांची रोंगकुप कहते हैं — बर्फीली चोटी की संतान। यह चोटी कंचनजंगा है, जो सिक्किम के ऊपर सिर उठाए खड़ी है, और लेप्चा परंपरा में यह सिर्फ कोई नज़ारा नहीं है। यह परिवार है, और यह रक्षक है, और आप अपने ही दादाजी के सिर पर नहीं चढ़ते।',
       text: 'The Lepcha people call themselves Mutanchi Rongkup — the children of the snowy peak. The peak is Kanchenjunga, which stands over Sikkim, and in Lepcha tradition it is not scenery. It is family, and it is the guardian, and you do not climb to the top of your own grandfather.' },
     { art: ['courtier', 'guard'], who: null,
+      hi: 'मगर बहुत पुरानी बात है, कहानी कहती है कि एक ऐसी पीढ़ी आई जिसकी महत्वाकांक्षाएँ बहुत बढ़ गईं। वे ऊपर जाना चाहते थे। पहाड़ पर नहीं — उससे भी आगे। वे खुद आसमान तक पहुँचना चाहते थे और देखना चाहते थे कि वहाँ क्या रखा हुआ है।',
       text: 'But long ago, the story goes, there was a generation who got ambitious. They wanted to go up. Not up the mountain — past it. They wanted to reach the sky itself and see what was being kept there.' },
     { art: ['guard'], who: 'guard', mood: 'wow',
+      hi: '"मटके," किसी ने कहा। "हम हज़ारों मटके बनाते तो हैं। उन्हें एक के ऊपर एक रखते जाओ। एक पर दूसरा, और उस पर एक और।" और यह तरकीब इतनी सीधी थी कि सभी लोग मटके बनाने और थपियाँ लगाने में जुट गए, और बात बन गई।',
       text: '"Pots," said somebody. "We make thousands of them. Stack them. One on another, and another on that." And it was such a simple idea that the whole people started making pots, and stacking, and it worked.' },
     { art: ['courtier'], who: null,
+      hi: 'वह मीनार पेड़ों की सीमा से भी ऊपर निकल गई। बर्फ की सीमा से भी पार। आधी ऊँचाई पर लोग उसी पर रहने लगे थे, और हाथों-हाथ मटके आगे बढ़ाते हुए ऐसी कतार बन गई थी जो बादलों में ओझल हो जाती थी।',
       text: 'The tower went up past the tree line. Past the snow line. There were people living on it, halfway up, passing pots hand to hand in a line that went out of sight into the cloud.' },
     { art: ['guard', 'courtier'], who: null, mood: 'think',
+      hi: 'और फिर आवाज़ें लगनी शुरू हुईं। सबसे ऊपर वालों को और मटके चाहिए थे। नीचे वालों को उनकी बात ठीक से सुनाई नहीं दे रही थी। संदेश सौ मुँहों से होता हुआ नीचे उतरा और ज़मीन तक पहुँचते-पहुँचते कुछ का कुछ ही बन गया।',
       text: 'And then the shouting started. The ones at the top wanted more pots. The ones at the bottom could not hear them properly. The message came down through a hundred mouths and arrived at the ground as something else entirely.',
       ask: {
         q: 'The man at the bottom cannot hear the man at the top. He thinks he has been told to take a pot OUT. What should he do?',
@@ -1398,12 +1825,16 @@ window.IND_STORIES_MORE = [
         wrong: 'Nobody did that. He pulled the pot out, because that was what he thought he had heard — and the whole thing came down.'
       } },
     { art: ['guard'], who: 'guard', mood: 'wow',
+      hi: 'उसने मटका बाहर खींच लिया। और वह मीनार — वह पूरी भारी-भरकम नामुमकिन सी चीज़, जिस पर सबके भाई-बहन चढ़े हुए थे — झुकी, छूटी, और पहाड़ की ढलान पर ऐसे भयंकर शोर के साथ आ गिरी जिसे वहाँ मौजूद कोई भी कभी नहीं भूल पाया।',
       text: 'He pulled the pot out. And the tower — the whole enormous impossible thing, with everybody\'s cousins on it — leaned, and let go, and came down the mountainside in a noise nobody there ever forgot.' },
     { art: ['courtier'], who: null, mood: 'sad',
+      hi: 'जो बच गए, वे हर दिशा में भाग खड़े हुए। और लेप्चा लोग कहते हैं कि इसीलिए इन पहाड़ियों में इतनी सारी अलग-अलग भाषाएँ हैं — वे इतनी दूर बिखर गए और इतने लंबे समय तक अलग रहे कि बाद में एक-दूसरे की बात समझना ही भूल गए।',
       text: 'The survivors ran in every direction. And that, the Lepcha say, is why there are so many different languages in these hills — they scattered so far, and stayed apart so long, that they came out of it unable to understand one another.' },
     { art: ['courtier', 'guard'], who: null,
+      hi: 'और यही वजह है कि पुरानी सोच मानने वाला कोई भी इंसान कंचनजंघा की सबसे ऊँची चोटी तक नहीं जाता। इसलिए नहीं कि वहाँ पहुँचा नहीं जा सकता। बल्कि इसलिए, क्योंकि अपने परिवार के साथ ऐसा बर्ताव नहीं किया जाता।',
       text: 'And it is why nobody in the old way of thinking goes to the very top of Kanchenjunga. Not because it cannot be done. Because it is not what you do to family.' },
     { art: ['courtier'], who: 'mithu',
+      hi: '1955 में जब पहले पर्वतारोही शिखर की कगार पर पहुँचे, तो वे असली चोटी से कुछ फ़ीट पहले ही रुक गए—जान-बूझकर, ठीक इसी के आदर में। तब से लेकर आज तक ज़्यादातर अभियानों ने ऐसा ही किया है।',
       text: 'When the first climbers reached the summit ridge in 1955 they stopped a few feet short of the actual top, on purpose, out of respect for exactly this. Most expeditions since have done the same.' }
   ],
   moral: 'A message passed along a hundred people is not the message any more — go and ask the person who said it.',
@@ -1412,6 +1843,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'fk.pebet',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'Pebet and the Cat',
@@ -1423,16 +1858,22 @@ window.IND_STORIES_MORE = [
   words_hi: [['चिड़िया', 'chidiya', 'bird'], ['बिल्ली', 'billi', 'cat'], ['माँ', 'maa', 'mother']],
   scenes: [
     { art: ['pt_crow'], who: null,
+      hi: 'मणिपुर में लोग पेबेत की कहानी सुनाते हैं, जो एक नन्हीं-सी भूरी चिड़िया है। वह इतनी छोटी है कि जब अपने पंख फैलाती है, तो बस तुम्हारे हाथ जितनी होती है। घास के नीचे बने एक घोंसले में उसके छह बच्चे थे, और वह उन्हें पूरे दिन और आधी रात तक खाना खिलाती रहती थी।',
       text: 'In Manipur they tell about Pebet, a tiny brown bird, so small that when she puts her wings out she is about the size of your hand. She had six chicks in a nest low in the grass, and she fed them all day and half the night.' },
     { art: ['pt_lion', 'pt_crow'], who: 'pt_lion',
+      hi: 'एक बिल्ले को वह घोंसला मिल गया। वह झपटा नहीं। वह थोड़ी दूर जाकर बैठ गया, अपनी आवाज़ एकदम मीठी की, और बोला: "बहन। कितने प्यारे बच्चे हैं। मुझे इनका मामा बनने दो। मैं एक को अपनी पीठ पर बिठाकर दुनिया घुमा लाता हूँ।"',
       text: 'A cat found the nest. He did not pounce. He sat down a little way off, made his voice very soft, and said: "Sister. What beautiful children. Let me be their uncle. Let me carry one on my back and show him the world."' },
     { art: ['pt_crow'], who: 'pt_crow', mood: 'think',
+      hi: '"आपकी बड़ी कृपा," पेबेत बोली, जो एक पल के लिए भी झाँसे में नहीं आई। "कल आना।" और जैसे ही वह गया, उसने पूरे परिवार को जगाया और तुरंत वही एक बात सिखानी शुरू कर दी जो सबसे ज़रूरी होने वाली थी: उड़ना।',
       text: '"How kind," said Pebet, who was not fooled for one second. "Come tomorrow." And the moment he was gone she got the whole family up and started teaching them, urgently, the only thing that was going to matter: how to fly.' },
     { art: ['pt_crow'], who: null,
+      hi: 'उन्होंने उस पूरे दिन और अगले पूरे दिन अभ्यास किया। उनमें से पाँच तो सीख गए—डगमगाते हुए, गिरते-पड़ते हुए, उठते हुए और फिर से कोशिश करते हुए। छठा बच्चा सबसे छोटा था और अभी नहीं उड़ पा रहा था, वह इस बात पर रो पड़ा, तो सबने उससे कहा कि दुखी होने की कोई ज़रूरत नहीं है।',
       text: 'They practised all that day and all the next. Five of them got it — wobbling, crash-landing, getting up and going again. The sixth was the smallest and could not do it yet, and cried about it, and was told he did not have to be sorry.' },
     { art: ['pt_lion', 'pt_crow'], who: 'pt_lion', mood: 'wow',
+      hi: 'बिल्ला वापस आया। "मामा आ गए!" उसने बेहद मीठी आवाज़ में पुकारा। "सैर करने कौन चल रहा है?"',
       text: 'The cat came back. "Uncle is here!" he called up, sweet as anything. "Who is coming for a ride?"' },
     { art: ['pt_crow'], who: null, mood: 'think',
+      hi: 'पेबेत ने अपने उन पाँच बच्चों को देखा जो उड़ सकते थे, और उस एक को देखा जो उड़ नहीं पाता था, और फिर घास में बैठी उस बिल्ली को देखा जिसकी पूँछ हिल रही थी।',
       text: 'Pebet looked at her five who could fly, and her one who could not, and at a cat sitting in the grass with his tail going.',
       ask: {
         q: 'Five can fly. One cannot. The cat is at the bottom of the grass stem. What does she do?',
@@ -1442,12 +1883,16 @@ window.IND_STORIES_MORE = [
         wrong: 'She would not leave anybody. She got every single one off the ground, and the last one she carried herself.'
       } },
     { art: ['pt_crow', 'pt_lion'], who: 'pt_crow',
+      hi: '"ऊपर," पेबेत बोली। "सब के सब। अभी।" पाँचों जैसे-तैसे पाँच अलग-अलग दिशाओं में उड़ गए। फिर वह सबसे छोटे वाले के नीचे आई, उसका भार संभाला, और निकल पड़ी — नीचे-नीचे, धीरे-धीरे और भारी-भारी, बिल्ली के सिर के ऊपर से होती हुई काँटों भरी झाड़ी के अंदर।',
       text: '"Up," said Pebet. "All of you. Now." Five of them went, badly, in five directions. Then she got underneath the smallest one, took his weight, and went — low, slow, and heavy, over the cat\'s head and into the thorn bush.' },
     { art: ['pt_lion'], who: 'pt_lion', mood: 'sad',
+      hi: 'बिल्ली उनके पीछे लपकी और बीच रास्ते में ही काँटों में फँस गई, फिर एक-एक पंजा पीछे खींचते हुए उसे उलटे पाँव लौटना पड़ा, और जब वह बाहर निकली तो उसके कान झुके हुए थे और उसकी सारी शान मिट्टी में मिल चुकी थी।',
       text: 'The cat went up after them and got stuck in the thorns halfway, and had to back out one paw at a time, and came out with his ears down and his dignity in pieces.' },
     { art: ['pt_crow'], who: null,
+      hi: 'और पेबेत झाड़ी के बीचों-बीच अपने छह बच्चों को घेरे बैठी रही, सब एक साथ चहक-चहककर बता रहे थे कि उन्होंने कितना बढ़िया काम किया, और पेबेत ने उनमें से किसी एक को भी नहीं टोका।',
       text: 'And Pebet sat in the middle of the bush with six chicks around her, all of them talking at once about how well they had done, and did not correct a single one of them.' },
     { art: ['pt_crow'], who: 'mithu',
+      hi: 'मणिपुर के बच्चे पेबेत को बहुत अच्छी तरह जानते हैं। जब कोई शक पैदा करने की हद तक मीठा बन रहा होता है, तो इंफाल की कोई चाची धीरे से कहती हैं: चाचा आ गए। और सब समझ जाते हैं कि उनके कहने का क्या मतलब है।',
       text: 'Manipuri children know Pebet very well. When somebody is being suspiciously nice, an aunt in Imphal will say, quietly: uncle has come. And everyone knows what she means.' }
   ],
   moral: 'When someone is being far too kind, teach your children to fly.',
@@ -1456,6 +1901,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'fk.hojagiri-pots',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'The Girls Who Danced on the Water Pots',
@@ -1467,14 +1916,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['धान', 'dhaan', 'paddy'], ['नाच', 'naach', 'dance'], ['घड़ा', 'ghada', 'pot']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'त्रिपुरा की पहाड़ियों में रियांग लोग — जो खुद को ब्रू कहते हैं — ढलानों पर धान उगाते हैं, और जब फसल कटकर घर आ जाती है तो वे मैलुमा का धन्यवाद करते हैं, जो खुद धान हैं: वही जो तय करती हैं कि टोकरी में चावल होगा या नहीं।',
       text: 'In the hills of Tripura the Reang people — who call themselves Bru — grow their rice on the slopes, and when the harvest is in they thank Mailuma, who is the paddy: the one who decides whether there is rice in the basket or not.' },
     { art: ['guard', 'courtier'], who: 'guard',
+      hi: 'बुज़ुर्ग औरतें कहती हैं कि मैलुमा को ज़ोर-शोर से शुक्रिया अदा करना कुछ ख़ास पसंद नहीं। "चिल्ला तो कोई भी सकता है," एक दादी लड़कियों को बताती हैं। "वह तो यह देखती हैं कि जब ज़रूरत पड़े, तब तुम अपना संतुलन बना पाती हो या नहीं।"',
       text: 'The old women say that Mailuma does not care much for loud thanks. "Anyone can shout," a grandmother tells the girls. "She watches for whether you can keep your balance when it matters."' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'और यहीं से निकला यह नाच, जो बिल्कुल आसान नहीं है। एक लड़की मिट्टी के उल्टे मटके पर खड़ी होती है। उसके सिर पर एक बोतल रखी जाती है। बोतल के ऊपर एक जलता हुआ दीया। हाथों में एक कपड़ा और कभी-कभी एक और दीया भी।',
       text: 'Which is where the dance comes from, and it is not an easy one. A girl stands on an upturned earthen pitcher. On her head goes a bottle. On the bottle goes a lamp, lit. In her hands, a cloth and sometimes another lamp again.' },
     { art: ['courtier', 'guard'], who: null,
+      hi: 'और फिर, मटके पर खड़े-खड़े, वह नाचती है। सिर्फ़ उसके शरीर का निचला हिस्सा थिरकता है — घुटने, कमर, और खाने की थाली जितनी मिट्टी की गोलाई पर टिके पैर — जबकि कमर से ऊपर का पूरा हिस्सा बिल्कुल शांत और अचल रहता है, क्योंकि ऊपर एक जलती हुई लौ है।',
       text: 'And then, standing on the pitcher, she dances. Only the lower half of her body moves — knees, hips, feet on a curved clay surface the size of a dinner plate — while everything above the waist stays perfectly, impossibly still, because there is a flame up there.' },
     { art: ['guard'], who: 'guard', mood: 'think',
+      hi: 'क्वरवी नाम की एक लड़की साल भर से अभ्यास कर रही थी, फिर भी हर तीसरी बार मटके से फिसल जाती थी। "यह नामुमकिन है," त्योहार की पिछली रात उसने कहा। "कोई एक ही साथ नाच भी कैसे सकता है और एकदम स्थिर भी कैसे रह सकता है?"',
       text: 'A girl called Kwrwi had practised for a year and still came off the pitcher every third try. "It is impossible," she said the night before the festival. "You cannot dance and stay still at the same time."',
       ask: {
         q: 'She has to move her legs and keep her head absolutely still. How does anybody learn that?',
@@ -1484,12 +1938,16 @@ window.IND_STORIES_MORE = [
         wrong: 'Her grandmother told her something else. "Stop looking up. The lamp is not your job — the pot is."'
       } },
     { art: ['guard', 'courtier'], who: 'guard',
+      hi: '"तुम बार-बार ऊपर लौ की तरफ़ देखती रहती हो," उसकी दादी ने कहा। "मत देखो। अगर मटका सही सध गया, तो लौ खुद-ब-खुद संभल जाएगी। अपने पैरों से मटके को महसूस करो और कंधों से ऊपर का सब कुछ भूल जाओ।"',
       text: '"You keep looking up at the flame," said her grandmother. "Do not. The flame will look after itself if the pot is right. Feel the pot with your feet and forget everything above your shoulders."' },
     { art: ['courtier'], who: null, mood: 'wow',
+      hi: 'उस रात, ढोल बजने शुरू हुए और आठों लड़कियाँ एक साथ अपने मटकों पर चढ़ गईं, उनके सिरों पर दीये रखे गए, और पूरे गाँव में सन्नाटा छा गया। पहली आठ तालों तक क्वरवी ने आँखें मूँद लीं और अपने पंजों से मिट्टी की गोलाई को महसूस किया।',
       text: 'On the night, the drums started and eight girls went up onto their pitchers at once, and the lamps went on their heads, and the whole village stopped talking. Kwrwi shut her eyes for the first eight beats and felt for the curve of the clay with the balls of her feet.' },
     { art: ['courtier'], who: null,
+      hi: 'उसने पूरा का पूरा नाच नाचा। उन आठों ने भी ऐसा ही किया। न कुछ नीचे गिरा, न कोई दीया बुझा, और अँधेरे में दीये आठ सीधी कतारों में डोलते रहे, जबकि नीचे ढोल की थाप तेज़ से और तेज़ होती गई।',
       text: 'She danced the whole thing. So did all eight of them. Nothing came down, nothing went out, and the lamps moved through the dark in eight steady lines while the drums got faster and faster underneath.' },
     { art: ['guard'], who: 'mithu',
+      hi: 'आज त्रिपुरा में रियांग त्योहारों पर होजागिरी नाचा जाता है, और मंडलियाँ इसे पहाड़ियों से बहुत दूर-दूर तक ले गई हैं। अगर तुम्हें कभी इसे सामने से देखने का मौका मिले, तो पैरों को देखना। दीयों को तो सब देखते हैं। असली कमाल तो पैरों में ही हो रहा होता है।',
       text: 'The Hojagiri is danced in Tripura today at Reang festivals, and troupes have taken it far beyond the hills. If you ever get to see it live, watch the feet. Everybody watches the lamps. The feet are where it is happening.' }
   ],
   moral: 'Look after the thing under your feet, and the light on your head will look after itself.',
@@ -1498,6 +1956,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'fk.parashuram-coast',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'The Arrow That Made the Coast',
@@ -1509,12 +1971,16 @@ window.IND_STORIES_MORE = [
   words_hi: [['तीर', 'teer', 'arrow'], ['समुद्र', 'samudra', 'sea'], ['ज़मीन', 'zameen', 'land']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'भारत के पश्चिमी तट का नक्शा देखो। वहाँ पहाड़ों की एक दीवार है — सह्याद्रि, यानी पश्चिमी घाट — और फिर एक पतली हरी पट्टी, और फिर समंदर। वही पट्टी कोंकण है, और गोवा उसके ठीक बीच में बसा है, और यह वही कहानी है जो गोवा अपने वजूद के बारे में सुनाता है।',
       text: 'Look at a map of the west coast of India. There is a wall of mountains — the Sahyadri, the Western Ghats — and then a thin green strip, and then the sea. That strip is the Konkan, and Goa sits in the middle of it, and this is the story Goa tells about where it came from.' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'परशुराम का लड़ाइयों से नाता टूट चुका था। उन्होंने सब कुछ छोड़ दिया था और वे रहने के लिए कोई शांत जगह चाहते थे, जहाँ अपने साथ आए लोगों को बसा सकें। वे पश्चिम की ओर तब तक चलते रहे जब तक आगे चलना नामुमकिन न हो गया, और घाट की चोटी पर जा खड़े हुए जहाँ ठीक नीचे समंदर फैला था।',
       text: 'Parashurama had finished with fighting. He had put it all down and he wanted somewhere quiet to live and to settle the people who had come with him. He walked west until he could not walk any further, and stood on the top of the Ghats with the sea directly below him.' },
     { art: ['courtier', 'guard'], who: 'guard',
+      hi: '"यहाँ तो ज़मीन ही नहीं है," उनके पीछे खड़े लोगों ने कहा। "बस पहाड़ है, और फिर पानी, और बीच में कुछ भी नहीं।"',
       text: '"There is no land," said the people behind him. "There is mountain, and then there is water, and there is nothing in between."' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'उन्होंने बड़ी देर तक समंदर को देखा। फिर अपने कंधे से अपना धनुष उतारा।',
       text: 'He looked at the sea for a long time. Then he took his bow off his shoulder.',
       ask: {
         q: 'There is no room between the mountain and the sea. What is he going to do about it?',
@@ -1524,14 +1990,19 @@ window.IND_STORIES_MORE = [
         wrong: 'What he did was simpler and stranger. He shot one arrow as far out to sea as it would go.'
       } },
     { art: ['courtier'], who: 'courtier', mood: 'wow',
+      hi: '"समुद्र," उसने कहा, "जहाँ तक यह तीर उड़े, मुझे उतनी ज़मीन दे दो। उससे आगे बिल्कुल नहीं। न तो मैं लालची हूँ और न ही दोबारा माँगूँगा।" और उसने तीर छोड़ दिया — पानी के ऊपर, आँखों से ओझल, इतनी दूर कि चट्टान पर खड़ा कोई भी इंसान यह नहीं बता सकता था कि वह कहाँ गया।',
       text: '"Sea," he said, "give me the land as far as this arrow flies. No further. I am not greedy and I am not asking twice." And he shot — out over the water, out of sight, until nobody on the cliff could say where it had gone.' },
     { art: ['guard'], who: null, mood: 'wow',
+      hi: 'और कहानी में, समुद्र पीछे हट गया। किसी बड़ी लहर की तरह नहीं — चुपचाप, जैसे भाटा उतर जाता है और फिर लौटकर नहीं आता। और जहाँ कभी समुद्र था, वहाँ ज़मीन निकल आई: पहाड़ों की तलहटी से लेकर तीर के गिरने की जगह तक, दूर-दूर तक फैली काली, गीली और नमकीन ज़मीन।',
       text: 'And the sea, in the story, went back. Not in a wave — quietly, the way a tide goes out and does not come in again. And where it had been there was ground: dark, wet, salty ground, from the foot of the mountains all the way out to where the arrow had fallen.' },
     { art: ['courtier', 'guard'], who: null,
+      hi: 'शुरू-शुरू में वह ज़मीन किसी काम की नहीं थी। जो मिट्टी अभी-अभी समुद्र छोड़कर गया हो, उसमें कुछ भी नहीं उगता। इसलिए वे बाहर से मिट्टी लाए, और उन्होंने वे पेड़ लगाए जो खारेपन को सह लेते हैं — नारियल, काजू और आम — और मौसम-दर-मौसम मेहनत करते रहे, जब तक कि वह ऐसी हरी-भरी जगह नहीं बन गई जैसी उनमें से किसी ने पहले कभी नहीं देखी थी।',
       text: 'It was no good at first. Nothing will grow in soil the sea has just left. So they brought in earth, and they planted the things that will put up with salt — the coconut, the cashew, the mango — and worked it season after season until it turned into the greenest place any of them had ever seen.' },
     { art: ['courtier'], who: null,
+      hi: 'कोंकण का तट गुजरात से लेकर गोवा होते हुए केरल तक जाता है, और इस पूरे रास्ते इस कहानी के कई रूप सुनाए जाते हैं। हर इलाक़ा यही कहता है कि तीर ठीक उनके अपने ही समुद्र तट के पास आकर गिरा था।',
       text: 'The Konkan coast runs from Gujarat down through Goa to Kerala, and versions of this story are told the whole length of it. Every stretch of it says the arrow came down just off their own beach.' },
     { art: ['guard'], who: 'mithu',
+      hi: 'और वे सब अपनी-अपनी जगह सही हैं, ठीक वैसे जैसे कहानियाँ सही होती हैं। किसी गोवा वाले से, महाराष्ट्र के कोंकणी बोलने वाले से और किसी मलयाली से यही सवाल पूछिए, तो आपको तीन अलग-अलग जवाब और एक ही कहानी मिलेगी।',
       text: 'And every one of them is right, in the way stories are right. Ask a Goan, a Konkani-speaker from Maharashtra and a Malayali the same question and you will get three answers and one story.' }
   ],
   moral: 'Ask for exactly as much as you need, and then be prepared to work it for a very long time.',
@@ -1540,6 +2011,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'fk.hadimba-cedar',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'The Grandmother in the Cedar Wood',
@@ -1551,12 +2026,16 @@ window.IND_STORIES_MORE = [
   words_hi: [['देवदार', 'devdaar', 'cedar'], ['जंगल', 'jangal', 'forest'], ['दादी', 'daadi', 'grandmother']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'हिमाचल की कुल्लू घाटी में, मनाली के ऊपर, देवदार के पेड़ों का एक ऐसा जंगल है जो इतना पुराना और घना है कि रोशनी पेड़ों के बीच से छनकर पट्टियों की तरह नीचे आती है। उसके ठीक बीचों-बीच लकड़ी का एक मंदिर खड़ा है जिसकी छत पगोडा जैसी है, और यह मंदिर हिडिम्बा का है।',
       text: 'Above Manali, in the Kullu valley of Himachal, there is a wood of deodar cedars so old and so dark that the light comes down through them in bars. In the middle of it stands a wooden temple with a roof like a pagoda, and it belongs to Hadimba.' },
     { art: ['guard'], who: null,
+      hi: 'कहानी का पहला हिस्सा महाभारत में मिलता है। पांडव वनवास में थे और एक जंगल में सो रहे थे, और वह जंगल हिडिम्बा और उसके भाई का था — जंगल के रहने वाले, बड़े ताकतवर लोग, जो किसी के राज्य का हिस्सा नहीं थे, और जो भी किसी राज्य में रहता था, वह सब उनसे बहुत डरता था।',
       text: 'The Mahabharata tells the first part. The Pandavas were in exile, sleeping in a forest, and the forest belonged to Hidimba and her brother — forest people, powerful, not part of anybody\'s kingdom, and thoroughly feared by everyone who was.' },
     { art: ['courtier', 'guard'], who: 'guard',
+      hi: 'उसका भाई चाहता था कि वे अजनबी वहां से चले जाएं। हिडिम्बा उन्हें देखने गई, लौटकर आई और उसने मना कर दिया। "वह जो बड़ा-सा है," उसने कहा। "जो दूसरों के थक जाने पर उन्हें उठा लेता है। मैं उसे कुछ नहीं करने वाली।"',
       text: 'Her brother wanted the strangers gone. Hidimba went to look at them and came back and said no. "The big one," she said. "The one who carries the others when they are tired. I am not doing anything to him."' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'इस बात पर झगड़ा हुआ, जैसा कि होता ही है। और जब झगड़ा खत्म हुआ, तो हिडिम्बा भीम के पास गई, जो दुनिया के सबसे ताकतवर इंसान थे, और उसने साफ़-साफ़ बता दिया कि वह क्या चाहती थी — उनकी माँ के सामने, सबके सामने।',
       text: 'There was a fight about it, the way there is. And when it was over, Hidimba walked up to Bhima, who was the strongest man alive, and said what she wanted — plainly, in front of his mother, in front of everybody.',
       ask: {
         q: 'She wants to marry into a family that has just been fighting her brother. What is she going to say?',
@@ -1566,14 +2045,19 @@ window.IND_STORIES_MORE = [
         wrong: 'She said it straight out, in front of everybody. And Bhima\'s mother Kunti said yes — on one condition.'
       } },
     { art: ['guard', 'courtier'], who: 'guard',
+      hi: '"हाँ," कुंती ने कहा, "और एक शर्त है: जब एक बेटा हो जाए, तो वह हमारे पास लौट आएगा। हम वनवास में हैं, और इससे ज़्यादा समय के लिए मैं उसे अपने से दूर नहीं रख सकती।" "यह बिल्कुल ठीक है," हिडिम्बा ने कहा। "मैंने पूरी ज़िंदगी का साथ तो नहीं माँगा था। मैंने तो बस यही माँगा था।"',
       text: '"Yes," said Kunti, "and one condition: he comes back to us when there is a son. We are in exile, and I cannot spare him longer than that." "That is fair," said Hidimba. "I did not ask for a lifetime. I asked for this."' },
     { art: ['courtier'], who: null,
+      hi: 'उनका बेटा घटोत्कच था, जो अपनी माँ के जंगल में पला-बढ़ा और अपने दम पर इस महाकाव्य के सबसे महान नायकों में से एक बना। और तय बात के मुताबिक, जब समय आया तो भीम अपने भाइयों के पास लौट गए, और हिडिम्बा पहाड़ों में ही रही।',
       text: 'Their son was Ghatotkacha, who grew up in his mother\'s forest and became one of the great figures of the epic in his own right. And Bhima went back to his brothers when it was time, as agreed, and Hidimba stayed in the hills.' },
     { art: ['courtier', 'guard'], who: null, mood: 'wow',
+      hi: 'और यह वह हिस्सा है जो महाकाव्य से ज़्यादा हिमाचल का है। वह कहानी से कहीं ओझल नहीं हुई। वह कुल्लू घाटी में ही रही — और उस जगह की देवी बन गई। हडिम्बा देवी। कोई मामूली किरदार नहीं। वही देवी, जिनकी अनुमति आपको चाहिए होती है।',
       text: 'And here is the part that belongs to Himachal rather than to the epic. She did not disappear out of the story. In the Kullu valley she stayed — and became the goddess of the place. Hadimba Devi. Not a side character. The one whose permission you need.' },
     { art: ['courtier'], who: null,
+      hi: 'कुल्लू दशहरे में पूरी घाटी के ग्राम-देवता पालकियों में नीचे आते हैं, जिन्हें पहाड़ी रास्तों पर मीलों तक कंधों पर उठाकर लाया जाता है, और यह त्योहार उनका इंतज़ार करता है। जब तक हिडिम्बा नहीं आ जातीं, यह शुरू नहीं होता।',
       text: 'At the Kullu Dussehra the village deities of the whole valley come down in palanquins, carried on shoulders for miles along the mountain roads, and the festival waits for her. It does not begin until Hadimba arrives.' },
     { art: ['guard'], who: 'mithu',
+      hi: 'इस बात पर ठहरकर सोचना बनता है। एक महाकाव्य के कोने से आई जंगल की एक औरत, जो साफ़-साफ़ वही कहती है जो चाहती है और उसे पाकर रहती है, और जिसे आज पूरी घाटी \'दादी\' कहती है।',
       text: 'It is worth sitting with. A forest woman from the edge of an epic, who says exactly what she wants and gets it, and who a whole valley now calls grandmother.' }
   ],
   moral: 'The person the story treats as an outsider is somebody else\'s grandmother — and somebody else\'s whole valley.',
@@ -1582,6 +2066,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'fk.santhal-first-birds',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'The Two Birds and the First Morning',
@@ -1593,14 +2081,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['अंडा', 'anda', 'egg'], ['पहला', 'pehla', 'first'], ['धरती', 'dharti', 'earth']],
   scenes: [
     { art: ['pt_heron'], who: null,
+      hi: 'संथाल लोग — जो झारखंड और उसके आस-पास के इलाक़ों में रहते हैं, और फ़सल कटाई की शुरुआत पर गीतों में अपना इतिहास सुनाते हैं — शुरुआत से ही शुरू करते हैं, और वह शुरुआत है पानी। बस पानी ही पानी। और कुछ भी नहीं।',
       text: 'The Santhals — who live across Jharkhand and the country round about, and who tell their history in songs at the start of the harvest — begin at the beginning, and the beginning is water. All water. Nothing else at all.' },
     { art: ['pt_heron'], who: null, mood: 'think',
+      hi: 'उस पानी के ऊपर दो पंछी उड़ रहे थे, जिन्हें महान ठाकुर जीउ ने बनाया था, और वे बहुत बुरी तरह थक चुके थे, क्योंकि समंदर में उतरने के लिए कोई जगह नहीं होती। वे उड़ते रहे, उड़ते रहे, और उन्हें कोई आराम नहीं मिला।',
       text: 'Over that water flew two birds, made by Thakur Jiu, the great one, and they were extremely tired, because there is nowhere to land on an ocean. They flew, and flew, and got no rest.' },
     { art: ['pt_heron', 'pt_tortoise'], who: 'pt_heron',
+      hi: '"हम अब और आगे नहीं उड़ सकते," पंछियों ने कहा। "हमें पैर टिकाने की कोई जगह दीजिए।" और इस तरह धरती के बनने की शुरुआत हुई — और इसकी शुरुआत उन जीवों से मदद माँगने से हुई, जो पहले से पानी में रह रहे थे।',
       text: '"We cannot go on," said the birds. "Give us somewhere to put our feet." And so the making of the earth began — and it began with asking the creatures who were already in the water to help.' },
     { art: ['pt_tortoise'], who: null,
+      hi: 'उन्होंने केकड़े से कहा। उन्होंने मगरमच्छ से कहा। उन्होंने झींगे से कहा। हर कोई नीचे गया और हर कोई खाली हाथ लौटा, क्योंकि वे मिट्टी को अपने पंजों में उठाकर ला रहे थे और ऊपर आते-आते पानी उसे बहा ले जाता था।',
       text: 'They asked the crab. They asked the crocodile. They asked the prawn. Each one went down and each one came back with nothing, because they brought the soil up in their claws and the water washed it away on the way up.' },
     { art: ['pt_tortoise'], who: null, mood: 'think',
+      hi: 'फिर किसी को केंचुए का ख़याल आया — जो न तो ताक़तवर होता है, न तेज़, और किसी से बिल्कुल भी नहीं लड़ सकता।',
       text: 'Then somebody thought of the earthworm — who is not strong, and not quick, and cannot fight anybody at all.',
       ask: {
         q: 'The crab and the crocodile could not carry soil up through the water. What can an earthworm do that they cannot?',
@@ -1610,12 +2103,16 @@ window.IND_STORIES_MORE = [
         wrong: 'Something none of them had thought of. The worm swallowed the soil, came up, and let it out on the tortoise\'s back.'
       } },
     { art: ['pt_tortoise', 'pt_heron'], who: null, mood: 'wow',
+      hi: 'कछुए को चारों कोनों से बाँधकर थाम लिया गया। केंचुआ नीचे गया, उसने मिट्टी निगली, ऊपर आया, और उसे कछुए की पीठ पर उगल दिया — जहाँ पानी उसे बहा न सके। फिर से। और फिर से। और इस तरह धरती बड़ी होती गई।',
       text: 'The tortoise was anchored at the four corners and held still. The earthworm went down, swallowed the soil, came up, and let it out on the tortoise\'s back — where the water could not wash it away. Again. And again. And the earth grew.' },
     { art: ['pt_heron'], who: null,
+      hi: 'आखिरकार पंछी उस पर उतर आए और सो गए। और उस नई ज़मीन पर उन्होंने एक घोंसला बनाया, जिसमें दो अंडे थे, और उन अंडों में से पिलचु हाड़ाम और पिलचु बूढ़ी निकले — पहले पुरुष और पहली स्त्री, संथालों के दादा और दादी।',
       text: 'The birds came down on it at last and slept. And on that new ground they made a nest, and there were two eggs in it, and out of those eggs came Pilchu Haram and Pilchu Budhi — the first man and the first woman, the grandfather and the grandmother of the Santhals.' },
     { art: ['courtier'], who: null,
+      hi: 'वे उस नई धरती पर बड़े हुए। उन्होंने सीखा कि क्या खाया जा सकता है और क्या नहीं। उनके बच्चे हुए, और वे बच्चे अलग-अलग दिशाओं में चले गए, और वे अलग-अलग दिशाएँ बारह कुल बन गईं, और संथाल परिवारों को आज भी पता है कि वे इनमें से किस कुल के हैं।',
       text: 'They grew up on the new earth. They learned what could be eaten and what could not. They had children, and the children went off in different directions, and the different directions became the twelve clans, and Santhal families still know which one they belong to.' },
     { art: ['courtier'], who: 'mithu',
+      hi: 'इसे सिर्फ़ कहा नहीं जाता, गाया जाता है। सोहराय के मौक़े पर और बड़े जलसों में, यह दुनिया कैसे बनी इसकी कहानी आज भी उन लोगों द्वारा पूरे सिलसिलेवार तरीक़े से दोहराई जाती है, जिन्हें यह मुँहज़बानी याद है।',
       text: 'This is sung, not just said. At Sohrai and at the great gatherings, the story of how the world was made is still gone through properly, in order, by people who know it by heart.' }
   ],
   moral: 'The world got built by whoever could actually do the job — and that turned out to be a worm and a tortoise.',
@@ -1624,6 +2121,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'fk.karaikal-mango',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'The Second Mango',
@@ -1635,10 +2136,13 @@ window.IND_STORIES_MORE = [
   words_hi: [['आम', 'aam', 'mango'], ['भूख', 'bhookh', 'hunger'], ['गीत', 'geet', 'song']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'कारैकाल में — जो समुद्र तट पर बसा है और आज पुदुच्चेरी का हिस्सा है — पुनीतावती नाम की एक महिला रहती थीं। वे एक व्यापारी की बेटी थीं और फिर एक व्यापारी की पत्नी बनीं, वे अपना घर बहुत अच्छे से संभालती थीं, और उनकी एक ऐसी आदत थी जिसे पूरी गली जानती थी: उनके दरवाज़े से कोई भी भूखा कभी आगे नहीं जा पाया।',
       text: 'In Karaikal — which is on the coast, and is part of Puducherry today — there lived a woman called Punitavati. She was a merchant\'s daughter and then a merchant\'s wife, and she ran a good house, and she had one habit her whole street knew about: nobody hungry ever got past her door.' },
     { art: ['guard', 'courtier'], who: null,
+      hi: 'एक सुबह उनके पति परमदत्तन ने बाज़ार से दो आम घर भिजवाए — बहुत बढ़िया आम, ऐसे जिन्हें संभाल कर रखा जाता है — और साथ में संदेश भेजा कि वे दोपहर के खाने में इन्हें खाएँगे।',
       text: 'One morning her husband Paramadattan sent home two mangoes from the market — good ones, the sort you save — with a message that he would eat them at lunch.' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'और दोपहर के खाने से पहले दरवाज़े पर एक घुमंतू संन्यासी आए, दुबले-पतले, धूल से सने और भूख से हल्के-हल्के डगमगाते हुए, जिन्हें याद भी नहीं था कि उन्होंने आखिरी बार कब खाया था। उनके पास चावल तो तैयार थे, पर साथ में परोसने के लिए कोई सब्ज़ी नहीं थी।',
       text: 'And before lunch a wandering ascetic came to the door, thin and dusty and swaying slightly, who had not eaten in longer than he could remember. She had rice ready but no curry to go with it.',
       ask: {
         q: 'There are two mangoes on the shelf and they are not hers to give. What does she do?',
@@ -1648,18 +2152,25 @@ window.IND_STORIES_MORE = [
         wrong: 'She gave him a mango. It did not take her any time at all to decide, which is the whole point of her.'
       } },
     { art: ['courtier'], who: 'courtier',
+      hi: 'उन्होंने चावल के साथ एक आम उन्हें दे दिया। संन्यासी ने खाया, घर को आशीर्वाद दिया और आगे की राह पकड़ ली। और वह यह सोचते हुए रसोई में लौट आईं: शाम को मैं उन्हें सब बता दूँगी, और वे हँस पड़ेंगे।',
       text: 'She gave him one of the mangoes with the rice, and he ate, and blessed the house, and went off up the road. And she went back to the kitchen thinking: I will explain it this evening, and he will laugh.' },
     { art: ['guard', 'courtier'], who: 'guard',
+      hi: 'उनके पति जल्दी घर आ गए। उन्होंने पहला आम खाया और कहा कि पूरे साल में उन्होंने इतना बढ़िया आम नहीं खाया। "दूसरा वाला भी ले आओ।"',
       text: 'Her husband came home early. He ate the first mango and said it was the best he had had all year. "Bring the other one."' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: 'और पुनीतावती अपनी रसोई में खाली ताक के सामने खड़ी रह गईं, और उन्होंने वही एक काम किया जो वे तब करना जानती थीं जब कुछ समझ न आए: उन्होंने अपनी आँखें मूँद लीं और शिव का नाम लिया।',
       text: 'And Punitavati stood in her own kitchen with nothing on the shelf, and did the only thing she knew how to do when she did not know what to do: she shut her eyes and said the name of Shiva.' },
     { art: ['shiva', 'courtier'], who: null, mood: 'wow',
+      hi: 'और देखते ही देखते उनके हाथ में एक आम आ गया। वह उसे अंदर ले जाकर उन्हें दे आईं, और उन्होंने जैसे ही एक कौर खाया, चबाना रोक दिया, क्योंकि उसका स्वाद दुनिया के किसी भी बाज़ार के आम जैसा था ही नहीं।',
       text: 'And there was a mango in her hand. She carried it in and gave it to him, and he took one bite and stopped chewing, because it did not taste like a mango from any market anywhere.' },
     { art: ['guard', 'courtier'], who: 'guard', mood: 'wow',
+      hi: '"यह कहाँ से आया?" उसने उन्हें सब बता दिया। सब कुछ, साफ़-साफ़ — उस संन्यासी के बारे में, पहले आम के बारे में, आँखें मूँदने और उस दूसरे आम के बारे में। और परमदत्तन ने वह फल नीचे रख दिया और अपनी पत्नी को ऐसे देखा मानो उसे पहले कभी देखा ही न हो, और अचानक ही, उन्हें उससे डर लगने लगा।',
       text: '"Where did this come from?" She told him. All of it, plainly — the ascetic, the first mango, the shut eyes, the second one. And Paramadattan put the fruit down and looked at his wife as though he had never seen her before, and was, quite suddenly, frightened of her.' },
     { art: ['courtier'], who: null,
+      hi: 'वे इस बात को कभी पूरी तरह भूल नहीं पाए। और पुनीतावती, जिन्हें वह मिल गया था जो उन्होंने कभी माँगा ही नहीं था, आख़िरकार उन्होंने इसके साथ एक आम ज़िंदगी जीने की कोशिश छोड़ दी। वे निकल पड़ीं, और उन्होंने गाया, और उनके रचे गीत आज भी तमिल में गाए जाते हैं।',
       text: 'He never really got past it. And Punitavati, who had been given something she had not asked for, eventually stopped trying to live an ordinary life around it. She went, and she sang, and the songs she made are still sung in Tamil today.' },
     { art: ['shiva'], who: 'mithu',
+      hi: 'वे कारैक्काल अम्मैयार हैं — यानी कारैक्काल की माँ — और उनकी गिनती तिरसठ नायनमारों, यानी तमिल शैव संतों में होती है। उनके भजन तमिल की सबसे पुरानी भक्ति-कविताओं में गिने जाते हैं।',
       text: 'She is Karaikal Ammaiyar — the mother of Karaikal — and she is counted among the sixty-three Nayanmars, the Tamil Shaiva saints. Her hymns are some of the oldest Tamil devotional poetry there is.' }
   ],
   moral: 'Give the thing away first and work out how to explain it afterwards.',
@@ -1668,6 +2179,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'fk.andaman-fire',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'The Bird Who Carried the Fire',
@@ -1679,12 +2194,16 @@ window.IND_STORIES_MORE = [
   words_hi: [['आग', 'aag', 'fire'], ['चिड़िया', 'chidiya', 'bird'], ['द्वीप', 'dweep', 'island']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: 'अंडमान द्वीप समूह बंगाल की खाड़ी में बहुत दूर हैं — भारत की मुख्य भूमि के मुकाबले म्यांमार के ज़्यादा करीब — और उन द्वीपों के लोग वहाँ बहुत, बहुत लंबे समय से रह रहे हैं। ये उन्हीं की कहानियाँ हैं, और यहाँ इन्हें उन समुदायों के पूरे सम्मान के साथ सुनाया जा रहा है जो आज भी इन्हें सँभाले हुए हैं।',
       text: 'The Andaman Islands are a long way out in the Bay of Bengal — closer to Myanmar than to the Indian mainland — and the peoples of those islands have been there for a very, very long time. These are their stories, and they are told here with respect for the communities who still hold them.' },
     { art: ['courtier'], who: null, mood: 'sad',
+      hi: 'कहते हैं कि शुरुआत में, लोगों के पास आग नहीं थी। वे सब कुछ कच्चा ही खाते थे, रात को ठंड से ठिठुरते थे और अँधेरा घिर आने पर पेड़ों की ओट से आगे कुछ देख नहीं पाते थे।',
       text: 'In the beginning, they say, people had no fire. They ate everything raw and were cold at night and could not see past the edge of the trees when the dark came down.' },
     { art: ['courtier'], who: null,
+      hi: 'दुनिया में आग थी तो ज़रूर। बस एक ही। वह बिलिकु की थी, जो उत्तर-पूर्वी हवा है और अपने साथ तूफ़ान लाती है, और आग उसी के पास रहती थी, और वह ऐसी बिल्कुल नहीं थी जिससे कोई दोबारा कुछ माँगने की हिम्मत करे।',
       text: 'There was fire in the world. Exactly one. It belonged to Biliku, who is the north-east wind and the storms that come with her, and she kept it, and she was not the sort of person you asked twice.' },
     { art: ['pt_crow', 'courtier'], who: null, mood: 'think',
+      hi: '"लोगों ने इस बारे में बहुत देर तक बात की। किसी न किसी को तो जाना ही था। कोई बड़ा तो बिल्कुल नहीं हो सकता था — कोई बड़ा होता तो मीलों दूर से ही आता दिख जाता।"',
       text: 'The people talked about it for a long time. Someone would have to go. It could not be anybody big — anybody big would be seen coming a mile off.',
       ask: {
         q: 'Nobody can walk up and take fire from a storm. Who has any chance at all?',
@@ -1694,14 +2213,19 @@ window.IND_STORIES_MORE = [
         wrong: 'It had to be someone small. The kingfisher went — quick, and completely beneath anyone\'s notice.'
       } },
     { art: ['pt_crow'], who: null,
+      hi: '"किंगफ़िशर गया। उसने बिलिकु के सोने का इंतज़ार किया, अंधेरे में से बिना कोई आवाज़ किए नीचे आया, अपनी चोंच में एक जलती हुई लकड़ी थामी, और घर की ओर मुड़ गया।"',
       text: 'The kingfisher went. He waited until Biliku was asleep, came down out of the dark without a sound, took one burning brand in his beak, and turned for home.' },
     { art: ['pt_crow', 'courtier'], who: null, mood: 'wow',
+      hi: '"वह बचकर निकल नहीं पाया। वे जाग गईं, और उसके पीछे ऐसे पड़ीं जैसे कोई तूफ़ान किसी चीज़ के पीछे पड़ता है, और पूरा आसमान एक ही झटके में घिर आया — लेकिन वह छोटा था, तेज़ था और पानी के बिल्कुल ऊपर-ऊपर उड़ रहा था, और उसने पूरे रास्ते आग को संभाले रखा।"',
       text: 'He did not get away with it. She woke, and she came after him the way a storm comes after anything, and the whole sky went over in one go — but he was small and fast and low over the water, and he kept hold of the fire the whole way.' },
     { art: ['courtier'], who: null,
+      hi: '"उसने उसे बस्ती के बीचों-बीच गिरा दिया। और सबने एक-एक टुकड़ा उठाया और अपने-अपने घर ले गए, और उसके बाद से उन द्वीपों पर आग आ गई और वह कभी नहीं बुझी — क्योंकि तब से कोई न कोई उसे हमेशा जलाए रखता था।"',
       text: 'He dropped it in the middle of the camp. And people took a piece each, and carried it home, and after that there was fire on the islands and it never went out — because from then on somebody was always keeping it going.' },
     { art: ['courtier', 'pt_crow'], who: null, mood: 'think',
+      hi: '"बिलिकु नाराज़ ही रहीं, और कहानियों में वे आज भी नाराज़ हैं, और उत्तर-पूर्व से उन द्वीपों पर जो बड़े-बड़े तूफ़ान आते हैं, वे वही हैं। आप उन्हें हल्के में नहीं ले सकते। लेकिन आग बची रही।"',
       text: 'Biliku stayed angry, and in the tellings she is still angry, and the great storms that come across those islands from the north-east are her. You do not treat her lightly. But the fire stayed.' },
     { art: ['pt_crow'], who: 'mithu',
+      hi: '"अलग-अलग द्वीपों के लोग इसे अलग-अलग तरह से सुनाते हैं — पक्षी बदल जाता है, आग का रखवाला बदल जाता है, कभी आग चुराई जाती है तो कभी दी जाती है। जो बात नहीं बदलती, वह यह है कि कोई छोटा सा उसे पूरे रास्ते उठाकर घर तक लाया था।"',
       text: 'Different island communities tell this differently — the bird changes, the fire-keeper changes, sometimes it is stolen and sometimes it is given. What does not change is that it was carried, by someone small, all the way home.' }
   ],
   moral: 'The one nobody is watching is often the only one who can get there.',
@@ -1710,6 +2234,10 @@ window.IND_STORIES_MORE = [
 
 {
   id: 'fk.abotani-rice',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'desh-more',
   badge: 'katha',
   title: 'Abo Tani and the First Handful',
@@ -1721,14 +2249,19 @@ window.IND_STORIES_MORE = [
   words_hi: [['चावल', 'chaawal', 'rice'], ['पहला', 'pehla', 'first'], ['बाँटना', 'baantna', 'to share']],
   scenes: [
     { art: ['courtier'], who: null,
+      hi: '"अरुणाचल प्रदेश वह जगह है जहाँ भारत में सबसे पहले सूरज उगता है — इस नाम का मतलब ही है \'उगते सूरज के पहाड़ों की धरती\'। इसके एक बड़े हिस्से में रहने वाले आदि, निशि, अपातानी, गालो और कई दूसरे समुदाय अपने पूर्वज के रूप में एक ही इंसान को मानते हैं: आबो तानी, जो सबसे पहले इंसान थे। \'आबो\' का मतलब होता है पिता।"',
       text: 'Arunachal Pradesh is where the sun comes up first in India — the name means the land of dawn-lit mountains. Across a great stretch of it, the Adi, the Nyishi, the Apatani, the Galo and others all trace themselves back to the same person: Abo Tani, the first man. Abo means father.' },
     { art: ['courtier'], who: null,
+      hi: '"शुरुआत में आबो तानी वैसे ही जीते थे जैसे कोई तब जीता है जब किसी को कुछ भी पता न हो। जो मिल जाता, वे वही खा लेते थे। किसी दिन बहुत कुछ मिल जाता, तो किसी दिन कुछ भी नहीं, और यह जानने का कोई तरीका नहीं था कि आने वाला दिन कैसा होगा।"',
       text: 'In the beginning Abo Tani lived the way you live when nobody has worked anything out yet. He ate what he found. Some days he found a lot and some days he found nothing, and there was no way of telling which sort of day it was going to be.' },
     { art: ['courtier', 'guard'], who: 'guard',
+      hi: '"कहानियाँ कहती हैं कि आत्माओं — यानी वियु — के पास ऐसी चीज़ें थीं जो उनके पास नहीं थीं: बीज, और यह समझ कि उसका क्या करना है। और वे हमेशा मददगार नहीं होते थे, इसलिए आबो तानी को बहुत चतुर होना पड़ा, और उन्हें बीज कैसे मिला, इसकी कहानियाँ हर घाटी में अलग-अलग हैं।"',
       text: 'The stories say the spirits — the wiyus — had things he did not: the seed, and the knowing what to do with it. And they were not always friendly, and Abo Tani had to be quick, and the tellings of exactly how he got the seed differ from one valley to the next.' },
     { art: ['courtier'], who: null, mood: 'wow',
+      hi: '"लेकिन उन्हें बीज मिल ही गया। उन्होंने ढलान को साफ़ किया, उसे जलाकर तैयार किया, उसमें बीज बोया और इंतज़ार किया, और एक सुबह पूरी पहाड़ी कतारों में हरी-भरी हो उठी। और पतझड़ में इतना धान पैदा हुआ — जितना वे खा नहीं सकते थे, जितना वे उठा नहीं सकते थे, दुनिया की सबसे पहली फ़सल।"',
       text: 'But he got it. He cut the slope, he burned it clean, he put the seed in and waited, and one morning the whole hillside came up green in lines. And in the autumn there was rice — more than he could eat, more than he could carry, the first harvest there had ever been.' },
     { art: ['courtier'], who: null, mood: 'think',
+      hi: '"वे पहली टोकरी उठाकर घर लाए और उसे नीचे रख दिया, और खड़े होकर उसे देखने लगे, और फिर उनके मन में एक ऐसा विचार आया जो पहले कभी नहीं आया था। इससे पहले उन्होंने जो कुछ भी खाया था, जहाँ मिला वहीं खा लिया था। यह बात अलग थी। यह तो एक ढेर था।"',
       text: 'He carried the first basket home and set it down, and stood looking at it, and then he had a thought he had never needed to have before. Everything he had ever eaten before this, he had eaten where he found it. This was different. This was a heap.',
       ask: {
         q: 'The first harvest in the world is sitting in his house. What does he do with the first handful?',
@@ -1738,12 +2271,16 @@ window.IND_STORIES_MORE = [
         wrong: 'He did something that surprised his own family. He gave the first handful away before he ate a grain of it.'
       } },
     { art: ['courtier', 'pt_bull'], who: 'courtier',
+      hi: '"\\"यह सब सिर्फ़ मेरी वजह से नहीं हुआ,\\" आबो तानी ने कहा। \\"ढलान यहीं थी। बारिश यहीं थी। बीज कहीं और से आया। मैंने तो बस खुदाई की थी।\\" और उन्होंने पहली मुट्ठी उठाई और बाहर रख दी — ज़मीन के लिए, पानी के लिए, और हर उस इंसान के लिए जो उस साल भूखा रहा था।"',
       text: '"This did not come from me," said Abo Tani. "The slope was here. The rain was here. The seed came from somewhere else. I only did the digging." And he took the first handful and put it out — for the ground, for the water, for whoever had gone hungry that year.' },
     { art: ['guard', 'courtier'], who: null,
+      hi: 'और उसके बाद साल का एक ढर्रा बन गया। ज़मीन साफ़ करो, बीज बोओ, इंतज़ार करो, फ़सल काटो, और इससे पहले कि कुछ भी तुम्हारे मुँह में जाए, थोड़ा हिस्सा घर से बाहर जाता है। उसके बच्चों ने भी यही किया। उनके बच्चों ने भी यही किया।',
       text: 'And after that the year had a shape to it. You clear, you sow, you wait, you harvest, and before any of it goes in your mouth some of it goes out of the house. His children did it. Their children did it.' },
     { art: ['pt_bull'], who: null,
+      hi: 'मिथुन बाद में आया — इन पहाड़ियों का वह शानदार, आधा-जंगली पशु, जिसे न तो दूहा जाता है और न जिससे काम लिया जाता है, और जिसे कोई परिवार बस तभी सामने लाता है जब कोई बहुत ख़ास बात हो। लेकिन तब तक नियम बन चुका था, और मिथुन भी उसी पर चलता है: वह देने के लिए है।',
       text: 'The mithun came later — the great half-wild cattle of these hills, which are not milked and are not worked, and which a family keeps as the thing you bring out when something matters. But the rule was already set by then, and the mithun follows it: it is for giving.' },
     { art: ['courtier'], who: 'mithu',
+      hi: 'अरुणाचल भर के त्योहारों में — सोलुंग, मोपिन, न्योकुम, द्री और बाक़ी सब में — आप आज भी देखेंगे कि किसी के भी खाने-पीने बैठने से पहले, खाने और पीने की पहली चीज़ बाहर निकाली जाती है। किसी परिवार से पूछकर देखिए कि वे इसे क्या कहते हैं। हर घाटी में इसका अपना एक नाम है।',
       text: 'At festivals across Arunachal — Solung, Mopin, Nyokum, Dree, and others — you will still see the first of the food and the first of the drink go out before anybody sits down. Ask what a family calls theirs. Every valley has its own name for it.' }
   ],
   moral: 'The first handful goes out of the house. That is what turns a harvest into a home.',

@@ -270,17 +270,25 @@
       /* ------------------------------------------------------- the two layers */
       '.wa-layer{position:fixed;inset:0;pointer-events:none;overflow:hidden;contain:strict}',
       '.wa-layer *{pointer-events:none!important}',
-      '.wa-back{z-index:0}',                 /* behind #app (z-index 1) */
-      '.wa-stage{z-index:30;--wa-band-h:62px;--wa-foot-h:212px}',   /* above cards, below topbar (40) and nav (50) */
+      /* BOTH LAYERS SIT BEHIND THE APP (#app is z-index 1).
+         The stage used to stand at z-index 30, in front of the cards, on the
+         reasoning that a phone leaves only a 16px gutter so a pure backdrop
+         would go unseen. Watching it settled the argument the other way: a
+         world drifting over the tiles and the reading reads as interference,
+         not atmosphere. So the world is scenery now — it fills the gutters,
+         the margins and the reserved footer, the cards occlude it, and the
+         reading is never competing with a kite. */
+      '.wa-back{z-index:0}',
+      '.wa-stage{z-index:0;--wa-band-h:62px;--wa-foot-h:212px}',
       '@media (max-width:760px){.wa-stage{--wa-band-h:48px;--wa-foot-h:178px}}',
+      /* muted overall: scenery is meant to be noticed second, not first */
+      '.wa-back{opacity:.72}',
+      '.wa-stage{opacity:.82}',
       '.wa-bd{position:absolute;inset:0;overflow:hidden}',
-      /* .wa-air is the one full-bleed zone that lives IN FRONT of the cards.
-         On a phone the cards leave only a 16px gutter, so a backdrop alone is
-         invisible — the world has to breathe across the whole page. Everything
-         here is a soft radial wash (never a hard edge, never type-sized
-         detail) held at low alpha, so it tints the page like a colour gel and
-         leaves body text at its normal contrast. */
-      '.wa-air{position:absolute;inset:0;overflow:hidden}',
+      /* .wa-air was the full-bleed wash that lived in FRONT of the cards. It
+         is behind them now with everything else, and held lower still, so it
+         tints the page's open ground rather than veiling what is on it. */
+      '.wa-air{position:absolute;inset:0;overflow:hidden;opacity:.6}',
       '.wa-band{position:absolute;left:0;right:0;top:var(--wa-top-off,0px);height:var(--wa-band-h);overflow:hidden}',
       '.wa-sky{position:absolute;left:0;right:0;top:calc(var(--wa-top-off,0px) + var(--wa-band-h));' +
       '  bottom:calc(var(--wa-foot-off,0px) + var(--wa-foot-h) - 24px);overflow:hidden}',

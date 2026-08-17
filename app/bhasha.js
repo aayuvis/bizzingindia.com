@@ -1284,7 +1284,59 @@ var HI_S4 = hiSentences([
   ['s4-65', 'agreement', 'आज मौसम अच्छा है।', 'aaj mausam achchha hai.', 'The weather is good today.', ['आज', 'मौसम', 'अच्छा']],
   ['s4-66', 'quantity', 'थोड़ा दूध और चाहिए।', 'thoda doodh aur chaahiye.', 'I want a little more milk.', ['थोड़ा', 'दूध', 'चाहिए']],
   ['s4-67', 'quantity', 'तीन बिल्लियाँ छत पर हैं।', 'teen billiyaan chhat par hain.', 'Three cats are on the roof.', ['तीन', 'बिल्ली', 'छत']],
-  ['s4-68', 'quantity', 'सब बच्चे बगीचे में हैं।', 'sab bachche bageeche mein hain.', 'All the children are in the garden.', ['सब', 'बच्चा', 'बगीचा']]
+  ['s4-68', 'quantity', 'सब बच्चे बगीचे में हैं।', 'sab bachche bageeche mein hain.', 'All the children are in the garden.', ['सब', 'बच्चा', 'बगीचा']],
+
+  /* PHASE C — the thin points, filled. `gender` had three sentences and `respect` had
+     ONE, which is not enough to teach either and nowhere near enough for the SRS to
+     schedule. Respect in particular is the point this whole app exists to get right: a
+     diaspora child speaking to their nani has one English word, "you", and three Hindi
+     ones to choose between. These are tied to the scenes where the choice actually
+     bites — the phone call to nani, and greeting an elder at the door.
+
+     Craft rules unchanged (docs/09 §4): 3-10 words, present-day, a child of 6-10 says or
+     hears each of these at home, elders always take आप and the honorific plural. */
+
+  /* respect — आप, and the plural verb that comes with it */
+  ['s4-69', 'respect', 'आप कैसे हैं?', 'aap kaise hain?', 'How are you? (to an elder)', ['आप', 'कैसा', 'है']],
+  ['s4-70', 'respect', 'नानी, आप कहाँ हैं?', 'nani, aap kahan hain?', 'Nani, where are you?', ['आप', 'कहाँ', 'है']],
+  ['s4-71', 'respect', 'आप मेरी नानी हैं।', 'aap meri nani hain.', 'You are my grandmother.', ['आप', 'मेरा', 'है']],
+  ['s4-72', 'respect', 'दादा जी आ रहे हैं।', 'dada ji aa rahe hain.', 'Grandfather is coming.', ['दादा', 'आना', 'है']],
+  ['s4-73', 'respect', 'आप बैठिए।', 'aap baithiye.', 'Please sit down. (to an elder)', ['आप', 'बैठना']],
+  ['s4-74', 'respect', 'आप चाय लीजिए।', 'aap chai leejiye.', 'Please have some tea.', ['आप', 'चाय', 'लेना']],
+  ['s4-75', 'respect', 'तुम कहाँ जा रहे हो?', 'tum kahan ja rahe ho?', 'Where are you going? (to a friend)', ['तुम', 'कहाँ', 'जाना']],
+  ['s4-76', 'respect', 'तुम मेरे दोस्त हो।', 'tum mere dost ho.', 'You are my friend.', ['तुम', 'मेरा', 'दोस्त']],
+  ['s4-77', 'respect', 'मम्मी, आप सुन रही हैं?', 'mummy, aap sun rahi hain?', 'Mummy, are you listening?', ['आप', 'सुनना']],
+  ['s4-78', 'respect', 'आप क्या कह रहे हैं?', 'aap kya keh rahe hain?', 'What are you saying? (to an elder)', ['आप', 'क्या', 'कहना']],
+  ['s4-79', 'respect', 'नाना जी, आपका नाम क्या है?', 'nana ji, aapka naam kya hai?', 'Nana, what is your name?', ['नाना', 'नाम', 'क्या']],
+  ['s4-80', 'respect', 'तुम्हारा बस्ता कहाँ है?', 'tumhara basta kahan hai?', 'Where is your school bag? (to a friend)', ['तुम', 'बस्ता', 'कहाँ']],
+  ['s4-81', 'respect', 'आप आराम कीजिए।', 'aap aaraam keejiye.', 'Please rest. (to an elder)', ['आप', 'आराम']],
+  ['s4-82', 'respect', 'दीदी, तुम आओगी?', 'didi, tum aaogi?', 'Didi, will you come?', ['तुम', 'आना']],
+
+  /* gender — the thing that has to be learned WITH the noun, so each of these pairs a
+     noun with a word that visibly changes to match it */
+  ['s4-83', 'gender', 'यह मेरी किताब है।', 'yah meri kitaab hai.', 'This is my book.', ['मेरा', 'किताब', 'है']],
+  ['s4-84', 'gender', 'यह मेरा बस्ता है।', 'yah mera basta hai.', 'This is my school bag.', ['मेरा', 'बस्ता', 'है']],
+  ['s4-85', 'gender', 'मेरी बिल्ली छोटी है।', 'meri billi chhoti hai.', 'My cat is small.', ['मेरा', 'बिल्ली', 'छोटा']],
+  ['s4-86', 'gender', 'मेरा कुत्ता बड़ा है।', 'mera kutta bada hai.', 'My dog is big.', ['मेरा', 'कुत्ता', 'बड़ा']],
+  ['s4-87', 'gender', 'रोटी गरम है।', 'roti garam hai.', 'The roti is hot.', ['रोटी', 'गरम', 'है']],
+  ['s4-88', 'gender', 'दूध ठंडा है।', 'doodh thanda hai.', 'The milk is cold.', ['दूध', 'ठंडा', 'है']],
+  ['s4-89', 'gender', 'यह चिड़िया छोटी है।', 'yah chidiya chhoti hai.', 'This bird is small.', ['चिड़िया', 'छोटा']],
+  ['s4-90', 'gender', 'वह पेड़ बड़ा है।', 'vah ped bada hai.', 'That tree is big.', ['पेड़', 'बड़ा', 'है']],
+  ['s4-91', 'gender', 'मेरी माँ गाना गाती है।', 'meri maa gaana gaati hai.', 'My mother sings a song.', ['माँ', 'गाना', 'गाना']],
+  ['s4-92', 'gender', 'मेरा भाई गाना गाता है।', 'mera bhai gaana gaata hai.', 'My brother sings a song.', ['भाई', 'गाना', 'गाना']],
+  ['s4-93', 'gender', 'बहन स्कूल जाती है।', 'bahan school jaati hai.', 'My sister goes to school.', ['बहन', 'जाना']],
+  ['s4-94', 'gender', 'भाई स्कूल जाता है।', 'bhai school jaata hai.', 'My brother goes to school.', ['भाई', 'जाना']],
+  ['s4-95', 'gender', 'यह गली छोटी है।', 'yah gali chhoti hai.', 'This lane is narrow.', ['गली', 'छोटा']],
+  ['s4-96', 'gender', 'यह घर बड़ा है।', 'yah ghar bada hai.', 'This house is big.', ['घर', 'बड़ा', 'है']],
+  ['s4-97', 'gender', 'चाय मीठी है।', 'chai meethi hai.', 'The tea is sweet.', ['चाय', 'मीठा', 'है']],
+  ['s4-98', 'gender', 'आम मीठा है।', 'aam meetha hai.', 'The mango is sweet.', ['आम', 'मीठा', 'है']],
+  ['s4-99', 'gender', 'मेरी दादी कहानी सुनाती हैं।', 'meri dadi kahani sunaati hain.', 'My grandmother tells a story.', ['दादी', 'कहानी']],
+
+  /* plural — one sentence was not a point either */
+  ['s4-100', 'plural', 'दो लड़के खेल रहे हैं।', 'do ladke khel rahe hain.', 'Two boys are playing.', ['दो', 'लड़का', 'खेलना']],
+  ['s4-101', 'plural', 'तीन लड़कियाँ गा रही हैं।', 'teen ladkiyan ga rahi hain.', 'Three girls are singing.', ['तीन', 'लड़की', 'गाना']],
+  ['s4-102', 'plural', 'मेरी दो बहनें हैं।', 'meri do bahanein hain.', 'I have two sisters.', ['दो', 'बहन', 'है']],
+  ['s4-103', 'plural', 'बहुत सारी किताबें हैं।', 'bahut saari kitaabein hain.', 'There are many books.', ['बहुत', 'किताब', 'है']]
 ]);
 
 /* Stage 5 — Baat-cheet. Sunday’s video call, the dinner table, the shop.
@@ -1900,6 +1952,43 @@ function passageBank(pack) {
   if (!pack) return null;
   var p = (W.IND_BHASHA_PASSAGES || {})[pack.id];
   return (p && p.length) ? p : null;
+}
+
+/* THE GRAMMAR BANK — Phase C. Same registry shape as sentences, dialogues and passages:
+   one global keyed by pack id, absent until content lands, every caller guarded. A pack
+   with no grammar behaves exactly as it did before.
+
+   Read LAZILY, never folded into the pack at build time. The passage bank shipped broken
+   once by being read at pack-build time — the banks register AFTER bhasha.js evaluates,
+   so the build read an empty registry and every passage came out with audio:null. Ask
+   the registry when you need it, not when you define the pack. */
+function grammarBank(pack) {
+  pack = resolvePack(pack);
+  if (!pack) return null;
+  var g = (W.IND_BHASHA_GRAMMAR || {})[pack.id];
+  return (g && g.length) ? g : null;
+}
+
+/* One grammar point, with its worked examples resolved from ids to the real sentences.
+   By id and never re-typed: correct a sentence and its card follows automatically. */
+function grammarPoint(pack, id) {
+  var bank = grammarBank(pack);
+  if (!bank) return null;
+  var g = null, i;
+  for (i = 0; i < bank.length; i++) if (bank[i].id === id) g = bank[i];
+  if (!g) return null;
+  var byId = {}, st = (resolvePack(pack) || {}).stages || [];
+  for (i = 0; i < st.length; i++) {
+    (st[i].items || []).forEach(function (it) { if (it.id) byId[it.id] = it; });
+  }
+  var eg = (g.eg || []).map(function (x) { return byId[x]; }).filter(Boolean);
+  /* every sentence carrying this point, so the card can say how much practice it has */
+  var all = [];
+  for (i = 0; i < st.length; i++) {
+    (st[i].items || []).forEach(function (it) { if (it.point === id) all.push(it); });
+  }
+  return { id: g.id, hi: g.hi, roman: g.roman, en: g.en, rule: g.rule, watch: g.watch,
+    eg: eg, count: all.length, srsKey: 'gram:' + g.id };
 }
 
 function dialogueBank(pack) {
@@ -3348,6 +3437,11 @@ W.IND_BHASHA = {
      implementation of "hide the word", so the rule cannot drift per screen */
   sentences: sentenceMap,
   dialogues: dialogueBank,
+
+  /* the grammar points as taught objects (Phase C): the bank, and one point with its
+     worked examples resolved from ids to the real sentences */
+  grammar: grammarBank,
+  grammarPoint: grammarPoint,
   passages: passageBank,
   sentence: sentenceFor,
   mask: maskWord,

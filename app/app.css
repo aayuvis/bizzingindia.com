@@ -2027,3 +2027,17 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .brand img, .brand svg { width: 42px; height: 42px; }
 
 }
+
+/* ---------------------------------------------------------------- vyakaran
+   A grammar point reads as a card you can hold, not a table row: the rule big, the
+   trap boxed, and the worked examples as things you can tap and hear. */
+.gcard .gline {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px;
+  width: 100%; text-align: left; margin-top: 8px; padding: 10px 12px; cursor: pointer;
+  background: var(--card2); border: 1px solid var(--line); border-radius: var(--radius-md);
+  color: var(--text);
+}
+.gcard .gline .deva { font-size: 19px; line-height: 1.7; grid-column: 1; }
+.gcard .gline .tiny { grid-column: 1; }
+.gcard .gline svg { grid-column: 2; grid-row: 1 / span 2; color: var(--accent); }
+.gcard .gline:hover { border-color: var(--accent); }

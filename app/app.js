@@ -3373,9 +3373,17 @@
           return node;
         }).join('') + '</div></div>' +
 
-      /* The two references, behind their own doors — a chart is not a lesson,
-         and neither is a dictionary. Both are here to be looked things up in. */
+      /* The THREE references, behind their own doors — a chart is not a lesson, and
+         neither is a dictionary or a grammar. All three are here to be looked things up
+         in, which is a different job from being taught. */
       '<div class="grid g2">' +
+      (window.IND_BHASHA && window.IND_BHASHA.grammar && window.IND_BHASHA.grammar(id)
+        ? '<button class="tile" data-act="vyakaran" data-id="' + id + '">' +
+          '<b class="deva" lang="' + esc(id) + '">व्याकरण</b>' +
+          '<span class="tiny muted">The ' + window.IND_BHASHA.grammar(id).length +
+          ' things that decide how a sentence is built — each one with the mistake ' +
+          'almost everybody makes.</span></button>'
+        : '') +
       '<button class="tile" data-act="chart" data-id="' + id + '">' +
         '<b>The ' + esc(sc.name) + ' chart</b>' +
         '<span class="tiny muted">All ' + ((sc.vowels || []).length + (sc.consonants || []).length) +
@@ -3388,6 +3396,72 @@
   };
 
   /* The letter chart. A reference, deliberately separate from the lessons. */
+
+  /* ------------------------------------------------------------ GRAMMAR (Phase C)
+     Sixteen grammar points, as things a child can read rather than labels on a
+     sentence. Each card carries the rule in one sentence they can hold, the mistake an
+     English-speaking child actually makes, and worked examples pulled BY ID from the
+     sentences already written — so correcting a sentence corrects its card.
+
+     Deliberately not a quiz screen. This is the page you send a child to when they ask
+     "why is it की and not का", and the page a grown-up reads before they try to help. */
+  V.vyakaran = function (packId) {
+    var B = window.IND_BHASHA;
+    var pack = packId || 'hi';
+    var bank = B && B.grammar ? B.grammar(pack) : null;
+    var P = window.IND_PACKS[pack] || {};
+    var pname = (P.name && P.name.en) || 'this language';
+    /* A pack with no grammar written yet gets a REAL page, not a one-line stub. Hindi is
+       first by design (docs/09 §8) and the other eight follow it; saying so plainly is
+       better than a dead end, and it is the honest state of the work. */
+    if (!bank) {
+      return '<button class="backlink" data-act="pack" data-p="' + esc(pack) + '">' +
+          icon('back', 18) + ' ' + esc(pname) + '</button>' +
+        '<div class="card"><h1 style="margin:0">Vyakaran</h1>' +
+        '<div class="mono">' + esc(pname) + '</div>' +
+        '<p style="margin:10px 0 0">The grammar of ' + esc(pname) + ' has not been written up ' +
+        'yet. Hindi went first on purpose — its sixteen points are the shape every other ' +
+        'pack is mapped onto, so getting that one right saves doing the work eight more ' +
+        'times badly.</p>' +
+        '<p class="tiny muted" style="margin:10px 0 0">The words, the letters and the ' +
+        'lessons for ' + esc(pname) + ' all work today. It is only this reference that is waiting.</p>' +
+        '</div>' +
+        '<button class="tile" data-act="vyakaran" data-id="hi"><b>See how it works in Hindi</b>' +
+        '<span class="tiny muted">The same sixteen questions, answered — most of them ' +
+        'have a close cousin in ' + esc(pname) + '.</span></button>';
+    }
+    return '<button class="backlink" data-act="pack" data-p="' + esc(pack) + '">' +
+        icon('back', 18) + ' ' + esc(pname) + '</button>' +
+      '<div class="card"><h1 style="margin:0">Vyakaran</h1>' +
+      '<div class="mono">How ' + esc(pname) + ' puts a sentence together</div>' +
+      '<p style="margin:10px 0 0">Sixteen things. Not rules to recite — each one is the ' +
+      'answer to a question you will actually have, and the mistake almost everybody makes ' +
+      'on the way.</p></div>' +
+      bank.map(function (g) {
+        var pt = B.grammarPoint(pack, g.id);
+        if (!pt) return '';
+        return '<div class="card gcard">' +
+          '<div class="spread" style="align-items:baseline">' +
+            '<div><span class="deva" style="font-size:23px;font-weight:700">' + esc(pt.hi) + '</span> ' +
+            '<span class="mono" style="text-transform:none">' + esc(pt.roman) + '</span></div>' +
+            '<span class="pill stat tiny">' + pt.count + ' sentence' + (pt.count === 1 ? '' : 's') + '</span>' +
+          '</div>' +
+          '<h3 style="margin:4px 0 8px">' + esc(pt.en) + '</h3>' +
+          '<p style="margin:0 0 10px">' + esc(pt.rule) + '</p>' +
+          '<div class="card flat tight" style="margin:0 0 10px">' +
+            '<span class="mono">Watch out</span>' +
+            '<div class="tiny" style="margin-top:5px">' + esc(pt.watch) + '</div></div>' +
+          pt.eg.map(function (e) {
+            return '<button class="gline" data-act="say" data-k="' + esc(e.audio || '') +
+              '" data-t="' + esc(e.hi) + '" data-l="hi-IN">' +
+              '<span class="deva">' + esc(e.hi) + '</span>' +
+              '<span class="tiny muted">' + esc(e.en) + '</span>' +
+              icon('sound', 17) + '</button>';
+          }).join('') +
+          '</div>';
+      }).join('');
+  };
+
   V.chart = function (id) {
     var p = window.IND_PACKS[id]; if (!p) return '<div class="card">Not found.</div>';
     var sc = window.IND_SCRIPTS[p.script];
@@ -4289,6 +4363,7 @@
       case 'bhasha': h = V.bhasha(); break;
       case 'pack': h = V.pack(view.arg); break;
       case 'chart': h = V.chart(view.arg); break;
+      case 'vyakaran': h = V.vyakaran(view.arg); break;
       case 'kosh': h = V.kosh(view.arg); break;
       case 'wordcard': h = V.wordcard(view.arg); break;
       case 'mela': h = V.mela(); break;
@@ -4738,6 +4813,8 @@
       toast(S.dev ? 'Developer unlock ON — everything is open.' : 'Developer unlock off.');
       return render();
     }
+
+    if (a === 'vyakaran') return go('vyakaran', t.getAttribute('data-id'));
 
     if (a === 'world')  {
       S.world = t.getAttribute('data-w'); save();

@@ -45,12 +45,10 @@ git archive HEAD app | tar -x -C "$WT" --strip-components=1
 git show HEAD:README.md > "$WT"/README.md 2>/dev/null || true
 touch "$WT"/.nojekyll
 
-# THE CUSTOM DOMAIN. This script clears every tracked file on gh-pages before laying the
-# new tree down, which is right for orphaned assets and wrong for one file: GitHub Pages
-# keeps the custom domain in a CNAME file IN THE SERVED BRANCH, and wiping it can unset
-# the domain — the site then answers on github.io and bizzingindia.com stops resolving to
-# it, which looks exactly like "the deploy did nothing". Write it back every time.
-echo "bizzingindia.com" > "$WT"/CNAME
+# NO CNAME. Deliberately: the site is served from GitHub Pages' own github.io address
+# while it is in development, and writing a CNAME here would point Pages at a domain
+# that is not being used yet — which takes the site OFF the address that does work.
+# The custom domain gets wired up when the founder decides to, not by this script.
 
 git -C "$WT" add -A
 if git -C "$WT" diff --cached --quiet; then

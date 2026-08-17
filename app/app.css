@@ -1830,3 +1830,109 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--card2); border: 1px solid var(--line2); border-radius: var(--radius-md);
   color: var(--text2); cursor: pointer; }
 .optear:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ================================ THE STORY READER, MADE TO FIT ============
+   A scene used to be a tall stack that simply ran off the bottom: at 390x760 —
+   an ordinary phone — the "Then what happened?" button sat at 791px in a 760px
+   viewport, so a child had to scroll to turn the page, on a SHORT scene. Longer
+   scenes were worse, and turning Hindi on roughly doubles the text.
+
+   So the reader is a column that owns the viewport: the art gives up height
+   first, the words take what is left and scroll inside their own panel if they
+   must, and the controls are pinned where a thumb already is. Nothing about a
+   page turn moves, whatever the scene is. */
+.reader {
+  display: flex; flex-direction: column; gap: 10px;
+  /* A DEFINITE height, not a minimum. With min-height the column is free to
+     grow past the screen and nothing ever shrinks — which is exactly what
+     happened: the reserve was correct and the page turn button still sat under
+     the navigation, because the speech panel had no reason to give way. A fixed
+     height makes the flex children negotiate, and .speech scrolls inside itself.
+
+     dvh, not vh: on a phone the browser's own chrome slides away and vh lies
+     about how much room there actually is. */
+  height: calc(100dvh - var(--readerchrome, 210px));
+  max-width: 720px; margin: 0 auto;
+}
+.rhead { display: flex; align-items: center; gap: 10px; flex: none; }
+.rhead .dots { flex: 1; margin: 0; }
+.rhead .badge { flex: none; }
+
+/* The art yields first — it is the most compressible thing on the page, and a
+   scene that has to lose something should lose picture, never words. */
+.reader .stage { flex: 1 1 auto; min-height: 120px; max-height: 34vh; margin: 0; }
+.reader .stage img, .reader .stage svg { max-height: 26vh; width: auto; height: auto; }
+
+.reader .speech {
+  flex: 0 1 auto; min-height: 0; overflow-y: auto; margin: 0;
+  padding: 16px 18px; font-size: 16.5px;
+}
+.reader .speech p { margin: 0; }
+.reader .speech .sen + .sdeva, .reader .speech .sdeva + .sen { margin-top: 10px; }
+.rfoot { flex: none; }
+.rfoot .card { margin-top: 0; }
+
+/* The Hindi lane. Real Devanagari face, ~12% up on the Latin beside it,
+   line-height well clear of 1.7, never letter-spaced (CLAUDE.md). It leads,
+   because when the toggle is on Hindi is the thing being read and English is
+   the crib. */
+.sdeva {
+  font-family: var(--deva); font-size: 18.5px; line-height: 1.85;
+  letter-spacing: normal; color: var(--text);
+}
+.reader.twoup .sen { color: var(--text2); font-size: 15.5px; line-height: 1.6; }
+.reader.twoup .speech { padding-top: 14px; }
+/* a hairline between the two languages, so they read as a pair not a paragraph */
+.reader.twoup .sen { border-top: 1px solid var(--line); padding-top: 10px; }
+
+/* Wide screens have the room, so give the art back its presence rather than
+   letterboxing a desktop window to phone proportions. */
+@media (min-width: 900px) {
+  /* Also measured: on a 1280x860 window the topbar ends at 144 and there is no
+     bottom nav at all, so 716px is available and 210 was leaving 66px unused
+     while clipping the longest scene. */
+  .reader { --readerchrome: 164px; }
+  .reader .stage { max-height: 42vh; }
+  .reader .stage img, .reader .stage svg { max-height: 34vh; }
+  .reader .speech { font-size: 17.5px; }
+  .sdeva { font-size: 20px; }
+}
+/* WITH BOTH LANGUAGES UP, THE PICTURE GIVES WAY.
+   The first cut kept the art at full height and let the speech panel scroll,
+   which quietly defeated the whole feature: the Hindi filled the panel and the
+   English crib was below the fold, so "side by side" was one language and a
+   scrollbar. The art is the compressible thing here — a child reading two
+   languages is reading, not looking. */
+.reader.twoup .stage { max-height: 22vh; }
+.reader.twoup .stage img, .reader.twoup .stage svg { max-height: 18vh; }
+@media (min-width: 900px) {
+  /* a desktop window has the room for both languages AND the painting */
+  .reader.twoup .stage { max-height: 34vh; }
+  .reader.twoup .stage img, .reader.twoup .stage svg { max-height: 28vh; }
+}
+
+@media (max-width: 430px) {
+  /* The reserve covers BOTH bars: the topbar, which wraps to two rows on a
+     phone, and the nav pinned to the bottom edge. MEASURED, not guessed, and
+     twice — 232px put the page-turn button under the navigation, then 300px
+     over-corrected and starved the text panel by 63px while leaving 119px of
+     the screen doing nothing. On a 390x760 phone the topbar ends at 113 and the
+     nav starts at 692, so 579px is genuinely available and the reserve is 181
+     plus a little breathing room. */
+  .reader { --readerchrome: 196px; gap: 8px; }
+  .reader .stage { max-height: 28vh; }
+  .reader .stage img, .reader .stage svg { max-height: 22vh; }
+  .reader .speech { font-size: 15.5px; padding: 13px 15px; }
+  .sdeva { font-size: 17px; line-height: 1.8; }
+  .reader.twoup .sen { font-size: 14px; }
+  .reader.twoup .stage { max-height: 17vh; }
+  .reader.twoup .stage img, .reader.twoup .stage svg { max-height: 14vh; }
+}
+
+/* the Hindi switch, beside the family-language chip */
+.hitoggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.hitoggle .deva { font-family: var(--deva); font-size: 15px; line-height: 1; }
+.hitoggle .hilbl { font-size: 12.5px; }
+.hitoggle.on { background: var(--accent); color: #fff; border-color: transparent; }
+.hitoggle.on:hover { color: #fff; }
+@media (max-width: 560px) { .hitoggle .hilbl { display: none; } }

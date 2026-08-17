@@ -72,6 +72,7 @@
     tongue: null,                 /* mother-tongue id from data-tongue.js; null = lean nowhere */
     buddy: 'ganesha', world: 'delhi6',
     voice: 'f',                   /* which recorded voice to hear — see humanClip() */
+    hindi: false,                 /* read stories in Hindi alongside English */
     kauris: 0, xp: 0,
     lit: {}, read: {}, lang: {},
     streak: { days: [], last: null, count: 0 },
@@ -1426,20 +1427,39 @@
 
     var sc = st.scenes[play.i], cast = (sc.art || []).slice(0, 2), teller = sc.who === 'mithu';
     var img = storyArt(st.id);
-    return '<button class="backlink" data-act="go" data-v="stories">' + icon('back', 18) + ' Stories</button>' +
-      '<div class="spread" style="margin-bottom:12px"><span class="badge ' + st.badge + '">' + st.badge + '</span>' +
-      '<div class="dots">' + st.scenes.map(function (_, i) { return '<i class="' + (i <= play.i ? 'on' : '') + '"></i>'; }).join('') + '</div></div>' +
+    /* HINDI ALONGSIDE. On when the reader has the toggle on AND this scene has
+       been translated — a story with no Hindi simply reads as it always did,
+       which is why the toggle can be global while the content arrives one
+       story at a time. */
+    var hi = (S.hindi && sc.hi) ? sc.hi : null;
+    var key = 'st/' + slug(st.id) + '-' + play.i;
+    /* the Hindi telling has its own clip; fall back to the English one so the
+       Again button is never dead while a translation is still being voiced */
+    var sayKey = hi && window.IND_VOICE && window.IND_VOICE.indexOf(key + '-hi') >= 0
+      ? key + '-hi' : key;
+
+    return '<div class="reader' + (hi ? ' twoup' : '') + '">' +
+      '<div class="rhead">' +
+      '<button class="backlink" style="padding:0" data-act="go" data-v="stories">' + icon('back', 18) + ' Stories</button>' +
+      '<div class="dots">' + st.scenes.map(function (_, i) { return '<i class="' + (i <= play.i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
+      '<span class="badge ' + st.badge + '">' + st.badge + '</span></div>' +
+
       '<div class="stage"' + (img ? ' style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(' + img + ')"' : '') + '>' + (teller ? '<div class="speaking">' + mascot('mithu', 'talk', 128) + '</div>' :
         cast.map(function (c, i) { return '<div class="' + (i === 0 ? 'speaking' : '') + '">' + art(c, i === 0 ? 128 : 100) + '</div>'; }).join('')) + '</div>' +
+
       /* Bubble when somebody is talking, plain panel when the storyteller is. */
-      '<div class="speech' + (hasDialogue(sc.text) ? ' bubble' : '') + '" style="margin-top:14px">' +
+      '<div class="speech' + (hasDialogue(sc.text) ? ' bubble' : '') + '">' +
       (teller ? '<span class="who">Mithu</span>'
               : (cast[0] && avatarName(cast[0]) ? '<span class="who">' + esc(avatarName(cast[0])) + '</span>' : '')) +
-      esc(sc.text).replace(/\*(.+?)\*/g, '<i>$1</i>') + '</div>' +
-      (sc.ask ? V.ask(sc.ask) :
-        '<div class="row" style="margin-top:14px">' +
-        '<button class="btn ghost" data-act="say" data-k="st/' + slug(st.id) + '-' + play.i + '">' + icon('sound', 18) + ' Again</button>' +
-        '<button class="btn" style="flex:1" data-act="next">Then what happened? →</button></div>');
+      (hi ? '<p class="sdeva" lang="hi">' + esc(hi) + '</p>' : '') +
+      '<p class="sen">' + esc(sc.text).replace(/\*(.+?)\*/g, '<i>$1</i>') + '</p></div>' +
+
+      (sc.ask ? '<div class="rfoot">' + V.ask(sc.ask) + '</div>' :
+        '<div class="rfoot"><div class="row">' +
+        '<button class="btn ghost" data-act="say" data-k="' + sayKey + '" data-t="' + esc(hi || '') +
+        '" data-l="' + (hi ? 'hi-IN' : 'en-IN') + '">' + icon('sound', 18) + ' Again</button>' +
+        '<button class="btn" style="flex:1" data-act="next">Then what happened? →</button></div></div>') +
+      '</div>';
   };
 
   V.ask = function (a) {
@@ -4015,6 +4035,18 @@
           (tongue() ? '<span lang="' + tongue().lang + '">' + esc(tongue().native) + '</span>' : icon('script', 16)) +
           '</button>'
         : '') +
+      /* READ IN HINDI. It sits beside the family-language chip because it is the
+         same kind of decision — what language this child is reading in — and it
+         is one tap from anywhere rather than buried per story.
+
+         Deliberately global with per-story content: a story that has no Hindi
+         simply reads as it always did, so the switch can ship now and the
+         translations can arrive one story at a time without ever showing a
+         child a half-translated page. */
+      '<button class="pill hitoggle' + (S.hindi ? ' on' : '') + '" data-act="hindi"' +
+      ' aria-pressed="' + (S.hindi ? 'true' : 'false') + '"' +
+      ' aria-label="Read stories in Hindi as well as English">' +
+      '<span class="deva" aria-hidden="true">अ</span><span class="hilbl">Hindi</span></button>' +
       '<button class="iconbtn' + (soundOn ? '' : ' off') + '" data-act="sound"' +
       ' aria-pressed="' + (soundOn ? 'true' : 'false') + '" aria-label="Sound">' +
       icon('sound', 20) + '</button>' +
@@ -4045,6 +4077,11 @@
     if (s) {
       s.classList.toggle('off', !soundOn);
       s.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+    }
+    var h = document.querySelector('.topbar [data-act="hindi"]');
+    if (h) {
+      h.classList.toggle('on', !!S.hindi);
+      h.setAttribute('aria-pressed', S.hindi ? 'true' : 'false');
     }
     var n = document.querySelector('.topbar [data-act="night"]');
     if (n) {
@@ -4430,6 +4467,11 @@
     if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); toast('Sound ' + (soundOn ? 'on' : 'off')); paintChrome(); return render(); }
     if (a === 'night')  { night = !night; Store.saveDevice('night', night); toast(night ? 'Night' : 'Day'); paintChrome(); return render(); }
     if (a === 'voice')  { S.voice = S.voice === 'm' ? 'f' : 'm'; save(); toast(S.voice === 'm' ? 'Man’s voice' : 'Woman’s voice'); return render(); }
+    if (a === 'hindi')  {
+      S.hindi = !S.hindi; save();
+      toast(S.hindi ? 'Stories in Hindi and English' : 'Stories in English');
+      paintChrome(); return render();
+    }
     if (a === 'reset')  { if (confirm('Clear everything on this device and start again?')) { localStorage.removeItem(Store.KEY); location.reload(); } return; }
     if (a === 'mon')    { var mo = (window.IND_GEO.monuments || []).filter(function (x) { return x.id === t.getAttribute('data-id'); })[0]; if (mo) toast(mo.name + ' — ' + mo.fact); return; }
     if (a === 'pack')   { quiz = quizReset(null); return go('pack', t.getAttribute('data-id')); }

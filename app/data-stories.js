@@ -21,6 +21,16 @@ window.IND_STORIES = [
 /* ======================================================= PANCHATANTRA ===== */
 {
   id: 'pt.lion-rabbit',
+  /* FIRST STORY WITH A HINDI TELLING (the `hi` on each scene below).
+     It is a translation, not a transliteration: the Hindi reads as Hindi,
+     with its own idiom, rather than tracking the English word for word.
+
+     NEEDS A NATIVE CHECK PER LINE BEFORE LAUNCH — same standing flag as
+     data-nani.js and the Bhasha sentence bank. Every line here is a draft
+     until a named Hindi pedagogue signs it, and the audio at
+     st/pt-lion-rabbit-<n>-hi is synthesised from these drafts, so a
+     correction means re-running tools/tts.py on the fixed line. */
+  needs_native_speaker: true,
   collection: 'panchatantra',
   badge: 'katha',
   title: 'The Lion Who Met Himself',
@@ -32,14 +42,19 @@ window.IND_STORIES = [
   words_hi: [['शेर', 'sher', 'lion'], ['खरगोश', 'khargosh', 'rabbit'], ['कुआँ', 'kuan', 'well']],
   scenes: [
     { art: ['pt_lion'], who: null, mood: 'think',
+      hi: 'मंदार के जंगल में भासुरक नाम का एक शेर रहता था। वह भूखा नहीं था। मुश्किल यही थी। वह मज़े के लिए मारता था — दिन में दस जानवर — और जंगल ख़ाली होता जा रहा था।',
       text: 'In the forest of Mandara there lived a lion called Bhasuraka. He was not hungry. That was the trouble. He killed for the fun of it, ten animals a day, and the forest was emptying out.' },
     { art: ['pt_deer', 'pt_lion'], who: 'pt_deer',
+      hi: '“महाराज,” काँपते हुए सब जानवरों ने कहा, “हमारा शिकार करना बंद कीजिए। हम हर दिन आपके पास एक जानवर भेज देंगे। आपको पंजा भी नहीं उठाना पड़ेगा।”',
       text: '"Great king," said the animals, trembling together, "stop hunting us. We will send you one animal every single day. You will never have to lift a paw."' },
     { art: ['pt_lion'], who: 'pt_lion',
+      hi: '“ठीक है,” भासुरक ने जम्हाई लेते हुए कहा। “पर जिस दिन कोई नहीं आया — उस दिन मैं तुम सबको खा जाऊँगा।”',
       text: '"Agreed," yawned Bhasuraka. "But if one day nobody comes — I will eat every last one of you."' },
     { art: ['pt_rabbit'], who: null,
+      hi: 'और ऐसे ही चलता रहा। हर दिन एक जानवर, अपनी ही मौत की ओर चलता हुआ। फिर एक दिन बारी आई एक बहुत छोटे, बहुत धीमे, बहुत सोचने वाले ख़रगोश की।',
       text: 'And so it went. One animal each day, walking to its own death. Until the day the lot fell to a very small, very slow, very thoughtful rabbit.' },
     { art: ['pt_rabbit'], who: 'pt_rabbit', mood: 'think',
+      hi: '“मैं छोटा हूँ,” ख़रगोश ने ख़ुद से कहा, जितना धीरे चल सकता था उतना धीरे चलते हुए। “मैं उससे लड़ नहीं सकता। मैं उससे भाग नहीं सकता। पर सोचने के लिए मेरे पास पूरी सुबह है — और उसके पास बिलकुल नहीं।”',
       text: '"I am small," said the rabbit to himself, walking as slowly as he possibly could. "I cannot fight him. I cannot outrun him. But I have all morning to think — and he has none."',
       ask: {
         q: 'The rabbit is far too small to fight. What would you do?',
@@ -49,16 +64,22 @@ window.IND_STORIES = [
         wrong: 'The rabbit tried something braver. He arrived very, very late — because an angry lion stops thinking.'
       } },
     { art: ['pt_lion', 'pt_rabbit'], who: 'pt_lion', mood: 'wow',
+      hi: '“तू देर से आया है!” भासुरक दहाड़ा। “और तू तो एक कौर भी नहीं है!”',
       text: '"YOU ARE LATE!" roared Bhasuraka. "And you are barely a mouthful!"' },
     { art: ['pt_rabbit', 'pt_lion'], who: 'pt_rabbit',
+      hi: '“माफ़ कीजिए, महाराज। पाँच ख़रगोश भेजे गए थे। पर रास्ते में दूसरे शेर ने हमें पकड़ लिया और चार को खा गया। वह कहता है कि इस जंगल का असली राजा वही है। उसने कहा कि आप कुछ भी नहीं हैं।”',
       text: '"Forgive me, king. Five rabbits were sent. But another lion caught us on the road and ate four. He said he is the real king of this forest. He said you are nobody."' },
     { art: ['pt_lion'], who: 'pt_lion', mood: 'wow',
+      hi: '“दूसरा शेर? मुझे उसके पास ले चल। अभी।”',
       text: '"ANOTHER LION? Take me to him. NOW."' },
     { art: ['pt_rabbit', 'pt_lion'], who: null,
+      hi: 'ख़रगोश उसे एक पुराने पत्थर के कुएँ तक ले गया — गहरा और शांत। “वह अंदर रहता है,” उसने धीरे से कहा। भासुरक ने किनारे से झाँका — और वह वहाँ था। दूसरा शेर। सीधे उसकी ओर घूरता हुआ।',
       text: 'The rabbit led him to an old stone well, deep and still. "He lives in there," he whispered. Bhasuraka leaned over the edge — and there he was. The other lion. Glaring straight up at him.' },
     { art: ['pt_lion'], who: null, mood: 'wow',
+      hi: 'भासुरक दहाड़ा। कुआँ और ज़ोर से दहाड़ा। तो वह लड़ने के लिए कूद पड़ा। और यही भासुरक का अंत था — जिसने ज़िंदगी में एक बार भी ख़ुद को देखकर यह नहीं समझा कि वह क्या देख रहा है।',
       text: 'Bhasuraka roared. The well roared back, louder. So he jumped in to fight him. And that was the end of Bhasuraka — who had never once in his life looked at himself and understood what he was seeing.' },
     { art: ['pt_rabbit'], who: 'mithu',
+      hi: 'ख़रगोश धीरे-धीरे घर लौटा। अब उसके पास दुनिया भर का समय था।',
       text: 'The rabbit walked home slowly. He had all the time in the world now.' }
   ],
   moral: 'Cleverness is a kind of strength. And a bully is often beaten by his own temper.',

@@ -3,26 +3,58 @@
    Bizzing India, modelled on Bizzing Bee's avatar-cards.js. Data only: the
    shell owns all rendering, so there is no HTML anywhere in this file.
 
-   WHAT EVERY CARD CARRIES
-     • four stats — himmat 🛡️ (courage), gyaan 📖 (wisdom), chatur ⚡ (wit),
-       dil 💛 (heart), each 28–99 — derived deterministically from a stable
-       hash of the id, exactly in the Bee's idiom: no per-avatar authoring,
-       identical on every device on every day.
-     • ONE tier for everyone: { base: 66, spread: 20 }. RARITY IS PAUSED
-       app-wide (see IND_RARITY_PAUSED in avatars.js, acting on the docs/05
-       note that tiering sacred figures reads as collectible loot and implies
-       a ranking between deities). While it is paused, no avatar is Rare or
-       Legendary here — every companion draws from the same tier, and the
-       stats spread does the flavouring instead.
-     • a title in the pack's register (PACK_TITLE below), a one-line in-world
-       lore, and one REAL, checkable, kid-friendly fact.
+   ================= WHO MAY CARRY A NUMBER =================
+   This is the rule this file exists to hold, and it has four answers. Every
+   card resolves to exactly one `kind`:
 
-   THE SACRED EXCEPTION — the one place this file deliberately parts from
-   the Bee: every id in the 'devas' pack (ganesha … harmandir, including
-   the Buddha and Mahavira, the Khanda and Harmandir Sahib) gets stats: null
-   and sacred: true. Their card face will say 'beyond measure' — a deity, a
-   Guru's emblem or a tirthankara is never a number, per docs/05. They also
-   carry no gamey title: their traditional address form, or none at all.
+     character — INVENTED. The Panchatantra animals, the anonymous darbar
+                 types (a courtier, the palace guard, the royal elephant),
+                 the three mascots and the two emblems (rocket, unicorn).
+                 THESE, AND ONLY THESE, GET THE FOUR STATS: himmat 🛡️
+                 (courage), gyaan 📖 (wisdom), chatur ⚡ (wit), dil 💛
+                 (heart), each 28–99, derived deterministically from a stable
+                 hash of the id, exactly in the Bee's idiom — no per-avatar
+                 authoring, identical on every device on every day. Numbers
+                 are fun on a jackal.
+
+     real      — A REAL PERSON: everyone in 'great', 'khel', 'naya' and
+                 'vigyan', plus Akbar, Birbal and Tansen in the darbar. NO
+                 NUMBERS, EVER. Grading a person out of 99 is the thing this
+                 product must not do. Where the stats were, they carry
+                 `achievements` — two to four short, checkable lines of what
+                 they actually DID — and, where one is genuinely famous and
+                 documented, a `quote` with its `where`.
+
+     epic      — THE EPIC CAST (ramayana / mahabharata). Also NO NUMBERS.
+                 These are revered figures in a living tradition, and docs/05
+                 forbids treating anything sacred as collectible loot;
+                 scoring Sita or Karna out of 99 is the same mistake in a
+                 different coat. They carry their character line (IND_EPIC_CAST's
+                 own desc) and a fact about the epic instead.
+
+     sacred    — the 'devas' pack (ganesha … harmandir, including the Buddha
+                 and Mahavira, the Khanda and Harmandir Sahib). stats: null,
+                 sacred: true, and a card face that says 'beyond measure' — a
+                 deity, a Guru's emblem or a tirthankara is never a number.
+                 They also carry no gamey title: their traditional address
+                 form, or none at all.
+
+   RARITY IS PAUSED app-wide (see IND_RARITY_PAUSED in avatars.js). While it
+   is paused there is ONE tier for everyone who still has stats at all:
+   { base: 66, spread: 20 } — no avatar is Rare or Legendary here.
+
+   Every card also carries a title in its pack's register (PACK_TITLE below),
+   a one-line in-world lore, and one REAL, checkable, kid-friendly fact.
+
+   ================= THE QUOTE RULE (docs/05 §6.4, hard) =================
+   A `quote` is included ONLY where the wording is genuinely famous and
+   documented, and `where` always names the source or the setting ('from his
+   memoir Wings of Fire', 'said in the Constituent Assembly, 25 November
+   1949'). If the source cannot be named, THERE IS NO QUOTE — absence is
+   honest and expected, and roughly four cards in five here carry none.
+   Living people get a quote only where the wording is unambiguously on the
+   record; in practice none of them do. Never invent, never paraphrase into
+   quotation marks, never attribute a floating internet line.
 
    WHERE THE FACTS COME FROM (docs/05 is binding here)
      • devas — a tradition-fact told from the inside, as families keep it:
@@ -30,9 +62,10 @@
      • panch — real animal facts, Bee-style.
      • darbar — documented Mughal-court facts (the Ain-i-Akbari, the
        Razmnama, Fatehpur Sikri), matching app/data-itihaas.js.
-     • great / khel / naya / vigyan — real people. Every fact is distilled
-       from the sourced records already gathered in this app's own stories
-       (data-stories-modern.js, data-stories-vigyan.js, data-itihaas.js,
+     • great / khel / naya / vigyan — real people. Every fact AND every
+       achievement line is distilled from the sourced records already
+       gathered in this app's own stories (data-stories-modern.js,
+       data-stories-vigyan.js, data-itihaas.js, data-neeti.js,
        data-states.js), so the card and the story can never disagree.
      • ramayana / mahabharata — a fact about the epic or its living
        tradition; attributable standard knowledge, nothing invented. Lore
@@ -47,9 +80,18 @@
 
    Public API:
      window.IND_AV_CARD(id) -> { id, name, packId, packLabel, title, lore,
-                                 fact, sacred, stats, overall } | null
+                                 fact, kind, badge, sacred, stats, overall,
+                                 achievements, quote } | null
+       kind          'character' | 'real' | 'epic' | 'sacred'
+       badge         the docs/05 badge glyph+word this card renders under
+       stats/overall NON-NULL FOR 'character' ONLY — null for everyone else
+       achievements  [] except on 'real'
+       quote         { text, where } or null — see the quote rule above
      window.IND_AV_STAT_KEYS  — [key, emoji, label] rows, in render order,
                                 so the shell and the data agree.
+     window.IND_AV_REAL_PEOPLE — the real-person id list, exported so the
+                                verifier can assert the no-numbers rule from
+                                outside this file.
    ============================================================ */
 (function () {
   'use strict';
@@ -330,6 +372,258 @@
       fact: 'Vismriti has no face and no voice, and it cannot hold on to any story that is still being told — one teller, even a small one, is always enough.' }
   };
 
+  /* ---------------------------------------------------------------- DEEDS
+     WHAT REPLACES THE NUMBERS ON A REAL PERSON'S CARD.
+
+     `deeds` — two to four short, checkable lines, one clause each, in a
+     child's register: what this person DID. Every line here is distilled
+     from the sourced record this app already carries for that person (their
+     own story in data-stories-modern.js / data-stories-vigyan.js, their era
+     in data-itihaas.js, their entry in data-neeti.js or data-states.js), so
+     the card can never contradict the story a child reads two taps away.
+     Where the app has no story for someone, only facts held with certainty
+     are used — and the list is SHORTER. Fewer true lines beat four shaky
+     ones, always. Nothing here duplicates that card's `fact`.
+
+     `quote` — see the quote rule in the header. Present on ten cards only.
+     Every one names its source or setting. Everyone else is quoteless on
+     purpose: no floating internet line, no plausible-sounding paraphrase.
+     ---------------------------------------------------------------- */
+  var DEEDS = {
+
+    /* ---- GREAT INDIANS ---- */
+    ashoka: { deeds: [
+        'Ruled almost the whole subcontinent from Magadha, more than 2,200 years ago.',
+        'Had his edicts cut in the everyday languages people spoke, so they could be read aloud to anyone.',
+        'His lion capital from Sarnath is India’s state emblem today — it is on your passport and your coins.'],
+      quote: { text: 'All men are my children.', where: 'from Ashoka’s own edict, carved on rock at Kalinga' } },
+    chanakya: { deeds: [
+        'Advised Chandragupta Maurya, who took the throne of Magadha about 322 BCE.',
+        'The empire they built reached across most of the subcontinent — Ashoka was Chandragupta’s grandson.'] },
+    shivaji: { deeds: [
+        'Built a navy as well as an army, which very few rulers around him bothered to do.',
+        'Ran his administration in Marathi — the language the people around him actually spoke.',
+        'Was crowned at Raigad in 1674; you can still climb the mountain his capital stood on.'] },
+    lakshmibai: { deeds: [
+        'Ruled Jhansi as its queen, and refused to hand her kingdom over when she was ordered to.',
+        'Is sung across Bundelkhand to this day — and in Subhadra Kumari Chauhan’s poem that children still recite by heart.'] },
+    gandhi: { deeds: [
+        'Turned ahimsa — not harming — into a way ordinary, unarmed people could face an empire.',
+        'Called for Quit India in 1942, and went to prison for it along with tens of thousands of others.',
+        'Spun his own cloth on a charkha, and asked India to wear what India made.'],
+      quote: { text: 'Recall the face of the poorest and the weakest man whom you may have seen, and ask yourself if the step you contemplate is going to be of any use to him.',
+        where: 'the talisman he wrote in 1948, in his Collected Works' } },
+    ambedkar: { deeds: [
+        'Studied in New York and in London, and came home with degrees almost nobody in India held.',
+        'Argued for the rights of people India had pushed to the margins, at the Round Table Conferences in London.',
+        'Was independent India’s first law minister.'],
+      quote: { text: 'We must make our political democracy a social democracy as well.',
+        where: 'said in the Constituent Assembly, 25 November 1949' } },
+    bhagat: { deeds: [
+        'Read constantly — the notebook he kept in jail survives, and is still printed today.',
+        'Went on a long hunger strike in prison over how Indian prisoners were treated.'] },
+    kalam: { deeds: [
+        'Was project director of SLV-3 — the rocket that put India’s Rohini satellite into orbit on 18 July 1980.',
+        'Led missile work at DRDO for years, and helped plan India’s rockets from their bicycle-and-bullock-cart days.',
+        'Became President of India in 2002, and spent the job answering children’s letters.',
+        'Spent his last afternoon, in 2015, doing what he had chosen over every comfort — teaching students.'],
+      quote: { text: 'I inherited honesty and self-discipline from my father; from my mother, I inherited faith in goodness and deep kindness.',
+        where: 'from his memoir, Wings of Fire' } },
+    aryabhata: { deeds: [
+        'Finished the Aryabhatiya in 499 CE, at twenty-three — mathematics written as verses you could memorise.',
+        'Wrote that the Earth itself is turning, about a thousand years before telescopes settled the argument.',
+        'Worked out the length of a year very nearly right, with no telescope and no calculator.'],
+      quote: { text: 'Just as a man in a boat going forward sees the stationary objects on the bank as moving backward, so the stars are seen moving westward.',
+        where: 'from the Aryabhatiya, 499 CE' } },
+    tagore: { deeds: [
+        'Wrote Gitanjali, and made the English translation of it himself.',
+        'Started a school at Santiniketan where classes are still held under the open trees — a World Heritage Site since 2023.',
+        'Gave the money from his Nobel Prize away to that school.'],
+      quote: { text: 'Where the mind is without fear and the head is held high…',
+        where: 'the opening of poem 35 of Gitanjali, in his own English' } },
+    kalpana: { deeds: [
+        'Grew up in Karnal in Haryana, and studied aeronautical engineering in Punjab.',
+        'Flew on the space shuttle Columbia in 1997, and went back to orbit in 2003.',
+        'Wrote to students at her old college urging them to aim at things nobody had offered them.'],
+      quote: { text: 'The path from dreams to success does exist. May you have the vision to find it, the courage to get on to it, and the perseverance to follow it.',
+        where: 'her message to the students of her old engineering college in Chandigarh' } },
+    sarojini: { deeds: [
+        'Published books of poems from The Golden Threshold onwards, and kept writing all her life.',
+        'Was president of the Indian National Congress in 1925 — the first Indian woman in that chair.',
+        'Became the first woman to be governor of an Indian state.'] },
+    savitribai: { deeds: [
+        'Learned her letters as a young bride, then trained properly as a teacher at Ahmednagar and Pune.',
+        'Within three years she and Jyotirao were running three schools, with about a hundred and fifty girls in them.',
+        'Published a book of her own poems at twenty-three, telling girls one thing over and over: go, get education.',
+        'Nursed the sick when plague reached Pune in 1897, and did not stop.'] },
+    hansa_mehta: { deeds: [
+        'Was one of just fifteen women in the assembly that wrote India’s Constitution.',
+        'Presented the national flag to that assembly on behalf of the women of India, at midnight on 14 August 1947.',
+        'Became the first Vice-Chancellor of Baroda’s new university in 1949.',
+        'Wrote and translated books for Gujarati children — Gulliver’s travels among them.'],
+      quote: { text: 'All human beings are born free and equal in dignity and rights.',
+        where: 'Article 1 of the Universal Declaration of Human Rights, 1948 — the wording she insisted on' } },
+
+    /* ---- AKBAR'S DARBAR — the three real people of the pack ---- */
+    akbar: { deeds: [
+        'Ruled for about fifty years, from 1556 to 1605.',
+        'Had the Ain-i-Akbari compiled — a record of his empire so thorough it lists the imperial elephants by name.',
+        'Kept a translation bureau at court that turned the Mahabharata into Persian as the painted Razmnama.'] },
+    birbal: { deeds: [
+        'Was a real poet and courtier in Akbar’s inner circle, counted among the nine jewels of that court.',
+        'Held the title Raja Birbal, given to him by the emperor himself.'] },
+    tansen: { deeds: [
+        'Sang at Akbar’s court as one of its nine jewels, after years at Rewa before that.',
+        'Carried the dhrupad tradition — musicians still trace their teaching lineage back to him.',
+        'Is buried at Gwalior, where the Tansen Samaroh music festival is held in his honour every year.'] },
+
+    /* ---- INDIA AT PLAY ---- */
+    dhyanchand: { deeds: [
+        'Joined the army at sixteen and practised alone by moonlight, because the parade ground had no lights.',
+        'Was in the India team that beat the United States 24–1 at the 1932 Olympics.',
+        'Played in the 1936 Berlin final, won 8–1 with the whole stadium roaring against India.'] },
+    milkha: { deeds: [
+        'Won the 440 yards at the 1958 Commonwealth Games — independent India’s first athletics gold there.',
+        'Was given the name the Flying Sikh by the crowd at a race in Lahore, and carried it for life.',
+        'Told the truth about the one race that went wrong, openly, for sixty years afterwards.'] },
+    kapil: { deeds: [
+        'Captained India to the 1983 World Cup, at odds of sixty-six to one against.',
+        'Ran twenty yards backwards at Lord’s to catch Viv Richards — the catch that turned the final.',
+        'Bowled fast and hit hard in the same match, which is why the team called him the Haryana Hurricane.'] },
+    sachin: { deeds: [
+        'Played for India at sixteen against the fastest bowlers in the world, took a blow, bled, and stayed on.',
+        'Scored one hundred international centuries — no other cricketer has reached that.',
+        'Made more than thirty-four thousand international runs across twenty-four years.',
+        'Won the World Cup at home in 2011, at his sixth attempt, and was carried round the ground.'] },
+    dhoni: { deeds: [
+        'Won the first Twenty20 World Cup in 2007 with a young side nobody expected much from.',
+        'Promoted himself up the order in the 2011 final and finished on 91 not out, with a six over long-on.',
+        'Kept wicket and captained at the same time, which is two of the hardest jobs on the field.'] },
+    kohli: { deeds: [
+        'Captained India’s under-19 team to a World Cup in 2008.',
+        'Was in the side that won the 2011 World Cup, at twenty-two.',
+        'Rebuilt how he ate, trained and slept in 2012 — and a whole team’s habits followed him.'] },
+    mithali: { deeds: [
+        'Scored 114 not out in her very first match for India, at sixteen.',
+        'Made 214 against England at nineteen — then the highest score in the history of women’s Test cricket.',
+        'Captained India to World Cup finals in two different decades, 2005 and 2017.'] },
+    marykom: { deeds: [
+        'Trained in secret in Manipur, and had won a state title before her father found out from the newspaper.',
+        'Came back after having twin sons and won the world championship again.',
+        'Won Olympic bronze in London in 2012, the only Indian woman in the boxing draw.'] },
+    sindhu: { deeds: [
+        'Travelled tens of kilometres across Hyderabad before dawn to practise, from the age of eight.',
+        'Won Olympic silver at Rio in 2016 and bronze at Tokyo — India’s first woman with two.'] },
+    saina: { deeds: [
+        'Became junior world champion in 2008 — the first Indian ever to do it.',
+        'Won the Indonesia Open in 2009, the first Indian woman to take a title that size.',
+        'Rode to practice on her father’s scooter before daybreak, tens of kilometres each way.'] },
+    neeraj: { deeds: [
+        'Threw 86.48 metres at the 2016 world junior championships — a world record for his age group.',
+        'Went on to become world champion as well as Olympic champion.',
+        'Started at about thirteen, marched to the town stadium by an uncle who wanted him to get some exercise.'] },
+    malleswari: { deeds: [
+        'Was world champion in 1994, and again in 1995.',
+        'Learned the lifts in a village gym with a mud floor, in Srikakulam district on the Andhra coast.',
+        'Lifted at the first Olympic Games ever to include women’s weightlifting.'] },
+    mirabai: { deeds: [
+        'Failed all three of her clean and jerks at Rio in 2016 — and was world champion one year later.',
+        'Lifted 202 kilograms in Tokyo for silver, on the very first morning of those Games.',
+        'Got herself to training by waving down the sand trucks that passed her village in the Manipur hills.'] },
+    anand: { deeds: [
+        'Was world junior champion in 1987, and a grandmaster the next year.',
+        'Won the world championship in 2000, and again in 2007.',
+        'Defended the title in match after match — in 2008, 2010 and 2012.',
+        'Runs an academy in Chennai; one of the boys it helped train became world champion himself.'] },
+    gukesh: { deeds: [
+        'Became a grandmaster at twelve.',
+        'Won the tournament of champions at seventeen, the youngest player ever to do it.',
+        'Beat the reigning world champion in the last game of a fourteen-game match in Singapore.'] },
+    avani: { deeds: [
+        'Won Paralympic gold in Tokyo at nineteen, with a Paralympic record score.',
+        'Added a bronze in a second event days later.',
+        'Beat her own record when she won the gold again in Paris in 2024.',
+        'Studied law in between the two Games.'] },
+
+    /* ---- THE BUILDERS ---- */
+    kurien: { deeds: [
+        'Was posted to Anand in 1949 meaning to leave the moment he could — and stayed about fifty years.',
+        'Made the world’s first milk powder from buffalo milk, with H. M. Dalaya, after the experts called it impossible.',
+        'Ran Operation Flood, which carried the farmer-owned dairy idea across the whole country.',
+        'Wrote it all down in his memoir, I Too Had a Dream.'] },
+    n_murthy: { deeds: [
+        'Started Infosys in 1981 with six colleagues and the front room of a house for an office.',
+        'Shared ownership of the company with its employees, down to drivers and office staff, long before that was normal.',
+        'Grew seven engineers into one of the great software companies in the world.'] },
+    sudha_murty: { deeds: [
+        'Became the first woman engineer on the TELCO shop floor, at Pune.',
+        'Put up the ten thousand rupees from her own savings that started Infosys.',
+        'Has built libraries and schools by the thousand, and writes the books children queue up for.'] },
+    falguni: { deeds: [
+        'Was one of the most senior bankers in Mumbai before she started again from zero.',
+        'Founded Nykaa in 2012, in an industry she had never worked in a day of her life.',
+        'Named it from nayika — the heroine of a story. The heroine, note, not the sidekick.'] },
+    kiran_shaw: { deeds: [
+        'Finished top of her class in brewing science in Australia — and no Indian brewery would hire a woman.',
+        'Built Biocon into the biggest biotechnology company in India.',
+        'Turned its fermenters towards insulin, the daily medicine millions of Indians cannot live without.'] },
+    ela_bhatt: { deeds: [
+        'Founded SEWA in 1972 — a trade union for women the rulebooks had never counted as workers at all.',
+        'Saw it grow to millions of members, one of the largest organisations of working women anywhere on Earth.',
+        'Wrote their story in a book called We Are Poor but So Many.'] },
+    ritesh: { deeds: [
+        'Started OYO in 2013, still a teenager, after a first idea that taught him he was half wrong.',
+        'Won a global fellowship for young founders that paid him to build his company instead of going to college.'] },
+
+    /* ---- THE SCIENTISTS ---- */
+    raman: { deeds: [
+        'Checked the blue of the sea from a ship’s rail in 1921, and found the water makes its own blue.',
+        'Found, with K. S. Krishnan, that light comes out of a substance with its colour slightly shifted.',
+        'Gave laboratories the Raman effect — used today on medicines, on paintings, and on the surface of Mars.'] },
+    ramanujan: { deeds: [
+        'Filled notebook after notebook working by lamplight on a slate, because paper cost money.',
+        'Wrote to G. H. Hardy in 1913 with more than a hundred theorems and no proofs — and was brought to Cambridge.',
+        'Left notebooks that mathematicians are still mining for new results a century later.'] },
+    bhabha: { deeds: [
+        'Worked on cosmic rays at Cambridge, then came home for a holiday that a war turned into the rest of his life.',
+        'Founded TIFR in 1945 — India’s home for fundamental research, still standing by the sea in Mumbai.',
+        'Filled it with gardens and paintings, because he did not believe fine minds grow in ugly rooms.'],
+      quote: { text: 'India will not have to look abroad for its experts but will find them ready at hand.',
+        where: 'from his 1944 letter proposing the institute that became TIFR' } },
+    sarabhai: { deeds: [
+        'Founded a physics laboratory in Ahmedabad in 1947, at twenty-eight, eleven days after independence.',
+        'Started India’s space programme in 1962 — and a Kerala parish lent its church to house it.',
+        'Promised satellites that would watch the monsoon and teach village schools, and ISRO went and did it.'],
+      quote: { text: 'We must be second to none in the application of advanced technologies to the real problems of man and society.',
+        where: 'his statement on why India needed a space programme, still quoted by ISRO' } },
+    jcbose: { deeds: [
+        'Built his own instruments with Kolkata metalworkers, in a laboratory that was barely a laboratory.',
+        'Made the crescograph, which magnified a plant’s growth thousands of times so you could watch it happen.',
+        'Opened the Bose Institute in Kolkata in 1917 — one of the first research institutes in Asia, and still working.'] },
+    janaki_ammal: { deeds: [
+        'Is remembered as the first Indian woman to earn a doctorate in botany.',
+        'Crossed sugarcanes at Coimbatore until India’s own canes were sweet as well as tough.',
+        'Wrote the Chromosome Atlas of Cultivated Plants with C. D. Darlington — a census of the world’s crops.',
+        'Spoke up for Silent Valley in her eighties; the rainforest is a national park today, full of birdsong.'] },
+    annamani: { deeds: [
+        'Wrote five research papers in C. V. Raman’s laboratory — and was never granted the doctorate they had earned.',
+        'Gathered and standardised the drawings of about a hundred weather instruments so India could build its own.',
+        'Measured ozone years before the world grew properly worried about it, and mapped India’s winds afterwards.'] },
+    tessy: { deeds: [
+        'Joined DRDO in 1988 and spent twenty years on guidance — the hard part, after the loud part.',
+        'Was project director for the Agni-IV flight in 2011.',
+        'Went on to head all of DRDO’s aeronautical systems — everything the organisation flies.'] },
+    swaminathan: { deeds: [
+        'Turned from medicine to the science of growing food after watching the Bengal famine of 1943.',
+        'Brought dwarf wheat to Indian fields with Norman Borlaug, and bred it for Indian soil and Indian rotis.',
+        'Said honestly, later, that the new farming drank too deep — and spent decades on what he called an evergreen revolution.',
+        'Won the very first World Food Prize, in 1987.'] },
+    salimali: { deeds: [
+        'Surveyed India’s birds state by state for decades, with notebooks, patience and famously little money.',
+        'Fought for the wetland at Bharatpur — it is Keoladeo National Park today, and the birds still arrive on schedule.',
+        'Named his own life story after the bird that started it: The Fall of a Sparrow.'] }
+  };
+
   /* Defensive fallback pool — real, checkable, from this app's own records.
      Every shipped id has an authored fact above; this exists so an id added
      to avatars.js before its card lands still says something true. */
@@ -349,6 +643,49 @@
     return null;
   }
 
+  /* -------------------------------------------------- WHO IS A REAL PERSON
+     Listed by hand rather than derived from the pack, because three packs are
+     mixed: 'darbar' holds Akbar, Birbal and Tansen (real, documented people)
+     alongside an anonymous courtier, guard and elephant (invented types), and
+     'naya' holds seven founders alongside two emblems (rocket, unicorn). A
+     derived rule would silently start scoring a person the day someone adds
+     an id to a pack; a list cannot. If you add a real person to any pack, add
+     them here in the same commit — verify.js asserts every id on this list
+     resolves to kind 'real', carries achievements, and renders no number. */
+  var REAL_PEOPLE = [
+    /* great */ 'ashoka', 'chanakya', 'shivaji', 'lakshmibai', 'gandhi', 'ambedkar', 'bhagat',
+                'kalam', 'aryabhata', 'tagore', 'kalpana', 'sarojini', 'savitribai', 'hansa_mehta',
+    /* darbar — the three documented people; courtier/guard/royal_elephant are anonymous types */
+                'akbar', 'birbal', 'tansen',
+    /* khel */  'dhyanchand', 'milkha', 'kapil', 'sachin', 'dhoni', 'kohli', 'mithali', 'marykom',
+                'sindhu', 'saina', 'neeraj', 'malleswari', 'mirabai', 'anand', 'gukesh', 'avani',
+    /* naya — the founders; rocket and unicorn are emblems, not people */
+                'kurien', 'n_murthy', 'sudha_murty', 'falguni', 'kiran_shaw', 'ela_bhatt', 'ritesh',
+    /* vigyan */'raman', 'ramanujan', 'bhabha', 'sarabhai', 'jcbose', 'janaki_ammal', 'annamani',
+                'tessy', 'swaminathan', 'salimali'
+  ];
+  window.IND_AV_REAL_PEOPLE = REAL_PEOPLE;
+
+  var EPIC_PACKS = ['ramayana', 'mahabharata'];
+
+  /* The docs/05 badge each kind of card renders under. A real person's card
+     is an Itihaas object — what the record shows; an epic figure's is Katha —
+     a story as it is told. Saying so on the face of the card is the same
+     honesty the stories keep, and it is what stands where a score used to. */
+  var BADGE = {
+    real:   { mark: '📜', word: 'Itihaas', line: 'what the record shows' },
+    epic:   { mark: '🪔', word: 'Katha',   line: 'a story as it is told' },
+    sacred: { mark: '॥',  word: '',        line: '' },
+    character: null
+  };
+
+  function kindOf(id, pack) {
+    if (pack && pack.id === 'devas') return 'sacred';
+    if (REAL_PEOPLE.indexOf(id) >= 0) return 'real';
+    if (pack && EPIC_PACKS.indexOf(pack.id) >= 0) return 'epic';
+    return 'character';
+  }
+
   window.IND_AV_CARD = function (id) {
     var pack = packOf(id);
     var mascot = MASCOTS[id] || null;
@@ -365,13 +702,16 @@
     var lore = db.lore || (cast && cast.desc) || (name + ' of ' + packLabel + '.');
     var fact = db.fact || FACTS[hash(id + 'fact') % FACTS.length];
 
-    /* THE SACRED EXCEPTION. Every id in the devas pack is sacred: true with
-       stats: null. Their card face will say 'beyond measure' — a deity, a
-       Guru's emblem or a tirthankara is never a number, per docs/05. */
-    var sacred = !!pack && pack.id === 'devas';
+    /* WHO MAY CARRY A NUMBER — the whole rule, in four lines. Only an
+       invented character is scored. A real person, an epic figure and a
+       sacred figure all resolve to stats: null and overall: null, and the
+       shell has nothing to print a score from. */
+    var kind = kindOf(id, pack);
+    var sacred = kind === 'sacred';
+    var deeds = DEEDS[id] || {};
 
     var stats = null, overall = null;
-    if (!sacred) {
+    if (kind === 'character') {
       stats = statsFor(id);
       overall = Math.round((stats.himmat + stats.gyaan + stats.chatur + stats.dil) / 4);
     }
@@ -385,7 +725,18 @@
       packId: pack ? pack.id : MASCOT_PACK.id,
       packLabel: packLabel,
       title: title, lore: lore, fact: fact,
-      sacred: sacred, stats: stats, overall: overall
+      kind: kind, badge: BADGE[kind] || null,
+      sacred: sacred, stats: stats, overall: overall,
+      achievements: (kind === 'real' && deeds.deeds) ? deeds.deeds.slice() : [],
+      /* the epic cast's other names, reused verbatim from IND_EPIC_CAST — the
+         detail that stands on an epic card where a real person has their
+         achievements. A name is not a score, and every one of these is
+         already in the cast file, so the two can never drift. */
+      alsoCalled: (kind === 'epic' && cast && cast.alias) ? cast.alias.slice() : [],
+      /* a quote only ever rides with a named source — the pair is authored
+         together in DEEDS, so one can never arrive without the other */
+      quote: (kind === 'real' && deeds.quote && deeds.quote.text && deeds.quote.where)
+        ? { text: deeds.quote.text, where: deeds.quote.where } : null
     };
   };
 })();

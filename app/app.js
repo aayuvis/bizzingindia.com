@@ -365,31 +365,75 @@
 
   /* ------------------------------------------------------------ AVATAR CARD */
   /* The Bee's trading-card layer, in this house's voice (avatar-cards.js has
-     the data and the design notes). One deliberate difference from the Bee:
-     sacred figures carry no numbers — their card says 'beyond measure'.
-     Every card wears the same glow-in-the-dark finish; rarity is paused. */
+     the data and the design notes). Every card wears the same glow-in-the-dark
+     finish; rarity is paused. What sits in the MIDDLE of the card depends on
+     who is on it, and that is the rule this view exists to hold:
+
+       character — the four stat bars, as ever. Numbers are fun on a jackal.
+       real      — NO NUMBERS. A person is not scored out of 99. In place of
+                   the bars: the Itihaas badge, what they actually did as a
+                   short marked list, and — where one is documented — a
+                   pull-quote with its attribution beneath it.
+       epic      — NO NUMBERS either. The Katha badge and their character
+                   line; grading Sita or Karna is the same mistake as grading
+                   a deity, in a different coat (docs/05).
+       sacred    — 'beyond measure', exactly as before. */
   V.avcard = function (id) {
     var name = (window.IND_AVATAR_NAMES || {})[id] || id;
     var C = window.IND_AV_CARD ? window.IND_AV_CARD(id) : null;
     var mine = S.buddy === id;
-    var statRows = '';
+
+    /* the badge strip — the same three badges the stories carry, said out
+       loud on the card face. Sacred keeps its own gold line instead. */
+    var badge = (C && C.badge && C.badge.word)
+      ? '<div class="avbadge"><span class="avbmark" aria-hidden="true">' + C.badge.mark + '</span>' +
+        '<b>' + esc(C.badge.word) + '</b><span>' + esc(C.badge.line) + '</span></div>'
+      : '';
+
+    var middle = '';
     if (C && C.stats) {
-      statRows = (window.IND_AV_STAT_KEYS || []).map(function (k) {
+      middle = '<div class="avstats">' + (window.IND_AV_STAT_KEYS || []).map(function (k) {
         var v = C.stats[k[0]] || 0;
         return '<div class="avstat"><span class="avlbl">' + k[1] + ' ' + esc(k[2]) + '</span>' +
           '<span class="avbar"><i style="width:' + v + '%"></i></span>' +
           '<b>' + v + '</b></div>';
-      }).join('');
+      }).join('') + '</div>';
     } else if (C && C.sacred) {
-      statRows = '<div class="avbeyond">beyond measure</div>';
+      middle = '<div class="avbeyond">beyond measure</div>';
+    } else if (C && C.achievements && C.achievements.length) {
+      middle = badge + '<ul class="avdeeds">' + C.achievements.map(function (d) {
+        return '<li>' + esc(d) + '</li>';
+      }).join('') + '</ul>';
+    } else {
+      /* epic figures: the badge, and their other names from IND_EPIC_CAST —
+         a detail where a real person has achievements, and never a ranking */
+      middle = badge + ((C && C.alsoCalled && C.alsoCalled.length)
+        ? '<div class="avalias"><span>also called</span>' + C.alsoCalled.map(function (a) {
+            return '<b>' + esc(a) + '</b>';
+          }).join('') + '</div>'
+        : '');
     }
+
+    /* the pull-quote. It only ever renders WITH its attribution — the data
+       layer refuses to hand over a quote that has no named source, and this
+       template refuses to draw one, so an unattributed quotation cannot reach
+       a child's screen from either side (docs/05 §6.4). */
+    var quote = (C && C.quote && C.quote.text && C.quote.where)
+      ? '<figure class="avquote">' +
+          '<blockquote>' + esc(C.quote.text) + '</blockquote>' +
+          '<figcaption class="avcite">' + esc(name) + '<span>' + esc(C.quote.where) + '</span></figcaption>' +
+        '</figure>'
+      : '';
+
     return '<button class="backlink" data-act="go" data-v="me">' + icon('back', 18) + ' Back</button>' +
-      '<div class="avcardwrap"><div class="avcard' + (C && C.sacred ? ' sacred' : '') + '">' +
+      '<div class="avcardwrap"><div class="avcard' + (C && C.sacred ? ' sacred' : '') +
+        (C ? ' kind-' + C.kind : '') + '">' +
         '<div class="avhalo">' + art(id, 148) + '</div>' +
         '<h1>' + esc(name) + '</h1>' +
         (C && C.title ? '<div class="mono avtitle">' + esc(C.title) + '</div>' : '') +
         (C && C.lore ? '<p class="avlore">' + esc(C.lore) + '</p>' : '') +
-        statRows +
+        middle +
+        quote +
         (C && C.fact ? '<div class="avfact"><b>Did you know?</b> ' + esc(C.fact) + '</div>' : '') +
         (mine
           ? '<span class="pill stat" style="margin-top:14px">Travelling with you ✓</span>'
@@ -3635,9 +3679,20 @@
                 (S.buddy === id ? ' on' : '') + '" data-act="avcard" data-id="' + id + '">' +
                 '<span class="mhalo">' + art(id, 66) + '</span>' +
                 '<b>' + esc((window.IND_AVATAR_NAMES || {})[id] || id) + '</b>' +
+                /* THE DECK NEVER GRADES A PERSON EITHER. This corner used to
+                   print C.overall for everybody. A number belongs only to an
+                   invented character; a real person and an epic figure get
+                   their card's badge mark instead (📜 Itihaas, 🪔 Katha), and
+                   sacred keeps its gold ॥. Same corner, no score. */
                 (C && C.stats
                   ? '<span class="mstat">' + C.overall + '</span>'
-                  : (C && C.sacred ? '<span class="mstat gold">॥</span>' : '')) +
+                  : (C && C.sacred
+                    ? '<span class="mstat gold" aria-label="beyond measure">॥</span>'
+                    /* a real person and an epic figure get NOTHING here. The
+                       badge word was tried and read as a label stamped on
+                       fifty faces; a blank corner is quieter and says the
+                       same thing — this one is not scored. */
+                    : '')) +
                 (S.buddy === id ? '<span class="mnow">with you</span>' : '') +
                 '</button>';
             }).join('') + '</div>';

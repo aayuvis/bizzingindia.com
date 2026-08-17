@@ -368,8 +368,60 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: linear-gradient(90deg, #7C5CFF, #4ED8C3);
   box-shadow: 0 0 12px rgba(110, 220, 200, .8); }
 .avstat b { flex: none; width: 30px; font: 800 15px var(--display); color: #fff; }
+.avstats { margin: 14px 0 2px; }
 .avbeyond { margin: 16px 0 4px; font: 700 15px var(--mono); letter-spacing: .3em;
   text-transform: uppercase; color: #FFE9A8; text-shadow: 0 0 14px rgba(255, 220, 130, .8); }
+
+/* WHERE THE NUMBERS USED TO BE, on a real person's card and an epic figure's.
+   A person is not scored out of 99 (avatar-cards.js holds the rule); the space
+   the stat bars occupied now carries the docs/05 badge, then what they did,
+   then — where one is documented — what they said. Same night-card finish, same
+   luminous palette as the bars it replaces, so the card still reads as one
+   object rather than a stats card with the stats deleted. */
+.avbadge { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap;
+  gap: 4px 8px; margin: 18px 0 2px; padding-top: 14px;
+  border-top: 1px solid rgba(150, 130, 255, .25); }
+.avbadge .avbmark { font-size: 15px; filter: drop-shadow(0 0 8px rgba(255, 220, 140, .7)); }
+.avbadge b { font: 800 12px var(--mono); letter-spacing: .18em; text-transform: uppercase;
+  color: #FFE9A8; }
+.avbadge span:not(.avbmark) { font-size: 12.5px; color: #B9AFFF; }
+
+.avdeeds { list-style: none; margin: 12px 0 2px; padding: 0; text-align: left; }
+.avdeeds li { position: relative; padding: 0 0 0 26px; margin: 0 0 11px;
+  font-size: 14.5px; line-height: 1.55; color: #E7E2FF; }
+.avdeeds li:last-child { margin-bottom: 0; }
+/* the marker: a small lit diamond in the stat-bar gradient, not a dash */
+.avdeeds li::before { content: ""; position: absolute; left: 4px; top: 7px;
+  width: 9px; height: 9px; border-radius: 2px; transform: rotate(45deg);
+  background: linear-gradient(135deg, #7C5CFF, #4ED8C3);
+  box-shadow: 0 0 10px rgba(110, 220, 200, .85); }
+/* and a hairline running down beside them, so the list reads as one column */
+.avdeeds li::after { content: ""; position: absolute; left: 8px; top: 20px; bottom: -11px;
+  width: 1px; background: linear-gradient(180deg, rgba(150, 130, 255, .45), rgba(150, 130, 255, 0)); }
+.avdeeds li:last-child::after { display: none; }
+
+/* an epic figure's other names — the detail that stands where a real person
+   has their achievements. Names, not numbers. */
+.avalias { display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 8px; margin: 14px 0 2px; }
+.avalias > span { font: 700 10.5px var(--mono); letter-spacing: .16em; text-transform: uppercase;
+  color: #9C92D8; }
+.avalias b { font: 700 13px var(--body); color: #F3F0FF; padding: 5px 11px; border-radius: 999px;
+  background: rgba(124, 92, 255, .22); border: 1px solid rgba(150, 130, 255, .38);
+  box-shadow: 0 0 12px rgba(110, 90, 255, .25); }
+
+.avquote { margin: 18px 0 0; padding: 16px 16px 14px 42px; text-align: left; position: relative;
+  border-radius: 16px; border: 1px solid rgba(150, 130, 255, .32);
+  background: linear-gradient(180deg, rgba(124, 92, 255, .18), rgba(124, 92, 255, .05)); }
+.avquote::before { content: "\201C"; position: absolute; left: 12px; top: 4px;
+  font: 700 54px/1 var(--display); color: rgba(255, 233, 168, .55);
+  text-shadow: 0 0 18px rgba(255, 210, 120, .5); }
+.avquote blockquote { margin: 0; font-size: 15.5px; line-height: 1.6; font-style: italic;
+  color: #F3F0FF; }
+.avcite { margin-top: 10px; font: 700 11px var(--mono); letter-spacing: .1em;
+  text-transform: uppercase; color: #FFE9A8; }
+.avcite span { display: block; margin-top: 4px; letter-spacing: 0; text-transform: none;
+  font: 400 12.5px/1.45 var(--body); color: #B9AFFF; }
 .avfact { margin-top: 14px; text-align: left; font-size: 14px; line-height: 1.6;
   background: rgba(255, 255, 255, .07); border: 1px solid rgba(150, 130, 255, .3);
   border-radius: 14px; padding: 12px 14px; color: #E4DFFB; }
@@ -382,6 +434,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* a world tile that carries its own animated scene (worlds-art.js supplies the SVG) */
 .wpreview.live { position: relative; overflow: hidden; padding: 0; display: block; height: 96px; }
 .wpreview.live svg { display: block; width: 100%; height: 100%; }
+
+/* The world's footer stage stands in front of the cards, so the last card on a
+   page would end up reading through a row of diyas. Reserve the stage's height
+   at the foot of the page instead of shrinking the art — the scene keeps its
+   full drama and no sentence is ever set on top of a flame. Matches the stage
+   heights declared in worlds-art.js. */
+.wrap { padding-bottom: 248px; }
 
 /* THE DECK POPUP — your companions, as a deck you can flip through. Tapping
    the big buddy (or the topbar chip) opens it over whatever you were reading. */
@@ -416,6 +475,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .mhalo { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%;
   background: radial-gradient(circle, rgba(255,255,255,.14), rgba(124,92,255,.22) 55%, transparent 72%); }
 .mstat { font: 800 12px var(--display); color: #4ED8C3; }
+/* NOTE: a real person's and an epic figure's minicard carry nothing in this
+   slot at all — no number, no rank, no stamp. Only an invented character
+   shows a score here, and only the sacred pack shows its gold ॥. */
 .mstat.gold { color: #FFE9A8; }
 .mnow { font: 700 9px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #B9AFFF; }
 
@@ -1143,8 +1205,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
     min-height: 52px;   /* a real touch target */
   }
   .topbar .nav .navtab svg { width: 22px; height: 22px; }
-  /* room so the last card is never hidden behind the bar */
-  .wrap { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  /* room so the last card is never hidden behind the bar OR the world's footer stage */
+  .wrap { padding-bottom: calc(214px + env(safe-area-inset-bottom)); }
 }
 
 /* -------------------------------------------------------------- the river

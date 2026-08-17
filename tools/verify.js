@@ -170,6 +170,131 @@ async function main() {
     }
   }
 
+  // NOBODY REAL IS EVER SCORED (permanent).
+  //
+  // The avatar cards used to give every companion four stats out of 99 and an overall
+  // number in the deck — including Mary Kom, Ambedkar, Sita and Karna. A real person is not
+  // graded out of 99, and neither is a figure of a living tradition; docs/05 is binding on
+  // both counts. What replaces the numbers is achievements (what they actually did) and, in
+  // the ten cases where the wording is documented, a quotation WITH its source.
+  //
+  // This walks EVERY avatar id — all packs plus the three mascots, 100+ cards — and checks
+  // the rendered DOM, not the data alone, because the rule only matters where a child can
+  // see it. Three things fail here: a number on a person, a person without achievements,
+  // and a quotation without an attribution beneath it.
+  const scored = [];
+  {
+    where = 'avatar cards (data)';
+    scored.push(...await page.evaluate(() => {
+      const out = [];
+      const real = window.IND_AV_REAL_PEOPLE || [];
+      if (real.length < 40) { out.push('IND_AV_REAL_PEOPLE is missing or suspiciously short'); return out; }
+      const ids = (window.IND_AVATAR_PACKS || []).reduce((o, p) => o.concat(p.ids), [])
+        .concat(['gattu', 'mithu', 'vismriti']);
+      ids.forEach(id => {
+        const C = window.IND_AV_CARD(id);
+        if (!C) { out.push(`no card for "${id}"`); return; }
+        if (C.kind !== 'character' && (C.stats || C.overall !== null))
+          out.push(`${C.kind} card "${id}" carries stats`);
+        if (C.kind === 'character' && !C.stats) out.push(`character "${id}" lost its stats`);
+        if (C.kind === 'real' && !(C.achievements || []).length)
+          out.push(`real person "${id}" has no achievements to stand where the numbers were`);
+        if (C.quote && !(C.quote.text && C.quote.where)) out.push(`quote on "${id}" names no source`);
+        if (C.quote && C.kind !== 'real') out.push(`quote on a ${C.kind} card, "${id}"`);
+      });
+      real.forEach(id => {
+        const C = window.IND_AV_CARD(id);
+        if (!C) out.push(`real person "${id}" has no card at all`);
+        else if (C.kind !== 'real') out.push(`real person "${id}" resolves as "${C.kind}"`);
+      });
+
+      // Stated independently of avatar-cards.js, on purpose. The check above only asks the
+      // file to agree with its own list — which stays green if someone quietly drops a
+      // person off that list. This says what each PACK is, from outside: everyone in the
+      // four people-packs is a real person except the named emblems and anonymous types,
+      // the two epic packs are epic throughout, devas is sacred, panch is invented.
+      const EXPECT = {
+        great: 'real', khel: 'real', vigyan: 'real',
+        naya: 'real',      // minus the two emblems below
+        darbar: 'real',    // minus the three anonymous court types below
+        ramayana: 'epic', mahabharata: 'epic',
+        devas: 'sacred', panch: 'character'
+      };
+      const NOT_PEOPLE = ['rocket', 'unicorn', 'courtier', 'guard', 'royal_elephant'];
+      (window.IND_AVATAR_PACKS || []).forEach(p => {
+        const want = EXPECT[p.id];
+        if (!want) { out.push(`pack "${p.id}" is not covered by the no-scores rule — decide what it is`); return; }
+        (p.ids || []).forEach(id => {
+          const C = window.IND_AV_CARD(id);
+          if (!C) return;
+          const expected = NOT_PEOPLE.indexOf(id) >= 0 ? 'character' : want;
+          if (C.kind !== expected)
+            out.push(`"${id}" in pack "${p.id}" should be ${expected}, resolves as ${C.kind}`);
+        });
+      });
+      return out;
+    }));
+
+    const ids = await page.evaluate(() => (window.IND_AVATAR_PACKS || [])
+      .reduce((o, p) => o.concat(p.ids), []).concat(['gattu', 'mithu', 'vismriti']));
+    for (const id of ids) {
+      where = `avcard:${id}`;
+      await page.evaluate(i => window.BI.go('avcard', i), id);
+      await page.waitForTimeout(20);
+      const r = await page.evaluate(i => {
+        const C = window.IND_AV_CARD(i), card = document.querySelector('.avcard');
+        if (!card) return { none: true };
+        const q = card.querySelector('.avquote');
+        return {
+          kind: C && C.kind,
+          bars: card.querySelectorAll('.avstat, .avbar').length,
+          deeds: card.querySelectorAll('.avdeeds li').length,
+          beyond: card.querySelectorAll('.avbeyond').length,
+          quote: q ? (q.querySelector('blockquote') || {}).textContent || '' : null,
+          cite: q ? ((q.querySelector('.avcite span') || {}).textContent || '').trim() : null
+        };
+      }, id);
+      if (r.none) { scored.push(`${where}: no card rendered`); continue; }
+      if (r.kind === 'real' || r.kind === 'epic') {
+        if (r.bars) scored.push(`${where}: a ${r.kind} card renders ${r.bars} stat elements`);
+        if (r.beyond) scored.push(`${where}: a ${r.kind} card says "beyond measure"`);
+      }
+      if (r.kind === 'real' && r.deeds < 2)
+        scored.push(`${where}: real person renders ${r.deeds} achievement lines (want 2+)`);
+      if (r.kind === 'character' && !r.bars) scored.push(`${where}: character card renders no stats`);
+      if (r.kind === 'sacred' && !r.beyond) scored.push(`${where}: sacred card lost "beyond measure"`);
+      if (r.quote !== null && (!r.quote.trim() || !r.cite))
+        scored.push(`${where}: a quotation renders without an attribution beneath it`);
+    }
+
+    // AND THE DECK NEVER GRADES A PERSON EITHER. Its minicards printed C.overall for
+    // everybody; a real person and an epic figure must now show no score at all there.
+    where = 'the deck popup';
+    await page.evaluate(() => window.BI.go('home'));
+    await page.waitForTimeout(60);
+    const opened = await page.evaluate(() => {
+      const b = document.querySelector('[data-act="deck"]'); if (!b) return false; b.click(); return true;
+    });
+    if (!opened) scored.push('the deck popup has no way to open');
+    else {
+      await page.waitForTimeout(120);
+      scored.push(...await page.evaluate(() => {
+        const out = [];
+        document.querySelectorAll('.minicard').forEach(m => {
+          const id = m.getAttribute('data-id'), C = window.IND_AV_CARD(id);
+          const mark = (m.querySelector('.mstat') || {}).textContent || '';
+          if (C && C.kind !== 'character' && /\d/.test(mark))
+            out.push(`deck minicard for ${C.kind} "${id}" prints a number: ${mark.trim()}`);
+        });
+        if (!document.querySelectorAll('.minicard').length) out.push('the deck rendered no cards');
+        return out;
+      }));
+      await page.evaluate(() => {
+        const b = document.querySelector('[data-act="deckclose"]'); if (b) b.click();
+      });
+    }
+  }
+
   // NO DEAD ENDS (Phase 0, permanent). The audit that forced the Bhasha rebuild found three
   // stages that were mathematically uncompletable: the renderer drew ZERO buttons for some
   // question shapes and the grader could never accept others, so "12 right answers" was an
@@ -329,6 +454,8 @@ async function main() {
   bad += report('no empty views', thin);
   bad += report('no registry promises nothing', registries);
   bad += report('no leaks: a covered word card never shows its word', leaks);
+  bad += report('no scores on people: every real and epic card carries deeds, not numbers, ' +
+                'and every quotation carries its source', scored);
   bad += report('no dead ends: every Bhasha stage renderable and winnable', deadEnds);
   process.exit(bad ? 1 : 0);
 }

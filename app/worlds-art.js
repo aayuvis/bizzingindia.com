@@ -434,7 +434,8 @@
       '<g class="wa-night">' +
       '<ellipse cx="30" cy="34" rx="29" ry="17" fill="rgba(255,168,54,.34)"/>' +
       '<ellipse cx="30" cy="30" rx="17" ry="12" fill="rgba(255,206,110,.42)"/>' +
-      '<g class="wam-flame" style="animation-duration:' + (1.25 + (i % 4) * 0.22).toFixed(2) + 's;animation-delay:' + dly(seed + i, 1400) + '">' +
+      '<g ' + (i % 2 === 0 ? 'class="wam-flame" style="animation-duration:' +
+      (1.25 + (i % 4) * 0.22).toFixed(2) + 's;animation-delay:' + dly(seed + i, 1400) + '"' : '') + '>' +
       '<path fill="#ff9d1c" d="M30 30Q39 18 30 2Q21 18 30 30Z"/>' +
       '<path fill="#ffdf7a" d="M30 28Q35 18 30 9Q25 18 30 28Z"/>' +
       '<path fill="#fff6d2" d="M30 27Q32.5 21 30 16Q27.5 21 30 27Z"/>' +
@@ -458,10 +459,7 @@
   /*  HOLI HAI                                                               */
   /*  Colour is the whole point, so Holi ignores the token palette and uses  */
   /*  real gulal: magenta, saffron, green, blue, yellow.                     */
-  /*  DAY   animating nodes: 4 clouds + 1 speck drift + 3 splats + 2 pichkari*/
-  /*        + 2 faces + 1 thrown puff = 13                                   */
-  /*  NIGHT animating nodes: 2 ember clouds + 1 embers + 1 glow + 3 flames   */
-  /*        + 1 sparks + 1 crowd sway = 9                                    */
+  /*  MEASURED animating nodes: DAY 15 · NIGHT 10.                           */
   /* ======================================================================= */
   var GUL = { m: '#e0219b', s: '#ff8a1f', g: '#11a869', b: '#2f7fe6', y: '#f9cf24', r: '#e63946' };
 
@@ -469,9 +467,9 @@
   function holiBd() {
     return '<div class="wa-day">' +
       puff({ l: '-10%', t: '2%', w: 'clamp(260px,58vw,560px)', c: GUL.m, a: 0.85, cls: 'wam-burst', dur: 10, dl: '-1.2s' }) +
-      puff({ l: '54%', t: '-6%', w: 'clamp(240px,54vw,520px)', c: GUL.s, a: 0.8, cls: 'wam-burst', dur: 12.5, dl: '-6.4s' }) +
+      puff({ l: '54%', t: '-6%', w: 'clamp(240px,54vw,520px)', c: GUL.s, a: 0.62 }) +
       puff({ l: '10%', t: '48%', w: 'clamp(280px,64vw,620px)', c: GUL.g, a: 0.72, cls: 'wam-burst', dur: 14, dl: '-9.1s' }) +
-      puff({ l: '58%', t: '34%', w: 'clamp(250px,56vw,540px)', c: GUL.b, a: 0.7, cls: 'wam-burst', dur: 11.5, dl: '-4.3s' }) +
+      puff({ l: '58%', t: '34%', w: 'clamp(250px,56vw,540px)', c: GUL.b, a: 0.55 }) +
       /* colour that landed earlier and simply stayed */
       puff({ l: '26%', t: '16%', w: 'clamp(200px,44vw,440px)', c: GUL.y, a: 0.5 }) +
       puff({ l: '0%', t: '70%', w: 'clamp(220px,48vw,480px)', c: GUL.m, a: 0.42 }) +
@@ -619,7 +617,7 @@
       return spr('left:' + l + ';bottom:' + b + ';width:' + w + ';height:auto',
         '0 0 100 100',
         '<g class="wam-splat" style="animation-duration:' + dur + 's;animation-delay:' + delay + '">' +
-        '<path fill="' + c + '" opacity=".85" d="M50 12q14 2 20 14t16 14q8 10-2 20t-10 22q-4 12-18 8t-24 2' +
+        '<path fill="' + c + '" opacity=".62" d="M50 12q14 2 20 14t16 14q8 10-2 20t-10 22q-4 12-18 8t-24 2' +
         'q-12 2-16-10t-14-18q-8-10 2-19t8-21q4-12 18-10t20-2z"/>' +
         '<circle cx="14" cy="18" r="6" fill="' + c + '" opacity=".75"/>' +
         '<circle cx="88" cy="26" r="4.5" fill="' + c + '" opacity=".75"/>' +
@@ -635,8 +633,8 @@
       puff({ l: '4%', t: 'auto', w: 'clamp(140px,30vw,280px)', h: '64px', c: GUL.g, a: 0.42 }).replace('top:auto', 'bottom:2px') +
       puff({ l: '42%', t: 'auto', w: 'clamp(160px,34vw,320px)', h: '58px', c: GUL.b, a: 0.38 }).replace('top:auto', 'bottom:-4px') +
       puff({ l: '70%', t: 'auto', w: 'clamp(140px,30vw,260px)', h: '52px', c: GUL.s, a: 0.4 }).replace('top:auto', 'bottom:6px') +
-      splat('20%', '54px', 'clamp(50px,12vw,92px)', GUL.m, 15, '-2s') +
-      splat('54%', '86px', 'clamp(44px,10vw,78px)', GUL.g, 18, '-11s') +
+      splat('20%', '36px', 'clamp(50px,12vw,92px)', GUL.m, 15, '-2s') +
+      splat('54%', '62px', 'clamp(44px,10vw,78px)', GUL.g, 18, '-11s') +
       splat('36%', '14px', 'clamp(58px,14vw,108px)', GUL.b, 21, '-6.5s') +
       pichkari + faces +
       '</div>' +
@@ -678,10 +676,9 @@
   /*  DAY   = preparation. Torans up, rangoli drawn, diyas set out UNLIT.    */
   /*  NIGHT = the event. Every flame lights, the rangoli glows, string       */
   /*          lights run, a phuljhari throws sparks, fireworks bloom.        */
-  /*  DAY   animating nodes: 1 sun glow + 1 petal fall + 1 toran bob = 3     */
-  /*  NIGHT animating nodes: 7 diya flames + 2 bulb rows (band) + 2 bulb     */
-  /*        rows (foot) + 1 rangoli glow + 1 phuljhari + 2 fireworks = 15,   */
-  /*        of which the bulb rows are single background-image nodes.        */
+  /*  MEASURED animating nodes: DAY 6 · NIGHT 14 (the cap). At night that is */
+  /*  4 diya flames (every other lamp flickers, the rest burn steady), 2+2    */
+  /*  bulb rows, 1 rangoli glow, 2 phuljhari, 2 fireworks and 1 wash.         */
   /* ======================================================================= */
   var DIY = { clay: '#b5581f', gold: '#f0ac29', flame: '#ffb454', mari: '#f28c1c', marid: '#d95f0c', leaf: '#2f7d4f' };
 
@@ -697,16 +694,21 @@
           return '<ellipse cx="' + (8 + (i * 19) % 84) + '" cy="' + ((i * 11) % 18) + '" rx="1.5" ry="1" fill="' +
             (i % 2 ? DIY.mari : DIY.marid) + '" opacity=".8"/>';
         }) + '</g>') +
+      spr('left:0;top:0;width:100%;height:100%', '0 0 100 100',
+        '<g class="wam-fall" style="animation-duration:31s;animation-delay:-14s">' +
+        rep(8, function (i) {
+          return '<ellipse cx="' + (14 + (i * 23) % 76) + '" cy="' + ((i * 13) % 16) + '" rx="1.3" ry="0.9" fill="' +
+            (i % 2 ? DIY.marid : DIY.mari) + '" opacity=".7"/>';
+        }) + '</g>') +
       '</div>' +
       '<div class="wa-night">' +
       /* the night sky, and the far-off glow of a whole city lighting up */
       puff({ l: '50%', t: 'auto', w: 'clamp(400px,100vw,1200px)', h: 'clamp(220px,40vw,460px)', c: '#ff9d1c', a: 0.22 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-10%') +
       spr('left:0;top:0;width:100%;height:70%', '0 0 100 70',
-        '<g class="wam-twinkle" style="animation-duration:5s">' +
-        rep(26, function (i) {
+        '<g>' + rep(26, function (i) {
           return '<circle cx="' + ((i * 41) % 100) + '" cy="' + ((i * 23) % 66) + '" r="' + (0.28 + (i % 3) * 0.16) +
-            '" fill="#ffeec4"/>';
+            '" fill="#ffeec4" opacity="' + (0.4 + (i % 4) * 0.16).toFixed(2) + '"/>';
         }) + '</g>') +
       '</div>';
   }
@@ -762,7 +764,6 @@
       '<div class="wa-night">' +
       firework('-6%', '2%', 'clamp(150px,36vw,300px)', '#ffd479', '#ff8ab0', 9, '-1s') +
       firework('66%', '10%', 'clamp(130px,32vw,260px)', '#8fd6ff', '#ffe08a', 11, '-6.5s') +
-      firework('30%', '44%', 'clamp(110px,26vw,220px)', '#ffb3d1', '#ffe9a8', 14, '-11s') +
       '</div>';
   }
 
@@ -820,8 +821,10 @@
     var garland = '<i class="wa-tileband" style="bottom:24px;height:26px;background-image:linear-gradient(90deg,' +
       DIY.mari + ' 0 40%,' + DIY.leaf + ' 40% 60%,' + DIY.marid + ' 60% 100%);background-size:126px 100%;' +
       '-webkit-mask-image:' + M_TORAN + ';mask-image:' + M_TORAN + ';-webkit-mask-size:63px 34px;mask-size:63px 34px;' +
-      '-webkit-mask-repeat:repeat-x;mask-repeat:repeat-x;opacity:.75;transform:scaleY(-1)"></i>';
-    return '<i class="wa-fade" style="bottom:52px;height:70px"></i>' + ledge + garland + rangoli() + row +
+      '-webkit-mask-repeat:repeat-x;mask-repeat:repeat-x;opacity:.75"></i>';
+    return '<i class="wa-fade" style="bottom:52px;height:70px"></i>' + ledge +
+      '<div class="wam-bob" style="position:absolute;inset:0;animation-duration:6.5s">' + garland + '</div>' +
+      rangoli() + row +
       '<div class="wa-day">' +
       /* unlit and waiting: a stack of spare diyas and the oil pot */
       spr('left:4%;bottom:34px;width:clamp(56px,14vw,110px);height:auto;opacity:.95', '0 0 120 90',
@@ -1028,8 +1031,8 @@
       rep(9, function (i) {
         var x = 6 + (i * 21) % 88;
         return '<g transform="translate(' + x + ' ' + ((i * 7) % 14) + ')">' +
-          rep(6, function (k) { return '<ellipse cx="0" cy="-1.1" rx="0.5" ry="1" fill="#fffdf8" transform="rotate(' + k * 60 + ')"/>'; }) +
-          '<circle r="0.55" fill="#ee7a3b"/></g>';
+          rep(6, function (k) { return '<ellipse cx="0" cy="-.8" rx=".34" ry=".72" fill="#fffdf8" opacity=".5" transform="rotate(' + k * 60 + ')"/>'; }) +
+          '<circle r="0.36" fill="#ee7a3b" opacity=".55"/></g>';
       }) + '</g>');
     return '<div class="wa-day">' + shiuli + '</div><div class="wa-night">' + shiuli + '</div>';
   }
@@ -1063,7 +1066,7 @@
       '<i class="wa-floor" style="height:26px;background:var(--wa-ink);opacity:.22"></i>' +
       pandal + dhaak +
       '<div class="wa-night">' +
-      bulbs({ c: '#ffd45e', top: 'calc(100% - 150px)', h: '20px', pitch: 20, r: 2.4, rows: 3, dur: 1.7 }) +
+      bulbs({ c: '#ffd45e', top: 'calc(100% - 104px)', h: '20px', pitch: 20, r: 2.4, rows: 3, dur: 1.7 }) +
       bulbs({ c: '#ff9d5e', top: 'calc(100% - 40px)', h: '18px', pitch: 30, r: 2.2, rows: 2, dur: 2.8 }) +
       '</div>';
   }
@@ -1093,7 +1096,7 @@
       '-webkit-mask-image:' + M_WAVE + ';mask-image:' + M_WAVE + ';-webkit-mask-size:28px 10px;mask-size:28px 10px;' +
       '-webkit-mask-repeat:repeat;mask-repeat:repeat;animation-duration:34s"></i>';
     return '<div class="wa-day">' + wave + '</div><div class="wa-night">' +
-      '<i class="wa-tileband" style="top:0;height:100%;left:0;right:auto;width:200%;background:var(--wa-accent);opacity:.28;' +
+      '<i class="wa-tileband" style="top:0;height:100%;left:0;right:auto;width:200%;background:var(--wa-accent);opacity:.14;' +
       '-webkit-mask-image:' + M_WAVE + ';mask-image:' + M_WAVE + ';-webkit-mask-size:28px 10px;mask-size:28px 10px;' +
       '-webkit-mask-repeat:repeat;mask-repeat:repeat"></i>' + '</div>';
   }
@@ -1101,8 +1104,8 @@
     var leaves = spr('left:0;top:0;width:100%;height:100%', '0 0 100 100',
       '<g class="wam-fall" style="animation-duration:28s">' +
       rep(7, function (i) {
-        return '<path fill="' + (i % 2 ? '#d9822b' : '#b04a3a') + '" opacity=".85" transform="translate(' +
-          (8 + (i * 27) % 84) + ' ' + ((i * 9) % 12) + ') scale(.16)" ' +
+        return '<path fill="' + (i % 2 ? '#d9822b' : '#b04a3a') + '" opacity=".5" transform="translate(' +
+          (8 + (i * 27) % 84) + ' ' + ((i * 9) % 12) + ') scale(.11)" ' +
           'd="M11 1L13.6 8L20 7L15 12L17.5 19L11 14.6L4.5 19L7 12L2 7L8.4 8Z"/>';
       }) + '</g>');
     return '<div class="wa-day">' + leaves + '</div><div class="wa-night">' + leaves + '</div>';
@@ -1194,23 +1197,25 @@
   function rjFoot() {
     /* the fort wall: crenellations, jharokha windows, a bastion each side */
     function fort(night) {
-      var win = night ? 'rgba(255,196,90,.95)' : 'var(--wa-ink)';
-      var op = night ? '1' : '.28';
+      var win = night ? 'rgba(255,196,90,.92)' : 'var(--wa-ink)';
+      var op = night ? '1' : '.3';
+      /* jharokha: a small arched window, not a fence post */
+      function jh(x, y, w, h) {
+        return '<path fill="' + win + '" opacity="' + op + '" d="M' + x + ' ' + (y + h) + 'V' + (y + w / 2) +
+          'q0-' + (w / 2) + ' ' + (w / 2) + '-' + (w / 2) + 't' + (w / 2) + ' ' + (w / 2) + 'v' + h + 'z"/>' +
+          (night ? '<ellipse cx="' + (x + w / 2) + '" cy="' + (y + h * 0.6) + '" rx="' + (w * 1.5) + '" ry="' + (h * 0.8) +
+            '" fill="rgba(255,190,90,.16)"/>' : '');
+      }
       return spr('left:50%;bottom:0;width:min(940px,102%);height:auto;transform:translateX(-50%)', '0 0 480 150',
-        '<path class="waf-i" opacity="' + (night ? '.5' : '.34') + '" d="M0 150V58h14v-12h14v12h18v-12h14v12h18V40h20v18h44v-12h14v12h14v-12h14v12h44V40h20v18h18v-12h14v12h18v-12h14v12h18v-12h14v12h18v-12h14v12h20v92Z"/>' +
-        /* bastions */
-        '<path class="waf-i" opacity="' + (night ? '.55' : '.4') + '" d="M28 150V30q0-18 22-18t22 18v120ZM406 150V34q0-18 22-18t22 18v116Z"/>' +
-        /* jharokha windows */
-        rep(9, function (i) {
-          var x = 44 + i * 46;
-          return '<path fill="' + win + '" opacity="' + op + '" d="M' + x + ' 150v-38q0-14 11-14t11 14v38z"/>';
-        }) +
-        rep(2, function (i) {
-          var x = [40, 418][i];
-          return '<path fill="' + win + '" opacity="' + op + '" d="M' + x + ' 96V64q0-10 10-10t10 10v32z"/>';
-        }) +
+        /* the rampart, crenellated */
+        '<path ' + (night ? 'fill="#1d1218"' : 'class="waf-i"') + ' opacity="' + (night ? '.97' : '.34') + '" d="M0 150V58h14v-12h14v12h18v-12h14v12h18V40h20v18h44v-12h14v12h14v-12h14v12h44V40h20v18h18v-12h14v12h18v-12h14v12h18v-12h14v12h18v-12h14v12h20v92Z"/>' +
+        /* bastions each side */
+        '<path ' + (night ? 'fill="#1d1218"' : 'class="waf-i"') + ' opacity="' + (night ? '1' : '.4') + '" d="M28 150V30q0-18 22-18t22 18v120ZM406 150V34q0-18 22-18t22 18v116Z"/>' +
+        rep(9, function (i) { return jh(46 + i * 46, 112, 12, 26); }) +
+        rep(4, function (i) { return jh(132 + i * 72, 76, 10, 20); }) +
+        jh(43, 58, 12, 22) + jh(421, 62, 12, 22) +
         (night ? '<g class="wam-glow" style="animation-duration:6s;transform-box:view-box;transform-origin:240px 130px">' +
-          '<ellipse cx="240" cy="140" rx="240" ry="46" fill="rgba(255,190,90,.2)"/></g>' : ''));
+          '<ellipse cx="240" cy="146" rx="250" ry="40" fill="rgba(255,190,90,.16)"/></g>' : ''));
     }
     var camel = spr('left:0;bottom:4px;width:clamp(150px,36vw,280px);height:auto', '0 0 220 60',
       '<g class="wam-cross" style="animation-duration:96s;animation-delay:-40s">' +
@@ -1223,7 +1228,11 @@
     var sand = '<i class="wa-floor" style="height:34px;background:var(--wa-accent2);opacity:.3"></i>';
     return '<i class="wa-fade" style="bottom:44px;height:58px"></i>' + sand +
       '<div class="wa-day">' + fort(false) + camel + '</div>' +
-      '<div class="wa-night">' + fort(true) + camel +
+      '<div class="wa-night">' +
+      /* the warm town-glow the fort stands black against */
+      puff({ l: '50%', t: 'auto', w: 'clamp(360px,100vw,1100px)', h: 'clamp(150px,30vw,300px)', c: '#ffb454', a: 0.34, cls: 'wam-glow', dur: 8 })
+        .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-30px') +
+      fort(true) + camel +
       bulbs({ c: '#ffd07a', top: 'calc(100% - 26px)', h: '16px', pitch: 38, r: 2, rows: 2, dur: 3.6 }) +
       '</div>';
   }

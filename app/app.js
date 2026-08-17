@@ -2868,7 +2868,14 @@
             '<h3 style="margin:10px 0 2px" class="deva" lang="' + esc(k) + '">' + esc(p.name.native || p.name.en) + '</h3>' +
             '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc ? sc.name : p.script) + '</div>' +
             '<div class="tiny muted" style="margin-top:8px">' + st.correct + ' right of ' + st.asked + '</div></button>';
-        }).join('') + '</div>';
+        }).join('') + '</div>' +
+          /* PHASE F's door, for the grown-up rather than the child. Deliberately at the
+             foot of the list and stated plainly: it is a report, not a control panel. */
+          '<button class="tile" data-act="progress" data-id="' + (lead || 'hi') + '" ' +
+          'style="margin-top:var(--space-lg)">' +
+          '<b>How it is going</b><span class="tiny muted">For a grown-up: where they are, ' +
+          'the grammar they have met, and the handful of things missed more than once. ' +
+          'Read-only, no score, nothing sent anywhere.</span></button>';
       })() +
       /* The drills used to be duplicated here as a "Khel" block. Khel is its own
          tab in the bar now, and the same four stalls listed in two places made the
@@ -3460,6 +3467,85 @@
           }).join('') +
           '</div>';
       }).join('');
+  };
+
+
+  /* -------------------------------------------------------- PHASE F: the parent's view
+     What a grown-up actually needs, and nothing else. Where the child is by stage, which
+     grammar points have been met and which have not, what is due today, and what got
+     missed twice — because that last one is the only list worth acting on.
+
+     THREE THINGS IT DELIBERATELY IS NOT (docs/12 Phase F):
+       · not a score. No percentage, no grade, no rank. A child is not a number and a
+         parent reading a number learns nothing they can act on.
+       · not gamified. No streak pressure, no "you are behind", no comparison to anyone.
+       · not editable. Read-only. A parent who can reset a box can undo the spacing that
+         makes the whole thing work, usually with the best intentions.
+
+     What it IS: honest. If nothing has been started it says so plainly. */
+  V.progress = function (packId) {
+    var B = window.IND_BHASHA;
+    var pack = packId || 'hi';
+    var P = window.IND_PACKS[pack];
+    if (!B || !P) return '<div class="card">Not found.</div>';
+    var pname = (P.name && P.name.en) || 'this language';
+    var srs = (S.lang && S.lang[pack] && S.lang[pack].srs) || {};
+    var keys = Object.keys(srs);
+
+    var rows = (P.stages || []).map(function (st) {
+      var r = B.readiness(pack, st.id, srs);
+      if (!r || !r.total) return '';
+      var met = r.total - r.unseen;
+      return '<tr><td style="padding:9px 10px"><b>' + esc(st.name || st.id) + '</b>' +
+        '<div class="tiny muted">' + esc(st.blurb || '') + '</div></td>' +
+        '<td style="padding:9px 10px;text-align:right;white-space:nowrap">' +
+        '<span class="tiny muted">' + met + ' of ' + r.total + ' met</span><br>' +
+        '<b>' + r.mastered + '</b> <span class="tiny muted">known well</span></td></tr>';
+    }).join('');
+
+    /* the grammar map — Phase C's whole reason for existing on this screen */
+    var bank = B.grammar ? B.grammar(pack) : null;
+    var gmap = bank ? bank.map(function (g) {
+      var c = srs['gram:' + g.id];
+      var seen = !!(c && (c.seen || c.intro));
+      return '<span class="pill' + (seen ? ' on' : '') + '" style="font-size:12.5px">' +
+        esc(g.en) + '</span>';
+    }).join(' ') : '';
+
+    /* missed twice — the only list a parent can actually do something about tonight */
+    var stuck = keys.filter(function (k) {
+      var c = srs[k];
+      return c && (c.lapses || 0) >= 2;
+    }).slice(0, 12);
+
+    var started = keys.length > 0;
+    return '<button class="backlink" data-act="go" data-v="bhasha">' + icon('back', 18) + ' Bhasha</button>' +
+      '<div class="card"><h1 style="margin:0">How it is going</h1>' +
+      '<div class="mono">' + esc(pname) + ' · for a grown-up</div>' +
+      (started
+        ? '<p style="margin:10px 0 0">Read-only, on purpose. There is no score here and ' +
+          'nothing to reset — the spacing between practices is what makes any of it stick, ' +
+          'and it works best when nobody nudges it.</p>'
+        : '<p style="margin:10px 0 0">Nothing started yet. This page fills in as soon as ' +
+          'there is something honest to put on it.</p>') + '</div>' +
+      (started ? '<div class="card"><h3 style="margin-top:0">Where they are</h3>' +
+        '<table style="width:100%;border-collapse:collapse">' + rows + '</table></div>' : '') +
+      (gmap ? '<div class="card"><h3 style="margin-top:0">The grammar they have met</h3>' +
+        '<p class="tiny muted" style="margin:0 0 10px">Lit means it has come up in a lesson ' +
+        'at least once — not that it is finished. Nothing here is ever finished.</p>' +
+        '<div class="row" style="flex-wrap:wrap;gap:6px">' + gmap + '</div></div>' : '') +
+      (stuck.length
+        ? '<div class="card tint"><h3 style="margin-top:0">Missed more than once</h3>' +
+          '<p class="tiny muted" style="margin:0 0 10px">The only list on this page worth ' +
+          'acting on. Say these out loud together at dinner — that is genuinely all it takes.</p>' +
+          '<div class="row" style="flex-wrap:wrap;gap:6px">' + stuck.map(function (k) {
+            return '<span class="pill">' + esc(k.replace(/^[a-z]+:/, '')) + '</span>';
+          }).join('') + '</div></div>'
+        : (started ? '<div class="card flat tiny">Nothing has been missed twice. ' +
+          'That is the whole report on that front.</div>' : '')) +
+      '<div class="card flat tiny">Everything on this page is worked out on this device ' +
+      'from what has been practised. No score is stored, nothing is sent anywhere, and ' +
+      'there is nothing here another child could be compared against.</div>';
   };
 
   V.chart = function (id) {
@@ -4364,6 +4450,7 @@
       case 'pack': h = V.pack(view.arg); break;
       case 'chart': h = V.chart(view.arg); break;
       case 'vyakaran': h = V.vyakaran(view.arg); break;
+      case 'progress': h = V.progress(view.arg); break;
       case 'kosh': h = V.kosh(view.arg); break;
       case 'wordcard': h = V.wordcard(view.arg); break;
       case 'mela': h = V.mela(); break;
@@ -4815,6 +4902,7 @@
     }
 
     if (a === 'vyakaran') return go('vyakaran', t.getAttribute('data-id'));
+    if (a === 'progress') return go('progress', t.getAttribute('data-id'));
 
     if (a === 'world')  {
       S.world = t.getAttribute('data-w'); save();

@@ -38,6 +38,7 @@ const ARG_VIEWS = {
      `[object Object]` in its own heading -- pack.name is {en, native}, not a string --
      and the gate could not have caught it while the view was not being walked. */
   vyakaran: 'window.IND_PACKS && Object.keys(window.IND_PACKS)',
+  progress: 'window.IND_PACKS && Object.keys(window.IND_PACKS)',
   // the word card takes "<packId>:<word>" — walk one from the front, middle and
   // back of every registered lexicon, which is how a card that only breaks on a
   // word with no sentence, or a multi-token word, gets caught

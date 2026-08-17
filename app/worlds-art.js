@@ -118,10 +118,10 @@
       n: { ground: '#0a1119', card: '#121d29', accent: '#6fc6e0', accent2: '#ffcf4d', festive: '#ff8fa3' } },
 
     { id: 'pujo', name: 'Durga Pujo', region: 'Kolkata, West Bengal', full: true, face: 'Baloo 2', frame: 'bamboo',
-      /* SACRED-SAFE: bamboo-and-cloth pandal craft, lights, dhaak, shiuli.
-         The murti is NEVER depicted or abstracted. */
-      note: 'Bamboo pandals rising, string lights chasing and the heartbeat of the dhaak.',
-      credit: 'Pandal craft of Durga Pujo — bamboo, cloth and lights, Kolkata, West Bengal. Drawn in-house; the murti is never pictured.',
+      /* Pandal craft AND the murti it is built for, in the traditional ekchala.
+         She never animates and is never interactive — see pjDurga(). */
+      note: 'Bamboo pandals rising, the dhaak keeping time, and Ma Durga in the ekchala with her lion.',
+      credit: 'Durga Pujo, Kolkata — pandal craft in bamboo, cloth and light, and the ekchala murti as the Kumartuli potters build it in Ganga clay. Drawn in-house.',
       t: { ground: '#fbf1e8', surface: '#ffffff', ink: '#46150f', accent: '#c1272d', accent2: '#e8b00e', festive: '#ee7a3b' },
       n: { ground: '#1b0b0a', card: '#2a1210', accent: '#ff8f6b', accent2: '#ffd45e', festive: '#ffab5e' } },
 
@@ -1147,8 +1147,11 @@
   S.mumbai = { bd: mbBd, band: mbBand, sky: mbSky, foot: mbFoot };
 
   /* ======================================================================= */
-  /*  DURGA PUJO — pandal craft only. SACRED-SAFE: the murti is never shown,  */
-  /*  never abstracted, never implied. Bamboo, cloth, light and the dhaak.   */
+  /*  DURGA PUJO — the pandal AND the murti inside it, which is what a       */
+  /*  pandal is built to hold. Bamboo, cloth, light, the dhaak, and Ma Durga */
+  /*  in the ekchala the Kumartuli potters have used for two centuries.      */
+  /*  She is frontal, symmetrical and STILL: nothing about her animates, she */
+  /*  is not interactive, not collectible, not scored. See pjDurga().        */
   /*  DAY 4 animating nodes · NIGHT 7                                        */
   /* ======================================================================= */
   function pjBd() {
@@ -1186,9 +1189,98 @@
       }) + '</g>');
     return '<div class="wa-day">' + shiuli + '</div><div class="wa-night">' + shiuli + '</div>';
   }
+  /* THE MURTI. This world used to leave the arch deliberately empty, on a
+     sacred-safe reading that the goddess should never be pictured. The founder
+     overruled that directly and explicitly, and he is right: Durga Puja IS the
+     murti. She is made every year in Kumartuli from Ganga clay, worshipped for
+     four days and given to the river; leaving the arch empty depicted the one
+     thing the festival is not. Showing her is the inside view — docs/05 §4 —
+     and omitting her was the outside one.
+
+     So she is drawn the way the Kumartuli potters build her, in the ekchala
+     composition Bengal has used for two centuries: one framed chalchitri arch,
+     Mahishasuramardini at the centre with her ten arms, the lion at her feet,
+     Mahishasura below the trishul, and her four children flanking her —
+     Lakshmi and Ganesh on one side, Saraswati and Kartik on the other.
+
+     HOW IT IS DRAWN, and these are deliberate:
+       · frontal, symmetrical and STILL. Nothing about her animates. The lamps
+         and the dhaak move; she does not. A deity that bobs for attention is a
+         decoration, and that is the line this app does not cross.
+       · she is not interactive, not a target, not collectible, not scored.
+         No data-act, no pointer cursor, no reward attached to her.
+       · the iconography is the traditional one and nothing is invented: ten
+         arms, trishul through the asura, the lion, the chalchitri halo.
+       · she is never used as decor anywhere else — this is her festival's own
+         world, in her own pandal, which is exactly where she belongs. */
+  function pjDurga() {
+    /* attributes in the ten hands, read outward from the top on each side. Drawn
+       as tips on the arm-fan rather than as detailed objects, which is how a
+       clay murti reads at this distance anyway. */
+    var arms = rep(5, function (i) {
+      var a = 22 + i * 19;                       /* fan angle, degrees from vertical */
+      return '<g transform="rotate(' + (-a) + ' 100 96)">' +
+          '<path class="was-b" stroke-width="3.2" stroke-linecap="round" fill="none" d="M100 96 L100 44"/>' +
+          '<circle class="waf-b" cx="100" cy="42" r="3"/></g>' +
+        '<g transform="rotate(' + a + ' 100 96)">' +
+          '<path class="was-b" stroke-width="3.2" stroke-linecap="round" fill="none" d="M100 96 L100 44"/>' +
+          '<circle class="waf-b" cx="100" cy="42" r="3"/></g>';
+    });
+    /* one of the four children, in the ekchala's own small side-panel */
+    function child(x, hue) {
+      return '<g transform="translate(' + x + ' 150)">' +
+        '<circle class="waf-b" cx="0" cy="0" r="7" opacity=".9"/>' +
+        '<path class="' + hue + '" d="M-8 26q0-16 8-16t8 16z" opacity=".92"/>' +
+        '<circle class="waf-i" cx="-2.4" cy="-1" r="1" opacity=".7"/>' +
+        '<circle class="waf-i" cx="2.4" cy="-1" r="1" opacity=".7"/></g>';
+    }
+    /* Drawn in a 200x200 box and then placed INTO the pandal's arch, rather than
+       as a sprite of her own. A separate sprite stood taller than the footer band
+       and the page's cards covered her to the shoulders — she has to live inside
+       the arch that was built for her, and scale with it. */
+    return '<g transform="translate(157 96) scale(.52)">' +
+      /* chalchitri — the painted arch that frames the whole ekchala */
+      '<path class="waf-a" opacity=".2" d="M100 8q64 0 64 74v110H36V82Q36 8 100 8Z"/>' +
+      '<path class="was-b waf-n" stroke-width="2.6" opacity=".75" d="M100 8q64 0 64 74v110H36V82Q36 8 100 8Z"/>' +
+      rep(13, function (i) {                    /* the arch's ray-work */
+        return '<path class="was-b waf-n" stroke-width="1.4" opacity=".45" transform="rotate(' +
+          (-72 + i * 12) + ' 100 82)" d="M100 82V16"/>'; }) +
+      /* the four children of the ekchala, two a side */
+      child(52, 'waf-f') + child(70, 'waf-a') + child(130, 'waf-a') + child(148, 'waf-f') +
+      /* the lion, her vahana */
+      '<g transform="translate(100 168)">' +
+        '<ellipse class="waf-b" cx="0" cy="0" rx="30" ry="13" opacity=".95"/>' +
+        '<circle class="waf-b" cx="-27" cy="-6" r="10"/>' +
+        rep(9, function (i) { return '<path class="was-b" stroke-width="2" fill="none" opacity=".8" transform="rotate(' +
+          (i * 40) + ' -27 -6)" d="M-27 -6 L-27 -18"/>'; }) +
+        '<circle class="waf-i" cx="-30" cy="-7" r="1.3" opacity=".8"/>' +
+      '</g>' +
+      /* Mahishasura, under the trishul — the demon, never a faith's figure */
+      '<g transform="translate(126 176)" opacity=".85">' +
+        '<ellipse class="waf-i" cx="0" cy="4" rx="13" ry="7" opacity=".55"/>' +
+        '<circle class="waf-i" cx="7" cy="-4" r="5" opacity=".6"/></g>' +
+      /* the trishul, through */
+      '<path class="was-b" stroke-width="2.6" fill="none" d="M133 40V178"/>' +
+      '<path class="was-b waf-n" stroke-width="2.6" d="M126 48q7-12 7-12t7 12"/>' +
+      arms +
+      /* the goddess herself: saree, torso, face, crown */
+      '<path class="waf-a" d="M84 176q0-52 16-52t16 52z"/>' +
+      '<path class="waf-b" opacity=".55" d="M86 176q0-46 14-46t14 46z" />' +
+      '<ellipse class="waf-a" cx="100" cy="106" rx="13" ry="16"/>' +
+      '<circle class="waf-s" cx="100" cy="88" r="11"/>' +
+      '<path class="waf-i" opacity=".85" d="M93 85q3-3 6 0M101 85q3-3 6 0"/>' +
+      '<ellipse class="waf-i" cx="96" cy="88" rx="1.5" ry="2" opacity=".9"/>' +
+      '<ellipse class="waf-i" cx="104" cy="88" rx="1.5" ry="2" opacity=".9"/>' +
+      '<ellipse class="waf-a" cx="100" cy="82" rx="1.2" ry="2.4"/>' +   /* the third eye */
+      '<path class="waf-b" d="M89 78q11-14 22 0q-4-4-11-4t-11 4z"/>' +
+      '<path class="waf-b" d="M100 44l9 16q-9-5-18 0z"/>' +             /* the mukut */
+      '<circle class="waf-f" cx="100" cy="46" r="3"/>' +
+      '</g>';
+  }
+
   function pjFoot() {
-    /* the pandal: bamboo frame, cloth drapes, a lit arch. NO murti inside —
-       the interior is warm empty light and lattice, which is the craft. */
+    /* the pandal: bamboo frame, cloth drapes, a lit arch — and the murti inside
+       it, which is the whole reason a pandal is built. */
     var pandal = spr('left:50%;bottom:0;width:clamp(280px,74vw,560px);height:auto;transform:translateX(-50%)', '0 0 420 200',
       '<path class="waf-i" opacity=".14" d="M40 200V96q0-56 60-72Q210 0 320 24q60 16 60 72v104Z"/>' +
       /* bamboo frame */
@@ -1198,13 +1290,15 @@
       '<path d="M40 96h340M76 132h268M110 168h200"/></g>' +
       /* the arch mouth */
       '<path class="waf-ground" fill="var(--wa-ground)" opacity=".55" d="M150 200V132q0-38 60-38t60 38v68Z"/>' +
+      pjDurga() +
       '<path class="was-a waf-n" stroke-width="5" d="M150 200V132q0-38 60-38t60 38v68"/>' +
       /* cloth drapes */
       '<path class="waf-f" opacity=".7" d="M40 96h340l-10 26q-24-16-48 0t-48 0q-24-16-48 0t-48 0q-24-16-48 0t-48 0z"/>' +
-      /* night: the arch fills with warm light — light, not a figure */
-      '<g class="wa-night"><path fill="rgba(255,190,90,.5)" d="M152 198V132q0-36 58-36t58 36v66Z"/>' +
-      '<ellipse class="wam-glow" style="transform-box:view-box;transform-origin:210px 160px;animation-duration:5.5s"' +
-      ' cx="210" cy="160" rx="86" ry="60" fill="rgba(255,180,70,.34)"/></g>');
+      /* night: the warm halo of pandal light around her, drawn OVER as a wash so it
+         lights her rather than hiding her — a lit pandal glows, it does not black out */
+      '<g class="wa-night" style="pointer-events:none">' +
+      '<ellipse class="wam-glow" style="transform-box:view-box;transform-origin:210px 150px;animation-duration:5.5s"' +
+      ' cx="210" cy="150" rx="80" ry="62" fill="rgba(255,180,70,.20)"/></g>');
     var dhaak = spr('right:3%;bottom:8px;width:clamp(84px,20vw,150px);height:auto', '0 0 120 100',
       '<rect class="waf-b" opacity=".95" x="18" y="46" width="80" height="40" rx="18"/>' +
       '<ellipse class="waf-s was-i" stroke-width="3" cx="21" cy="66" rx="8" ry="20"/>' +
@@ -1637,12 +1731,37 @@
       rep(6, function (i) { return '<circle class="waf-b wam-twinkle" cx="' + (12 + i * 14) + '" cy="49" r="2"' + tdly('tmb' + i, 2400) + '/>'; }) +
       '<g class="wam-cross-sm" style="animation-duration:7s"><path class="waf-i" opacity=".85" d="M4 40V30Q4 25 10 25H60Q62 25 62 27V40Z"/>' +
       rep(4, function (i) { return '<rect class="waf-b" x="' + (12 + i * 12) + '" y="29" width="7" height="5" rx="1"/>'; }) + '</g>'),
+    /* The tile is where the world is JUDGED — it is the picture in the picker, and
+       unlike the backdrop nothing ever covers it. So the murti is here at full size,
+       in the arch, with the bamboo lattice and the chasing lights behind her and the
+       dhaak beside her. Still, as everywhere: she does not animate. */
     pujo: tile('pujo',
-      '<path class="was-i waf-n" opacity=".25" stroke-width="1.2" d="M8 64L40 12M24 64L56 12M40 64L72 12M56 64L88 12M88 64L56 12M72 64L40 12M56 64L24 12M40 64L8 12"/>' +
-      rep(6, function (i) { return '<circle class="waf-b wam-twinkle" cx="' + (13 + i * 14) + '" cy="20" r="2.4" style="animation-delay:' + (-i * 0.18).toFixed(2) + 's"/>'; }) +
-      '<rect class="waf-b" x="34" y="38" width="28" height="15" rx="7"/>' +
-      '<g class="wam-tap" style="animation-delay:-.1s"><path class="was-i waf-n" stroke-width="2" stroke-linecap="round" d="M42 37L34 26"/></g>' +
-      '<g class="wam-tap" style="animation-delay:-.41s"><path class="was-i waf-n" stroke-width="2" stroke-linecap="round" d="M54 37L62 26"/></g>' +
+      '<path class="was-i waf-n" opacity=".18" stroke-width="1.2" d="M8 64L40 12M24 64L56 12M40 64L72 12M56 64L88 12M88 64L56 12M72 64L40 12M56 64L24 12M40 64L8 12"/>' +
+      rep(6, function (i) { return '<circle class="waf-b wam-twinkle" cx="' + (13 + i * 14) + '" cy="9" r="2.2" style="animation-delay:' + (-i * 0.18).toFixed(2) + 's"/>'; }) +
+      /* the pandal arch she stands in */
+      '<path class="waf-g" opacity=".9" d="M32 64V34q0-16 16-16t16 16v30Z"/>' +
+      '<path class="was-a waf-n" stroke-width="2" d="M32 64V34q0-16 16-16t16 16v30"/>' +
+      /* Ma Durga, ekchala — chalchitri, ten arms, the lion, the trishul */
+      '<path class="waf-a" opacity=".22" d="M48 20q13 0 13 15v29H35V35q0-15 13-15Z"/>' +
+      rep(5, function (i) {                 /* the ten arms, five a side */
+        var a = 24 + i * 18;
+        return '<g transform="rotate(' + (-a) + ' 48 46)"><path class="was-b waf-n" stroke-width="1.2" stroke-linecap="round" d="M48 46V37"/></g>' +
+          '<g transform="rotate(' + a + ' 48 46)"><path class="was-b waf-n" stroke-width="1.2" stroke-linecap="round" d="M48 46V37"/></g>';
+      }) +
+      '<path class="was-b waf-n" stroke-width="1.1" d="M57 30V60"/>' +   /* the trishul */
+      '<path class="was-b waf-n" stroke-width="1.1" d="M54.6 33q2.4-3.6 2.4-3.6t2.4 3.6"/>' +
+      '<path class="waf-b" opacity=".9" d="M41 60q0-15 7-15t7 15z"/>' +  /* the saree */
+      '<path class="waf-a" d="M42.5 60q0-12.5 5.5-12.5t5.5 12.5z"/>' +
+      '<ellipse class="waf-a" cx="48" cy="44" rx="3" ry="3.6"/>' +
+      '<circle class="waf-s" cx="48" cy="39.6" r="3.1"/>' +              /* the face */
+      '<circle class="waf-i" cx="46.9" cy="39.8" r=".5"/><circle class="waf-i" cx="49.1" cy="39.8" r=".5"/>' +
+      '<ellipse class="waf-a" cx="48" cy="37.9" rx=".4" ry=".8"/>' +     /* the third eye */
+      '<path class="waf-b" d="M48 30.5l3.4 6q-3.4-2-6.8 0z"/>' +         /* the mukut */
+      '<ellipse class="waf-b" cx="48" cy="61" rx="9" ry="3"/>' +
+      /* the dhaak, still played */
+      '<rect class="waf-b" x="72" y="44" width="18" height="10" rx="5"/>' +
+      '<g class="wam-tap" style="animation-delay:-.1s"><path class="was-i waf-n" stroke-width="1.6" stroke-linecap="round" d="M77 43L72 35"/></g>' +
+      '<g class="wam-tap" style="animation-delay:-.41s"><path class="was-i waf-n" stroke-width="1.6" stroke-linecap="round" d="M85 43L90 35"/></g>' +
       '<path class="waf-a" opacity=".55" d="M0 58h96v6H0z"/>'),
     dallake: tile('dallake',
       '<rect class="waf-a" opacity=".3" x="0" y="46" width="96" height="18"/>' +

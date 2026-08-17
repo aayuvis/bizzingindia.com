@@ -69,7 +69,12 @@
       .replace(/\(/g, '%28').replace(/\)/g, '%29') + ')';
   }
 
-  /* a soft round cloud of colour — the workhorse of every backdrop */
+  /* A soft round cloud of colour — the workhorse of every backdrop.
+     ONE SIZE RULE, learned the hard way: a puff inside the FOOTER layer must be no taller
+     than the footer band (212px desktop, 178px phone). The layer clips with overflow:hidden,
+     so a 480px glow in a 212px band does not fade out at the top -- it is sliced dead
+     straight, and a hard-edged rectangle of colour appears across the screen. Fourteen of
+     these had shipped. Puffs in the `bd` and `air` layers are full-height and may be any size. */
   function puff(o) {
     var c = o.c, mid = o.mid || 0.42;
     return '<i class="wa-puff ' + (o.cls || '') + '" style="left:' + o.l + ';top:' + o.t + ';width:' + o.w +
@@ -143,26 +148,26 @@
       t: { ground: '#fdf1e6', surface: '#fffdfa', ink: '#3a1410', accent: '#c63c28', accent2: '#e2951f', festive: '#2f6f5e' },
       n: { ground: '#170d0a', card: '#241511', accent: '#ef7f68', accent2: '#ffc06a', festive: '#63b79e' } },
 
-    { id: 'taj', name: 'Taj Mahal', region: 'Agra, Uttar Pradesh', full: false, face: 'Fraunces', frame: 'inlay',
+    { id: 'taj', name: 'Taj Mahal', region: 'Agra, Uttar Pradesh', full: true, face: 'Fraunces', frame: 'inlay',
       note: 'Marble catching the dawn, flowers set in stone, a garden in perfect halves.',
       credit: 'Pietra-dura inlay and char-bagh geometry of the Taj Mahal — Agra, Uttar Pradesh. Drawn in-house.',
       t: { ground: '#f3efea', surface: '#fefdfb', ink: '#322b36', accent: '#8c5a74', accent2: '#c99a4b', festive: '#3e7c6f' },
       n: { ground: '#110e14', card: '#1d1822', accent: '#d1a0bb', accent2: '#e8c88a', festive: '#7fc0b1' } },
 
-    { id: 'cricket', name: 'Cricket Fever', region: 'All of India', full: false, face: 'Bungee', frame: 'stitched',
+    { id: 'cricket', name: 'Cricket Fever', region: 'All of India', full: true, face: 'Bungee', frame: 'stitched',
       /* Deliberately team-agnostic and league-agnostic (no trademarks). */
       note: 'Floodlights on, scoreboard ticking, a six sailing over the rope.',
       credit: 'Cricket — India’s shared festival, every gully and maidan. Drawn in-house; no team or league marks.',
       t: { ground: '#eaf2ea', surface: '#ffffff', ink: '#14301d', accent: '#1e7a46', accent2: '#efb71e', festive: '#e0483f' },
       n: { ground: '#07120c', card: '#0f2117', accent: '#4fd08a', accent2: '#ffd75e', festive: '#ff8f86' } },
 
-    { id: 'bollywood', name: 'Bollywood', region: 'Mumbai, Maharashtra', full: false, face: 'Bangers', frame: 'marquee',
+    { id: 'bollywood', name: 'Bollywood', region: 'Mumbai, Maharashtra', full: true, face: 'Bangers', frame: 'marquee',
       note: 'Hand-painted posters, marquee bulbs chasing and one dramatic shimmer.',
       credit: 'Hand-painted film-poster and marquee craft of Hindi cinema — Bombay’s poster painters. Drawn in-house.',
       t: { ground: '#fbedde', surface: '#fff9f0', ink: '#3a1030', accent: '#c42a6c', accent2: '#f0a519', festive: '#2c63a8' },
       n: { ground: '#150818', card: '#231029', accent: '#ff77ab', accent2: '#ffc45e', festive: '#7ba6ef' } },
 
-    { id: 'antariksh', name: 'Antariksh', region: 'Sriharikota to the stars', full: false, face: 'Quicksand', frame: 'panel',
+    { id: 'antariksh', name: 'Antariksh', region: 'Sriharikota to the stars', full: true, face: 'Quicksand', frame: 'panel',
       /* No space-agency name, logo or insignia — our own rocket silhouette. */
       note: 'Countdown, lift-off — a rocket climbs from the coast into a field of stars.',
       credit: 'India’s space adventure — countdowns, launch arcs and tracking dishes. Drawn in-house; no agency marks.',
@@ -182,20 +187,20 @@
       t: { ground: '#f6f3f7', surface: '#ffffff', ink: '#33203e', accent: '#c43ba0', accent2: '#efb61c', festive: '#2f9e62' },
       n: { ground: '#140b1c', card: '#20122b', accent: '#ff8ad4', accent2: '#ffce5e', festive: '#5fd497' } },
 
-    { id: 'truck', name: 'Truck Art', region: 'Highway India', full: false, face: 'Bangers', frame: 'painted',
+    { id: 'truck', name: 'Truck Art', region: 'Highway India', full: true, face: 'Bangers', frame: 'painted',
       note: 'Marigolds, painted eyes and PHIR MILENGE on the tailboard of a singing truck.',
       credit: 'Indian truck art — painted-lorry workshops of Punjab, Rajasthan and Namakkal, Tamil Nadu. Rendered in-house until a truck-art ustaad is commissioned.',
       t: { ground: '#fdf3e3', surface: '#ffffff', ink: '#22263b', accent: '#0f6bb4', accent2: '#f2b211', festive: '#e0345c' },
       n: { ground: '#0c0f1a', card: '#161b2b', accent: '#5cb3ee', accent2: '#ffcb52', festive: '#ff7d9c' } },
 
-    { id: 'dance', name: 'Dances of India', region: 'Many traditions, all India', full: false, face: 'Righteous', frame: 'ghungroo',
+    { id: 'dance', name: 'Dances of India', region: 'Many traditions, all India', full: true, face: 'Righteous', frame: 'ghungroo',
       /* Generic dancer silhouettes across forms — never deity iconography. */
       note: 'Ghungroo bells, graceful mudras and footwork drawing its own rhythm line.',
       credit: 'Dance traditions of India — ghungroo, mudra and rhythm across many forms. Drawn in-house; no deity iconography.',
       t: { ground: '#f8ece4', surface: '#fffbf7', ink: '#3c1626', accent: '#a62b52', accent2: '#d99c27', festive: '#2f7a72' },
       n: { ground: '#15080f', card: '#231120', accent: '#ef7e9e', accent2: '#ffc85f', festive: '#63bdb2' } },
 
-    { id: 'patterns', name: 'Patterns of India', region: 'Many regions', full: false, face: 'Quicksand', frame: 'block',
+    { id: 'patterns', name: 'Patterns of India', region: 'Many regions', full: true, face: 'Quicksand', frame: 'block',
       note: 'Bandhani dots, ajrakh blocks, phulkari threads — India printed, tied and woven.',
       credit: 'Bandhani — Kutch & Rajasthan · Ajrakh — Kutch, Gujarat · Phulkari — Punjab · Kolam — Tamil Nadu · Ikat — Odisha & Telangana. Rendered in-house until artisans are commissioned.',
       t: { ground: '#f0ece4', surface: '#fffdf8', ink: '#2e2438', accent: '#29527a', accent2: '#c98a2b', festive: '#b23a48' },
@@ -793,28 +798,57 @@
          Cultural, and deliberately never a deity or any figure of worship. */
       '<i class="wa-floor" style="height:64px;background:linear-gradient(to bottom,rgba(70,30,12,.3),rgba(22,9,4,.55))"></i>' +
       '<i class="wa-fade" style="bottom:54px;height:64px"></i>' +
-      puff({ l: '50%', t: 'auto', w: 'clamp(320px,86vw,760px)', h: 'clamp(230px,52vw,480px)', c: '#ff8a1f', a: 0.55, cls: 'wam-glow', dur: 5.2 })
-        .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-46px') +
-      spr('left:50%;bottom:2px;width:clamp(290px,74vw,540px);height:auto;transform:translateX(-50%)', '0 0 420 230',
-        '<g fill="#180b06" opacity=".92">' +
-        '<g transform="translate(30 124)"><circle cx="0" cy="0" r="14"/><path d="M-16 90V24q0-17 16-17t16 17v66z"/></g>' +
-        '<g transform="translate(86 140)"><circle cx="0" cy="0" r="12"/><path d="M-14 76V20q0-14 14-14t14 14v56z"/>' +
-        '<path stroke="#180b06" stroke-width="8" stroke-linecap="round" fill="none" d="M11 26L34 4"/></g>' +
-        '<g transform="translate(338 128)"><circle cx="0" cy="0" r="13"/><path d="M-15 86V22q0-16 15-16t15 16v64z"/></g>' +
-        '<g transform="translate(390 144)"><circle cx="0" cy="0" r="11"/><path d="M-13 72V18q0-13 13-13t13 13v54z"/>' +
-        '<path stroke="#180b06" stroke-width="7" stroke-linecap="round" fill="none" d="M-11 24L-32 6"/></g>' +
-        '</g>' +
-        '<g stroke="#3d1e0d" stroke-width="15" stroke-linecap="round">' +
-        '<path d="M142 216L276 184M276 216L142 184M182 220L210 172M238 220L212 172"/></g>' +
-        '<path class="wam-flame" style="animation-duration:1.7s;transform-box:view-box;transform-origin:209px 196px" fill="#e84a10" opacity=".95"' +
-        ' d="M209 196q-62-34-48-98q5 26 22 33q-17-54 26-88q-7 47 24 62q26 12 21 47q-5 35-45 44z"/>' +
-        '<path class="wam-flame" style="animation-duration:1.25s;animation-delay:-.4s;transform-box:view-box;transform-origin:209px 196px" fill="#ff9b1a"' +
-        ' d="M209 196q-40-24-31-68q5 19 17 24q-10-38 19-61q-5 33 17 42q17 10 14 33q-5 26-36 30z"/>' +
-        '<path class="wam-flame" style="animation-duration:.95s;animation-delay:-.8s;transform-box:view-box;transform-origin:209px 196px" fill="#ffe08a"' +
-        ' d="M209 194q-22-14-17-40q4 12 10 14q-6-24 12-38q-4 21 10 26q11 7 8 21q-3 17-23 17z"/>' +
+      /* The fire's glow has to FIT INSIDE the footer band. At 480px tall in a 212px
+         band the layer's overflow:hidden sliced its top off dead straight, and a
+         hard-edged orange rectangle appeared across the right of the screen. */
+      puff({ l: '50%', t: 'auto', w: 'clamp(320px,86vw,760px)', h: 'clamp(140px,24vw,196px)', c: '#ff8a1f', a: 0.55, cls: 'wam-glow', dur: 5.2 })
+        .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-24px') +
+      /* HOLIKA DAHAN — the night before the colour. The fire was already here, and so
+         were four people, but the sprite was 420x230 stretched across the window, which
+         is nearly 300px tall in a 210px band: the whole top of the fire and everyone
+         standing around it was cropped away above the fold. That is what "people don't
+         render properly" was. The frame is the band's own 1400x210 now, the fire is at
+         the centre of it, and there is a real ring of people around it -- near ones big
+         and dark, far ones small and dimmer, several with their hands up to the warmth,
+         and two children who have got closer than they should have.
+
+         Cultural, and deliberately never a deity or any figure of worship. */
+      spr('left:50%;bottom:0;width:max(1400px,104vw);height:auto;transform:translateX(-50%)', '0 0 1400 210',
+        /* the ring: x, scale, opacity, and whether the arms are raised */
+        (function () {
+          var ring = [[404, 0.62, 0.5, 0], [486, 0.72, 0.62, 1], [566, 0.8, 0.72, 0],
+                      [640, 0.5, 0.55, 0], [772, 0.52, 0.55, 0], [840, 0.82, 0.72, 1],
+                      [922, 0.72, 0.62, 0], [1004, 0.6, 0.5, 0],
+                      [326, 1.0, 0.92, 0], [1084, 0.98, 0.92, 1]];
+          return ring.map(function (r) {
+            var x = r[0], k = r[1], o = r[2], up = r[3];
+            return '<g transform="translate(' + x + ' 196) scale(' + k + ')" opacity="' + o + '" fill="#180b06">' +
+              '<circle cx="0" cy="-96" r="15"/>' +
+              '<path d="M-17 0v-70q0-18 17-18t17 18V0z"/>' +
+              (up
+                ? '<path stroke="#180b06" stroke-width="9" stroke-linecap="round" fill="none" d="M-12 -70L-34 -104M12 -70L34 -104"/>'
+                : '<path stroke="#180b06" stroke-width="9" stroke-linecap="round" fill="none" d="M-13 -70L-28 -34M13 -70L28 -34"/>') +
+              '</g>';
+          }).join('');
+        })() +
+        /* two children, closer to the fire than anyone means them to be */
+        '<g transform="translate(608 198) scale(.46)" fill="#180b06"><circle cx="0" cy="-92" r="16"/>' +
+        '<path d="M-16 0v-66q0-17 16-17t16 17V0z"/>' +
+        '<path stroke="#180b06" stroke-width="10" stroke-linecap="round" fill="none" d="M12 -66L36 -92"/></g>' +
+        '<g transform="translate(792 198) scale(.42)" fill="#180b06"><circle cx="0" cy="-92" r="16"/>' +
+        '<path d="M-16 0v-66q0-17 16-17t16 17V0z"/></g>' +
+        /* the pyre */
+        '<g stroke="#3d1e0d" stroke-width="13" stroke-linecap="round">' +
+        '<path d="M636 202L764 176M764 202L636 176M672 206L700 158M728 206L702 158"/></g>' +
+        '<path class="wam-flame" style="animation-duration:1.7s;transform-box:view-box;transform-origin:700px 178px" fill="#e84a10" opacity=".95"' +
+        ' d="M700 178q-56-30-43-88q4 23 20 30q-15-49 23-79q-6 42 22 56q23 11 19 42q-4 31-41 39z"/>' +
+        '<path class="wam-flame" style="animation-duration:1.25s;animation-delay:-.4s;transform-box:view-box;transform-origin:700px 178px" fill="#ff9b1a"' +
+        ' d="M700 178q-36-22-28-61q4 17 15 22q-9-34 17-55q-4 30 15 38q15 9 13 30q-4 23-32 26z"/>' +
+        '<path class="wam-flame" style="animation-duration:.95s;animation-delay:-.8s;transform-box:view-box;transform-origin:700px 178px" fill="#ffe08a"' +
+        ' d="M700 176q-20-13-15-36q4 11 9 13q-5-22 11-34q-4 19 9 23q10 6 7 19q-3 15-21 15z"/>' +
         '<g class="wam-rise" style="animation-duration:3.2s">' +
-        rep(14, function (i) {
-          return '<circle cx="' + (168 + (i * 37) % 84) + '" cy="' + (118 - (i * 13) % 62) + '" r="' +
+        rep(18, function (i) {
+          return '<circle cx="' + (664 + (i * 37) % 78) + '" cy="' + (104 - (i * 13) % 58) + '" r="' +
             (1.8 + (i % 3) * 1.1) + '" fill="' + (i % 2 ? '#ffc45a' : '#ff7a1a') + '"/>';
         }) + '</g>') +
       '</div>';
@@ -853,7 +887,7 @@
       '</div>' +
       '<div class="wa-night">' +
       /* the night sky, and the far-off glow of a whole city lighting up */
-      puff({ l: '50%', t: 'auto', w: 'clamp(400px,100vw,1200px)', h: 'clamp(220px,40vw,460px)', c: '#ff9d1c', a: 0.22 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(400px,100vw,1200px)', h: 'clamp(130px,26vw,196px)', c: '#ff9d1c', a: 0.22 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-10%') +
       spr('left:0;top:0;width:100%;height:70%', '0 0 100 70',
         '<g>' + rep(26, function (i) {
@@ -870,7 +904,7 @@
       puff({ l: '-18%', t: '26%', w: 'clamp(260px,58vw,560px)', c: '#f0ac29', a: 0.1 }) +
       '</div>' +
       '<div class="wa-night">' +
-      puff({ l: '50%', t: 'auto', w: 'clamp(420px,110vw,1300px)', h: 'clamp(240px,46vw,520px)', c: '#ff9d1c', a: 0.16, cls: 'wam-glow', dur: 8 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(420px,110vw,1300px)', h: 'clamp(130px,26vw,196px)', c: '#ff9d1c', a: 0.16, cls: 'wam-glow', dur: 8 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-8%') +
       puff({ l: '8%', t: '10%', w: 'clamp(200px,44vw,440px)', c: '#ffd479', a: 0.1 }) +
       puff({ l: '62%', t: '30%', w: 'clamp(200px,44vw,440px)', c: '#e58ab5', a: 0.1 }) +
@@ -1002,7 +1036,7 @@
       puff({ l: '-16%', t: '34%', w: 'clamp(260px,56vw,560px)', c: '#ba4a2a', a: 0.3 }) +
       puff({ l: '30%', t: '70%', w: 'clamp(240px,52vw,520px)', c: '#e9a13b', a: 0.32 }) +
       '</div><div class="wa-night">' +
-      puff({ l: '50%', t: 'auto', w: 'clamp(400px,104vw,1200px)', h: 'clamp(200px,40vw,440px)', c: '#ffa844', a: 0.34 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(400px,104vw,1200px)', h: 'clamp(130px,26vw,196px)', c: '#ffa844', a: 0.34 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-6%') +
       puff({ l: '-12%', t: '18%', w: 'clamp(240px,52vw,520px)', c: '#ff9a3c', a: 0.26, cls: 'wam-glow', dur: 9 }) +
       puff({ l: '62%', t: '8%', w: 'clamp(220px,48vw,460px)', c: '#7a4a1e', a: 0.4 }) +
@@ -1019,49 +1053,154 @@
       '</div>';
   }
   function d6Sky() {
+    /* Purani Dilli overhead: the wire tangle every lane has, and the kabootar that
+       lift off the rooftops in a wheel and settle again. */
+    var wires = spr('left:0;top:0;width:100%;height:100%', '0 0 200 60',
+      '<g opacity=".38">' +
+      '<path class="was-i waf-n" stroke-width=".9" d="M0 14q50 12 100 4t100 6"/>' +
+      '<path class="was-i waf-n" stroke-width=".7" d="M0 22q50 14 100 5t100 8"/>' +
+      '<path class="was-i waf-n" stroke-width=".7" d="M0 9q52 9 100 2t100 5"/>' +
+      rep(9, function (i) {
+        var x = 8 + i * 22;
+        return '<path class="was-i waf-n" stroke-width=".5" d="M' + x + ' 16v7"/>';
+      }) +
+      /* pigeons perched on the wire, one of them lifting */
+      rep(7, function (i) {
+        var x = 14 + i * 26;
+        return '<ellipse class="waf-i" cx="' + x + '" cy="12" rx="1.8" ry="1.2"/>';
+      }) + '</g>');
     var flock = function (dur, delay, w, top, op) {
       return spr('left:0;top:' + top + ';width:' + w + ';height:auto;opacity:' + op, '0 0 200 60',
         '<g class="wam-cross" style="animation-duration:' + dur + 's;animation-delay:' + delay + '">' +
         bird(2, 28, 1.5, 'd6a') + bird(46, 8, 1.25, 'd6b') + bird(88, 36, 1.1, 'd6c') +
         bird(130, 14, 1.55, 'd6d') + bird(172, 30, 1, 'd6e') + '</g>');
     };
-    return '<div class="wa-day">' + flock(44, '-12s', 'clamp(150px,34vw,290px)', '14%', '.6') + '</div>' +
-      '<div class="wa-night">' + flock(52, '-20s', 'clamp(130px,30vw,250px)', '20%', '.4') + '</div>';
+    return '<div class="wa-day">' + wires + flock(44, '-12s', 'clamp(150px,34vw,290px)', '14%', '.6') +
+      flock(31, '-4s', 'clamp(120px,26vw,220px)', '32%', '.4') + '</div>' +
+      '<div class="wa-night">' + wires + flock(52, '-20s', 'clamp(130px,30vw,250px)', '20%', '.4') + '</div>';
   }
   function d6Foot() {
-    /* the shutter-fronted lane: a rhythm of shopfronts, rickshaw, kadhai */
-    var shutters = 'repeating-linear-gradient(90deg,' + rgba('#000000', 0.001) + ' 0 4px,' +
-      'var(--wa-accent) 4px 46px,' + rgba('#000000', 0.001) + ' 46px 58px)';
-    var rickshaw = spr('left:3%;bottom:6px;width:clamp(120px,30vw,220px);height:auto;opacity:.9', '0 0 160 100',
-      '<circle class="was-i waf-n" stroke-width="5" cx="38" cy="78" r="17"/>' +
-      '<circle class="was-i waf-n" stroke-width="5" cx="126" cy="80" r="14"/>' +
-      '<path class="waf-a" opacity=".92" d="M16 44Q16 16 42 16L74 16Q88 16 88 38L88 66L20 66Q16 60 16 44Z"/>' +
-      '<path class="was-s waf-n" stroke-width="3" d="M25 26Q52 20 80 26"/>' +
-      '<path class="was-i waf-n" stroke-width="4.5" stroke-linecap="round" d="M88 60L118 72M118 72L131 50M122 50H145M38 78L72 66"/>' +
-      '<circle class="waf-b" cx="146" cy="52" r="6"/>');
-    var kadhai = spr('right:8%;bottom:8px;width:clamp(86px,21vw,150px);height:auto', '0 0 140 130',
-      /* the halwai's kadhai, and one jalebi coil coming out of it */
+    /* THE LANE. This used to be a shutter gradient, one parked rickshaw and a kadhai,
+       which is a street with nobody on it. Chandni Chowk is the opposite of empty: it
+       is a wall of shopfronts under haveli balconies, wares hung out over the footpath,
+       and a lane so full that nothing gets through it faster than a walk.
+
+       So the lane now MOVES. Three lanes of traffic at three speeds, people crossing on
+       foot, a handcart, and a chaiwala who never stops pouring. Every moving thing is one
+       CSS animation on a group, not a node each -- the whole street is under a dozen. */
+
+    /* one walking figure, in silhouette */
+    function person(x, s, cls) {
+      return '<g transform="translate(' + x + ' 188) scale(' + s + ')" class="' + (cls || '') + '">' +
+        '<circle class="waf-i" cx="0" cy="-46" r="7"/>' +
+        '<path class="waf-i" d="M-8 0q0-38 8-38t8 38z"/></g>';
+    }
+    function personC(x, s, colour) {
+      return '<g transform="translate(' + x + ' 188) scale(' + s + ')">' +
+        '<circle class="waf-i" cx="0" cy="-46" r="7"/>' +
+        '<path class="' + colour + '" d="M-8 0q0-38 8-38t8 38z"/>' +
+        '<path class="was-i waf-n" stroke-width="2.6" stroke-linecap="round" d="M-6 -30l-7 12M6 -30l7 12"/></g>';
+    }
+    /* a cycle-rickshaw, seen side-on */
+    function cycle(x, s) {
+      return '<g transform="translate(' + x + ' 194) scale(' + s + ')">' +
+        '<circle class="was-i waf-n" stroke-width="2.6" cx="-22" cy="-9" r="9"/>' +
+        '<circle class="was-i waf-n" stroke-width="2.6" cx="20" cy="-9" r="9"/>' +
+        '<path class="waf-a" d="M2 -50q0-14 14-14h10q10 0 10 14v26H2z"/>' +
+        '<path class="was-b waf-n" stroke-width="2" d="M4 -56q12-5 24 0"/>' +
+        '<path class="was-i waf-n" stroke-width="2.6" stroke-linecap="round" d="M-22 -9l12-18 12 18M-10 -27l-8-10M-14 -37h10"/>' +
+        '<circle class="waf-i" cx="-17" cy="-46" r="5"/>' +
+        '<path class="waf-i" d="M-22 -40q5-4 10 0l-2 14h-6z"/></g>';
+    }
+    /* a handcart of fruit */
+    function thela(x, s) {
+      return '<g transform="translate(' + x + ' 194) scale(' + s + ')">' +
+        '<rect class="waf-i" opacity=".8" x="-26" y="-24" width="52" height="8" rx="2"/>' +
+        '<circle class="was-i waf-n" stroke-width="2.4" cx="-14" cy="-8" r="8"/>' +
+        '<circle class="was-i waf-n" stroke-width="2.4" cx="14" cy="-8" r="8"/>' +
+        rep(7, function (i) { return '<circle class="waf-f" cx="' + (-22 + i * 7) + '" cy="-29" r="4"/>'; }) +
+        '<path class="was-i waf-n" stroke-width="2.4" d="M26 -24l10-6"/></g>';
+    }
+
+    /* the shopfront wall: awnings, boards, hung wares, haveli balconies over the top */
+    var shops = rep(10, function (i) {
+      var x = i * 140;
+      return '<g>' +
+        /* the shutter and its board */
+        '<rect class="waf-a" opacity=".82" x="' + (x + 8) + '" y="104" width="124" height="76" rx="3"/>' +
+        '<rect class="waf-b" x="' + (x + 4) + '" y="92" width="132" height="14" rx="3"/>' +
+        /* the awning */
+        '<path class="waf-f" opacity=".85" d="M' + (x + 2) + ' 92h136l-14 20H' + (x + 16) + 'Z"/>' +
+        '<path class="was-s waf-n" stroke-width="1.6" opacity=".5" d="M' + (x + 20) + ' 92v20M' + (x + 52) + ' 92v20M' + (x + 84) + ' 92v20M' + (x + 116) + ' 92v20"/>' +
+        /* wares hung out over the footpath: dupattas at one shop, bangles at the next */
+        (i % 2
+          ? rep(5, function (k) {
+              return '<path class="waf-b" opacity=".85" d="M' + (x + 26 + k * 22) + ' 114v30q0 5 5 5t5-5v-30z"/>';
+            })
+          : rep(6, function (k) {
+              return '<circle class="was-b waf-n" stroke-width="2.4" opacity=".9" cx="' + (x + 28 + k * 18) + '" cy="128" r="7"/>';
+            })) +
+        /* the haveli balcony above the shop */
+        '<rect class="waf-s" opacity=".6" x="' + (x + 14) + '" y="52" width="112" height="36" rx="4"/>' +
+        rep(7, function (k) { return '<path class="was-i waf-n" stroke-width="1.8" opacity=".45" d="M' + (x + 26 + k * 15) + ' 58v24"/>'; }) +
+        '<path class="was-i waf-n" stroke-width="2" opacity=".4" d="M' + (x + 10) + ' 52h120"/>' +
+        '</g>';
+    });
+
+    /* THE FRAME IS WIDE ON PURPOSE. The stage band is about 210px tall and as wide as
+       the window, so a 2:1 sprite stretched to the window is 500px tall and three
+       quarters of it is cropped away above the fold -- which is what happened here the
+       first time: the awnings and balconies were drawn and never seen. A 1400x210 frame
+       at `max(1400px, 104vw)` matches the band's own proportions on a desktop and simply
+       overflows sideways on a phone, so the lane is always full-height and never
+       decapitated. Everything that matters sits near the middle, where the phone crop keeps it. */
+    var street = spr('left:50%;bottom:0;width:max(1400px,104vw);height:auto;transform:translateX(-50%)',
+      '0 0 1400 210',
+      shops +
+      /* the footpath edge */
+      '<rect class="waf-i" opacity=".18" x="0" y="180" width="1400" height="8"/>' +
+      /* far lane — slow, small, half-opacity: depth */
+      '<g opacity=".45" class="wam-cross" style="animation-duration:58s;animation-delay:-20s">' +
+      cycle(120, 0.5) + person(280, 0.42) + thela(430, 0.44) + person(560, 0.4) + cycle(760, 0.46) + '</g>' +
+      /* middle lane */
+      '<g opacity=".8" class="wam-cross" style="animation-duration:41s;animation-delay:-8s">' +
+      cycle(60, 0.72) + personC(240, 0.62, 'waf-b') + person(360, 0.6) + thela(540, 0.66) + personC(700, 0.6, 'waf-f') + '</g>' +
+      /* near lane — big, fast, full opacity */
+      '<g class="wam-cross" style="animation-duration:29s">' +
+      personC(0, 0.9, 'waf-f') + cycle(200, 0.95) + personC(420, 0.86, 'waf-a') + thela(600, 0.9) + '</g>' +
+      /* standing at the stall, not going anywhere */
+      personC(1180, 0.8, 'waf-b') + person(1240, 0.74) + personC(1300, 0.78, 'waf-a'));
+
+    /* the chaiwala: the kettle pours, the glass fills, all day */
+    var chai = spr('left:4%;bottom:6px;width:clamp(70px,16vw,120px);height:auto', '0 0 120 120',
+      '<rect class="waf-i" opacity=".75" x="14" y="76" width="92" height="10" rx="3"/>' +
+      '<path class="was-i waf-n" stroke-width="3" d="M24 86v30M96 86v30"/>' +
+      '<g class="wam-sway" style="transform-box:view-box;transform-origin:44px 60px;animation-duration:2.8s">' +
+      '<path class="waf-b" d="M30 44h28l-4 26H34z"/>' +
+      '<path class="was-b waf-n" stroke-width="3" d="M58 50q10 4 4 14"/>' +
+      '<path class="was-b waf-n" stroke-width="2" opacity=".7" d="M40 44q0-8 8-8"/></g>' +
+      rep(4, function (i) { return '<rect class="waf-s" opacity=".9" x="' + (66 + i * 11) + '" y="60" width="8" height="14" rx="2"/>'; }) +
+      '<g class="wam-rise" style="animation-duration:3.4s"><path class="waf-s" opacity=".4" d="M44 40q4-8 0-14"/></g>');
+
+    var kadhai = spr('right:6%;bottom:6px;width:clamp(76px,18vw,132px);height:auto', '0 0 140 130',
       '<g class="wam-pulse" style="animation-duration:5s;transform-box:view-box;transform-origin:70px 60px">' +
       '<path class="was-b waf-n" stroke-width="6" stroke-linecap="round" opacity=".85" d="M70 26q-16 0-16 16t22 12q-26 6-26-16t28-20q26 2 26 24"/></g>' +
       '<path class="waf-i" opacity=".8" d="M14 74h112q-6 40-56 40T14 74Z"/>' +
       '<rect class="waf-i" opacity=".8" x="8" y="66" width="124" height="10" rx="5"/>' +
       '<path class="was-b waf-n" stroke-width="4" opacity=".6" d="M40 118h60"/>');
-    var wall = '<i class="wa-floor" style="height:56px;background:' + shutters + ';opacity:.5"></i>' +
-      '<i class="wa-floor" style="height:14px;background:var(--wa-ink);opacity:.35"></i>';
-    return '<i class="wa-fade" style="bottom:48px;height:62px"></i>' + wall +
-      '<div class="wa-day">' + rickshaw + kadhai +
-      spr('left:0;bottom:64px;width:clamp(110px,26vw,210px);height:auto;opacity:.5', '0 0 200 50',
-        '<g class="wam-cross" style="animation-duration:62s;animation-delay:-30s">' +
-        bird(4, 22, 1.2, 'd6f') + bird(52, 6, 1, 'd6g') + bird(104, 26, 1.1, 'd6h') + '</g>') +
-      '</div>' +
+
+    return '<i class="wa-fade" style="bottom:52px;height:64px"></i>' +
+      '<i class="wa-floor" style="height:16px;background:var(--wa-ink);opacity:.32"></i>' +
+      street +
+      '<div class="wa-day">' + chai + kadhai + '</div>' +
       '<div class="wa-night">' +
-      /* every shutter behind a warm rectangle of light, and bulb strings
-         zig-zagging over the lane — Chandni Chowk after dark */
-      '<i class="wa-floor" style="height:44px;background:repeating-linear-gradient(90deg,' +
-      'rgba(255,178,74,.001) 0 8px,rgba(255,178,74,.5) 8px 40px,rgba(255,178,74,.001) 40px 58px)"></i>' +
-      bulbs({ c: '#ffcf7a', top: 'calc(100% - 96px)', h: '20px', pitch: 28, r: 2.6, rows: 2, dur: 2.6 }) +
-      rickshaw + kadhai +
-      spr('right:22%;bottom:52px;width:clamp(40px,10vw,70px);height:auto', '0 0 60 90',
+      /* every shopfront lit from inside, and the bulb strings over the lane */
+      '<i class="wa-floor" style="height:62px;background:repeating-linear-gradient(90deg,' +
+      'rgba(255,178,74,.001) 0 6px,rgba(255,178,74,.42) 6px 44px,rgba(255,178,74,.001) 44px 60px)"></i>' +
+      bulbs({ c: '#ffcf7a', top: 'calc(100% - 118px)', h: '20px', pitch: 26, r: 2.6, rows: 3, dur: 2.4 }) +
+      bulbs({ c: '#ffb454', top: 'calc(100% - 76px)', h: '16px', pitch: 34, r: 2.2, rows: 2, dur: 3.1 }) +
+      chai + kadhai +
+      spr('right:24%;bottom:52px;width:clamp(36px,9vw,62px);height:auto', '0 0 60 90',
         '<path stroke="#6b4a2a" stroke-width="3" fill="none" d="M30 0v16"/>' +
         '<g class="wam-flick" style="animation-duration:3.4s;transform-box:view-box;transform-origin:30px 46px">' +
         '<ellipse cx="30" cy="48" rx="27" ry="30" fill="rgba(255,180,80,.34)"/>' +
@@ -1092,7 +1231,7 @@
       puff({ l: '54%', t: '10%', w: 'clamp(260px,56vw,560px)', c: '#f2b90d', a: 0.24, cls: 'wam-glow', dur: 12 }) +
       puff({ l: '20%', t: '62%', w: 'clamp(280px,60vw,600px)', c: '#256d85', a: 0.26 }) +
       '</div><div class="wa-night">' +
-      puff({ l: '50%', t: 'auto', w: 'clamp(420px,110vw,1300px)', h: 'clamp(180px,36vw,400px)', c: '#ffc94d', a: 0.26 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(420px,110vw,1300px)', h: 'clamp(130px,26vw,196px)', c: '#ffc94d', a: 0.26 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-4%') +
       puff({ l: '62%', t: '4%', w: 'clamp(140px,30vw,300px)', c: '#e8f0ff', a: 0.5, cls: 'wam-glow', dur: 14, mid: 0.2 }) +
       puff({ l: '-14%', t: '30%', w: 'clamp(260px,56vw,560px)', c: '#1e4a6b', a: 0.5 }) +
@@ -1115,10 +1254,79 @@
       '</div><div class="wa-night"></div>';
   }
   function mbFoot() {
-    /* the local: seven coaches, windows dark by day and lit at night */
+    /* MUMBAI. This was a train, a sea band and three umbrellas -- true of a hundred
+       coastal cities and specific to none. The city people actually picture is the
+       curve of Marine Drive with the towers behind it, the Gateway standing in the
+       water, the local going past on its viaduct, and the whole thing switching on
+       after dark. All of that is here now, in the band's own 1400x210 proportions so
+       nothing is cropped away above the fold.
+
+       No trademarked skyline, no named building except the Gateway, which is a public
+       monument. */
+
+    /* the towers behind the drive — a real skyline needs unequal heights and gaps */
+    var skyline = rep(22, function (i) {
+      var seed = hashN('mbT' + i, 100);
+      var w = 34 + (seed % 5) * 9;
+      var x = i * 62 + (seed % 7);
+      var h = 40 + (seed % 68);
+      var y = 150 - h;
+      return '<g><rect class="waf-i" opacity=".2" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="2"/>' +
+        /* the windows: a grid, dark by day */
+        rep(Math.max(2, Math.floor(h / 16)), function (k) {
+          return rep(Math.max(1, Math.floor(w / 14)), function (j) {
+            return '<rect class="waf-s" opacity=".18" x="' + (x + 5 + j * 13) + '" y="' + (y + 7 + k * 15) +
+              '" width="6" height="8" rx="1"/>';
+          });
+        }) + '</g>';
+    });
+    /* the same windows, lit, for night — a third of them on, chosen by hash not random
+       so the city looks the same each time you come back to it */
+    var litWindows = rep(22, function (i) {
+      var seed = hashN('mbT' + i, 100);
+      var w = 34 + (seed % 5) * 9;
+      var x = i * 62 + (seed % 7);
+      var h = 40 + (seed % 68);
+      var y = 150 - h;
+      return rep(Math.max(2, Math.floor(h / 16)), function (k) {
+        return rep(Math.max(1, Math.floor(w / 14)), function (j) {
+          if (hashN('mbW' + i + '.' + k + '.' + j, 10) > 3) return '';
+          return '<rect fill="rgba(255,220,130,.85)" x="' + (x + 5 + j * 13) + '" y="' + (y + 7 + k * 15) +
+            '" width="6" height="8" rx="1"/>';
+        });
+      });
+    });
+
+    /* THE GATEWAY OF INDIA — the basalt arch, its four turrets and the honeycomb screen */
+    var gateway =
+      '<g transform="translate(1108 150)">' +
+        '<rect class="waf-i" opacity=".34" x="-62" y="-96" width="124" height="96" rx="2"/>' +
+        /* the great arch */
+        '<path class="waf-g" opacity=".85" d="M-26 0v-52q0-26 26-26t26 26V0Z"/>' +
+        '<path class="was-i waf-n" stroke-width="2.4" opacity=".4" d="M-26 0v-52q0-26 26-26t26 26V0"/>' +
+        /* the dome over the arch */
+        '<path class="waf-i" opacity=".34" d="M-34 -96q34-30 68 0Z"/>' +
+        '<circle class="waf-b" cx="0" cy="-128" r="4"/>' +
+        '<path class="was-b waf-n" stroke-width="2" opacity=".7" d="M0 -124v-10"/>' +
+        /* the four corner turrets */
+        rep(4, function (i) {
+          var x = [-56, -34, 34, 56][i];
+          return '<g><rect class="waf-i" opacity=".38" x="' + (x - 6) + '" y="-114" width="12" height="114" rx="2"/>' +
+            '<path class="waf-i" opacity=".38" d="M' + (x - 8) + ' -114q8-14 16 0Z"/></g>';
+        }) +
+        /* the perforated screens either side of the arch */
+        rep(2, function (side) {
+          var x = side ? 30 : -46;
+          return rep(6, function (k) {
+            return '<circle class="waf-s" opacity=".28" cx="' + (x + (k % 2) * 9) + '" cy="' + (-76 + Math.floor(k / 2) * 20) + '" r="3.4"/>';
+          });
+        }) +
+      '</g>';
+
+    /* the local, on its viaduct, crossing and holding */
     function train(lit) {
       var win = lit ? '#ffd463' : 'var(--wa-accent2)';
-      return spr('left:0;bottom:44px;width:clamp(250px,62vw,470px);height:auto', '0 0 400 62',
+      return spr('left:0;bottom:96px;width:clamp(250px,62vw,470px);height:auto', '0 0 400 62',
         '<g class="wam-crosshold" style="animation-duration:' + (lit ? 40 : 34) + 's;animation-delay:-6s">' +
         '<path ' + (lit ? 'fill="#0d1826"' : 'class="waf-i"') + ' opacity=".92" d="M10 58V26Q10 8 34 8H392Q396 8 396 14V58Z"/>' +
         (lit ? '<rect x="10" y="24" width="386" height="20" fill="rgba(255,212,99,.16)"/>' : '') +
@@ -1128,28 +1336,59 @@
         rep(4, function (i) { return '<circle ' + (lit ? 'fill="#0d1826"' : 'class="waf-i"') + ' cx="' + (60 + i * 96) + '" cy="60" r="6"/>'; }) +
         '</g>');
     }
-    var sea = '<i class="wa-floor" style="height:38px;background:var(--wa-accent);opacity:.4"></i>' +
-      '<i class="wa-floor" style="height:38px;opacity:.5;background:var(--wa-surface);' +
+
+    /* the kaali-peeli, going both ways along the drive */
+    function taxi(x, s, flip) {
+      return '<g transform="translate(' + x + ' 176) scale(' + (flip ? -s : s) + ' ' + s + ')">' +
+        '<path class="waf-i" opacity=".9" d="M-26 0v-10q0-5 6-6l6-9q2-3 6-3h16q4 0 6 3l6 9q6 1 6 6V0Z"/>' +
+        '<path class="waf-b" d="M-11 -16l4-7h14l4 7Z"/>' +
+        '<rect class="waf-b" x="-26" y="-9" width="52" height="5" rx="2"/>' +
+        '<circle class="waf-i" cx="-15" cy="0" r="5"/><circle class="waf-i" cx="15" cy="0" r="5"/></g>';
+    }
+
+    /* the promenade wall, curving the way the drive does */
+    var drive = '<path class="waf-i" opacity=".26" d="M0 178q350-22 700-18t700 18v10H0Z"/>' +
+      '<path class="was-s waf-n" stroke-width="2" opacity=".4" d="M0 174q350-22 700-18t700 18"/>';
+
+    var city = spr('left:50%;bottom:0;width:max(1400px,104vw);height:auto;transform:translateX(-50%)',
+      '0 0 1400 210',
+      skyline + gateway + drive +
+      '<g class="wam-cross" style="animation-duration:26s">' + taxi(0, 1) + taxi(300, 0.94) + '</g>' +
+      '<g class="wam-cross" style="animation-duration:37s;animation-delay:-14s">' + taxi(120, 0.8) + '</g>' +
+      /* people leaning on the parapet, watching the water */
+      rep(9, function (i) {
+        var x = 90 + i * 140;
+        return '<g transform="translate(' + x + ' 176) scale(.62)"><circle class="waf-i" opacity=".75" cx="0" cy="-42" r="7"/>' +
+          '<path class="waf-i" opacity=".75" d="M-8 0q0-34 8-34t8 34z"/></g>';
+      }) +
+      '<g class="wa-night">' + litWindows +
+      '<path fill="rgba(255,220,130,.5)" d="M1082 150v-52q0-26 26-26t26 26v52Z"/>' +
+      '<ellipse class="wam-glow" style="transform-box:view-box;transform-origin:1108px 90px;animation-duration:8s"' +
+      ' cx="1108" cy="90" rx="150" ry="80" fill="rgba(255,200,110,.14)"/></g>');
+
+    var sea = '<i class="wa-floor" style="height:30px;background:var(--wa-accent);opacity:.4"></i>' +
+      '<i class="wa-floor" style="height:30px;opacity:.5;background:var(--wa-surface);' +
       '-webkit-mask-image:' + M_WAVE + ';mask-image:' + M_WAVE + ';-webkit-mask-size:28px 8px;mask-size:28px 8px;' +
       '-webkit-mask-repeat:repeat;mask-repeat:repeat"></i>' +
-      '<i class="wa-floor wam-drift" style="height:8px;bottom:30px;width:200%;left:0;right:auto;opacity:.6;' +
+      '<i class="wa-floor wam-drift" style="height:8px;bottom:24px;width:200%;left:0;right:auto;opacity:.6;' +
       'background:var(--wa-surface);-webkit-mask-image:' + M_WAVE + ';mask-image:' + M_WAVE +
       ';-webkit-mask-size:28px 8px;mask-size:28px 8px;-webkit-mask-repeat:repeat-x;mask-repeat:repeat-x;animation-duration:30s"></i>';
-    var parapet = '<i class="wa-floor" style="bottom:38px;height:12px;background:var(--wa-ink);opacity:.3"></i>';
-    return '<i class="wa-fade" style="bottom:50px;height:60px"></i>' + sea + parapet +
+
+    return '<i class="wa-fade" style="bottom:56px;height:64px"></i>' + city + sea +
       '<div class="wa-day">' + train(false) +
       /* monsoon umbrellas on the promenade */
       rep(3, function (i) {
-        var x = [8, 46, 78][i], c = ['waf-f', 'waf-a', 'waf-b'][i];
-        return spr('left:' + x + '%;bottom:48px;width:clamp(30px,7vw,54px);height:auto', '0 0 26 32',
+        var x = [10, 44, 76][i], c = ['waf-f', 'waf-a', 'waf-b'][i];
+        return spr('left:' + x + '%;bottom:40px;width:clamp(28px,6vw,48px);height:auto', '0 0 26 32',
           '<g class="wam-bob" style="animation-duration:' + (2.6 + i * 0.5) + 's;animation-delay:' + dly('mbU' + i, 3000) + '">' +
           '<path class="' + c + '" d="M2 14Q13 1 24 14Q20 11 17.5 14Q15 11 13 14Q11 11 8.5 14Q6 11 2 14Z"/>' +
           '<path class="was-i waf-n" stroke-width="1.8" stroke-linecap="round" d="M13 14V27Q13 30 16 29"/></g>');
-      }).slice(0, 100000) +
+      }) +
       '</div>' +
       '<div class="wa-night">' +
-      /* the Queen's Necklace: two interleaved rows curving along the drive */
-      bulbs({ c: '#ffe9a8', top: 'calc(100% - 62px)', h: '18px', pitch: 24, r: 2.4, rows: 2, dur: 3.2 }) +
+      /* THE QUEEN'S NECKLACE — the reason the drive has that name: the curve of lamps
+         seen from across the bay. Two interleaved rows so it reads as a chain. */
+      bulbs({ c: '#ffe9a8', top: 'calc(100% - 52px)', h: '18px', pitch: 22, r: 2.6, rows: 3, dur: 3.4 }) +
       train(true) +
       /* the moon's road on the water */
       puff({ l: '50%', t: 'auto', w: 'clamp(60px,14vw,120px)', h: '40px', c: '#e8f0ff', a: 0.3 })
@@ -1184,7 +1423,7 @@
       puff({ l: '56%', t: '20%', w: 'clamp(260px,56vw,560px)', c: '#e8b00e', a: 0.34 }) +
       puff({ l: '16%', t: '64%', w: 'clamp(280px,60vw,600px)', c: '#c1272d', a: 0.26 }) +
       '</div><div class="wa-night">' +
-      puff({ l: '50%', t: 'auto', w: 'clamp(380px,96vw,1100px)', h: 'clamp(240px,48vw,520px)', c: '#ffb454', a: 0.42, cls: 'wam-glow', dur: 6.5 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(380px,96vw,1100px)', h: 'clamp(130px,26vw,196px)', c: '#ffb454', a: 0.42, cls: 'wam-glow', dur: 6.5 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-8%') +
       puff({ l: '-12%', t: '10%', w: 'clamp(240px,52vw,520px)', c: '#c1272d', a: 0.42 }) +
       puff({ l: '60%', t: '26%', w: 'clamp(220px,48vw,460px)', c: '#e8b00e', a: 0.3 }) +
@@ -1458,7 +1697,7 @@
       puff({ l: '-16%', t: '26%', w: 'clamp(280px,60vw,600px)', c: '#d8447c', a: 0.2 }) +
       puff({ l: '24%', t: '68%', w: 'clamp(280px,60vw,600px)', c: '#dfa032', a: 0.3 }) +
       '</div><div class="wa-night">' +
-      puff({ l: '50%', t: 'auto', w: 'clamp(400px,100vw,1200px)', h: 'clamp(200px,40vw,440px)', c: '#ffc861', a: 0.28 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(400px,100vw,1200px)', h: 'clamp(130px,26vw,196px)', c: '#ffc861', a: 0.28 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-6%') +
       puff({ l: '-14%', t: '14%', w: 'clamp(260px,56vw,560px)', c: '#3a2450', a: 0.5 }) +
       spr('left:0;top:0;width:100%;height:60%', '0 0 100 60',
@@ -1522,7 +1761,7 @@
       '<div class="wa-day">' + fort(false) + camel + '</div>' +
       '<div class="wa-night">' +
       /* the warm town-glow the fort stands black against */
-      puff({ l: '50%', t: 'auto', w: 'clamp(360px,100vw,1100px)', h: 'clamp(150px,30vw,300px)', c: '#ffb454', a: 0.34, cls: 'wam-glow', dur: 8 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(360px,100vw,1100px)', h: 'clamp(130px,26vw,196px)', c: '#ffb454', a: 0.34, cls: 'wam-glow', dur: 8 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-30px') +
       fort(true) + camel +
       bulbs({ c: '#ffd07a', top: 'calc(100% - 26px)', h: '16px', pitch: 38, r: 2, rows: 2, dur: 3.6 }) +
@@ -1556,7 +1795,7 @@
       puff({ l: '58%', t: '30%', w: 'clamp(260px,56vw,560px)', c: '#c63c28', a: 0.24 }) +
       puff({ l: '10%', t: '66%', w: 'clamp(280px,60vw,600px)', c: '#2f6f5e', a: 0.2 }) +
       '</div><div class="wa-night">' + hatch +
-      puff({ l: '50%', t: 'auto', w: 'clamp(380px,96vw,1100px)', h: 'clamp(200px,40vw,440px)', c: '#ffb454', a: 0.3 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(380px,96vw,1100px)', h: 'clamp(130px,26vw,196px)', c: '#ffb454', a: 0.3 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-8%') +
       puff({ l: '-12%', t: '16%', w: 'clamp(240px,52vw,520px)', c: '#4a2018', a: 0.5 }) +
       '</div>';
@@ -1614,7 +1853,7 @@
       '</div>' +
       '<div class="wa-night">' +
       /* the wall by lamplight: one oil lamp on the sill, fireflies over the pond */
-      puff({ l: '8%', t: 'auto', w: 'clamp(150px,36vw,320px)', h: 'clamp(120px,28vw,240px)', c: '#ffb454', a: 0.4, cls: 'wam-glow', dur: 6 })
+      puff({ l: '8%', t: 'auto', w: 'clamp(150px,36vw,320px)', h: 'clamp(120px,26vw,196px)', c: '#ffb454', a: 0.4, cls: 'wam-glow', dur: 6 })
         .replace('top:auto', 'bottom:-30px') +
       fish(78, '-18s', '52px', 'clamp(150px,36vw,280px)', true) + lotus +
       spr('left:6%;bottom:16px;width:clamp(46px,11vw,84px);height:auto', '0 0 70 60',
@@ -1892,7 +2131,7 @@
       puff({ l: '56%', t: '30%', w: 'clamp(280px,60vw,600px)', c: '#e8862b', a: 0.18 }) +
       '</div><div class="wa-night">' +
       spr('left:0;top:0;width:100%;height:70%', '0 0 100 60', stars) +
-      puff({ l: '50%', t: 'auto', w: 'clamp(360px,90vw,1000px)', h: 'clamp(200px,40vw,440px)', c: '#8fa6ef', a: 0.16, cls: 'wam-glow', dur: 11 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(360px,90vw,1000px)', h: 'clamp(130px,26vw,196px)', c: '#8fa6ef', a: 0.16, cls: 'wam-glow', dur: 11 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-6%') +
       '</div>';
   }
@@ -1955,7 +2194,7 @@
       puff({ l: '-14%', t: '-8%', w: 'clamp(300px,64vw,660px)', c: '#0f6bb4', a: 0.16 }) +
       puff({ l: '58%', t: '26%', w: 'clamp(280px,60vw,600px)', c: '#f2b211', a: 0.22 }) +
       '</div><div class="wa-night">' +
-      puff({ l: '50%', t: 'auto', w: 'clamp(340px,86vw,900px)', h: 'clamp(180px,36vw,400px)', c: '#ffcb52', a: 0.18, cls: 'wam-glow', dur: 8 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(340px,86vw,900px)', h: 'clamp(130px,26vw,196px)', c: '#ffcb52', a: 0.18, cls: 'wam-glow', dur: 8 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-6%') +
       puff({ l: '-10%', t: '10%', w: 'clamp(260px,56vw,560px)', c: '#5cb3ee', a: 0.2 }) +
       '</div>';
@@ -2034,7 +2273,7 @@
       puff({ l: '-12%', t: '10%', w: 'clamp(300px,64vw,660px)', c: '#a62b52', a: 0.18 }) +
       puff({ l: '58%', t: '-12%', w: 'clamp(280px,60vw,600px)', c: '#d99c27', a: 0.22 }) +
       '</div><div class="wa-night">' +
-      puff({ l: '50%', t: 'auto', w: 'clamp(340px,88vw,940px)', h: 'clamp(200px,40vw,440px)', c: '#ffc85f', a: 0.2, cls: 'wam-glow', dur: 8 })
+      puff({ l: '50%', t: 'auto', w: 'clamp(340px,88vw,940px)', h: 'clamp(130px,26vw,196px)', c: '#ffc85f', a: 0.2, cls: 'wam-glow', dur: 8 })
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-6%') +
       puff({ l: '-10%', t: '16%', w: 'clamp(260px,56vw,560px)', c: '#ef7e9e', a: 0.22 }) +
       '</div>';
@@ -2262,7 +2501,7 @@
           puff({ l: '56%', t: '12%', w: 'clamp(260px,56vw,560px)', c: t.t.accent2, a: 0.4, cls: 'wam-glow', dur: 12 }) +
           puff({ l: '14%', t: '64%', w: 'clamp(280px,60vw,600px)', c: t.t.festive, a: 0.22 }) +
           '</div><div class="wa-night">' +
-          puff({ l: '50%', t: 'auto', w: 'clamp(400px,100vw,1200px)', h: 'clamp(190px,38vw,420px)', c: t.n.accent2, a: 0.24 })
+          puff({ l: '50%', t: 'auto', w: 'clamp(400px,100vw,1200px)', h: 'clamp(130px,26vw,196px)', c: t.n.accent2, a: 0.24 })
             .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-6%') +
           puff({ l: '-14%', t: '16%', w: 'clamp(250px,54vw,540px)', c: t.n.accent, a: 0.2, cls: 'wam-glow', dur: 10 }) +
           spr('left:0;top:0;width:100%;height:56%', '0 0 100 56',
@@ -2300,7 +2539,7 @@
         return '<i class="wa-fade" style="bottom:40px;height:56px"></i>' +
           '<i class="wa-floor" style="height:18px;background:var(--wa-ink);opacity:.2"></i>' + scene +
           '<div class="wa-night">' +
-          puff({ l: '50%', t: 'auto', w: 'clamp(300px,84vw,760px)', h: 'clamp(150px,32vw,320px)', c: t.n.accent2, a: 0.3, cls: 'wam-glow', dur: 7 })
+          puff({ l: '50%', t: 'auto', w: 'clamp(300px,84vw,760px)', h: 'clamp(130px,26vw,196px)', c: t.n.accent2, a: 0.3, cls: 'wam-glow', dur: 7 })
             .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-40px') +
           bulbs({ c: t.n.accent2, top: 'calc(100% - 40px)', h: '18px', pitch: 30, r: 2.4, rows: 2, dur: 2.6 }) +
           '</div>';

@@ -314,10 +314,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
    ratio caps the height without touching the aspect. The subtracted pixels are the app
    chrome around it: top bar, bottom nav, the card's own heading and the fact strip.
    dvh, where it exists, is the honest viewport on a phone with a retracting URL bar. */
-.mapwrap { max-width: calc((100vh - 300px) * 0.909); margin-inline: auto; }
-@supports (height: 100dvh) { .mapwrap { max-width: calc((100dvh - 300px) * 0.909); } }
-@media (max-width: 720px) { .mapwrap { max-width: calc((100dvh - 290px) * 0.909); } }
+.mapwrap { max-width: calc((100vh - 224px) * 0.909); margin-inline: auto; }
+@supports (height: 100dvh) { .mapwrap { max-width: calc((100dvh - 224px) * 0.909); } }
+@media (max-width: 720px) { .mapwrap { max-width: calc((100dvh - 224px) * 0.909); } }
 .mapwrap { min-width: 0; }
+/* the map view gives its card less padding than the rest -- the map is the content */
+.card.mapcard { padding: var(--space-md) var(--space-md) var(--space-lg); }
+
 .mapsvg { width: 100%; height: auto; display: block; touch-action: manipulation; }
 
 /* Each state is two stacked copies of the same shape: the painting, and a shade over it.
@@ -331,13 +334,25 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
    The geometry never changes and no boundary animates, redraws or moves. */
 .mapsvg .terrg { cursor: pointer; }
-.mapsvg .terr { stroke: var(--card); stroke-width: 1.4; }
-.mapsvg .mist {
-  fill: #1a1230; opacity: 0; pointer-events: none;
-  transition: opacity .18s ease;
+
+/* EVERY STATE IS TRANSPARENT AT REST, AND LIGHTS UP UNDER THE POINTER.
+   The painting is there all along at a whisper -- enough that the country reads as a
+   shape with something inside it -- and comes to full colour only for the one state you
+   are pointing at. So the map is quiet until you ask it a question, and the answer is
+   the place itself lighting up.
+
+   What is NEVER dimmed by this: the state's outline, its name, and the green dot on its
+   capital. Whether a place has been remembered has to be legible without hovering over
+   thirty-six states to find out. */
+.mapsvg .terr {
+  stroke: var(--card); stroke-width: 1.4;
+  opacity: .13; transition: opacity .2s ease;
 }
-.mapsvg .terrg:hover .mist, .mapsvg .terrg:focus-visible .mist { opacity: .26; }
-.mapsvg .terrg.on .mist { opacity: .14; }
+.mapsvg .terrg:hover .terr,
+.mapsvg .terrg:focus-visible .terr,
+.mapsvg .terrg.on .terr { opacity: 1; }
+/* the shade layer is retired: nothing darkens a state any more, it brightens instead */
+.mapsvg .mist { display: none; }
 
 /* Capitals. A white-ringed dot on every capital city; it turns green once the state it
    belongs to has been remembered. The name is set small and drops out on narrow screens,

@@ -1067,10 +1067,15 @@
                '</span><p style="margin:4px 0 0">' + esc(tod.text) + '</p></div>'
              : '<div class="mfacts hint"><p style="margin:0">Tap any state to see what it is known for.</p></div>');
 
-    return '<div class="card">' +
-      '<div class="spread" style="margin-bottom:14px">' +
-        '<div><h2 style="margin:0">India</h2>' +
-        '<div class="tiny muted">The living map — ' + lit + ' of ' + total + ' places remembered · tap a state</div></div>' +
+    /* A COMPACT HEADER, because every pixel here is a pixel the map does not get. The
+       heading used to be a two-line block with its own margin -- about 70px above the
+       map, on a screen where the map is fighting for its height. It says the same things
+       on one line now, and the map grew by that much. */
+    return '<div class="card mapcard">' +
+      '<div class="spread" style="margin-bottom:6px;align-items:baseline">' +
+        '<h2 style="margin:0;font-size:20px">India</h2>' +
+        '<span class="tiny muted" style="flex:1;margin-left:10px">' + lit + ' of ' + total +
+          ' places remembered · tap a state</span>' +
         '<span class="pill stat">🪔 ' + S.streak.count + '</span></div>' +
       '<div class="mapwrap">' +
         '<svg class="mapsvg" viewBox="' + M.viewBox + '" role="img" aria-label="Map of India">' +
@@ -2788,9 +2793,13 @@
     return '<div class="card"><h1>Worlds</h1>' +
       '<p>Each world re-paints the whole app — a street, a festival, a craft — and tells you where it comes from. ' +
       'They are not decoration; they are part of what you are learning.</p>' +
-      (live ? '<p class="tiny muted" style="margin:8px 0 0">' + live + ' of ' + list.length +
-        ' are fully alive — their birds fly, their trains cross, their lamps flicker. The rest are painted ' +
-        'and waiting for their animation.</p>' : '') + '</div>' +
+      /* Every world is animated now, so the old "N of 15 are alive, the rest are painted
+         and waiting" line is simply false -- and it was the same sentence under every
+         world, which is what made the picker read as one place fifteen times. What is
+         true and specific is what each world DOES after dark. */
+      '<p class="tiny muted" style="margin:8px 0 0">All ' + list.length + ' are alive — and each ' +
+        'one changes at night: lamps come on, windows light, a city switches itself on. Try the ' +
+        'moon button.</p></div>' +
       '<div class="grid g2">' + list.map(function (w) {
         return '<button class="tile' + (S.world === w.id ? ' on' : '') + '" data-act="world" data-w="' + w.id + '">' +
           (w.tile

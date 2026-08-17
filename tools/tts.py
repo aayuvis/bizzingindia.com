@@ -382,8 +382,33 @@ def _post(inp, lang):
     return base64.b64decode(r['audioContent'])
 
 
+# Room for the last syllable to finish. A listener described the end of a
+# sentence as "trailing off in volume", and the most likely cause is the clip
+# ending on the tail of the final word rather than after it — the encoder stops,
+# the decay is cut, and a cut decay is exactly what a fade sounds like.
+#
+# Honest about the limit: if what is actually being heard is natural
+# declination — every language drops pitch and energy into a full stop, and TTS
+# models that faithfully — then this does not fix it, because a trailing pause
+# cannot raise the volume of what came before. It fixes truncation, which is the
+# part that IS a defect. Existing clips are left alone; this applies to whatever
+# is generated next.
+TAIL_MS = 350
+
+
+def _supports_ssml(lang):
+    """Chirp3-HD is text-only — sending it SSML is a 400, not a nicety."""
+    name = (VOICE_OVERRIDE.get(lang) or VOICE.get(lang) or ('',))[0]
+    return 'Chirp' not in name
+
+
 def synthesize(text, lang):
-    return _post({'ssml': to_ssml(text)} if lang in SSML_LANGS else {'text': text}, lang)
+    if lang in SSML_LANGS:
+        return _post({'ssml': to_ssml(text)}, lang)
+    if _supports_ssml(lang):
+        return _post({'ssml': '<speak>%s<break time="%dms"/></speak>'
+                              % (escape(text), TAIL_MS)}, lang)
+    return _post({'text': text}, lang)
 
 
 def _say_ssml(ssml, lang='en-US'):

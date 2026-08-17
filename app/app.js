@@ -73,6 +73,7 @@
     buddy: 'ganesha', world: 'delhi6',
     voice: 'f',                   /* which recorded voice to hear — see humanClip() */
     hindi: false,                 /* read stories in Hindi alongside English */
+    rate: 1,                      /* how fast the voice reads — see speakRate() */
     kauris: 0, xp: 0,
     lit: {}, read: {}, lang: {},
     streak: { days: [], last: null, count: 0 },
@@ -302,6 +303,37 @@
     var v = h.v.indexOf(want) >= 0 ? want : h.v.charAt(0);
     return 'voice/' + key + '-' + v + '.' + (h.e || 'webm');
   }
+  /* WHICH TELLING GETS HEARD. Built in one place because it was built in five,
+     and four of them only knew about the English clip — so with Hindi on, the
+     page turn spoke English over Hindi text. The Again button was right and
+     every automatic narration was wrong, which is the most confusing possible
+     combination.
+
+     Falls back to the English clip when a scene has no Hindi recording yet, so
+     a part-translated story still reads aloud rather than going silent. */
+  /* HOW FAST THE VOICE READS. A grown-up sets it once and everything obeys —
+     recorded clips through playbackRate, the speech-synthesis fallback through
+     its own rate. It exists because a child meeting Hindi for the first time
+     needs the sentence slower than a fluent one does, and until now the only
+     speed was whatever the clip was baked at.
+
+     preservesPitch keeps a slowed voice from turning into a drawl; browsers
+     default it on, and it is set explicitly because Safari has not always. */
+  function speakRate() { var r = +S.rate; return (r >= .5 && r <= 1.5) ? r : 1; }
+
+  function storyClip(st, i) {
+    var base = 'st/' + slug(st.id) + '-' + i;
+    if (!S.hindi) return base;
+    var sc = (st.scenes || [])[i];
+    if (!sc || !sc.hi) return base;
+    return (window.IND_VOICE && window.IND_VOICE.indexOf(base + '-hi') >= 0) ? base + '-hi' : base;
+  }
+  function sayScene(st, i) {
+    if (!st) return;
+    var sc = (st.scenes || [])[i], hi = (S.hindi && sc && sc.hi) ? sc.hi : null;
+    speak(storyClip(st, i), hi || (sc && sc.text), hi ? 'hi-IN' : 'en-IN');
+  }
+
   function speak(key, text, lang) {
     if (!soundOn) return;
     var src = key ? humanClip(key) : null;
@@ -322,6 +354,9 @@
             audio.play().catch(function () {});
           } catch (e) {}
         };
+        audio.playbackRate = speakRate();
+        audio.preservesPitch = true;
+        audio.mozPreservesPitch = true; audio.webkitPreservesPitch = true;
         audio.play().catch(function () {});
         return;
       } catch (e) {}
@@ -331,7 +366,7 @@
       stopAudio();
       var u = new SpeechSynthesisUtterance(text);
       u.lang = lang || 'hi-IN';
-      u.rate = 0.8;                 /* slower: this is a word being taught, not narration */
+      u.rate = 0.8 * speakRate();   /* slower: this is a word being taught, not narration */
       window.speechSynthesis.speak(u);
     } catch (e) {}
   }
@@ -356,7 +391,7 @@
     try {
       var mk = function (txt) {
         var u = new SpeechSynthesisUtterance(txt);
-        u.lang = lang || 'hi-IN'; u.rate = 0.8;
+        u.lang = lang || 'hi-IN'; u.rate = 0.8 * speakRate();
         return u;
       };
       var tail = String(after || '').trim(), head = String(before || '').trim();
@@ -1432,11 +1467,7 @@
        which is why the toggle can be global while the content arrives one
        story at a time. */
     var hi = (S.hindi && sc.hi) ? sc.hi : null;
-    var key = 'st/' + slug(st.id) + '-' + play.i;
-    /* the Hindi telling has its own clip; fall back to the English one so the
-       Again button is never dead while a translation is still being voiced */
-    var sayKey = hi && window.IND_VOICE && window.IND_VOICE.indexOf(key + '-hi') >= 0
-      ? key + '-hi' : key;
+    var sayKey = storyClip(st, play.i);
 
     return '<div class="reader' + (hi ? ' twoup' : '') + '">' +
       '<div class="rhead">' +
@@ -3890,6 +3921,15 @@
           : '';
       })() +
       '<button class="pill" data-act="reset">Start again</button></div>' +
+      '<h4 class="setlbl">Reading speed</h4>' +
+      '<div class="row seg" role="group" aria-label="Reading speed">' +
+      [[0.7, 'Slower'], [0.85, 'Slow'], [1, 'Normal']].map(function (r) {
+        return '<button class="pill' + (speakRate() === r[0] ? ' on' : '') +
+          '" data-act="rate" data-r="' + r[0] + '"' +
+          ' aria-pressed="' + (speakRate() === r[0] ? 'true' : 'false') + '">' + r[1] + '</button>';
+      }).join('') + '</div>' +
+      '<p class="tiny muted" style="margin:8px 0 0">Slows every voice in the app — stories, ' +
+      'words and the Hindi lessons. The words stay the same pitch, just slower.</p>' +
       '<p class="tiny muted" style="margin-top:12px">Build <b>' + esc(window.IND_BUILD || 'dev') + '</b>' +
       ' — if something looks wrong, quote this number so we know which version you are on.</p>' +
       '<p class="tiny muted">This demo keeps everything on this device. No account, ' +
@@ -4376,7 +4416,7 @@
       var id = t.getAttribute('data-id');
       play = { story: null, i: 0, answered: false }; go('story', id);
       var s = allStories().filter(function (x) { return x.id === id; })[0];
-      if (s) speak('st/' + slug(s.id) + '-0');
+      if (s) sayScene(s, 0);
       return;
     }
     if (a === 'next') {
@@ -4389,7 +4429,7 @@
           earn(12, 'story finished'); markToday();
         }
         save();
-      } else if (st) speak('st/' + slug(st.id) + '-' + play.i);
+      } else if (st) sayScene(st, play.i);
       return render();
     }
     if (a === 'answer') {
@@ -4404,13 +4444,13 @@
       var pick = (unread.length ? unread : pool)[Math.floor(Math.random() * (unread.length ? unread.length : pool.length))];
       if (!pick) return;
       play = { story: null, i: 0, answered: false };
-      go('story', pick.id); speak('st/' + slug(pick.id) + '-0');
+      go('story', pick.id); sayScene(pick, 0);
       return;
     }
     if (a === 'again') {
       var aid = t.getAttribute('data-id');
       play = { story: null, i: 0, answered: false };
-      go('story', aid); speak('st/' + slug(aid) + '-0');
+      go('story', aid); sayScene(allStories().filter(function (x) { return x.id === aid; })[0], 0);
       return;
     }
     if (a === 'love') {
@@ -4467,6 +4507,14 @@
     if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); toast('Sound ' + (soundOn ? 'on' : 'off')); paintChrome(); return render(); }
     if (a === 'night')  { night = !night; Store.saveDevice('night', night); toast(night ? 'Night' : 'Day'); paintChrome(); return render(); }
     if (a === 'voice')  { S.voice = S.voice === 'm' ? 'f' : 'm'; save(); toast(S.voice === 'm' ? 'Man’s voice' : 'Woman’s voice'); return render(); }
+    if (a === 'rate')   {
+      S.rate = +t.getAttribute('data-r') || 1; save();
+      toast(S.rate === 1 ? 'Normal speed' : 'Slower');
+      /* say something at the new speed straight away, so the choice is audible
+         rather than a number the grown-up has to take on trust */
+      speak(null, 'नमस्ते', 'hi-IN');
+      return render();
+    }
     if (a === 'hindi')  {
       S.hindi = !S.hindi; save();
       toast(S.hindi ? 'Stories in Hindi and English' : 'Stories in English');

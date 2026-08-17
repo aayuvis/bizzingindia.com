@@ -1936,3 +1936,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .hitoggle.on { background: var(--accent); color: #fff; border-color: transparent; }
 .hitoggle.on:hover { color: #fff; }
 @media (max-width: 560px) { .hitoggle .hilbl { display: none; } }
+
+/* a labelled group inside Grown-ups */
+.setlbl { font: 700 11px var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin: 20px 0 8px; }
+.row.seg { gap: 6px; }

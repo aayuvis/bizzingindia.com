@@ -538,9 +538,14 @@ function ladder(items) {
        this stage is for, and it is the only drill that asks whether the child
        knows what a word DOES rather than how it is spelt. Packs without
        written sentences fall back to wordBuild inside the generator. */
+    /* PHASE B added `wordProduce` here. s3 is the right home for the first
+       production: the child already knows these words by sound and by sight,
+       so writing one is retrieval, not a memory test on unseen material. It is
+       listed once against three recognition types, which is the intended
+       ratio — production is the hard beat, not the whole stage. */
     { id: 's3', n: 3, name: 'Shabd',     en: 'Words',       desc: 'Core words by theme — the house, the table, the body, the street, the calendar.',
-      outcome: 'Reads and understands common words.', script: true,
-      types: ['listenPoint', 'wordBuild', 'sentenceBlank'], items: items.s3 },
+      outcome: 'Reads, understands and writes common words.', script: true,
+      types: ['listenPoint', 'wordBuild', 'sentenceBlank', 'wordProduce'], items: items.s3 },
     { id: 's4', n: 4, name: 'Vakya',     en: 'Sentences',   desc: 'Sentence order, gender, postpositions, verb agreement, tense.',
       outcome: 'Builds correct simple sentences.', script: true,
       types: s4Authored ? ['sentenceBuild'] : ['sentenceBuild', 'wordBuild'], items: items.s4 },
@@ -2155,6 +2160,222 @@ function soundMatch(script, opts) {
    Assemble a word from letter tiles. This is what replaces typing outright.
    Tiles are grapheme clusters, so a matra travels with its letter and a
    conjunct stays whole — which is how a child reads them anyway. */
+/* ================================ PHASE B — PRODUCTION ==================
+   Everything before this point is recognition: choose, or arrange tiles that
+   were handed to you. A child could finish the whole ladder without ever
+   producing a word from nothing, and that is precisely the gap a heritage
+   learner falls into — they understand Nani perfectly and cannot answer her.
+
+   `produce` is the fourth interaction family. The child is given a meaning
+   and a sound and writes the word themselves, from an empty box.
+
+   The grader below is the reason this is worth doing properly. String
+   equality would mark "किताब" wrong for "कीताब" and say nothing useful. A
+   child who wrote the wrong LENGTH of a vowel sign has made a completely
+   different mistake from one who wrote a different word, and the app should
+   know which. Every rule here reads the SCRIPT MODULE — matra names, nukta
+   letters, the virama — so it works for Gurmukhi and Bengali unchanged. */
+
+/* Two matras are a length pair when one name is the other's first letter
+   doubled: i/ii, u/uu. Derived, not listed, so a new script gets it free. */
+function matraLengthPair(a, b) {
+  if (!a || !b || a === b) return false;
+  var x = String(a), y = String(b);
+  return (y === x + x.charAt(0)) || (x === y + y.charAt(0));
+}
+function scriptIndex(script) {
+  if (script._pIdx) return script._pIdx;
+  var idx = { matraByName: {}, nameBySign: {}, nukta: {}, deNukta: {} }, i;
+  for (i = 0; i < (script.matras || []).length; i++) {
+    idx.matraByName[script.matras[i].name] = script.matras[i].sign;
+    idx.nameBySign[script.matras[i].sign] = script.matras[i].name;
+  }
+  /* nuktaLetters is [{ char, base }] or [char] depending on the script file;
+     accept both rather than making every script file agree first. */
+  for (i = 0; i < (script.nuktaLetters || []).length; i++) {
+    var n = script.nuktaLetters[i];
+    var ch = n && n.char ? n.char : n, base = n && n.base ? n.base : null;
+    if (!ch) continue;
+    idx.nukta[ch] = 1;
+    if (base) idx.deNukta[ch] = base;
+  }
+  script._pIdx = idx;
+  return idx;
+}
+/* strip the invisible joiners a soft keyboard can leave behind — they are
+   never the child's mistake and must never be marked as one */
+function normalise(t) {
+  t = String(t == null ? '' : t).replace(/[​-‍﻿]/g, '').trim();
+  return t.normalize ? t.normalize('NFC') : t;
+}
+
+/* gradeWritten(script, given, want) ->
+     { ok, near, why }
+   `near` names the KIND of near-miss so the UI can colour it differently
+   from a plain wrong, and `why` is one warm teaching line, never a scold. */
+function gradeWritten(script, given, want) {
+  script = resolveScript(script);
+  var g = normalise(given), w = normalise(want);
+  if (!g) return { ok: false, near: null, why: '' };
+  if (g === w) return { ok: true, near: null, why: '' };
+
+  var idx = scriptIndex(script);
+
+  /* whole-word checks first — these are about one mark, anywhere */
+  var strip = function (t, re) { return t.replace(re, ''); };
+  var NASAL = /[ऀँंਁਂঁং]/g;   /* candra/anusvara, incl. Gurmukhi + Bengali */
+  if (strip(g, NASAL) === strip(w, NASAL)) {
+    return { ok: false, near: 'nasal',
+      why: 'So close — that word carries a small nasal mark. Say it slowly and listen for the hum.' };
+  }
+  var vir = script.virama;
+  if (vir && g.split(vir).join('') === w.split(vir).join('')) {
+    return { ok: false, near: 'halant',
+      why: 'Nearly. Two consonants there are joined, with no vowel between them.' };
+  }
+  /* nukta: compare with every nukta letter folded to its base */
+  if (Object.keys(idx.deNukta).length) {
+    var fold = function (t) {
+      var o = '', i, c;
+      for (i = 0; i < t.length; i++) { c = t.charAt(i); o += (idx.deNukta[c] || c); }
+      return o;
+    };
+    if (fold(g) === fold(w) ) {
+      return { ok: false, near: 'nukta',
+        why: 'Almost — one letter needs the little dot underneath, which changes its sound.' };
+    }
+  }
+
+  /* cluster-by-cluster, for matra mistakes */
+  var gc = clusters(g), wc = clusters(w);
+  if (gc.length === wc.length) {
+    var diffs = [], i;
+    for (i = 0; i < wc.length; i++) if (gc[i] !== wc[i]) diffs.push(i);
+    if (diffs.length === 1) {
+      var a = gc[diffs[0]], b = wc[diffs[0]];
+      var am = a.charAt(a.length - 1), bm = b.charAt(b.length - 1);
+      var an = idx.nameBySign[am], bn = idx.nameBySign[bm];
+      /* same base, both carry a matra, and the two are a length pair */
+      if (a.charAt(0) === b.charAt(0) && an && bn && matraLengthPair(an, bn)) {
+        return { ok: false, near: 'matra-length',
+          why: 'The right sound, the wrong length. Listen again — is it held long, or said short?' };
+      }
+      /* base right, one has a matra and the other does not */
+      if (a.charAt(0) === b.charAt(0) && (!!an !== !!bn)) {
+        return { ok: false, near: 'matra-missing',
+          why: bn ? 'The letters are right — one of them needs its vowel sign.'
+                  : 'Close. One letter there has a vowel sign it does not need.' };
+      }
+      /* Only call it a matra mistake when the CONSONANT PART is identical.
+         बिल्ली vs बिली shares a base and a final matra but differs by a whole
+         conjunct, and telling a child "the vowel sign is wrong" there sends
+         them to look at the one thing they got right. */
+      var bare = function (c) { return an || bn ? c.replace(/.$/, '') : c; };
+      if (a.charAt(0) === b.charAt(0) && an && bn && bare(a) === bare(b)) {
+        return { ok: false, near: 'matra',
+          why: 'The letter is right, the vowel sign on it is not. Say it slowly.' };
+      }
+      return { ok: false, near: 'one-letter',
+        why: 'One letter away. Sound it out again from the start.' };
+    }
+  }
+  /* A length difference is only a helpful hint if the child was writing THIS
+     word at all. Nothing in common means nothing to nudge — an empty `why`
+     lets the UI show the plain "not yet" rather than a nonsense clue. */
+  var shares = (function () {
+    var i; for (i = 0; i < g.length; i++) if (w.indexOf(g.charAt(i)) >= 0) return true;
+    return false;
+  }());
+  if (gc.length !== wc.length && shares) {
+    return { ok: false, near: gc.length < wc.length ? 'short' : 'long',
+      why: gc.length < wc.length ? 'There is one more piece to come.' : 'That is one piece too many.' };
+  }
+  return { ok: false, near: null, why: '' };
+}
+
+/* THE KEYPAD, and the invariant under it: EVERY word this pack can ask for
+   must be typeable from the keys offered.
+
+   The first version handed over `script.matras` and nothing else, and Hindi's
+   माँ became unanswerable — chandrabindu is not a matra, so there was no key
+   for it and the child could type मा and no further. A stage that cannot be
+   completed is worse than one that is missing.
+
+   So the marks are DERIVED from the pack's own lexicon: every combining mark
+   any word actually uses, minus the ones already on the matra row. Data, not
+   a hand-kept list, so a new script gets its own marks for free and cannot
+   silently ship an unwritable word. */
+function produceKeys(pack, script) {
+  pack = resolvePack(pack); script = resolveScript(script || pack);
+  if (pack._pKeys) return pack._pKeys;
+  var matras = chars(script.matras), cons = chars(script.consonants),
+      vowels = chars(script.vowels), have = {}, i, j, c,
+      extraMark = [], extraLetter = [];
+  for (i = 0; i < matras.length; i++) have[matras[i]] = 1;
+  for (i = 0; i < cons.length; i++) have[cons[i]] = 1;
+  for (i = 0; i < vowels.length; i++) have[vowels[i]] = 1;
+  if (script.virama) have[script.virama] = 1;
+  for (i = 0; i < (pack.lexicon || []).length; i++) {
+    var w = pack.lexicon[i].word;
+    for (j = 0; j < w.length; j++) {
+      c = w.charAt(j);
+      if (have[c] || c === ' ') continue;
+      have[c] = 1;
+      /* isCombiningMark takes a CODE POINT, not a character. Passing the
+         character returned false for everything and the whole derivation
+         silently did nothing — which is exactly how माँ stayed unwritable.
+
+         A mark hangs on the sign row; anything else is a letter form the
+         script table did not list (Urdu's yeh-with-hamza, for one) and
+         belongs with the letters. */
+      if (isCombiningMark(w.charCodeAt(j))) extraMark.push(c);
+      else extraLetter.push(c);
+    }
+  }
+  pack._pKeys = { consonants: cons.concat(extraLetter), matras: matras.concat(extraMark),
+                  vowels: vowels, virama: script.virama };
+  return pack._pKeys;
+}
+
+/* wordProduce — write the word from its meaning and its sound.
+   Deliberately drawn from words the child has already MET (the caller passes
+   the word, or a theme); asking a child to spell a word they have never seen
+   is a memory test, not a lesson. */
+function wordProduce(pack, opts) {
+  pack = resolvePack(pack);
+  opts = opts || {};
+  var rng = opts.rng || rngFrom(opts.seed);
+  var script = resolveScript(pack);
+  var lex = pack.lexicon, i, pool = [];
+  for (i = 0; i < lex.length; i++) {
+    if (opts.theme && lex[i].theme !== opts.theme) continue;
+    if (lex[i].word.indexOf(' ') >= 0) continue;
+    if (clusters(lex[i].word).length > (opts.maxLen || 5)) continue;
+    pool.push(lex[i]);
+  }
+  if (!pool.length) return null;
+  var e = null;
+  if (opts.word) { for (i = 0; i < pool.length; i++) if (pool[i].word === opts.word) e = pool[i]; }
+  if (!e) e = pick(rng, pool);
+
+  return {
+    kind: 'produce',
+    prompt: 'Write it',
+    en: e.en,
+    roman: e.roman,
+    answer: e.word,
+    audio: audioFor(e.audio, pack),
+    /* the keypad the UI offers: this script's own consonants and matras, not
+       a system keyboard — the abugida model s2 already teaches IS the input */
+    keys: produceKeys(pack, script),
+    /* graded through the SAME Leitner machinery as everything else, under its
+       own key: recognising पानी and writing पानी are different skills and the
+       SRS must be able to tell them apart. */
+    srsKey: 'write:' + e.word,
+    grade: function (given) { return gradeWritten(script, given, e.word); }
+  };
+}
+
 function wordBuild(pack, opts) {
   pack = resolvePack(pack);
   opts = opts || {};
@@ -2670,7 +2891,8 @@ var GENERATORS = {
   sentenceBlank: function (pack, script, rng, o) { return sentenceBlank(pack, { rng: rng, theme: o.theme, options: o.options, word: typeof o.item === 'string' ? o.item : undefined }); },
   readAloud:     function (pack, script, rng, o) { return readAloud(pack, { rng: rng, word: typeof o.item === 'string' ? o.item : undefined }); },
   readPassage:   function (pack, script, rng, o) { return readPassage(pack, { rng: rng, item: o.item }); },
-  trace:         function (pack, script, rng, o) { return trace(pack, { rng: rng, index: o.index, letter: typeof o.item === 'string' ? o.item : undefined }); }
+  trace:         function (pack, script, rng, o) { return trace(pack, { rng: rng, index: o.index, letter: typeof o.item === 'string' ? o.item : undefined }); },
+  wordProduce:   function (pack, script, rng, o) { return wordProduce(pack, { rng: rng, theme: o.theme, maxLen: o.maxLen, word: typeof o.item === 'string' ? o.item : undefined }); }
 };
 
 function stageOf(pack, stageId) {
@@ -2754,7 +2976,16 @@ var TESTOUT_N = 6;         /* the test-out challenge: six questions, five to pas
 var PIN_TYPES = {
   letter:   ['soundMatch', 'oddOneOut', 'trace'],
   matra:    ['matraAttach', 'barakhadi', 'soundMatch'],
-  word:     ['listenPoint', 'wordBuild', 'sentenceBlank'],
+  /* PHASE B: wordProduce is LAST on purpose. pinTypeFor walks this list in
+     order for the k-th drill of an item, so a word is met by ear, then built
+     from tiles, then used in a sentence, and only then written from nothing.
+     Production is the last rung on a word, not the first.
+
+     It also has to be listed HERE and not only on the stage: the stage's
+     `types` is what nextQuestion picks from at random, but a planned lesson
+     goes through pinTypeFor, and a type missing from this table is
+     unreachable in every real lesson while still passing its unit test. */
+  word:     ['listenPoint', 'wordBuild', 'sentenceBlank', 'wordProduce'],
   sent:     ['sentenceBuild'],
   dlg:      ['pickReply'],
   conjunct: ['conjunctSplit'],
@@ -3082,6 +3313,9 @@ W.IND_BHASHA = {
   /* exercise generators */
   sentenceBlank: sentenceBlank,
   sentenceBuild: sentenceBuild,
+  wordProduce: wordProduce,      /* Phase B: write it, from nothing */
+  produceKeys: produceKeys,      /* the keypad, derived from the pack's lexicon */
+  gradeWritten: gradeWritten,    /* script-aware near-miss grading */
   pickReply: pickReply,
   barakhadi: barakhadi,
   matraAttach: matraAttach,

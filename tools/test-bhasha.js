@@ -488,8 +488,8 @@ hdr('sentenceBlank');
 }());
 
 hdr('the stage that carries it');
-eq('s3 lists sentenceBlank beside listenPoint and wordBuild',
-  B.stage('hi', 's3').types.join(','), 'listenPoint,wordBuild,sentenceBlank');
+eq('s3 lists sentenceBlank and wordProduce beside listenPoint and wordBuild',
+  B.stage('hi', 's3').types.join(','), 'listenPoint,wordBuild,sentenceBlank,wordProduce');
 ok('a pinned word can be drilled as a fill-the-blank',
   B.generators.sentenceBlank && (function () {
     var types = {}, i;
@@ -682,6 +682,72 @@ eq('readiness learning (box 0 seen - 2)', rd.learning, 2);
 eq('readiness unseen', rd.unseen, 42);
 
 console.log('  session/band/readiness: planner walked for hi+pa s1-s3, steering, test-out, band, readiness');
+
+/* ================= PHASE B: production ================= */
+/* Everything else on the ladder is recognition. These assert the fourth
+   family exists, that it never leaks its answer, and — the part worth
+   testing hardest — that the grader tells a near-miss from a wrong word.
+   String equality would call every one of these simply wrong. */
+hdr('phase B — write it');
+(function () {
+  var sc = B.script('hi');
+  var g = function (given, want) { return B.gradeWritten(sc, given, want); };
+
+  eq('exact is right', g('किताब', 'किताब').ok, true);
+  eq('a stray joiner is not the child\'s mistake', g('पानी\u200d', 'पानी').ok, true);
+  eq('empty is not graded as a near miss', g('', 'पानी').near, null);
+
+  eq('short vs long vowel sign is a LENGTH near-miss', g('कीताब', 'किताब').near, 'matra-length');
+  eq('...and it works the other way round too', g('पानि', 'पानी').near, 'matra-length');
+  eq('a dropped nasal mark is its own near-miss', g('हिदी', 'हिंदी').near, 'nasal');
+  eq('a missing vowel sign is named as missing', g('कल', 'काल').near, 'matra-missing');
+  eq('an extra vowel sign is named as extra', g('काल', 'कल').near, 'matra-missing');
+  eq('a whole missing letter is not called a vowel-sign mistake',
+     g('बिल्ली', 'बिली').near, 'one-letter');
+  eq('nothing in common gets NO misleading hint', g('xyz', 'पानी').near, null);
+  ok('every near-miss carries a teaching line, never a bare wrong',
+     ['कीताब', 'हिदी', 'कल'].every(function (x) {
+       var r = g(x, x === 'कल' ? 'काल' : (x === 'हिदी' ? 'हिंदी' : 'किताब'));
+       return !r.ok && r.near && r.why && r.why.length > 12;
+     }));
+
+  var q = B.wordProduce('hi', { seed: 'phaseB' });
+  ok('wordProduce returns a question', !!q && q.kind === 'produce');
+  eq('it grades its own answer right', q.grade(q.answer).ok, true);
+  /* Not a pinned count: the sign row grows by whatever marks the lexicon
+     actually uses (chandrabindu, nukta), which is the point of deriving it. */
+  ok('it offers the SCRIPT\'s keys, not a system keyboard',
+     q.keys.consonants.length >= 33 && q.keys.matras.length >= 12 && !!q.keys.virama);
+  ok('it carries meaning and sound to ask WITH', !!q.en && !!q.roman);
+  ok('its SRS key is separate from the recognition card',
+     q.srsKey === 'write:' + q.answer && q.srsKey.indexOf('word:') !== 0);
+  /* the leak rule: nothing the child is shown may contain the answer */
+  ok('the prompt never contains the answer',
+     [q.prompt, q.en, q.roman].join(' ').indexOf(q.answer) < 0);
+  eq('same seed, same word', B.wordProduce('hi', { seed: 'x' }).answer,
+                             B.wordProduce('hi', { seed: 'x' }).answer);
+  ok('a pinned word is honoured', B.wordProduce('hi', { word: 'पानी' }).answer === 'पानी');
+  /* THE INVARIANT THAT MATTERS MOST HERE. A produce question the child cannot
+     physically type is an unwinnable stage, and the first version shipped one:
+     Hindi's माँ needs chandrabindu, which is not a matra, so there was no key
+     for it. Checked for EVERY pack, because a script table that forgot a mark
+     is exactly the kind of thing that is invisible until a child is stuck. */
+  Object.keys(W.IND_PACKS).forEach(function (pid) {
+    var k = B.produceKeys(pid), set = {}, bad = [];
+    [].concat(k.consonants, k.matras, k.vowels, [k.virama]).forEach(function (c) { set[c] = 1; });
+    (W.IND_PACKS[pid].lexicon || []).forEach(function (e) {
+      if (e.word.indexOf(' ') >= 0) return;
+      for (var i = 0; i < e.word.length; i++) {
+        if (!set[e.word.charAt(i)]) { bad.push(e.word); return; }
+      }
+    });
+    eq('every ' + pid + ' word is typeable from the keys offered', bad.length, 0);
+  });
+  ok('the Hindi keypad carries chandrabindu, so माँ can be written',
+     B.produceKeys('hi').matras.indexOf('\u0901') >= 0);
+
+  console.log('  phase B: produce family + script-aware near-miss grading, 9 packs typeable');
+}());
 
 /* ================= PHASE A: the seams are generic ================= */
 /* The engine reached Hindi's sentences and dialogues through IND_HI_* globals

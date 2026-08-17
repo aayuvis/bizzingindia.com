@@ -376,15 +376,34 @@ async function main() {
           nAns: document.querySelectorAll('[data-act="ans"]').length,
           nTiles: document.querySelectorAll('.btile').length,
           hasCanvas: !!document.getElementById('tInk'),
+          /* PHASE B: the produce family answers with a keypad, not options */
+          nKeys: document.querySelectorAll('.pkey').length,
+          produce: q.kind === 'produce' ? q.answer : null,
         };
       });
       if (st.over) { deadEnds.push(`${where} q#${k}: session ended after only ${k} graded questions`); return false; }
-      if (!st.nAns && !st.nTiles && !st.hasCanvas) {
+      if (!st.nAns && !st.nTiles && !st.hasCanvas && !st.nKeys) {
         deadEnds.push(`${where} q#${k} type=${st.type}: renders ZERO interactive elements`); return false;
       }
 
       let answered = true;
-      if (st.type === 'trace') {
+      /* PHASE B — write the answer on the keypad, one character at a time, the
+         way a child would. This is also the strongest possible check that every
+         word is typeable: if the keypad is missing a mark, this loop cannot
+         finish and the stage is correctly reported unwinnable. */
+      if (st.produce) {
+        for (const ch of [...st.produce]) {
+          const hit = await page.evaluate(c => {
+            const k = [...document.querySelectorAll('.pkey')].find(x => x.getAttribute('data-c') === c);
+            if (k) { k.click(); return true; } return false;
+          }, ch);
+          if (!hit) {
+            deadEnds.push(`${where} q#${k} type=produce: no key for "${ch}" (U+${ch.codePointAt(0).toString(16)}) — "${st.produce}" cannot be written`);
+            answered = false; break;
+          }
+        }
+        if (answered) await page.evaluate(() => document.querySelector('[data-act="pdone"]').click());
+      } else if (st.type === 'trace') {
         // the canvas mounting IS the assertion; then pass it for real: paint the glyph
         // itself as ink (same font call as the guide, so coverage is total either way),
         // flip likhna's drew-flag with a genuine pointer stroke, and press Check.

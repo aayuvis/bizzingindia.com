@@ -1782,3 +1782,42 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wcgap.big { width: 4.6em; height: 1.35em; font-size: 26px; }
 .wcard.covered .wcen { margin-top: var(--space-lg); }
 .wcflip { margin-top: var(--space-lg); }
+
+
+/* ===================================== PHASE B — WRITE IT (production) =====
+   The keypad is the script's own letters, laid out the way the abugida works:
+   vowels on their own row, then consonants, then the signs that hang on them.
+   A system keyboard would hide exactly the structure stage 2 teaches. */
+.prompthint { text-align: center; font: 600 17px/1.4 var(--body); color: var(--text);
+  margin: 10px 0 12px; }
+.prompthint span { display: block; margin-top: 2px; font: 400 13px var(--mono);
+  letter-spacing: .06em; color: var(--muted); }
+.pbox { min-height: 62px; display: flex; align-items: center; justify-content: center;
+  gap: 2px; font-size: 30px; line-height: 1.7; padding: 8px 14px; margin-bottom: 12px;
+  background: var(--card2); border: 2px dashed var(--line2); border-radius: var(--radius-md);
+  color: var(--text); }
+.pcaret { display: inline-block; width: 2px; height: 28px; background: var(--accent);
+  animation: pblink 1.1s steps(1) infinite; }
+@keyframes pblink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pcaret { animation: none; } }
+.pbox.shake { animation: shake .32s; border-color: var(--bad, #C4485C); }
+
+.pkeys { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.pkrow { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+.pkey { min-width: 38px; min-height: 40px; padding: 4px 6px; font-size: 19px; line-height: 1.6;
+  background: var(--card); color: var(--text); border: 1px solid var(--line2);
+  border-radius: 9px; cursor: pointer; }
+.pkey:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pkey:active:not(:disabled) { transform: translateY(1px); }
+.pkey:disabled { opacity: .45; cursor: default; }
+/* the vowel-sign row reads as attachments, not letters — tinted so a child
+   does not hunt for them among the consonants */
+.pkrow.pm .pkey { background: var(--accent-soft); border-color: transparent; }
+.pkrow.pv .pkey { background: var(--card2); }
+.prow { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
+.pshow { display: block; margin-top: 6px; font-size: 15px; }
+.pshow .deva { font-size: 22px; }
+@media (max-width: 430px) {
+  .pkey { min-width: 32px; min-height: 36px; font-size: 17px; }
+  .pbox { font-size: 26px; }
+}

@@ -2747,7 +2747,7 @@
      correct arrangement after a wrong build. */
   function quizReset(packId) {
     return { packId: packId || null, stage: null, q: null, done: 0, right: 0,
-             build: null, fb: null, lock: false, reveal: false,
+             build: null, fb: null, lock: false, reveal: false, typed: '',
              /* Phase 1-2: the planned session — plan is IND_BHASHA.session()'s
                 arc, pi the pointer into its specs, over marks the arc spent;
                 mode 'lesson' or 'testout'; offer is a locked stage showing its
@@ -2804,7 +2804,7 @@
     }
     var sp = specs[quiz.pi];
     quiz.build = { placed: [], kfocus: 0, kb: false };
-    quiz.fb = null; quiz.lock = false; quiz.reveal = false;
+    quiz.fb = null; quiz.lock = false; quiz.reveal = false; quiz.typed = '';
     if (sp.kind === 'introduce') {
       var sh = sp.show || {};
       quiz.q = { type: 'introduce', spec: sp, char: sh.char, sub: sh.sub, en: sh.en,
@@ -3007,6 +3007,36 @@
     quiz.fb = fbFor(q, ok, -1);
     render();
     advance(ok ? 1100 : 2600);
+  }
+
+  /* PHASE B — grade what the child wrote.
+     The engine's gradeWritten() does the script-aware work and hands back a
+     `near` kind and one warm line. A near-miss is still marked wrong for the
+     SRS — it has to be, or the child never revisits it — but it does NOT get
+     the plain wrong treatment on screen: "you have the right sound, the wrong
+     length" is a different sentence from "no", and the difference is the whole
+     point of writing a grader instead of using ===. */
+  function checkProduced() {
+    var q = quiz.q;
+    if (!q || quiz.lock || q.kind !== 'produce' || !quiz.typed) return;
+    var r = q.grade(quiz.typed);
+    recordAnswer(!!r.ok);
+    quiz.lock = true;
+    quiz.reveal = !r.ok;
+    quiz.fb = {
+      ok: !!r.ok,
+      html: r.ok
+        ? '<b>Yes — you wrote it.</b> <span class="deva">' + esc(q.answer) + '</span>'
+        : (r.near
+            ? '<b>Nearly.</b> ' + esc(r.why) +
+              '<span class="pshow">It is <span class="deva">' + esc(q.answer) + '</span></span>'
+            : '<b>Not yet.</b><span class="pshow">It is <span class="deva">' + esc(q.answer) +
+              '</span></span>')
+    };
+    render();
+    /* a near-miss earns a longer beat than a plain miss: there is something
+       specific to read, and it is the thing that teaches */
+    advance(r.ok ? 1300 : (r.near ? 3600 : 3000));
   }
 
   /* ------------------------------------------------------------- A PACK
@@ -3490,6 +3520,48 @@
         '<h3 style="margin-bottom:4px">Likhna — trace <span class="deva">' + esc(q.letter.char) + '</span></h3>' +
         '<p class="tiny muted" style="margin-top:0">“' + esc(q.letter.name) + '”</p>' +
         inner + qfb + meta + '</div>';
+    }
+
+    /* --- PHASE B: produce — write the word, from an empty box ---------------
+       The fourth interaction family. Everything else on this ladder is choose
+       or arrange-what-you-were-given; this one asks the child to make the word
+       themselves, which is the skill a heritage learner is actually missing.
+
+       The keypad is this SCRIPT'S OWN consonants and matras, not a system
+       keyboard — the abugida model stage 2 teaches (a consonant, then a sign
+       hung on it) IS the input method, so typing is practice. A system IME
+       would hide exactly the structure we are trying to teach.
+
+       LEAK RULE, same as everywhere: the word is never on screen. The child
+       gets the meaning, the romanisation and the sound. */
+    if (q.kind === 'produce') {
+      var typed = quiz.typed || '';
+      var pk = q.keys || {};
+      var keyRow = function (list, cls, lbl) {
+        return '<div class="pkrow ' + cls + '" role="group" aria-label="' + lbl + '">' +
+          (list || []).map(function (c) {
+            return '<button class="pkey deva" data-act="ptype" data-c="' + esc(c) + '"' +
+              (quiz.lock ? ' disabled' : '') + '>' + esc(c) + '</button>';
+          }).join('') + '</div>';
+      };
+      return '<div class="card qcard">' + arcStrip() +
+        '<h3 style="margin-bottom:2px">Write it</h3>' +
+        '<p class="tiny muted" style="margin-top:0">You have heard this one. Now write it.</p>' +
+        '<div class="prompthint">“' + esc(q.en || '') + '”<span>' + esc(q.roman || '') + '</span></div>' +
+        hear +
+        '<div class="pbox deva' + (quiz.reveal ? ' shake' : '') + '" id="pbox" aria-live="polite" ' +
+          'aria-label="what you have written">' + (typed ? esc(typed) : '<i class="pcaret"></i>') + '</div>' +
+        '<div class="pkeys">' +
+          keyRow(pk.vowels, 'pv', 'vowels') +
+          keyRow(pk.consonants, 'pc', 'consonants') +
+          keyRow((pk.matras || []).concat(pk.virama ? [pk.virama] : []), 'pm', 'vowel signs') +
+        '</div>' +
+        '<div class="prow">' +
+          '<button class="btn ghost sm" data-act="pback"' + (quiz.lock || !typed ? ' disabled' : '') + '>Undo</button>' +
+          '<button class="btn sm" data-act="pdone"' + (quiz.lock || !typed ? ' disabled' : '') + '>Check</button>' +
+        '</div>' +
+        '<p class="tiny muted">Tap the letters, or type on a keyboard. Backspace undoes, Enter checks.</p>' +
+        qfb + meta + '</div>';
     }
 
     /* --- ordered build: tiles into slots, in order --- */
@@ -4359,6 +4431,22 @@
       } else advance(ok ? 1100 : 2600);
       return;
     }
+    /* PHASE B — production. Typing is a render, not a re-plan: the question
+       object is untouched, only quiz.typed moves. */
+    if (a === 'ptype') {
+      if (quiz.lock || !quiz.q || quiz.q.kind !== 'produce') return;
+      quiz.typed = (quiz.typed || '') + t.getAttribute('data-c');
+      return render();
+    }
+    if (a === 'pback') {
+      if (quiz.lock || !quiz.typed) return;
+      /* one TAP undoes one KEYSTROKE, which for an abugida is one character,
+         not one visual cluster — the child put the matra on separately and
+         expects to take it off separately */
+      quiz.typed = quiz.typed.slice(0, -1);
+      return render();
+    }
+    if (a === 'pdone') return checkProduced();
     /* ordered build: tap a tile in, tap a filled slot out */
     if (a === 'btile') return placeTile(+t.getAttribute('data-i'));
     if (a === 'bslot') {
@@ -4459,6 +4547,24 @@
        every control in this app is reachable all three ways */
     if (deckOpen && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
       e.preventDefault(); deckAt += (e.key === 'ArrowRight' ? 1 : -1); return render();
+    }
+    /* PHASE B — a produce question takes the keyboard. Every game and drill in
+       this app works by touch AND by key (CLAUDE.md), and for writing that is
+       not a nicety: a child on a laptop with a Devanagari keyboard installed
+       should be able to just type, and one without should be able to tap the
+       same keys on screen. Both routes end in the same quiz.typed. */
+    if (quiz && quiz.q && quiz.q.kind === 'produce' && !quiz.lock &&
+        view.name === 'question' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.key === 'Backspace') { e.preventDefault(); quiz.typed = (quiz.typed || '').slice(0, -1); return render(); }
+      if (e.key === 'Enter') { e.preventDefault(); return checkProduced(); }
+      /* one printable character, and only if it belongs to this script's own
+         key set — a stray latin letter is a typo, not an answer */
+      if (e.key && e.key.length === 1) {
+        var pk = quiz.q.keys || {};
+        var ok = (pk.consonants || []).indexOf(e.key) >= 0 || (pk.matras || []).indexOf(e.key) >= 0 ||
+                 (pk.vowels || []).indexOf(e.key) >= 0 || e.key === pk.virama;
+        if (ok) { e.preventDefault(); quiz.typed = (quiz.typed || '') + e.key; return render(); }
+      }
     }
     if (e.key === 'Escape' && S.started && view.name !== 'home') go('home');
     if (e.key === 'ArrowRight' && view.name === 'story') { var n = document.querySelector('[data-act="next"]'); if (n) n.click(); }

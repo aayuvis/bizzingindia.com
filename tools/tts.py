@@ -47,6 +47,8 @@ def api_key():
     except KeyError:
         raise SystemExit('GKEY is not set. Source the key file; never hardcode it.')
 
+WORKERS = 8          # lower it for premium voices; see the note by the pool
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'app', 'voice')
 LEXICON = os.path.join(ROOT, 'tools', 'pron-lexicon.json')
@@ -410,9 +412,56 @@ def write_manifest():
     return len(keys)
 
 
+def dialogue_clips(pack='hi'):
+    """[{key, text, lang}] for every line of every authored dialogue.
+
+    The Baat-cheet stage had ZERO audio — measured — so the one stage that is
+    actually about talking to people was silent. These are the clips that fix it.
+
+    Keys are derived exactly as bhasha.js pickReply and tools/gen-voice-script.js
+    derive them, from the bank's own order:
+
+        hi/d-07-p        the prompt (Nani, the vendor, the teacher)
+        hi/d-07-r        the child's reply
+        hi/d-07-x1..x3   the other options on screen
+
+    A HUMAN take of the same line lands at hi/d-07-p-f.webm and the app prefers
+    it (see humanClip in app.js), so these two pipelines coexist by design: this
+    fills the silence now, tools/studio.js replaces it whenever someone records.
+    """
+    js = ('const W={};'
+          'require("vm").runInNewContext('
+          '  require("fs").readFileSync("app/data-bhasha-hi-dialogues.js","utf8"),{window:W});'
+          'console.log(JSON.stringify((W.IND_BHASHA_DIALOGUES||{}).%s||[]));' % pack)
+    raw = subprocess.run(['node', '-e', js], stdout=subprocess.PIPE,
+                         check=True, cwd=ROOT).stdout
+    dlg = json.loads(raw.decode('utf-8'))
+    lang = PACK_LANG.get(pack)
+    out = []
+    for i, d in enumerate(dlg, 1):
+        base = '%s/d-%02d' % (pack, i)
+        out.append({'key': base + '-p', 'text': d['prompt'], 'lang': lang})
+        out.append({'key': base + '-r', 'text': d['reply']['hi'], 'lang': lang})
+        for j, x in enumerate(d.get('distractors', [])[:3], 1):
+            out.append({'key': '%s-x%d' % (base, j), 'text': x['hi'], 'lang': lang})
+    return out
+
+
 def main(argv):
     force = '--force' in argv
-    args = [a for a in argv if not a.startswith('-')]
+    global WORKERS
+    if '--workers' in argv:
+        WORKERS = max(1, int(argv[argv.index('--workers') + 1]))
+    # Positional args are the pack ids. Skip the VALUE after any flag that takes
+    # one, or `--voice hi-IN-Chirp3-HD-Laomedeia --rate 0.88 --for hi-IN` puts
+    # three junk entries into the pack filter and the selection only works by
+    # luck (it did: 'hi' happened to be in the set alongside the noise).
+    TAKES_VALUE = {'--voice', '--rate', '--for', '--workers'}
+    args, skip = [], False
+    for a in argv:
+        if skip: skip = False; continue
+        if a in TAKES_VALUE: skip = True; continue
+        if not a.startswith('-'): args.append(a)
 
     # --voice en-IN-Chirp3-HD-Laomedeia [--rate 1.02] [--for en-US]
     # `--for` is the clip language being replaced; the voice's own locale is read
@@ -429,14 +478,24 @@ def main(argv):
         check_lexicon(args or None)
         return
 
-    if '--bhasha' in argv:
+    if '--dialogues' in argv:
+        clips = dialogue_clips(args[0] if args else 'hi')
+        lang = clips[0]['lang'] if clips else '?'
+        print('dialogues: %d clips %s(%s)' % (
+            len(clips), lang, (VOICE_OVERRIDE.get(lang) or VOICE[lang])[0]))
+    elif '--bhasha' in argv:
         # tts.py --bhasha [hi] [pa] [--words] — no clips.json; the packs are the list.
         clips = bhasha_clips(set(args) or None, {'word'} if '--words' in argv else None)
         by_lang = {}
         for c in clips:
             by_lang[c['lang']] = by_lang.get(c['lang'], 0) + 1
+        # Report the EFFECTIVE voice. This printed VOICE[l][0] — the base table —
+        # so a run with --voice announced the override on one line and then
+        # claimed to be using Neural2 on the next. The synthesis was right; the
+        # log was lying, which is worse than either.
         print('bhasha: %d clips %s' % (len(clips),
-              ' '.join('%s=%d(%s)' % (l, n, VOICE[l][0]) for l, n in sorted(by_lang.items()))))
+              ' '.join('%s=%d(%s)' % (l, n, (VOICE_OVERRIDE.get(l) or VOICE[l])[0])
+                       for l, n in sorted(by_lang.items()))))
     else:
         clips = json.load(open(args[0]))
 
@@ -506,13 +565,25 @@ def main(argv):
                     print('FAIL', c['key'], detail, flush=True)
 
     # Modest fan-out. The epics alone are 800 clips and serial that is an hour;
-    # eight in flight is well inside the per-minute quota and the retry above
-    # still covers a throttle.
+    # eight in flight is well inside the per-minute quota for the standard
+    # voices, and the retry above covers a throttle.
+    #
+    # It is NOT inside the quota for Chirp3-HD, which is a premium tier with a
+    # much smaller allowance: eight workers burned through it and 84 of 565
+    # clips came back RESOURCE_EXHAUSTED. Those failures leave the PREVIOUS file
+    # untouched on disk, so the run reported success-ish while quietly leaving a
+    # corpus half in one voice and half in another — the worst possible outcome
+    # and an invisible one. Hence --workers, and hence the loud summary below.
     if todo:
-        with cf.ThreadPoolExecutor(max_workers=8) as pool:
+        with cf.ThreadPoolExecutor(max_workers=WORKERS) as pool:
             list(pool.map(one, todo))
 
     total = write_manifest()
+    if fail:
+        print('\n  !! %d clips FAILED and still hold their PREVIOUS audio on disk.\n'
+              '     The corpus is now mixed. Re-run to repair — a plain re-run only\n'
+              '     regenerates what is missing, so delete the failures first, or\n'
+              '     re-run with --force and a lower --workers.' % fail)
     print('DONE new=%d cached=%d failed=%d total=%d manifest=%d'
           % (done, skip, fail, len(clips), total))
 

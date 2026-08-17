@@ -4173,16 +4173,14 @@
       (window.IND_ART_IMG && window.IND_ART_IMG.indexOf('logo') >= 0
         ? '<img src="art/logo.png" alt="" width="68" height="68">'
         : '') + 'Bizzing <em>India</em></button>' +
-      /* THE WORLD'S EMBLEM. The wordmark used to run the full width and then leave a
-         stretch of dead space before the coin count. The wordmark is smaller now and
-         that space carries the one object you would name if somebody asked what this
-         world looks like -- the Taj's dome, a cricket ball, the rocket, the dhaak, the
-         painted truck's eyes. It re-draws whenever the world changes, and it is
-         decorative: aria-hidden, and it never carries anything not written in words
-         elsewhere. Tapping it opens the picker, which is what a child will try. */
-      (window.IND_WORLDS && window.IND_WORLDS.mark
-        ? '<button class="worldmark" data-act="go" data-v="worlds" aria-label="Change world">' +
-          window.IND_WORLDS.mark(S.world, 40) + '</button>'
+      /* THE WORLD'S FRIEZE. Not a badge and not a button: a wide, shallow band of this
+         world's own imagery filling the space between the wordmark and the controls,
+         fading out at both ends so it belongs to the bar rather than sitting on it.
+         It was a small square icon first, which was wrong twice -- one more clickable
+         thing competing with seven real controls, and one object on a plate is a
+         sticker, not design. Purely decorative: aria-hidden, pointer-events:none. */
+      (window.IND_WORLDS && window.IND_WORLDS.frieze
+        ? '<span class="worldfrieze" id="worldfrieze">' + window.IND_WORLDS.frieze(S.world) + '</span>'
         : '') +
       /* One group, so when the bar is too narrow the WHOLE set of controls drops
          to the next line together. Loose in the row, the wordmark would push
@@ -4252,9 +4250,9 @@
     /* The world's emblem lives in the bar, and the bar is built ONCE — so without this
        the emblem stayed on whichever world the app booted in and never changed again.
        Every screenshot I took of six different worlds showed the Taj. */
-    var wm = $('.worldmark');
-    if (wm && window.IND_WORLDS && window.IND_WORLDS.mark) {
-      wm.innerHTML = window.IND_WORLDS.mark(S.world, 40);
+    var wm = $('#worldfrieze');
+    if (wm && window.IND_WORLDS && window.IND_WORLDS.frieze) {
+      wm.innerHTML = window.IND_WORLDS.frieze(S.world);
     }
   }
 

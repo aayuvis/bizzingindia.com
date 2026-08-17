@@ -183,8 +183,14 @@ function collections() {
     .filter(c => c.scenes > c.hi);
 }
 
+/* The epics are a different shape (episodes of cards, not a flat list of scenes) and so
+   have their own exporter/importer. Everything else -- the prompt, the checks, the retry,
+   the refusal to write anything that fails them -- is identical on purpose. */
+const EPICS = ['ramayana', 'mahabharata'];
+const toolFor = col => EPICS.indexOf(col) >= 0 ? 'epic-hindi.js' : 'story-hindi.js';
+
 function exportCol(col) {
-  const out = execFileSync('node', [path.join(__dirname, 'story-hindi.js'), '--export', col],
+  const out = execFileSync('node', [path.join(__dirname, toolFor(col)), '--export', col],
     { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
   return JSON.parse(out);
 }
@@ -211,7 +217,7 @@ function run(col) {
       const hi = (his[k] || '').trim();
       const why = reject(hi, r.en);
       if (why) failed.push([r, why]);
-      else done.push({ id: r.id, i: r.i, hi });
+      else done.push(Object.assign({}, r, { hi: hi }));   /* keep EVERY field: the epics need `n` too */
     });
     process.stdout.write('  ' + Math.min(i + BATCH, rows.length) + '/' + rows.length +
       ' (' + done.length + ' good, ' + failed.length + ' held)\r');
@@ -224,7 +230,7 @@ function run(col) {
     try { hi = (parseRows(ask(prompt([r])), 1)[0] || '').trim(); } catch (e) { hi = ''; }
     const w2 = reject(hi, r.en);
     if (w2) stillBad.push([r, why + ' / then ' + w2]);
-    else done.push({ id: r.id, i: r.i, hi });
+    else done.push(Object.assign({}, r, { hi: hi }));   /* keep EVERY field: the epics need `n` too */
   }
 
   console.log('\n  %d translated, %d held back', done.length, stillBad.length);
@@ -234,7 +240,7 @@ function run(col) {
   if (done.length) {
     const f = path.join(os.tmpdir(), 'hi-' + col.replace(/\W/g, '') + '.json');
     fs.writeFileSync(f, JSON.stringify(done, null, 1));
-    console.log(execFileSync('node', [path.join(__dirname, 'story-hindi.js'), '--import', f],
+    console.log(execFileSync('node', [path.join(__dirname, toolFor(col)), '--import', f],
       { encoding: 'utf8' }).trim());
   }
   return { ok: done.length, bad: stillBad.length };

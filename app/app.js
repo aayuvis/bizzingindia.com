@@ -2379,6 +2379,14 @@
     return found.slice(0, 4);
   }
   function cardVoice(epicId, n, i) { return 'ep/' + epicId + '-' + n + '-' + i; }
+  /* The Hindi clip when the switch is on AND this card has both a Hindi line and a
+     recording of it; the English one otherwise. Falling back to the English clip rather
+     than to silence is deliberate — a card mid-episode with no sound reads as broken. */
+  function cardVoiceFor(epicId, n, i, card) {
+    var base = cardVoice(epicId, n, i);
+    if (!S.hindi || !card || !card.hi) return base;
+    return hasVoice(base + '-hi') ? base + '-hi' : base;
+  }
   function hasVoice(k) { return !!(window.IND_VOICE && window.IND_VOICE.indexOf(k) >= 0); }
 
   V.episode = function () {
@@ -2450,7 +2458,11 @@
        face. The old card filled that null with the EPIC's avatar, so every narrated card put
        Rama's portrait above words Rama is not saying. A narrated card now carries no
        portrait at all; the storyteller is a voice, not a character. */
-    var vk = cardVoice(e.id, ep.n, deck.i);
+    /* ONE place decides which telling is heard and shown, because the story reader taught
+       that lesson the hard way: its clip key was built in five places and only one of them
+       knew the Hindi switch existed, so the narration reverted to English on a page turn. */
+    var cardHi = S.hindi && c.hi ? c.hi : '';
+    var vk = cardVoiceFor(e.id, ep.n, deck.i, c);
     var speakerArt = who === 'mithu' ? mascot('mithu', 'talk', 56) : speaker ? art(speaker, 56) : '';
     var speakerLabel = who === 'mithu' ? 'Mithu' : (speaker ? avatarName(speaker) : '');
 
@@ -2476,9 +2488,15 @@
 
       /* The stage, then the words — the same shape as a story card. */
       stageBlock(epArt, cast, speaker) +
+      /* THE SAME TWO LANES AS A STORY CARD. The epics were the one place in the app that
+         did not follow the story template: no Hindi lane, so the Toggle Hindi switch in
+         the top bar did nothing at all on the two longest things a child will read here.
+         `hi` is on every card now (tools/epic-hindi.js), so the epics behave exactly like
+         every other telling: Devanagari above, English below, and the voice follows. */
       '<div class="speech' + (hasDialogue(c.text) ? ' bubble' : '') + '" style="margin-top:14px">' +
         (speakerLabel ? '<span class="who">' + esc(speakerLabel) + '</span>' : '') +
-        esc(c.text).replace(/\*(.+?)\*/g, '<i>$1</i>') +
+        (cardHi ? '<p class="sdeva" lang="hi">' + esc(cardHi) + '</p>' : '') +
+        '<p class="sen">' + esc(c.text).replace(/\*(.+?)\*/g, '<i>$1</i>') + '</p>' +
       '</div>' +
 
       /* Who these people are. Under the words rather than over them, because the story comes
@@ -4628,7 +4646,7 @@
       var re = epicById(deck.epic);
       var rep = re && re.episodes.filter(function (x) { return x.n === deck.n; })[0];
       var rc = rep && rep.cards[deck.i];
-      if (rc) readAloud(cardVoice(re.id, rep.n, deck.i), rc.text);
+      if (rc) readAloud(cardVoiceFor(re.id, rep.n, deck.i, rc), (S.hindi && rc.hi) || rc.text);
       return;
     }
     if (a === 'peek') {

@@ -483,6 +483,9 @@
       '.wag-a{fill:url(#waGA)}.wag-b{fill:url(#waGB)}.wag-f{fill:url(#waGF)}',
       '.wag-i{fill:url(#waGI)}.wag-s{fill:url(#waGS)}.wag-g{fill:url(#waGG)}',
       '.wad{fill:var(--wa-ink);opacity:.16}',
+      /* the dance world names each form under its dancer — a child learning that the one
+         with the huge headdress is Kathakali is the entire point of that world */
+      '.dnlab{font-family:var(--body);font-size:13px;font-weight:700;fill:var(--wa-ink);opacity:.6}',
       '.wah{fill:#ffffff;opacity:.14}',
       /* a soft shade under every sprite: objects sit ON the ground instead of floating */
       '.wa-spr{filter:drop-shadow(0 2px 3px rgba(20,12,40,.10))}',
@@ -527,6 +530,13 @@
       '@keyframes wa-tap{from{transform:rotate(-26deg)}to{transform:rotate(9deg)}}',
       '@keyframes wa-blink{0%,92%,100%{transform:scaleY(1)}94%,96%{transform:scaleY(.08)}}',
       '@keyframes wa-spin{to{transform:rotate(360deg)}}',
+      /* A falling star has to be RARE or it is a metronome. It waits 90% of the cycle
+         off-frame and crosses once, quickly. */
+      '@keyframes wa-shoot{0%,88%{transform:translate3d(4vw,-6vh,0);opacity:0}' +
+        '90%{opacity:1}97%{transform:translate3d(52vw,34vh,0);opacity:.9}' +
+        '100%{transform:translate3d(56vw,38vh,0);opacity:0}}',
+      /* a skirt widening on the turn — what a chakkar looks like from the front */
+      '@keyframes wa-flare{0%,100%{transform:scaleX(1)}50%{transform:scaleX(1.22)}}',
       '@keyframes wa-fall{0%{transform:translate3d(0,-30px,0) rotate(0deg);opacity:0}' +
       '  8%{opacity:.95}50%{transform:translate3d(-34px,46vh,0) rotate(180deg)}' +
       '  92%{opacity:.7}100%{transform:translate3d(18px,92vh,0) rotate(400deg);opacity:0}}',
@@ -564,6 +574,8 @@
       '.wam-tap{animation:wa-tap .62s ease-in-out infinite alternate;transform-origin:12% 88%}',
       '.wam-blink{animation:wa-blink 7s linear infinite}',
       '.wam-spin{animation:wa-spin 120s steps(24) infinite}',
+      '.wam-shoot{animation:wa-shoot 11s linear infinite}',
+      '.wam-flare{animation:wa-flare 2.6s ease-in-out infinite}',
       '.wam-fall{animation:wa-fall 26s linear infinite}',
       '.wam-fallshort{animation:wa-fallshort 15s linear infinite}',
       '.wam-kite{animation:wa-kite 15s ease-in-out infinite}',
@@ -1657,6 +1669,43 @@
       }) + '</g>');
     return '<div class="wa-day">' + leaves + '</div><div class="wa-night">' + leaves + '</div>';
   }
+  /* THE NIGHT OVER DAL LAKE. The night mode was a palette swap and a couple of lit
+     windows, which is not a night — it is the day with the lamps on.
+
+     What a night over the lake actually is, and what is drawn now: a FULL MOON low over
+     the Pir Panjal, its light laid down the water in a long broken road that moves;
+     the shikaras' own lamps doubled in the water beneath them; the chinar dark against
+     the sky; and once in a while, a star falls. The falling star is deliberately RARE —
+     every eleven seconds, crossing once — because a shooting star you can rely on is
+     not a shooting star, it is a metronome. */
+  function dlMoon() {
+    return '<div class="wa-night">' +
+      /* the moon itself, with its seas, and the halo cold air puts around it */
+      spr('right:14%;left:auto;top:6%;width:clamp(70px,15vw,130px);height:auto', '0 0 120 120',
+        '<circle cx="60" cy="60" r="52" fill="rgba(226,236,255,.10)"/>' +
+        '<circle cx="60" cy="60" r="38" fill="rgba(226,236,255,.16)"/>' +
+        '<circle class="wam-glow" style="transform-box:view-box;transform-origin:60px 60px;animation-duration:9s" ' +
+          'cx="60" cy="60" r="26" fill="#f4f7ff"/>' +
+        '<circle cx="52" cy="52" r="6" fill="rgba(190,200,225,.55)"/>' +
+        '<circle cx="70" cy="66" r="4.4" fill="rgba(190,200,225,.45)"/>' +
+        '<circle cx="58" cy="74" r="3" fill="rgba(190,200,225,.4)"/>') +
+      '</div>';
+  }
+  function dlStar() {
+    /* one falling star, rarely. wa-shoot holds it off-screen for most of its cycle. */
+    return '<div class="wa-night">' +
+      spr('left:0;top:0;width:100%;height:60%', '0 0 200 60',
+        '<g class="wam-shoot">' +
+        '<path d="M0 0L26 13" stroke="url(#waStarTail)" stroke-width="1.6" stroke-linecap="round"/>' +
+        '<circle cx="26" cy="13" r="1.8" fill="#ffffff"/></g>' +
+        '<defs><linearGradient id="waStarTail" x1="0" y1="0" x2="1" y2="0">' +
+        '<stop offset="0" stop-color="#ffffff" stop-opacity="0"/>' +
+        '<stop offset="1" stop-color="#ffffff" stop-opacity=".9"/></linearGradient></defs>') +
+      '</div>';
+  }
+  /* the sky layer plus the moon and the star it now carries at night */
+  function dlSkyFull() { return dlSky() + dlMoon() + dlStar(); }
+
   function dlFoot() {
     function shikara(night) {
       return spr('left:0;bottom:26px;width:clamp(190px,46vw,360px);height:auto', '0 0 260 120',
@@ -1675,7 +1724,11 @@
         '</g>');
     }
     var mountains = spr('left:0;bottom:44px;width:100%;height:auto;opacity:.3', '0 0 400 70',
-      '<path class="waf-i" d="M0 70L52 22L88 48L138 8L186 52L232 26L286 62L330 34L400 70Z"/>');
+      '<path class="waf-i" d="M0 70L52 22L88 48L138 8L186 52L232 26L286 62L330 34L400 70Z"/>' +
+      /* snow on the high ones, which is what the Pir Panjal actually looks like from the
+         lake — and at night it is the only thing up there still catching light */
+      '<path class="waf-s" opacity=".55" d="M138 8L126 22q12 6 24 0ZM52 22L44 32q8 5 16 0Z"/>');
+
     var water = '<i class="wa-floor" style="height:52px;background:var(--wa-accent);opacity:.42"></i>' +
       '<i class="wa-floor" style="height:52px;opacity:.4;background:var(--wa-surface);' +
       '-webkit-mask-image:' + M_WAVE + ';mask-image:' + M_WAVE + ';-webkit-mask-size:28px 10px;mask-size:28px 10px;' +
@@ -1687,7 +1740,16 @@
       '<g class="wa-day">' + rep(5, function (i) { return '<rect class="waf-s" opacity=".5" x="' + (30 + i * 26) + '" y="44" width="16" height="18" rx="2"/>'; }) + '</g>' +
       '<g class="wa-night">' + rep(5, function (i) { return '<rect fill="#ffca70" opacity=".95" x="' + (30 + i * 26) + '" y="44" width="16" height="18" rx="2"/>'; }) +
       '<ellipse cx="90" cy="56" rx="86" ry="34" fill="rgba(255,190,90,.2)"/></g>');
-    return '<i class="wa-fade" style="bottom:46px;height:58px"></i>' + mountains + water + houseboat +
+    /* THE MOON'S ROAD, on the water rather than in the sky — it was drawn into the sky
+       layer first, which put the reflection above the lake it is supposed to be in.
+       Broken bands that drift, because still water is never still and a solid beam
+       would read as a spotlight rather than moonlight. */
+    var moonroad = '<div class="wa-night">' +
+      '<i class="wa-floor wam-drift" style="height:52px;width:200%;left:0;right:auto;opacity:.55;' +
+      'animation-duration:34s;background:repeating-linear-gradient(90deg,' +
+      'rgba(244,247,255,0) 0 16px,rgba(244,247,255,.34) 16px 28px,rgba(244,247,255,0) 28px 48px)"></i>' +
+      '</div>';
+    return '<i class="wa-fade" style="bottom:46px;height:58px"></i>' + mountains + water + moonroad + houseboat +
       '<div class="wa-day">' + shikara(false) +
       spr('left:60%;bottom:52px;width:clamp(44px,10vw,80px);height:auto;opacity:.85', '0 0 60 40',
         '<g class="wam-bob" style="animation-duration:4.6s">' +
@@ -1713,7 +1775,7 @@
       '</div>';
   }
 
-  S.dallake = { bd: dlBd, air: dlAir, band: dlBand, sky: dlSky, foot: dlFoot };
+  S.dallake = { bd: dlBd, air: dlAir, band: dlBand, sky: dlSkyFull, foot: dlFoot };
 
   /* ======================================================================= */
   /*  FORTS OF RAJASTHAN — kites over the ramparts, windows alight at night  */
@@ -2413,43 +2475,147 @@
     return '<div class="wa-day">' + bells + '</div><div class="wa-night">' + bells + '</div>';
   }
   function dnFoot() {
-    /* araimandi — the half-sit of Bharatanatyam, knees turned out */
-    var bharat = '<g transform="translate(112 200)">' +
-      '<circle class="waf-i" cx="0" cy="-64" r="8"/>' +
-      '<path class="waf-i" d="M-9 -56q9-6 18 0l-4 26h-10z"/>' +
-      '<path class="waf-a" d="M-16 -30q16-8 32 0L20 0H-20z"/>' +
-      '<path class="was-i waf-n" stroke-width="4" stroke-linecap="round" d="M-6 -48L-26 -56M6 -48L26 -56"/>' +
-      '<circle class="waf-b" cx="-26" cy="-56" r="3"/><circle class="waf-b" cx="26" cy="-56" r="3"/>' +
-      '<g class="wam-sway" style="transform-box:view-box;transform-origin:112px 200px;animation-duration:3.2s">' +
-      '<path class="was-b waf-n" stroke-width="2" opacity=".7" d="M-20 -4h40"/></g></g>';
-    /* Kathak — the chakkar, one arm up, the skirt lifting */
-    var kathak = '<g transform="translate(210 200)">' +
-      '<g class="wam-spin" style="animation-duration:9s;transform-box:view-box;transform-origin:210px 176px">' +
-      '<circle class="waf-i" cx="0" cy="-70" r="8"/>' +
-      '<path class="waf-i" d="M-8 -62q8-5 16 0l-3 28h-10z"/>' +
-      '<path class="waf-f" d="M-22 -34q22-10 44 0L26 0H-26z"/>' +
-      '<path class="was-i waf-n" stroke-width="4" stroke-linecap="round" d="M4 -56L22 -78M-4 -56L-20 -44"/>' +
-      '<circle class="waf-b" cx="22" cy="-78" r="3"/></g></g>';
-    /* Odissi — tribhanga, the three bends */
-    var odissi = '<g transform="translate(308 200)">' +
-      '<circle class="waf-i" cx="4" cy="-66" r="8"/>' +
-      '<path class="waf-i" d="M-4 -58q9-5 16 2l-6 26h-10z"/>' +
-      '<path class="waf-a" d="M-18 -30q18-9 36 0L22 0H-22z"/>' +
-      '<path class="was-i waf-n" stroke-width="4" stroke-linecap="round" d="M2 -50L-18 -60M8 -50L28 -42"/>' +
-      '<circle class="waf-b" cx="-18" cy="-60" r="3"/><circle class="waf-b" cx="28" cy="-42" r="3"/></g>';
+    /* FOUR NAMED FORMS, not four silhouettes in different colours. The founder's note was
+       that "Dances of India" was showing generic dancers, and it was: three identical
+       bodies with their arms at different angles. A child who has been taken to a
+       Kathakali performance would not have recognised anything on this screen.
+
+       So each dancer is drawn from what actually distinguishes the form to the eye —
+       which for these four is mostly the costume and the stance, and that is exactly what
+       a child notices first:
+
+         Kathakali (Kerala)      the chutti, the green pacha face, the enormous kireetam
+                                 headdress and the vast layered skirt. Unmistakable, and
+                                 the reason it is drawn biggest and first.
+         Bharatanatyam (TN)      araimandi — the deep half-sit, knees turned out — the
+                                 pleated fan between the knees, the temple jewellery.
+         Kathak (UP)             the chakkar: upright, spinning, the long angarkha
+                                 flaring, ghungroo heavy at the ankles.
+         Odissi (Odisha)         tribhanga, the three bends, and the silver filigree crown.
+
+       Silhouette and costume only. No deity iconography anywhere here — these are dancers,
+       and a mudra is a hand, not a god. */
+
+    /* KATHAKALI — the one you cannot mistake for anything else */
+    var kathakali = '<g transform="translate(300 190)">' +
+      /* the skirt: layered, enormous, the widest thing on the stage */
+      '<path class="waf-s" opacity=".95" d="M-86 0q0-56 86-56t86 56z"/>' +
+      '<path class="waf-a" opacity=".85" d="M-70 0q0-42 70-42t70 42z"/>' +
+      '<path class="waf-b" opacity=".8" d="M-52 0q0-30 52-30t52 30z"/>' +
+      rep(9, function (i) {
+        return '<path class="was-i waf-n" stroke-width="1.6" opacity=".28" d="M' + (-72 + i * 18) + ' 0q' +
+          (i < 4 ? 6 : -6) + '-26 ' + (i < 4 ? 20 : -20) + '-38"/>';
+      }) +
+      /* the torso, and the beaded chest-piece */
+      '<path class="waf-a" d="M-22 -56q0-34 22-34t22 34z"/>' +
+      rep(3, function (i) {
+        return '<path class="was-b waf-n" stroke-width="2.4" opacity=".85" d="M-16 ' + (-64 - i * 8) + 'q16 8 32 0"/>';
+      }) +
+      /* the arms, held wide in the stance */
+      '<path class="was-a waf-n" stroke-width="9" stroke-linecap="round" d="M-18 -78L-52 -60M18 -78L52 -60"/>' +
+      '<circle class="waf-b" cx="-52" cy="-60" r="7"/><circle class="waf-b" cx="52" cy="-60" r="7"/>' +
+      /* the pacha face, and the white chutti frame around it */
+      '<path class="waf-s" d="M-20 -104q20-20 40 0q4 18-20 26t-20-26z"/>' +
+      '<ellipse class="waf-f" cx="0" cy="-108" rx="14" ry="16"/>' +
+      '<path class="waf-i" opacity=".8" d="M-8 -112q4-4 8 0M0 -112q4-4 8 0"/>' +
+      '<path class="waf-a" d="M-9 -102q9 6 18 0q-9 8-18 0z"/>' +
+      /* the kireetam — the headdress, taller than the head */
+      '<path class="waf-b" d="M-26 -122q26-46 52 0q-26-12-52 0z"/>' +
+      '<path class="waf-a" opacity=".9" d="M-18 -126q18-32 36 0q-18-9-36 0z"/>' +
+      rep(7, function (i) {
+        return '<circle class="waf-f" cx="' + (-21 + i * 7) + '" cy="' + (-124 - Math.abs(3 - i) * -3) + '" r="2.6"/>';
+      }) +
+      '<circle class="waf-s" cx="0" cy="-150" r="4"/>' +
+      '</g>';
+
+    /* BHARATANATYAM — araimandi, and the pleated fan that opens with it */
+    var bharat = '<g transform="translate(560 196)">' +
+      '<path class="waf-a" d="M-30 0q0-30 30-30t30 30z"/>' +
+      /* the fan of pleats between the knees — the silhouette everyone knows */
+      '<path class="waf-b" opacity=".95" d="M-13 0q0-26 13-26t13 26z"/>' +
+      rep(5, function (i) { return '<path class="was-s waf-n" stroke-width="1.4" opacity=".55" d="M' + (-10 + i * 5) + ' 0v-22"/>'; }) +
+      '<path class="waf-a" d="M-19 -30q0-24 19-24t19 24z"/>' +
+      /* the deep half-sit: knees out, feet turned */
+      '<path class="was-i waf-n" stroke-width="7" stroke-linecap="round" d="M-13 -30L-27 -6M13 -30L27 -6"/>' +
+      '<path class="was-i waf-n" stroke-width="5" stroke-linecap="round" d="M-27 -4h-9M27 -4h9"/>' +
+      '<circle class="waf-i" cx="0" cy="-74" r="9"/>' +
+      '<path class="waf-i" d="M-9 -66q9-6 18 0l-4 22h-10z"/>' +
+      /* arms in a mudra, and the temple jewellery */
+      '<path class="was-i waf-n" stroke-width="5" stroke-linecap="round" d="M-7 -58L-28 -66M7 -58L28 -50"/>' +
+      '<circle class="waf-b" cx="-28" cy="-66" r="4"/><circle class="waf-b" cx="28" cy="-50" r="4"/>' +
+      '<path class="waf-b" d="M-9 -82q9-7 18 0z"/>' +
+      '<circle class="waf-b" cx="0" cy="-86" r="3"/>' +
+      rep(2, function (i) { return '<path class="was-b waf-n" stroke-width="2" opacity=".9" d="M-8 ' + (-56 + i * 5) + 'q8 4 16 0"/>'; }) +
+      '</g>';
+
+    /* KATHAK — the chakkar. Upright, turning, the angarkha flaring out with the spin */
+    /* A chakkar is a turn, and turning a 2D figure through 360 degrees just shows it
+       upside down — which is exactly what it did. What actually reads as a spin is the
+       SKIRT flaring while the dancer stays upright, so the body sways and the angarkha
+       widens and narrows on its own beat. */
+    var kathak = '<g class="wam-sway" style="animation-duration:2.6s;transform-box:view-box;' +
+      'transform-origin:780px 196px">' +
+      '<g transform="translate(780 196)">' +
+      '<g class="wam-flare" style="transform-box:fill-box;transform-origin:50% 100%">' +
+      '<path class="waf-f" opacity=".95" d="M-34 0q0-34 34-34t34 34z"/>' +
+      rep(7, function (i) { return '<path class="was-s waf-n" stroke-width="1.4" opacity=".5" d="M' + (-28 + i * 9) + ' 0q' + (i < 3 ? 4 : -4) + '-18 ' + (i < 3 ? 10 : -10) + '-28"/>'; }) +
+      '</g>' +
+      '<path class="waf-a" d="M-15 -34q0-30 15-30t15 30z"/>' +
+      '<circle class="waf-i" cx="0" cy="-78" r="9"/>' +
+      /* one arm up, one across — the chakkar's own shape */
+      '<path class="was-i waf-n" stroke-width="5" stroke-linecap="round" d="M6 -62L28 -88M-6 -62L-26 -48"/>' +
+      '<circle class="waf-b" cx="28" cy="-88" r="4"/>' +
+      /* ghungroo, heavy, at both ankles */
+      rep(2, function (i) {
+        return rep(5, function (k) {
+          return '<circle class="waf-b" cx="' + ((i ? 11 : -11) + (k - 2) * 3) + '" cy="' + (-4 - (k % 2) * 3) + '" r="2"/>';
+        });
+      }) +
+      '</g></g>';
+
+    /* ODISSI — tribhanga, the three bends, and the silver crown */
+    var odissi = '<g transform="translate(990 196)">' +
+      '<path class="waf-a" d="M-26 0q2-30 30-30t26 30z"/>' +
+      '<path class="waf-b" opacity=".9" d="M-11 0q1-24 15-24t13 24z"/>' +
+      '<path class="waf-a" d="M-16 -30q2-26 18-24t14 24z"/>' +
+      '<circle class="waf-i" cx="5" cy="-72" r="9"/>' +
+      /* the three bends: head, torso and hip each offset */
+      '<path class="waf-i" d="M-3 -64q11-6 17 2l-6 22h-11z"/>' +
+      '<path class="was-i waf-n" stroke-width="5" stroke-linecap="round" d="M0 -56L-22 -66M10 -56L30 -46"/>' +
+      '<circle class="waf-b" cx="-22" cy="-66" r="4"/><circle class="waf-b" cx="30" cy="-46" r="4"/>' +
+      /* the filigree crown */
+      '<path class="waf-s" d="M-5 -80q10-9 20 0z"/>' +
+      rep(4, function (i) { return '<path class="was-s waf-n" stroke-width="1.6" d="M' + (-3 + i * 5) + ' -82v-7"/>'; }) +
+      '<circle class="waf-s" cx="5" cy="-92" r="3"/>' +
+      '</g>';
+
     /* the temple lamp they dance by */
-    var lamp = '<g transform="translate(48 200)">' +
-      '<path class="was-i waf-n" stroke-width="3" d="M0 0V-52"/>' +
-      '<path class="waf-b" d="M-12 -52h24l-6 10h-12z"/>' +
-      '<g class="wam-flame" style="transform-box:view-box;transform-origin:48px 148px">' +
-      '<path class="waf-f" d="M0 -56q5 -8 0 -16q-5 8 0 16Z"/></g>' +
-      '<ellipse class="waf-i" opacity=".2" cx="0" cy="0" rx="14" ry="4"/></g>';
-    var stage = spr('left:50%;bottom:0;width:clamp(320px,92vw,820px);height:auto;transform:translateX(-50%)',
-      '0 0 420 200',
-      '<ellipse class="waf-b" opacity=".14" cx="210" cy="200" rx="170" ry="26"/>' +
-      lamp + bharat + kathak + odissi +
-      '<g class="wa-night"><ellipse class="wam-glow" style="transform-box:view-box;transform-origin:210px 150px;animation-duration:7s"' +
-      ' cx="210" cy="150" rx="150" ry="56" fill="rgba(255,200,95,.18)"/></g>');
+    var lamp = '<g transform="translate(96 196)">' +
+      '<path class="was-i waf-n" stroke-width="4" d="M0 0V-64"/>' +
+      '<path class="waf-b" d="M-15 -64h30l-7 12h-16z"/>' +
+      '<g class="wam-flame" style="transform-box:view-box;transform-origin:96px 128px">' +
+      '<path class="waf-f" d="M0 -70q6-10 0-20q-6 10 0 20Z"/></g>' +
+      '<ellipse class="waf-i" opacity=".2" cx="0" cy="0" rx="18" ry="5"/></g>';
+
+    /* the mridangam and the ankle-bell line that keeps them all in time */
+    var drum = '<g transform="translate(1230 192)">' +
+      '<ellipse class="waf-b" cx="0" cy="0" rx="34" ry="15" transform="rotate(-14)"/>' +
+      '<ellipse class="waf-s" cx="-30" cy="7" rx="9" ry="13" transform="rotate(-14)"/>' +
+      '<ellipse class="waf-s" cx="30" cy="-7" rx="8" ry="12" transform="rotate(-14)"/>' +
+      rep(4, function (i) { return '<path class="was-i waf-n" stroke-width="1.6" opacity=".5" d="M' + (-22 + i * 14) + ' -12l4 22"/>'; }) +
+      '</g>';
+
+    var stage = spr('left:50%;bottom:0;width:max(1400px,104vw);height:auto;transform:translateX(-50%)',
+      '0 0 1400 210',
+      '<ellipse class="waf-b" opacity=".12" cx="700" cy="204" rx="560" ry="22"/>' +
+      lamp + kathakali + bharat + kathak + odissi + drum +
+      /* the names, small, so a child can learn which is which — this is the whole point */
+      '<g class="wa-day">' +
+      [[300, 'Kathakali'], [560, 'Bharatanatyam'], [780, 'Kathak'], [990, 'Odissi']].map(function (t) {
+        return '<text class="dnlab" x="' + t[0] + '" y="208" text-anchor="middle">' + t[1] + '</text>';
+      }).join('') + '</g>' +
+      '<g class="wa-night"><ellipse class="wam-glow" style="transform-box:view-box;transform-origin:700px 150px;animation-duration:7s"' +
+      ' cx="700" cy="150" rx="420" ry="60" fill="rgba(255,200,95,.18)"/></g>');
     return '<i class="wa-fade" style="bottom:26px;height:50px"></i>' +
       '<i class="wa-floor" style="height:22px;background:var(--wa-ink);opacity:.2"></i>' + stage;
   }

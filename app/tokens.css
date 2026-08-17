@@ -33,8 +33,11 @@
   --good:#1fa971;
   --bad:#d2544f;
 
-  /* the two states of every map territory */
+  /* the two states of every map territory. --haze is what actually goes over an unmet
+     state on the map: a LIGHT veil, so the painting underneath still reads. --mist is the
+     darker swatch, kept for the places that show the idea rather than the map itself. */
   --mist: #cdc9dd;
+  --haze: #ffffff;
   --lit:  #e9a13b;
 
   --display:'Fraunces', Georgia, serif;
@@ -155,6 +158,8 @@
   --text:#f2eeff; --text2:#c9c0ea; --muted:#9289b8;
   --accent:#9d84ff; --accent-soft: rgba(157,132,255,.16);
   --mist:#3a3352;
+  /* still a light veil at night — a dark one on a dark ground erases the state */
+  --haze:#cfc6f2;
   --shadow: 0 8px 30px rgba(0,0,0,.45);
   --shadow-lg: 0 16px 50px rgba(0,0,0,.55);
 }

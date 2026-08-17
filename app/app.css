@@ -309,20 +309,45 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .ticks .ic { color: var(--accent); flex: none; }
 
 /* --------------------------------------------------------- the Living Map */
+/* The whole map has to be visible at once — a map you scroll is a map you never see the
+   shape of. The frame is 1000x1100, so capping the WIDTH at the height budget times that
+   ratio caps the height without touching the aspect. The subtracted pixels are the app
+   chrome around it: top bar, bottom nav, the card's own heading and the fact strip.
+   dvh, where it exists, is the honest viewport on a phone with a retracting URL bar. */
+.mapwrap { max-width: calc((100vh - 300px) * 0.909); margin-inline: auto; }
+@supports (height: 100dvh) { .mapwrap { max-width: calc((100dvh - 300px) * 0.909); } }
+@media (max-width: 720px) { .mapwrap { max-width: calc((100dvh - 290px) * 0.909); } }
+.mapwrap { min-width: 0; }
 .mapsvg { width: 100%; height: auto; display: block; touch-action: manipulation; }
 
-/* Each state is two stacked copies of the same shape: the painting underneath, the mist
-   over it. Meeting a state fades the mist out — the geometry never changes, which is the
-   point. No boundary here animates, redraws or moves. */
+/* Each state is two stacked copies of the same shape: the painting underneath, a veil
+   over it. Meeting a state fades the veil out — the geometry never changes, which is the
+   point. No boundary here animates, redraws or moves.
+
+   The veil is LIGHT and thin. It used to be a dark, nearly opaque fill, which blacked out
+   the painting underneath and made half the country look switched off. What a state has
+   been remembered is now told by the green dot on its capital, below. */
 .mapsvg .terrg { cursor: pointer; }
 .mapsvg .terr { stroke: var(--card); stroke-width: 1.4; }
 .mapsvg .mist {
-  fill: var(--mist); opacity: .88; pointer-events: none;
+  fill: var(--haze); opacity: .42; pointer-events: none;
   transition: opacity .6s ease;
 }
 .mapsvg .terrg.lit .mist { opacity: 0; }
-.mapsvg .terrg:hover .mist, .mapsvg .terrg:focus-visible .mist { opacity: .34; }
+.mapsvg .terrg:hover .mist, .mapsvg .terrg:focus-visible .mist { opacity: .16; }
 .mapsvg .terrg.on .mist { opacity: 0; }
+
+/* Capitals. A white-ringed dot on every capital city; it turns green once the state it
+   belongs to has been remembered. The name is set small and drops out on narrow screens,
+   where 35 city names over a phone-width map is a grey smear. */
+.mapsvg .cap circle { fill: var(--card); stroke: var(--text2); stroke-width: 1.8; pointer-events: none; }
+.mapsvg .cap.lit circle { fill: var(--good, #4fbf8b); stroke: #fff; stroke-width: 2.2; }
+.mapsvg .cap.on circle { stroke: var(--accent); stroke-width: 3; }
+.mapsvg .capname {
+  font-family: var(--body); font-size: 19px; font-weight: 800; fill: var(--text);
+  text-anchor: middle; pointer-events: none;
+  paint-order: stroke; stroke: var(--card); stroke-width: 5; stroke-linejoin: round;
+}
 .mapsvg .terrg.on .terr, .mapsvg .terrg:focus-visible .terr { stroke: var(--accent); stroke-width: 2.6; }
 /* the family's home state(s): a STATIC warm outline — never animated, never pulsing;
    the boundary rules in CLAUDE.md forbid any boundary that moves or performs */
@@ -679,7 +704,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* The callout sits on the map, anchored to the state it belongs to. Parking the facts in a
    panel below turns looking at a map into reading a table underneath one. */
-.mapwrap { position: relative; }
+.mapwrap { position: relative; width: 100%; }
 .callout {
   position: absolute; z-index: 3; transform: translate(-50%, calc(-100% - 16px));
   width: min(262px, 76vw); padding: var(--space-md) var(--space-lg) var(--space-lg); text-align: left;
@@ -687,6 +712,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
   box-shadow: var(--shadow-lg); animation: rise .2s ease-out;
 }
 .callout.below { transform: translate(-50%, 16px); }
+/* once placeCallout() has measured it, `top` is already the final pixel position */
+.callout.placed { transform: translate(-50%, 0); }
 .callout h3 { margin: 0 0 2px; font-size: 19px; padding-right: 20px; }
 .callout .cx {
   position: absolute; top: 6px; right: 8px; width: 28px; height: 28px; line-height: 1;
@@ -811,6 +838,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .legend i { display: inline-block; width: 13px; height: 13px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; }
 .legend i.lg-mist { background: var(--mist); }
 .legend i.lg-lit { background: linear-gradient(135deg, var(--accent2), var(--accent3)); }
+.legend i.dot { border-radius: 50%; width: 11px; height: 11px; }
+.legend i.lg-cap { background: var(--card); box-shadow: inset 0 0 0 1.6px var(--text2); }
+.legend i.lg-caplit { background: var(--good, #4fbf8b); }
 
 /* --------------------------------------------------------------- tiles */
 .tile {

@@ -18,3 +18,4 @@ tools/.art-raw/
 # Python bytecode from the generator scripts.
 __pycache__/
 *.pyc
+.shots/

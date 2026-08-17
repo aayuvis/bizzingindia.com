@@ -968,6 +968,40 @@
         '</g>';
     }).join('');
 
+    /* CAPITALS. Every state's capital city sits on the map as a dot, and the dot is where
+       the city actually is: the coordinates are projected from the city's latitude and
+       longitude through the map's own Mercator frame (tools/map-capitals.py), then checked
+       to fall inside the state's own polygon. Nothing here is placed by eye.
+
+       The dot is also how "remembered" is shown now. A state you have not met used to be
+       painted over with a dark, near-opaque mist, which hid the painting that was the whole
+       reason to look at the map. The veil is now light and thin, and the thing that changes
+       when you meet a state is a green dot on its capital — a mark being ADDED, not a
+       state being blacked out.
+
+       One dot per city, not one per state: Chandigarh is the capital of Punjab, Haryana and
+       itself, and three dots stacked on one city is three times the ink for one fact. */
+    var byCity = {};
+    codes.forEach(function (c) {
+      var cp = (M.capitals || {})[c];
+      if (!cp) return;
+      var key = cp[0] + ',' + cp[1];
+      var q = byCity[key] || (byCity[key] = { x: cp[0], y: cp[1], name: cp[2], lit: false, on: false });
+      if (S.lit[c]) q.lit = true;
+      if (mapFocus === c) q.on = true;
+    });
+    /* The city's NAME is written only for the state being looked at. India at the size that
+       fits on a phone is about 300 pixels across; thirty-five city names on top of the state
+       names is a grey smear, and a smear teaches nothing. The dot is always there, the name
+       comes when you ask for that state — and the callout spells it out again. */
+    var caps = Object.keys(byCity).map(function (k) {
+      var q = byCity[k];
+      return '<g class="cap' + (q.lit ? ' lit' : '') + (q.on ? ' on' : '') + '">' +
+        '<circle cx="' + q.x + '" cy="' + q.y + '" r="' + (q.on ? 7 : 5) + '"/>' +
+        (q.on ? '<text class="capname" x="' + q.x + '" y="' + (q.y + 17) + '">' + esc(q.name) + '</text>' : '') +
+        '</g>';
+    }).join('');
+
     /* Labels last so they sit above every fill. Only states with room for the text get one;
        the rest are reachable by tap and by their <title>. */
     var labels = codes.map(function (c) {
@@ -998,11 +1032,16 @@
       var hello = X.hello;
       var triv = (X.trivia || [])[0];
       /* Above the anchor normally, below it near the top edge, so the bubble never runs off
-         the map. The horizontal clamp keeps it on screen for Gujarat and Arunachal alike. */
+         the map. The horizontal clamp keeps it on screen for Gujarat and Arunachal alike.
+         The vertical placement is finished in placeCallout() after layout, because whether
+         the bubble fits above its own dot depends on how tall the bubble turned out and how
+         tall the map is on this screen — neither of which a percentage in a template knows.
+         Rajasthan's bubble was escaping out of the top of the card at 37%. */
       var below = ly < 26;
       callout =
-        '<div class="callout' + (below ? ' below' : '') + '" style="left:' +
-            Math.max(20, Math.min(80, lx)) + '%;top:' + ly + '%">' +
+        '<div class="callout' + (below ? ' below' : '') + '" data-anchor="' + ly.toFixed(2) +
+            '" data-ax="' + lx.toFixed(2) +
+            '" style="left:' + Math.max(20, Math.min(80, lx)) + '%;top:' + ly + '%">' +
           '<button class="cx" data-act="peek" data-code="' + mapFocus + '" aria-label="Close">×</button>' +
           '<h3>' + esc(stateName(mapFocus)) + '</h3>' +
           (hello && hello.word
@@ -1036,14 +1075,14 @@
       '<div class="mapwrap">' +
         '<svg class="mapsvg" viewBox="' + M.viewBox + '" role="img" aria-label="Map of India">' +
           '<defs>' + defs + '</defs>' +
-          '<path class="outline" d="' + M.outline + '"/>' + paths + pins + labels + '</svg>' +
+          '<path class="outline" d="' + M.outline + '"/>' + paths + pins + caps + labels + '</svg>' +
         callout +
       '</div>' +
       strip +
       '<div class="legend" style="margin-top:14px">' +
-        '<span><i class="lg-mist"></i>still under the mist</span>' +
-        '<span><i class="lg-lit"></i>remembered</span>' +
-        '<span><i style="background:var(--accent3)"></i>a place to visit</span></div></div>' +
+        '<span><i class="dot lg-cap"></i>a capital city</span>' +
+        '<span><i class="dot lg-caplit"></i>remembered</span>' +
+        '<span><i class="dot" style="background:var(--accent3)"></i>a place to visit</span></div></div>' +
       (lit === 0 ? '<div class="card center"><p>Every state is painted under the mist. Read a story and the mist lifts off the place it came from.</p>' +
         '<button class="btn" data-act="go" data-v="stories">Open the story library</button></div>' : '') +
 
@@ -4228,6 +4267,7 @@
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
     });
     if (view.name === 'game') mountGame(view.arg);
+    placeCallout();
 
     /* The tracing canvas (stage 7) owns window-level pointer listeners, so it
        gets the same care a game does: torn down on EVERY render — navigation
@@ -4237,6 +4277,58 @@
         window.IND_LIKHNA && $('#tInk')) {
       traceOff = window.IND_LIKHNA.mount(quiz.q.letter);
     }
+  }
+
+  /* The state callout is anchored to its own state, but it must also stay inside the map.
+     Measured once after each render: put it above its dot if there is room, flip it under
+     the dot if there is not, and clamp so it never leaves the top of the card. */
+  function placeCallout() {
+    var c = $('.callout'), w = $('.mapwrap');
+    if (!c || !w) return;
+    /* Under 560px the bubble is not a bubble — CSS turns it into a sheet in the normal flow
+       under the map, because a 300px card anchored to Manipur is unreadable on a 360px
+       screen. There is nothing to position there, and setting a top on a static box is how
+       you end up debugging a number that never applied. */
+    var pos = window.getComputedStyle(c).position;
+    if (pos !== 'absolute' && pos !== 'fixed') {
+      c.classList.remove('placed');
+      c.style.top = c.style.left = '';
+      return;
+    }
+    c.classList.remove('below');
+    c.classList.add('placed');
+    var wr = w.getBoundingClientRect();
+    var cr = c.getBoundingClientRect();
+    var card = c.closest('.card');
+    var kr = card ? card.getBoundingClientRect() : wr;
+
+    /* The nav bar is FIXED at the bottom on a phone, which means it sits inside
+       innerHeight and quietly eats the last 64 pixels of it. Measuring against
+       innerHeight instead of against the nav is the mistake that hid the story reader's
+       button, and it would hide this bubble the same way. */
+    var nav = $('.topbar .nav');
+    var navTop = window.innerHeight;
+    if (nav) {
+      var nr = nav.getBoundingClientRect();
+      if (nr.top > window.innerHeight * 0.5) navTop = nr.top;   /* only when it is the bottom bar */
+    }
+
+    /* Vertical: above its own dot when there is room, under it when there is not, then
+       clamped so the bubble stays inside the card and clear of the nav. */
+    var anchorY = wr.top + (parseFloat(c.getAttribute('data-anchor')) || 50) / 100 * wr.height;
+    var top = anchorY - cr.height - 16;
+    if (top < kr.top + 8) top = anchorY + 18;
+    var loT = kr.top + 8, hiT = Math.min(kr.bottom, navTop) - 8 - cr.height;
+    top = hiT < loT ? loT : Math.max(loT, Math.min(hiT, top));
+
+    /* Horizontal: centred on the dot, clamped to the card. On a phone the map is 300px
+       wide and the bubble is 262 — without this it hangs off the left edge. */
+    var anchorX = wr.left + (parseFloat(c.getAttribute('data-ax')) || 50) / 100 * wr.width;
+    var loC = kr.left + 8 + cr.width / 2, hiC = kr.right - 8 - cr.width / 2;
+    var cx = hiC < loC ? (kr.left + kr.right) / 2 : Math.max(loC, Math.min(hiC, anchorX));
+
+    c.style.top = Math.round(top - wr.top) + 'px';
+    c.style.left = Math.round(cx - wr.left) + 'px';
   }
 
   /* a running game owns document-level key handlers and timers */

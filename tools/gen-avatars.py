@@ -107,16 +107,35 @@ WHITE_TOL = 18       # how far off pure white still counts as studio background
 
 
 def surround(rgb):
-    """Boolean mask of the white studio background, flood-filled in from the border.
+    """Boolean mask of the studio background, flood-filled in from the border.
 
     Flood-filling rather than thresholding is the whole point: a heron, a white sari,
     the Buddha's robe and Gandhi's shawl are white too, and a plain threshold would
-    punch holes straight through them. Only white that is reachable from the edge of
+    punch holes straight through them. Only background reachable from the edge of
     the frame is background.
+
+    IT IS NOT ALWAYS WHITE. The prompt asks for a white studio background and the
+    model usually obliges — but not always, and six tiles (Brahma, Vamana, Yama,
+    Mahabali, Parashurama, Tarakasura) came back painted on near-black. The fill
+    was hunting for white, found none at the border, removed nothing, and every
+    one of them shipped with a hard dark rectangle behind the character.
+
+    So the background colour is READ FROM THE BORDER rather than assumed: sample
+    the frame's edge, take the most common colour, and fill from that. White
+    studio backgrounds behave exactly as before; a dark one now works too.
     """
     w, h = rgb.size
     a = np.asarray(rgb, dtype=np.uint8)
-    white = (a >= (255 - WHITE_TOL)).all(axis=2).reshape(-1).tolist()
+
+    edge = np.concatenate([a[0, :, :], a[h - 1, :, :], a[:, 0, :], a[:, w - 1, :]])
+    # quantise to 8 levels per channel so near-identical pixels count together
+    q = (edge // 32).astype(np.int32)
+    codes = q[:, 0] * 64 + q[:, 1] * 8 + q[:, 2]
+    dom = np.bincount(codes).argmax()
+    base = edge[codes == dom].mean(axis=0)
+
+    diff = np.abs(a.astype(np.int16) - base.astype(np.int16)).max(axis=2)
+    white = (diff <= WHITE_TOL).reshape(-1).tolist()
     seen = bytearray(w * h)
     q = deque()
 

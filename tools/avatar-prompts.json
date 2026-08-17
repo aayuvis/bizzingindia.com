@@ -1,528 +1,627 @@
 {
- "_refs": [
-  "ganesha.png",
-  "hanuman.png",
-  "gandhi.png"
- ],
- "_prefix": "The attached reference images ARE the house style for this avatar set. Copy them exactly. STYLE: cute chibi mascot illustration for a children's app. An oversized round head about half the whole figure's height, a small simple body, short stubby arms and legs, big round glossy eyes with bright white highlights, soft pink blush on the cheeks, a small warm smile, clean rounded simplified shapes, an even medium-weight warm dark-brown outline (never black), soft cel shading with very little gradient, a warm palette of cream, gold, saffron, red and lavender, a soft pale cream glow around the figure, two or three tiny gold four-point sparkles, on flat pure white. Detail is minimal: reduce clothing, ornament and jewellery to a few clean simple shapes. Warm, kind and collectible, never realistic, never painterly, never ornate, never a bust or portrait crop. Now draw a NEW character in that identical style - same proportions, same eye design, same line weight, same colour feel. SUBJECT: ",
- "_suffix": " COMPOSITION: one single subject, whole body visible, centred, drawn large so it nearly fills the square frame with a small even margin, facing the viewer. It must still read clearly when shrunk to 64 pixels, so keep the silhouette simple and bold. Flat pure white background bleeding to all four edges: no tile, no card, no rounded-square badge, no circle badge, no sticker outline, no frame, no border, no vignette, no drop shadow, no scenery. No text, no letters, no numbers, no watermark, no signature, no logo.",
- "_note": "ganesha/krishna/hanuman/durga/saraswati/shiva/rama/lakshmi/buddha/gandhi/aryabhata are the adopted Bizzing Bee tiles and the style target; their entries below are the older text-only prompts and are NOT used - do not regenerate them.",
- "ganesha": {
-  "prompt": "Lord Ganesha, the beloved elephant-headed deity. A friendly elephant face and shoulders fill the frame: soft lavender-pink elephant skin, large ears, a curled trunk, one whole tusk and one broken tusk, a tall golden crown (mukut) with a red jewel, a red tilak mark on the forehead, an orange marigold garland, a glowing golden nimbus halo behind the head. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
-  "alt": "A warm friendly lavender-skinned elephant-headed figure of Indian temple folk art: large ears, a curled trunk, one broken tusk, a tall golden crown with a red jewel, a red mark on the forehead, a marigold garland, a glowing golden halo behind the head. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
- },
- "krishna": {
-  "prompt": "Bal Krishna, the young cowherd deity. Head and shoulders fill the frame: gentle soft-blue skin, dark curly hair, a golden crown (mukut) with a single tall peacock feather, a golden bamboo flute held at his lips, a yellow silk dhoti and a tulsi-and-marigold garland, a glowing golden halo behind the head. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
-  "alt": "A young blue-skinned Indian folk-art deity boy: dark curls, a golden crown with a single peacock feather, a golden bamboo flute at his lips, a yellow silk shoulder cloth, a flower garland, a glowing halo behind the head. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
- },
- "hanuman": {
-  "prompt": "Lord Hanuman, the devoted vanara. A noble monkey face and shoulders fill the frame: warm golden-orange fur, a paler muzzle, a golden crown, a vermilion tilak on the forehead, large golden earrings, a saffron shoulder cloth, the head of a golden gada mace at one shoulder, a glowing golden halo. Brave, loyal, kind. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
-  "alt": "A noble golden-furred monkey figure of Indian folk art: a golden crown, a vermilion mark on the forehead, large golden earrings, a saffron cloth, the head of a golden mace at one shoulder, a glowing halo. Brave and kind, never comic. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
- },
- "durga": {
-  "prompt": "Goddess Durga. Her face and shoulders fill the frame: warm brown skin, long flowing black hair, an elaborate tall golden crown, a red bindi on the forehead, gold jhumka earrings and a nose ring, a crimson-and-gold sari, a golden trishul (trident) rising beside her, a lotus, a glowing golden-rose halo. Calm, powerful and benevolent. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
-  "alt": "An Indian folk-art goddess with warm brown skin and long black hair: an elaborate tall golden crown, a red dot on the forehead, gold earrings, a crimson-and-gold sari, a golden three-pronged spear rising beside her, a lotus, a glowing halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
- },
- "saraswati": {
-  "prompt": "Goddess Saraswati, the goddess of learning and music. Her face and shoulders fill the frame: warm fair skin, long black hair, a delicate golden crown, a small red bindi, a pure white sari with a gold border, a wooden veena held across her, a white lotus and a small white swan beside her, a soft white-gold halo. Serene and scholarly. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
-  "alt": "An Indian folk-art goddess of music in a pure white sari with a gold border: long black hair, a delicate golden crown, a small red dot on the forehead, a long wooden stringed veena instrument held across her, a white lotus, a small white swan, a soft glowing halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
- },
- "shiva": {
-  "prompt": "Lord Shiva in meditation. His face and shoulders fill the frame: pale blue-grey skin, eyes gently closed in deep calm, matted dark jata hair piled in a topknot with a silver crescent moon and a small silver stream of the Ganga flowing from it, three horizontal white sacred ash lines and a third eye on the forehead, rudraksha bead necklaces, a golden trishul beside him, a soft blue halo. Utterly serene. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
-  "alt": "A meditating Indian folk-art ascetic figure with pale blue-grey skin and eyes gently closed: matted dark hair piled in a topknot with a silver crescent moon and a small silver stream flowing from it, three horizontal white ash lines on the forehead, brown bead necklaces, a golden three-pronged spear beside him, a soft blue halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
- },
- "rama": {
-  "prompt": "Lord Rama. His face and shoulders fill the frame: gentle green-blue skin, a tall golden crown (mukut) with a jewel, a red tilak on the forehead, calm noble eyes, a yellow silk shoulder cloth, a marigold garland, a golden longbow rising beside his shoulder, a glowing golden halo. Calm, kind and princely. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
-  "alt": "An Indian folk-art prince figure with gentle green-blue skin: a tall golden crown with a jewel, a red mark on the forehead, a yellow silk shoulder cloth, a marigold garland, a golden longbow rising beside his shoulder, a glowing halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
- },
- "lakshmi": {
-  "prompt": "Goddess Lakshmi, goddess of prosperity. Her face and shoulders fill the frame: warm skin, long black hair, an elaborate golden crown, a red bindi, heavy gold jewellery, a deep red and gold silk sari, seated on a large pink lotus, pink lotus blossoms and small gold coins around her, a glowing golden halo. Serene and generous. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
-  "alt": "An Indian folk-art goddess in a deep red and gold silk sari, seated on a large pink lotus: long black hair, an elaborate golden crown, a red dot on the forehead, heavy gold jewellery, pink lotus blossoms and small gold coins around her, a glowing halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
- },
- "buddha": {
-  "prompt": "The Buddha in meditation. His head and shoulders fill the frame: a serene golden-warm face with eyes gently closed and the faintest calm smile, tight snail-curl hair with the raised ushnisha crown-bump, long earlobes, a small urna dot between the brows, a saffron-ochre robe over the left shoulder, seated on a pink lotus, a glowing golden halo. Deep peaceful stillness. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
-  "alt": "A serene seated meditating figure of Indian sculpture: eyes gently closed, a faint calm smile, tight snail-curl hair with a raised crown-bump, long earlobes, a saffron-ochre robe over the left shoulder, a pink lotus below, a glowing golden halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
- },
- "gandhi": "Mohandas Karamchand Gandhi, as a warm dignified character portrait. Head and shoulders fill the frame: a gentle smiling bald head with large ears, small round wire-rimmed spectacles, a short white moustache, a simple undyed white khadi cotton shawl over one shoulder, a bamboo walking staff in one hand, and a small wooden charkha spinning wheel beside him. Kind and calm. Flat cartoon VECTOR illustration with clean crisp shapes and smooth gradients — not a painting, not photorealistic, no brushwork, no pencil texture, no grain. A dignified, respectful, appealing stylised character portrait — clearly recognisable, warm and kind, never mocking, never a caricature, never comic. Friendly expressive eyes. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
- "aryabhata": "Flat cartoon vector illustration, cute premium mobile-game art style: clean bold shapes, smooth gentle gradient shading, warm saturated colours, big friendly expressive eyes, a few small gold sparkle accents. The subject is drawn LARGE and close-cropped, centred, filling the whole square image, floating free on a seamless pure white background that extends to every edge. Bold and simple enough to read at 64 pixels. Subject: Aryabhata, the ancient Indian astronomer and mathematician, as a serene cartoon character portrait. His head and shoulders are drawn huge and fill the whole picture: a calm scholar's face with bright curious eyes, a short neat white beard, a plain cream turban and a simple cream cotton shawl over one shoulder. In the white space beside his head float a few tiny gold stars, one small gold ring like a planet's orbit, and one clean empty gold circle. Uncluttered and clear, clean flat vector shapes.",
- "mahavira": {
-  "prompt": "Bhagwan Mahavira, the Jain Tirthankara: a serene chibi figure with a calm, gentle face and softly lowered eyes, warm golden skin, seated cross-legged in meditation on a simple pale lotus, hands resting one over the other in his lap, a plain simple cloth, a small gold shrivatsa diamond on the chest and a soft pale golden glow behind him. Utterly serene and reverent: no crown, no weapon, no comic expression, never silly, never a caricature."
- },
- "khanda": {
-  "prompt": "The Khanda, the emblem of Sikhism, drawn as a clean polished-gold symbol and NOTHING else: one straight vertical double-edged sword in the centre, one open circular ring (the chakkar) around its middle, and two curved single-edged swords crossing below and curving up on either side. Warm gold with the same soft brown outline, gentle cel shading, a soft pale cream glow and a few tiny gold sparkles. Absolutely no person, no human figure, no face, no body, no animal, no character of any kind."
- },
- "harmandir": {
-  "prompt": "Harmandir Sahib, the Golden Temple of Amritsar, drawn as a friendly simplified little building and nothing else: a square gold shrine with a rounded golden dome and small gold cupolas at its corners, a white marble base and a small white archway, standing on a band of calm pale blue water with a soft reflection below it. Rounded chibi-cute architecture with the same soft brown outline, cel shading, pale cream glow and tiny gold sparkles. No people, no human figures, no faces, no characters at all."
- },
- "pt_lion": {
-  "prompt": "Pingalaka the lion king of the Panchatantra: a friendly chibi lion with warm golden-orange fur, a big soft rounded mane, a small gold crown with one red jewel, standing upright on two stubby legs, kind and gentle rather than fierce."
- },
- "pt_jackal": {
-  "prompt": "Damanaka the clever jackal minister of the Panchatantra: a chibi Indian jackal with warm sandy-gold and tan fur (golden brown, definitely not grey and not white, he must not look like a wolf or a husky), a cream muzzle and cream tummy, large upright pointed ears with pink insides, a slim bushy tail with a dark tip, a small red minister's sash across his chest, standing upright on two stubby legs, with a quick clever smile."
- },
- "pt_bull": {
-  "prompt": "Sanjivaka the gentle bull of the Panchatantra: a chibi Indian bull with creamy white hide, a soft rounded shoulder hump, short blunt horns tipped with gold, and a red cord round his neck with one small gold bell, standing on four stubby legs, calm and friendly."
- },
- "pt_crow": {
-  "prompt": "Laghupatanaka the crow of the Panchatantra: a chibi crow with a very big round head, deep blue-black feathers with clear lighter cornflower-blue highlights across the top of the head, the wings and the tail, a soft pale grey-cream chest patch, huge bright eyes with strong white highlights and pale cream eye rings so the face reads clearly against the dark feathers, a short grey beak, small round wings and two little orange feet, perched upright, cheerful and clever. Put a warm pale cream glow disc behind him so the dark bird separates cleanly from the white background."
- },
- "pt_tortoise": {
-  "prompt": "Kambugriva the tortoise of the Panchatantra: a chibi tortoise whose large rounded shell is deep olive-green and warm brown and covers most of his body, marked with a simple bold pattern of hexagon plates outlined in gold; a friendly yellow-green head with big eyes reaching out in front, four short stubby yellow-green legs and a tiny tail. Slow and kind. Make the shell big, dark and clearly patterned so it reads at small sizes."
- },
- "pt_mouse": {
-  "prompt": "Hiranyaka the mouse of the Panchatantra: a chibi mouse with soft grey fur, a cream tummy, very big round ears, a tiny pink nose and a thin curled tail, standing upright on two stubby legs, bright and helpful."
- },
- "pt_deer": {
-  "prompt": "Chitranga the spotted deer of the Panchatantra: a chibi chital deer with a warm fawn coat and simple white spots, a cream throat, small soft antlers and big gentle eyes, standing on four slim stubby legs."
- },
- "pt_crocodile": {
-  "prompt": "The crocodile from the monkey and the crocodile story: a chibi crocodile with soft leaf-green scaly skin, a pale yellow tummy, a short rounded snout with two tiny blunt teeth and a bumpy tail, standing on four stubby legs, friendly and a little sheepish, never scary, never menacing."
- },
- "pt_monkey": {
-  "prompt": "The monkey from the monkey and the crocodile story: a chibi monkey with warm brown fur, a cream face and tummy, big round ears and a long curled tail, standing upright on two stubby legs and holding one pink rose-apple fruit, playful and quick."
- },
- "pt_rabbit": {
-  "prompt": "The clever rabbit of the Panchatantra: a chibi rabbit with soft white-grey fur, a cream tummy, long upright ears with pink insides and a round fluffy tail, standing upright on two stubby legs, bright-eyed and quick-witted."
- },
- "pt_heron": {
-  "prompt": "The heron of the Panchatantra: a chibi heron with a very big round head, soft white plumage clearly shaded with pale blue-grey on the back, the folded wings and the crown of the head, a long straight orange beak, a short chibi neck and two thin orange legs, standing upright, calm and watchful. Keep enough grey-blue shading that the bird's shape reads clearly against the white background."
- },
- "pt_elephant": {
-  "prompt": "The elephant herd leader of the Panchatantra: a chibi wild elephant with soft grey skin, very big ears, a curled trunk, two tiny white tusks and a small tuft of a tail, standing on four stubby legs, wise and kindly. No blanket, no ornaments, no crown."
- },
- "akbar": {
-  "prompt": "Emperor Akbar of the Mughal darbar: a kind chibi emperor in a cream jama robe with a simple gold border and a green sash, a white turban with one small gold jewel and a short red feather, a neat short black beard, hands relaxed at his sides. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "birbal": {
-  "prompt": "Birbal, Akbar's quick-witted minister: a cheerful chibi man in a saffron-orange robe with a cream sash, a small orange turban, a neat black moustache and short beard, one index finger raised as if he has just thought of the answer. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "tansen": {
-  "prompt": "Tansen, the singer of Akbar's court: a chibi musician in a soft green robe with a gold sash, a cream turban, a short beard, holding upright in front of him one tanpura, a long necked Indian string instrument with a big round gourd body, eyes half closed in song. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "courtier": {
-  "prompt": "A young courtier of Akbar's darbar: a chibi man in a pale blue jama robe with a gold sash, a small white turban, clean-shaven, both hands pressed together in a respectful namaste greeting."
- },
- "guard": {
-  "prompt": "The palace guard of Akbar's darbar: a friendly chibi guard in a red tunic with simple gold trim, a small blue turban, a big curly black moustache, holding one tall wooden spear upright at his side and a small round gold shield, cheerful and not at all threatening."
- },
- "royal_elephant": {
-  "prompt": "The royal elephant of the Mughal darbar: a chibi elephant with soft grey skin, very big ears, a curled trunk and small white tusks, wearing a red and gold embroidered blanket on his back, a simple gold headplate with one red jewel and small gold anklets, standing on four stubby legs, proud and gentle."
- },
- "ashoka": {
-  "prompt": "Emperor Ashoka: a chibi emperor with a short black beard, a cream and gold dhoti-robe with a saffron sash, a simple gold circlet on his head, standing beside one small sandstone pillar topped with the golden four-lion capital that reaches to his shoulder. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "chanakya": {
-  "prompt": "Chanakya the teacher and strategist: a chibi scholar with a shaved head and a small tuft of hair at the back, a plain white dhoti and a saffron shawl over one shoulder, holding one bundled palm-leaf manuscript, a thoughtful clever smile. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "shivaji": {
-  "prompt": "Chhatrapati Shivaji Maharaj: a chibi Maratha king with a neat short black beard, a bright saffron turban with one small gold jewel, a saffron tunic with a green sash, holding one curved sword upright at his side, brave and kind. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "lakshmibai": {
-  "prompt": "Rani Lakshmibai of Jhansi: a chibi warrior queen in a white sari with a red border and a small white turban with one jewel, raising a curved sword in one hand, seated on the back of one small chibi white horse with a red saddle blanket; the horse has the same big friendly eyes and rounded chibi shapes. She is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "ambedkar": {
-  "prompt": "Dr B. R. Ambedkar: a chibi man in a neat blue suit with a white shirt and a small tie, round black glasses, tidy black hair, holding one thick blue book against his chest, a warm confident smile. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "bhagat": {
-  "prompt": "Bhagat Singh as a young man: a chibi figure in a cream kurta with a tan waistcoat, wearing his signature pale felt trilby hat tilted slightly, a small curled black moustache, bright determined eyes, hands at his sides and no weapon at all. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "kalam": {
-  "prompt": "Dr A. P. J. Abdul Kalam: a chibi man, completely clean-shaven with no beard and no moustache, silver-white hair swept back long over his ears, a pale blue shirt, holding one small white and orange toy rocket, a very warm kind smile. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "tagore": {
-  "prompt": "Rabindranath Tagore: a chibi poet with a long flowing white beard and long white hair, a cream robe with a soft brown shawl, holding one small open book in both hands in front of him, with a single slim quill pen tucked in the crook of his arm, gentle and thoughtful, a poet. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "kalpana": {
-  "prompt": "Kalpana Chawla the astronaut: a chibi astronaut in a white spacesuit with a clear round bubble helmet, her dark curly hair and smiling face plainly visible inside the helmet, a small blue and white patch on her chest, one small blue Earth floating beside her. She is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "sarojini": {
-  "prompt": "Sarojini Naidu: a chibi woman in a green sari with a gold border worn over a cream blouse, black hair tied back in a low bun with one small white flower, a small round bindi, holding one small book of poems, a warm smile. She is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
- },
- "gattu": {
-  "prompt": "Gattu the baby elephant, the app's mascot: a chibi elephant calf with soft lavender-purple skin, pale pink inner ears, big floppy ears, a short curled trunk, tiny white toenails and a small tufted tail, wearing one small round gold bell hung on a short red cord around his NECK just under his chin, standing upright facing the viewer. He is smiling happily with big bright friendly eyes."
- },
- "gattu_happy": {
-  "prompt": "Gattu the baby elephant, the app's mascot: a chibi elephant calf with soft lavender-purple skin, pale pink inner ears, big floppy ears, a short curled trunk, tiny white toenails and a small tufted tail, wearing one small round gold bell hung on a short red cord around his NECK just under his chin, standing upright facing the viewer. He is beaming with delight: eyes squeezed shut into two happy upward curves, a wide open smile, both front feet thrown up in celebration, extra sparkles around him.",
-  "refs": [
-   "ganesha.png",
-   "hanuman.png",
-   "gattu.png"
-  ]
- },
- "gattu_think": {
-  "prompt": "The THIRD reference image is Gattu, this app's mascot. Redraw exactly that same lavender-purple baby elephant - same design, same colours, same face, same little gold bell on a red cord round his neck, same style and line weight - but CHANGE HIS POSE AND EXPRESSION so he is thinking hard about a puzzle. Tilt his head well over to one side. Roll his eyes up towards the top corner so he is looking away from the viewer, and push his eyebrows together into a small curious frown. Curl the tip of his trunk up so it taps his own chin. Rest his other front foot on his hip. Replace the happy smile with a tiny wavy thoughtful line. The new pose must be obviously different from the smiling forward-facing pose in the reference.",
-  "refs": [
-   "ganesha.png",
-   "hanuman.png",
-   "gattu.png"
-  ]
- },
- "gattu_wow": {
-  "prompt": "Gattu the baby elephant, the app's mascot: a chibi elephant calf with soft lavender-purple skin, pale pink inner ears, big floppy ears, a short curled trunk, tiny white toenails and a small tufted tail, wearing one small round gold bell hung on a short red cord around his NECK just under his chin, standing upright facing the viewer. He is amazed: eyes very wide and sparkling, mouth open in a small round O of wonder, ears lifted, both front feet raised near his cheeks, extra sparkles around him.",
-  "refs": [
-   "ganesha.png",
-   "hanuman.png",
-   "gattu.png"
-  ]
- },
- "mithu": {
-  "prompt": "Mithu the parrot: a chibi Indian ring-necked parakeet with bright leaf-green feathers, a paler green tummy, a short curved red-orange beak, big friendly eyes, small rounded wings, a long green tail and two little pink feet, perched upright facing the viewer. He has the parakeet's distinctive collar: one thin rose-pink and black ring that goes right around the NECK, immediately below the head and above the shoulders, like a narrow necklace circling the throat. The ring is on the neck only, never on the chest or the tummy."
- },
- "vismriti": {
-  "prompt": "Vismriti, the Forgetting: a soft faceless little mist spirit. A rounded puffy cloud body in clearly visible dove-grey and muted lavender-grey, distinctly darker than the white background so its shape reads at small sizes, with soft violet-grey shading underneath, drooping and sagging as if tired, wispy trailing tails at the bottom that fade away and two small wispy arm-like curls that hang down. It has NO face at all: no eyes, no mouth, no expression, no features of any kind. It looks lonely and sad, never scary: no teeth, no claws, no glowing eyes, not a monster, not a ghost. A few tiny grey dust motes drift around it, and a soft pale lavender glow sits behind it."
- },
- "sita": {
-  "prompt": "Sita, princess of Mithila: a chibi princess with warm brown skin in a golden-yellow silk sari with a deep red and gold border, long black hair in one thick braid with small white jasmine flowers woven through it, a small round red bindi, gold jhumka earrings and one simple gold necklace, standing straight and level with her chin up and both hands quietly at her sides, holding one small green leafy sprig. Calm, clear-eyed, warm and completely self-possessed — she is drawn with exactly the weight and presence of a king, never shy, never decorative, never waiting to be rescued. Drawn reverently, dignified and serene, never comic, never a caricature. A soft warm golden glow behind the figure. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "lakshmana": {
-  "prompt": "Lakshmana, Rama's younger brother, in the forest years: a chibi young prince with warm brown skin, plain saffron-ochre forest cloth over one shoulder and a simple dhoti, his hair tied up in a neat topknot, no crown and almost no ornament, a small quiver of arrows on his back and a plain wooden longbow held UNSTRUNG at rest, pointing straight down at his side, never raised and never drawn. There is NO arrow on the bow and no arrow in his hands: every arrow stays tucked in the quiver on his back, and the bow hangs loose with no string pulled. Alert, watchful and standing a half step forward, the way somebody stands when they are guarding a person they love. Drawn reverently, dignified and serene, never comic, never a caricature. A soft warm golden glow behind the figure. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "bharata": {
-  "prompt": "Bharata, who would not sit on his brother's throne: a chibi young prince in plain undyed cream cloth with a simple brown shawl, his hair in a matted ascetic's knot, barefoot, wearing no crown and no ornament at all, carrying very carefully in both hands in front of him one pair of small golden sandals resting on a small red cushion. Grave, gentle, tired and completely upright. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "dasharatha": {
-  "prompt": "Dasharatha, the old king of Ayodhya: a chibi elderly king with warm brown skin, a kind deeply lined face, a full white beard and white moustache, a tall gold crown with one red jewel, cream and gold robes with a deep red sash, both hands resting quietly one over the other in front of him. Grandfatherly, warm, and carrying an old sadness. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "kaikeyi": {
-  "prompt": "Kaikeyi, the youngest queen of Ayodhya: a chibi queen with warm brown skin in a rich crimson and gold silk sari, long black hair with a gold maang-tikka on the parting, a red bindi, gold armlets and jhumka earrings, standing very straight with her chin up and one hand resting on her hip. She is proud, sharp, brave and entirely certain of herself: a formidable woman who loves fiercely and makes one terrible choice. Draw her as a real person with the same weight and presence as any king in the story — NOT a villain: no scowl, no sneer, no cruel or cunning face, no dark shadow, nothing frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "ravana": {
-  "prompt": "Ravana, king of Lanka, drawn as the SCHOLAR AND MUSICIAN he is first: a chibi king with warm brown skin, ONE single calm handsome face, a neat black moustache and a short trimmed beard, a tall many-tiered gold crown, deep blue and gold royal robes with heavy gold necklaces and armlets, holding at rest in both hands one small veena, a long-necked Indian string instrument. Proud, brilliant, learned, formidable and completely human. He is NOT a monster and NOT a villain's face: exactly one head and one face, no extra heads, no fangs, no horns, no claws, no green or grey or blue skin, no red or glowing eyes, no snarl, no sneer, no weapon, no fire, no dark shadow, nothing frightening for a four-year-old. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "vibhishana": {
-  "prompt": "Vibhishana, Ravana's younger brother, the one who says the true thing out loud: a chibi man with warm brown skin, a modest thin gold circlet instead of a crown, a plain white and gold dhoti with a green sash, one string of rudraksha beads, both hands folded together quietly in front of him, a gentle troubled honest face. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "sugriva": {
-  "prompt": "Sugriva, the vanara king of Kishkindha: a chibi monkey person standing upright on two stubby legs, with warm reddish-copper fur, a paler cream muzzle and chest, big round ears, a long curled tail, a small gold crown, one broad gold armband and a red sash across his chest, no weapon. Friendly, hearty and a little rueful, like somebody who knows he once forgot a promise. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "hanuman.png",
-   "pt_monkey.png"
-  ]
- },
- "jatayu": {
-  "prompt": "Jatayu, the great old bird of the forest: a chibi giant vulture standing upright with his wings folded, a very big round head, a soft white ruff of feathers around his neck, deep chestnut-brown and warm tan wing feathers, a short hooked grey-gold beak and two sturdy grey feet, huge gentle tired kind eyes. Old, brave and grandfatherly. Never scary: no blood, no wounds, no torn feathers, no raised wings, no menace, nothing frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "pt_heron.png",
-   "hanuman.png"
-  ]
- },
- "shabari": {
-  "prompt": "Shabari, the old forest woman who waited her whole life: a chibi elderly tribal woman with warm dark brown skin, soft white hair tied back, deep laughter lines and a face lit right up with joy, a simple faded orange cotton sari with a green border, a few small clay and seed beads at her throat, holding out in both hands one small woven leaf basket of dark purple berries. Poor, plain, radiant and completely dignified. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "vishwamitra": {
-  "prompt": "Vishwamitra, the sage who walked into a throne room and asked for a boy: a chibi sage with warm brown skin, a long grey-white beard, matted hair piled in a topknot, a bark-brown and saffron robe over one shoulder, one plain wooden staff held upright at his side, strong dark eyebrows and a sharp impatient kindly face. Fierce and warm at the same time. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "mandodari": {
-  "prompt": "Mandodari, queen of Lanka, who tells her husband to his face that he is wrong: a chibi queen with warm brown skin in a deep emerald-green and gold silk sari, an elaborate gold crown, gold jhumka earrings and a red bindi, standing perfectly straight with both hands clasped quietly in front of her, a calm steady intelligent sorrowful face. Drawn with the full weight and presence of a ruler, never decorative and never passive. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "valmiki": {
-  "prompt": "Valmiki, the poet who first told the Ramayana: a chibi sage with warm brown skin, long white hair and a long white beard, a plain cream robe over one shoulder, holding one bundled palm-leaf manuscript in one hand and a slim reed pen in the other, with one small brown songbird perched on his shoulder. Gentle, thoughtful and listening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "draupadi": {
-  "prompt": "Draupadi, queen of the Pandavas, who asks the question nobody in the hall can answer: a chibi woman with warm brown skin in a deep red and gold silk sari, very long thick black hair loose over one shoulder, a gold maang-tikka, a red bindi and gold jhumka earrings, standing perfectly straight with her chin level and both hands at her sides, meeting the viewer's eye with a steady unflinching intelligent gaze. Drawn with exactly the weight and presence of a king: never decorative, never passive, never distressed, never in disarray. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "arjuna": {
-  "prompt": "Arjuna, the third Pandava and the archer: a chibi young man with warm brown skin, a white and gold dhoti with a deep blue sash, a simple thin gold circlet, tidy dark hair, a quiver of arrows on his back and his tall bow held UNSTRUNG at rest, pointing straight down at his side, never raised, never drawn, no arrow on the string. Focused, calm and completely unshowy. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "bhima": {
-  "prompt": "Bhima, the second Pandava, the strong one: a big broad cheerful chibi man with warm brown skin and round shoulders, a saffron and gold dhoti, one heavy gold armband, a wide open grin, and his great mace standing head-down on the ground beside him with one hand resting loosely on the top of the handle, never lifted and never swung. Huge, warm, hungry and enormously good-natured. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "yudhishthira": {
-  "prompt": "Yudhishthira, the eldest Pandava, the one who cannot make himself lie: a chibi man with warm brown skin, a plain white and gold dhoti with a pale gold sash, a simple thin gold circlet, a short neat beard, no weapon of any kind, both hands resting quietly one over the other. Calm, upright, kind and visibly troubled — the face of somebody weighing something. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "nakula": {
-  "prompt": "Nakula, the fourth Pandava, the handsome twin who understands horses: a chibi young man with warm brown skin, neatly combed hair, a pale blue and silver dhoti with a cream sash, holding a soft rope halter in one hand, with one small friendly chibi brown pony standing beside him; the pony has the same big round eyes and rounded chibi shapes. Bright, quick and good-humoured. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "sahadeva": {
-  "prompt": "Sahadeva, the fifth Pandava, the quiet one who already knows what happens next: a chibi young man with warm brown skin, a soft sage-green and cream dhoti, a small silver armband, holding one bundled palm-leaf almanac in both hands, a thoughtful watchful face and a very slight closed-mouth smile, as though he has decided not to say. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "karna": {
-  "prompt": "Karna, born to the sun and raised by a charioteer: a chibi young man with warm golden-brown skin, soft glowing golden natural armour across his chest like a burnished breastplate and large golden earrings that are part of him, a saffron and deep red dhoti, his bow held UNSTRUNG at rest pointing straight down at his side. Proud, generous and lonely — a good and open face. Never a villain: no sneer, no scowl, nothing dark or frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "bhishma": {
-  "prompt": "Bhishma, the grandsire who gave up everything and kept his word too well: a tall chibi elder with warm brown skin, white hair and a full white beard, a plain white dhoti with a silver-grey shawl over one shoulder, a modest silver circlet, no weapon at all, standing very straight with both hands resting one over the other. Grand, immovable, sad and kind. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "drona": {
-  "prompt": "Drona, the teacher who trained both sides: a chibi brahmin teacher with warm brown skin, a shaved head with one small tuft of hair at the back, a short white beard, a cream dhoti with a saffron shawl and a sacred thread across his chest, one bundled palm-leaf book held against his chest and a plain longbow standing UNSTRUNG at rest beside him pointing down. A stern, brilliant, proud teacher's face. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "dhritarashtra": {
-  "prompt": "Dhritarashtra, the blind king of Hastinapura: a chibi elderly king with warm brown skin, a full grey beard, a tall gold crown, cream and gold royal robes, his eyes drawn simply and gently closed with soft curved lashes, one hand resting on a plain wooden staff and the other reaching very slightly forward. Soft, worried and loving; his blindness shown only as closed eyes, never grotesque, never milky, never frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "gandhari": {
-  "prompt": "Gandhari, the queen who tied a cloth over her own eyes so as not to see what her husband could not: a chibi queen with warm brown skin in a deep indigo and gold silk sari, gold jhumka earrings and gold bangles, and a plain folded cream cloth tied smoothly and neatly across her eyes — worn like a crown, because it was her own choice. The cloth is COMPLETELY OPAQUE, like a soft solid band: her eyes are entirely hidden behind it and are NOT drawn at all — no eyes visible through the fabric, no see-through cloth, no goggles, no visor. Her mouth is calm and set and she stands absolutely straight, with the full weight and presence of a ruler. Formidable, sorrowful and dignified: never helpless, never pitiable, never frightening, no blank staring eyes. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "kunti": {
-  "prompt": "Kunti, mother of the Pandavas: a chibi woman with warm brown skin in a soft cream and deep red sari with a gold border, black hair drawn back with a few silver strands at the temples, a small red bindi and simple gold earrings, standing straight with both hands clasped quietly in front of her, a steady careful watchful face. Drawn with real weight and authority, a woman carrying an old secret. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "duryodhana": {
-  "prompt": "Duryodhana, eldest of the hundred Kaurava brothers, drawn as a person with a real grievance and NEVER as a villain: a chibi young prince with warm brown skin, broad square shoulders, rich royal purple and gold robes with heavy gold ornaments, a tall gold crown, a neat short black moustache, standing squarely and evenly with his chin up and both hands relaxed at his sides. Proud, strong, generous to his friends and absolutely certain he has been wronged. No snarl, no sneer, no scowl, no cruel or cunning face, no dark shadow, no weapon, nothing monstrous, nothing frightening for a four-year-old. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "shakuni": {
-  "prompt": "Shakuni, the prince of Gandhara, drawn as a real person and never as a villain: a chibi man with warm brown skin, a neat grey-flecked beard, a fine grey and gold northern robe with a soft round embroidered cap, one small pair of ivory dice resting in his open upturned palm, and a slight thoughtful half-smile. Clever, patient, watchful and entirely human. No leer, no sneer, no cunning grin, no dark shadow, nothing frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "vidura": {
-  "prompt": "Vidura, the counsellor who always says the true thing: a chibi man with warm brown skin, a short neat beard, a completely plain undyed cream dhoti and shawl with no ornament of any kind, holding one small folded palm-leaf letter in one hand, a calm honest steady face. The quietest and most trustworthy person in the room. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "ekalavya": {
-  "prompt": "Ekalavya, the forest boy who taught himself: a chibi boy with warm dark brown skin, simple undyed cloth, a single feather and a few coloured beads in his tied-back hair, both hands whole and open, a small plain bow held at rest pointing straight down at his side — NO arrow on the bow, no arrow in his hands, no string pulled, the bow simply hanging loose — standing beside one small clay figure of a teacher. Bright, determined and proud of what he learned on his own. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "abhimanyu": {
-  "prompt": "Abhimanyu, Arjuna's young son: a chibi BOY, clearly smaller and younger than the grown princes, with warm brown skin, a bright blue and gold dhoti, a small gold circlet, a small bow held at rest pointing straight down at his side, and an eager fearless open smile. Young, quick and completely unafraid. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
-  "refs": [
-   "ganesha.png",
-   "akbar.png",
-   "lakshmibai.png"
-  ]
- },
- "dhyanchand": {
-  "prompt": "Major Dhyan Chand, India's hockey wizard of the 1930s: a smiling sportsman in a vintage cream hockey shirt and navy shorts, holding a wooden field-hockey stick with a small white ball at his feet, a folded olive army beret tucked at his shoulder, natural Indian skin, short neat black hair."
- },
- "milkha": {
-  "prompt": "Milkha Singh, the Flying Sikh, the great track runner: a lean smiling Sikh athlete in a white running vest with a cloth race number, a neatly tied navy turban and short beard, caught in a joyful mid-run stride, natural Indian skin."
- },
- "kapil": {
-  "prompt": "Kapil Dev, the 1983 cricket captain: a beaming cricketer with black curly hair and a moustache in cricket whites, lifting a small golden trophy cup with both hands, natural Indian skin."
- },
- "sachin": {
-  "prompt": "Sachin Tendulkar, the beloved batsman: a small smiling cricketer with black curly hair in an India-blue cricket jersey, white pads, holding a cricket bat over one shoulder, natural Indian skin."
- },
- "marykom": {
-  "prompt": "Mary Kom, the champion boxer from Manipur: a smiling young woman with short black hair, East Asian facial features true to Manipur, wearing a blue India boxing vest and big red boxing gloves raised in a friendly guard, natural skin tone."
- },
- "sindhu": {
-  "prompt": "P. V. Sindhu, the badminton champion: a tall smiling young sportswoman with a high ponytail, in an India badminton jersey, holding a badminton racquet with a white shuttlecock floating beside her, natural Indian skin."
- },
- "neeraj": {
-  "prompt": "Neeraj Chopra, the javelin gold medallist: a smiling young athlete with dark hair swept back, in an India athletics vest with a gold medal on an orange-green ribbon, holding a silver javelin upright like a flag, natural Indian skin."
- },
- "anand": {
-  "prompt": "Viswanathan Anand, the chess grandmaster from Chennai: a warmly smiling man with neat side-parted black hair, in a soft blue shirt, holding up a white chess knight piece, a folded chessboard under his other arm, natural Indian skin."
- },
- "gukesh": {
-  "prompt": "D. Gukesh, the teenage world chess champion: a shyly smiling teenage boy with thick black hair and a faint young beard, in a simple dark shirt, cradling a golden chess king piece with both hands, natural Indian skin."
- },
- "avani": {
-  "prompt": "Avani Lekhara, the Paralympic champion shooter: a proudly smiling young woman seated in her sleek sports wheelchair, wearing an India shooting-team jacket with a gold medal around her neck, one hand resting on the wheel, calm and confident, natural Indian skin."
- },
- "kurien": {
-  "prompt": "Verghese Kurien, the Milkman of India: a kindly older man with black-rimmed glasses and neatly combed grey-streaked hair, in a simple white shirt, holding a shiny steel milk churn, a splash of white milk arcing happily from it, natural Indian skin."
- },
- "n_murthy": {
-  "prompt": "N. R. Narayana Murthy, the software pioneer: a gently smiling older man with round spectacles and a neat grey side-parting, in a plain light shirt, holding a chunky beige 1980s computer monitor showing a little green heart on screen, natural Indian skin."
- },
- "sudha_murty": {
-  "prompt": "Sudha Murty, engineer, author and teacher: a warmly laughing older woman in a simple cotton sari with a shawl, hair in a low bun, spectacles, hugging a small stack of storybooks, natural Indian skin."
- },
- "falguni": {
-  "prompt": "Falguni Nayar, the founder who started at fifty: a confident smiling woman with shoulder-length black hair in an elegant deep-pink kurta jacket, ringing a small golden bell with one hand, natural Indian skin."
- },
- "ritesh": {
-  "prompt": "Ritesh Agarwal, the young founder from Odisha: a cheerfully grinning very young man with short black hair in a casual red shirt, holding up a big brass room key with a red tag, a tiny backpack on one shoulder, natural Indian skin."
- },
- "rocket": {
-  "prompt": "A friendly Indian space rocket: a cute white rocket with saffron and green bands like the tricolour, a small round window like an eye with a tiny astronaut waving inside, standing proudly on little landing fins with a soft puff of steam below, no text anywhere."
- },
- "unicorn": {
-  "prompt": "A cheerful startup unicorn: a small white unicorn with a golden horn and a flowing mane in saffron, white and green, carrying a tiny silver laptop under one foreleg, one hoof raised in greeting, no text anywhere."
- },
- "logo": {
-  "prompt": "A proud little peacock, the Bizzing India mark: a royal-blue peacock with a tiny golden three-point crest, big friendly glossy eyes, and a fanned tail of five bold simplified feathers in teal, deep blue and gold, each with one golden eye-spot, standing tall and symmetrical like an emblem, no text anywhere."
- },
- "raman": {
-  "prompt": "C. V. Raman, the physicist of light: a dignified smiling man in a dark suit with his famous white South Indian turban, holding up a glass prism that splits a beam into colours, natural Indian skin."
- },
- "ramanujan": {
-  "prompt": "Srinivasa Ramanujan, the self-taught mathematician: a gentle round-faced young man with dark combed-back hair, in a simple white shirt, hugging a worn notebook overflowing with handwritten equations, a soft glow around it, natural Indian skin."
- },
- "bhabha": {
-  "prompt": "Homi Bhabha, the physicist and builder of institutes: an elegant smiling man with neat side-parted black hair in a sharp 1950s suit, holding a small model of an atom with orbiting electrons, natural Indian skin."
- },
- "sarabhai": {
-  "prompt": "Vikram Sarabhai, the father of the Indian space programme: a warmly smiling man with wavy black hair in a simple white kurta, holding a small model rocket in one hand and a paper star chart in the other, natural Indian skin."
- },
- "jcbose": {
-  "prompt": "Jagadish Chandra Bose, the scientist who listened to plants: a thoughtful smiling man with a full grey-streaked beard and round spectacles, in a dark Bengali coat, holding a potted plant with a tiny antenna beside it, natural Indian skin."
- },
- "janaki_ammal": {
-  "prompt": "Janaki Ammal, the botanist: a serene smiling woman with grey-streaked hair in a low bun, wearing a simple cotton sari, holding a flowering sugarcane stem and a magnifying glass, natural Indian skin."
- },
- "swaminathan": {
-  "prompt": "M. S. Swaminathan, the scientist of the harvest: a kindly smiling older man with glasses and combed grey hair in a plain shirt, cradling a golden sheaf of wheat like a treasure, natural Indian skin."
- },
- "salimali": {
-  "prompt": "Salim Ali, the Birdman of India: a wiry smiling older man with a white beard, in a khaki field jacket and cap, binoculars around his neck and a tiny sparrow perched on one finger, natural Indian skin."
- },
- "dhoni": {
-  "prompt": "M. S. Dhoni, Captain Cool: a calmly smiling cricketer with short hair in an India-blue jersey, wicket-keeping gloves on, lifting a golden trophy with one steady hand, natural Indian skin."
- },
- "kohli": {
-  "prompt": "Virat Kohli, the chase master: an intensely joyful cricketer with a neat black beard in an India-blue jersey, mid celebration with both fists up, a cricket bat under one arm, natural Indian skin."
- },
- "mithali": {
-  "prompt": "Mithali Raj, the queen of women's cricket: a serenely smiling woman cricketer with a long braid, in an India-blue jersey with pads and bat, natural Indian skin."
- },
- "saina": {
-  "prompt": "Saina Nehwal, badminton pioneer: a determined smiling young woman with a short ponytail, in an India jersey, mid smash with her racquet high, a medal at her chest, natural Indian skin."
- },
- "malleswari": {
-  "prompt": "Karnam Malleswari, the first Indian woman to win an Olympic medal: a powerfully smiling woman in an India weightlifting singlet, holding a loaded barbell aloft with both arms locked out, a bronze medal shining, natural Indian skin."
- },
- "mirabai": {
-  "prompt": "Mirabai Chanu, weightlifting champion from Manipur: a joyfully beaming small-framed woman with her hair in a bun, East Asian facial features true to Manipur, in an India singlet lifting a barbell overhead, a silver medal, natural skin tone."
- },
- "annamani": {
-  "prompt": "Anna Mani, the weather woman of India: a wise smiling older woman in a simple handloom sari with short curled grey hair, holding a small weather balloon on a string in one hand and an anemometer in the other, natural Indian skin."
- },
- "tessy": {
-  "prompt": "Tessy Thomas, the missile scientist: a confident warmly smiling woman with her hair tied back, wearing a sari with an identity badge, holding a small model of a slender launch rocket, natural Indian skin."
- },
- "kiran_shaw": {
-  "prompt": "Kiran Mazumdar-Shaw, the biotech pioneer: a bright-eyed smiling woman with short silver-streaked hair in an elegant kurta jacket, holding up a glass laboratory flask glowing softly amber, natural Indian skin."
- },
- "hansa_mehta": {
-  "prompt": "Hansa Mehta, who wrote 'all human beings' into the world's rights: a dignified gently smiling woman of the 1940s in a khadi sari with her head lightly covered, holding an unfurled scroll with a globe faintly behind her, natural Indian skin."
- },
- "savitribai": {
-  "prompt": "Savitribai Phule, who opened the school door for girls in 1848: a resolute warmly smiling woman in a simple 1840s Marathi sari, one arm around a slate, the other hand holding an oil lamp that lights a doorway, natural Indian skin."
- },
- "ela_bhatt": {
-  "prompt": "Ela Bhatt, the gentle banker of working women: a softly smiling elderly woman in a plain white khadi sari with round spectacles, holding a small cloth passbook bag, marigolds at her shoulder, natural Indian skin."
- }
+  "_refs": [
+    "ganesha.png",
+    "hanuman.png",
+    "gandhi.png"
+  ],
+  "_prefix": "The attached reference images ARE the house style for this avatar set. Copy them exactly. STYLE: cute chibi mascot illustration for a children's app. An oversized round head about half the whole figure's height, a small simple body, short stubby arms and legs, big round glossy eyes with bright white highlights, soft pink blush on the cheeks, a small warm smile, clean rounded simplified shapes, an even medium-weight warm dark-brown outline (never black), soft cel shading with very little gradient, a warm palette of cream, gold, saffron, red and lavender, a soft pale cream glow around the figure, two or three tiny gold four-point sparkles, on flat pure white. Detail is minimal: reduce clothing, ornament and jewellery to a few clean simple shapes. Warm, kind and collectible, never realistic, never painterly, never ornate, never a bust or portrait crop. Now draw a NEW character in that identical style - same proportions, same eye design, same line weight, same colour feel. SUBJECT: ",
+  "_suffix": " COMPOSITION: one single subject, whole body visible, centred, drawn large so it nearly fills the square frame with a small even margin, facing the viewer. It must still read clearly when shrunk to 64 pixels, so keep the silhouette simple and bold. Flat pure white background bleeding to all four edges: no tile, no card, no rounded-square badge, no circle badge, no sticker outline, no frame, no border, no vignette, no drop shadow, no scenery. No text, no letters, no numbers, no watermark, no signature, no logo.",
+  "_note": "ganesha/krishna/hanuman/durga/saraswati/shiva/rama/lakshmi/buddha/gandhi/aryabhata are the adopted Bizzing Bee tiles and the style target; their entries below are the older text-only prompts and are NOT used - do not regenerate them.",
+  "ganesha": {
+    "prompt": "Lord Ganesha, the beloved elephant-headed deity. A friendly elephant face and shoulders fill the frame: soft lavender-pink elephant skin, large ears, a curled trunk, one whole tusk and one broken tusk, a tall golden crown (mukut) with a red jewel, a red tilak mark on the forehead, an orange marigold garland, a glowing golden nimbus halo behind the head. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+    "alt": "A warm friendly lavender-skinned elephant-headed figure of Indian temple folk art: large ears, a curled trunk, one broken tusk, a tall golden crown with a red jewel, a red mark on the forehead, a marigold garland, a glowing golden halo behind the head. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
+  },
+  "krishna": {
+    "prompt": "Bal Krishna, the young cowherd deity. Head and shoulders fill the frame: gentle soft-blue skin, dark curly hair, a golden crown (mukut) with a single tall peacock feather, a golden bamboo flute held at his lips, a yellow silk dhoti and a tulsi-and-marigold garland, a glowing golden halo behind the head. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+    "alt": "A young blue-skinned Indian folk-art deity boy: dark curls, a golden crown with a single peacock feather, a golden bamboo flute at his lips, a yellow silk shoulder cloth, a flower garland, a glowing halo behind the head. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
+  },
+  "hanuman": {
+    "prompt": "Lord Hanuman, the devoted vanara. A noble monkey face and shoulders fill the frame: warm golden-orange fur, a paler muzzle, a golden crown, a vermilion tilak on the forehead, large golden earrings, a saffron shoulder cloth, the head of a golden gada mace at one shoulder, a glowing golden halo. Brave, loyal, kind. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+    "alt": "A noble golden-furred monkey figure of Indian folk art: a golden crown, a vermilion mark on the forehead, large golden earrings, a saffron cloth, the head of a golden mace at one shoulder, a glowing halo. Brave and kind, never comic. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
+  },
+  "durga": {
+    "prompt": "Goddess Durga. Her face and shoulders fill the frame: warm brown skin, long flowing black hair, an elaborate tall golden crown, a red bindi on the forehead, gold jhumka earrings and a nose ring, a crimson-and-gold sari, a golden trishul (trident) rising beside her, a lotus, a glowing golden-rose halo. Calm, powerful and benevolent. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+    "alt": "An Indian folk-art goddess with warm brown skin and long black hair: an elaborate tall golden crown, a red dot on the forehead, gold earrings, a crimson-and-gold sari, a golden three-pronged spear rising beside her, a lotus, a glowing halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
+  },
+  "saraswati": {
+    "prompt": "Goddess Saraswati, the goddess of learning and music. Her face and shoulders fill the frame: warm fair skin, long black hair, a delicate golden crown, a small red bindi, a pure white sari with a gold border, a wooden veena held across her, a white lotus and a small white swan beside her, a soft white-gold halo. Serene and scholarly. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+    "alt": "An Indian folk-art goddess of music in a pure white sari with a gold border: long black hair, a delicate golden crown, a small red dot on the forehead, a long wooden stringed veena instrument held across her, a white lotus, a small white swan, a soft glowing halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
+  },
+  "shiva": {
+    "prompt": "Lord Shiva in meditation. His face and shoulders fill the frame: pale blue-grey skin, eyes gently closed in deep calm, matted dark jata hair piled in a topknot with a silver crescent moon and a small silver stream of the Ganga flowing from it, three horizontal white sacred ash lines and a third eye on the forehead, rudraksha bead necklaces, a golden trishul beside him, a soft blue halo. Utterly serene. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+    "alt": "A meditating Indian folk-art ascetic figure with pale blue-grey skin and eyes gently closed: matted dark hair piled in a topknot with a silver crescent moon and a small silver stream flowing from it, three horizontal white ash lines on the forehead, brown bead necklaces, a golden three-pronged spear beside him, a soft blue halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
+  },
+  "rama": {
+    "prompt": "Lord Rama. His face and shoulders fill the frame: gentle green-blue skin, a tall golden crown (mukut) with a jewel, a red tilak on the forehead, calm noble eyes, a yellow silk shoulder cloth, a marigold garland, a golden longbow rising beside his shoulder, a glowing golden halo. Calm, kind and princely. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+    "alt": "An Indian folk-art prince figure with gentle green-blue skin: a tall golden crown with a jewel, a red mark on the forehead, a yellow silk shoulder cloth, a marigold garland, a golden longbow rising beside his shoulder, a glowing halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
+  },
+  "lakshmi": {
+    "prompt": "Goddess Lakshmi, goddess of prosperity. Her face and shoulders fill the frame: warm skin, long black hair, an elaborate golden crown, a red bindi, heavy gold jewellery, a deep red and gold silk sari, seated on a large pink lotus, pink lotus blossoms and small gold coins around her, a glowing golden halo. Serene and generous. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+    "alt": "An Indian folk-art goddess in a deep red and gold silk sari, seated on a large pink lotus: long black hair, an elaborate golden crown, a red dot on the forehead, heavy gold jewellery, pink lotus blossoms and small gold coins around her, a glowing halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
+  },
+  "buddha": {
+    "prompt": "The Buddha in meditation. His head and shoulders fill the frame: a serene golden-warm face with eyes gently closed and the faintest calm smile, tight snail-curl hair with the raised ushnisha crown-bump, long earlobes, a small urna dot between the brows, a saffron-ochre robe over the left shoulder, seated on a pink lotus, a glowing golden halo. Deep peaceful stillness. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+    "alt": "A serene seated meditating figure of Indian sculpture: eyes gently closed, a faint calm smile, tight snail-curl hair with a raised crown-bump, long earlobes, a saffron-ochre robe over the left shoulder, a pink lotus below, a glowing golden halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never grotesque, never silly, never a caricature. Large gentle eyes, a calm benevolent expression, richly decorated in traditional style. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery."
+  },
+  "gandhi": "Mohandas Karamchand Gandhi, as a warm dignified character portrait. Head and shoulders fill the frame: a gentle smiling bald head with large ears, small round wire-rimmed spectacles, a short white moustache, a simple undyed white khadi cotton shawl over one shoulder, a bamboo walking staff in one hand, and a small wooden charkha spinning wheel beside him. Kind and calm. Flat cartoon VECTOR illustration with clean crisp shapes and smooth gradients — not a painting, not photorealistic, no brushwork, no pencil texture, no grain. A dignified, respectful, appealing stylised character portrait — clearly recognisable, warm and kind, never mocking, never a caricature, never comic. Friendly expressive eyes. Composition: a single subject, centred, drawn LARGE so that it fills the whole square frame edge to edge with only a thin margin of empty space, cropped close like a portrait. Semi-flat vector illustration: clean bold shapes, gentle smooth gradient shading for volume, one soft subtle contact shadow. Warm saturated palette. A few small four-point sparkle accents floating around the subject. Premium mobile-game art quality; must read clearly when shrunk to 64 pixels. The background is flat pure white, right to the very edges of the image. Do NOT draw an app icon, a rounded-square tile, a circle badge, a sticker outline, a card, a panel, a frame, a border, or any coloured or textured backdrop behind the subject. The artwork must sit on an unbroken pure white field that bleeds to all four edges — never a black, dark, coloured or gradient background, never a visible rectangle, outline or vignette at the edge of the image. No text, no letters, no numbers, no writing, no watermark, no signature, no logo, no background scenery.",
+  "aryabhata": "Flat cartoon vector illustration, cute premium mobile-game art style: clean bold shapes, smooth gentle gradient shading, warm saturated colours, big friendly expressive eyes, a few small gold sparkle accents. The subject is drawn LARGE and close-cropped, centred, filling the whole square image, floating free on a seamless pure white background that extends to every edge. Bold and simple enough to read at 64 pixels. Subject: Aryabhata, the ancient Indian astronomer and mathematician, as a serene cartoon character portrait. His head and shoulders are drawn huge and fill the whole picture: a calm scholar's face with bright curious eyes, a short neat white beard, a plain cream turban and a simple cream cotton shawl over one shoulder. In the white space beside his head float a few tiny gold stars, one small gold ring like a planet's orbit, and one clean empty gold circle. Uncluttered and clear, clean flat vector shapes.",
+  "mahavira": {
+    "prompt": "Bhagwan Mahavira, the Jain Tirthankara: a serene chibi figure with a calm, gentle face and softly lowered eyes, warm golden skin, seated cross-legged in meditation on a simple pale lotus, hands resting one over the other in his lap, a plain simple cloth, a small gold shrivatsa diamond on the chest and a soft pale golden glow behind him. Utterly serene and reverent: no crown, no weapon, no comic expression, never silly, never a caricature."
+  },
+  "khanda": {
+    "prompt": "The Khanda, the emblem of Sikhism, drawn as a clean polished-gold symbol and NOTHING else: one straight vertical double-edged sword in the centre, one open circular ring (the chakkar) around its middle, and two curved single-edged swords crossing below and curving up on either side. Warm gold with the same soft brown outline, gentle cel shading, a soft pale cream glow and a few tiny gold sparkles. Absolutely no person, no human figure, no face, no body, no animal, no character of any kind."
+  },
+  "harmandir": {
+    "prompt": "Harmandir Sahib, the Golden Temple of Amritsar, drawn as a friendly simplified little building and nothing else: a square gold shrine with a rounded golden dome and small gold cupolas at its corners, a white marble base and a small white archway, standing on a band of calm pale blue water with a soft reflection below it. Rounded chibi-cute architecture with the same soft brown outline, cel shading, pale cream glow and tiny gold sparkles. No people, no human figures, no faces, no characters at all."
+  },
+  "pt_lion": {
+    "prompt": "Pingalaka the lion king of the Panchatantra: a friendly chibi lion with warm golden-orange fur, a big soft rounded mane, a small gold crown with one red jewel, standing upright on two stubby legs, kind and gentle rather than fierce."
+  },
+  "pt_jackal": {
+    "prompt": "Damanaka the clever jackal minister of the Panchatantra: a chibi Indian jackal with warm sandy-gold and tan fur (golden brown, definitely not grey and not white, he must not look like a wolf or a husky), a cream muzzle and cream tummy, large upright pointed ears with pink insides, a slim bushy tail with a dark tip, a small red minister's sash across his chest, standing upright on two stubby legs, with a quick clever smile."
+  },
+  "pt_bull": {
+    "prompt": "Sanjivaka the gentle bull of the Panchatantra: a chibi Indian bull with creamy white hide, a soft rounded shoulder hump, short blunt horns tipped with gold, and a red cord round his neck with one small gold bell, standing on four stubby legs, calm and friendly."
+  },
+  "pt_crow": {
+    "prompt": "Laghupatanaka the crow of the Panchatantra: a chibi crow with a very big round head, deep blue-black feathers with clear lighter cornflower-blue highlights across the top of the head, the wings and the tail, a soft pale grey-cream chest patch, huge bright eyes with strong white highlights and pale cream eye rings so the face reads clearly against the dark feathers, a short grey beak, small round wings and two little orange feet, perched upright, cheerful and clever. Put a warm pale cream glow disc behind him so the dark bird separates cleanly from the white background."
+  },
+  "pt_tortoise": {
+    "prompt": "Kambugriva the tortoise of the Panchatantra: a chibi tortoise whose large rounded shell is deep olive-green and warm brown and covers most of his body, marked with a simple bold pattern of hexagon plates outlined in gold; a friendly yellow-green head with big eyes reaching out in front, four short stubby yellow-green legs and a tiny tail. Slow and kind. Make the shell big, dark and clearly patterned so it reads at small sizes."
+  },
+  "pt_mouse": {
+    "prompt": "Hiranyaka the mouse of the Panchatantra: a chibi mouse with soft grey fur, a cream tummy, very big round ears, a tiny pink nose and a thin curled tail, standing upright on two stubby legs, bright and helpful."
+  },
+  "pt_deer": {
+    "prompt": "Chitranga the spotted deer of the Panchatantra: a chibi chital deer with a warm fawn coat and simple white spots, a cream throat, small soft antlers and big gentle eyes, standing on four slim stubby legs."
+  },
+  "pt_crocodile": {
+    "prompt": "The crocodile from the monkey and the crocodile story: a chibi crocodile with soft leaf-green scaly skin, a pale yellow tummy, a short rounded snout with two tiny blunt teeth and a bumpy tail, standing on four stubby legs, friendly and a little sheepish, never scary, never menacing."
+  },
+  "pt_monkey": {
+    "prompt": "The monkey from the monkey and the crocodile story: a chibi monkey with warm brown fur, a cream face and tummy, big round ears and a long curled tail, standing upright on two stubby legs and holding one pink rose-apple fruit, playful and quick."
+  },
+  "pt_rabbit": {
+    "prompt": "The clever rabbit of the Panchatantra: a chibi rabbit with soft white-grey fur, a cream tummy, long upright ears with pink insides and a round fluffy tail, standing upright on two stubby legs, bright-eyed and quick-witted."
+  },
+  "pt_heron": {
+    "prompt": "The heron of the Panchatantra: a chibi heron with a very big round head, soft white plumage clearly shaded with pale blue-grey on the back, the folded wings and the crown of the head, a long straight orange beak, a short chibi neck and two thin orange legs, standing upright, calm and watchful. Keep enough grey-blue shading that the bird's shape reads clearly against the white background."
+  },
+  "pt_elephant": {
+    "prompt": "The elephant herd leader of the Panchatantra: a chibi wild elephant with soft grey skin, very big ears, a curled trunk, two tiny white tusks and a small tuft of a tail, standing on four stubby legs, wise and kindly. No blanket, no ornaments, no crown."
+  },
+  "akbar": {
+    "prompt": "Emperor Akbar of the Mughal darbar: a kind chibi emperor in a cream jama robe with a simple gold border and a green sash, a white turban with one small gold jewel and a short red feather, a neat short black beard, hands relaxed at his sides. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "birbal": {
+    "prompt": "Birbal, Akbar's quick-witted minister: a cheerful chibi man in a saffron-orange robe with a cream sash, a small orange turban, a neat black moustache and short beard, one index finger raised as if he has just thought of the answer. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "tansen": {
+    "prompt": "Tansen, the singer of Akbar's court: a chibi musician in a soft green robe with a gold sash, a cream turban, a short beard, holding upright in front of him one tanpura, a long necked Indian string instrument with a big round gourd body, eyes half closed in song. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "courtier": {
+    "prompt": "A young courtier of Akbar's darbar: a chibi man in a pale blue jama robe with a gold sash, a small white turban, clean-shaven, both hands pressed together in a respectful namaste greeting."
+  },
+  "guard": {
+    "prompt": "The palace guard of Akbar's darbar: a friendly chibi guard in a red tunic with simple gold trim, a small blue turban, a big curly black moustache, holding one tall wooden spear upright at his side and a small round gold shield, cheerful and not at all threatening."
+  },
+  "royal_elephant": {
+    "prompt": "The royal elephant of the Mughal darbar: a chibi elephant with soft grey skin, very big ears, a curled trunk and small white tusks, wearing a red and gold embroidered blanket on his back, a simple gold headplate with one red jewel and small gold anklets, standing on four stubby legs, proud and gentle."
+  },
+  "ashoka": {
+    "prompt": "Emperor Ashoka: a chibi emperor with a short black beard, a cream and gold dhoti-robe with a saffron sash, a simple gold circlet on his head, standing beside one small sandstone pillar topped with the golden four-lion capital that reaches to his shoulder. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "chanakya": {
+    "prompt": "Chanakya the teacher and strategist: a chibi scholar with a shaved head and a small tuft of hair at the back, a plain white dhoti and a saffron shawl over one shoulder, holding one bundled palm-leaf manuscript, a thoughtful clever smile. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "shivaji": {
+    "prompt": "Chhatrapati Shivaji Maharaj: a chibi Maratha king with a neat short black beard, a bright saffron turban with one small gold jewel, a saffron tunic with a green sash, holding one curved sword upright at his side, brave and kind. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "lakshmibai": {
+    "prompt": "Rani Lakshmibai of Jhansi: a chibi warrior queen in a white sari with a red border and a small white turban with one jewel, raising a curved sword in one hand, seated on the back of one small chibi white horse with a red saddle blanket; the horse has the same big friendly eyes and rounded chibi shapes. She is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "ambedkar": {
+    "prompt": "Dr B. R. Ambedkar: a chibi man in a neat blue suit with a white shirt and a small tie, round black glasses, tidy black hair, holding one thick blue book against his chest, a warm confident smile. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "bhagat": {
+    "prompt": "Bhagat Singh as a young man: a chibi figure in a cream kurta with a tan waistcoat, wearing his signature pale felt trilby hat tilted slightly, a small curled black moustache, bright determined eyes, hands at his sides and no weapon at all. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "kalam": {
+    "prompt": "Dr A. P. J. Abdul Kalam: a chibi man, completely clean-shaven with no beard and no moustache, silver-white hair swept back long over his ears, a pale blue shirt, holding one small white and orange toy rocket, a very warm kind smile. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "tagore": {
+    "prompt": "Rabindranath Tagore: a chibi poet with a long flowing white beard and long white hair, a cream robe with a soft brown shawl, holding one small open book in both hands in front of him, with a single slim quill pen tucked in the crook of his arm, gentle and thoughtful, a poet. He is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "kalpana": {
+    "prompt": "Kalpana Chawla the astronaut: a chibi astronaut in a white spacesuit with a clear round bubble helmet, her dark curly hair and smiling face plainly visible inside the helmet, a small blue and white patch on her chest, one small blue Earth floating beside her. She is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "sarojini": {
+    "prompt": "Sarojini Naidu: a chibi woman in a green sari with a gold border worn over a cream blouse, black hair tied back in a low bun with one small white flower, a small round bindi, holding one small book of poems, a warm smile. She is a historical person, drawn with dignity and warmth, never mocking: no halo, no nimbus, no glowing ring and no golden disc behind the head."
+  },
+  "gattu": {
+    "prompt": "Gattu the baby elephant, the app's mascot: a chibi elephant calf with soft lavender-purple skin, pale pink inner ears, big floppy ears, a short curled trunk, tiny white toenails and a small tufted tail, wearing one small round gold bell hung on a short red cord around his NECK just under his chin, standing upright facing the viewer. He is smiling happily with big bright friendly eyes."
+  },
+  "gattu_happy": {
+    "prompt": "Gattu the baby elephant, the app's mascot: a chibi elephant calf with soft lavender-purple skin, pale pink inner ears, big floppy ears, a short curled trunk, tiny white toenails and a small tufted tail, wearing one small round gold bell hung on a short red cord around his NECK just under his chin, standing upright facing the viewer. He is beaming with delight: eyes squeezed shut into two happy upward curves, a wide open smile, both front feet thrown up in celebration, extra sparkles around him.",
+    "refs": [
+      "ganesha.png",
+      "hanuman.png",
+      "gattu.png"
+    ]
+  },
+  "gattu_think": {
+    "prompt": "The THIRD reference image is Gattu, this app's mascot. Redraw exactly that same lavender-purple baby elephant - same design, same colours, same face, same little gold bell on a red cord round his neck, same style and line weight - but CHANGE HIS POSE AND EXPRESSION so he is thinking hard about a puzzle. Tilt his head well over to one side. Roll his eyes up towards the top corner so he is looking away from the viewer, and push his eyebrows together into a small curious frown. Curl the tip of his trunk up so it taps his own chin. Rest his other front foot on his hip. Replace the happy smile with a tiny wavy thoughtful line. The new pose must be obviously different from the smiling forward-facing pose in the reference.",
+    "refs": [
+      "ganesha.png",
+      "hanuman.png",
+      "gattu.png"
+    ]
+  },
+  "gattu_wow": {
+    "prompt": "Gattu the baby elephant, the app's mascot: a chibi elephant calf with soft lavender-purple skin, pale pink inner ears, big floppy ears, a short curled trunk, tiny white toenails and a small tufted tail, wearing one small round gold bell hung on a short red cord around his NECK just under his chin, standing upright facing the viewer. He is amazed: eyes very wide and sparkling, mouth open in a small round O of wonder, ears lifted, both front feet raised near his cheeks, extra sparkles around him.",
+    "refs": [
+      "ganesha.png",
+      "hanuman.png",
+      "gattu.png"
+    ]
+  },
+  "mithu": {
+    "prompt": "Mithu the parrot: a chibi Indian ring-necked parakeet with bright leaf-green feathers, a paler green tummy, a short curved red-orange beak, big friendly eyes, small rounded wings, a long green tail and two little pink feet, perched upright facing the viewer. He has the parakeet's distinctive collar: one thin rose-pink and black ring that goes right around the NECK, immediately below the head and above the shoulders, like a narrow necklace circling the throat. The ring is on the neck only, never on the chest or the tummy."
+  },
+  "vismriti": {
+    "prompt": "Vismriti, the Forgetting: a soft faceless little mist spirit. A rounded puffy cloud body in clearly visible dove-grey and muted lavender-grey, distinctly darker than the white background so its shape reads at small sizes, with soft violet-grey shading underneath, drooping and sagging as if tired, wispy trailing tails at the bottom that fade away and two small wispy arm-like curls that hang down. It has NO face at all: no eyes, no mouth, no expression, no features of any kind. It looks lonely and sad, never scary: no teeth, no claws, no glowing eyes, not a monster, not a ghost. A few tiny grey dust motes drift around it, and a soft pale lavender glow sits behind it."
+  },
+  "sita": {
+    "prompt": "Sita, princess of Mithila: a chibi princess with warm brown skin in a golden-yellow silk sari with a deep red and gold border, long black hair in one thick braid with small white jasmine flowers woven through it, a small round red bindi, gold jhumka earrings and one simple gold necklace, standing straight and level with her chin up and both hands quietly at her sides, holding one small green leafy sprig. Calm, clear-eyed, warm and completely self-possessed — she is drawn with exactly the weight and presence of a king, never shy, never decorative, never waiting to be rescued. Drawn reverently, dignified and serene, never comic, never a caricature. A soft warm golden glow behind the figure. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "lakshmana": {
+    "prompt": "Lakshmana, Rama's younger brother, in the forest years: a chibi young prince with warm brown skin, plain saffron-ochre forest cloth over one shoulder and a simple dhoti, his hair tied up in a neat topknot, no crown and almost no ornament, a small quiver of arrows on his back and a plain wooden longbow held UNSTRUNG at rest, pointing straight down at his side, never raised and never drawn. There is NO arrow on the bow and no arrow in his hands: every arrow stays tucked in the quiver on his back, and the bow hangs loose with no string pulled. Alert, watchful and standing a half step forward, the way somebody stands when they are guarding a person they love. Drawn reverently, dignified and serene, never comic, never a caricature. A soft warm golden glow behind the figure. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "bharata": {
+    "prompt": "Bharata, who would not sit on his brother's throne: a chibi young prince in plain undyed cream cloth with a simple brown shawl, his hair in a matted ascetic's knot, barefoot, wearing no crown and no ornament at all, carrying very carefully in both hands in front of him one pair of small golden sandals resting on a small red cushion. Grave, gentle, tired and completely upright. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "dasharatha": {
+    "prompt": "Dasharatha, the old king of Ayodhya: a chibi elderly king with warm brown skin, a kind deeply lined face, a full white beard and white moustache, a tall gold crown with one red jewel, cream and gold robes with a deep red sash, both hands resting quietly one over the other in front of him. Grandfatherly, warm, and carrying an old sadness. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "kaikeyi": {
+    "prompt": "Kaikeyi, the youngest queen of Ayodhya: a chibi queen with warm brown skin in a rich crimson and gold silk sari, long black hair with a gold maang-tikka on the parting, a red bindi, gold armlets and jhumka earrings, standing very straight with her chin up and one hand resting on her hip. She is proud, sharp, brave and entirely certain of herself: a formidable woman who loves fiercely and makes one terrible choice. Draw her as a real person with the same weight and presence as any king in the story — NOT a villain: no scowl, no sneer, no cruel or cunning face, no dark shadow, nothing frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "ravana": {
+    "prompt": "Ravana, king of Lanka, drawn as the SCHOLAR AND MUSICIAN he is first: a chibi king with warm brown skin, ONE single calm handsome face, a neat black moustache and a short trimmed beard, a tall many-tiered gold crown, deep blue and gold royal robes with heavy gold necklaces and armlets, holding at rest in both hands one small veena, a long-necked Indian string instrument. Proud, brilliant, learned, formidable and completely human. He is NOT a monster and NOT a villain's face: exactly one head and one face, no extra heads, no fangs, no horns, no claws, no green or grey or blue skin, no red or glowing eyes, no snarl, no sneer, no weapon, no fire, no dark shadow, nothing frightening for a four-year-old. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "vibhishana": {
+    "prompt": "Vibhishana, Ravana's younger brother, the one who says the true thing out loud: a chibi man with warm brown skin, a modest thin gold circlet instead of a crown, a plain white and gold dhoti with a green sash, one string of rudraksha beads, both hands folded together quietly in front of him, a gentle troubled honest face. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "sugriva": {
+    "prompt": "Sugriva, the vanara king of Kishkindha: a chibi monkey person standing upright on two stubby legs, with warm reddish-copper fur, a paler cream muzzle and chest, big round ears, a long curled tail, a small gold crown, one broad gold armband and a red sash across his chest, no weapon. Friendly, hearty and a little rueful, like somebody who knows he once forgot a promise. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "hanuman.png",
+      "pt_monkey.png"
+    ]
+  },
+  "jatayu": {
+    "prompt": "Jatayu, the great old bird of the forest: a chibi giant vulture standing upright with his wings folded, a very big round head, a soft white ruff of feathers around his neck, deep chestnut-brown and warm tan wing feathers, a short hooked grey-gold beak and two sturdy grey feet, huge gentle tired kind eyes. Old, brave and grandfatherly. Never scary: no blood, no wounds, no torn feathers, no raised wings, no menace, nothing frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "pt_heron.png",
+      "hanuman.png"
+    ]
+  },
+  "shabari": {
+    "prompt": "Shabari, the old forest woman who waited her whole life: a chibi elderly tribal woman with warm dark brown skin, soft white hair tied back, deep laughter lines and a face lit right up with joy, a simple faded orange cotton sari with a green border, a few small clay and seed beads at her throat, holding out in both hands one small woven leaf basket of dark purple berries. Poor, plain, radiant and completely dignified. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "vishwamitra": {
+    "prompt": "Vishwamitra, the sage who walked into a throne room and asked for a boy: a chibi sage with warm brown skin, a long grey-white beard, matted hair piled in a topknot, a bark-brown and saffron robe over one shoulder, one plain wooden staff held upright at his side, strong dark eyebrows and a sharp impatient kindly face. Fierce and warm at the same time. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "mandodari": {
+    "prompt": "Mandodari, queen of Lanka, who tells her husband to his face that he is wrong: a chibi queen with warm brown skin in a deep emerald-green and gold silk sari, an elaborate gold crown, gold jhumka earrings and a red bindi, standing perfectly straight with both hands clasped quietly in front of her, a calm steady intelligent sorrowful face. Drawn with the full weight and presence of a ruler, never decorative and never passive. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "valmiki": {
+    "prompt": "Valmiki, the poet who first told the Ramayana: a chibi sage with warm brown skin, long white hair and a long white beard, a plain cream robe over one shoulder, holding one bundled palm-leaf manuscript in one hand and a slim reed pen in the other, with one small brown songbird perched on his shoulder. Gentle, thoughtful and listening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "draupadi": {
+    "prompt": "Draupadi, queen of the Pandavas, who asks the question nobody in the hall can answer: a chibi woman with warm brown skin in a deep red and gold silk sari, very long thick black hair loose over one shoulder, a gold maang-tikka, a red bindi and gold jhumka earrings, standing perfectly straight with her chin level and both hands at her sides, meeting the viewer's eye with a steady unflinching intelligent gaze. Drawn with exactly the weight and presence of a king: never decorative, never passive, never distressed, never in disarray. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "arjuna": {
+    "prompt": "Arjuna, the third Pandava and the archer: a chibi young man with warm brown skin, a white and gold dhoti with a deep blue sash, a simple thin gold circlet, tidy dark hair, a quiver of arrows on his back and his tall bow held UNSTRUNG at rest, pointing straight down at his side, never raised, never drawn, no arrow on the string. Focused, calm and completely unshowy. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "bhima": {
+    "prompt": "Bhima, the second Pandava, the strong one: a big broad cheerful chibi man with warm brown skin and round shoulders, a saffron and gold dhoti, one heavy gold armband, a wide open grin, and his great mace standing head-down on the ground beside him with one hand resting loosely on the top of the handle, never lifted and never swung. Huge, warm, hungry and enormously good-natured. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "yudhishthira": {
+    "prompt": "Yudhishthira, the eldest Pandava, the one who cannot make himself lie: a chibi man with warm brown skin, a plain white and gold dhoti with a pale gold sash, a simple thin gold circlet, a short neat beard, no weapon of any kind, both hands resting quietly one over the other. Calm, upright, kind and visibly troubled — the face of somebody weighing something. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "nakula": {
+    "prompt": "Nakula, the fourth Pandava, the handsome twin who understands horses: a chibi young man with warm brown skin, neatly combed hair, a pale blue and silver dhoti with a cream sash, holding a soft rope halter in one hand, with one small friendly chibi brown pony standing beside him; the pony has the same big round eyes and rounded chibi shapes. Bright, quick and good-humoured. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "sahadeva": {
+    "prompt": "Sahadeva, the fifth Pandava, the quiet one who already knows what happens next: a chibi young man with warm brown skin, a soft sage-green and cream dhoti, a small silver armband, holding one bundled palm-leaf almanac in both hands, a thoughtful watchful face and a very slight closed-mouth smile, as though he has decided not to say. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "karna": {
+    "prompt": "Karna, born to the sun and raised by a charioteer: a chibi young man with warm golden-brown skin, soft glowing golden natural armour across his chest like a burnished breastplate and large golden earrings that are part of him, a saffron and deep red dhoti, his bow held UNSTRUNG at rest pointing straight down at his side. Proud, generous and lonely — a good and open face. Never a villain: no sneer, no scowl, nothing dark or frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "bhishma": {
+    "prompt": "Bhishma, the grandsire who gave up everything and kept his word too well: a tall chibi elder with warm brown skin, white hair and a full white beard, a plain white dhoti with a silver-grey shawl over one shoulder, a modest silver circlet, no weapon at all, standing very straight with both hands resting one over the other. Grand, immovable, sad and kind. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "drona": {
+    "prompt": "Drona, the teacher who trained both sides: a chibi brahmin teacher with warm brown skin, a shaved head with one small tuft of hair at the back, a short white beard, a cream dhoti with a saffron shawl and a sacred thread across his chest, one bundled palm-leaf book held against his chest and a plain longbow standing UNSTRUNG at rest beside him pointing down. A stern, brilliant, proud teacher's face. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "dhritarashtra": {
+    "prompt": "Dhritarashtra, the blind king of Hastinapura: a chibi elderly king with warm brown skin, a full grey beard, a tall gold crown, cream and gold royal robes, his eyes drawn simply and gently closed with soft curved lashes, one hand resting on a plain wooden staff and the other reaching very slightly forward. Soft, worried and loving; his blindness shown only as closed eyes, never grotesque, never milky, never frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "gandhari": {
+    "prompt": "Gandhari, the queen who tied a cloth over her own eyes so as not to see what her husband could not: a chibi queen with warm brown skin in a deep indigo and gold silk sari, gold jhumka earrings and gold bangles, and a plain folded cream cloth tied smoothly and neatly across her eyes — worn like a crown, because it was her own choice. The cloth is COMPLETELY OPAQUE, like a soft solid band: her eyes are entirely hidden behind it and are NOT drawn at all — no eyes visible through the fabric, no see-through cloth, no goggles, no visor. Her mouth is calm and set and she stands absolutely straight, with the full weight and presence of a ruler. Formidable, sorrowful and dignified: never helpless, never pitiable, never frightening, no blank staring eyes. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "kunti": {
+    "prompt": "Kunti, mother of the Pandavas: a chibi woman with warm brown skin in a soft cream and deep red sari with a gold border, black hair drawn back with a few silver strands at the temples, a small red bindi and simple gold earrings, standing straight with both hands clasped quietly in front of her, a steady careful watchful face. Drawn with real weight and authority, a woman carrying an old secret. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "duryodhana": {
+    "prompt": "Duryodhana, eldest of the hundred Kaurava brothers, drawn as a person with a real grievance and NEVER as a villain: a chibi young prince with warm brown skin, broad square shoulders, rich royal purple and gold robes with heavy gold ornaments, a tall gold crown, a neat short black moustache, standing squarely and evenly with his chin up and both hands relaxed at his sides. Proud, strong, generous to his friends and absolutely certain he has been wronged. No snarl, no sneer, no scowl, no cruel or cunning face, no dark shadow, no weapon, nothing monstrous, nothing frightening for a four-year-old. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "shakuni": {
+    "prompt": "Shakuni, the prince of Gandhara, drawn as a real person and never as a villain: a chibi man with warm brown skin, a neat grey-flecked beard, a fine grey and gold northern robe with a soft round embroidered cap, one small pair of ivory dice resting in his open upturned palm, and a slight thoughtful half-smile. Clever, patient, watchful and entirely human. No leer, no sneer, no cunning grin, no dark shadow, nothing frightening. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "vidura": {
+    "prompt": "Vidura, the counsellor who always says the true thing: a chibi man with warm brown skin, a short neat beard, a completely plain undyed cream dhoti and shawl with no ornament of any kind, holding one small folded palm-leaf letter in one hand, a calm honest steady face. The quietest and most trustworthy person in the room. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "ekalavya": {
+    "prompt": "Ekalavya, the forest boy who taught himself: a chibi boy with warm dark brown skin, simple undyed cloth, a single feather and a few coloured beads in his tied-back hair, both hands whole and open, a small plain bow held at rest pointing straight down at his side — NO arrow on the bow, no arrow in his hands, no string pulled, the bow simply hanging loose — standing beside one small clay figure of a teacher. Bright, determined and proud of what he learned on his own. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "abhimanyu": {
+    "prompt": "Abhimanyu, Arjuna's young son: a chibi BOY, clearly smaller and younger than the grown princes, with warm brown skin, a bright blue and gold dhoti, a small gold circlet, a small bow held at rest pointing straight down at his side, and an eager fearless open smile. Young, quick and completely unafraid. Drawn with dignity and warmth, never mocking, never comic, never a caricature: no halo, no nimbus, no glowing ring and no golden disc behind the head. Nothing frightening for a small child.",
+    "refs": [
+      "ganesha.png",
+      "akbar.png",
+      "lakshmibai.png"
+    ]
+  },
+  "dhyanchand": {
+    "prompt": "Major Dhyan Chand, India's hockey wizard of the 1930s: a smiling sportsman in a vintage cream hockey shirt and navy shorts, holding a wooden field-hockey stick with a small white ball at his feet, a folded olive army beret tucked at his shoulder, natural Indian skin, short neat black hair."
+  },
+  "milkha": {
+    "prompt": "Milkha Singh, the Flying Sikh, the great track runner: a lean smiling Sikh athlete in a white running vest with a cloth race number, a neatly tied navy turban and short beard, caught in a joyful mid-run stride, natural Indian skin."
+  },
+  "kapil": {
+    "prompt": "Kapil Dev, the 1983 cricket captain: a beaming cricketer with black curly hair and a moustache in cricket whites, lifting a small golden trophy cup with both hands, natural Indian skin."
+  },
+  "sachin": {
+    "prompt": "Sachin Tendulkar, the beloved batsman: a small smiling cricketer with black curly hair in an India-blue cricket jersey, white pads, holding a cricket bat over one shoulder, natural Indian skin."
+  },
+  "marykom": {
+    "prompt": "Mary Kom, the champion boxer from Manipur: a smiling young woman with short black hair, East Asian facial features true to Manipur, wearing a blue India boxing vest and big red boxing gloves raised in a friendly guard, natural skin tone."
+  },
+  "sindhu": {
+    "prompt": "P. V. Sindhu, the badminton champion: a tall smiling young sportswoman with a high ponytail, in an India badminton jersey, holding a badminton racquet with a white shuttlecock floating beside her, natural Indian skin."
+  },
+  "neeraj": {
+    "prompt": "Neeraj Chopra, the javelin gold medallist: a smiling young athlete with dark hair swept back, in an India athletics vest with a gold medal on an orange-green ribbon, holding a silver javelin upright like a flag, natural Indian skin."
+  },
+  "anand": {
+    "prompt": "Viswanathan Anand, the chess grandmaster from Chennai: a warmly smiling man with neat side-parted black hair, in a soft blue shirt, holding up a white chess knight piece, a folded chessboard under his other arm, natural Indian skin."
+  },
+  "gukesh": {
+    "prompt": "D. Gukesh, the teenage world chess champion: a shyly smiling teenage boy with thick black hair and a faint young beard, in a simple dark shirt, cradling a golden chess king piece with both hands, natural Indian skin."
+  },
+  "avani": {
+    "prompt": "Avani Lekhara, the Paralympic champion shooter: a proudly smiling young woman seated in her sleek sports wheelchair, wearing an India shooting-team jacket with a gold medal around her neck, one hand resting on the wheel, calm and confident, natural Indian skin."
+  },
+  "kurien": {
+    "prompt": "Verghese Kurien, the Milkman of India: a kindly older man with black-rimmed glasses and neatly combed grey-streaked hair, in a simple white shirt, holding a shiny steel milk churn, a splash of white milk arcing happily from it, natural Indian skin."
+  },
+  "n_murthy": {
+    "prompt": "N. R. Narayana Murthy, the software pioneer: a gently smiling older man with round spectacles and a neat grey side-parting, in a plain light shirt, holding a chunky beige 1980s computer monitor showing a little green heart on screen, natural Indian skin."
+  },
+  "sudha_murty": {
+    "prompt": "Sudha Murty, engineer, author and teacher: a warmly laughing older woman in a simple cotton sari with a shawl, hair in a low bun, spectacles, hugging a small stack of storybooks, natural Indian skin."
+  },
+  "falguni": {
+    "prompt": "Falguni Nayar, the founder who started at fifty: a confident smiling woman with shoulder-length black hair in an elegant deep-pink kurta jacket, ringing a small golden bell with one hand, natural Indian skin."
+  },
+  "ritesh": {
+    "prompt": "Ritesh Agarwal, the young founder from Odisha: a cheerfully grinning very young man with short black hair in a casual red shirt, holding up a big brass room key with a red tag, a tiny backpack on one shoulder, natural Indian skin."
+  },
+  "rocket": {
+    "prompt": "A friendly Indian space rocket: a cute white rocket with saffron and green bands like the tricolour, a small round window like an eye with a tiny astronaut waving inside, standing proudly on little landing fins with a soft puff of steam below, no text anywhere."
+  },
+  "unicorn": {
+    "prompt": "A cheerful startup unicorn: a small white unicorn with a golden horn and a flowing mane in saffron, white and green, carrying a tiny silver laptop under one foreleg, one hoof raised in greeting, no text anywhere."
+  },
+  "logo": {
+    "prompt": "A proud little peacock, the Bizzing India mark: a royal-blue peacock with a tiny golden three-point crest, big friendly glossy eyes, and a fanned tail of five bold simplified feathers in teal, deep blue and gold, each with one golden eye-spot, standing tall and symmetrical like an emblem, no text anywhere."
+  },
+  "raman": {
+    "prompt": "C. V. Raman, the physicist of light: a dignified smiling man in a dark suit with his famous white South Indian turban, holding up a glass prism that splits a beam into colours, natural Indian skin."
+  },
+  "ramanujan": {
+    "prompt": "Srinivasa Ramanujan, the self-taught mathematician: a gentle round-faced young man with dark combed-back hair, in a simple white shirt, hugging a worn notebook overflowing with handwritten equations, a soft glow around it, natural Indian skin."
+  },
+  "bhabha": {
+    "prompt": "Homi Bhabha, the physicist and builder of institutes: an elegant smiling man with neat side-parted black hair in a sharp 1950s suit, holding a small model of an atom with orbiting electrons, natural Indian skin."
+  },
+  "sarabhai": {
+    "prompt": "Vikram Sarabhai, the father of the Indian space programme: a warmly smiling man with wavy black hair in a simple white kurta, holding a small model rocket in one hand and a paper star chart in the other, natural Indian skin."
+  },
+  "jcbose": {
+    "prompt": "Jagadish Chandra Bose, the scientist who listened to plants: a thoughtful smiling man with a full grey-streaked beard and round spectacles, in a dark Bengali coat, holding a potted plant with a tiny antenna beside it, natural Indian skin."
+  },
+  "janaki_ammal": {
+    "prompt": "Janaki Ammal, the botanist: a serene smiling woman with grey-streaked hair in a low bun, wearing a simple cotton sari, holding a flowering sugarcane stem and a magnifying glass, natural Indian skin."
+  },
+  "swaminathan": {
+    "prompt": "M. S. Swaminathan, the scientist of the harvest: a kindly smiling older man with glasses and combed grey hair in a plain shirt, cradling a golden sheaf of wheat like a treasure, natural Indian skin."
+  },
+  "salimali": {
+    "prompt": "Salim Ali, the Birdman of India: a wiry smiling older man with a white beard, in a khaki field jacket and cap, binoculars around his neck and a tiny sparrow perched on one finger, natural Indian skin."
+  },
+  "dhoni": {
+    "prompt": "M. S. Dhoni, Captain Cool: a calmly smiling cricketer with short hair in an India-blue jersey, wicket-keeping gloves on, lifting a golden trophy with one steady hand, natural Indian skin."
+  },
+  "kohli": {
+    "prompt": "Virat Kohli, the chase master: an intensely joyful cricketer with a neat black beard in an India-blue jersey, mid celebration with both fists up, a cricket bat under one arm, natural Indian skin."
+  },
+  "mithali": {
+    "prompt": "Mithali Raj, the queen of women's cricket: a serenely smiling woman cricketer with a long braid, in an India-blue jersey with pads and bat, natural Indian skin."
+  },
+  "saina": {
+    "prompt": "Saina Nehwal, badminton pioneer: a determined smiling young woman with a short ponytail, in an India jersey, mid smash with her racquet high, a medal at her chest, natural Indian skin."
+  },
+  "malleswari": {
+    "prompt": "Karnam Malleswari, the first Indian woman to win an Olympic medal: a powerfully smiling woman in an India weightlifting singlet, holding a loaded barbell aloft with both arms locked out, a bronze medal shining, natural Indian skin."
+  },
+  "mirabai": {
+    "prompt": "Mirabai Chanu, weightlifting champion from Manipur: a joyfully beaming small-framed woman with her hair in a bun, East Asian facial features true to Manipur, in an India singlet lifting a barbell overhead, a silver medal, natural skin tone."
+  },
+  "annamani": {
+    "prompt": "Anna Mani, the weather woman of India: a wise smiling older woman in a simple handloom sari with short curled grey hair, holding a small weather balloon on a string in one hand and an anemometer in the other, natural Indian skin."
+  },
+  "tessy": {
+    "prompt": "Tessy Thomas, the missile scientist: a confident warmly smiling woman with her hair tied back, wearing a sari with an identity badge, holding a small model of a slender launch rocket, natural Indian skin."
+  },
+  "kiran_shaw": {
+    "prompt": "Kiran Mazumdar-Shaw, the biotech pioneer: a bright-eyed smiling woman with short silver-streaked hair in an elegant kurta jacket, holding up a glass laboratory flask glowing softly amber, natural Indian skin."
+  },
+  "hansa_mehta": {
+    "prompt": "Hansa Mehta, who wrote 'all human beings' into the world's rights: a dignified gently smiling woman of the 1940s in a khadi sari with her head lightly covered, holding an unfurled scroll with a globe faintly behind her, natural Indian skin."
+  },
+  "savitribai": {
+    "prompt": "Savitribai Phule, who opened the school door for girls in 1848: a resolute warmly smiling woman in a simple 1840s Marathi sari, one arm around a slate, the other hand holding an oil lamp that lights a doorway, natural Indian skin."
+  },
+  "ela_bhatt": {
+    "prompt": "Ela Bhatt, the gentle banker of working women: a softly smiling elderly woman in a plain white khadi sari with round spectacles, holding a small cloth passbook bag, marigolds at her shoulder, natural Indian skin."
+  },
+  "brahma": {
+    "prompt": "Lord Brahma, the four-faced creator. A kindly elder with warm golden-brown skin, a long white beard, FOUR faces shown simply (one facing forward and two turned to the sides, the fourth implied), a small golden crown on each, calm smiling eyes, a cream and gold dhoti, a sacred thread, holding a small water pot (kamandalu) and a palm-leaf manuscript, seated on a pale pink lotus, a soft golden halo, a small white swan beside him. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "vishnu": {
+    "prompt": "Lord Vishnu, the preserver. Deep blue skin, a tall golden crown (mukut), calm kind eyes, a yellow silk dhoti, a forehead mark in white and yellow, FOUR arms holding four clean simple objects: a white conch (shankha), a golden spinning discus (chakra), a golden mace (gada) and a pink lotus (padma). A marigold garland, a golden halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "matsya": {
+    "prompt": "Matsya, the fish. A large friendly golden-scaled fish standing upright on its tail fin, big glossy eyes, a small gentle smile, a single golden horn rising from its head, a tiny golden crown, soft coral-pink fins, a small blue wave curling at its base, a golden halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "kurma": {
+    "prompt": "Kurma, the tortoise. A big round friendly tortoise with a golden-green domed shell patterned in simple hexagons, short sturdy legs, big kind eyes, a small smile, holding a small brown-and-green mountain steadily on its back, a golden halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "varaha": {
+    "prompt": "Varaha, the boar. A strong friendly boar-headed figure with warm brown fur, a broad snout, two small white upward tusks, big kind eyes, a golden crown and a yellow dhoti, gently lifting a small blue-and-green globe of the earth balanced on one tusk, a golden halo. Gentle and protective. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "narasimha": {
+    "prompt": "Narasimha, the lion-form. A majestic golden lion-headed figure with a full warm-gold mane, a golden crown, big kind eyes and a calm closed mouth, a red and gold dhoti, a garland, a golden halo, one hand raised in a gesture of protection and blessing. Protective and reassuring. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Absolutely no blood, no wounds, no bared teeth, no roaring, no violence of any kind — this is the protector, drawn for a four-year-old."
+  },
+  "vamana": {
+    "prompt": "Vamana, the young brahmin. A cheerful small boy with warm brown skin, a shaved head with a small tuft, big glossy eyes, a bright smile, a simple cream dhoti and sacred thread, carrying a small wooden parasol (chhatra) over one shoulder and a little water pot, a golden halo. Bright, friendly and completely at ease — dignified, never a joke about his size. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "parashurama": {
+    "prompt": "Parashurama, the sage with the axe. A calm strong figure with warm brown skin, dark matted hair tied in a topknot, a short beard, steady kind eyes, a saffron dhoti and sacred thread, rudraksha beads, holding a golden axe (parashu) resting quietly against one shoulder, a golden halo. Still and composed, never angry. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "balarama": {
+    "prompt": "Balarama, Krishna's elder brother. Fair pale skin, a tall golden crown, big kind eyes and a warm smile, a deep blue dhoti, a garland of wild flowers, holding a golden plough (hala) upright in one hand and a small mace in the other, a golden halo. Strong, cheerful and gentle. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "kalki": {
+    "prompt": "Kalki, the one still to come. A radiant young rider with warm brown skin, a golden crown, calm bright eyes and a gentle smile, white and gold clothes, seated on a small friendly white horse with a flowing cream mane, a bright golden sword held upright and still, a golden halo, a soft dawn glow. Hopeful and calm — an arrival, never a battle. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "indra": {
+    "prompt": "Indra, king of the devas and lord of rain and storm. Warm golden-brown skin, a tall golden crown, big kind eyes, a warm smile, a green and gold dhoti, holding a small golden thunderbolt (vajra) shaped like a clean double trident, a soft blue rain cloud under him, a tiny white elephant at his side, a golden halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "agni": {
+    "prompt": "Agni, the deva of fire. Warm orange-red skin with a soft inner glow, a crown of small clean flame shapes in gold and orange, two kind glossy eyes, a warm smile, a golden-yellow dhoti, holding a small ladle, a friendly little ram beside him, a warm golden halo. Warm and welcoming, never burning or fearsome. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "vayu": {
+    "prompt": "Vayu, the deva of wind. Pale sky-blue skin, big kind eyes, a warm smile, flowing pale blue and white clothes and a long scarf streaming sideways as if caught in a breeze, a small white swirl of wind curling around him, a soft blue halo. Light, airy and cheerful. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "varuna": {
+    "prompt": "Varuna, the deva of the waters. Deep sea-blue skin, a golden crown with a small conch shape, kind eyes, a calm smile, a teal and gold dhoti, holding a simple looped golden rope (pasha), riding a small friendly sea-creature (makara) with a curled snout, gentle blue waves below, a golden halo. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "surya": {
+    "prompt": "Surya, the sun. Radiant golden skin, a golden crown, warm kind eyes, a bright gentle smile, a red and gold dhoti, a large soft golden sun disc glowing behind his head with clean simple rays, holding two pink lotuses, a small team of tiny golden horses below him. Warm and dazzling but soft on the eye. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "chandra": {
+    "prompt": "Chandra, the moon. Cool pale silver-white skin with a soft glow, a small silver crown holding a clean crescent moon, gentle half-closed kind eyes, a soft smile, pale blue and silver clothes, a small friendly antelope beside him, a soft silver halo, two or three tiny stars. Calm and sleepy. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "yama": {
+    "prompt": "Yama, the keeper of what is right and the record of every life. A dignified figure with deep blue-green skin, a golden crown, calm steady kind eyes, a serious but gentle expression, a dark red and gold dhoti, holding a simple golden staff upright, a small friendly dark buffalo standing calmly at his side, a golden halo. Solemn and fair — a just judge, never frightening, never a figure of death. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "kubera": {
+    "prompt": "Kubera, the keeper of treasure. A round cheerful figure with warm golden-brown skin, a big happy smile, twinkling kind eyes, a small golden crown, rich cream and gold clothes over a comfortably round belly, holding a small pot spilling clean gold coins, a tiny mongoose at his feet, a golden halo. Jolly and generous. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "kartikeya": {
+    "prompt": "Kartikeya, also called Murugan, Skanda and Subramanya — the young commander of the devas. A bright youthful figure with warm golden-brown skin, a golden crown, big kind eyes, a cheerful smile, a red and gold dhoti, holding a golden spear (vel) upright and still, standing beside a beautiful small peacock with a simple fanned blue-green tail, a golden halo. Young, brave and kind. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "parvati": {
+    "prompt": "Parvati, the mountain's daughter. Warm golden skin, long dark hair with a golden crown and a small red bindi, big gentle kind eyes, a soft warm smile, a red and green sari with simple gold borders, simple gold jewellery, holding a pink lotus, small blue-grey mountain peaks behind her, a golden halo. Calm, strong and motherly. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "kali": {
+    "prompt": "Goddess Kali, worshipped with great love especially in Bengal. Deep blue-black skin, long flowing black hair, large kind compassionate eyes, a small silver crescent, a garland of RED HIBISCUS FLOWERS (her traditional offering), a red-bordered sari, one hand raised in blessing and one open in the gesture of giving, a soft golden halo, a warm reassuring expression. She is the fierce protective mother drawn here for very young children as her devotees address her — as Ma. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. No skulls, no severed heads, no blood, no protruding tongue, no weapons, nothing frightening."
+  },
+  "ganga": {
+    "prompt": "Ganga, the river goddess. Pale blue-white luminous skin, long flowing blue-green hair like moving water, big gentle kind eyes, a serene smile, a white and silver sari, holding a small golden water pot, standing on a small friendly sea-creature (makara), clean simple curling waves at her feet, a silver-white halo. Cool, gentle and pure. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "vishwakarma": {
+    "prompt": "Vishwakarma, the divine craftsman and architect. A kindly older figure with warm brown skin, a neat white beard, a small golden crown, big kind eyes, a warm smile, a cream and gold dhoti, holding a simple measuring rule and a small hammer, a tiny golden temple shape beside him, a golden halo. Busy, clever and warm. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening."
+  },
+  "bali": {
+    "prompt": "King Mahabali, the great and generous asura king, still loved and welcomed home every year at Onam in Kerala. A warm, kind, round-faced king with golden-brown skin, a magnificent gold crown, a big generous smile, twinkling eyes, a fine white and gold mundu, a heavy gold necklace, a small gold umbrella above him, a few Onam flowers at his feet. Beloved, jolly and completely benevolent. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "prahlada": {
+    "prompt": "Prahlada, the asura prince who became one of the best-loved devotees in all the stories. A small boy with warm golden-brown skin, big shining kind eyes, a serene happy smile, a simple gold circlet, a yellow and gold dhoti, hands joined at his chest in a peaceful gesture, a soft golden halo. Gentle, fearless and radiant. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "hiranyakashipu": {
+    "prompt": "Hiranyakashipu, a mighty and proud asura emperor. A powerful, richly dressed king with warm bronze skin, a tall ornate gold crown, a neat dark beard, strong steady eyes and a composed expression, a deep red and gold robe, heavy gold armbands, arms folded with authority, a golden glow. Immensely proud and commanding — a formidable emperor, drawn as a person. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "hiranyaksha": {
+    "prompt": "Hiranyaksha, a powerful asura warrior, brother of Hiranyakashipu. A strong broad-shouldered figure with warm bronze skin, a gold warrior's crown, a short dark beard, steady confident eyes, a bronze and green dhoti with simple armour, holding a golden mace resting calmly at his side, a golden glow. Strong and dignified. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "mahishasura": {
+    "prompt": "Mahishasura, the buffalo-formed asura king. A grand buffalo-headed figure with deep slate-grey and warm brown fur, two large smooth curved horns, big glossy dark eyes with a calm steady gaze, a golden crown between the horns, gold ornaments, a deep green and gold dhoti, standing tall and composed, a golden glow. Majestic, powerful and calm. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "tarakasura": {
+    "prompt": "Tarakasura, a mighty asura king. A tall commanding figure with warm dusky skin, a tall gold crown, a neat dark beard, steady confident eyes, deep purple and gold clothes, simple gold armour at the shoulders, holding a golden mace upright, a golden glow. Proud and kingly. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "shukracharya": {
+    "prompt": "Shukracharya, the wise guru and teacher of the asuras, a great sage and scholar. A serene elder with warm golden skin, a long flowing white beard and white topknot, kind wise eyes, a saffron and white dhoti, a sacred thread, rudraksha beads, holding a palm-leaf manuscript, a soft golden halo. Learned, calm and kind — a beloved teacher. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "banasura": {
+    "prompt": "Banasura, the asura king who was a great devotee of Shiva. A tall noble figure with warm dusky-blue skin, a gold crown, kind steady eyes, a gentle confident smile, a saffron and gold dhoti, rudraksha beads, a small white crescent mark on his forehead, MANY arms shown simply and symmetrically (about six), one pair joined in a peaceful gesture, a golden glow. Devout and magnificent. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "vritra": {
+    "prompt": "Vritra, the great asura of the withheld waters, told of as an enormous serpent. A huge friendly-faced coiled serpent with smooth blue-green and gold scales, a broad calm head, big glossy kind eyes, a small gold crown, the body coiled into simple clean rounded loops, a few blue water droplets around him, a golden glow. Grand, sinuous and calm. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  },
+  "bhasmasura": {
+    "prompt": "Bhasmasura, the asura who was granted a boon in his own palm. A striking figure with warm copper skin, a gold crown, big glossy eyes and an open surprised-delighted expression, an orange and gold dhoti, one hand raised with a soft warm golden glow in the open palm, a golden glow around him. Eager and full of wonder. Drawn reverently in a warm Indian folk-art idiom, dignified and serene, never comic, never a caricature, never frightening. Draw this figure with dignity and warmth as a proud, noble, formidable being. Absolutely NOT a monster and NOT a villain: no snarl, no bared fangs, no claws, no glowing red eyes, no horns used as an evil sign, no grey or sickly skin, no menace of any kind. Same friendly cute chibi treatment, same kind eyes and soft smile as every other character in this set."
+  }
 }

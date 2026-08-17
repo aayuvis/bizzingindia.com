@@ -666,7 +666,18 @@
   ];
   window.IND_AV_REAL_PEOPLE = REAL_PEOPLE;
 
-  var EPIC_PACKS = ['ramayana', 'mahabharata'];
+  /* Sacred packs render no numbers at all — "beyond measure" instead of stats.
+     'devas' was the only one for a while; the Ten Descents and the wider deva
+     pantheon belong under exactly the same rule, and forgetting to add them
+     here is how Vishnu would have quietly picked up a score out of 99. */
+  var SACRED_PACKS = ['devas', 'dashavatara', 'pantheon'];
+
+  /* The asuras are Katha — a story as it is told — not 'character', because a
+     character is the one kind that DOES get stats, and grading Mahabali (whom
+     Kerala welcomes home every Onam) or Prahlada out of 99 is precisely the
+     collectible-loot problem docs/05 §7 forbids. Same badge the epic casts
+     carry, same absence of numbers. */
+  var EPIC_PACKS = ['ramayana', 'mahabharata', 'asuras'];
 
   /* The docs/05 badge each kind of card renders under. A real person's card
      is an Itihaas object — what the record shows; an epic figure's is Katha —
@@ -680,7 +691,7 @@
   };
 
   function kindOf(id, pack) {
-    if (pack && pack.id === 'devas') return 'sacred';
+    if (pack && SACRED_PACKS.indexOf(pack.id) >= 0) return 'sacred';
     if (REAL_PEOPLE.indexOf(id) >= 0) return 'real';
     if (pack && EPIC_PACKS.indexOf(pack.id) >= 0) return 'epic';
     return 'character';

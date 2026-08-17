@@ -579,7 +579,7 @@ sarojini: '<circle cx="60" cy="60" r="54" fill="#2FA89B" opacity=".2"/>' +
 
 window.IND_AVATAR_PACKS = [
   { id: 'devas',  name: 'Gods & Teachers', note: 'Drawn the way folk painters draw them.',
-    ids: ['ganesha','krishna','hanuman','durga','saraswati','shiva','rama','lakshmi','buddha','mahavira','khanda','harmandir'] },
+    ids: ['ganesha','krishna','hanuman','durga','saraswati','shiva','brahma','vishnu','rama','lakshmi','buddha','mahavira','khanda','harmandir'] },
   { id: 'panch',  name: 'Panchatantra',    note: 'The animals who tell the oldest stories.',
     ids: ['pt_lion','pt_jackal','pt_bull','pt_crow','pt_tortoise','pt_mouse','pt_deer','pt_crocodile','pt_monkey','pt_rabbit','pt_heron','pt_elephant'] },
   { id: 'darbar', name: "Akbar's Darbar",  note: 'The cleverest court in the world.',
@@ -603,7 +603,41 @@ window.IND_AVATAR_PACKS = [
   { id: 'ramayana', name: 'The Ramayana',    note: 'Everyone the story is about, not only the ones who win.',
     ids: ['sita','lakshmana','bharata','dasharatha','kaikeyi','ravana','vibhishana','sugriva','jatayu','shabari','vishwamitra','mandodari','valmiki'] },
   { id: 'mahabharata', name: 'The Mahabharata', note: 'One family that could not stop. Nobody here is only a villain.',
-    ids: ['draupadi','arjuna','bhima','yudhishthira','nakula','sahadeva','karna','bhishma','drona','dhritarashtra','gandhari','kunti','duryodhana','shakuni','vidura','ekalavya','abhimanyu'] }
+    ids: ['draupadi','arjuna','bhima','yudhishthira','nakula','sahadeva','karna','bhishma','drona','dhritarashtra','gandhari','kunti','duryodhana','shakuni','vidura','ekalavya','abhimanyu'] },
+
+  /* THE TEN DESCENTS. Rama, Krishna and the Buddha are deliberately NOT repeated
+     here — they already stand in Gods & Teachers, and an id in two packs renders
+     twice in the picker. The pack note says so, so a child counting to ten does
+     not think three are missing.
+
+     Which ten is not settled, and the app must not pretend it is. Most lists give
+     Matsya, Kurma, Varaha, Narasimha, Vamana, Parashurama, Rama, Krishna, the
+     Buddha and Kalki; many Vaishnava traditions put Balarama in the ninth place
+     instead of the Buddha, and some count both. Balarama is here for that reason.
+     The Bhagavata Purana itself gives a longer list elsewhere and says the
+     descents are beyond counting. */
+  { id: 'dashavatara', name: 'The Ten Avatars', note: 'The descents of Vishnu. Rama, Krishna and the Buddha keep their place in Gods & Teachers.',
+    ids: ['matsya','kurma','varaha','narasimha','vamana','parashurama','balarama','kalki'] },
+
+  /* The wider pantheon — the devas a child meets in the festivals, the rivers and
+     the sky before they ever meet them in a book. */
+  { id: 'pantheon', name: 'The Devas', note: 'Rain, fire, wind, water, sun, moon — and the ones who keep them.',
+    ids: ['indra','agni','vayu','varuna','surya','chandra','yama','kubera','kartikeya','parvati','kali','ganga','vishwakarma'] },
+
+  /* THE ASURAS. Read the pack note twice before adding anyone here.
+     "Asura" is not a synonym for evil and this pack exists partly to say so.
+     Prahlada, born an asura, is one of the best-loved devotees in all the
+     stories. Mahabali is not merely forgiven — Kerala welcomes him home every
+     Onam and has done for centuries. Shukracharya is a revered guru. Banasura
+     was a devotee of Shiva. Devas and asuras are half-brothers in the telling,
+     they churn the same ocean together, and the line between them is which way
+     someone is facing, not what they are made of.
+
+     Consequently NOBODY in this pack is drawn or written as a monster (docs/05
+     §7, and the note at the top of this file about the epic antagonists). The
+     generation prompts carry an explicit no-snarl, no-fangs, no-red-eyes clause. */
+  { id: 'asuras', name: 'The Asuras', note: 'Not a word for evil. Kings, devotees and teachers — half-brothers to the devas, churning the same ocean.',
+    ids: ['bali','prahlada','hiranyakashipu','hiranyaksha','mahishasura','tarakasura','shukracharya','banasura','vritra','bhasmasura'] }
 ];
 
 window.IND_AVATAR_NAMES = {
@@ -648,7 +682,23 @@ window.IND_AVATAR_NAMES = {
   nakula:'Nakula', sahadeva:'Sahadeva', karna:'Karna', bhishma:'Bhishma',
   drona:'Drona', dhritarashtra:'Dhritarashtra', gandhari:'Gandhari', kunti:'Kunti',
   duryodhana:'Duryodhana', shakuni:'Shakuni', vidura:'Vidura', ekalavya:'Ekalavya',
-  abhimanyu:'Abhimanyu'
+  abhimanyu:'Abhimanyu',
+  /* Trimurti — Shiva is already above. "Mahesh" and "Mahadeva" are the same
+     Shiva under other names, so he is not listed twice. */
+  brahma:'Brahma', vishnu:'Vishnu',
+  /* The ten descents */
+  matsya:'Matsya', kurma:'Kurma', varaha:'Varaha', narasimha:'Narasimha',
+  vamana:'Vamana', parashurama:'Parashurama', balarama:'Balarama', kalki:'Kalki',
+  /* The devas. Kartikeya carries his other names on his card, because a Tamil
+     child knows him as Murugan first and would not recognise "Kartikeya". */
+  indra:'Indra', agni:'Agni', vayu:'Vayu', varuna:'Varuna', surya:'Surya',
+  chandra:'Chandra', yama:'Yama', kubera:'Kubera', kartikeya:'Kartikeya',
+  parvati:'Parvati', kali:'Kali', ganga:'Ganga', vishwakarma:'Vishwakarma',
+  /* The asuras. Mahabali is named the way Kerala names him. */
+  bali:'Mahabali', prahlada:'Prahlada', hiranyakashipu:'Hiranyakashipu',
+  hiranyaksha:'Hiranyaksha', mahishasura:'Mahishasura', tarakasura:'Tarakasura',
+  shukracharya:'Shukracharya', banasura:'Banasura', vritra:'Vritra',
+  bhasmasura:'Bhasmasura'
 };
 
 

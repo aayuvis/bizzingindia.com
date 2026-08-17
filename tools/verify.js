@@ -218,7 +218,15 @@ async function main() {
         naya: 'real',      // minus the two emblems below
         darbar: 'real',    // minus the three anonymous court types below
         ramayana: 'epic', mahabharata: 'epic',
-        devas: 'sacred', panch: 'character'
+        devas: 'sacred', panch: 'character',
+        // The Ten Descents and the wider deva pantheon are sacred for the same
+        // reason devas is: no numbers on a deity, ever.
+        dashavatara: 'sacred', pantheon: 'sacred',
+        // The asuras are 'epic' — Katha, a story as it is told. NOT 'character',
+        // because character is the one kind that gets stats, and grading
+        // Mahabali (whom Kerala welcomes home every Onam) or Prahlada out of 99
+        // is exactly the collectible-loot problem docs/05 §7 forbids.
+        asuras: 'epic'
       };
       const NOT_PEOPLE = ['rocket', 'unicorn', 'courtier', 'guard', 'royal_elephant'];
       (window.IND_AVATAR_PACKS || []).forEach(p => {

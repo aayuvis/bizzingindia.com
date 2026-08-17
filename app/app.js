@@ -221,7 +221,9 @@
       .concat(window.IND_STORIES_NE_A || [])
       .concat(window.IND_STORIES_NE_B || [])
       .concat(window.IND_STORIES_MODERN || [])
-      .concat(window.IND_STORIES_VIGYAN || []);
+      .concat(window.IND_STORIES_VIGYAN || [])
+      .concat(window.IND_STORIES_DASHAVATARA || [])
+      .concat(window.IND_STORIES_DEVASURA || []);
   }
   function allCollections() {
     return (window.IND_COLLECTIONS || [])
@@ -234,7 +236,9 @@
       .concat(window.IND_COLLECTIONS_NE_A || [])
       .concat(window.IND_COLLECTIONS_NE_B || [])
       .concat(window.IND_COLLECTIONS_MODERN || [])
-      .concat(window.IND_COLLECTIONS_VIGYAN || []);
+      .concat(window.IND_COLLECTIONS_VIGYAN || [])
+      .concat(window.IND_COLLECTIONS_DASHAVATARA || [])
+      .concat(window.IND_COLLECTIONS_DEVASURA || []);
   }
 
   function toast(m) {
@@ -1158,7 +1162,7 @@
     { id: 'chatur',  name: 'The Clever Ones',   kicker: 'Birbal, and every quick mind since',
       cols: ['birbal', 'chatur'] },
     { id: 'sacred',  name: 'Sacred Stories',    kicker: 'The gods, the gurus, the tirthankaras — side by side',
-      cols: ['mythology', 'purana', 'epics', 'jain', 'sikh'] },
+      cols: ['mythology', 'purana', 'epics', 'jain', 'sikh', 'dashavatara', 'devasura'] },
     { id: 'south',   name: 'The South',         kicker: 'Backwaters, temple towns, the long coast',
       cols: ['desh-south', 'coast-forest'] },
     { id: 'north',   name: 'The North & the Hills', kicker: 'Dilli to the high passes',

@@ -70,7 +70,7 @@
   var S = Store.loadProfile() || {
     schemaVersion: 1, name: '', age: 8, mode: 'bade',
     tongue: null,                 /* mother-tongue id from data-tongue.js; null = lean nowhere */
-    buddy: 'ganesha', world: 'chitrakatha',
+    buddy: 'ganesha', world: 'delhi6',
     kauris: 0, xp: 0,
     lit: {}, read: {}, lang: {},
     streak: { days: [], last: null, count: 0 },
@@ -2609,6 +2609,15 @@
   function worldList() {
     return (window.IND_WORLDS && window.IND_WORLDS.list) || WORLDS;
   }
+  /* A saved world id that no longer exists paints NOTHING — data-world goes on
+     the root, no rule matches it, and the child sits in a blank app wondering
+     where the art went. The fifteen worlds replaced an older set of folk-art
+     traditions, so profiles saved before that carry a dead id. Heal it. */
+  function healWorld() {
+    var list = worldList(), i;
+    for (i = 0; i < list.length; i++) if (list[i].id === S.world) return;
+    if (list.length) { S.world = list[0].id; save(); }
+  }
 
   V.worlds = function () {
     var list = worldList(), live = 0;
@@ -3652,23 +3661,44 @@
       '<span class="pill stat">' + esc(rank()) + '</span>' +
       '<span class="pill stat">' + Object.keys(S.lit).length + ' places</span>' +
       '<span class="pill stat">' + Object.keys(S.read).length + ' stories</span></div></div></div></div>' +
+      /* Worlds comes BEFORE the companions and shows the worlds themselves. It
+         used to be a one-line tile below a wall of 116 avatars, which is where
+         a setting goes to be never found. Picking one is a two-tap job now. */
+      (function () {
+        var list = worldList(), here = null;
+        list.forEach(function (w) { if (w.id === S.world) here = w; });
+        return '<div class="card"><div class="spread"><h3 style="margin:0">Worlds</h3>' +
+          '<button class="pill" data-act="go" data-v="worlds">All ' + list.length + '</button></div>' +
+          '<p class="tiny muted" style="margin:6px 0 0">Repaint the whole app in a real Indian ' +
+          'folk-art tradition. Now: <b>' + esc(here ? here.name : S.world) + '</b>' +
+          (here ? ' — ' + esc(here.region) : '') + '.</p>' +
+          '<div class="grid g2" style="margin-top:12px">' + list.map(function (w) {
+            return '<button class="tile' + (S.world === w.id ? ' on' : '') +
+              '" data-act="world" data-w="' + w.id + '">' +
+              (w.tile
+                ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>'
+                : '<div class="wpreview" data-world="' + w.id + '">' +
+                  '<b style="background:var(--accent)"></b>' +
+                  '<b style="background:var(--accent2);width:24px;height:24px"></b>' +
+                  '<b style="background:var(--accent3);width:19px;height:19px"></b>' +
+                  '<span class="aa">आ Aa</span></div>') +
+              '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3>' +
+              (S.world === w.id ? '<span class="badge aaj">on</span>'
+                                : (w.full ? '<span class="badge">alive</span>' : '')) + '</div>' +
+              '<div class="mono">' + esc(w.region) + '</div></button>';
+          }).join('') + '</div></div>' +
       '<div class="card"><h3>Who travels with you</h3>' +
       '<p class="tiny muted">Tap anyone to see their card.</p>' + packs.map(function (p) {
         return '<div class="tiny muted" style="margin:14px 0 8px;font-weight:700">' + esc(p.name) + ' — ' + esc(p.note) + '</div>' +
           '<div class="grid g4">' + p.ids.map(function (id) {
             return chip(id, 74, 'avcard');
           }).join('') + '</div>';
-      }).join('') + '</div>' +
-      '<button class="tile" style="margin-bottom:var(--space-lg)" data-act="go" data-v="worlds">' +
-      '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
-      '<span style="width:46px;height:46px;flex:none;border-radius:13px;background:var(--accent-soft);' +
-      'color:var(--accent);display:grid;place-items:center">' + icon('star', 24) + '</span>' +
-      '<div style="flex:1"><h3 style="margin:0">Worlds</h3>' +
-      '<p class="tiny" style="margin:5px 0 0">Repaint everything in a real Indian folk-art tradition. ' +
-      'Currently: ' + esc(S.world) + '.</p></div></div></button>' +
+      }).join('') + '</div>';
+      })() +
       '<div class="card"><h3>Grown-ups</h3><div class="row">' +
       '<button class="pill' + (soundOn ? ' on' : '') + '" data-act="sound">' + icon('sound', 18) + ' Sound</button>' +
-      '<button class="pill' + (night ? ' on' : '') + '" data-act="night">Night mode</button>' +
+      '<button class="pill' + (night ? ' on' : '') + '" data-act="night">' +
+      icon(night ? 'sun' : 'moon', 18) + ' Night mode</button>' +
       '<button class="pill" data-act="reset">Start again</button></div>' +
       '<p class="tiny muted" style="margin-top:12px">Build <b>' + esc(window.IND_BUILD || 'dev') + '</b>' +
       ' — if something looks wrong, quote this number so we know which version you are on.</p>' +
@@ -3785,6 +3815,10 @@
       (window.IND_ART_IMG && window.IND_ART_IMG.indexOf('logo') >= 0
         ? '<img src="art/logo.png" alt="" width="68" height="68">'
         : '') + 'Bizzing <em>India</em></button>' +
+      /* One group, so when the bar is too narrow the WHOLE set of controls drops
+         to the next line together. Loose in the row, the wordmark would push
+         them over the edge one at a time and strand sound on a line by itself. */
+      '<span class="barctl">' +
       '<span class="pill stat">🐚 <span id="kauriCount">' + S.kauris + '</span></span>' +
       /* the family-language chip: shows the tongue in its own script, opens the picker */
       (window.IND_TONGUE
@@ -3792,15 +3826,41 @@
           (tongue() ? '<span lang="' + tongue().lang + '">' + esc(tongue().native) + '</span>' : icon('script', 16)) +
           '</button>'
         : '') +
-      '<button class="iconbtn" data-act="sound" aria-label="sound">' + icon('sound', 20) + '</button>' +
+      '<button class="iconbtn' + (soundOn ? '' : ' off') + '" data-act="sound"' +
+      ' aria-pressed="' + (soundOn ? 'true' : 'false') + '" aria-label="Sound">' +
+      icon('sound', 20) + '</button>' +
+      /* Light/night sits right beside sound: the two things a child changes for
+         themselves, in reach without opening settings. The icon shows where the
+         tap GOES, not where you are — a moon means "make it night". */
+      '<button class="iconbtn" data-act="night" aria-pressed="' + (night ? 'true' : 'false') + '"' +
+      ' aria-label="' + (night ? 'Switch to day' : 'Switch to night') + '">' +
+      icon(night ? 'sun' : 'moon', 20) + '</button>' +
       /* This chip is the door to You — Worlds, sound, night mode all live behind
          it. It briefly opened the deck instead, which stranded Worlds; the deck
          has its own door on the big buddy on Home. */
       '<button class="iconbtn" data-act="go" data-v="me" aria-label="You and your settings" style="overflow:hidden;padding:0">' +
       art(S.buddy, 40) + '</button>' +
+      '</span>' +
       '</div><nav class="nav">' + TABS.map(function (t) {
         return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 19) + '<span>' + t[1] + '</span></button>';
       }).join('') + '</nav></header><main class="wrap" id="main"></main>';
+  }
+
+  /* chrome() is built once and then left alone, so the two toggles that live in
+     it have to be repainted by hand — otherwise you tap the moon, the whole app
+     goes dark, and the moon is still sitting there asking to be tapped. */
+  function paintChrome() {
+    var s = document.querySelector('.topbar [data-act="sound"]');
+    if (s) {
+      s.classList.toggle('off', !soundOn);
+      s.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+    }
+    var n = document.querySelector('.topbar [data-act="night"]');
+    if (n) {
+      n.innerHTML = icon(night ? 'sun' : 'moon', 20);
+      n.setAttribute('aria-pressed', night ? 'true' : 'false');
+      n.setAttribute('aria-label', night ? 'Switch to day' : 'Switch to night');
+    }
   }
 
   function render() {
@@ -4167,8 +4227,8 @@
       if (obPlace.home) S.placement = { home: obPlace.home, back: obPlace.back, lang: S.tongue || null };
       S.started = today(); save(); return go('home');
     }
-    if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); toast('Sound ' + (soundOn ? 'on' : 'off')); return render(); }
-    if (a === 'night')  { night = !night; Store.saveDevice('night', night); return render(); }
+    if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); toast('Sound ' + (soundOn ? 'on' : 'off')); paintChrome(); return render(); }
+    if (a === 'night')  { night = !night; Store.saveDevice('night', night); toast(night ? 'Night' : 'Day'); paintChrome(); return render(); }
     if (a === 'reset')  { if (confirm('Clear everything on this device and start again?')) { localStorage.removeItem(Store.KEY); location.reload(); } return; }
     if (a === 'mon')    { var mo = (window.IND_GEO.monuments || []).filter(function (x) { return x.id === t.getAttribute('data-id'); })[0]; if (mo) toast(mo.name + ' — ' + mo.fact); return; }
     if (a === 'pack')   { quiz = quizReset(null); return go('pack', t.getAttribute('data-id')); }
@@ -4311,6 +4371,7 @@
   });
 
   document.addEventListener('DOMContentLoaded', function () {
+    healWorld();
     render();
     // Also the handle tools/verify.js drives the app by, so the headless walk exercises the
     // real navigation rather than a parallel test path.

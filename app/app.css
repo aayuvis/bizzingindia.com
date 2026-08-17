@@ -184,7 +184,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (max-width: 430px) {
   .brand { font-size: 18px; gap: 7px; }
   .brand img, .brand svg { width: 36px; height: 36px; }
+  /* tighter controls so all four stay on the wordmark's line */
+  .barctl { gap: 6px; }
+  .barctl .iconbtn { width: 36px; height: 36px; }
+  .barctl .pill.stat { padding: 6px 9px; }
 }
+/* the controls travel as one block — see chrome() */
+.barctl { display: flex; align-items: center; gap: var(--space-sm); flex: none; }
 
 /* horizontal nav — the Bizzing Bee pattern. Wraps rather than scrolls, so no
    tab is ever hidden off the edge on a phone. */
@@ -264,6 +270,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--card); cursor: pointer; color: var(--text2);
 }
 .iconbtn:hover { color: var(--accent); border-color: var(--accent); }
+/* muted sound reads as struck through, not merely faint — a dimmer icon alone
+   is not a state a child can see across a room */
+.iconbtn.off { color: var(--muted); position: relative; }
+.iconbtn.off::after { content: ''; position: absolute; left: 9px; right: 9px; top: 50%;
+  height: 2px; border-radius: 2px; background: currentColor; transform: rotate(-38deg); }
 
 .backlink { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 8px 0 14px; font-weight: 700; }
 .backlink:hover { color: var(--accent); }

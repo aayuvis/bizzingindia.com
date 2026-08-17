@@ -181,7 +181,11 @@ window.IND_ICONS = {
   back:    '<path d="M15 19l-7-7 7-7"/>',
   print:   '<path d="M7 8V3h10v5M7 18H4v-7h16v7h-3M7 14h10v7H7z"/>',
   temple:  '<path d="M12 2l4 5H8zM6 21v-8h12v8M4 21h16M9 21v-4h6v4"/>',
-  clock:   '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+  clock:   '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  /* the light/night pair — the button shows the state you would MOVE TO, which
+     is what a child reads it as: the moon means "make it night" */
+  moon:    '<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>',
+  sun:     '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/>'
 };
 
 window.IND_ICON = function (name, size) {

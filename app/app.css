@@ -451,8 +451,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (max-width: 430px) { .buddybtn img, .buddybtn svg { width: 150px; height: 150px; } }
 
 .deckscrim { position: fixed; inset: 0; z-index: 120; background: rgba(14, 10, 34, .55);
-  backdrop-filter: blur(3px); display: grid; place-items: end center; }
-.deckwrap { width: min(100%, 620px); max-height: 86vh; display: flex; flex-direction: column;
+  backdrop-filter: blur(3px); display: grid; place-items: end center;
+  /* minmax(0,1fr), not the implicit auto track: the card runs inside are
+     sideways-scrollers whose max-content width is the whole un-scrolled deck,
+     and an auto track would size to that and shove the sheet off-screen. */
+  grid-template-columns: minmax(0, 1fr); }
+.deckwrap { width: min(100%, 620px); min-width: 0; max-height: 86vh; display: flex; flex-direction: column;
   background: var(--card); border-radius: 26px 26px 0 0; box-shadow: var(--shadow-lg);
   animation: deckup .22s ease-out; }
 @keyframes deckup { from { transform: translateY(28px); opacity: .4; } }
@@ -460,11 +464,73 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (min-width: 700px) { .deckscrim { place-items: center; } .deckwrap { border-radius: 26px; } }
 .deckhead { display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 18px 20px 10px; border-bottom: 1px solid var(--line); }
-.deckscroll { overflow-y: auto; padding: 6px 16px 22px; }
+.deckscroll { overflow-y: auto; padding: 6px 16px 22px; min-width: 0; }
 .deckpack { font-weight: 700; margin: 16px 4px 8px; }
-.deckgrid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+/* A RUN OF CARDS, not a grid. Each card overlaps the one before it and carries
+   its own slight tilt, so a pack reads as a stack riffled by hand. The row
+   scrolls sideways; a touched or focused card rises out of the stack, straightens
+   and pushes its neighbours' shadows behind it. */
+.deckrun {
+  display: flex; align-items: flex-start; gap: 0;
+  overflow-x: auto; overflow-y: visible;
+  padding: 16px 18px 22px; margin: 0 -16px;
+  scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+}
+.deckrun::-webkit-scrollbar { height: 6px; }
+.deckrun::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+.deckrun > .minicard {
+  flex: 0 0 auto; width: 104px;
+  margin-left: -30px;                        /* the overlap that makes it a deck */
+  transform: rotate(var(--tilt, 0deg)) translateY(var(--dip, 0));
+  transform-origin: 50% 100%;
+  scroll-snap-align: center;
+  transition: transform .16s ease, box-shadow .16s ease, z-index 0s;
+  position: relative; z-index: 1;
+}
+.deckrun > .minicard:first-child { margin-left: 0; }
+/* Each card covers its left neighbour's right edge, so a buried card is read
+   through the strip that is still showing. Nudge its face into that strip;
+   the moment it lifts, it is whole again and the nudge comes off. */
+.deckrun > .minicard:not(:last-child) > .mhalo,
+.deckrun > .minicard:not(:last-child) > b,
+.deckrun > .minicard:not(:last-child) > .mstat,
+.deckrun > .minicard:not(:last-child) > .mnow { transform: translateX(-15px); }
+.deckrun > .minicard:hover, .deckrun > .minicard:focus-visible {
+  transform: rotate(0deg) translateY(-14px) scale(1.06); z-index: 5;
+  box-shadow: 0 0 22px rgba(120, 100, 255, .5), 0 16px 30px rgba(8, 5, 30, .55);
+}
+.deckrun > .minicard:hover > *, .deckrun > .minicard:focus-visible > * { transform: none; }
+.deckrun > .minicard.on { z-index: 4; transform: rotate(0deg) translateY(-8px); }
+
+/* the sheen: a band of light that travels across the card face, staggered per
+   card so a run shimmers in sequence rather than flashing as one */
+.minicard .sheen {
+  position: absolute; inset: 0; border-radius: inherit; overflow: hidden;
+  pointer-events: none; opacity: .85;
+}
+.minicard .sheen::before {
+  content: ''; position: absolute; top: -60%; bottom: -60%; left: -40%; width: 36%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.42) 45%,
+    rgba(255,255,255,.62) 52%, transparent);
+  transform: rotate(14deg);
+  animation: sheenpass 4.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.42s);
+}
+.minicard.sacred .sheen::before {
+  background: linear-gradient(100deg, transparent, rgba(255,226,160,.5) 45%,
+    rgba(255,236,190,.72) 52%, transparent);
+}
+@keyframes sheenpass {
+  0%   { left: -45%; }
+  55%  { left: 125%; }
+  100% { left: 125%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .minicard .sheen::before { animation: none; opacity: .25; left: 20%; }
+}
 .minicard { position: relative; display: flex; flex-direction: column; align-items: center;
-  gap: 4px; padding: 10px 6px 8px; cursor: pointer; color: #EDE9FF;
+  gap: 4px; padding: 12px 6px 10px; cursor: pointer; color: #EDE9FF; overflow: hidden;
+  min-height: 150px; justify-content: flex-start;
   background: radial-gradient(75% 45% at 50% 14%, rgba(124,92,255,.36), transparent 70%), #171233;
   border: 1px solid rgba(150,130,255,.45); border-radius: 16px;
   box-shadow: 0 0 16px rgba(110,90,255,.28); transition: transform .12s ease; }
@@ -497,6 +563,61 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tbody { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 14px; }
 .tbody b { font: 800 18px/1.2 var(--display); }
 @media (min-width: 700px) { .doors { grid-template-columns: repeat(4, 1fr); } }
+
+/* ---------------------------------------------- THE TOP OF THE STORY SHELF
+   Three tall doors, then three short ones. The art carries the whole tile and
+   the words sit on it, so there is nothing above them to read first: a child
+   who cannot yet read still knows which one is the Ramayana. */
+.topdeck { display: grid; gap: var(--space-md); grid-template-columns: 1fr; }
+.minidoors { display: grid; gap: var(--space-md); grid-template-columns: repeat(3, 1fr);
+  margin-top: var(--space-md); }
+@media (min-width: 700px) { .topdeck { grid-template-columns: repeat(3, 1fr); } }
+
+.bigdoor, .mdoor {
+  position: relative; display: block; width: 100%; padding: 0; overflow: hidden;
+  text-align: left; cursor: pointer; color: #fff; border: 1px solid var(--line);
+  border-radius: var(--radius-lg); background: var(--accent-soft);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.bigdoor { min-height: 232px; }
+.mdoor   { min-height: 118px; }
+.bigdoor:hover, .bigdoor:focus-visible,
+.mdoor:hover, .mdoor:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+.bdart { position: absolute; inset: 0; background-size: cover; background-position: center 32%; }
+/* the veil is what makes white text legible over ANY painting — without it the
+   copy reads on a sunset and vanishes on a sky */
+.bdveil { position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(18,10,32,.10) 0%, rgba(18,10,32,.34) 42%,
+    rgba(18,10,32,.82) 100%); }
+.bdbody { position: relative; display: flex; flex-direction: column; gap: 5px;
+  padding: 16px 16px 15px; justify-content: flex-end; min-height: inherit; }
+.bigdoor .bdbody { min-height: 232px; }
+.mdoor   .bdbody { min-height: 118px; padding: 12px 12px 11px; }
+.bdbody b { font: 800 22px/1.15 var(--display); color: #fff;
+  text-shadow: 0 1px 10px rgba(10,5,26,.6); }
+.mdoor .bdbody b { font-size: 16px; }
+.bdbody .mono, .bdbody .tiny { color: rgba(255,255,255,.9); }
+.bdbody .tiny { text-shadow: 0 1px 8px rgba(10,5,26,.65); }
+.bdbody .btn { align-self: flex-start; margin-top: 8px; pointer-events: none; }
+
+/* the randomiser's wall: twelve paintings from twelve different shelves, laid
+   flat and pushed back far enough that the number on top is the thing you read */
+.mosaic { position: absolute; inset: 0; display: grid;
+  grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); }
+/* pushed back on purpose: twelve paintings at full strength fight the number on
+   top of them, and the number is the point of this tile */
+.mosaic i { display: block; background-size: cover; background-position: center;
+  filter: saturate(.82) brightness(.86); }
+.pick .bdveil { background: linear-gradient(180deg, rgba(18,10,32,.52) 0%,
+  rgba(18,10,32,.62) 45%, rgba(18,10,32,.86) 100%); }
+@media (max-width: 430px) {
+  .bigdoor { min-height: 200px; } .bigdoor .bdbody { min-height: 200px; }
+  .mdoor { min-height: 96px; } .mdoor .bdbody { min-height: 96px; }
+  .mdoor .bdbody b { font-size: 13.5px; }
+  .minidoors { gap: var(--space-sm); }
+}
+
 .mapsvg .terrg:focus-visible { outline: none; }
 
 .mapsvg .tlab {

@@ -1164,8 +1164,44 @@
       cols: ['khel', 'naya', 'vigyan', 'rah'] }
   ];
 
+  /* Three named doors that get their own tile at the top of Stories, above the
+     eight shelves. They are NOT extra shelves — every story behind them is also
+     behind a shelf below; these are just the three a child asks for by name. */
+  var FEATURE_DOORS = [
+    { id: 'panch',  name: 'Panchatantra', kicker: 'Animal fables, each with a sting in the tail',
+      cols: ['panchatantra', 'panch-more'] },
+    { id: 'birbal', name: 'Akbar & Birbal', kicker: 'The emperor asks. The clever man answers.',
+      cols: ['birbal', 'chatur'] },
+    { id: 'folk',   name: 'Folk tales', kicker: 'Every corner of the country, in its own voice',
+      cols: ['desh-south', 'coast-forest', 'dilli', 'naya-shehar', 'pahad', 'wadi', 'panj-ab',
+             'desh-east', 'desh-ne-a', 'desh-ne-b', 'west-lands', 'heart-lands', 'desh', 'desh-more'] }
+  ];
+  function doorById(id) {
+    var all = STORY_THEMES.concat(FEATURE_DOORS);
+    for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
+    return null;
+  }
+
   function themeStories(t, all) {
     return all.filter(function (x) { return t.cols.indexOf(x.collection) >= 0; });
+  }
+
+  /* The mosaic behind the randomiser: a wall of the paintings already in the
+     library. Picked ONCE per load, not per render — a grid that reshuffles on
+     every keystroke is a strobe, not a background. */
+  var MOSAIC = null;
+  function mosaicTiles(n) {
+    if (MOSAIC) return MOSAIC;
+    var pics = [];
+    allStories().forEach(function (x) { var p = storyArt(x.id); if (p) pics.push(p); });
+    if (!pics.length) return (MOSAIC = []);
+    /* a fixed stride through the list, so the wall is spread across the whole
+       library rather than being twelve stories from one collection */
+    var step = Math.max(1, Math.floor(pics.length / n));
+    var start = Math.floor(Math.random() * pics.length);
+    var out = [];
+    for (var i = 0; i < n; i++) out.push(pics[(start + i * step) % pics.length]);
+    return (MOSAIC = out);
   }
 
   function storyShelf(title, note, list, favs) {
@@ -1192,25 +1228,64 @@
     function shelf(title, note, list) { return storyShelf(title, note, list, favs); }
     function card(x) { return storyCard(x, favs); }
 
-    return '<div class="card"><div class="spread"><div>' +
-      '<h1 style="margin:0">Stories</h1>' +
-      '<p style="margin:6px 0 0">' + all.length + ' of them, and more coming. Nothing to finish, ' +
-      'nothing to get right — you can have the same one again tomorrow.</p></div></div>' +
-      '<button class="btn lg" style="margin-top:14px" data-act="tellone">' + icon('play', 20) +
-      ' Tell me one</button></div>' +
+    /* THE TOP OF THE LIBRARY.
+       Three big doors and three small ones. No heading, no preamble: a child who
+       wants any story taps the first, a child who came for one of the two long
+       ones taps its painting, and every shelf is still below, untouched. */
+    function bigdoor(act, id, pic, kicker, title, note) {
+      return '<button class="bigdoor" data-act="' + act + '" data-id="' + id + '">' +
+        '<span class="bdart"' + (pic ? ' style="background-image:url(' + pic + ')"' : '') + '></span>' +
+        '<span class="bdveil"></span>' +
+        '<span class="bdbody"><span class="mono">' + esc(kicker) + '</span>' +
+        '<b>' + esc(title) + '</b>' +
+        '<span class="tiny">' + esc(note) + '</span></span></button>';
+    }
+    var ram = epicById('ramayana'), mb = epicById('mahabharata');
+
+    return '<div class="topdeck">' +
+
+      /* 1 — the randomiser, standing on a wall of the library's own paintings */
+      '<button class="bigdoor pick" data-act="tellone">' +
+        '<span class="mosaic" aria-hidden="true">' +
+          mosaicTiles(12).map(function (p) {
+            return '<i style="background-image:url(' + p + ')"></i>';
+          }).join('') + '</span>' +
+        '<span class="bdveil"></span>' +
+        '<span class="bdbody"><span class="mono">the whole library</span>' +
+        '<b>' + all.length + ' stories</b>' +
+        '<span class="tiny">Nothing to finish, nothing to get right — you can have the same ' +
+        'one again tomorrow.</span>' +
+        '<span class="btn">' + icon('play', 18) + ' Tell me one</span></span></button>' +
+
+      /* 2 and 3 — the two long ones, each behind a painting from inside it */
+      (ram ? bigdoor('epic', 'ramayana', 'art/epic/ramayana-16-0.jpg',
+        ram.episodes.length + ' nights', 'The Ramayana',
+        'One card at a time. Stop anywhere — it waits.') : '') +
+      (mb ? bigdoor('epic', 'mahabharata', 'art/epic/mahabharata-26-3.jpg',
+        mb.episodes.length + ' nights', 'The Mahabharata',
+        'The one about the family. Nobody finishes it in a night.') : '') +
+      '</div>' +
+
+      /* the three a child asks for by name */
+      '<div class="minidoors">' + FEATURE_DOORS.map(function (d) {
+        var list = themeStories(d, all);
+        if (!list.length) return '';
+        var pic = null;
+        for (var i = 0; i < list.length && !pic; i++) pic = storyArt(list[i].id);
+        return '<button class="mdoor" data-act="kahani" data-id="' + d.id + '">' +
+          '<span class="bdart"' + (pic ? ' style="background-image:url(' + pic + ')"' : '') + '></span>' +
+          '<span class="bdveil"></span>' +
+          '<span class="bdbody"><b>' + esc(d.name) + '</b>' +
+          '<span class="mono">' + list.length + ' stories</span></span></button>';
+      }).join('') + '</div>' +
 
       (window.IND_NANI
         ? '<button class="tile" style="margin:var(--space-lg) 0 0" data-act="go" data-v="nani">' +
           '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + icon('mic', 36) +
           '<div style="flex:1"><h3 style="margin:0">' + esc(naniTitle()) + '</h3>' +
-          '<p class="tiny" style="margin:5px 0 0">Stories in your own family\u2019s voice \u2014 the ' +
+          '<p class="tiny" style="margin:5px 0 0">Stories in your own family’s voice — the ' +
           'warmest shelf in this library. Record a grandparent, keep it forever.</p></div></div></button>'
         : '') +
-      (epics().length ? '<button class="tile" style="margin:var(--space-lg) 0" data-act="go" data-v="epics">' +
-        '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art('rama', 58) +
-        '<div style="flex:1"><h3 style="margin:0">The Epics</h3>' +
-        '<p class="tiny" style="margin:5px 0 0">The Ramayana and the Mahabharata, one card at a ' +
-        'time. Read one, stop, come back tomorrow — nobody finishes these in a night.</p></div></div></button>' : '') +
 
       /* The family's own places first — leaning, not gating: every other shelf
          is right below, untouched. */
@@ -1255,8 +1330,7 @@
 
   /* one themed room: the door's collections as rails */
   V.kahani = function (id) {
-    var t = null, i;
-    for (i = 0; i < STORY_THEMES.length; i++) if (STORY_THEMES[i].id === id) t = STORY_THEMES[i];
+    var t = doorById(id);
     if (!t) return '<div class="card">This shelf is not here.</div>';
     var all = allStories(), favs = S.favs || {};
     var cols = allCollections().filter(function (c) { return t.cols.indexOf(c.id) >= 0; });
@@ -2597,21 +2671,9 @@
             '<div class="tiny muted" style="margin-top:8px">' + st.correct + ' right of ' + st.asked + '</div></button>';
         }).join('') + '</div>';
       })() +
-      /* Practice wearing a costume. With Play gone from the bar, the drills live beside the
-         path they drill for — the Duolingo move: the game is the treat at the rung. The Mela
-         keeps every stall for whoever wants the whole fairground. */
-      '<div class="card"><h3 style="margin:0 0 4px">Khel</h3>' +
-      '<p class="tiny muted">Games that are secretly practice.</p>' +
-      '<div class="grid g2">' +
-        '<button class="tile" data-act="game" data-id="rangoli"><b>Rangoli Rush</b>' +
-        '<span class="tiny muted">See it, lose it, draw it back — memory in patterns.</span></button>' +
-        '<button class="tile" data-act="go" data-v="rishtey"><b>Rishtey</b>' +
-        '<span class="tiny muted">Thirty exact words for your family, where English has one.</span></button>' +
-        '<button class="tile" data-act="game" data-id="jataka"><b>Jataka Jump</b>' +
-        '<span class="tiny muted">Hear a tiny fable, find the lesson hiding in it.</span></button>' +
-        '<button class="tile" data-act="go" data-v="play"><b>The whole Mela</b>' +
-        '<span class="tiny muted">Every stall in one place.</span></button>' +
-      '</div></div>' +
+      /* The drills used to be duplicated here as a "Khel" block. Khel is its own
+         tab in the bar now, and the same four stalls listed in two places made the
+         bar look like it was lying about where the games live. One home. */
       '<div class="card flat tiny"><b>Note.</b> The Hindi and Punjabi audio here is synthesised, as a placeholder. ' +
       'Per <code>docs/09</code> it must be replaced with human voice before launch — children imitate these sounds, ' +
       'and TTS teaches errors a native-speaker parent hears instantly.</div>';
@@ -3671,12 +3733,26 @@
         '<div class="tiny muted">' + (window.IND_ART_IMG || []).length +
         ' companions · tap any card to meet them</div></div>' +
         '<button class="iconbtn" data-act="deckclose" aria-label="Close">✕</button></div>' +
+        /* THE DECK IS A DECK, not a grid of tiles. Each pack is a fanned run of
+           cards — every card overlapping the one before it, tilted a little,
+           lifted a little, so it reads as a stack you riffle through with your
+           thumb rather than a spreadsheet of faces. The row scrolls sideways
+           and a card rises out of the stack when you touch or focus it. Each
+           carries a sheen that travels across the face. Depth comes from
+           per-card CSS variables set here, because the offsets depend on the
+           card's position in its pack. */
         '<div class="deckscroll">' + packs.map(function (p) {
           return '<div class="tiny muted deckpack">' + esc(p.name) + '</div>' +
-            '<div class="deckgrid">' + p.ids.map(function (id) {
+            '<div class="deckrun" role="list">' + p.ids.map(function (id, i) {
               var C = window.IND_AV_CARD ? window.IND_AV_CARD(id) : null;
+              /* alternate the tilt and nudge every other card down a hair, so a
+                 run of twelve looks shuffled by hand rather than stamped */
+              var tilt = ((i % 3) - 1) * 1.6 + (i % 2 ? .5 : -.4);
               return '<button class="minicard' + (C && C.sacred ? ' sacred' : '') +
-                (S.buddy === id ? ' on' : '') + '" data-act="avcard" data-id="' + id + '">' +
+                (S.buddy === id ? ' on' : '') + '" role="listitem"' +
+                ' style="--i:' + i + ';--tilt:' + tilt.toFixed(2) + 'deg;--dip:' + (i % 2 ? 5 : 0) + 'px"' +
+                ' data-act="avcard" data-id="' + id + '">' +
+                '<span class="sheen"></span>' +
                 '<span class="mhalo">' + art(id, 66) + '</span>' +
                 '<b>' + esc((window.IND_AVATAR_NAMES || {})[id] || id) + '</b>' +
                 /* THE DECK NEVER GRADES A PERSON EITHER. This corner used to

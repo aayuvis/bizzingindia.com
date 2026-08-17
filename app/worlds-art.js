@@ -1068,7 +1068,19 @@
         '<path fill="#ffb454" d="M12 26h36l6 40H6z"/><path fill="#fff0c2" d="M22 34h16l3 24H19z"/></g>') +
       '</div>';
   }
-  S.delhi6 = { bd: d6Bd, band: d6Band, sky: d6Sky, foot: d6Foot };
+  /* The air layer: the wash that sits at the edges, in front of the backdrop. This
+     world never had one, so its sides were bare where Diwali's were not. */
+  function d6Air() {
+    return '<div class="wa-day">' +
+      puff({ l: '-16%', t: '4%', w: 'clamp(220px,50vw,520px)', c: '#f0ac29', a: 0.22, cls: 'wam-glow', dur: 12 }) +
+      puff({ l: '74%', t: '18%', w: 'clamp(220px,50vw,520px)', c: '#f0ac29', a: 0.154, cls: 'wam-glow', dur: 14.5 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '-16%', t: '6%', w: 'clamp(220px,50vw,520px)', c: '#ffb454', a: 0.14, cls: 'wam-glow', dur: 10 }) +
+      puff({ l: '74%', t: '20%', w: 'clamp(220px,50vw,520px)', c: '#ffb454', a: 0.098, cls: 'wam-glow', dur: 12.5 }) +
+      '</div>';
+  }
+
+  S.delhi6 = { bd: d6Bd, air: d6Air, band: d6Band, sky: d6Sky, foot: d6Foot };
 
   /* ======================================================================= */
   /*  MUMBAI BUSTLE — the local, the sea, the necklace of lights             */
@@ -1144,7 +1156,19 @@
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:4px') +
       '</div>';
   }
-  S.mumbai = { bd: mbBd, band: mbBand, sky: mbSky, foot: mbFoot };
+  /* The air layer: the wash that sits at the edges, in front of the backdrop. This
+     world never had one, so its sides were bare where Diwali's were not. */
+  function mbAir() {
+    return '<div class="wa-day">' +
+      puff({ l: '-16%', t: '4%', w: 'clamp(220px,50vw,520px)', c: '#f2b90d', a: 0.18, cls: 'wam-glow', dur: 13 }) +
+      puff({ l: '74%', t: '18%', w: 'clamp(220px,50vw,520px)', c: '#f2b90d', a: 0.126, cls: 'wam-glow', dur: 15.5 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '-16%', t: '6%', w: 'clamp(220px,50vw,520px)', c: '#5cc0e8', a: 0.14, cls: 'wam-glow', dur: 11 }) +
+      puff({ l: '74%', t: '20%', w: 'clamp(220px,50vw,520px)', c: '#5cc0e8', a: 0.098, cls: 'wam-glow', dur: 13.5 }) +
+      '</div>';
+  }
+
+  S.mumbai = { bd: mbBd, air: mbAir, band: mbBand, sky: mbSky, foot: mbFoot };
 
   /* ======================================================================= */
   /*  DURGA PUJO — the pandal AND the murti inside it, which is what a       */
@@ -1314,7 +1338,19 @@
       bulbs({ c: '#ff9d5e', top: 'calc(100% - 40px)', h: '18px', pitch: 30, r: 2.2, rows: 2, dur: 2.8 }) +
       '</div>';
   }
-  S.pujo = { bd: pjBd, band: pjBand, sky: pjSky, foot: pjFoot };
+  /* The air layer: the wash that sits at the edges, in front of the backdrop. This
+     world never had one, so its sides were bare where Diwali's were not. */
+  function pjAir() {
+    return '<div class="wa-day">' +
+      puff({ l: '-16%', t: '4%', w: 'clamp(220px,50vw,520px)', c: '#ee7a3b', a: 0.22, cls: 'wam-glow', dur: 12 }) +
+      puff({ l: '74%', t: '18%', w: 'clamp(220px,50vw,520px)', c: '#ee7a3b', a: 0.154, cls: 'wam-glow', dur: 14.5 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '-16%', t: '6%', w: 'clamp(220px,50vw,520px)', c: '#ffab5e', a: 0.16, cls: 'wam-glow', dur: 10 }) +
+      puff({ l: '74%', t: '20%', w: 'clamp(220px,50vw,520px)', c: '#ffab5e', a: 0.112, cls: 'wam-glow', dur: 12.5 }) +
+      '</div>';
+  }
+
+  S.pujo = { bd: pjBd, air: pjAir, band: pjBand, sky: pjSky, foot: pjFoot };
 
   /* ======================================================================= */
   /*  DAL LAKE — mirror water by day, black glass and one lamp by night      */
@@ -1398,7 +1434,19 @@
         .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:2px') +
       '</div>';
   }
-  S.dallake = { bd: dlBd, band: dlBand, sky: dlSky, foot: dlFoot };
+  /* The air layer: the wash that sits at the edges, in front of the backdrop. This
+     world never had one, so its sides were bare where Diwali's were not. */
+  function dlAir() {
+    return '<div class="wa-day">' +
+      puff({ l: '-16%', t: '4%', w: 'clamp(220px,50vw,520px)', c: '#cfe4ee', a: 0.26, cls: 'wam-glow', dur: 15 }) +
+      puff({ l: '74%', t: '18%', w: 'clamp(220px,50vw,520px)', c: '#cfe4ee', a: 0.182, cls: 'wam-glow', dur: 17.5 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '-16%', t: '6%', w: 'clamp(220px,50vw,520px)', c: '#9fd0e8', a: 0.14, cls: 'wam-glow', dur: 13 }) +
+      puff({ l: '74%', t: '20%', w: 'clamp(220px,50vw,520px)', c: '#9fd0e8', a: 0.098, cls: 'wam-glow', dur: 15.5 }) +
+      '</div>';
+  }
+
+  S.dallake = { bd: dlBd, air: dlAir, band: dlBand, sky: dlSky, foot: dlFoot };
 
   /* ======================================================================= */
   /*  FORTS OF RAJASTHAN — kites over the ramparts, windows alight at night  */
@@ -1480,7 +1528,19 @@
       bulbs({ c: '#ffd07a', top: 'calc(100% - 26px)', h: '16px', pitch: 38, r: 2, rows: 2, dur: 3.6 }) +
       '</div>';
   }
-  S.rajasthan = { bd: rjBd, band: rjBand, sky: rjSky, foot: rjFoot };
+  /* The air layer: the wash that sits at the edges, in front of the backdrop. This
+     world never had one, so its sides were bare where Diwali's were not. */
+  function rjAir() {
+    return '<div class="wa-day">' +
+      puff({ l: '-16%', t: '4%', w: 'clamp(220px,50vw,520px)', c: '#e8a33c', a: 0.24, cls: 'wam-glow', dur: 12 }) +
+      puff({ l: '74%', t: '18%', w: 'clamp(220px,50vw,520px)', c: '#e8a33c', a: 0.168, cls: 'wam-glow', dur: 14.5 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '-16%', t: '6%', w: 'clamp(220px,50vw,520px)', c: '#ffc06a', a: 0.16, cls: 'wam-glow', dur: 11 }) +
+      puff({ l: '74%', t: '20%', w: 'clamp(220px,50vw,520px)', c: '#ffc06a', a: 0.112, cls: 'wam-glow', dur: 13.5 }) +
+      '</div>';
+  }
+
+  S.rajasthan = { bd: rjBd, air: rjAir, band: rjBand, sky: rjSky, foot: rjFoot };
 
   /* ======================================================================= */
   /*  MADHUBANI — the Mithila wall, at scale. Kachni hatching, twin fish,    */
@@ -1571,7 +1631,554 @@
         }) + '</g>') +
       '</div>';
   }
-  S.madhubani = { bd: mhBd, band: mhBand, sky: mhSky, foot: mhFoot };
+  /* The air layer: the wash that sits at the edges, in front of the backdrop. This
+     world never had one, so its sides were bare where Diwali's were not. */
+  function mhAir() {
+    return '<div class="wa-day">' +
+      puff({ l: '-16%', t: '4%', w: 'clamp(220px,50vw,520px)', c: '#e2951f', a: 0.22, cls: 'wam-glow', dur: 13 }) +
+      puff({ l: '74%', t: '18%', w: 'clamp(220px,50vw,520px)', c: '#e2951f', a: 0.154, cls: 'wam-glow', dur: 15.5 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '-16%', t: '6%', w: 'clamp(220px,50vw,520px)', c: '#ffb36b', a: 0.14, cls: 'wam-glow', dur: 12 }) +
+      puff({ l: '74%', t: '20%', w: 'clamp(220px,50vw,520px)', c: '#ffb36b', a: 0.098, cls: 'wam-glow', dur: 14.5 }) +
+      '</div>';
+  }
+
+  S.madhubani = { bd: mhBd, air: mhAir, band: mhBand, sky: mhSky, foot: mhFoot };
+
+  /* ======================================================================= */
+  /*  THE SEVEN THAT HAD NOTHING                                             */
+  /*                                                                         */
+  /*  Taj, Cricket, Bollywood, Antariksh, Truck, Dance and Patterns were in  */
+  /*  the manifest with a palette, a name and a credit — and no scene at all.*/
+  /*  Picking one changed the colours and left the screen empty, which is    */
+  /*  exactly why they read as bare. Each gets the full five layers now:     */
+  /*  backdrop, air, band, sky and the footer stage.                         */
+  /* ======================================================================= */
+
+  /* ---------------------------------------------------------------- TAJ ---
+     Restraint is the building. One dome, four minarets, the char-bagh's long
+     water, and inlay flowers drifting. Nothing here is busy on purpose. */
+  function tjBd() {
+    return '<div class="wa-day">' +
+      puff({ l: '46%', t: '-16%', w: 'clamp(300px,66vw,700px)', c: '#e8b7a0', a: 0.34, cls: 'wam-glow', dur: 12 }) +
+      puff({ l: '-14%', t: '30%', w: 'clamp(260px,56vw,560px)', c: '#c99a4b', a: 0.16 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '54%', t: '-14%', w: 'clamp(260px,56vw,560px)', c: '#e8c88a', a: 0.24, cls: 'wam-glow', dur: 10 }) +
+      puff({ l: '-10%', t: '34%', w: 'clamp(280px,60vw,600px)', c: '#8c5a74', a: 0.26 }) +
+      '</div>';
+  }
+  function tjAir() {
+    return '<div class="wa-day">' +
+      puff({ l: '30%', t: '-24%', w: 'clamp(320px,72vw,800px)', c: '#fff4e6', a: 0.2, cls: 'wam-glow', dur: 14 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '38%', t: '-20%', w: 'clamp(280px,64vw,700px)', c: '#d9e4ff', a: 0.12, cls: 'wam-glow', dur: 12 }) +
+      '</div>';
+  }
+  function tjBand() {
+    /* pietra dura: a repeating inlay vine, the way the dado panels run */
+    var vine = '<i class="wa-tileband" style="top:0;height:100%;opacity:.32;background:' +
+      'radial-gradient(circle at 14px 50%,var(--wa-accent) 0 3px,rgba(0,0,0,0) 3.6px),' +
+      'radial-gradient(circle at 34px 50%,var(--wa-accent2) 0 2px,rgba(0,0,0,0) 2.6px);' +
+      'background-size:40px 100%,40px 100%"></i>';
+    var rule = '<i class="wa-tileband" style="bottom:0;height:2px;background:var(--wa-accent2);opacity:.5"></i>';
+    return '<div class="wa-day">' + vine + rule + '</div><div class="wa-night">' + vine + rule + '</div>';
+  }
+  function tjSky() {
+    /* inlay flowers, drifting the way petals do over the garden */
+    var petals = spr('left:0;top:0;width:100%;height:100%', '0 0 100 100',
+      '<g class="wam-fall" style="animation-duration:26s">' +
+      rep(7, function (i) {
+        var x = 8 + (i * 27) % 84;
+        return '<g transform="translate(' + x + ' ' + ((i * 9) % 16) + ')">' +
+          rep(6, function (k) { return '<ellipse cx="0" cy="-1" rx=".4" ry=".9" class="waf-a" opacity=".4" transform="rotate(' + k * 60 + ')"/>'; }) +
+          '<circle r="0.4" class="waf-b" opacity=".55"/></g>';
+      }) + '</g>');
+    var birds = spr('left:0;top:16%;width:100%;height:34%', '0 0 100 40',
+      '<g class="wam-cross" style="animation-duration:64s">' +
+      rep(3, function (i) {
+        return '<path class="was-i waf-n" stroke-width=".9" opacity=".4" d="M' + (6 + i * 9) + ' ' +
+          (7 + i * 4) + 'q2.4-2.6 4.8 0q2.4-2.6 4.8 0"/>';
+      }) + '</g>');
+    return '<div class="wa-day">' + petals + birds + '</div><div class="wa-night">' + petals + '</div>';
+  }
+  function tjFoot() {
+    /* the mausoleum: plinth, four minarets, the great dome and its two chhatris,
+       then the long water of the char-bagh with the building standing in it. */
+    var dome = '<path class="waf-s" d="M210 34q30 0 30 34q0 26-30 40q-30-14-30-40q0-34 30-34Z"/>' +
+      '<path class="waf-s" d="M186 104h48v10h-48z"/>' +
+      '<path class="was-b waf-n" stroke-width="1.6" opacity=".5" d="M210 26v10"/>' +
+      '<circle class="waf-b" cx="210" cy="24" r="3"/>';
+    var body = '<path class="waf-s" d="M150 114h120v52H150z"/>' +
+      '<path class="waf-g" opacity=".55" d="M198 166v-32q0-12 12-12t12 12v32Z"/>' +   /* the iwan */
+      '<path class="was-a waf-n" stroke-width="1.6" opacity=".4" d="M198 166v-32q0-12 12-12t12 12v32"/>' +
+      rep(2, function (i) {
+        var x = 162 + i * 84;
+        return '<path class="waf-g" opacity=".4" d="M' + x + ' 166v-20q0-8 8-8t8 8v20Z"/>';
+      });
+    var minarets = rep(4, function (i) {
+      var x = [124, 152, 268, 296][i];
+      return '<g><rect class="waf-s" x="' + (x - 4) + '" y="66" width="8" height="100" rx="2"/>' +
+        '<ellipse class="waf-s" cx="' + x + '" cy="64" rx="8" ry="5"/>' +
+        '<path class="was-b waf-n" stroke-width="1.2" opacity=".45" d="M' + (x - 4) + ' 96h8M' + (x - 4) + ' 126h8"/>' +
+        '<circle class="waf-b" cx="' + x + '" cy="57" r="2.4"/></g>';
+    });
+    var cypress = rep(6, function (i) {
+      var x = 30 + i * 74;
+      if (x > 100 && x < 320) return '';
+      return '<path class="waf-f" opacity=".55" d="M' + x + ' 166q-6-10-6-24t6-22q6 8 6 22t-6 24Z"/>';
+    });
+    var taj = spr('left:50%;bottom:0;width:clamp(300px,86vw,720px);height:auto;transform:translateX(-50%)',
+      '0 0 420 200',
+      '<g opacity=".97">' + minarets + body + dome + '</g>' + cypress +
+      /* the char-bagh's canal, and the reflection standing in it */
+      '<rect class="waf-a" opacity=".18" x="150" y="166" width="120" height="34" rx="3"/>' +
+      '<g opacity=".22" transform="translate(0 332) scale(1 -1)">' + body + dome + '</g>' +
+      '<g class="wa-night"><ellipse class="wam-glow" style="transform-box:view-box;transform-origin:210px 90px;animation-duration:9s"' +
+      ' cx="210" cy="90" rx="120" ry="70" fill="rgba(230,220,255,.16)"/></g>');
+    return '<i class="wa-fade" style="bottom:34px;height:56px"></i>' +
+      '<i class="wa-floor" style="height:22px;background:var(--wa-ink);opacity:.14"></i>' + taj;
+  }
+  S.taj = { bd: tjBd, air: tjAir, band: tjBand, sky: tjSky, foot: tjFoot };
+
+  /* ------------------------------------------------------------ CRICKET ---
+     A maidan at dusk: floodlight pylons, the stand, stumps, and a ball that
+     keeps sailing over the rope. No team, no league, no marks. */
+  function ckBd() {
+    return '<div class="wa-day">' +
+      puff({ l: '-12%', t: '20%', w: 'clamp(300px,64vw,660px)', c: '#1e7a46', a: 0.18 }) +
+      puff({ l: '58%', t: '-12%', w: 'clamp(280px,60vw,600px)', c: '#efb71e', a: 0.2 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '14%', t: '-18%', w: 'clamp(300px,64vw,660px)', c: '#ffd75e', a: 0.24, cls: 'wam-glow', dur: 7 }) +
+      puff({ l: '62%', t: '-18%', w: 'clamp(300px,64vw,660px)', c: '#ffd75e', a: 0.24, cls: 'wam-glow', dur: 8.5 }) +
+      '</div>';
+  }
+  function ckAir() {
+    /* the floodlight beams themselves — only at night, and only a wash */
+    return '<div class="wa-night">' +
+      '<i class="wa-puff" style="left:6%;top:-10%;width:clamp(160px,34vw,340px);height:120%;' +
+      'background:linear-gradient(190deg,rgba(255,215,94,.20),rgba(255,215,94,0) 62%)"></i>' +
+      '<i class="wa-puff" style="right:6%;left:auto;top:-10%;width:clamp(160px,34vw,340px);height:120%;' +
+      'background:linear-gradient(170deg,rgba(255,215,94,.20),rgba(255,215,94,0) 62%)"></i>' +
+      '</div>';
+  }
+  function ckBand() {
+    var bunting = '<i class="wa-tileband" style="top:0;height:100%;opacity:.5;background:' +
+      'repeating-linear-gradient(90deg,var(--wa-accent) 0 16px,var(--wa-accent2) 16px 32px,var(--wa-festive) 32px 48px);' +
+      '-webkit-mask-image:' + M_SCALLOP + ';mask-image:' + M_SCALLOP + ';-webkit-mask-size:24px 12px;mask-size:24px 12px;' +
+      '-webkit-mask-repeat:repeat-x;mask-repeat:repeat-x;-webkit-mask-position:0 100%;mask-position:0 100%"></i>';
+    return '<div class="wa-day">' + bunting + '</div>' +
+      '<div class="wa-night">' + bunting + bulbs({ c: '#ffd75e', top: 'calc(100% - 18px)', h: '18px', pitch: 24, r: 2.2, rows: 3, dur: 2.1 }) + '</div>';
+  }
+  function ckSky() {
+    /* the six: a ball that crosses and holds, so it is an event, not a loop */
+    var ball = spr('left:0;top:8%;width:100%;height:70%', '0 0 100 60',
+      '<g class="wam-crosshold" style="animation-duration:11s">' +
+      '<g class="wam-spin" style="animation-duration:2.4s;transform-box:view-box;transform-origin:6px 30px">' +
+      '<circle class="waf-f" cx="6" cy="30" r="2.6"/>' +
+      '<path class="was-s waf-n" stroke-width=".7" opacity=".85" d="M4 28.4q2 1.6 0 3.2M8 28.4q-2 1.6 0 3.2"/></g></g>');
+    return '<div class="wa-day">' + ball + '</div><div class="wa-night">' + ball + '</div>';
+  }
+  function ckFoot() {
+    var pylon = function (x) {
+      return '<g><path class="was-i waf-n" stroke-width="3" opacity=".8" d="M' + x + ' 200V52"/>' +
+        '<path class="was-i waf-n" stroke-width="2" opacity=".5" d="M' + (x - 10) + ' 190L' + x + ' 120L' + (x + 10) + ' 190"/>' +
+        '<rect class="waf-b" x="' + (x - 20) + '" y="26" width="40" height="26" rx="4"/>' +
+        rep(6, function (i) { return '<circle class="waf-s" opacity=".9" cx="' + (x - 14 + (i % 3) * 14) + '" cy="' + (34 + Math.floor(i / 3) * 12) + '" r="3.4"/>'; }) +
+        '<g class="wa-night"><ellipse class="wam-glow" style="transform-box:view-box;transform-origin:' + x + 'px 40px;animation-duration:6s" cx="' + x + '" cy="40" rx="42" ry="30" fill="rgba(255,215,94,.34)"/></g></g>';
+    };
+    var stand = '<path class="waf-i" opacity=".22" d="M0 150h420v22H0z"/>' +
+      rep(28, function (i) {
+        return '<circle class="waf-a" opacity=".5" cx="' + (8 + i * 15) + '" cy="' + (146 - (i % 3) * 4) + '" r="3.4"/>';
+      });
+    var wicket = '<g><path class="was-s waf-n" stroke-width="2.6" d="M198 196v-24M210 196v-24M222 196v-24"/>' +
+      '<path class="was-s waf-n" stroke-width="2" d="M196 172h28"/></g>';
+    var batter = '<g transform="translate(150 196)">' +
+      '<circle class="waf-i" cx="0" cy="-40" r="6"/>' +
+      '<path class="waf-i" d="M-7 0q0-24 7-24t7 24z"/>' +
+      '<path class="was-i waf-n" stroke-width="3.4" stroke-linecap="round" d="M4 -30L20 -44"/>' +
+      '<rect class="waf-b" x="19" y="-56" width="6" height="16" rx="2" transform="rotate(-40 22 -48)"/></g>';
+    var rope = '<path class="was-f waf-n" stroke-width="2.4" opacity=".7" d="M0 182q210 -16 420 0"/>';
+    var pitch = spr('left:50%;bottom:0;width:clamp(320px,96vw,900px);height:auto;transform:translateX(-50%)',
+      '0 0 420 200', stand + rope + pylon(46) + pylon(374) +
+      '<ellipse class="waf-f" opacity=".16" cx="210" cy="200" rx="150" ry="26"/>' + wicket + batter);
+    return '<i class="wa-fade" style="bottom:30px;height:52px"></i>' +
+      '<i class="wa-floor" style="height:26px;background:var(--wa-accent);opacity:.24"></i>' + pitch;
+  }
+  S.cricket = { bd: ckBd, air: ckAir, band: ckBand, sky: ckSky, foot: ckFoot };
+
+  /* ---------------------------------------------------------- BOLLYWOOD ---
+     A single-screen cinema on a Bombay evening: hand-painted hoarding, the
+     marquee running, spotlights sweeping the sky, the ticket window open. */
+  function blBd() {
+    return '<div class="wa-day">' +
+      puff({ l: '-14%', t: '-10%', w: 'clamp(300px,64vw,660px)', c: '#c42a6c', a: 0.2 }) +
+      puff({ l: '58%', t: '24%', w: 'clamp(280px,60vw,600px)', c: '#f0a519', a: 0.24 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '-10%', t: '-6%', w: 'clamp(300px,64vw,660px)', c: '#ff77ab', a: 0.3 }) +
+      puff({ l: '56%', t: '18%', w: 'clamp(300px,64vw,660px)', c: '#ffc45e', a: 0.26, cls: 'wam-glow', dur: 7.5 }) +
+      '</div>';
+  }
+  function blAir() {
+    /* two searchlights, opposed, sweeping slowly. Premiere night. */
+    var beam = function (side, dur, dl) {
+      return '<i class="wa-puff wam-swayb" style="' + side + ':4%;bottom:-10%;top:auto;width:clamp(90px,18vw,190px);height:130%;' +
+        'transform-origin:50% 100%;animation-duration:' + dur + 's;animation-delay:' + dl + 's;' +
+        'background:linear-gradient(' + (side === 'left' ? '12deg' : '-12deg') + ',rgba(255,196,94,.22),rgba(255,196,94,0) 70%)"></i>';
+    };
+    return '<div class="wa-night">' + beam('left', 13, 0) + beam('right', 16, -4) + '</div>';
+  }
+  function blBand() {
+    var strip = '<i class="wa-tileband" style="top:0;height:100%;opacity:.5;background:' +
+      'repeating-linear-gradient(90deg,var(--wa-ink) 0 5px,rgba(0,0,0,0) 5px 22px);' +
+      'border-top:3px solid var(--wa-ink);border-bottom:3px solid var(--wa-ink)"></i>';
+    return '<div class="wa-day">' + strip + '</div>' +
+      '<div class="wa-night">' + strip + bulbs({ c: '#ffc45e', top: 'calc(100% - 16px)', h: '16px', pitch: 20, r: 2.4, rows: 3, dur: 1.6 }) + '</div>';
+  }
+  function blSky() {
+    var reel = spr('right:5%;left:auto;top:10%;width:clamp(52px,11vw,96px);height:auto', '0 0 60 60',
+      '<g class="wam-spin" style="animation-duration:26s;transform-box:view-box;transform-origin:30px 30px">' +
+      '<circle class="was-i waf-n" stroke-width="3" opacity=".45" cx="30" cy="30" r="24"/>' +
+      rep(6, function (i) { return '<circle class="waf-i" opacity=".4" cx="' + (30 + 15 * Math.cos(i * 1.047)).toFixed(1) + '" cy="' + (30 + 15 * Math.sin(i * 1.047)).toFixed(1) + '" r="4"/>'; }) +
+      '<circle class="waf-i" opacity=".5" cx="30" cy="30" r="4"/></g>');
+    return '<div class="wa-day">' + reel + '</div><div class="wa-night">' + reel + '</div>';
+  }
+  function blFoot() {
+    var hoard = '<g><rect class="waf-s" x="96" y="24" width="228" height="96" rx="4"/>' +
+      '<rect class="waf-a" opacity=".8" x="102" y="30" width="216" height="84" rx="3"/>' +
+      /* the painted hoarding: big faces, a skyline, a flourish. No real likeness. */
+      '<circle class="waf-b" cx="150" cy="66" r="22"/>' +
+      '<circle class="waf-s" opacity=".95" cx="150" cy="62" r="13"/>' +
+      '<circle class="waf-b" cx="220" cy="72" r="17"/>' +
+      '<circle class="waf-s" opacity=".95" cx="220" cy="68" r="10"/>' +
+      '<path class="waf-f" opacity=".9" d="M256 114V70l14-10 14 10v44z"/>' +
+      '<path class="was-s waf-n" stroke-width="2.6" opacity=".8" d="M112 100h96"/>' +
+      '<path class="was-s waf-n" stroke-width="1.8" opacity=".6" d="M112 108h64"/></g>';
+    var facade = '<rect class="waf-i" opacity=".22" x="72" y="120" width="276" height="80"/>' +
+      '<rect class="waf-b" x="96" y="120" width="228" height="14" rx="3"/>' +
+      /* the ticket window, lit */
+      '<rect class="waf-s" opacity=".9" x="186" y="150" width="48" height="34" rx="3"/>' +
+      '<path class="was-i waf-n" stroke-width="1.6" opacity=".5" d="M186 168h48"/>' +
+      rep(2, function (i) {
+        var x = 108 + i * 190;
+        return '<rect class="waf-g" opacity=".55" x="' + x + '" y="146" width="30" height="54" rx="3"/>';
+      });
+    var queue = rep(5, function (i) {
+      var x = 240 + i * 17;
+      return '<g transform="translate(' + x + ' 200)"><circle class="waf-i" opacity=".7" cx="0" cy="-30" r="5"/>' +
+        '<path class="waf-i" opacity=".7" d="M-6 0q0-19 6-19t6 19z"/></g>';
+    });
+    var cinema = spr('left:50%;bottom:0;width:clamp(300px,88vw,760px);height:auto;transform:translateX(-50%)',
+      '0 0 420 200', facade + hoard + queue +
+      '<g class="wa-night">' +
+      '<rect fill="rgba(255,196,94,.45)" x="186" y="150" width="48" height="34" rx="3"/>' +
+      '<ellipse class="wam-glow" style="transform-box:view-box;transform-origin:210px 74px;animation-duration:6s"' +
+      ' cx="210" cy="74" rx="130" ry="60" fill="rgba(255,140,190,.18)"/></g>');
+    return '<i class="wa-fade" style="bottom:28px;height:52px"></i>' +
+      '<i class="wa-floor" style="height:22px;background:var(--wa-ink);opacity:.26"></i>' + cinema +
+      '<div class="wa-night">' + bulbs({ c: '#ffc45e', top: 'calc(100% - 88px)', h: '16px', pitch: 18, r: 2.2, rows: 3, dur: 1.4 }) + '</div>';
+  }
+  S.bollywood = { bd: blBd, air: blAir, band: blBand, sky: blSky, foot: blFoot };
+
+  /* ---------------------------------------------------------- ANTARIKSH ---
+     The coast at Sriharikota: a launch tower, a tracking dish that turns, and
+     a rocket already climbing. Our own silhouette — no agency mark anywhere. */
+  function anBd() {
+    var stars = rep(26, function (i) {
+      return '<circle class="waf-s wam-twinkle" cx="' + ((i * 37) % 100) + '" cy="' + ((i * 23) % 60) +
+        '" r="' + (0.3 + (i % 3) * 0.2).toFixed(1) + '" style="animation-delay:' + (-(i % 9) * 0.4).toFixed(1) + 's"/>';
+    });
+    return '<div class="wa-day">' +
+      puff({ l: '-12%', t: '-14%', w: 'clamp(300px,64vw,660px)', c: '#27407f', a: 0.16 }) +
+      puff({ l: '56%', t: '30%', w: 'clamp(280px,60vw,600px)', c: '#e8862b', a: 0.18 }) +
+      '</div><div class="wa-night">' +
+      spr('left:0;top:0;width:100%;height:70%', '0 0 100 60', stars) +
+      puff({ l: '50%', t: 'auto', w: 'clamp(360px,90vw,1000px)', h: 'clamp(200px,40vw,440px)', c: '#8fa6ef', a: 0.16, cls: 'wam-glow', dur: 11 })
+        .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-6%') +
+      '</div>';
+  }
+  function anAir() {
+    return '<div class="wa-day">' + puff({ l: '30%', t: '-22%', w: 'clamp(300px,68vw,760px)', c: '#ffffff', a: 0.2, cls: 'wam-glow', dur: 13 }) + '</div>' +
+      '<div class="wa-night">' + puff({ l: '26%', t: '-18%', w: 'clamp(260px,60vw,660px)', c: '#a394ff', a: 0.12, cls: 'wam-glow', dur: 12 }) + '</div>';
+  }
+  function anBand() {
+    var track = '<i class="wa-tileband" style="top:0;height:100%;opacity:.35;background:' +
+      'repeating-linear-gradient(90deg,var(--wa-accent) 0 2px,rgba(0,0,0,0) 2px 26px)"></i>';
+    var arc = '<i class="wa-tileband" style="bottom:2px;height:2px;background:var(--wa-accent2);opacity:.55"></i>';
+    return '<div class="wa-day">' + track + arc + '</div><div class="wa-night">' + track + arc + '</div>';
+  }
+  function anSky() {
+    /* the rocket, already up and still climbing, with its plume alive */
+    var rocket = spr('left:62%;top:6%;width:clamp(40px,9vw,78px);height:auto', '0 0 40 110',
+      '<g class="wam-bob" style="animation-duration:5s">' +
+      '<path class="waf-s" d="M20 2q11 16 11 40v28H9V42Q9 18 20 2Z"/>' +
+      '<path class="waf-a" d="M20 2q6 9 8.6 22H11.4Q14 11 20 2Z"/>' +
+      '<circle class="waf-b" cx="20" cy="46" r="5"/>' +
+      '<path class="waf-a" d="M9 56L1 78h8zM31 56l8 22h-8z"/>' +
+      '<g class="wam-jet" style="transform-box:view-box;transform-origin:20px 72px">' +
+      '<path class="waf-b" opacity=".9" d="M13 70h14l-7 30z"/>' +
+      '<path class="waf-f" opacity=".7" d="M16 70h8l-4 20z"/></g></g>');
+    var sat = spr('left:0;top:2%;width:100%;height:40%', '0 0 100 40',
+      '<g class="wam-cross" style="animation-duration:58s">' +
+      '<g transform="translate(6 12)"><rect class="waf-b" x="-2" y="-2" width="4" height="4" rx="1"/>' +
+      '<rect class="waf-a" x="-9" y="-1.4" width="5" height="2.8" rx=".6"/>' +
+      '<rect class="waf-a" x="4" y="-1.4" width="5" height="2.8" rx=".6"/></g></g>');
+    return '<div class="wa-day">' + rocket + sat + '</div><div class="wa-night">' + rocket + sat + '</div>';
+  }
+  function anFoot() {
+    var dish = '<g transform="translate(66 200)">' +
+      '<path class="was-i waf-n" stroke-width="4" d="M0 0V-30"/>' +
+      '<g class="wam-sway" style="transform-box:view-box;transform-origin:66px 170px;animation-duration:9s">' +
+      '<ellipse class="waf-s" cx="0" cy="-42" rx="22" ry="15" transform="rotate(-22)"/>' +
+      '<path class="was-i waf-n" stroke-width="2" opacity=".45" d="M-14 -46A20 14 0 0 1 14 -38"/>' +
+      '<circle class="waf-b" cx="0" cy="-42" r="3"/></g></g>';
+    var tower = '<g><path class="was-i waf-n" stroke-width="3.4" opacity=".85" d="M300 200V56M336 200V56M300 56h36"/>' +
+      rep(6, function (i) { return '<path class="was-i waf-n" stroke-width="1.8" opacity=".5" d="M300 ' + (76 + i * 22) + 'h36"/>'; }) +
+      '<path class="was-i waf-n" stroke-width="1.6" opacity=".38" d="M300 76L336 98M336 76L300 98M300 120L336 142M336 120L300 142"/>' +
+      '<rect class="waf-b" x="288" y="92" width="14" height="8" rx="2"/></g>';
+    var pad = '<rect class="waf-i" opacity=".25" x="250" y="186" width="140" height="14" rx="3"/>' +
+      '<path class="waf-b" opacity=".5" d="M262 186v-10h12v10zM366 186v-10h12v10z"/>';
+    var sea = '<path class="waf-a" opacity=".18" d="M0 176q60 8 120 0t120 0v24H0z"/>';
+    var scene = spr('left:50%;bottom:0;width:clamp(320px,94vw,860px);height:auto;transform:translateX(-50%)',
+      '0 0 420 200', sea + pad + tower + dish +
+      '<g class="wa-night"><ellipse class="wam-glow" style="transform-box:view-box;transform-origin:318px 150px;animation-duration:7s"' +
+      ' cx="318" cy="150" rx="80" ry="54" fill="rgba(255,171,94,.20)"/></g>');
+    return '<i class="wa-fade" style="bottom:26px;height:50px"></i>' +
+      '<i class="wa-floor" style="height:20px;background:var(--wa-ink);opacity:.22"></i>' + scene;
+  }
+  S.antariksh = { bd: anBd, air: anAir, band: anBand, sky: anSky, foot: anFoot };
+
+  /* -------------------------------------------------------------- TRUCK ---
+     The back of a painted lorry on the highway, seen from the car behind:
+     marigold garland swinging, painted eyes, the tailboard line, mudflaps. */
+  function trBd() {
+    return '<div class="wa-day">' +
+      puff({ l: '-14%', t: '-8%', w: 'clamp(300px,64vw,660px)', c: '#0f6bb4', a: 0.16 }) +
+      puff({ l: '58%', t: '26%', w: 'clamp(280px,60vw,600px)', c: '#f2b211', a: 0.22 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '50%', t: 'auto', w: 'clamp(340px,86vw,900px)', h: 'clamp(180px,36vw,400px)', c: '#ffcb52', a: 0.18, cls: 'wam-glow', dur: 8 })
+        .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-6%') +
+      puff({ l: '-10%', t: '10%', w: 'clamp(260px,56vw,560px)', c: '#5cb3ee', a: 0.2 }) +
+      '</div>';
+  }
+  function trAir() {
+    return '<div class="wa-day">' + puff({ l: '20%', t: '-20%', w: 'clamp(300px,66vw,720px)', c: '#fff3d6', a: 0.22, cls: 'wam-glow', dur: 12 }) + '</div>' +
+      '<div class="wa-night">' + puff({ l: '24%', t: '-16%', w: 'clamp(260px,58vw,620px)', c: '#ff7d9c', a: 0.12, cls: 'wam-glow', dur: 10 }) + '</div>';
+  }
+  function trBand() {
+    /* the painted border a truck carries above its windscreen */
+    var paint = '<i class="wa-tileband" style="top:0;height:100%;opacity:.55;background:' +
+      'repeating-linear-gradient(90deg,var(--wa-accent) 0 14px,var(--wa-accent2) 14px 28px,var(--wa-festive) 28px 42px)"></i>';
+    var drop = '<i class="wa-tileband" style="bottom:0;height:12px;opacity:.75;background:var(--wa-accent2);' +
+      '-webkit-mask-image:' + M_SCALLOP + ';mask-image:' + M_SCALLOP + ';-webkit-mask-size:22px 12px;mask-size:22px 12px;' +
+      '-webkit-mask-repeat:repeat-x;mask-repeat:repeat-x;-webkit-mask-position:0 100%;mask-position:0 100%"></i>';
+    return '<div class="wa-day">' + paint + drop + '</div><div class="wa-night">' + paint + drop + '</div>';
+  }
+  function trSky() {
+    var birds = spr('left:0;top:14%;width:100%;height:40%', '0 0 100 40',
+      '<g class="wam-cross" style="animation-duration:52s">' +
+      rep(4, function (i) {
+        return '<path class="was-i waf-n" stroke-width=".9" opacity=".35" d="M' + (5 + i * 8) + ' ' + (6 + (i % 2) * 5) +
+          'q2.2-2.4 4.4 0q2.2-2.4 4.4 0"/>';
+      }) + '</g>');
+    return '<div class="wa-day">' + birds + '</div><div class="wa-night">' + birds + '</div>';
+  }
+  function trFoot() {
+    var garland = '<g class="wam-sway" style="transform-box:view-box;transform-origin:210px 46px;animation-duration:3.6s">' +
+      '<path class="was-f waf-n" stroke-width="2" opacity=".7" d="M132 48q78 26 156 0"/>' +
+      rep(13, function (i) {
+        var t = i / 12, x = 132 + 156 * t, y = 48 + 26 * Math.sin(Math.PI * t);
+        return '<circle class="waf-b" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4"/>';
+      }) + '</g>';
+    var body = '<rect class="waf-a" x="120" y="52" width="180" height="118" rx="6"/>' +
+      '<rect class="waf-b" opacity=".9" x="130" y="62" width="160" height="52" rx="4"/>' +
+      /* the painted eyes truck painters put on the tailboard */
+      '<g><ellipse class="waf-s" cx="170" cy="86" rx="16" ry="10"/>' +
+      '<ellipse class="waf-s" cx="250" cy="86" rx="16" ry="10"/>' +
+      '<g class="wam-blink" style="transform-box:view-box;transform-origin:170px 86px">' +
+      '<circle class="waf-i" cx="170" cy="86" r="5"/></g>' +
+      '<g class="wam-blink" style="transform-box:view-box;transform-origin:250px 86px;animation-delay:-2.4s">' +
+      '<circle class="waf-i" cx="250" cy="86" r="5"/></g></g>' +
+      /* the tailboard line, in its own painted panel — no lettering to mis-set */
+      '<rect class="waf-s" opacity=".92" x="140" y="122" width="140" height="22" rx="4"/>' +
+      '<path class="was-a waf-n" stroke-width="2.4" opacity=".8" d="M150 133h120"/>' +
+      '<path class="was-f waf-n" stroke-width="2" opacity=".6" d="M150 139h84"/>' +
+      '<rect class="waf-f" x="128" y="150" width="26" height="12" rx="3"/>' +
+      '<rect class="waf-f" x="266" y="150" width="26" height="12" rx="3"/>' +
+      /* mudflaps and wheels */
+      '<rect class="waf-i" opacity=".7" x="134" y="170" width="30" height="20" rx="3"/>' +
+      '<rect class="waf-i" opacity=".7" x="256" y="170" width="30" height="20" rx="3"/>' +
+      '<circle class="waf-i" cx="149" cy="190" r="12"/><circle class="waf-i" cx="271" cy="190" r="12"/>' +
+      '<circle class="waf-b" opacity=".7" cx="149" cy="190" r="4"/><circle class="waf-b" opacity=".7" cx="271" cy="190" r="4"/>';
+    var road = '<rect class="waf-i" opacity=".2" x="0" y="186" width="420" height="14"/>' +
+      '<g class="wam-drift" style="animation-duration:2.6s">' +
+      rep(18, function (i) { return '<rect class="waf-s" opacity=".55" x="' + (i * 48) + '" y="192" width="24" height="3" rx="1.5"/>'; }) +
+      rep(18, function (i) { return '<rect class="waf-s" opacity=".55" x="' + (864 + i * 48) + '" y="192" width="24" height="3" rx="1.5"/>'; }) +
+      '</g>';
+    var truck = spr('left:50%;bottom:0;width:clamp(280px,80vw,660px);height:auto;transform:translateX(-50%)',
+      '0 0 420 200', road + body + garland +
+      '<g class="wa-night">' +
+      '<circle fill="rgba(255,125,156,.85)" cx="141" cy="160" r="4"/>' +
+      '<circle fill="rgba(255,125,156,.85)" cx="279" cy="160" r="4"/>' +
+      '<ellipse class="wam-glow" style="transform-box:view-box;transform-origin:210px 170px;animation-duration:5s"' +
+      ' cx="210" cy="170" rx="120" ry="40" fill="rgba(255,125,156,.16)"/></g>');
+    return '<i class="wa-fade" style="bottom:24px;height:48px"></i>' + truck;
+  }
+  S.truck = { bd: trBd, air: trAir, band: trBand, sky: trSky, foot: trFoot };
+
+  /* -------------------------------------------------------------- DANCE ---
+     Three dancers, three traditions, holding their own stance: the low
+     araimandi, a Kathak spin, an Odissi tribhanga. Silhouettes only — these
+     are dancers, never deity iconography. */
+  function dnBd() {
+    return '<div class="wa-day">' +
+      puff({ l: '-12%', t: '10%', w: 'clamp(300px,64vw,660px)', c: '#a62b52', a: 0.18 }) +
+      puff({ l: '58%', t: '-12%', w: 'clamp(280px,60vw,600px)', c: '#d99c27', a: 0.22 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '50%', t: 'auto', w: 'clamp(340px,88vw,940px)', h: 'clamp(200px,40vw,440px)', c: '#ffc85f', a: 0.2, cls: 'wam-glow', dur: 8 })
+        .replace('left:50%', 'left:50%;transform:translateX(-50%)').replace('top:auto', 'bottom:-6%') +
+      puff({ l: '-10%', t: '16%', w: 'clamp(260px,56vw,560px)', c: '#ef7e9e', a: 0.22 }) +
+      '</div>';
+  }
+  function dnAir() {
+    return '<div class="wa-day">' + puff({ l: '26%', t: '-20%', w: 'clamp(300px,66vw,720px)', c: '#fff0e0', a: 0.24, cls: 'wam-glow', dur: 11 }) + '</div>' +
+      '<div class="wa-night">' + puff({ l: '30%', t: '-16%', w: 'clamp(260px,58vw,620px)', c: '#63bdb2', a: 0.12, cls: 'wam-glow', dur: 13 }) + '</div>';
+  }
+  function dnBand() {
+    /* the rhythm line — a tala drawn as a repeating beat */
+    var beat = '<i class="wa-tileband" style="top:0;height:100%;opacity:.4;background:' +
+      'radial-gradient(circle at 10px 50%,var(--wa-accent2) 0 3px,rgba(0,0,0,0) 3.6px),' +
+      'radial-gradient(circle at 30px 50%,var(--wa-accent) 0 1.6px,rgba(0,0,0,0) 2.2px),' +
+      'radial-gradient(circle at 46px 50%,var(--wa-accent) 0 1.6px,rgba(0,0,0,0) 2.2px);' +
+      'background-size:56px 100%,56px 100%,56px 100%"></i>';
+    return '<div class="wa-day">' + beat + '</div><div class="wa-night">' + beat + '</div>';
+  }
+  function dnSky() {
+    var bells = spr('left:0;top:0;width:100%;height:100%', '0 0 100 100',
+      '<g class="wam-fallshort" style="animation-duration:19s">' +
+      rep(7, function (i) {
+        var x = 7 + (i * 23) % 86;
+        return '<g transform="translate(' + x + ' ' + ((i * 8) % 15) + ')">' +
+          '<circle class="waf-b" r="1.1" opacity=".6"/>' +
+          '<path class="was-b waf-n" stroke-width=".4" opacity=".5" d="M-1.6 -1.4h3.2"/></g>';
+      }) + '</g>');
+    return '<div class="wa-day">' + bells + '</div><div class="wa-night">' + bells + '</div>';
+  }
+  function dnFoot() {
+    /* araimandi — the half-sit of Bharatanatyam, knees turned out */
+    var bharat = '<g transform="translate(112 200)">' +
+      '<circle class="waf-i" cx="0" cy="-64" r="8"/>' +
+      '<path class="waf-i" d="M-9 -56q9-6 18 0l-4 26h-10z"/>' +
+      '<path class="waf-a" d="M-16 -30q16-8 32 0L20 0H-20z"/>' +
+      '<path class="was-i waf-n" stroke-width="4" stroke-linecap="round" d="M-6 -48L-26 -56M6 -48L26 -56"/>' +
+      '<circle class="waf-b" cx="-26" cy="-56" r="3"/><circle class="waf-b" cx="26" cy="-56" r="3"/>' +
+      '<g class="wam-sway" style="transform-box:view-box;transform-origin:112px 200px;animation-duration:3.2s">' +
+      '<path class="was-b waf-n" stroke-width="2" opacity=".7" d="M-20 -4h40"/></g></g>';
+    /* Kathak — the chakkar, one arm up, the skirt lifting */
+    var kathak = '<g transform="translate(210 200)">' +
+      '<g class="wam-spin" style="animation-duration:9s;transform-box:view-box;transform-origin:210px 176px">' +
+      '<circle class="waf-i" cx="0" cy="-70" r="8"/>' +
+      '<path class="waf-i" d="M-8 -62q8-5 16 0l-3 28h-10z"/>' +
+      '<path class="waf-f" d="M-22 -34q22-10 44 0L26 0H-26z"/>' +
+      '<path class="was-i waf-n" stroke-width="4" stroke-linecap="round" d="M4 -56L22 -78M-4 -56L-20 -44"/>' +
+      '<circle class="waf-b" cx="22" cy="-78" r="3"/></g></g>';
+    /* Odissi — tribhanga, the three bends */
+    var odissi = '<g transform="translate(308 200)">' +
+      '<circle class="waf-i" cx="4" cy="-66" r="8"/>' +
+      '<path class="waf-i" d="M-4 -58q9-5 16 2l-6 26h-10z"/>' +
+      '<path class="waf-a" d="M-18 -30q18-9 36 0L22 0H-22z"/>' +
+      '<path class="was-i waf-n" stroke-width="4" stroke-linecap="round" d="M2 -50L-18 -60M8 -50L28 -42"/>' +
+      '<circle class="waf-b" cx="-18" cy="-60" r="3"/><circle class="waf-b" cx="28" cy="-42" r="3"/></g>';
+    /* the temple lamp they dance by */
+    var lamp = '<g transform="translate(48 200)">' +
+      '<path class="was-i waf-n" stroke-width="3" d="M0 0V-52"/>' +
+      '<path class="waf-b" d="M-12 -52h24l-6 10h-12z"/>' +
+      '<g class="wam-flame" style="transform-box:view-box;transform-origin:48px 148px">' +
+      '<path class="waf-f" d="M0 -56q5 -8 0 -16q-5 8 0 16Z"/></g>' +
+      '<ellipse class="waf-i" opacity=".2" cx="0" cy="0" rx="14" ry="4"/></g>';
+    var stage = spr('left:50%;bottom:0;width:clamp(320px,92vw,820px);height:auto;transform:translateX(-50%)',
+      '0 0 420 200',
+      '<ellipse class="waf-b" opacity=".14" cx="210" cy="200" rx="170" ry="26"/>' +
+      lamp + bharat + kathak + odissi +
+      '<g class="wa-night"><ellipse class="wam-glow" style="transform-box:view-box;transform-origin:210px 150px;animation-duration:7s"' +
+      ' cx="210" cy="150" rx="150" ry="56" fill="rgba(255,200,95,.18)"/></g>');
+    return '<i class="wa-fade" style="bottom:26px;height:50px"></i>' +
+      '<i class="wa-floor" style="height:22px;background:var(--wa-ink);opacity:.2"></i>' + stage;
+  }
+  S.dance = { bd: dnBd, air: dnAir, band: dnBand, sky: dnSky, foot: dnFoot };
+
+  /* ----------------------------------------------------------- PATTERNS ---
+     Five crafts, side by side, the way a swatch book falls open: bandhani
+     dots, an ajrakh block, phulkari thread, a kolam being drawn, ikat blur. */
+  function ptBd() {
+    return '<div class="wa-day">' +
+      puff({ l: '-14%', t: '-10%', w: 'clamp(300px,64vw,660px)', c: '#29527a', a: 0.16 }) +
+      puff({ l: '56%', t: '28%', w: 'clamp(280px,60vw,600px)', c: '#c98a2b', a: 0.2 }) +
+      puff({ l: '22%', t: '58%', w: 'clamp(260px,56vw,560px)', c: '#b23a48', a: 0.14 }) +
+      '</div><div class="wa-night">' +
+      puff({ l: '-10%', t: '-6%', w: 'clamp(300px,64vw,660px)', c: '#87aede', a: 0.2 }) +
+      puff({ l: '58%', t: '30%', w: 'clamp(280px,60vw,600px)', c: '#e4b565', a: 0.2 }) +
+      '</div>';
+  }
+  function ptAir() {
+    return '<div class="wa-day">' + puff({ l: '28%', t: '-22%', w: 'clamp(300px,66vw,740px)', c: '#fffaf0', a: 0.24, cls: 'wam-glow', dur: 14 }) + '</div>' +
+      '<div class="wa-night">' + puff({ l: '32%', t: '-18%', w: 'clamp(260px,58vw,640px)', c: '#e4808c', a: 0.1, cls: 'wam-glow', dur: 12 }) + '</div>';
+  }
+  function ptBand() {
+    /* the block printer's repeat, edge to edge */
+    var block = '<i class="wa-tileband" style="top:0;height:100%;opacity:.38;background:' +
+      'radial-gradient(circle at 12px 50%,var(--wa-accent) 0 4px,rgba(0,0,0,0) 4.6px),' +
+      'radial-gradient(circle at 36px 50%,var(--wa-accent2) 0 2.6px,rgba(0,0,0,0) 3.2px),' +
+      'repeating-linear-gradient(90deg,var(--wa-festive) 0 1.4px,rgba(0,0,0,0) 1.4px 24px);' +
+      'background-size:48px 100%,48px 100%,auto"></i>';
+    return '<div class="wa-day">' + block + '</div><div class="wa-night">' + block + '</div>';
+  }
+  function ptSky() {
+    /* phulkari: a running thread that keeps stitching itself across */
+    var thread = spr('left:0;top:6%;width:100%;height:40%', '0 0 100 40',
+      '<g class="wam-cross" style="animation-duration:56s">' +
+      rep(9, function (i) {
+        return '<path class="was-b waf-n" stroke-width="1" opacity=".45" d="M' + (4 + i * 5) + ' 12l2.4 4-2.4 4-2.4-4z"/>';
+      }) + '</g>');
+    return '<div class="wa-day">' + thread + '</div><div class="wa-night">' + thread + '</div>';
+  }
+  function ptFoot() {
+    /* five swatches on the table, each the real idiom of its craft */
+    function swatch(x, inner, label) {
+      return '<g transform="translate(' + x + ' 92)">' +
+        '<rect class="waf-s" x="0" y="0" width="72" height="84" rx="5"/>' +
+        '<rect class="waf-g" opacity=".5" x="4" y="4" width="64" height="76" rx="4"/>' +
+        inner + '</g>';
+    }
+    var bandhani = rep(24, function (i) {
+      return '<circle class="waf-a" opacity=".8" cx="' + (12 + (i % 6) * 10) + '" cy="' + (14 + Math.floor(i / 6) * 18) + '" r="2.6"/>';
+    });
+    var ajrakh = rep(9, function (i) {
+      var x = 12 + (i % 3) * 21, y = 14 + Math.floor(i / 3) * 22;
+      return '<g transform="translate(' + x + ' ' + y + ') rotate(45)">' +
+        '<rect class="waf-a" opacity=".75" x="-6" y="-6" width="12" height="12" rx="1.5"/>' +
+        '<circle class="waf-b" cx="0" cy="0" r="2.4"/></g>';
+    });
+    var phulkari = rep(16, function (i) {
+      var x = 10 + (i % 4) * 16, y = 12 + Math.floor(i / 4) * 18;
+      return '<path class="was-b waf-n" stroke-width="2" opacity=".8" d="M' + x + ' ' + y + 'l6 8-6 8-6-8z"/>';
+    });
+    var kolam = '<g class="was-s waf-n" stroke-width="1.6" opacity=".95">' +
+      '<path d="M36 20a14 14 0 1 0 0 44a14 14 0 1 0 0-44"/>' +
+      '<path d="M14 42a14 14 0 1 0 44 0a14 14 0 1 0-44 0"/></g>' +
+      rep(9, function (i) { return '<circle class="waf-i" opacity=".5" cx="' + (18 + (i % 3) * 18) + '" cy="' + (24 + Math.floor(i / 3) * 18) + '" r="1.4"/>'; });
+    var ikat = rep(7, function (i) {
+      return '<path class="was-f waf-n" stroke-width="6" opacity=".5" stroke-dasharray="5 4" d="M8 ' + (14 + i * 11) + 'h56"/>';
+    });
+    var table = spr('left:50%;bottom:0;width:clamp(320px,94vw,880px);height:auto;transform:translateX(-50%)',
+      '0 0 420 200',
+      '<rect class="waf-i" opacity=".18" x="0" y="176" width="420" height="24"/>' +
+      swatch(14, bandhani) + swatch(96, ajrakh) + swatch(178, phulkari) + swatch(260, kolam) + swatch(342, ikat) +
+      '<g class="wa-night"><ellipse class="wam-glow" style="transform-box:view-box;transform-origin:210px 130px;animation-duration:9s"' +
+      ' cx="210" cy="130" rx="170" ry="56" fill="rgba(228,181,101,.16)"/></g>');
+    return '<i class="wa-fade" style="bottom:28px;height:52px"></i>' + table;
+  }
+  S.patterns = { bd: ptBd, air: ptAir, band: ptBand, sky: ptSky, foot: ptFoot };
+
 
   /* ======================================================================= */
   /*  THE SEVEN FOUNDATION WORLDS                                            */
@@ -1700,9 +2307,16 @@
       }
     };
   }
-  ['taj', 'cricket', 'bollywood', 'antariksh', 'truck', 'dance', 'patterns'].forEach(function (id) {
-    S[id] = genericScene(id);
-  });
+  /* THE SAFETY NET, NOT THE DEFAULT. These seven worlds used to be assigned this
+     generic scene outright -- one shared composition, the same horizon strip and
+     the same bulb chase for all of them, differing only in palette. That is the
+     whole reason they read as one world painted seven ways, and why picking Taj
+     Mahal or Antariksh felt bare: nothing in them was actually about the place.
+
+     Each of the seven has its own scene now, drawn above. This loop only catches
+     a world added to the manifest before someone has drawn it, so a new id still
+     renders something rather than nothing. It must never overwrite a real scene. */
+  W.forEach(function (w) { if (!S[w.id]) S[w.id] = genericScene(w.id); });
 
   /* ================================================================ TILES
      The Worlds picker shows a living micro-scene per world (viewBox 96×64).

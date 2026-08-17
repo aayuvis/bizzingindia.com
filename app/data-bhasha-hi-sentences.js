@@ -1,7 +1,7 @@
 /* Bizzing India — example sentences for the Hindi lexicon (Phase 3 of the
    Bhasha rebuild).
 
-   Contract: window.IND_HI_SENTENCES = { '<word>': { s, roman, en } } — the
+   Contract: window.IND_BHASHA_SENTENCES.hi = { '<word>': { s, roman, en } } — the
    engine attaches them to pack 'hi' at load and masks the word when speaking.
    One entry per HI_LEX row (507). KEYS ARE BYTE-FOR-BYTE the lexicon's own
    spellings — nukta stays decomposed exactly as bhasha.js writes it — and
@@ -21,7 +21,10 @@
    NEEDS A NATIVE CHECK PER LINE BEFORE LAUNCH (same flag as data-nani.js):
    a Hindi-language pedagogue must sign off every sentence. Specific flags
    for that review are listed at the bottom of this file. */
-window.IND_HI_SENTENCES = {
+/* PHASE A: registered into the shared per-pack bank rather than a Hindi-only
+   global, so all nine packs reach their sentences by one route. */
+window.IND_BHASHA_SENTENCES = window.IND_BHASHA_SENTENCES || {};
+window.IND_BHASHA_SENTENCES.hi = {
 
   /* ---- greetings ---- */
   'नमस्ते':

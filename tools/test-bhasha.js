@@ -683,6 +683,27 @@ eq('readiness unseen', rd.unseen, 42);
 
 console.log('  session/band/readiness: planner walked for hi+pa s1-s3, steering, test-out, band, readiness');
 
+/* ================= PHASE A: the seams are generic ================= */
+/* The engine reached Hindi's sentences and dialogues through IND_HI_* globals
+   that sentenceMap() and pickReply() special-cased by pack id. Invisible while
+   only one pack had content; eight forgotten exceptions the moment the others
+   land. These assert the exception cannot come back. */
+(function () {
+  /* Comments are stripped first: this asserts about CODE. A comment that
+     records why the special case was removed must not fail the build for
+     quoting the thing it removed. */
+  var src = require('fs').readFileSync(__dirname + '/../app/bhasha.js', 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  eq('no IND_HI_SENTENCES special-case in the engine', /IND_HI_SENTENCES/.test(src), false);
+  eq('no IND_HI_DIALOGUES special-case in the engine', /IND_HI_DIALOGUES/.test(src), false);
+  eq("no pack-id branch reaching content", /pack\.id === 'hi'/.test(src), false);
+  /* and the generic route actually resolves */
+  eq('hi sentences resolve through the shared bank', Object.keys(B.sentences('hi') || {}).length, 507);
+  eq('hi dialogues resolve through the shared bank', (B.dialogues('hi') || []).length, 72);
+  eq('a pack with no bank returns null, not a throw', B.dialogues('ta'), null);
+  console.log('  phase A: sentence/dialogue banks are per-pack, no Hindi special case');
+}());
+
 /* ================= result ================= */
 console.log('\n' + (fails ? 'FAILED ' + fails + ' of ' + checks + ' checks' : 'ALL ' + checks + ' CHECKS PASSED'));
 process.exit(fails ? 1 : 0);

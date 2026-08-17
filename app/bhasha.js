@@ -1871,9 +1871,22 @@ function audioFor(key, pack) {
 function sentenceMap(pack) {
   pack = resolvePack(pack);
   if (!pack) return null;
-  var reg = W.IND_BHASHA_SENTENCES || {};
-  var m = reg[pack.id] || (pack.id === 'hi' ? W.IND_HI_SENTENCES : null);
+  var m = (W.IND_BHASHA_SENTENCES || {})[pack.id];
   return (m && typeof m === 'object') ? m : null;
+}
+/* The authored dialogue bank for a pack, or null. Same registry shape as the
+   sentences: one global keyed by pack id, absent until the content lands,
+   every caller guarded for its absence.
+
+   PHASE A retired `pack.id === 'hi' && W.IND_HI_DIALOGUES` from the two places
+   that used to test for it. A special case for the first pack is invisible
+   while there is only one pack with content; it becomes eight forgotten
+   exceptions the moment the others land. */
+function dialogueBank(pack) {
+  pack = resolvePack(pack);
+  if (!pack) return null;
+  var d = (W.IND_BHASHA_DIALOGUES || {})[pack.id];
+  return (d && d.length) ? d : null;
 }
 function lexEntry(pack, word) {
   pack = resolvePack(pack);
@@ -2507,7 +2520,7 @@ function pickReply(pack, opts) {
      it; derived pairs remain the fallback for every pack without authored
      data. Guarded for absence: the file registers an empty array until the
      content pass lands. */
-  var authored = (pack.id === 'hi' && W.IND_HI_DIALOGUES && W.IND_HI_DIALOGUES.length) ? W.IND_HI_DIALOGUES : null;
+  var authored = dialogueBank(pack);
   if (authored) {
     /* a pin only counts if it is an authored dialogue (has a reply) — the
        planner may still hold a derived pair from before the content landed */
@@ -2791,7 +2804,7 @@ function unitsOf(pack, stage) {
   if (!items.length) return out;
   if (stage.id === 's5') {
     /* the authored-dialogue seam first (what pickReply itself prefers) */
-    var dlg = (pack.id === 'hi' && W.IND_HI_DIALOGUES && W.IND_HI_DIALOGUES.length) ? W.IND_HI_DIALOGUES : null;
+    var dlg = dialogueBank(pack);
     if (dlg) {
       for (i = 0; i < dlg.length; i++) out.push({ key: 'dlg:' + (dlg[i].id || dlg[i].prompt), kind: 'dlg', item: dlg[i] });
       return out;
@@ -3061,6 +3074,7 @@ W.IND_BHASHA = {
      derived clip key, and the masker every view and every test shares — one
      implementation of "hide the word", so the rule cannot drift per screen */
   sentences: sentenceMap,
+  dialogues: dialogueBank,
   sentence: sentenceFor,
   mask: maskWord,
   BLANK: BLANK,

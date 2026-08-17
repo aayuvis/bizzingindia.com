@@ -9,7 +9,7 @@
    in the head before it was kept.
 
    CONTRACT (the engine prefers these over anything derived):
-     window.IND_HI_DIALOGUES = [ { scene, sceneEn, who, prompt, roman, en,
+     window.IND_BHASHA_DIALOGUES.hi = [ { scene, sceneEn, who, prompt, roman, en,
        reply: { hi, roman, en },
        distractors: [ { hi, roman, en, whyWrong } x3 ] } ]
    Scene ids match bhasha.js stageItems s5, plus 'mehmaan-aaye' (guests at
@@ -44,11 +44,14 @@
 
    REVIEW. As with data-nani.js and HI_PACK.reviewedBy: every Hindi line
    below is a draft until a named native-speaker pedagogue signs. The sign
-   line lives at the bottom of this file (IND_HI_DIALOGUES.reviewedBy);
+   line lives at the bottom of this file (IND_BHASHA_DIALOGUES.hi.reviewedBy);
    docs/05 §4 and docs/09 §9 govern. Specific items queued for that pass are
    flagged inline with "review:". */
 
-window.IND_HI_DIALOGUES = [
+/* PHASE A: registered into the shared per-pack bank rather than a Hindi-only
+   global, so all nine packs reach their dialogues by one route. */
+window.IND_BHASHA_DIALOGUES = window.IND_BHASHA_DIALOGUES || {};
+window.IND_BHASHA_DIALOGUES.hi = [
 
   /* ============ Scene: phone-to-nani — Sunday's video call ============== */
 
@@ -1008,4 +1011,4 @@ window.IND_HI_DIALOGUES = [
    agreement, the flagged conventional defaults in header rule 5) and signs
    here before ship. Until this array is non-empty, everything above is a
    draft. */
-window.IND_HI_DIALOGUES.reviewedBy = [];
+window.IND_BHASHA_DIALOGUES.hi.reviewedBy = [];

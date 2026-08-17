@@ -75,7 +75,8 @@ DEFAULT_MODEL = "gemini-3.1-flash-image"
 DATA_FILES = ["data-stories.js", "data-stories-regional.js", "data-stories-more.js",
               "data-stories-north.js", "data-stories-south.js", "data-stories-east.js",
               "data-stories-west.js", "data-stories-ne-a.js", "data-stories-ne-b.js",
-              "data-stories-modern.js", "data-stories-vigyan.js"]
+              "data-stories-modern.js", "data-stories-vigyan.js",
+              "data-stories-dashavatara.js", "data-stories-devasura.js"]
 
 MASTER_DIR = os.path.join(ROOT, "masters", "story")
 MASTER_QUALITY = 92           # near-native; the book tier, same as masters/epic

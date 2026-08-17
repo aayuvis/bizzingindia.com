@@ -170,6 +170,13 @@
     if (!t || t.id === 'hi' || !q) return q && q.en;
     return q.en.replace(/^(Nani|Nana|Dadi|Dada)\b/, kinTerm(q.to));
   }
+  /* The name of the whole story pillar, in the family's own words. A Tamil
+     child's shelf is Paati-Thaatha Tales, a Bengali child's is Dida-Dadu
+     Tales. Hindi falls through to Nani-Nana because that is what kinTerm
+     returns when no tongue is set — which is the honest default rather than
+     a claim that Hindi is the neutral one (docs/05 §8). */
+  function tellerTitle() { return kinTerm('nani') + '-' + kinTerm('nana') + ' Tales'; }
+
   /* 'Nani-Nana Stories' in the family's own words — 'Paati-Thaatha Stories'
      for a Tamil child. The Hindi default keeps the authored title. */
   function naniTitle() {
@@ -1187,8 +1194,17 @@
       cols: ['desh-south', 'coast-forest', 'dilli', 'naya-shehar', 'pahad', 'wadi', 'panj-ab',
              'desh-east', 'desh-ne-a', 'desh-ne-b', 'west-lands', 'heart-lands', 'desh', 'desh-more'] }
   ];
+  /* The Puranic shelf. It stands as a BIG door beside the two epics rather than
+     among the small ones, because that is what it is: the ten descents of
+     Vishnu, and the deva-asura stories that are not Ramayana or Mahabharata.
+     It is a second way in, not a second copy — the Sacred Stories shelf below
+     still holds both collections. */
+  var MYTH_DOOR = { id: 'myth', name: 'Mythological Tales',
+    kicker: 'The ten descents, and two halves of one very old family',
+    cols: ['dashavatara', 'devasura'] };
+
   function doorById(id) {
-    var all = STORY_THEMES.concat(FEATURE_DOORS);
+    var all = STORY_THEMES.concat(FEATURE_DOORS).concat([MYTH_DOOR]);
     for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
     return null;
   }
@@ -1240,9 +1256,10 @@
     function card(x) { return storyCard(x, favs); }
 
     /* THE TOP OF THE LIBRARY.
-       Three big doors and three small ones. No heading, no preamble: a child who
-       wants any story taps the first, a child who came for one of the two long
-       ones taps its painting, and every shelf is still below, untouched. */
+       A wide bar, then three big doors, then the small ones. The bar carries the
+       shelf's own name — in the family's words, so a Tamil child's library is
+       called Paati-Thaatha Tales — and doubles as the randomiser, which is why
+       there is no separate heading above it. */
     function bigdoor(act, id, pic, kicker, title, note) {
       return '<button class="bigdoor" data-act="' + act + '" data-id="' + id + '">' +
         '<span class="bdart"' + (pic ? ' style="background-image:url(' + pic + ')"' : '') + '></span>' +
@@ -1252,29 +1269,38 @@
         '<span class="tiny">' + esc(note) + '</span></span></button>';
     }
     var ram = epicById('ramayana'), mb = epicById('mahabharata');
+    var myth = themeStories(MYTH_DOOR, all);
 
-    return '<div class="topdeck">' +
-
-      /* 1 — the randomiser, standing on a wall of the library's own paintings */
-      '<button class="bigdoor pick" data-act="tellone">' +
+    /* THE BAR — the randomiser, on a wall of the library's own paintings.
+       Note the string sits on the SAME line as `return`: a bare `return` with
+       the expression on the next line is a semicolon by ASI, and this function
+       silently returned undefined, which rendered the page as the word
+       "undefined". Do not reformat this. */
+    return '<button class="pickbar" data-act="tellone">' +
         '<span class="mosaic" aria-hidden="true">' +
           mosaicTiles(12).map(function (p) {
             return '<i style="background-image:url(' + p + ')"></i>';
           }).join('') + '</span>' +
         '<span class="bdveil"></span>' +
-        '<span class="bdbody"><span class="mono">the whole library</span>' +
-        '<b>' + all.length + ' stories</b>' +
-        '<span class="tiny">Nothing to finish, nothing to get right — you can have the same ' +
-        'one again tomorrow.</span>' +
+        '<span class="pbbody"><span class="pbtext">' +
+          '<b>' + esc(tellerTitle()) + '</b>' +
+          '<span class="tiny">' + all.length + ' of them. Nothing to finish, nothing to get ' +
+          'right — you can have the same one again tomorrow.</span></span>' +
         '<span class="btn">' + icon('play', 18) + ' Tell me one</span></span></button>' +
 
-      /* 2 and 3 — the two long ones, each behind a painting from inside it */
+      '<div class="topdeck">' +
+      /* the two long ones and the Puranic shelf, each behind a real painting */
       (ram ? bigdoor('epic', 'ramayana', 'art/epic/ramayana-16-0.jpg',
         ram.episodes.length + ' nights', 'The Ramayana',
         'One card at a time. Stop anywhere — it waits.') : '') +
       (mb ? bigdoor('epic', 'mahabharata', 'art/epic/mahabharata-26-3.jpg',
         mb.episodes.length + ' nights', 'The Mahabharata',
         'The one about the family. Nobody finishes it in a night.') : '') +
+      (myth.length ? bigdoor('kahani', 'myth', (function () {
+        var pic = null;
+        for (var i = 0; i < myth.length && !pic; i++) pic = storyArt(myth[i].id);
+        return pic;
+      })(), myth.length + ' stories', MYTH_DOOR.name, MYTH_DOOR.kicker + '.') : '') +
       '</div>' +
 
       /* the three a child asks for by name */
@@ -1288,15 +1314,20 @@
           '<span class="bdveil"></span>' +
           '<span class="bdbody"><b>' + esc(d.name) + '</b>' +
           '<span class="mono">' + list.length + ' stories</span></span></button>';
-      }).join('') + '</div>' +
-
+      }).join('') +
+      /* the recording shelf's quiet door — see the note where its big tile was */
       (window.IND_NANI
-        ? '<button class="tile" style="margin:var(--space-lg) 0 0" data-act="go" data-v="nani">' +
-          '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + icon('mic', 36) +
-          '<div style="flex:1"><h3 style="margin:0">' + esc(naniTitle()) + '</h3>' +
-          '<p class="tiny" style="margin:5px 0 0">Stories in your own family’s voice — the ' +
-          'warmest shelf in this library. Record a grandparent, keep it forever.</p></div></div></button>'
-        : '') +
+        ? '<button class="mdoor own" data-act="go" data-v="nani">' +
+          '<span class="bdveil"></span>' +
+          '<span class="bdbody"><b>' + esc(naniTitle()) + '</b>' +
+          '<span class="mono">in your own voice</span></span></button>'
+        : '') + '</div>' +
+
+      /* The Family Shelf's big tile is gone — the whole pillar is named after
+         grandparents now, so a box underneath it saying "the family shelf" was
+         saying the same thing twice. The recording feature is NOT gone with it:
+         it keeps a quiet door on the end of the small-doors row above, because
+         orphaning a working feature to tidy a layout is not a tidy-up. */
 
       /* The family's own places first — leaning, not gating: every other shelf
          is right below, untouched. */
@@ -3754,6 +3785,10 @@
      games live inside the pillars they drill, because play is how this app practises,
      not a separate subject. A child holds a phone by the bottom half, so on a phone this
      bar moves to the bottom edge (see app.css). */
+  /* The story pillar's tab wears the family's own word for a grandparent — a
+     Tamil child taps Paati-Thaatha, a Bengali child Dida-Dadu. The label is
+     resolved in chrome() rather than baked in here, because the tongue can be
+     changed at any time and this array is built once at load. */
   var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['map', 'India', 'map'],
               ['itihaas', 'Itihaas', 'clock'], ['neeti', 'Neeti', 'star'], ['bhasha', 'Bhasha', 'script'],
               ['khel', 'Khel', 'game']];
@@ -3868,7 +3903,9 @@
       art(S.buddy, 40) + '</button>' +
       '</span>' +
       '</div><nav class="nav">' + TABS.map(function (t) {
-        return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 19) + '<span>' + t[1] + '</span></button>';
+        var label = t[0] === 'stories' ? kinTerm('nani') + '-' + kinTerm('nana') : t[1];
+        return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 19) +
+          '<span>' + esc(label) + '</span></button>';
       }).join('') + '</nav></header><main class="wrap" id="main"></main>';
   }
 

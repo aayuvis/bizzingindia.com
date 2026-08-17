@@ -580,9 +580,43 @@ button, input, select, textarea { font: inherit; color: inherit; }
    Three tall doors, then three short ones. The art carries the whole tile and
    the words sit on it, so there is nothing above them to read first: a child
    who cannot yet read still knows which one is the Ramayana. */
-.topdeck { display: grid; gap: var(--space-md); grid-template-columns: 1fr; }
-.minidoors { display: grid; gap: var(--space-md); grid-template-columns: repeat(3, 1fr);
+/* THE BAR. The randomiser used to be a tall card in the three-across row,
+   which gave a button and one sentence the same footprint as the whole
+   Mahabharata. It is a wide, shallow bar now — the height the Family Shelf box
+   used to be — carrying the shelf's own name and its one action. */
+.pickbar {
+  position: relative; display: block; width: 100%; padding: 0; overflow: hidden;
+  min-height: 108px; text-align: left; cursor: pointer; color: #fff;
+  border: 1px solid var(--line); border-radius: var(--radius-lg);
+  background: var(--accent-soft); transition: transform .12s ease, box-shadow .12s ease;
+}
+.pickbar:hover, .pickbar:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
+.pbbody { position: relative; display: flex; align-items: center; gap: 16px;
+  min-height: 108px; padding: 16px 18px; }
+.pbtext { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.pbtext b { font: 800 22px/1.15 var(--display); color: #fff;
+  text-shadow: 0 1px 10px rgba(10,5,26,.6); }
+.pbtext .tiny { color: rgba(255,255,255,.9); text-shadow: 0 1px 8px rgba(10,5,26,.65); }
+.pickbar .btn { flex: none; pointer-events: none; }
+/* the bar's mosaic is wider and shallower than a card's, so more columns */
+.pickbar .mosaic { grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(2, 1fr); }
+.pickbar .bdveil { background: linear-gradient(180deg, rgba(18,10,32,.56) 0%,
+  rgba(18,10,32,.66) 50%, rgba(18,10,32,.8) 100%); }
+@media (max-width: 560px) {
+  .pbbody { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .pickbar .btn { align-self: stretch; text-align: center; }
+  .pbtext b { font-size: 19px; }
+}
+
+.topdeck { display: grid; gap: var(--space-md); grid-template-columns: 1fr;
   margin-top: var(--space-md); }
+/* the recording shelf's door carries no painting, so it needs its own ground */
+.mdoor.own { background: linear-gradient(150deg, var(--accent-soft), var(--card)); }
+.mdoor.own .bdbody b, .mdoor.own .bdbody .mono { color: var(--text); text-shadow: none; }
+.mdoor.own .bdveil { background: none; }
+.minidoors { display: grid; gap: var(--space-md); grid-template-columns: repeat(4, 1fr);
+  margin-top: var(--space-md); }
+@media (max-width: 560px) { .minidoors { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 700px) { .topdeck { grid-template-columns: repeat(3, 1fr); } }
 
 .bigdoor, .mdoor {

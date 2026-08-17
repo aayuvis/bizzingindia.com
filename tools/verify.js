@@ -138,8 +138,20 @@ async function main() {
     where = arg ? `${v}:${arg}` : v;
     await page.evaluate(([n, a]) => window.BI.go(n, a), [v, arg]);
     await page.waitForTimeout(60);
-    const len = await page.evaluate(() => (document.querySelector('#app') || {}).innerText?.trim().length || 0);
-    if (len < 40) thin.push(`${where} rendered ${len} chars`);
+    // Measure #main, NOT #app. #app includes the topbar and the seven nav tabs,
+    // which are always ~60 characters of text — enough on their own to clear any
+    // threshold, so a view that rendered nothing at all still looked healthy.
+    const body = await page.evaluate(() => {
+      const m = document.querySelector('#main') || document.querySelector('#app') || {};
+      return (m.innerText || '').trim();
+    });
+    if (body.length < 40) thin.push(`${where} rendered ${body.length} chars`);
+    // A view function that falls off its end returns undefined, and the template
+    // string concatenation renders it as the literal word. This happened for real:
+    // a `return` alone on its line is a semicolon by ASI, and the whole stories
+    // page became the word "undefined" while every gate stayed green.
+    else if (/^(undefined|null|NaN|\[object Object\])$/.test(body))
+      thin.push(`${where} rendered the literal "${body}" — the view function returned nothing`);
   }
 
   // THE WORD CARD NEVER SHOWS THE WORD WHEN IT IS COVERED (Phase 3, permanent).

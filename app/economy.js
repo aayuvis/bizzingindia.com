@@ -50,12 +50,33 @@
 
   /* ------------------------------------------------------------------- PACKS
      `null` price = never purchasable and never locked. That is not an oversight; see
-     rule 2. Everything sacred and every epic cast sits in that list. */
+     rule 2. Everything sacred and every epic cast sits in that list.
+
+     PRICE IS DERIVED FROM SIZE, not typed by hand. The packs are genuinely uneven --
+     Akbar's Darbar is six cards and the Mahabharata is seventeen -- and the hand-written
+     table charged 180 for the six and 280 for the sixteen, which is a child paying nearly
+     the same money for a third of the cards. Nobody would have noticed until a
+     nine-year-old did, out loud. So: a flat rate per card, and the price a pack shows is
+     always exactly what is in it. Rounded to the nearest ten so the numbers stay
+     countable on fingers. */
   var SACRED_OR_EPIC = ['devas', 'dashavatara', 'pantheon', 'ramayana', 'mahabharata', 'asuras'];
   var FREE_PACKS = ['panch'];                       /* the Panchatantra animals, to start with */
-  var PACK_PRICE = {
-    darbar: 180, great: 260, khel: 280, naya: 220, vigyan: 240
-  };
+  var PACK_UNIT = 20;                               /* sikke per card in a pack */
+
+  /* THE SHELVES. Twelve packs in one flat wall is not a collection, it is a list, and it
+     is why the packs read as arbitrary -- a pack of ten scientists sat between two epic
+     casts with nothing to say why. Three shelves, and each one answers a different
+     question a child actually has: who is holy, who was real, and who is in the tales.
+     A pack with no shelf falls into 'tales' rather than disappearing. */
+  var SHELVES = [
+    { id: 'sacred', name: 'The gods and the epics',
+      note: 'Open to every child from the first minute. Never bought, never drawn for.' },
+    { id: 'people', name: 'People who were really here',
+      note: 'Every one of them has an Itihaas card with the evidence on it.' },
+    { id: 'tales', name: 'Out of the tales',
+      note: 'The animals and the courts of the story-books.' }
+  ];
+
   var DRAW_PRICE = 40;                              /* one card from the pitara */
 
   /* Rarity weights. Higher = met sooner, more often. The people packs are deliberately
@@ -93,11 +114,25 @@
     return WEIGHT[r] || WEIGHT.common;
   }
 
+  function shelfOf(packId) {
+    var P = window.IND_AVATAR_PACKS || [];
+    for (var i = 0; i < P.length; i++) if (P[i].id === packId) return P[i].shelf || 'tales';
+    return 'tales';
+  }
+  function packSize(packId) {
+    var P = window.IND_AVATAR_PACKS || [];
+    for (var i = 0; i < P.length; i++) if (P[i].id === packId) return (P[i].ids || []).length;
+    return 0;
+  }
+
   window.IND_ECONOMY = {
     FREE_WORLDS: FREE_WORLDS,
     WORLD_PRICE: WORLD_PRICE,
     FREE_PACKS: FREE_PACKS,
-    PACK_PRICE: PACK_PRICE,
+    PACK_UNIT: PACK_UNIT,
+    SHELVES: SHELVES,
+    shelfOf: shelfOf,
+    packSize: packSize,
     SACRED_OR_EPIC: SACRED_OR_EPIC,
     DRAW_PRICE: DRAW_PRICE,
     dropRate: dropRate,
@@ -120,7 +155,20 @@
     },
     packPrice: function (id) {
       if (SACRED_OR_EPIC.indexOf(id) >= 0) return null;
-      return PACK_PRICE[id] || 200;
+      var n = packSize(id);
+      if (!n) return null;
+      return Math.max(60, Math.round(n * PACK_UNIT / 10) * 10);
+    },
+
+    /* How many of a pack this child holds, and how many there are. The shop shows both
+       on every pack, because "6 of 14" is the only honest way to price the rest of it --
+       and because a pack you have nearly finished should look nearly finished. */
+    packHeld: function (S, packId) {
+      var P = window.IND_AVATAR_PACKS || [], pack = null, i, n = 0;
+      for (i = 0; i < P.length; i++) if (P[i].id === packId) pack = P[i];
+      if (!pack) return 0;
+      for (i = 0; i < pack.ids.length; i++) if (this.avatarOpen(S, pack.ids[i])) n++;
+      return n;
     },
 
     /* A single avatar can be held even when its pack is not bought — that is what the

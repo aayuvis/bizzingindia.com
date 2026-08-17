@@ -578,31 +578,31 @@ sarojini: '<circle cx="60" cy="60" r="54" fill="#2FA89B" opacity=".2"/>' +
 /* ------------------------------------------------------------------- packs */
 
 window.IND_AVATAR_PACKS = [
-  { id: 'devas',  name: 'Gods & Teachers', note: 'Drawn the way folk painters draw them.',
+  { id: 'devas', shelf: 'sacred',  name: 'Gods & Teachers', note: 'Drawn the way folk painters draw them.',
     ids: ['ganesha','krishna','hanuman','durga','saraswati','shiva','brahma','vishnu','rama','lakshmi','buddha','mahavira','khanda','harmandir'] },
-  { id: 'panch',  name: 'Panchatantra',    note: 'The animals who tell the oldest stories.',
+  { id: 'panch', shelf: 'tales',  name: 'Panchatantra',    note: 'The animals who tell the oldest stories.',
     ids: ['pt_lion','pt_jackal','pt_bull','pt_crow','pt_tortoise','pt_mouse','pt_deer','pt_crocodile','pt_monkey','pt_rabbit','pt_heron','pt_elephant'] },
-  { id: 'darbar', name: "Akbar's Darbar",  note: 'The cleverest court in the world.',
+  { id: 'darbar', shelf: 'tales', name: "Akbar's Darbar",  note: 'The cleverest court in the world.',
     ids: ['akbar','birbal','tansen','courtier','guard','royal_elephant'] },
-  { id: 'great',  name: 'Great Indians',   note: 'Real people. Every one has an Itihaas card.',
+  { id: 'great', shelf: 'people',  name: 'Great Indians',   note: 'Real people. Every one has an Itihaas card.',
     ids: ['ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','aryabhata','tagore','kalpana','sarojini','savitribai','hansa_mehta'] },
 
   /* Modern India. Real people again — athletes and builders, chosen so a child sees
      women and men, north and south, plains and hills, a wheelchair and a turban, all
      under the same word: champion. No politician is in either pack, deliberately. */
-  { id: 'khel',   name: 'India at Play',   note: 'The athletes who made a billion people look up.',
+  { id: 'khel', shelf: 'people',   name: 'India at Play',   note: 'The athletes who made a billion people look up.',
     ids: ['dhyanchand','milkha','kapil','sachin','dhoni','kohli','mithali','marykom','sindhu','saina','neeraj','malleswari','mirabai','anand','gukesh','avani'] },
-  { id: 'naya',   name: 'The Builders',    note: 'Milk, software, rockets, startups, a bank for working women — made here.',
+  { id: 'naya', shelf: 'people',   name: 'The Builders',    note: 'Milk, software, rockets, startups, a bank for working women — made here.',
     ids: ['kurien','n_murthy','sudha_murty','falguni','kiran_shaw','ela_bhatt','ritesh','rocket','unicorn'] },
-  { id: 'vigyan', name: 'The Scientists',  note: 'They asked why, and kept asking. Kalam, Kalpana and Aryabhata keep their place among the Great Indians.',
+  { id: 'vigyan', shelf: 'people', name: 'The Scientists',  note: 'They asked why, and kept asking. Kalam, Kalpana and Aryabhata keep their place among the Great Indians.',
     ids: ['raman','ramanujan','bhabha','sarabhai','jcbose','janaki_ammal','annamani','tessy','swaminathan','salimali'] },
 
   /* The epic casts. All 30 PNGs live under app/art and in art-manifest.js.
      Rama, Hanuman and Krishna stay in the Devas pack and are deliberately not repeated
      here — an id in two packs renders twice in the picker. */
-  { id: 'ramayana', name: 'The Ramayana',    note: 'Everyone the story is about, not only the ones who win.',
+  { id: 'ramayana', shelf: 'sacred', name: 'The Ramayana',    note: 'Everyone the story is about, not only the ones who win.',
     ids: ['sita','lakshmana','bharata','dasharatha','kaikeyi','ravana','vibhishana','sugriva','jatayu','shabari','vishwamitra','mandodari','valmiki'] },
-  { id: 'mahabharata', name: 'The Mahabharata', note: 'One family that could not stop. Nobody here is only a villain.',
+  { id: 'mahabharata', shelf: 'sacred', name: 'The Mahabharata', note: 'One family that could not stop. Nobody here is only a villain.',
     ids: ['draupadi','arjuna','bhima','yudhishthira','nakula','sahadeva','karna','bhishma','drona','dhritarashtra','gandhari','kunti','duryodhana','shakuni','vidura','ekalavya','abhimanyu'] },
 
   /* THE TEN DESCENTS. Rama, Krishna and the Buddha are deliberately NOT repeated
@@ -616,12 +616,12 @@ window.IND_AVATAR_PACKS = [
      instead of the Buddha, and some count both. Balarama is here for that reason.
      The Bhagavata Purana itself gives a longer list elsewhere and says the
      descents are beyond counting. */
-  { id: 'dashavatara', name: 'The Ten Avatars', note: 'The descents of Vishnu. Rama, Krishna and the Buddha keep their place in Gods & Teachers.',
+  { id: 'dashavatara', shelf: 'sacred', name: 'The Ten Avatars', note: 'The descents of Vishnu. Rama, Krishna and the Buddha keep their place in Gods & Teachers.',
     ids: ['matsya','kurma','varaha','narasimha','vamana','parashurama','balarama','kalki'] },
 
   /* The wider pantheon — the devas a child meets in the festivals, the rivers and
      the sky before they ever meet them in a book. */
-  { id: 'pantheon', name: 'The Devas', note: 'Rain, fire, wind, water, sun, moon — and the ones who keep them.',
+  { id: 'pantheon', shelf: 'sacred', name: 'The Devas', note: 'Rain, fire, wind, water, sun, moon — and the ones who keep them.',
     ids: ['indra','agni','vayu','varuna','surya','chandra','yama','kubera','kartikeya','parvati','kali','ganga','vishwakarma'] },
 
   /* THE ASURAS. Read the pack note twice before adding anyone here.
@@ -636,7 +636,7 @@ window.IND_AVATAR_PACKS = [
      Consequently NOBODY in this pack is drawn or written as a monster (docs/05
      §7, and the note at the top of this file about the epic antagonists). The
      generation prompts carry an explicit no-snarl, no-fangs, no-red-eyes clause. */
-  { id: 'asuras', name: 'The Asuras', note: 'Not a word for evil. Kings, devotees and teachers — half-brothers to the devas, churning the same ocean.',
+  { id: 'asuras', shelf: 'sacred', name: 'The Asuras', note: 'Not a word for evil. Kings, devotees and teachers — half-brothers to the devas, churning the same ocean.',
     ids: ['bali','prahlada','hiranyakashipu','hiranyaksha','mahishasura','tarakasura','shukracharya','banasura','vritra','bhasmasura'] }
 ];
 

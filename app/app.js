@@ -536,44 +536,85 @@
   };
 
   /* -------------------------------------------------------------- LANDING */
+  /* THE PAGE A PARENT MEETS FIRST, and it has one job: say what this is in a sentence
+     they can repeat to their partner.
+
+     It used to open "India is going grey. Help them remember it." That is the Vismriti
+     story — the grey mist the app is built around — and it is a good line ONCE YOU ARE
+     INSIDE. To somebody who has never opened the app it means nothing at all: grey how?
+     going grey like hair? A landing page is not the place to introduce a metaphor that
+     needs the product to explain it. So the headline now says the plain thing, and the
+     mist is introduced later, in the app, where it can be shown rather than asserted.
+
+     The numbers are COUNTED, never typed. This page claimed 11 stories and 34 places for
+     months after there were 344 and 36 — the worst kind of stale copy, because it
+     undersells the thing and nobody notices. */
   V.landing = function () {
+    var nStories = (allStories() || []).length;
+    var nPlaces = Object.keys((window.IND_MAP && window.IND_MAP.paths) || {}).length;
+    var nPacks = Object.keys(window.IND_PACKS || {}).length;
+    var nWorlds = ((window.IND_WORLDS && window.IND_WORLDS.list) || []).length;
+    var pick = (allStories() || [])[(new Date().getDate() * 7) % Math.max(1, nStories)] || null;
+
     return '<div class="wrap">' +
       '<div class="hero">' +
         '<div>' +
           '<span class="eyebrow">' + mascot('gattu', 'happy', 26) + 'For Indian kids growing up anywhere</span>' +
-          '<h1 style="margin-top:18px">India is going grey.<br>Help them<br>remember it.</h1>' +
-          '<p class="lede">A story-first world where your child learns India’s history, faiths, myths, ' +
-          'geography and languages — by lighting up a map that starts in the mist.</p>' +
+          '<h1 style="margin-top:18px">Give your child<br>the India they<br>have not lived in.</h1>' +
+          '<p class="lede">' + nStories + ' stories, a map of every state, and Hindi taught properly — ' +
+          'read aloud from the first tap, so a four-year-old can use it on their own.</p>' +
           '<div class="row" style="margin:22px 0">' +
             '<button class="btn lg" data-act="begin">Start free →</button>' +
             '<button class="btn ghost lg" data-act="begin">I have an account</button>' +
           '</div>' +
           '<ul class="ticks">' +
-            '<li>' + icon('lock', 20) + '<span><b>100% offline</b> — nothing about your child leaves the device</span></li>' +
-            '<li>' + icon('sound', 20) + '<span>Every story <b>read aloud</b>, so a four-year-old can use it alone</span></li>' +
-            '<li>' + icon('script', 20) + '<span><b>Hindi and Punjabi</b> in their own scripts — more languages coming</span></li>' +
+            '<li>' + icon('lock', 20) + '<span><b>Works offline, and stays private</b> — nothing about your child leaves the device</span></li>' +
+            '<li>' + icon('sound', 20) + '<span><b>Every story read aloud</b>, in English and in Hindi</span></li>' +
+            '<li>' + icon('script', 20) + '<span><b>' + nPacks + ' Indian languages</b> in their own scripts — never romanised</span></li>' +
           '</ul>' +
         '</div>' +
         '<div class="herocard">' +
           mascot('mithu', 'talk', 116) +
-          '<div class="mono" style="margin:10px 0 4px">Today’s story</div>' +
-          '<h2 style="font-size:32px">The Lion Who<br>Met Himself</h2>' +
-          '<p class="tiny">A lion who ate whatever he liked. And one small rabbit who had had enough.</p>' +
+          '<div class="mono" style="margin:10px 0 4px">Tonight’s story</div>' +
+          '<h2 style="font-size:30px">' + esc(pick ? pick.title : 'The Lion Who Met Himself') + '</h2>' +
+          '<p class="tiny">' + esc(pick && pick.hook ? pick.hook :
+            'A lion who ate whatever he liked. And one small rabbit who had had enough.') + '</p>' +
           '<button class="btn block" data-act="begin">Read it →</button>' +
           '<div class="row" style="margin-top:18px;gap:10px">' +
-            '<div class="card flat tight" style="flex:1;margin:0"><div class="mono">Stories</div><b style="font-size:19px">11</b></div>' +
-            '<div class="card flat tight" style="flex:1;margin:0"><div class="mono">Places</div><b style="font-size:19px">34</b></div>' +
+            '<div class="card flat tight" style="flex:1;margin:0"><div class="mono">Stories</div>' +
+              '<b style="font-size:19px">' + nStories + '</b></div>' +
+            '<div class="card flat tight" style="flex:1;margin:0"><div class="mono">Places</div>' +
+              '<b style="font-size:19px">' + nPlaces + '</b></div>' +
+            '<div class="card flat tight" style="flex:1;margin:0"><div class="mono">Worlds</div>' +
+              '<b style="font-size:19px">' + nWorlds + '</b></div>' +
           '</div>' +
         '</div>' +
       '</div>' +
+
+      /* What it actually does, in three plain claims a parent can check. */
       '<div class="grid g3" style="margin-top:10px">' +
-        [['tree', 'Stories they will actually sit for', 'Panchatantra, Akbar &amp; Birbal, the Ramayana, the Buddha and Mahavira — told properly, with a choice to make in the middle.'],
-         ['map', 'A map that fills in', 'Finish a story and the mist lifts off the place it came from. Geography, progress and navigation in one.'],
-         ['script', 'Real script, from day one', 'Devanagari and Gurmukhi on the same engine. No romanised shortcuts.']]
+        [['tree', 'Stories they will sit still for',
+          'Panchatantra, the Jatakas, the Ramayana and the Mahabharata, and the folk tales of every ' +
+          'state — told properly, never dumbed down, with a real question at the end instead of a moral.'],
+         ['map', 'A map of India they fill in themselves',
+          'Finish a story and the place it came from lights up. Every state painted, every capital ' +
+          'where it really is. Geography and progress in one picture.'],
+         ['script', 'Hindi taught the way it is actually spoken',
+          'Devanagari from day one, never romanised. The words, the letters, the grammar — and when ' +
+          'to say आप instead of तुम, which is the part that matters to a grandparent.']]
         .map(function (c) {
           return '<div class="card"><div style="width:44px;height:44px;border-radius:13px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin-bottom:12px">' +
             icon(c[0], 24) + '</div><h3>' + c[1] + '</h3><p class="tiny">' + c[2] + '</p></div>';
         }).join('') +
+      '</div>' +
+
+      /* The one thing every diaspora parent is actually worried about, answered straight. */
+      '<div class="card tint" style="margin-top:var(--space-lg);text-align:center">' +
+        '<h3 style="margin:0 0 6px">No ads. No accounts for children. Nothing collected.</h3>' +
+        '<p class="tiny" style="margin:0;max-width:60ch;margin-inline:auto">A first name and an age ' +
+        'band, kept on your own device. No birthday, no photo, no location, no tracking of any kind — ' +
+        'built to India’s DPDP Act, COPPA and GDPR-K from the first line of code rather than bolted ' +
+        'on later.</p>' +
       '</div></div>';
   };
 
@@ -4118,6 +4159,83 @@
   };
 
   /* -------------------------------------------------------------------- ME */
+  /* ------------------------------------------------------- THE PITARA (shop)
+     Everything a child does not have yet, in the one place they will look for it: the
+     settings page, under their own collection. It used to be nowhere. The deck showed
+     all 142 cards whether owned or not, which made the collection a list of absences;
+     the fix was to show only owned cards there -- and that left the other 105 with no
+     home at all. This is that home.
+
+     THREE THINGS THIS SCREEN HAS TO GET RIGHT:
+
+     1. LOCKED LOOKS LOCKED, AND SAYS WHAT IT COSTS. A greyed card with no price is a
+        dead end. A greyed card with "🪙 40" is a reason to go and finish a story.
+     2. SHELVES, NOT A WALL. Twelve packs in a row read as arbitrary. Three shelves --
+        the sacred, the real, the tales -- say why each pack is where it is.
+     3. THE SACRED SHELF IS NOT A SHOP. It carries no price, no draw button and no
+        progress bar, because none of it is for sale (economy.js rule 2). It is on this
+        page only so a child can see their whole collection in one place. */
+  function packShop(packs) {
+    var E = window.IND_ECONOMY;
+    var shelves = (E && E.SHELVES) || [{ id: 'tales', name: 'Who travels with you', note: '' }];
+
+    function packBlock(p) {
+      var open = !E || E.packOpen(S, p.id);
+      var price = E ? E.packPrice(p.id) : null;
+      var held = E ? E.packHeld(S, p.id) : p.ids.length;
+      var total = p.ids.length;
+      var sale = price != null;                    /* sacred/epic packs are never for sale */
+
+      return '<div class="packblk' + (open ? '' : ' locked') + '">' +
+        '<div class="spread packhead"><b>' + esc(p.name) + '</b>' +
+        '<span class="row" style="gap:6px">' +
+        '<span class="tiny muted">' + held + ' of ' + total + '</span>' +
+        (sale && !open ? '<span class="badge price">🪙 ' + price + '</span>' : '') + '</span>' +
+        '</div>' +
+        '<p class="tiny muted" style="margin:2px 0 8px">' + esc(p.note) + '</p>' +
+        (sale
+          ? '<div class="packbar"><i style="width:' +
+            Math.round(held / Math.max(1, total) * 100) + '%"></i></div>'
+          : '') +
+        '<div class="grid g4">' + p.ids.map(function (id) {
+          if (!E || E.avatarOpen(S, id)) return chip(id, 74, 'avcard');
+          /* NOT MET YET. The name stays -- a silhouette with no name is a mystery box,
+             and a mystery box is the bit of a gacha that is actually indefensible.
+             Tapping it opens that pack's pitara, so the want and the way to it are the
+             same tap. */
+          return '<button class="avchip unmet" data-act="draw" data-p="' + esc(p.id) + '"' +
+            ' aria-label="' + esc(avatarName(id) || id) + ' — not met yet">' +
+            art(id, 74) + '<span>' + esc(avatarName(id) || id) + '</span>' +
+            '<span class="rarlabel">🪙 ' + (E ? E.DRAW_PRICE : 40) + '</span></button>';
+        }).join('') + '</div>' +
+        (sale && held < total
+          ? '<div class="row" style="margin-top:10px">' +
+            '<button class="pill" data-act="draw" data-p="' + esc(p.id) + '">' +
+            'Open the pitara — 🪙 ' + (E ? E.DRAW_PRICE : 40) + '</button>' +
+            (open ? '' : '<button class="pill" data-act="buypack" data-p="' + esc(p.id) + '">' +
+              'Take all ' + total + ' — 🪙 ' + price + '</button>') + '</div>'
+          : '') +
+        '</div>';
+    }
+
+    return shelves.map(function (sh) {
+      var mine = packs.filter(function (p) {
+        return (E ? E.shelfOf(p.id) : 'tales') === sh.id;
+      });
+      if (!mine.length) return '';
+      return '<div class="card"><h3 style="margin:0">' + esc(sh.name) + '</h3>' +
+        (sh.note ? '<p class="tiny muted" style="margin:6px 0 0">' + esc(sh.note) + '</p>' : '') +
+        mine.map(packBlock).join('') + '</div>';
+    }).join('') +
+      /* The rate, in writing, once — not buried in a card a child has to find. */
+      '<div class="card flat tiny"><b>How the pitara works.</b> A draw costs 🪙 ' +
+      (E ? E.DRAW_PRICE : 40) + ' and always gives you someone you have <b>not</b> met, so a ' +
+      'draw is never wasted and you never get the same card twice. A whole pack costs 🪙 ' +
+      (E ? E.PACK_UNIT : 20) + ' a card, so a small pack costs less than a big one. ' +
+      'Sikke are earned by reading, playing and practising — they can never be bought with ' +
+      'money, and nothing on this page is a real-money purchase.</div>';
+  }
+
   V.me = function () {
     var packs = window.IND_AVATAR_PACKS || [];
     return '<div class="card"><div class="row" style="flex-wrap:nowrap">' + art(S.buddy, 92) +
@@ -4138,9 +4256,16 @@
           '<p class="tiny muted" style="margin:6px 0 0">Repaint the whole app in a real Indian ' +
           'folk-art tradition. Now: <b>' + esc(here ? here.name : S.world) + '</b>' +
           (here ? ' — ' + esc(here.region) : '') + '.</p>' +
+          /* LOCKED WORLDS LOOK LOCKED. This grid used to hand every tile the `world`
+             action whether or not the child owned it, so a locked world silently did
+             nothing when tapped -- the one thing a four-year-old reads as "broken app".
+             Now it dims, wears its price, and tapping it buys it. */
           '<div class="grid g2" style="margin-top:12px">' + list.map(function (w) {
-            return '<button class="tile' + (S.world === w.id ? ' on' : '') +
-              '" data-act="world" data-w="' + w.id + '">' +
+            var E = window.IND_ECONOMY;
+            var open = !E || E.worldOpen(S, w.id);
+            var price = E ? E.worldPrice(w.id) : 0;
+            return '<button class="tile' + (S.world === w.id ? ' on' : '') + (open ? '' : ' locked') +
+              '" data-act="' + (open ? 'world' : 'buyworld') + '" data-w="' + w.id + '">' +
               (w.tile
                 ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>'
                 : '<div class="wpreview" data-world="' + w.id + '">' +
@@ -4150,16 +4275,15 @@
                   '<span class="aa">आ Aa</span></div>') +
               '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3>' +
               (S.world === w.id ? '<span class="badge aaj">on</span>'
-                                : (w.full ? '<span class="badge">alive</span>' : '')) + '</div>' +
-              '<div class="mono">' + esc(w.region) + '</div></button>';
+                : (open ? '<span class="badge">alive</span>'
+                        : '<span class="badge price">🪙 ' + price + '</span>')) + '</div>' +
+              '<div class="mono">' + esc(w.region) + '</div>' +
+              (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent);font-weight:700">' +
+                (E && E.canAfford(S, price) ? 'Tap to open it'
+                                            : (price - (S.sikke || 0)) + ' more sikke') + '</p>') +
+              '</button>';
           }).join('') + '</div></div>' +
-      '<div class="card"><h3>Who travels with you</h3>' +
-      '<p class="tiny muted">Tap anyone to see their card.</p>' + packs.map(function (p) {
-        return '<div class="tiny muted" style="margin:14px 0 8px;font-weight:700">' + esc(p.name) + ' — ' + esc(p.note) + '</div>' +
-          '<div class="grid g4">' + p.ids.map(function (id) {
-            return chip(id, 74, 'avcard');
-          }).join('') + '</div>';
-      }).join('') + '</div>';
+      packShop(packs);
       })() +
       '<div class="card"><h3>Grown-ups</h3><div class="row">' +
       '<button class="pill' + (soundOn ? ' on' : '') + '" data-act="sound">' + icon('sound', 18) + ' Sound</button>' +
@@ -4259,10 +4383,18 @@
 
   /* Every pack's ids laid end to end, each remembering the pack it came from —
      the order the arrows walk and the order the pills jump into. */
+  /* THE DECK IS WHAT YOU HAVE, and nothing else. It used to hold all 142 cards whether or
+     not the child had met them, which is why it needed a pack selector across the top to
+     get anywhere -- and why it opened on "37 of 142", a number whose main job was to tell
+     a seven-year-old about the 105 things they do not have.
+
+     A collection is the cards in it. The ones still to meet live in the shop, where
+     wanting them is the point; here, every card you turn to is yours. */
   function deckFlat() {
-    var out = [];
+    var E = window.IND_ECONOMY, out = [];
     (window.IND_AVATAR_PACKS || []).forEach(function (p) {
       (p.ids || []).forEach(function (id) {
+        if (E && !E.avatarOpen(S, id)) return;
         out.push({ id: id, packId: p.id, packName: p.name });
       });
     });
@@ -4271,11 +4403,6 @@
   function deckIndexOf(id) {
     var f = deckFlat(), i;
     for (i = 0; i < f.length; i++) if (f[i].id === id) return i;
-    return 0;
-  }
-  function deckIndexOfPack(pid) {
-    var f = deckFlat(), i;
-    for (i = 0; i < f.length; i++) if (f[i].packId === pid) return i;
     return 0;
   }
 
@@ -4299,19 +4426,10 @@
           esc(here.packName) + '</div>' +
           '<button class="iconbtn" data-act="deckclose" aria-label="Close">✕</button></div>' +
 
-        /* the pack pills: a jump to the top of any pack without stepping
-           through eleven cards to reach it */
-        '<div class="deckpills" role="tablist" aria-label="Packs">' + packs.map(function (p) {
-          if (!p.ids || !p.ids.length) return '';
-          /* "The " earns nothing on a chip and costs four characters nine times
-             over, which is the difference between two rows and three. The full
-             pack name still stands in the head line above. */
-          var label = p.name.replace(/^The\s+/, '');
-          return '<button class="pill' + (p.id === here.packId ? ' on' : '') + '" role="tab"' +
-            ' aria-selected="' + (p.id === here.packId ? 'true' : 'false') + '"' +
-            ' title="' + esc(p.name) + '"' +
-            ' data-act="deckpack" data-p="' + esc(p.id) + '">' + esc(label) + '</button>';
-        }).join('') + '</div>' +
+        /* NO PACK SELECTOR. It existed to navigate 142 cards, most of which the child did
+           not own; a deck of only their own cards is short enough to flick through, and
+           the pack name is already on the line above. One fewer control on a screen a
+           four-year-old uses. */
 
         '<div class="deckstage">' +
           '<button class="deckarrow prev" data-act="deckstep" data-d="-1" aria-label="Previous card">' +
@@ -4509,10 +4627,6 @@
        a sideways scroller — without this the pill for the pack you are now in
        is off the right edge and the row looks stuck on "Gods & Teachers". */
     if (deckOpen) {
-      var onPill = document.querySelector('.deckpills .pill.on');
-      if (onPill && onPill.scrollIntoView) {
-        onPill.scrollIntoView({ block: 'nearest', inline: 'center' });
-      }
     }
     /* Scroll to the top only when the page actually changes. render() runs for lots of
        small things — opening a map callout, earning a bead, answering a quiz — and
@@ -4968,7 +5082,6 @@
     if (a === 'deck')      { deckOpen = true; deckAt = deckIndexOf(S.buddy); return render(); }
     if (a === 'deckclose') { deckOpen = false; return render(); }
     if (a === 'deckstep')  { deckAt += (+t.getAttribute('data-d') || 1); return render(); }
-    if (a === 'deckpack')  { deckAt = deckIndexOfPack(t.getAttribute('data-p')); return render(); }
     if (a === 'avcard') { deckOpen = false; return go('avcard', t.getAttribute('data-id')); }
     if (a === 'quiz')   {
       startSession(t.getAttribute('data-s') || quiz.stage, 'lesson');

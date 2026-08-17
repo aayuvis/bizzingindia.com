@@ -2041,3 +2041,27 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .gcard .gline .tiny { grid-column: 1; }
 .gcard .gline svg { grid-column: 2; grid-row: 1 / span 2; color: var(--accent); }
 .gcard .gline:hover { border-color: var(--accent); }
+
+/* --------------------------------------------------------------- the pitara
+   The shop lives inside the settings page, one block per pack under a shelf
+   heading. A locked pack is dimmed but never hidden and never un-tappable —
+   a child has to be able to see what they are saving for. */
+.packblk { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.packblk:first-of-type { border-top: 0; }
+.packhead b { font-size: 15px; }
+.packblk.locked .avchip:not(.unmet) { opacity: .95; }
+
+/* how far through a pack you are — no numbers on the bar itself, the count is
+   already on the heading line and two of the same number is noise */
+.packbar { height: 6px; border-radius: 999px; background: var(--card2); overflow: hidden; margin: 0 0 10px; }
+.packbar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+
+/* NOT MET YET. Dimmed and desaturated so it reads as absent at a glance, but the
+   art and the name both stay: a nameless silhouette is a mystery box, and this
+   app does not sell mystery boxes. The price sits where the rarity label sits on
+   a card you own, so the two never fight for the same corner. */
+.avchip.unmet { opacity: .5; filter: grayscale(1); border-style: dashed; }
+.avchip.unmet:hover, .avchip.unmet:focus-visible { opacity: .85; filter: grayscale(.35); }
+.avchip.unmet .rarlabel {
+  background: var(--accent-soft); color: var(--accent); font-weight: 800;
+}

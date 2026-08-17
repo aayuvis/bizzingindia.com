@@ -1,11 +1,10 @@
 /* Bizzing India — geography data for the Living Map.
    Keys match the state codes in map-data.js.
 
-   NOTE ON GAPS (see map-data.js header): the shipped geometry predates the 2014 and
-   2019 reorganisations, so Telangana is still inside Andhra Pradesh and Ladakh inside
-   Jammu & Kashmir. Both are listed below as `pending: true` — the app names them
-   honestly rather than pretending they don't exist, and they get their own outlines
-   when better source geometry lands. Renamed states use their modern names. */
+   Telangana (2014) and Ladakh (2019) have their own outlines now — tools/map-split.py
+   cut the internal line without touching the national boundary — so they are full states
+   here rather than the `pending` entries they used to be. `pending` is kept as a seam,
+   empty, for the next reorganisation. Renamed states use their modern names. */
 
 window.IND_GEO = {
   states: {
@@ -15,6 +14,12 @@ window.IND_GEO = {
     AP: { name: 'Andhra Pradesh', capital: 'Amaravati',
           fact: 'Home of Tirupati, one of the busiest temples on Earth, and of some of the hottest food in India.',
           food: 'Pulihora', note: 'Telangana was carved out of this state in 2014.' },
+    LA: { name: 'Ladakh', type: 'ut', capital: 'Leh',
+          fact: 'A cold desert high in the mountains, where the air is thin, the sky is enormous and Buddhist monasteries sit on the cliffs.',
+          food: 'Thukpa', note: 'Became a union territory of its own in 2019.' },
+    TG: { name: 'Telangana', capital: 'Hyderabad',
+          fact: 'The Charminar, the Golconda fort, and a biryani people argue about across the whole country.',
+          food: 'Hyderabadi biryani', note: 'Carved out of Andhra Pradesh in 2014.' },
     AR: { name: 'Arunachal Pradesh', capital: 'Itanagar',
           fact: 'The sun rises here first in all of India — the name means "land of the dawn-lit mountains".',
           food: 'Thukpa' },
@@ -116,13 +121,10 @@ window.IND_GEO = {
           food: 'Macher jhol' }
   },
 
-  /* states that exist today but have no separate outline in the shipped geometry */
-  pending: [
-    { code: 'TG', name: 'Telangana', capital: 'Hyderabad', inside: 'AP', since: 2014,
-      fact: 'Made a separate state in 2014. Charminar, biryani, and the Golconda fort.' },
-    { code: 'LA', name: 'Ladakh', type: 'ut', capital: 'Leh', inside: 'JK', since: 2019,
-      fact: 'A cold desert high in the mountains, with Buddhist monasteries on the cliffs.' }
-  ],
+  /* States that exist today but have no separate outline in the shipped geometry. Empty
+     since Telangana and Ladakh were cut out properly — kept as the seam for the next one,
+     so a state without geometry is still NAMED rather than silently missing. */
+  pending: [],
 
   rivers: [
     { id: 'ganga',       name: 'Ganga',       from: 'Gangotri glacier',  to: 'Bay of Bengal', states: ['UK','UP','BR','WB'], fact: 'India\'s most sacred river, and home to a rare freshwater dolphin.' },

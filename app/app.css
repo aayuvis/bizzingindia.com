@@ -320,22 +320,24 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .mapwrap { min-width: 0; }
 .mapsvg { width: 100%; height: auto; display: block; touch-action: manipulation; }
 
-/* Each state is two stacked copies of the same shape: the painting underneath, a veil
-   over it. Meeting a state fades the veil out — the geometry never changes, which is the
-   point. No boundary here animates, redraws or moves.
+/* Each state is two stacked copies of the same shape: the painting, and a shade over it.
+   The shade is INVISIBLE at rest. Every state shows its painting at full colour all the
+   time — nothing is greyed out, dimmed or switched off, whether or not it has been met.
 
-   The veil is LIGHT and thin. It used to be a dark, nearly opaque fill, which blacked out
-   the painting underneath and made half the country look switched off. What a state has
-   been remembered is now told by the green dot on its capital, below. */
+   The shade exists only to answer the pointer: hovering or focusing a state darkens it
+   slightly so you can see which one you are about to open. That is the only thing that
+   changes it. Whether a state has been remembered is told by the green dot on its capital,
+   further down, which ADDS a mark rather than taking the colour out of the country.
+
+   The geometry never changes and no boundary animates, redraws or moves. */
 .mapsvg .terrg { cursor: pointer; }
 .mapsvg .terr { stroke: var(--card); stroke-width: 1.4; }
 .mapsvg .mist {
-  fill: var(--haze); opacity: .42; pointer-events: none;
-  transition: opacity .6s ease;
+  fill: #1a1230; opacity: 0; pointer-events: none;
+  transition: opacity .18s ease;
 }
-.mapsvg .terrg.lit .mist { opacity: 0; }
-.mapsvg .terrg:hover .mist, .mapsvg .terrg:focus-visible .mist { opacity: .16; }
-.mapsvg .terrg.on .mist { opacity: 0; }
+.mapsvg .terrg:hover .mist, .mapsvg .terrg:focus-visible .mist { opacity: .26; }
+.mapsvg .terrg.on .mist { opacity: .14; }
 
 /* Capitals. A white-ringed dot on every capital city; it turns green once the state it
    belongs to has been remembered. The name is set small and drops out on narrow screens,

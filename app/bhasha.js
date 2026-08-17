@@ -1887,6 +1887,21 @@ function sentenceMap(pack) {
    that used to test for it. A special case for the first pack is invisible
    while there is only one pack with content; it becomes eight forgotten
    exceptions the moment the others land. */
+/* PASSAGES FROM ELSEWHERE. The twelve authored reading passages live in the
+   pack; these are the ones that arrive from outside it — chiefly the Hindi
+   tellings of the story library, which are already written, already narrated,
+   and already graded by which lexicon words they use.
+
+   Same registry shape as sentences and dialogues: one global keyed by pack id,
+   absent until content lands, every caller guarded. A pack with no bank behaves
+   exactly as it did before. */
+function passageBank(pack) {
+  pack = resolvePack(pack);
+  if (!pack) return null;
+  var p = (W.IND_BHASHA_PASSAGES || {})[pack.id];
+  return (p && p.length) ? p : null;
+}
+
 function dialogueBank(pack) {
   pack = resolvePack(pack);
   if (!pack) return null;
@@ -2836,7 +2851,12 @@ function readPassage(pack, opts) {
   opts = opts || {};
   var rng = opts.rng || rngFrom(opts.seed);
   var stage = stageOf(pack, 's6');
-  var items = (stage && stage.items) || [], ps = [], i;
+  /* LAZILY, at question time — not baked into the stage. The pack is built when
+     bhasha.js evaluates, and the registered banks load AFTER it, so folding them
+     into stage.items there read an empty registry and silently kept the twelve
+     authored passages. Reading the bank here is the same lateness the sentence
+     and dialogue seams already rely on. */
+  var items = ((stage && stage.items) || []).concat(passageBank(pack) || []), ps = [], i;
   for (i = 0; i < items.length; i++) { if (items[i] && items[i].kind === 'passage') ps.push(items[i]); }
   if (ps.length < 3) return wordBuild(pack, opts);      /* need two plausible wrong meanings */
   var p = (opts.item && opts.item.kind === 'passage') ? opts.item : pick(rng, ps);
@@ -2848,6 +2868,12 @@ function readPassage(pack, opts) {
     type: 'readPassage', pack: pack.id,
     itemKey: 'passage:' + p.id,
     hi: p.hi, roman: p.roman,
+    /* A passage that can be HEARD as well as read. The story tellings are
+       narrated already — the same Hindi, the same sentence, a clip that exists
+       — so a passage drawn from one arrives with its own voice and the child
+       can listen before decoding. Authored passages have no clip and simply
+       carry null; the view offers no button then. */
+    audio: p.audio || null,
     options: os, answerIndex: ai, answerEn: p.en,
     script: resolveScript(pack).id, direction: resolveScript(pack).direction, font: resolveScript(pack).font,
     prompt: 'Read it. What is it about?'
@@ -3322,6 +3348,7 @@ W.IND_BHASHA = {
      implementation of "hide the word", so the rule cannot drift per screen */
   sentences: sentenceMap,
   dialogues: dialogueBank,
+  passages: passageBank,
   sentence: sentenceFor,
   mask: maskWord,
   BLANK: BLANK,

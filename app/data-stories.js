@@ -88,6 +88,10 @@ window.IND_STORIES = [
 
 {
   id: 'pt.monkey-crocodile',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panchatantra',
   badge: 'katha',
   title: 'The Monkey Who Kept His Heart in a Tree',
@@ -99,18 +103,25 @@ window.IND_STORIES = [
   words_hi: [['बंदर', 'bandar', 'monkey'], ['नदी', 'nadi', 'river'], ['दोस्त', 'dost', 'friend']],
   scenes: [
     { art: ['pt_monkey'], who: null,
+      hi: 'एक चौड़ी नदी के किनारे जामुन का एक पेड़ था, बैंगनी फलों से लदा हुआ। उसी पर एक बंदर रहता था, जिसके पास खाने से कहीं ज़्यादा फल थे — और बाँटने के लिए कोई नहीं।',
       text: 'On the bank of a wide river grew a jamun tree, heavy with purple fruit. In it lived a monkey who had more fruit than he could ever eat, and nobody to share it with.' },
     { art: ['pt_crocodile', 'pt_monkey'], who: 'pt_monkey',
+      hi: 'एक दिन एक मगरमच्छ किनारे पर सुस्ताने चढ़ आया। “तुम थके लग रहे हो,” बंदर ने कहा, और मुट्ठी भर जामुन नीचे गिरा दिए। “ये चखो।”',
       text: 'One day a crocodile hauled himself up onto the bank to rest. "You look tired," said the monkey, and dropped him a handful of jamuns. "Try these."' },
     { art: ['pt_monkey', 'pt_crocodile'], who: null,
+      hi: 'दोस्ती वैसे ही हुई जैसे होती है — धीरे-धीरे, फलों के सहारे, महीनों तक हर दोपहर। मगरमच्छ कुछ जामुन अपनी पत्नी के लिए भी ले जाने लगा।',
       text: 'They became friends the way you do — slowly, over fruit, every afternoon for months. The crocodile started carrying some home to his wife.' },
     { art: ['pt_crocodile'], who: null, mood: 'think',
+      hi: '“अगर फल इतने मीठे हैं,” एक शाम उसकी पत्नी बोली, “तो सोचो वह बंदर कैसा होगा। उसने तो ज़िंदगी भर मिठास के सिवा कुछ खाया ही नहीं। मुझे उसका कलेजा चाहिए।”',
       text: '"If the fruit is this sweet," his wife said one evening, "imagine the monkey. He has eaten nothing but sweetness his whole life. I want his heart."' },
     { art: ['pt_crocodile'], who: 'pt_crocodile', mood: 'sad',
+      hi: '“वह मेरा दोस्त है,” मगरमच्छ ने कहा। “वह मेरा खाना है,” पत्नी बोली, “वरना मैं तुम्हारी पत्नी नहीं।” और मगरमच्छ — जो ठीक उसी तरह कमज़ोर था जिस तरह की कमज़ोरी जान ले लेती है — पेड़ के पास लौट गया।',
       text: '"He is my friend," said the crocodile. "He is my dinner," said his wife, "or I am not your wife." And the crocodile — who was weak in exactly the way that gets people killed — went back to the tree.' },
     { art: ['pt_crocodile', 'pt_monkey'], who: 'pt_crocodile',
+      hi: '“नदी पार मेरे घर चलो,” उसने कहा। “मेरी पत्नी तुम्हें धन्यवाद कहना चाहती है।” बंदर, जिसे तैरना बिलकुल नहीं आता था, पूरे भरोसे के साथ उसकी पीठ पर चढ़ गया।',
       text: '"Come to my home across the river," he said. "My wife wants to thank you." The monkey, who could not swim a stroke, climbed onto his back with total trust.' },
     { art: ['pt_monkey', 'pt_crocodile'], who: null,
+      hi: 'बीच नदी में, सबसे गहरे पानी पर, मगरमच्छ रुक गया। “मुझे तुमसे कुछ कहना है,” उसने कहा। “मेरी पत्नी तुम्हारा कलेजा खाना चाहती है।”',
       text: 'Halfway across, in the deepest water, the crocodile stopped. "I have to tell you something," he said. "My wife wants to eat your heart."',
       ask: {
         q: "You're in the middle of a river, on the back of someone who wants your heart. What now?",
@@ -120,10 +131,13 @@ window.IND_STORIES = [
         wrong: 'The monkey did something stranger. He laughed, and said: "Why didn\'t you SAY so? I left my heart in the tree."'
       } },
     { art: ['pt_monkey'], who: 'pt_monkey', mood: 'wow',
+      hi: '“अरे! यह पहले क्यों नहीं बताया?” बंदर हँस पड़ा। “हम बंदर तो अपना कलेजा पेड़ पर ही टाँगकर रखते हैं। वह बहुत कीमती होता है, साथ लेकर नहीं घूमते। मुझे वापस ले चलो, मैं ले आता हूँ।”',
       text: '"Oh! Why didn\'t you say so before we left?" laughed the monkey. "We monkeys keep our hearts hanging in the tree. It is far too precious to carry about. Take me back and I will fetch it for you."' },
     { art: ['pt_crocodile'], who: null,
+      hi: 'और मगरमच्छ — जिसने बंदर की कही हर बात पर हमेशा यकीन किया था, और अब भी न करने की कोई वजह नहीं दिखी — मुड़ा और उसे पूरी नदी पार वापस ले आया।',
       text: 'And the crocodile — who had believed every word the monkey had ever said, and saw no reason to stop now — turned around and swam him all the way back.' },
     { art: ['pt_monkey', 'pt_crocodile'], who: 'pt_monkey',
+      hi: 'बंदर उस पेड़ पर इतनी तेज़ी से चढ़ा जितनी तेज़ी से वह कभी कुछ नहीं चढ़ा था। सबसे ऊँची डाल से उसने नीचे पुकारा: “मेरा कलेजा वहीं है जहाँ हमेशा से था — मेरे अंदर। घर जाओ। और लौटकर मत आना।”',
       text: 'The monkey went up that tree faster than he had ever climbed anything. From the top branch he called down: "My heart is where it has always been — inside me. Go home. And do not come back."' }
   ],
   moral: 'Keep your wits about you, especially with people you love. Panic is what the trap is waiting for.',
@@ -132,6 +146,10 @@ window.IND_STORIES = [
 
 {
   id: 'pt.talkative-tortoise',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panchatantra',
   badge: 'katha',
   title: 'The Tortoise Who Had to Have the Last Word',
@@ -143,16 +161,22 @@ window.IND_STORIES = [
   words_hi: [['कछुआ', 'kachhua', 'tortoise'], ['आकाश', 'aakash', 'sky'], ['चुप', 'chup', 'quiet']],
   scenes: [
     { art: ['pt_tortoise'], who: null,
+      hi: 'उज्जैन के पास एक झील में कंबुग्रीव नाम का एक कछुआ रहता था, और दो हंस उसके सबसे प्यारे दोस्त थे। कंबुग्रीव में बस एक ही खोट थी। वह बोलना बंद ही नहीं कर पाता था। एक पल के लिए भी नहीं। किसी भी हाल में नहीं।',
       text: 'In a lake near Ujjain lived a tortoise named Kambugriva, and two geese who were his dearest friends. Kambugriva had exactly one fault. He could not stop talking. Not for a moment. Not for anything.' },
     { art: ['pt_heron', 'pt_tortoise'], who: 'pt_heron', mood: 'sad',
+      hi: 'एक गर्मी में बारिश नहीं हुई। झील सिकुड़कर कीचड़ रह गई। “हमें किसी बड़ी झील तक उड़ना होगा,” हंसों ने कहा। “पर तुम उड़ नहीं सकते, और हम तुम्हें छोड़ नहीं सकते।”',
       text: 'One summer the rains failed. The lake shrank to mud. "We must fly to a bigger lake," said the geese. "But you cannot fly, and we cannot leave you."' },
     { art: ['pt_tortoise'], who: 'pt_tortoise', mood: 'wow',
+      hi: '“मेरे पास एक तरकीब है!” कंबुग्रीव चिल्लाया। “एक लकड़ी ढूँढ़ो। तुम दोनों उसके सिरे अपनी चोंच में पकड़ लेना। मैं बीच में दाँत से पकड़ लूँगा। और हम उड़ चलेंगे।”',
       text: '"I have an idea!" cried Kambugriva. "Find a stick. You each hold an end in your beak. I will bite the middle. And we fly."' },
     { art: ['pt_heron', 'pt_tortoise'], who: 'pt_heron',
+      hi: '“चल जाएगा,” हंसों ने धीरे से कहा, “पर एक शर्त पर। तुम कुछ भी देखो, कोई कुछ भी कहे — मुँह मत खोलना। एक बार भी नहीं। वरना गिर जाओगे।”',
       text: '"It will work," said the geese slowly, "on one condition. Whatever you see, whatever anyone says — you must not open your mouth. Not once. You will fall."' },
     { art: ['pt_tortoise'], who: null, mood: 'wow',
+      hi: 'वे ऊपर उड़ चले। कीचड़ के ऊपर से, खेतों के ऊपर से, सड़क के ऊपर से — और पूरा कस्बा दौड़कर बाहर आ गया, आसमान में उस अजूबे को देखकर उँगली उठाता और चिल्लाता हुआ।',
       text: 'Up they went. Over the mud, over the fields, over the road — and the whole town came running out to look, pointing and shouting at the astonishing thing in the sky.' },
     { art: ['pt_tortoise'], who: null,
+      hi: '“वह देखो!” लोग चिल्लाए। “पक्षी कितने चतुर हैं! देखो तो चतुर पक्षियों ने क्या तरकीब निकाली है!” और लकड़ी से लटके कंबुग्रीव के सीने में कुछ गरम-गरम उठने लगा।',
       text: '"Look at that!" they yelled. "The birds are so clever! Look what the clever birds have invented!" And Kambugriva, dangling from his stick, felt something hot rise in his chest.',
       ask: {
         q: 'They are giving the birds all the credit — and it was HIS idea. What should he do?',
@@ -162,8 +186,10 @@ window.IND_STORIES = [
         wrong: 'That is what he should have done. It is not what he did.'
       } },
     { art: ['pt_tortoise'], who: 'pt_tortoise', mood: 'wow',
+      hi: '“तरकीब मेरी थी!” कंबुग्रीव दहाड़ा।',
       text: '"IT WAS MY IDEA!" roared Kambugriva.' },
     { art: ['pt_tortoise'], who: null, mood: 'sad',
+      hi: 'तरकीब सचमुच बहुत अच्छी थी। और सच कहें तो, वही उसकी आख़िरी तरकीब थी।',
       text: 'It was a very good idea. It was, in fact, the last one he ever had.' }
   ],
   moral: 'There is a time to speak and a time to keep your mouth shut. Knowing the difference is most of wisdom.',
@@ -172,6 +198,10 @@ window.IND_STORIES = [
 
 {
   id: 'pt.blue-jackal',
+  /* Hindi telling below is a DRAFT — needs a named Hindi pedagogue
+     per line before launch (docs/05 §6). The audio is synthesised from
+     these lines, so a correction means re-running tools/tts.py for it. */
+  needs_native_speaker: true,
   collection: 'panchatantra',
   badge: 'katha',
   title: 'The Jackal Who Turned Blue',
@@ -183,14 +213,19 @@ window.IND_STORIES = [
   words_hi: [['नीला', 'neela', 'blue'], ['राजा', 'raja', 'king'], ['सच', 'sach', 'truth']],
   scenes: [
     { art: ['pt_jackal'], who: null,
+      hi: 'चंडरव नाम का एक भूखा सियार रात को कुछ खाने की तलाश में कस्बे में घुस आया। पहले उसे कुत्तों ने पा लिया। वह भागा — एक फाटक से, एक आँगन से, और सीधे एक रँगरेज़ के बड़े से नील के मटके में जा गिरा।',
       text: 'A hungry jackal called Chandarava crept into a town at night looking for scraps. The dogs found him first. He ran — through a gate, through a yard, and straight into a dyer\'s enormous vat.' },
     { art: ['pt_jackal'], who: null, mood: 'wow',
+      hi: 'सुबह वह टपकता हुआ बाहर निकला, और उसका एक-एक बाल गहरे, चमकते नीले रंग का हो चुका था। जंगल के किसी जानवर ने किसी जीते-जागते प्राणी पर ऐसा रंग कभी नहीं देखा था।',
       text: 'He climbed out at dawn, dripping, and every hair on him was a deep and glorious indigo blue. No animal in the forest had ever seen such a colour on a living creature.' },
     { art: ['pt_lion', 'pt_jackal'], who: 'pt_jackal',
+      hi: '“झुक जाओ,” चंडरव ने कहा, जो तेज़ दिमाग़ का था। “मुझे स्वर्ग से तुम्हारा राजा बनाकर भेजा गया है। मेरा रंग देखो। ऐसा रंग कभी देखा है?” किसी ने नहीं देखा था। शेर झुका। बाघ झुका। सब झुक गए।',
       text: '"KNEEL," said Chandarava, who was quick. "I have been sent down from heaven to be your king. Behold my colour. Have you ever seen its like?" They had not. The lion knelt. The tiger knelt. Everyone knelt.' },
     { art: ['pt_jackal'], who: null,
+      hi: 'उसने बहुत बढ़िया राज किया। शेरों को मंत्री बनाया और बाघों को पहरेदार। और हर सियार को जंगल से बाहर निकाल दिया — क्योंकि सियार तो आम थे और वह ख़ास था, और क्योंकि वे उसे पहचान सकते थे।',
       text: 'He ruled beautifully. He kept lions as ministers and tigers as guards. And he drove every jackal out of the forest, because jackals were common, and he was not — and because they might recognise him.' },
     { art: ['pt_jackal'], who: null,
+      hi: 'महीनों यही चलता रहा। फिर एक शाम, पेड़ों के बहुत पीछे कहीं, सियारों का एक झुंड चाँद को देखकर हुआँ-हुआँ करने लगा।',
       text: 'It went on for months. Then one evening, far off beyond the trees, a pack of jackals began to howl at the moon.',
       ask: {
         q: 'Every jackal in the world howls when it hears that sound. What will he do?',
@@ -200,6 +235,7 @@ window.IND_STORIES = [
         wrong: 'He tried. But his throat had other ideas.'
       } },
     { art: ['pt_jackal'], who: null, mood: 'sad',
+      hi: 'रोक पाने से पहले ही उसका सिर पीछे चला गया। और जंगल के राजा के भीतर से निकली एक लंबी, बिलकुल पहचानी जाने वाली, एकदम मामूली सियार की हुआँ। शेरों ने एक-दूसरे को देखा। और चंडरव जान बचाकर भागा — वैसा ही नीला, जैसा था।',
       text: 'His head went back before he could stop it. And out of the king of the forest came a long, unmistakable, perfectly ordinary jackal howl. The lions looked at each other. And Chandarava ran for his life, blue as ever.' }
   ],
   moral: 'You can change your colour. Changing what you are is a great deal harder — and pretending is exhausting.',

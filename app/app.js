@@ -3762,7 +3762,13 @@
         break;
       case 'readPassage':
         prompt = q.prompt || 'Read it. What is it about?'; grid = false;
-        lead = '<div class="passage deva">' + esc(q.hi) + '</div>';
+        /* A passage drawn from a story arrives with its own narration — the same
+           Hindi in the same voice the child heard in the story. Offer it, but
+           only when a clip really exists: the twelve authored passages have
+           none, and a dead button teaches a child not to trust buttons. */
+        lead = '<div class="passage deva">' + esc(q.hi) + '</div>' +
+          (q.audio ? '<button class="btn ghost sm" style="margin:8px 0 2px" data-act="say" data-k="' +
+            esc(q.audio) + '" data-l="hi-IN">' + icon('sound', 16) + ' Hear it read</button>' : '');
         subFor = null;
         break;
       /* --- fill the blank (Phase 3) ---

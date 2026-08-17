@@ -15,6 +15,12 @@ fs.readdirSync(appDir).filter(function (f) { return /^data-bhasha-.*\.js$/.test(
   .sort().forEach(function (f) {
     vm.runInThisContext(fs.readFileSync(require('path').join(appDir, f), 'utf8'), { filename: f });
   });
+/* The voice manifest too, so "does this clip exist?" is a question the tests can
+   actually answer. Without it W.IND_VOICE is undefined, every audio assertion
+   silently sees an empty list, and a check that looks strict passes or fails for
+   the wrong reason. */
+vm.runInThisContext(fs.readFileSync(require('path').join(appDir, 'voice-manifest.js'), 'utf8'),
+                    { filename: 'voice-manifest.js' });
 
 var S = W.IND_SCRIPTS, P = W.IND_PACKS, B = W.IND_BHASHA, SRS = W.IND_SRS;
 var fails = 0, checks = 0;
@@ -682,6 +688,50 @@ eq('readiness learning (box 0 seen - 2)', rd.learning, 2);
 eq('readiness unseen', rd.unseen, 42);
 
 console.log('  session/band/readiness: planner walked for hi+pa s1-s3, steering, test-out, band, readiness');
+
+/* ========= STORY TELLINGS REACH THE TRAINING ENGINE ========= */
+/* A translated story scene is structurally a stage-6 passage, and it arrives
+   with a narration the twelve authored passages do not have. These assert the
+   bridge holds — including the load-order trap that broke it once: the pack is
+   built when bhasha.js evaluates, and the banks register AFTER it, so anything
+   folded into stage.items at build time reads an empty registry and silently
+   keeps only the authored twelve. */
+hdr('story passages');
+(function () {
+  var bank = B.passages('hi') || [];
+  ok('the story passage bank is registered', bank.length > 0);
+  eq('a pack with no bank returns null, not a throw', B.passages('ta'), null);
+
+  var bad = bank.filter(function (p) {
+    return p.kind !== 'passage' || !p.hi || !p.en || !(p.lex && p.lex.length >= 2);
+  });
+  eq('every story passage has hi, en and 2+ lexicon words', bad.length, 0);
+
+  /* lex is COMPUTED, so it must actually be present in the Hindi — a stale or
+     hand-edited list would let the engine schedule a passage for a word that
+     is not in it. */
+  var lies = bank.filter(function (p) {
+    return p.lex.some(function (w) { return p.hi.indexOf(w) < 0; });
+  });
+  eq('every word in lex really appears in the passage', lies.length, 0);
+
+  var voiced = bank.filter(function (p) { return p.audio; });
+  ok('story passages carry their narration', voiced.length > 0);
+  var noClip = voiced.filter(function (p) { return (W.IND_VOICE || []).indexOf(p.audio) < 0; });
+  eq('every passage clip actually exists', noClip.length, 0);
+
+  /* the load-order regression, caught from outside */
+  var seen = 0, fromStory = 0;
+  for (var i = 0; i < 40; i++) {
+    var q = B.readPassage('hi', { seed: 'sp' + i });
+    if (!q || q.type !== 'readPassage') continue;
+    seen++;
+    if (String(q.itemKey).indexOf('story:') >= 0) fromStory++;
+  }
+  ok('readPassage actually draws story passages, not only the authored twelve',
+     seen > 0 && fromStory > 0);
+  console.log('  story passages: ' + bank.length + ' in the bank, ' + voiced.length + ' narrated');
+}());
 
 /* ================= PHASE B: production ================= */
 /* Everything else on the ladder is recognition. These assert the fourth

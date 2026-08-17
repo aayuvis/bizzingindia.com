@@ -3904,8 +3904,13 @@
       var c = g.c || d.c || 'var(--accent)', c2 = g.c2 || d.c2 || c;
       var tag = g.tag || d.tag || '';
       return '<button class="gcover" data-act="game" data-id="' + g.id + '">' +
-        '<span class="gart" style="background:linear-gradient(135deg,' + c + ',' + c2 + ')">' +
-          (g.scene || icon(g.icon || 'star', 46)) +
+        /* A FULL-BLEED ILLUSTRATED COVER where one exists (game-art.js): the board, the
+           dice, the letter rack, the wheel. Every stall used to be the same gradient with
+           a 64px line glyph floating in it, which tells a child nothing about which game
+           is which. A game with no illustration still falls back to its old glyph. */
+        '<span class="gart' + (window.IND_GAME_ART && window.IND_GAME_ART[g.id] ? ' art' : '') +
+          '" style="background:linear-gradient(135deg,' + c + ',' + c2 + ')">' +
+          ((window.IND_GAME_ART && window.IND_GAME_ART[g.id]) || g.scene || icon(g.icon || 'star', 46)) +
           (tag ? '<span class="gtag">' + esc(tag) + '</span>' : '') + '</span>' +
         '<span class="gbody"><b>' + esc(g.name) + '</b>' +
         '<span class="tiny muted">' + esc(g.blurb || '') + '</span>' +

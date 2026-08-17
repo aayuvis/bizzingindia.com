@@ -470,6 +470,22 @@
 
       /* fills/strokes bound to the world tokens (re-tint for free on switch) */
       '.waf-a{fill:var(--wa-accent)}.waf-b{fill:var(--wa-accent2)}.waf-f{fill:var(--wa-festive)}',
+      /* DEPTH, and it is the difference between a diagram and a picture. Everything here
+         was flat fill on flat fill, which is why the art read as boxy however many objects
+         went into it. Three things fix that without touching a single path:
+
+           .wag-*  the same six colours as a top-lit gradient, for the big masses
+           .wad    a contact shadow under anything that stands on the ground
+           .wah    a highlight wash for the lit face of a mass
+
+         The gradients are declared once in the stage's own <defs> (gradDefs below) and
+         referenced by url(#…), so fifteen worlds share four gradient objects. */
+      '.wag-a{fill:url(#waGA)}.wag-b{fill:url(#waGB)}.wag-f{fill:url(#waGF)}',
+      '.wag-i{fill:url(#waGI)}.wag-s{fill:url(#waGS)}.wag-g{fill:url(#waGG)}',
+      '.wad{fill:var(--wa-ink);opacity:.16}',
+      '.wah{fill:#ffffff;opacity:.14}',
+      /* a soft shade under every sprite: objects sit ON the ground instead of floating */
+      '.wa-spr{filter:drop-shadow(0 2px 3px rgba(20,12,40,.10))}',
       '.waf-i{fill:var(--wa-ink)}.waf-s{fill:var(--wa-surface)}.waf-g{fill:var(--wa-ground)}.waf-n{fill:none}',
       '.was-a{stroke:var(--wa-accent)}.was-b{stroke:var(--wa-accent2)}.was-f{stroke:var(--wa-festive)}',
       '.was-i{stroke:var(--wa-ink)}.was-s{stroke:var(--wa-surface)}',
@@ -1134,10 +1150,14 @@
       var x = i * 140;
       return '<g>' +
         /* the shutter and its board */
-        '<rect class="waf-a" opacity=".82" x="' + (x + 8) + '" y="104" width="124" height="76" rx="3"/>' +
+        '<rect class="wag-a" opacity=".9" x="' + (x + 8) + '" y="104" width="124" height="76" rx="3"/>' +
+        /* the shutter's own slats, and the dark of the doorway behind it */
+        rep(7, function (k) { return '<rect class="waf-i" opacity=".08" x="' + (x + 12 + k * 17) + '" y="108" width="8" height="68" rx="2"/>'; }) +
+        '<rect class="waf-i" opacity=".22" x="' + (x + 46) + '" y="126" width="48" height="54" rx="3"/>' +
         '<rect class="waf-b" x="' + (x + 4) + '" y="92" width="132" height="14" rx="3"/>' +
         /* the awning */
-        '<path class="waf-f" opacity=".85" d="M' + (x + 2) + ' 92h136l-14 20H' + (x + 16) + 'Z"/>' +
+        '<path class="wag-f" opacity=".92" d="M' + (x + 2) + ' 92h136l-14 20H' + (x + 16) + 'Z"/>' +
+        '<path class="wah" d="M' + (x + 2) + ' 92h136l-4 6H' + (x + 6) + 'Z"/>' +
         '<path class="was-s waf-n" stroke-width="1.6" opacity=".5" d="M' + (x + 20) + ' 92v20M' + (x + 52) + ' 92v20M' + (x + 84) + ' 92v20M' + (x + 116) + ' 92v20"/>' +
         /* wares hung out over the footpath: dupattas at one shop, bangles at the next */
         (i % 2
@@ -1148,7 +1168,7 @@
               return '<circle class="was-b waf-n" stroke-width="2.4" opacity=".9" cx="' + (x + 28 + k * 18) + '" cy="128" r="7"/>';
             })) +
         /* the haveli balcony above the shop */
-        '<rect class="waf-s" opacity=".6" x="' + (x + 14) + '" y="52" width="112" height="36" rx="4"/>' +
+        '<rect class="wag-s" opacity=".7" x="' + (x + 14) + '" y="52" width="112" height="36" rx="4"/>' +
         rep(7, function (k) { return '<path class="was-i waf-n" stroke-width="1.8" opacity=".45" d="M' + (x + 26 + k * 15) + ' 58v24"/>'; }) +
         '<path class="was-i waf-n" stroke-width="2" opacity=".4" d="M' + (x + 10) + ' 52h120"/>' +
         '</g>';
@@ -1278,7 +1298,8 @@
       var x = i * 62 + (seed % 7);
       var h = 40 + (seed % 68);
       var y = 150 - h;
-      return '<g><rect class="waf-i" opacity=".2" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="2"/>' +
+      return '<g><rect class="wag-i" opacity=".26" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="2"/>' +
+        '<rect class="wah" x="' + x + '" y="' + y + '" width="' + Math.max(3, w * 0.22) + '" height="' + h + '" rx="2"/>' +
         /* the windows: a grid, dark by day */
         rep(Math.max(2, Math.floor(h / 16)), function (k) {
           return rep(Math.max(1, Math.floor(w / 14)), function (j) {
@@ -1552,7 +1573,7 @@
     /* the pandal: bamboo frame, cloth drapes, a lit arch — and the murti inside
        it, which is the whole reason a pandal is built. */
     var pandal = spr('left:50%;bottom:0;width:clamp(280px,74vw,560px);height:auto;transform:translateX(-50%)', '0 0 420 200',
-      '<path class="waf-i" opacity=".14" d="M40 200V96q0-56 60-72Q210 0 320 24q60 16 60 72v104Z"/>' +
+      '<path class="wag-i" opacity=".2" d="M40 200V96q0-56 60-72Q210 0 320 24q60 16 60 72v104Z"/>' +
       /* bamboo frame */
       '<g class="was-i waf-n" stroke-width="4" opacity=".55">' +
       '<path d="M40 200V96q0-56 60-72Q210 0 320 24q60 16 60 72v104"/>' +
@@ -1997,8 +2018,9 @@
     };
     var mausoleum =
       /* the plinth */
-      '<rect class="waf-s" x="560" y="150" width="280" height="14" rx="2"/>' +
-      '<rect class="waf-s" x="588" y="96" width="224" height="56"/>' +
+      '<rect class="wag-s" x="560" y="150" width="280" height="14" rx="2"/>' +
+      '<rect class="wag-s" x="588" y="96" width="224" height="56"/>' +
+      '<rect class="wah" x="588" y="96" width="224" height="7"/>' +
       /* the four minarets, each with its chhatri */
       rep(4, function (i) {
         var x = [566, 606, 794, 834][i];
@@ -2007,7 +2029,8 @@
           chhatri(x, 58, 7) + '</g>';
       }) +
       /* the great dome, its drum and its two flanking chhatris */
-      '<path class="waf-s" d="M700 40q42 0 42 42q0 32-42 54q-42-22-42-54q0-42 42-42Z"/>' +
+      '<path class="wag-s" d="M700 40q42 0 42 42q0 32-42 54q-42-22-42-54q0-42 42-42Z"/>' +
+      '<path class="wah" d="M700 40q-30 0-38 30q14-20 38-20Z"/>' +
       '<rect class="waf-s" x="678" y="82" width="44" height="16" rx="3"/>' +
       '<path class="was-b waf-n" stroke-width="1.6" opacity=".45" d="M700 30v10"/>' +
       '<circle class="waf-b" cx="700" cy="27" r="4"/>' +
@@ -2314,7 +2337,8 @@
         var t = i / 12, x = 132 + 156 * t, y = 48 + 26 * Math.sin(Math.PI * t);
         return '<circle class="waf-b" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4"/>';
       }) + '</g>';
-    var body = '<rect class="waf-a" x="120" y="52" width="180" height="118" rx="6"/>' +
+    var body = '<rect class="wag-a" x="120" y="52" width="180" height="118" rx="6"/>' +
+      '<rect class="wah" x="120" y="52" width="180" height="10" rx="5"/>' +
       '<rect class="waf-b" opacity=".9" x="130" y="62" width="160" height="52" rx="4"/>' +
       /* the painted eyes truck painters put on the tailboard */
       '<g><ellipse class="waf-s" cx="170" cy="86" rx="16" ry="10"/>' +
@@ -2470,7 +2494,7 @@
     /* five swatches on the table, each the real idiom of its craft */
     function swatch(x, inner, label) {
       return '<g transform="translate(' + x + ' 92)">' +
-        '<rect class="waf-s" x="0" y="0" width="72" height="84" rx="5"/>' +
+        '<rect class="wag-s" x="0" y="0" width="72" height="84" rx="5"/>' +
         '<rect class="waf-g" opacity=".5" x="4" y="4" width="64" height="76" rx="4"/>' +
         inner + '</g>';
     }
@@ -3333,6 +3357,24 @@
   var mounted = false, back = null, stage = null, styleEl = null, obs = null,
     curWorld = null, slots = null, rafPending = false;
 
+  /* One <defs> for the whole app, mounted with the stage. A gradient cannot be declared
+     in a CSS file, so it lives in a zero-size SVG that every sprite can reference. */
+  function gradDefs() {
+    function g(id, c, topA, botA) {
+      return '<linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="' + c + '" stop-opacity="' + topA + '"/>' +
+        '<stop offset="1" stop-color="' + c + '" stop-opacity="' + botA + '"/></linearGradient>';
+    }
+    return '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>' +
+      g('waGA', 'var(--wa-accent)', 1, 0.62) +
+      g('waGB', 'var(--wa-accent2)', 1, 0.6) +
+      g('waGF', 'var(--wa-festive)', 1, 0.62) +
+      g('waGI', 'var(--wa-ink)', 0.92, 0.55) +
+      g('waGS', 'var(--wa-surface)', 1, 0.78) +
+      g('waGG', 'var(--wa-ground)', 1, 0.72) +
+      '</defs></svg>';
+  }
+
   function injectStyle() {
     if (styleEl && styleEl.parentNode) return;
     styleEl = document.createElement('style');
@@ -3396,7 +3438,7 @@
     stage = document.createElement('div');
     stage.className = 'wa-layer wa-stage';
     stage.setAttribute('aria-hidden', 'true');
-    stage.innerHTML = '<div class="wa-air"></div><div class="wa-sky"></div>' +
+    stage.innerHTML = gradDefs() + '<div class="wa-air"></div><div class="wa-sky"></div>' +
       '<div class="wa-band"></div><div class="wa-foot"></div>';
     document.body.appendChild(back);
     document.body.appendChild(stage);

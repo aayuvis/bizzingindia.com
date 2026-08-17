@@ -374,7 +374,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
    self-animating scene, tag chip, facts underneath. Scene motion lives inside
    each game's own SVG; reduced-motion stills all of it at once here. */
 .gcover { display: flex; flex-direction: column; text-align: left; padding: 0; overflow: hidden;
-  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card);
   cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
 .gcover:hover, .gcover:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
 .gart { position: relative; display: grid; place-items: center; height: 112px; color: #fff; }
@@ -382,6 +382,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
    size them here or one ladder swallows its whole card */
 .gart svg { display: block; width: 64px; height: 64px; overflow: visible;
   filter: drop-shadow(0 3px 6px rgba(0,0,0,.22)); }
+/* an illustrated cover is the panel — edge to edge, no glyph, no drop shadow */
+.gart.art { padding: 0; overflow: hidden; }
+.gart.art svg.gcart { width: 100%; height: 112px; filter: none; }
 .gtag { position: absolute; top: 10px; right: 10px; font: 700 10px/1 var(--mono);
   letter-spacing: .12em; text-transform: uppercase; background: rgba(0,0,0,.28); color: #fff;
   padding: 5px 8px; border-radius: 999px; }
@@ -609,7 +612,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* The story shelf's theme doors — a painting for a doorway, the room behind it.
    Same card grammar as the Mela covers, but the cover is a real story painting. */
 .tdoor { display: flex; flex-direction: column; text-align: left; padding: 0; overflow: hidden;
-  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card);
   cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
 .tdoor:hover, .tdoor:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
 .tpic { height: 128px; background-size: cover; background-position: center 30%;

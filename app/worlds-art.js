@@ -105,19 +105,19 @@
           This is what makes "the world comes alive in dark" true at the token
           level: Diwali night is warm-black, Dal Lake night is ink-blue. */
   var W = [
-    { id: 'delhi6', name: 'Delhi 6', region: 'Purani Dilli, Delhi', full: true,
+    { id: 'delhi6', name: 'Delhi 6', region: 'Purani Dilli, Delhi', full: true, face: 'Baloo 2', frame: 'sandstone',
       note: 'Jalebi spirals, wheeling kabootar and rickshaw bells in the lanes of Chandni Chowk.',
       credit: 'Purani Dilli street life — Chandni Chowk & the Red Fort sandstone, Delhi. Drawn in-house.',
       t: { ground: '#f8ecdd', surface: '#fffcf6', ink: '#3e1b10', accent: '#ba4a2a', accent2: '#e9a13b', festive: '#2e7d6e' },
       n: { ground: '#1a1009', card: '#26180e', accent: '#f0a55c', accent2: '#ffd08a', festive: '#5fbfa8' } },
 
-    { id: 'mumbai', name: 'Mumbai Bustle', region: 'Mumbai, Maharashtra', full: true,
+    { id: 'mumbai', name: 'Mumbai Bustle', region: 'Mumbai, Maharashtra', full: true, face: 'Bungee', frame: 'deco',
       note: 'Local trains, dabbawala tiffins and a necklace of lights along Marine Drive.',
       credit: 'Mumbai city life — local trains, dabbawalas, monsoon and art-deco Marine Drive. Drawn in-house.',
       t: { ground: '#edf0f2', surface: '#fffdf6', ink: '#1d2733', accent: '#256d85', accent2: '#f2b90d', festive: '#d94e63' },
       n: { ground: '#0a1119', card: '#121d29', accent: '#6fc6e0', accent2: '#ffcf4d', festive: '#ff8fa3' } },
 
-    { id: 'pujo', name: 'Durga Pujo', region: 'Kolkata, West Bengal', full: true,
+    { id: 'pujo', name: 'Durga Pujo', region: 'Kolkata, West Bengal', full: true, face: 'Baloo 2', frame: 'bamboo',
       /* SACRED-SAFE: bamboo-and-cloth pandal craft, lights, dhaak, shiuli.
          The murti is NEVER depicted or abstracted. */
       note: 'Bamboo pandals rising, string lights chasing and the heartbeat of the dhaak.',
@@ -125,77 +125,77 @@
       t: { ground: '#fbf1e8', surface: '#ffffff', ink: '#46150f', accent: '#c1272d', accent2: '#e8b00e', festive: '#ee7a3b' },
       n: { ground: '#1b0b0a', card: '#2a1210', accent: '#ff8f6b', accent2: '#ffd45e', festive: '#ffab5e' } },
 
-    { id: 'dallake', name: 'Dal Lake', region: 'Srinagar, Kashmir', full: true,
+    { id: 'dallake', name: 'Dal Lake', region: 'Srinagar, Kashmir', full: true, face: 'Comfortaa', frame: 'papier',
       note: 'A shikara glides through mirror water while chinar leaves drift down.',
       credit: 'Dal Lake, shikara craft and Kashmiri papier-mâché florals — Srinagar, Kashmir. Drawn in-house.',
       t: { ground: '#e8eff2', surface: '#fcfdfd', ink: '#253844', accent: '#33718a', accent2: '#d9822b', festive: '#b04a3a' },
       n: { ground: '#060d14', card: '#0e1b26', accent: '#79c2dc', accent2: '#ffc077', festive: '#e08a76' } },
 
-    { id: 'rajasthan', name: 'Forts of Rajasthan', region: 'Rajasthan', full: true,
+    { id: 'rajasthan', name: 'Forts of Rajasthan', region: 'Rajasthan', full: true, face: 'Righteous', frame: 'jharokha',
       note: 'Kites loop over jharokha windows and a camel caravan walks the golden sand.',
       credit: 'Jharokha stonework, bandhani and leheriya — Rajasthan. Drawn in-house.',
       t: { ground: '#f9eedc', surface: '#fffcf4', ink: '#40260d', accent: '#2d5f9e', accent2: '#dfa032', festive: '#d8447c' },
       n: { ground: '#160f14', card: '#241722', accent: '#8fb4e8', accent2: '#ffc861', festive: '#ff86b4' } },
 
-    { id: 'madhubani', name: 'Madhubani', region: 'Mithila, Bihar', full: true,
+    { id: 'madhubani', name: 'Madhubani', region: 'Mithila, Bihar', full: true, face: 'Fredoka', frame: 'double',
       note: 'Fish, lotuses and suns, double-outlined, painted by women on village walls.',
       credit: 'In the idiom of Madhubani (Mithila) painting — Mithila, Bihar. A living tradition painted by Mithila women; rendered in-house until a Mithila artist is commissioned.',
       t: { ground: '#fdf1e6', surface: '#fffdfa', ink: '#3a1410', accent: '#c63c28', accent2: '#e2951f', festive: '#2f6f5e' },
       n: { ground: '#170d0a', card: '#241511', accent: '#ef7f68', accent2: '#ffc06a', festive: '#63b79e' } },
 
-    { id: 'taj', name: 'Taj Mahal', region: 'Agra, Uttar Pradesh', full: false,
+    { id: 'taj', name: 'Taj Mahal', region: 'Agra, Uttar Pradesh', full: false, face: 'Fraunces', frame: 'inlay',
       note: 'Marble catching the dawn, flowers set in stone, a garden in perfect halves.',
       credit: 'Pietra-dura inlay and char-bagh geometry of the Taj Mahal — Agra, Uttar Pradesh. Drawn in-house.',
       t: { ground: '#f3efea', surface: '#fefdfb', ink: '#322b36', accent: '#8c5a74', accent2: '#c99a4b', festive: '#3e7c6f' },
       n: { ground: '#110e14', card: '#1d1822', accent: '#d1a0bb', accent2: '#e8c88a', festive: '#7fc0b1' } },
 
-    { id: 'cricket', name: 'Cricket Fever', region: 'All of India', full: false,
+    { id: 'cricket', name: 'Cricket Fever', region: 'All of India', full: false, face: 'Bungee', frame: 'stitched',
       /* Deliberately team-agnostic and league-agnostic (no trademarks). */
       note: 'Floodlights on, scoreboard ticking, a six sailing over the rope.',
       credit: 'Cricket — India’s shared festival, every gully and maidan. Drawn in-house; no team or league marks.',
       t: { ground: '#eaf2ea', surface: '#ffffff', ink: '#14301d', accent: '#1e7a46', accent2: '#efb71e', festive: '#e0483f' },
       n: { ground: '#07120c', card: '#0f2117', accent: '#4fd08a', accent2: '#ffd75e', festive: '#ff8f86' } },
 
-    { id: 'bollywood', name: 'Bollywood', region: 'Mumbai, Maharashtra', full: false,
+    { id: 'bollywood', name: 'Bollywood', region: 'Mumbai, Maharashtra', full: false, face: 'Bangers', frame: 'marquee',
       note: 'Hand-painted posters, marquee bulbs chasing and one dramatic shimmer.',
       credit: 'Hand-painted film-poster and marquee craft of Hindi cinema — Bombay’s poster painters. Drawn in-house.',
       t: { ground: '#fbedde', surface: '#fff9f0', ink: '#3a1030', accent: '#c42a6c', accent2: '#f0a519', festive: '#2c63a8' },
       n: { ground: '#150818', card: '#231029', accent: '#ff77ab', accent2: '#ffc45e', festive: '#7ba6ef' } },
 
-    { id: 'antariksh', name: 'Antariksh', region: 'Sriharikota to the stars', full: false,
+    { id: 'antariksh', name: 'Antariksh', region: 'Sriharikota to the stars', full: false, face: 'Quicksand', frame: 'panel',
       /* No space-agency name, logo or insignia — our own rocket silhouette. */
       note: 'Countdown, lift-off — a rocket climbs from the coast into a field of stars.',
       credit: 'India’s space adventure — countdowns, launch arcs and tracking dishes. Drawn in-house; no agency marks.',
       t: { ground: '#e9edf6', surface: '#ffffff', ink: '#131c3a', accent: '#27407f', accent2: '#e8862b', festive: '#5b4fc0' },
       n: { ground: '#050814', card: '#0e1428', accent: '#8fa6ef', accent2: '#ffab5e', festive: '#a394ff' } },
 
-    { id: 'diwali', name: 'Diwali Nights', region: 'All of India', full: true,
+    { id: 'diwali', name: 'Diwali Nights', region: 'All of India', full: true, face: 'Baloo 2', frame: 'toran',
       /* SACRED-SAFE: diyas, phuljhari, rangoli, toran — never deities as decor. */
       note: 'Rows of diyas flickering, phuljhari sparks and rangoli at every doorstep.',
       credit: 'Diya, rangoli and toran craft of Diwali — celebrated across India. Drawn in-house; no deities as decor.',
       t: { ground: '#fbeedc', surface: '#fffaf0', ink: '#43210b', accent: '#b3541e', accent2: '#f0ac29', festive: '#8a3a69' },
       n: { ground: '#140b05', card: '#22150b', accent: '#ffb454', accent2: '#ffd479', festive: '#e58ab5' } },
 
-    { id: 'holi', name: 'Holi Hai', region: 'All of India', full: true,
+    { id: 'holi', name: 'Holi Hai', region: 'All of India', full: true, face: 'Fredoka', frame: 'splash',
       note: 'Clouds of gulal blooming, pichkari arcs, white kurtas turning rainbow.',
       credit: 'Gulal and pichkari play of Holi — celebrated across India. Drawn in-house.',
       t: { ground: '#f6f3f7', surface: '#ffffff', ink: '#33203e', accent: '#c43ba0', accent2: '#efb61c', festive: '#2f9e62' },
       n: { ground: '#140b1c', card: '#20122b', accent: '#ff8ad4', accent2: '#ffce5e', festive: '#5fd497' } },
 
-    { id: 'truck', name: 'Truck Art', region: 'Highway India', full: false,
+    { id: 'truck', name: 'Truck Art', region: 'Highway India', full: false, face: 'Bangers', frame: 'painted',
       note: 'Marigolds, painted eyes and PHIR MILENGE on the tailboard of a singing truck.',
       credit: 'Indian truck art — painted-lorry workshops of Punjab, Rajasthan and Namakkal, Tamil Nadu. Rendered in-house until a truck-art ustaad is commissioned.',
       t: { ground: '#fdf3e3', surface: '#ffffff', ink: '#22263b', accent: '#0f6bb4', accent2: '#f2b211', festive: '#e0345c' },
       n: { ground: '#0c0f1a', card: '#161b2b', accent: '#5cb3ee', accent2: '#ffcb52', festive: '#ff7d9c' } },
 
-    { id: 'dance', name: 'Dances of India', region: 'Many traditions, all India', full: false,
+    { id: 'dance', name: 'Dances of India', region: 'Many traditions, all India', full: false, face: 'Righteous', frame: 'ghungroo',
       /* Generic dancer silhouettes across forms — never deity iconography. */
       note: 'Ghungroo bells, graceful mudras and footwork drawing its own rhythm line.',
       credit: 'Dance traditions of India — ghungroo, mudra and rhythm across many forms. Drawn in-house; no deity iconography.',
       t: { ground: '#f8ece4', surface: '#fffbf7', ink: '#3c1626', accent: '#a62b52', accent2: '#d99c27', festive: '#2f7a72' },
       n: { ground: '#15080f', card: '#231120', accent: '#ef7e9e', accent2: '#ffc85f', festive: '#63bdb2' } },
 
-    { id: 'patterns', name: 'Patterns of India', region: 'Many regions', full: false,
+    { id: 'patterns', name: 'Patterns of India', region: 'Many regions', full: false, face: 'Quicksand', frame: 'block',
       note: 'Bandhani dots, ajrakh blocks, phulkari threads — India printed, tied and woven.',
       credit: 'Bandhani — Kutch & Rajasthan · Ajrakh — Kutch, Gujarat · Phulkari — Punjab · Kolam — Tamil Nadu · Ikat — Odisha & Telangana. Rendered in-house until artisans are commissioned.',
       t: { ground: '#f0ece4', surface: '#fffdf8', ink: '#2e2438', accent: '#29527a', accent2: '#c98a2b', festive: '#b23a48' },
@@ -219,6 +219,13 @@
       css += sel + '[data-mode="night"]{--wa-ground:' + n.ground + ';--wa-surface:' + mix(n.card, '#ffffff', 0.22) +
         ';--wa-ink:' + mix(n.ground, '#ffffff', 0.10) + ';--wa-accent:' + n.accent +
         ';--wa-accent2:' + n.accent2 + ';--wa-festive:' + n.festive + ';}\n';
+      /* THE DISPLAY FACE. A world changed its colours, its backdrop and its animation and
+         then set every heading in the same serif as every other world — a skin, not a
+         place. The type changes with the place now, exactly as the sibling app does it.
+         HEADINGS ONLY and Latin only: Devanagari and the nine other Indian scripts keep
+         their own faces in every world, because none of these display faces has a real
+         Devanagari cut and CLAUDE.md is absolute about that. */
+      css += sel + '{--display:\'' + w.face + '\',' + (w.face === 'Fraunces' ? 'Georgia,serif' : 'system-ui,sans-serif') + ';}\n';
       /* app tokens — day */
       css += sel + ':not([data-mode="night"]){' +
         '--ground:' + t.ground + ';--ground2:' + mix(t.ground, '#ffffff', 0.5) + ';' +
@@ -240,6 +247,141 @@
         '--accent2:' + n.accent2 + ';--accent3:' + n.festive + ';--festive:' + n.festive + ';' +
         '--line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.18);}\n';
     }
+    return css + frameCSS();
+  }
+
+  /* ============================================================== CARD FRAMES
+     The second half of "a world is a place, not a skin". Colours and a backdrop change,
+     but every card kept the same 1px line and the same rounded corner in all fifteen —
+     so a Madhubani card and a Mumbai card were the same object painted twice.
+
+     Each world now has a frame idiom taken from its OWN craft: the double outline
+     Mithila painters draw around everything, the scalloped jharokha arch, the bamboo
+     lashings of a pandal, the art-deco stepped corner of a Bombay cinema, the painted
+     border and tailboard stripe of a highway truck.
+
+     Rules this obeys: it is all ::before/::after on the card, so no markup changes and
+     nothing here can push content around; it never touches the card's background or its
+     text colour, so contrast stays exactly what the tokens set; and it is drawn with
+     gradients and borders rather than images, so it costs nothing to load. */
+  function frameCSS() {
+    var css = '', i, w, id, sel;
+    /* the shared scaffolding — one relative box and two decorative layers */
+    css += '.card{position:relative}\n' +
+      '.card::before,.card::after{content:"";position:absolute;pointer-events:none;z-index:0}\n' +
+      /* the world layers sit UNDER the card's own content, always */
+      '.card>*{position:relative;z-index:1}\n';
+
+    var F = {
+      /* Mithila painters outline everything twice. So does the card. */
+      'double': function (s) {
+        return s + '.card::before{inset:5px;border:1.5px solid var(--accent-soft);' +
+          'border-radius:calc(var(--radius-lg) - 5px)}\n' +
+          s + '.card{border-width:2px}\n';
+      },
+      /* A jharokha window: the top edge is scalloped, the way the arch is cut. */
+      'jharokha': function (s) {
+        return s + '.card::before{top:0;left:0;right:0;height:10px;' +
+          'background:radial-gradient(circle at 9px 10px,transparent 8px,var(--accent-soft) 8.5px);' +
+          'background-size:18px 10px;opacity:.9}\n' +
+          s + '.card{border-top-left-radius:var(--radius-xl);border-top-right-radius:var(--radius-xl)}\n';
+      },
+      /* Bamboo and twine: a pandal is lashed together at the corners. */
+      'bamboo': function (s) {
+        return s + '.card::before{top:8px;left:-1px;width:5px;height:34px;border-radius:3px;' +
+          'background:linear-gradient(180deg,var(--accent2),transparent);opacity:.75}\n' +
+          s + '.card::after{bottom:8px;right:-1px;width:5px;height:34px;border-radius:3px;' +
+          'background:linear-gradient(0deg,var(--accent2),transparent);opacity:.75}\n';
+      },
+      /* Art deco, Marine Drive: a stepped corner and a thin brass rule. */
+      'deco': function (s) {
+        return s + '.card::before{top:0;left:0;width:44px;height:4px;background:var(--accent2);opacity:.85;' +
+          'border-radius:0 4px 4px 0}\n' +
+          s + '.card::after{top:0;left:0;width:4px;height:44px;background:var(--accent2);opacity:.85;' +
+          'border-radius:0 0 4px 4px}\n';
+      },
+      /* Red-fort sandstone: a warm band along the foot, like a plinth. */
+      'sandstone': function (s) {
+        return s + '.card::after{left:0;right:0;bottom:0;height:5px;' +
+          'background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));opacity:.5;' +
+          'border-radius:0 0 var(--radius-lg) var(--radius-lg)}\n';
+      },
+      /* Pietra dura: a small inlaid flower in two corners, nothing more. Restraint IS
+         the Taj, and a busy frame would be the opposite of the building. */
+      'inlay': function (s) {
+        var flower = 'radial-gradient(circle at 50% 50%,var(--accent2) 2px,transparent 2.4px),' +
+          'radial-gradient(circle at 50% 50%,transparent 5px,var(--accent-soft) 5.2px,transparent 7px)';
+        return s + '.card::before{top:9px;right:9px;width:16px;height:16px;background:' + flower + ';opacity:.85}\n' +
+          s + '.card::after{bottom:9px;left:9px;width:16px;height:16px;background:' + flower + ';opacity:.85}\n';
+      },
+      /* Kashmiri papier-mâché: a fine painted border, all four sides. */
+      'papier': function (s) {
+        return s + '.card::before{inset:6px;border:1px dashed var(--accent-soft);' +
+          'border-radius:calc(var(--radius-lg) - 6px)}\n';
+      },
+      /* A cricket ball is stitched. So is the card, down one edge. */
+      'stitched': function (s) {
+        return s + '.card::before{top:14px;bottom:14px;left:7px;width:6px;' +
+          'background:repeating-linear-gradient(180deg,var(--accent) 0 5px,transparent 5px 11px);' +
+          'opacity:.42;border-radius:3px}\n';
+      },
+      /* A cinema marquee: a row of bulbs across the top. Static — the world's own air
+         layer is where motion belongs, not on a surface you read text off. */
+      'marquee': function (s) {
+        return s + '.card::before{top:6px;left:16px;right:16px;height:5px;' +
+          'background:radial-gradient(circle,var(--accent2) 2px,transparent 2.4px);' +
+          'background-size:14px 5px;opacity:.8}\n';
+      },
+      /* A spacecraft panel: a corner bracket, like a hatch. */
+      'panel': function (s) {
+        return s + '.card::before{top:8px;left:8px;width:20px;height:20px;' +
+          'border-top:2px solid var(--accent);border-left:2px solid var(--accent);opacity:.5;border-radius:6px 0 0 0}\n' +
+          s + '.card::after{bottom:8px;right:8px;width:20px;height:20px;' +
+          'border-bottom:2px solid var(--accent);border-right:2px solid var(--accent);opacity:.5;border-radius:0 0 6px 0}\n';
+      },
+      /* A toran across the top of the doorway — the leaves, not a deity. */
+      'toran': function (s) {
+        return s + '.card::before{top:0;left:12px;right:12px;height:11px;' +
+          'background:radial-gradient(circle at 50% 0,var(--festive) 5px,transparent 5.5px);' +
+          'background-size:16px 11px;opacity:.55}\n';
+      },
+      /* Gulal: two soft blooms of colour bleeding in from opposite corners. */
+      'splash': function (s) {
+        return s + '.card::before{top:-8px;left:-8px;width:76px;height:76px;border-radius:50%;' +
+          'background:radial-gradient(circle,var(--accent) 0,transparent 70%);opacity:.13}\n' +
+          s + '.card::after{bottom:-10px;right:-10px;width:92px;height:92px;border-radius:50%;' +
+          'background:radial-gradient(circle,var(--festive) 0,transparent 70%);opacity:.13}\n';
+      },
+      /* Truck art: a painted border and the tailboard stripe along the bottom. */
+      'painted': function (s) {
+        return s + '.card::before{inset:4px;border:2px solid var(--accent-soft);' +
+          'border-radius:calc(var(--radius-lg) - 4px)}\n' +
+          s + '.card::after{left:14px;right:14px;bottom:4px;height:6px;border-radius:3px;' +
+          'background:repeating-linear-gradient(90deg,var(--accent) 0 8px,var(--accent2) 8px 16px);opacity:.5}\n';
+      },
+      /* Ghungroo: a line of little bells along the foot. */
+      'ghungroo': function (s) {
+        return s + '.card::after{left:18px;right:18px;bottom:5px;height:7px;' +
+          'background:radial-gradient(circle,var(--accent2) 3px,transparent 3.4px);' +
+          'background-size:13px 7px;opacity:.6}\n';
+      },
+      /* A printing block leaves its repeat at the edge. */
+      'block': function (s) {
+        return s + '.card::before{top:0;bottom:0;left:0;width:9px;' +
+          'background:repeating-linear-gradient(180deg,var(--accent-soft) 0 9px,transparent 9px 18px);' +
+          'border-radius:var(--radius-lg) 0 0 var(--radius-lg);opacity:.9}\n';
+      },
+    };
+
+    for (i = 0; i < W.length; i++) {
+      w = W[i]; id = w.id;
+      sel = ':root[data-world="' + id + '"] ';
+      if (F[w.frame]) css += F[w.frame](sel);
+    }
+    /* Cards that are already a painting or a photograph opt out — a frame over art is
+       clutter, and the deck cards carry their own borders. */
+    css += '.card.flat::before,.card.flat::after,.gcover::before,.gcover::after,' +
+      '.avslot::before,.avslot::after,.statehero::before,.statehero::after{display:none}\n';
     return css;
   }
 

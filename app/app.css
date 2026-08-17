@@ -463,9 +463,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .deckscrim { position: fixed; inset: 0; z-index: 120; background: rgba(14, 10, 34, .55);
   backdrop-filter: blur(3px); display: grid; place-items: end center;
-  /* minmax(0,1fr), not the implicit auto track: the card runs inside are
-     sideways-scrollers whose max-content width is the whole un-scrolled deck,
-     and an auto track would size to that and shove the sheet off-screen. */
+  /* minmax(0,1fr), not the implicit auto track: the pack pills are a sideways
+     scroller whose max-content width is every pack name laid end to end, and
+     an auto track would size to that and shove the sheet off-screen. */
   grid-template-columns: minmax(0, 1fr); }
 .deckwrap { width: min(100%, 620px); min-width: 0; max-height: 86vh; display: flex; flex-direction: column;
   background: var(--card); border-radius: 26px 26px 0 0; box-shadow: var(--shadow-lg);
@@ -475,88 +475,46 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (min-width: 700px) { .deckscrim { place-items: center; } .deckwrap { border-radius: 26px; } }
 .deckhead { display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 18px 20px 10px; border-bottom: 1px solid var(--line); }
-.deckscroll { overflow-y: auto; padding: 6px 16px 22px; min-width: 0; }
-.deckpack { font-weight: 700; margin: 16px 4px 8px; }
-/* A RUN OF CARDS, not a grid. Each card overlaps the one before it and carries
-   its own slight tilt, so a pack reads as a stack riffled by hand. The row
-   scrolls sideways; a touched or focused card rises out of the stack, straightens
-   and pushes its neighbours' shadows behind it. */
-.deckrun {
-  display: flex; align-items: flex-start; gap: 0;
-  overflow-x: auto; overflow-y: visible;
-  padding: 16px 18px 22px; margin: 0 -16px;
-  scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
-}
-.deckrun::-webkit-scrollbar { height: 6px; }
-.deckrun::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
-.deckrun > .minicard {
-  flex: 0 0 auto; width: 104px;
-  margin-left: -30px;                        /* the overlap that makes it a deck */
-  transform: rotate(var(--tilt, 0deg)) translateY(var(--dip, 0));
-  transform-origin: 50% 100%;
-  scroll-snap-align: center;
-  transition: transform .16s ease, box-shadow .16s ease, z-index 0s;
-  position: relative; z-index: 1;
-}
-.deckrun > .minicard:first-child { margin-left: 0; }
-/* Each card covers its left neighbour's right edge, so a buried card is read
-   through the strip that is still showing. Nudge its face into that strip;
-   the moment it lifts, it is whole again and the nudge comes off. */
-.deckrun > .minicard:not(:last-child) > .mhalo,
-.deckrun > .minicard:not(:last-child) > b,
-.deckrun > .minicard:not(:last-child) > .mstat,
-.deckrun > .minicard:not(:last-child) > .mnow { transform: translateX(-15px); }
-.deckrun > .minicard:hover, .deckrun > .minicard:focus-visible {
-  transform: rotate(0deg) translateY(-14px) scale(1.06); z-index: 5;
-  box-shadow: 0 0 22px rgba(120, 100, 255, .5), 0 16px 30px rgba(8, 5, 30, .55);
-}
-.deckrun > .minicard:hover > *, .deckrun > .minicard:focus-visible > * { transform: none; }
-.deckrun > .minicard.on { z-index: 4; transform: rotate(0deg) translateY(-8px); }
 
-/* the sheen: a band of light that travels across the card face, staggered per
-   card so a run shimmers in sequence rather than flashing as one */
-.minicard .sheen {
-  position: absolute; inset: 0; border-radius: inherit; overflow: hidden;
-  pointer-events: none; opacity: .85;
+/* THE DECK IS A STEPPER, not a fanned run of tiles. One whole card at a time,
+   an arrow either side, pack pills across the top — the Bizzing Bee grammar.
+   The fanned version showed 109 postage stamps and no card, which is exactly
+   backwards: the card IS the thing. */
+.deckpills { display: flex; gap: 8px; overflow-x: auto; padding: 12px 18px 10px;
+  border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.deckpills::-webkit-scrollbar { display: none; }
+.deckpills .pill { flex: 0 0 auto; white-space: nowrap; }
+
+.deckstage { position: relative; display: flex; align-items: center; justify-content: center;
+  gap: 10px; padding: 18px 12px 22px; overflow-y: auto; min-height: 0; }
+.avslot { flex: 0 1 320px; min-width: 0; animation: deckflip .2s ease-out; }
+@keyframes deckflip { from { opacity: 0; transform: translateY(8px) scale(.985); } }
+@media (prefers-reduced-motion: reduce) { .avslot { animation: none; } }
+
+.deckarrow { flex: none; display: grid; place-items: center; width: 46px; height: 46px;
+  border-radius: 50%; border: 1px solid var(--line2); background: var(--card);
+  color: var(--text2); cursor: pointer; box-shadow: var(--shadow);
+  transition: transform .12s ease, color .12s ease, border-color .12s ease; }
+.deckarrow:hover, .deckarrow:focus-visible { color: var(--accent); border-color: var(--accent);
+  transform: scale(1.08); }
+.deckarrow:active { transform: scale(.96); }
+/* one back chevron, mirrored — no second glyph to keep in sync with the first */
+.deckarrow.next .ic { transform: rotate(180deg); }
+
+/* the card inside the popup is the SAME face as the full page, just narrower */
+.avslot .avcard { width: 100%; margin: 0; }
+/* The card face is dark in every theme, so a page-coloured pill lands as burnt
+   orange on near-black. Give the "travelling with you" mark the card's own
+   palette rather than the page's. */
+.avcard .pill.stat { background: rgba(255,255,255,.12); color: #EDE9FF;
+  border-color: rgba(255,255,255,.16); }
+.avcard .pill.stat:hover { color: #EDE9FF; }
+
+@media (max-width: 430px) {
+  .deckstage { gap: 4px; padding: 14px 6px 18px; }
+  .deckarrow { width: 38px; height: 38px; }
+  .avslot { flex: 1 1 auto; }
 }
-.minicard .sheen::before {
-  content: ''; position: absolute; top: -60%; bottom: -60%; left: -40%; width: 36%;
-  background: linear-gradient(100deg, transparent, rgba(255,255,255,.42) 45%,
-    rgba(255,255,255,.62) 52%, transparent);
-  transform: rotate(14deg);
-  animation: sheenpass 4.6s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * -0.42s);
-}
-.minicard.sacred .sheen::before {
-  background: linear-gradient(100deg, transparent, rgba(255,226,160,.5) 45%,
-    rgba(255,236,190,.72) 52%, transparent);
-}
-@keyframes sheenpass {
-  0%   { left: -45%; }
-  55%  { left: 125%; }
-  100% { left: 125%; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .minicard .sheen::before { animation: none; opacity: .25; left: 20%; }
-}
-.minicard { position: relative; display: flex; flex-direction: column; align-items: center;
-  gap: 4px; padding: 12px 6px 10px; cursor: pointer; color: #EDE9FF; overflow: hidden;
-  min-height: 150px; justify-content: flex-start;
-  background: radial-gradient(75% 45% at 50% 14%, rgba(124,92,255,.36), transparent 70%), #171233;
-  border: 1px solid rgba(150,130,255,.45); border-radius: 16px;
-  box-shadow: 0 0 16px rgba(110,90,255,.28); transition: transform .12s ease; }
-.minicard:hover, .minicard:focus-visible { transform: translateY(-3px); }
-.minicard.sacred { border-color: rgba(255,214,130,.5); box-shadow: 0 0 16px rgba(255,200,110,.26); }
-.minicard.on { outline: 2px solid var(--accent); outline-offset: 2px; }
-.minicard b { font: 700 11.5px/1.25 var(--body); text-align: center; }
-.mhalo { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,.14), rgba(124,92,255,.22) 55%, transparent 72%); }
-.mstat { font: 800 12px var(--display); color: #4ED8C3; }
-/* NOTE: a real person's and an epic figure's minicard carry nothing in this
-   slot at all — no number, no rank, no stamp. Only an invented character
-   shows a score here, and only the sacred pack shows its gold ॥. */
-.mstat.gold { color: #FFE9A8; }
-.mnow { font: 700 9px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #B9AFFF; }
 
 /* the one-tap new-version bar (see the update nudge in app.js) */
 .updatebar { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 90;

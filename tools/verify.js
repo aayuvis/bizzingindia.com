@@ -267,8 +267,9 @@ async function main() {
         scored.push(`${where}: a quotation renders without an attribution beneath it`);
     }
 
-    // AND THE DECK NEVER GRADES A PERSON EITHER. Its minicards printed C.overall for
-    // everybody; a real person and an epic figure must now show no score at all there.
+    // AND THE DECK NEVER GRADES A PERSON EITHER. The deck is a stepper now — one
+    // whole card at a time — so walk every card in it and hold each to the same
+    // rule the full page is held to: only an invented character shows numbers.
     where = 'the deck popup';
     await page.evaluate(() => window.BI.go('home'));
     await page.waitForTimeout(60);
@@ -278,17 +279,32 @@ async function main() {
     if (!opened) scored.push('the deck popup has no way to open');
     else {
       await page.waitForTimeout(120);
-      scored.push(...await page.evaluate(() => {
-        const out = [];
-        document.querySelectorAll('.minicard').forEach(m => {
-          const id = m.getAttribute('data-id'), C = window.IND_AV_CARD(id);
-          const mark = (m.querySelector('.mstat') || {}).textContent || '';
-          if (C && C.kind !== 'character' && /\d/.test(mark))
-            out.push(`deck minicard for ${C.kind} "${id}" prints a number: ${mark.trim()}`);
+      const total = await page.evaluate(() =>
+        document.querySelector('.avslot') ? (window.IND_AVATAR_PACKS || [])
+          .reduce((n, p) => n + ((p.ids || []).length), 0) : 0);
+      if (!total) scored.push('the deck rendered no cards');
+      // Step the whole run. It wraps, so `total` steps returns to the start and
+      // every card in every pack is seen exactly once on the way round.
+      for (let i = 0; i < total; i++) {
+        scored.push(...await page.evaluate(() => {
+          const out = [];
+          const card = document.querySelector('.avslot .avcard');
+          if (!card) { out.push('a step in the deck rendered no card'); return out; }
+          const name = (card.querySelector('h1') || {}).textContent || '(unnamed)';
+          const kind = [...card.classList].filter(c => c.indexOf('kind-') === 0)[0] || '';
+          const bars = card.querySelectorAll('.avstat').length;
+          if (kind && kind !== 'kind-character' && bars)
+            out.push(`deck card "${name}" (${kind.slice(5)}) renders ${bars} stat bars`);
+          // an unattributed quotation must not reach a child from this side either
+          const q = card.querySelector('.avquote blockquote');
+          if (q && !card.querySelector('.avcite')) out.push(`deck card "${name}": quotation with no attribution`);
+          return out;
+        }));
+        await page.evaluate(() => {
+          const b = document.querySelector('[data-act="deckstep"][data-d="1"]'); if (b) b.click();
         });
-        if (!document.querySelectorAll('.minicard').length) out.push('the deck rendered no cards');
-        return out;
-      }));
+        await page.waitForTimeout(8);
+      }
       await page.evaluate(() => {
         const b = document.querySelector('[data-act="deckclose"]'); if (b) b.click();
       });

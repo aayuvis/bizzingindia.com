@@ -378,7 +378,10 @@
                    line; grading Sita or Karna is the same mistake as grading
                    a deity, in a different coat (docs/05).
        sacred    — 'beyond measure', exactly as before. */
-  V.avcard = function (id) {
+  /* ONE CARD FACE, used by the full page and by the deck popup alike. It was
+     written twice for a while and the two drifted; a real person picked up a
+     score in one of them. Now there is one of it. */
+  function avCardHTML(id) {
     var name = (window.IND_AVATAR_NAMES || {})[id] || id;
     var C = window.IND_AV_CARD ? window.IND_AV_CARD(id) : null;
     var mine = S.buddy === id;
@@ -425,8 +428,7 @@
         '</figure>'
       : '';
 
-    return '<button class="backlink" data-act="go" data-v="me">' + icon('back', 18) + ' Back</button>' +
-      '<div class="avcardwrap"><div class="avcard' + (C && C.sacred ? ' sacred' : '') +
+    return '<div class="avcard' + (C && C.sacred ? ' sacred' : '') +
         (C ? ' kind-' + C.kind : '') + '">' +
         '<div class="avhalo">' + art(id, 148) + '</div>' +
         '<h1>' + esc(name) + '</h1>' +
@@ -438,7 +440,12 @@
         (mine
           ? '<span class="pill stat" style="margin-top:14px">Travelling with you ✓</span>'
           : '<button class="btn lg" style="margin-top:14px" data-act="pick" data-id="' + id + '">Travel with me</button>') +
-      '</div></div>';
+      '</div>';
+  }
+
+  V.avcard = function (id) {
+    return '<button class="backlink" data-act="go" data-v="me">' + icon('back', 18) + ' Back</button>' +
+      '<div class="avcardwrap">' + avCardHTML(id) + '</div>';
   };
 
   /* -------------------------------------------------------------- LANDING */
@@ -3753,56 +3760,66 @@
      tapping one opens its full card, and the card is where you choose to
      travel with them. Escape or the scrim closes it. */
   var deckOpen = false;
+  var deckAt = 0;
+
+  /* Every pack's ids laid end to end, each remembering the pack it came from —
+     the order the arrows walk and the order the pills jump into. */
+  function deckFlat() {
+    var out = [];
+    (window.IND_AVATAR_PACKS || []).forEach(function (p) {
+      (p.ids || []).forEach(function (id) {
+        out.push({ id: id, packId: p.id, packName: p.name });
+      });
+    });
+    return out;
+  }
+  function deckIndexOf(id) {
+    var f = deckFlat(), i;
+    for (i = 0; i < f.length; i++) if (f[i].id === id) return i;
+    return 0;
+  }
+  function deckIndexOfPack(pid) {
+    var f = deckFlat(), i;
+    for (i = 0; i < f.length; i++) if (f[i].packId === pid) return i;
+    return 0;
+  }
 
   function deckModal() {
     if (!deckOpen) return '';
     var packs = window.IND_AVATAR_PACKS || [];
+    var flat = deckFlat();
+    if (!flat.length) return '';
+    if (deckAt < 0) deckAt = flat.length - 1;
+    if (deckAt >= flat.length) deckAt = 0;
+    var here = flat[deckAt];
+
+    /* ONE CARD AT A TIME, stepped — the Bizzing Bee grammar, which the fanned
+       run of small cards was not. A child reads a whole card, then flicks to
+       the next. Arrows, arrow keys and a swipe all do the same thing, and the
+       run wraps at both ends so you can never step into a dead end. */
     return '<div class="deckscrim" data-act="deckclose">' +
       '<div class="deckwrap" role="dialog" aria-modal="true" aria-label="Your companions">' +
-        '<div class="deckhead"><div><h2 style="margin:0">Your deck</h2>' +
-        '<div class="tiny muted">' + (window.IND_ART_IMG || []).length +
-        ' companions · tap any card to meet them</div></div>' +
-        '<button class="iconbtn" data-act="deckclose" aria-label="Close">✕</button></div>' +
-        /* THE DECK IS A DECK, not a grid of tiles. Each pack is a fanned run of
-           cards — every card overlapping the one before it, tilted a little,
-           lifted a little, so it reads as a stack you riffle through with your
-           thumb rather than a spreadsheet of faces. The row scrolls sideways
-           and a card rises out of the stack when you touch or focus it. Each
-           carries a sheen that travels across the face. Depth comes from
-           per-card CSS variables set here, because the offsets depend on the
-           card's position in its pack. */
-        '<div class="deckscroll">' + packs.map(function (p) {
-          return '<div class="tiny muted deckpack">' + esc(p.name) + '</div>' +
-            '<div class="deckrun" role="list">' + p.ids.map(function (id, i) {
-              var C = window.IND_AV_CARD ? window.IND_AV_CARD(id) : null;
-              /* alternate the tilt and nudge every other card down a hair, so a
-                 run of twelve looks shuffled by hand rather than stamped */
-              var tilt = ((i % 3) - 1) * 1.6 + (i % 2 ? .5 : -.4);
-              return '<button class="minicard' + (C && C.sacred ? ' sacred' : '') +
-                (S.buddy === id ? ' on' : '') + '" role="listitem"' +
-                ' style="--i:' + i + ';--tilt:' + tilt.toFixed(2) + 'deg;--dip:' + (i % 2 ? 5 : 0) + 'px"' +
-                ' data-act="avcard" data-id="' + id + '">' +
-                '<span class="sheen"></span>' +
-                '<span class="mhalo">' + art(id, 66) + '</span>' +
-                '<b>' + esc((window.IND_AVATAR_NAMES || {})[id] || id) + '</b>' +
-                /* THE DECK NEVER GRADES A PERSON EITHER. This corner used to
-                   print C.overall for everybody. A number belongs only to an
-                   invented character; a real person and an epic figure get
-                   their card's badge mark instead (📜 Itihaas, 🪔 Katha), and
-                   sacred keeps its gold ॥. Same corner, no score. */
-                (C && C.stats
-                  ? '<span class="mstat">' + C.overall + '</span>'
-                  : (C && C.sacred
-                    ? '<span class="mstat gold" aria-label="beyond measure">॥</span>'
-                    /* a real person and an epic figure get NOTHING here. The
-                       badge word was tried and read as a label stamped on
-                       fifty faces; a blank corner is quieter and says the
-                       same thing — this one is not scored. */
-                    : '')) +
-                (S.buddy === id ? '<span class="mnow">with you</span>' : '') +
-                '</button>';
-            }).join('') + '</div>';
+        '<div class="deckhead">' +
+          '<div class="tiny muted">' + (deckAt + 1) + ' of ' + flat.length + ' · ' +
+          esc(here.packName) + '</div>' +
+          '<button class="iconbtn" data-act="deckclose" aria-label="Close">✕</button></div>' +
+
+        /* the pack pills: a jump to the top of any pack without stepping
+           through eleven cards to reach it */
+        '<div class="deckpills" role="tablist" aria-label="Packs">' + packs.map(function (p) {
+          if (!p.ids || !p.ids.length) return '';
+          return '<button class="pill' + (p.id === here.packId ? ' on' : '') + '" role="tab"' +
+            ' aria-selected="' + (p.id === here.packId ? 'true' : 'false') + '"' +
+            ' data-act="deckpack" data-p="' + esc(p.id) + '">' + esc(p.name) + '</button>';
         }).join('') + '</div>' +
+
+        '<div class="deckstage">' +
+          '<button class="deckarrow prev" data-act="deckstep" data-d="-1" aria-label="Previous card">' +
+          icon('back', 24) + '</button>' +
+          '<div class="avslot" id="avslot">' + avCardHTML(here.id) + '</div>' +
+          '<button class="deckarrow next" data-act="deckstep" data-d="1" aria-label="Next card">' +
+          icon('back', 24) + '</button>' +
+        '</div>' +
       '</div></div>';
   }
 
@@ -3921,6 +3938,15 @@
       default: h = V.home();
     }
     m.innerHTML = h + deckModal();
+    /* Stepping with the arrows walks across pack boundaries, and the pill row is
+       a sideways scroller — without this the pill for the pack you are now in
+       is off the right edge and the row looks stuck on "Gods & Teachers". */
+    if (deckOpen) {
+      var onPill = document.querySelector('.deckpills .pill.on');
+      if (onPill && onPill.scrollIntoView) {
+        onPill.scrollIntoView({ block: 'nearest', inline: 'center' });
+      }
+    }
     /* Scroll to the top only when the page actually changes. render() runs for lots of
        small things — opening a map callout, earning a bead, answering a quiz — and
        yanking the scroll position on those threw the reader back to the top of a page
@@ -4234,8 +4260,12 @@
     if (a === 'pack')   { quiz = quizReset(null); return go('pack', t.getAttribute('data-id')); }
     if (a === 'game')   return go('game', t.getAttribute('data-id'));
     if (a === 'kahani') return go('kahani', t.getAttribute('data-id'));
-    if (a === 'deck')      { deckOpen = true; return render(); }
+    /* the deck opens ON the companion you are already travelling with, not at
+       card one — you came to look at someone, usually them */
+    if (a === 'deck')      { deckOpen = true; deckAt = deckIndexOf(S.buddy); return render(); }
     if (a === 'deckclose') { deckOpen = false; return render(); }
+    if (a === 'deckstep')  { deckAt += (+t.getAttribute('data-d') || 1); return render(); }
+    if (a === 'deckpack')  { deckAt = deckIndexOfPack(t.getAttribute('data-p')); return render(); }
     if (a === 'avcard') { deckOpen = false; return go('avcard', t.getAttribute('data-id')); }
     if (a === 'quiz')   {
       startSession(t.getAttribute('data-s') || quiz.stage, 'lesson');
@@ -4309,6 +4339,26 @@
   document.addEventListener('input', function (e) {
     if (e.target && e.target.id === 'ageIn') { var o = $('#ageOut'); if (o) o.textContent = e.target.value; }
   });
+  /* SWIPE THE DECK. A card popup on a phone is a thing you flick, and a child
+     will try it before they find the arrows. Bound once on the document and
+     gated on deckOpen, so it costs nothing anywhere else. Vertical drags are
+     left alone — the card itself scrolls. */
+  var swipeX = null, swipeY = null;
+  document.addEventListener('touchstart', function (e) {
+    if (!deckOpen || !e.touches || e.touches.length !== 1) { swipeX = null; return; }
+    swipeX = e.touches[0].clientX; swipeY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (swipeX === null || !deckOpen) return;
+    var t = e.changedTouches && e.changedTouches[0];
+    if (!t) { swipeX = null; return; }
+    var dx = t.clientX - swipeX, dy = t.clientY - swipeY;
+    swipeX = null;
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+    deckAt += (dx < 0 ? 1 : -1);
+    render();
+  }, { passive: true });
+
   document.addEventListener('keydown', function (e) {
     /* Ordered-build keyboard controls (every drill needs keys as well as
        touch): ← → walk the unused tiles with a visible ring, Enter places
@@ -4359,6 +4409,11 @@
     /* Escape closes the deck first — a popup swallows the key that would
        otherwise navigate away underneath it */
     if (e.key === 'Escape' && deckOpen) { deckOpen = false; return render(); }
+    /* the deck steps from the keyboard as well as from the arrows and a swipe —
+       every control in this app is reachable all three ways */
+    if (deckOpen && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+      e.preventDefault(); deckAt += (e.key === 'ArrowRight' ? 1 : -1); return render();
+    }
     if (e.key === 'Escape' && S.started && view.name !== 'home') go('home');
     if (e.key === 'ArrowRight' && view.name === 'story') { var n = document.querySelector('[data-act="next"]'); if (n) n.click(); }
     /* Map states are SVG <g>, which a browser will focus but will not activate on Enter the

@@ -31,34 +31,60 @@ if [ -n "$DIRTY" ]; then
   echo "$DIRTY" | sed 's/^/      /'
 fi
 
-WT=$(mktemp -d)
-cleanup() { git worktree remove --force "$WT" >/dev/null 2>&1 || rm -rf "$WT"; }
-trap cleanup EXIT
-
-git worktree add -q --no-checkout "$WT" gh-pages
-git -C "$WT" checkout -q gh-pages
-
-# Clear everything git tracks on the branch, then lay the new tree down, so files deleted
-# from app/ actually disappear from the served branch instead of lingering as orphans.
-git -C "$WT" ls-files -z | xargs -0 -r rm -f
-git archive HEAD app | tar -x -C "$WT" --strip-components=1
-git show HEAD:README.md > "$WT"/README.md 2>/dev/null || true
-touch "$WT"/.nojekyll
+# PUBLISH BY PLUMBING, not by copying files.
+#
+# This used to check gh-pages out into a throwaway worktree, delete every tracked file,
+# extract `git archive HEAD app` over the top, and commit whatever changed. That worked
+# until app/voice grew to 700MB of narration, at which point the archive-through-tar step
+# quietly did nothing and the script reported "gh-pages already matches app/ at HEAD —
+# nothing to deploy" while the live site sat four hours behind. A deploy that no-ops and
+# says so cheerfully is worse than one that fails.
+#
+# The tree we want to publish is ALREADY a git object: HEAD:app. So build the commit from
+# it directly — read that tree into a scratch index, add .nojekyll and the README, write
+# the tree, commit it onto gh-pages, push. No files are copied, no worktree is checked
+# out, nothing can half-happen, and it takes the same time whether the corpus is 1MB or
+# 1GB because every blob is already in the object store.
+TREE_SRC=$(git rev-parse HEAD:app)
+SCRATCH_INDEX=$(mktemp -u)
+# The trap must not read GIT_INDEX_FILE: the script unsets it below, and `set -u` then
+# turns the cleanup itself into an error on exit. Keep the path in its own variable.
+trap 'rm -f "$SCRATCH_INDEX"' EXIT
+export GIT_INDEX_FILE="$SCRATCH_INDEX"
+git read-tree "$TREE_SRC"
+EMPTY=$(printf '' | git hash-object -w --stdin)
+git update-index --add --cacheinfo 100644,"$EMPTY",.nojekyll
+if README_BLOB=$(git rev-parse HEAD:README.md 2>/dev/null); then
+  git update-index --add --cacheinfo 100644,"$README_BLOB",README.md
+fi
+TREE=$(git write-tree)
+unset GIT_INDEX_FILE
 
 # NO CNAME. Deliberately: the site is served from GitHub Pages' own github.io address
 # while it is in development, and writing a CNAME here would point Pages at a domain
-# that is not being used yet — which takes the site OFF the address that does work.
-# The custom domain gets wired up when the founder decides to, not by this script.
+# that is not in use yet — which takes the site OFF the address that does work.
 
-git -C "$WT" add -A
-if git -C "$WT" diff --cached --quiet; then
+PARENT=$(git rev-parse origin/gh-pages 2>/dev/null || git rev-parse gh-pages 2>/dev/null || true)
+if [ -n "$PARENT" ] && [ "$(git rev-parse "$PARENT^{tree}")" = "$TREE" ]; then
   echo "gh-pages already matches app/ at HEAD — nothing to deploy"
 else
-  git -C "$WT" commit -q -m "$MSG"
-  for i in 1 2 3 4; do
-    git -C "$WT" push -u origin gh-pages && break || sleep $((2 ** i))
+  if [ -n "$PARENT" ]; then
+    COMMIT=$(git commit-tree "$TREE" -p "$PARENT" -m "$MSG")
+  else
+    COMMIT=$(git commit-tree "$TREE" -m "$MSG")
+  fi
+  # The first push of a large corpus can disconnect mid-sideband; the objects that did
+  # land are kept, so a retry sends only what is missing and succeeds quickly.
+  ok=0
+  for i in 1 2 3 4 5; do
+    if git push origin "$COMMIT":gh-pages; then ok=1; break; fi
+    sleep $((2 ** i))
   done
-  echo "deployed $(git rev-parse --short HEAD) to gh-pages"
+  if [ "$ok" != 1 ]; then
+    echo "DEPLOY FAILED: could not push to gh-pages after 5 attempts" >&2
+    exit 1
+  fi
+  echo "deployed $(git rev-parse --short HEAD) to gh-pages as ${COMMIT:0:9}"
 fi
 
 echo "still on $BRANCH, working tree untouched"

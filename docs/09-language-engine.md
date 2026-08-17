@@ -8,6 +8,15 @@ This changes the shape of the business. The culture pillars remain the acquisiti
 the context; the **language platform becomes the revenue engine**, and it is potentially
 larger than the app it started inside.
 
+> **Where the build actually stands:** this document is the architecture and the business
+> case. For the audited state of the engine as built — measured content coverage per pack,
+> the four capability gaps, and the phase plan that closes them — see
+> **[12 — Bhasha: where the Hindi engine actually stands](12-bhasha-state-and-phases.md)**.
+>
+> Note that the **Phase 2–5 in [§8](#8-what-this-does-to-the-roadmap) below is a language
+> rollout schedule** — which languages ship when. The engine phases in 12 are lettered A–G
+> precisely so the two cannot be confused again; they already were once.
+
 ---
 
 ## 1. Why this is tractable — the abugida insight

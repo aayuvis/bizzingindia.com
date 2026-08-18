@@ -98,8 +98,19 @@ fs.readdirSync(dir).filter(function (f) { return /^data-bhasha-.*\\.js$/.test(f)
   .sort().forEach(function (f) { require(path.join(dir, f)); });
 var out = [];
 Object.keys(window.IND_PACKS).forEach(function (id) {
+  /* A MATRA HAS NO SOUND ON ITS OWN. It is a combining mark: the synthesiser gets a
+     bare U+093E and returns a quarter-second of breath, which is what a child was
+     hearing where the vowel sign should have been. It is also, separately, wrong to
+     teach -- an abugida's vowel sign is only ever pronounced sitting on a consonant.
+     So a matra clip says its EXAMPLE syllable, which is also exactly the glyph the
+     teach card puts on screen for it. The clip KEY does not change. */
+  var scr = window.IND_BHASHA.script(id) || {};
+  var ex = {};
+  (scr.matras || []).forEach(function (m) { if (m.audio && m.example) ex[m.audio] = m.example; });
   window.IND_BHASHA.srsItems(id).forEach(function (it) {
-    if (it.audio && it.char) out.push({ pack: id, key: it.audio, text: it.char, kind: it.kind });
+    if (!it.audio || !it.char) return;
+    var say = (it.kind === 'matra' && ex[it.audio]) ? ex[it.audio] : it.char;
+    out.push({ pack: id, key: it.audio, text: say, kind: it.kind, glyph: it.char });
   });
 });
 process.stdout.write(JSON.stringify(out));
@@ -409,6 +420,34 @@ def synthesize(text, lang):
         return _post({'ssml': '<speak>%s<break time="%dms"/></speak>'
                               % (escape(text), TAIL_MS)}, lang)
     return _post({'text': text}, lang)
+
+
+def synthesize_one(clip, force=False, lead_ms=0):
+    """Record ONE clip to app/voice/<key>.mp3 and return its path.
+
+    Exists for tools/repair-voice.py, which re-records the clips that came back
+    silent. `lead_ms` puts a breath BEFORE the text as well as after it: a bare
+    letter or a two-syllable function word is a fragment rather than an utterance,
+    and giving the voice something to place it against is the one thing that
+    differs between the first attempt and the second. Everything else -- the voice,
+    the rate, the escaping, the write-whole-then-move -- is the ordinary path, so a
+    repaired clip is indistinguishable from an original one.
+    """
+    path = os.path.join(OUT, clip['key'] + '.mp3')
+    if os.path.exists(path) and not force:
+        return path
+    lang = clip['lang']
+    if lead_ms and _supports_ssml(lang) and lang not in SSML_LANGS:
+        audio = _post({'ssml': '<speak><break time="%dms"/>%s<break time="%dms"/></speak>'
+                               % (lead_ms, escape(clip['text']), TAIL_MS)}, lang)
+    else:
+        audio = synthesize(clip['text'], lang)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + '.part'
+    with open(tmp, 'wb') as f:
+        f.write(audio)
+    os.replace(tmp, path)
+    return path
 
 
 def _say_ssml(ssml, lang='en-US'):

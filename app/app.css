@@ -2065,3 +2065,24 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .avchip.unmet .rarlabel {
   background: var(--accent-soft); color: var(--accent); font-weight: 800;
 }
+
+/* ------------------------------------------------- the closing practice set
+   Its own tick on the arc bar, in the accent rather than the review blue: a
+   practice beat is the lesson's own round-up, not the SRS catching something
+   that slipped, and the two should not read as the same thing. */
+.arcbar i.a-prac { background: color-mix(in srgb, var(--accent) 34%, var(--card2)); }
+.arcbar i.a-prac.done { background: var(--accent); }
+
+/* Announced once, on the beat it begins — see practiceBanner(). */
+.pracflag {
+  margin: 10px 0 2px; padding: 7px 12px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 12.5px; font-weight: 800; text-align: center;
+}
+
+/* the headword, marked where it sits inside its example sentence — the second
+   of the two sightings the card exists to give */
+.wcs-hit {
+  font-weight: 700; color: var(--accent);
+  box-shadow: inset 0 -0.32em 0 var(--accent-soft);
+}

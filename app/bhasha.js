@@ -3101,6 +3101,8 @@ function srsItems(packId) {
 var SESSION_GRADED = 12;   /* graded beats per session; matches the stage target */
 var MAX_INTRO = 4;         /* never more than four brand-new things in one sitting */
 var TESTOUT_N = 6;         /* the test-out challenge: six questions, five to pass */
+var PRACTICE_N = 4;        /* the closing practice set — see the note on practiceSet() */
+var MAX_REPEATS = 3;       /* one item, one sitting: never asked more than this often */
 
 /* which generators can be PINNED to an item of each kind — type variety for a
    drilled item comes from intersecting this with the stage's legal types */
@@ -3354,25 +3356,119 @@ function session(packId, stageId, st, opts) {
      to it; a normal one keeps a steady tail of up to three */
   var reviewN = Math.min(dueUnits.length, (w.n >= 8 && w.acc < 0.70) ? (SESSION_GRADED - graded) : 3, SESSION_GRADED - graded);
 
-  /* DRILL the middle — recent low-box items first, then the just-introduced
-     again, then anywhere on the ramp; a stage with no units at all (an
-     unauthored s4/s5) drills unpinned through its legal types */
-  var midN = SESSION_GRADED - graded - reviewN;
-  var pool = shuffle(rng, learning);
+  /* ------------------------------------------------------------- THE MIDDLE
+
+     THE BUG THIS REPLACES, because it is worth writing down. The middle used
+     to draw only from `learning` — units whose SRS card sits in box 0–2. On
+     the very first sitting of a stage that is right. On the SECOND it is a
+     trap: every word met yesterday was answered correctly three times, so
+     every one of them is in box 3 by morning and `learning` is EMPTY. The
+     fallback then fired — `intro[i % intro.length]` — and the whole middle
+     went to the three words introduced minutes earlier.
+
+     Set 2 of Sunna was therefore three words, four times each, and set 3 was
+     three more. A child noticed before any test did.
+
+     So the pool is now everything the child has actually MET and not yet
+     mastered, freshest first, with today's new words in it rather than being
+     the whole of it. Same twelve beats, five or six distinct words instead of
+     three, and yesterday's words come back — which is the spacing the SRS was
+     always for and the planner was quietly defeating. */
+  var recent = [];
+  for (i = 0; i < units.length; i++) {
+    var rc = srs[units[i].key];
+    if (!rc) continue;
+    if (srsBox(rc) >= 5) continue;                 /* mastered: leave it to due() */
+    recent.push(units[i]);
+  }
+  recent.sort(function (a, b) {
+    var ca = srs[a.key] || {}, cb = srs[b.key] || {};
+    return (cb.last || 0) - (ca.last || 0);        /* freshest first */
+  });
+  var pool = shuffle(rng, learning).concat(recent, intro);
+  var seenInPool = {}, midPool = [];
+  for (i = 0; i < pool.length; i++) {
+    if (seenInPool[pool[i].key]) continue;
+    seenInPool[pool[i].key] = 1; midPool.push(pool[i]);
+  }
+
+  /* NO ITEM MORE THAN MAX_REPEATS TIMES IN ONE SITTING. The two drills that
+     follow an introduction already count, so a brand-new word gets one more
+     turn and an older one gets up to three. Without this the round-robin
+     below still piles up whenever the pool is short. */
+  var used = {};
+  for (i = 0; i < specs.length; i++) {
+    /* the teach card is not a question and must not count against the cap —
+       counting it put a brand-new word straight at its limit, which is how the
+       first version of this fix handed the closing practice set to YESTERDAY's
+       words and left today's out of it entirely */
+    if (specs[i].kind === 'introduce' || !specs[i].key) continue;
+    used[specs[i].key] = (used[specs[i].key] || 0) + 1;
+  }
+  function take(list, k) {
+    var j, n = list.length;
+    for (j = 0; j < n; j++) {
+      var cand = list[(k + j) % n];
+      if ((used[cand.key] || 0) < MAX_REPEATS) return cand;
+    }
+    return null;                                   /* pool exhausted, honestly */
+  }
+
+  /* THE PRACTICE SET — the last beats of the sitting, over what the sitting
+     itself touched: today's new words first, then the freshest older ones. It
+     is separate from `review` on purpose. Review is what the SRS says has
+     slipped and it can legitimately be empty; practice is the child's own
+     round-up of the lesson they just had, and a lesson should always end with
+     one. It is graded like any drill — a practice set nobody marks is a
+     slideshow. */
+  var practiceN = Math.min(PRACTICE_N, SESSION_GRADED - graded - reviewN);
+  var midN = SESSION_GRADED - graded - reviewN - practiceN;
+
   for (i = 0; i < midN; i++) {
-    u = pool.length ? pool[i % pool.length]
-      : intro.length ? intro[i % intro.length]
-      : units.length ? units[rint(rng, units.length)] : null;
+    u = midPool.length ? take(midPool, i) : (units.length ? units[rint(rng, units.length)] : null);
+    if (u) used[u.key] = (used[u.key] || 0) + 1;
     specs.push(u ? { kind: 'drill', item: u.item, key: u.key, type: pinTypeFor(u, types, i) }
                  : { kind: 'drill', item: null, key: null, type: types[i % types.length] });
   }
+
+  var practicePool = intro.concat(midPool), pseen = {}, plist = [];
+  for (i = 0; i < practicePool.length; i++) {
+    if (pseen[practicePool[i].key]) continue;
+    pseen[practicePool[i].key] = 1; plist.push(practicePool[i]);
+  }
+  var practiced = 0;
+  for (i = 0; i < practiceN; i++) {
+    u = plist.length ? take(plist, i) : null;
+    if (!u) break;                                 /* nothing left that is not over its cap */
+    used[u.key] = (used[u.key] || 0) + 1;
+    practiced++;
+    specs.push({ kind: 'practice', item: u.item, key: u.key, type: pinTypeFor(u, types, i + 2) });
+  }
+
+  /* A SITTING IS TWELVE GRADED BEATS AND STAYS TWELVE. The practice set can come
+     up short -- a stage whose items are still the derived skeleton (an unauthored
+     s4/s5) has no units to practise at all -- and the first version of this simply
+     ended the lesson four questions early. That is not a shorter lesson, it is an
+     unwinnable stage: the completion target is twelve, and the headless walk
+     caught it on pa/s5 within the minute. Whatever practice could not fill goes
+     back to the middle, unpinned if there is nothing to pin it to. */
+  var short = SESSION_GRADED - graded - midN - practiced - reviewN;
+  for (i = 0; i < short; i++) {
+    u = midPool.length ? take(midPool, midN + i) : (units.length ? units[rint(rng, units.length)] : null);
+    if (u) used[u.key] = (used[u.key] || 0) + 1;
+    specs.push(u ? { kind: 'drill', item: u.item, key: u.key, type: pinTypeFor(u, types, midN + i) }
+                 : { kind: 'drill', item: null, key: null, type: types[(midN + i) % types.length] });
+  }
+  midN += Math.max(0, short);
+
   for (i = 0; i < reviewN; i++) {
     u = dueUnits[i];
     specs.push({ kind: 'review', item: u.item, key: u.key, type: pinTypeFor(u, types, i) });
   }
 
-  return { specs: specs, graded: SESSION_GRADED, newN: intro.length, drillN: midN, reviewN: reviewN,
-           say: sessionSay(stage, intro.length, midN, reviewN) };
+  return { specs: specs, graded: graded + midN + practiced + reviewN,
+           newN: intro.length, drillN: midN, practiceN: practiced, reviewN: reviewN,
+           say: sessionSay(stage, intro.length, midN + practiced, reviewN) };
 }
 
 /* MISS REPLAY — an item answered wrong comes back inside the SAME session,

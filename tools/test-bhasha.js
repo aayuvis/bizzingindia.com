@@ -629,6 +629,103 @@ ok('a due card comes back as the closing review', last.kind === 'review' && last
     pl.specs.indexOf(revs[0]) > pl.specs.indexOf(drills[drills.length - 1]));
 }());
 
+/* ============ SET 2 IS NOT SET 1'S THREE WORDS, FOUR TIMES EACH ============
+   Reported by a child, in these words: "in set 2, 3 of Hindi Sunna, 2 words are
+   being practised 10 times."
+
+   They were right, and the cause was one line. The middle of a session drew only
+   from `learning` — cards in box 0–2. That is correct on the first sitting of a
+   stage and a trap on the second: yesterday's words were each answered correctly
+   three times, so by morning every one of them is in box 3 and `learning` is
+   EMPTY. The fallback then handed the whole middle to the words introduced two
+   minutes earlier.
+
+   These assert the three properties that make a sitting a lesson: enough
+   different things in it, nothing hammered, and yesterday's words coming back. */
+(function () {
+  function play(packId, stageId, sets) {
+    var st = fresh(), now = t0, out = [], s, i;
+    for (s = 1; s <= sets; s++) {
+      var pl = B.session(packId, stageId, st, { now: now, seed: 'grind' + s });
+      var seen = {}, per = {};
+      pl.specs.forEach(function (sp) {
+        if (!sp.key) return;
+        seen[sp.key] = 1;
+        if (sp.kind !== 'introduce') per[sp.key] = (per[sp.key] || 0) + 1;
+      });
+      out.push({ plan: pl, distinct: Object.keys(seen).length,
+                 worst: Math.max.apply(null, [0].concat(Object.keys(per).map(function (k) { return per[k]; }))),
+                 keys: Object.keys(seen) });
+      /* everything answered right, which is the case that produced the bug */
+      pl.specs.forEach(function (sp) {
+        if (!sp.key) return;
+        var c = st.srs[sp.key] || (st.srs[sp.key] = { key: sp.key });
+        if (sp.kind === 'introduce') { c.intro = true; c.seen = true; }
+        else { W.IND_SRS.review(c, true, now); st.window.push({ ok: 1, nw: 1 }); }
+      });
+      st.window = st.window.slice(-12);
+      st.band = B.bandStep(st.band, st.window);
+      now += 86400000;
+    }
+    return out;
+  }
+
+  ['s0', 's1', 's3'].forEach(function (sid) {
+    var sets = play('hi', sid, 4);
+    sets.forEach(function (r, i) {
+      ok(sid + ' set ' + (i + 1) + ': at least four different things in it',
+        r.distinct >= 4, 'distinct=' + r.distinct);
+      ok(sid + ' set ' + (i + 1) + ': nothing asked more than three times',
+        r.worst <= 3, 'worst=' + r.worst);
+    });
+    /* the point of the fix: a later sitting revisits an earlier one's items */
+    var early = {}; sets[0].keys.forEach(function (k) { early[k] = 1; });
+    var back = sets[1].keys.filter(function (k) { return early[k]; });
+    ok(sid + ': set 2 brings back something from set 1', back.length >= 1,
+      'carried over: ' + back.length);
+  });
+}());
+
+/* TWELVE GRADED BEATS, ALWAYS, IN EVERY PACK AND EVERY STAGE. The completion
+   target is twelve; a plan that returns eleven is not a shorter lesson, it is an
+   unwinnable stage. The practice set can legitimately come up short — an
+   unauthored s4/s5 has no units to practise — and those beats go back to the
+   middle rather than off the end. */
+(function () {
+  ['hi', 'pa'].forEach(function (pid) {
+    (W.IND_PACKS[pid].stages || []).forEach(function (stg) {
+      var pl = B.session(pid, stg.id, fresh(), { now: t0, seed: 'len-' + pid + stg.id });
+      var g = pl.specs.filter(function (x) { return x.kind !== 'introduce'; }).length;
+      eq(pid + '/' + stg.id + ' plans a full twelve graded beats', g, 12);
+    });
+  });
+}());
+
+/* THE CLOSING PRACTICE SET — every sitting ends with a round over what that
+   sitting met. Distinct from `review`, which is what the SRS says has slipped
+   and is legitimately empty on day one; a lesson should still end with
+   practice. Asked for in as many words: "have a practice set at the end". */
+(function () {
+  var pl = B.session('hi', 's0', fresh(), { now: t0, seed: 'prac' });
+  var prac = pl.specs.filter(function (s) { return s.kind === 'practice'; });
+  ok('a first sitting still ends with a practice set', prac.length >= 1, 'practice=' + prac.length);
+  eq('the plan reports how many practice beats it has', pl.practiceN, prac.length);
+  var lastDrill = -1, firstPrac = -1, i;
+  for (i = 0; i < pl.specs.length; i++) {
+    if (pl.specs[i].kind === 'drill') lastDrill = i;
+    if (pl.specs[i].kind === 'practice' && firstPrac < 0) firstPrac = i;
+  }
+  ok('practice comes after the drilling, not among it', firstPrac > lastDrill,
+    'lastDrill=' + lastDrill + ' firstPrac=' + firstPrac);
+  var intro = {};
+  pl.specs.forEach(function (s) { if (s.kind === 'introduce') intro[s.key] = 1; });
+  var covered = prac.filter(function (s) { return intro[s.key]; });
+  ok('the practice set practises what this sitting introduced',
+    covered.length >= 1, 'of ' + prac.length + ' practice beats, ' + covered.length + ' are new items');
+  ok('a practice beat is graded like any other question',
+    prac.every(function (s) { return !!s.type; }));
+}());
+
 /* MISS REPLAY: a missed item re-enters the SAME session, once */
 (function () {
   var pl = B.session('hi', 's1', fresh(), { now: t0, seed: 'replay' });
@@ -846,6 +943,40 @@ hdr('dialogue audio keys');
   eq('hi dialogues resolve through the shared bank', (B.dialogues('hi') || []).length, 72);
   eq('a pack with no bank returns null, not a throw', B.dialogues('ta'), null);
   console.log('  phase A: sentence/dialogue banks are per-pack, no Hindi special case');
+}());
+
+/* ================= no silent clips ================= */
+/* A child said the Hindi letters "were just a sigh" and that जी was not pronounced.
+   Both were true: thirty-two clips were a quarter-second of breath at -40 dB. Every
+   check we had passed anyway -- the files existed, the manifest listed them, the
+   player played them. The synthesiser had returned 200 OK with an empty MP3 and the
+   pipeline wrote it, because success meant "the request did not fail".
+
+   This gate is the cheap half of the fix: at 32 kbps mono, a real word in these packs
+   is 1.4 kB or more and every one of the broken clips was under it. It runs on every
+   build and needs nothing but the filesystem.
+
+   The other half is `python3 tools/repair-voice.py --scan`, which actually DECODES
+   every clip and measures its peak. That catches the case this one cannot -- a clip
+   that is long enough to look fine and silent all the way through -- and it is the
+   check to run after any narration run. */
+(function () {
+  var fs = require('fs'), path = require('path');
+  var VOICE = path.join(__dirname, '..', 'app', 'voice');
+  var FLOOR = 1400;                       /* bytes; ~0.35s of 32 kbps mono */
+  var thin = [];
+  fs.readdirSync(VOICE).forEach(function (d) {
+    var dir = path.join(VOICE, d);
+    if (!fs.statSync(dir).isDirectory() || d === 'st' || d === 'ep') return;
+    fs.readdirSync(dir).forEach(function (f) {
+      if (!/\.mp3$/.test(f)) return;
+      var n = fs.statSync(path.join(dir, f)).size;
+      if (n < FLOOR) thin.push(d + '/' + f + ' (' + n + 'B)');
+    });
+  });
+  eq('no drill clip is too small to contain a spoken word', thin.length, 0);
+  if (thin.length) console.log('     ' + thin.slice(0, 12).join(', '));
+  console.log('  no silent clips: every letter, matra and word clip has audio in it');
 }());
 
 /* ================= result ================= */

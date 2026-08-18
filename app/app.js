@@ -3682,8 +3682,18 @@
         '<button class="btn ghost sm" data-act="saymask" data-b="' + esc(m.before) + '" data-a="' + esc(m.after) +
         '" data-l="' + esc(packId + '-IN') + '">' + icon('sound', 16) + ' Hear it round the gap</button></div>';
     }
+    /* THE WORD IS MARKED INSIDE THE SENTENCE. Seeing it twice is the whole
+       point of showing a sentence at all -- once alone, once at work -- and
+       an unmarked sentence makes a four-year-old hunt for it. Same splitter
+       the covered card uses, so the two can never disagree about where the
+       word is; a sentence that somehow does not contain its own word falls
+       back to the plain line rather than rendering an empty mark. */
+    var hi = B.mask(e.s, word, '');
+    var body = (hi && (hi.before !== e.s))
+      ? esc(hi.before) + '<b class="wcs-hit">' + esc(word) + '</b>' + esc(hi.after)
+      : esc(e.s);
     return '<div class="wcsent"><div class="mono">in a sentence</div>' +
-      '<p class="wcs deva">' + esc(e.s) + '</p>' +
+      '<p class="wcs deva">' + body + '</p>' +
       '<p class="wcsr">' + esc(e.roman) + '<span class="muted">' + esc(e.en) + '</span></p>' +
       '<button class="btn ghost sm" data-act="saysent" data-p="' + esc(packId) + '" data-w="' + esc(word) +
       '">' + icon('sound', 16) + ' Hear the sentence</button></div>';
@@ -3822,16 +3832,34 @@
      the plain ones, the closing review its own colour; everything behind the
      pointer is filled. This is the honest opposite of a Duolingo heart row: it
      shows how much is left, never how much you have to lose. */
+  /* THE PRACTICE SET announces itself, once, on the beat it begins. A lesson
+     that just stops is a lesson with no shape; "now let's practise what you
+     met" is the oldest teaching move there is and it costs one line. It shows
+     on the FIRST practice beat only — a banner over every one of them is a
+     nag, not a signal. */
+  function practiceBanner() {
+    var pl = quiz.plan, specs = pl && pl.specs, sp = specNow();
+    if (!sp || sp.kind !== 'practice' || !specs) return '';
+    var first = true, i;
+    for (i = 0; i < quiz.pi; i++) if (specs[i].kind === 'practice') { first = false; break; }
+    if (!first) return '';
+    var n = 0;
+    for (i = 0; i < specs.length; i++) if (specs[i].kind === 'practice') n++;
+    return '<div class="pracflag">Practice — the ' + n + ' you just met</div>';
+  }
+
   function arcStrip() {
     var pl = quiz.plan, specs = pl && pl.specs;
     if (!specs || specs.length < 2) return '';
     var out = '', i, k;
     for (i = 0; i < specs.length; i++) {
-      k = specs[i].kind === 'introduce' ? 'a-int' : specs[i].kind === 'review' ? 'a-rev' : 'a-dr';
+      k = specs[i].kind === 'introduce' ? 'a-int'
+        : specs[i].kind === 'review' ? 'a-rev'
+        : specs[i].kind === 'practice' ? 'a-prac' : 'a-dr';
       out += '<i class="' + k + (i < quiz.pi ? ' done' : (i === quiz.pi ? ' at' : '')) + '"></i>';
     }
     return '<div class="arcbar" role="img" aria-label="beat ' + (quiz.pi + 1) +
-      ' of ' + specs.length + ' in this session">' + out + '</div>';
+      ' of ' + specs.length + ' in this session">' + out + '</div>' + practiceBanner();
   }
 
   V.question = function (q) {

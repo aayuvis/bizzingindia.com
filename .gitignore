@@ -24,3 +24,9 @@ __pycache__/
 # the story painting) and tools/veo-story.py rebuilds the film from them, so a hundred
 # megabytes of MP4 in git would only go stale the first time a line is re-recorded.
 build/
+
+# Generated shot pages. tools/anim/build.js writes one per shot from scenes.json plus the
+# sprite manifest, so they are output, not source — committing them means every geometry
+# tweak shows up as ten meaningless diffs.
+tools/anim/shot-*.html
+tools/anim/sprites.json

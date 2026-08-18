@@ -330,14 +330,29 @@ CARD_HTML = """<!doctype html><meta charset="utf-8">
 <link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css">
 <style>
   html,body{margin:0;width:1920px;height:1080px;overflow:hidden}
-  body{display:flex;align-items:center;justify-content:center;
+  body{display:flex;align-items:%(align)s;justify-content:center;
        font-family:var(--body);color:var(--text);background:%(bg)s}
-  .wrap{text-align:center;padding:0 180px;max-width:1520px}
-  .kicker{font-size:30px;letter-spacing:.22em;text-transform:uppercase;
-          font-weight:800;color:%(kicker)s;margin-bottom:34px}
+  /* THE SCRIM IS PART OF THE CARD, not a full-frame drawbox in ffmpeg. Dimming the
+     whole picture to make lettering legible dims the characters too, and on a warm
+     ochre film that reads as a colour-grade mistake. A gradient over the top 46%% puts
+     the contrast exactly where the type is and leaves the tortoise alone. */
+  /* z-index matters here and it is not decoration. `.scrim` is POSITIONED and the
+     headline is not, so without this the scrim paints ON TOP of the type: the white
+     lettering came out at luma 164 instead of 255 and read as dirty grey over the sky.
+     It looks exactly like a bad font choice, which is where an hour goes. */
+  .scrim{z-index:0;position:fixed;inset:0 0 auto 0;height:46%%;
+         background:linear-gradient(180deg,rgba(24,14,52,.66) 0%%,rgba(24,14,52,.40) 58%%,
+                    rgba(24,14,52,0) 100%%)}
+  .wrap{position:relative;text-align:center;padding:%(pad)s;max-width:1560px}
+  .kicker{font-size:29px;letter-spacing:.24em;text-transform:uppercase;
+          font-weight:800;color:%(kicker)s;margin-bottom:30px}
+  /* the film moves under this type, so it carries its own shadow rather than
+     trusting whatever happens to be behind it in a given frame */
+  .scrim ~ .kicker, .scrim ~ h1, .scrim ~ p{
+    position:relative;z-index:1;text-shadow:0 2px 18px rgba(18,10,40,.7)}
   h1{font-family:var(--display);font-weight:800;font-size:%(size)spx;line-height:1.06;
      letter-spacing:-.015em;margin:0 0 30px;color:%(fg)s}
-  p{font-size:38px;line-height:1.5;margin:0;color:%(sub)s;font-weight:500}
+  p{font-size:37px;line-height:1.5;margin:0;color:%(sub)s;font-weight:600}
   .brand{margin-top:%(gap)spx;font-family:var(--display);font-weight:800;font-size:44px;
          color:%(fg)s}
   .brand i{font-style:italic;color:%(kicker)s}
@@ -359,13 +374,15 @@ def render_cards(force=False):
 
     cards = {
       'card-title': dict(
-        bg='transparent', fg='#fffaf0', sub='#fdeccd', kicker='#e9a13b', size='104', gap='54',
-        body='<div class="kicker">Panchatantra &middot; Katha</div>'
+        bg='transparent', fg='#fffaf0', sub='#f6e6c8', kicker='#f7c667', size='106', gap='54',
+        align='flex-start', pad='92px 160px 0',
+        body='<div class="scrim"></div>'
+             '<div class="kicker">Panchatantra &middot; Katha</div>'
              '<h1>Kambugriva<br>the Tortoise</h1>'
              '<p>Two friends, one stick, and a mouth that would not stay shut.</p>'),
       'card-end': dict(
         bg='#fdf4e4', fg='#1e1440', sub='#5a4a72', kicker='#d94f3d',
-        size='62', gap='72',
+        size='62', gap='72', align='center', pad='0 180px',
         body='<div class="rule"></div>'
              '<h1>There is a time to speak<br>and a time to keep your mouth shut.</h1>'
              '<p>Knowing the difference is most of wisdom.</p>'
@@ -429,10 +446,15 @@ def assemble():
         with open(lst, 'w') as f:
             for c in p['clips']:
                 f.write("file '%s'\n" % os.path.abspath(c))
+        # The join is deterministic from the shots, and re-encoding sixteen 1080p clips
+        # takes minutes. Cache it, so iterating on the CUT — which is the part a human
+        # actually wants to try twice — costs seconds instead. --recut throws it away.
         joined = os.path.join(OUT, 'cut', 'j-%s.mp4' % p['seg'])
-        subprocess.run([FFMPEG, '-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0',
-                        '-i', lst, '-an', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium',
-                        '-pix_fmt', 'yuv420p', '-r', '24', joined], check=True)
+        newest = max(os.path.getmtime(c) for c in p['clips'])
+        if not (os.path.exists(joined) and os.path.getmtime(joined) > newest):
+            subprocess.run([FFMPEG, '-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0',
+                            '-i', lst, '-an', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium',
+                            '-pix_fmt', 'yuv420p', '-r', '24', joined], check=True)
         cut = os.path.join(OUT, 'cut', 'v-%s.mp4' % p['seg'])
         if p['have'] >= p['need']:
             vf = 'trim=0:%.3f,setpts=PTS-STARTPTS' % p['need']
@@ -445,18 +467,24 @@ def assemble():
         title = os.path.join(FRAMES, 'card-title.png')
         if p['seg'] == 'hook' and os.path.exists(title):
             hold = max(1.0, p['need'] - 1.6)
-            subprocess.run([FFMPEG, '-y', '-loglevel', 'error', '-i', joined, '-i', title,
+            # -loop 1 -t IS THE WHOLE TRICK. A PNG is one frame at t=0 with no timeline,
+            # so `fade=t=in:st=0.5:alpha=1` sets that frame's alpha to 0 (it is before the
+            # fade's start) and nothing ever turns it back on. The overlay runs, ffmpeg
+            # exits 0, and the title is invisible in the finished film — which is exactly
+            # what happened, and cost a full re-render to notice.
+            subprocess.run([FFMPEG, '-y', '-loglevel', 'error', '-i', joined,
+                            '-loop', '1', '-t', '%.3f' % p['need'], '-i', title,
                             '-filter_complex',
                             # the scrim goes on the BASE, before the title lands on top —
                             # applied after the overlay it dims the lettering too, which is
                             # the kind of filter-order bug that looks like a bad font
-                            '[0:v]%s,'
-                            'drawbox=x=0:y=0:w=iw:h=ih:color=black@0.22:t=fill:'
-                            'enable=\'between(t,0.5,%.2f)\'[base];'
+                            # no drawbox: the scrim is baked into the card, over the top
+                            # of frame only, so the characters keep their own light
+                            '[0:v]%s[base];'
                             '[1:v]format=rgba,fade=t=in:st=0.5:d=0.7:alpha=1,'
                             'fade=t=out:st=%.2f:d=0.8:alpha=1[t];'
                             '[base][t]overlay=0:0:format=auto'
-                            % (vf, hold + 0.8, hold),
+                            % (vf, hold),
                             '-an', '-c:v', 'libx264', '-crf', '18', '-preset', 'medium',
                             '-pix_fmt', 'yuv420p', '-r', '24', cut], check=True)
         else:
@@ -507,9 +535,22 @@ def assemble():
                    check=True)
 
     final = os.path.join(OUT, 'bizzing-india-kambugriva.mp4')
+    # LOUDNESS. The narration is synthesised speech and lands around -24 LUFS, which is
+    # far quieter than anything else in a child's YouTube feed; the platform normalises
+    # to roughly -14 and would simply leave ours sitting low next to the video that plays
+    # next. `loudnorm` brings it to -14 LUFS with a -1.5 dBTP ceiling, which is the target
+    # to hand YouTube rather than one to argue with.
+    #
+    # And the video is re-encoded rather than copied: the segment files are CRF 18 at
+    # ~10.6 Mbps, which is well past the point where flat cel-shaded animation gains
+    # anything. CRF 20 at 48 kHz stereo is the delivery master.
     subprocess.run([FFMPEG, '-y', '-loglevel', 'error', '-i', vid, '-i', aud,
-                    '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac',
-                    '-b:a', '160k', '-shortest', '-movflags', '+faststart', final], check=True)
+                    '-map', '0:v:0', '-map', '1:a:0',
+                    '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000',
+                    '-c:v', 'libx264', '-crf', '20', '-preset', 'slow',
+                    '-profile:v', 'high', '-pix_fmt', 'yuv420p',
+                    '-c:a', 'aac', '-b:a', '192k', '-ac', '2',
+                    '-shortest', '-movflags', '+faststart', final], check=True)
     print('\n%s  —  %.1fs, %.1f MB' % (final, probe_seconds(final),
                                        os.path.getsize(final) / 1e6))
     return 0

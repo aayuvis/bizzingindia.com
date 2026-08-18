@@ -76,6 +76,11 @@ plate: fine stipple, an ornate blue-and-gold border, an adult's picture. It is t
 of the **palette, the light and the landscape** — and of nothing else. The *characters*
 come from the sticker set, which is already a kids' cartoon.
 
+**Titles never dim the whole frame.** The scrim behind the opening title is baked into
+the title PNG as a gradient over the top 46% of the picture, not applied in ffmpeg as a
+full-frame `drawbox`. Dimming everything to make lettering legible dims the characters
+too, and on a film this warm that reads as a colour-grade mistake rather than a design.
+
 **Never put the ornamental border in a shot.** It eats a tenth of the frame, and in motion
 it reads as a picture of a picture. The border belongs on a title card, if anywhere.
 
@@ -205,7 +210,33 @@ Output: `build/video/bizzing-india-kambugriva.mp4`, 1920×1080, 24 fps.
 them; a rendered video in git is a hundred megabytes that go stale the first time a line
 of narration is re-recorded.
 
-### Two things that will bite
+### Delivery
+
+The final mux does two things beyond joining the tracks, and both matter more than they
+look:
+
+- **Loudness.** The narration is synthesised speech and lands around −24 LUFS. YouTube
+  normalises to roughly −14, so ours would simply sit quiet next to whatever plays next.
+  `loudnorm=I=-14:TP=-1.5` hands the platform the target rather than arguing with it.
+- **Bitrate.** The segment files are CRF 18 at ~10.6 Mbps, which is well past the point
+  where flat cel-shaded animation gains anything. The master goes out at CRF 20, 48 kHz
+  stereo, `+faststart`. About 90 seconds, 1920×1080, 24 fps.
+
+### Three things that will bite
+
+- **A still image has no timeline.** `-i card.png` is one frame at t=0, so
+  `fade=t=in:st=0.5:alpha=1` sets that frame's alpha to zero and nothing ever turns it
+  back on. ffmpeg exits 0 and the title is simply invisible in the finished film. Use
+  `-loop 1 -t <seconds>`. This cost a full re-render to notice.
+- **A positioned scrim paints over static type.** `.scrim` is `position:fixed`, the
+  headline is not, so the scrim landed on top of it and the white lettering came out at
+  luma 164 instead of 250 — muddy grey over the sky. It looks exactly like a bad font
+  choice, which is where the hour goes. `z-index` on both, deliberately.
+- **The download 302s.** Veo's file URI redirects to a signed URL. `urllib.urlopen` hands
+  back the redirect body as if it were the file — 95 bytes of JSON that `ffmpeg` then
+  reports as a missing `moov` atom, which sends you looking for a video bug that is
+  actually an HTTP bug. The pipeline uses `curl -L`, and it checks the byte count and
+  deletes anything too small rather than leaving a stub the next run treats as cached.
 
 - **The download 302s.** Veo's file URI redirects to a signed URL. `urllib.urlopen` hands
   back the redirect body as if it were the file — 95 bytes of JSON that `ffmpeg` then

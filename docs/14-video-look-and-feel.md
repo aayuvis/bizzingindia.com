@@ -154,6 +154,38 @@ asking for it in one gets you a smeared blur of all three.
 
 ---
 
+### Continuity is not style, and reference images do not carry it
+
+The first cut was rejected on three faults, and they are the same fault wearing three
+hats: **a thing obvious to someone watching the whole film is invisible to a model drawing
+one frame.** Reference art holds the *drawing* of a character. It does not hold the
+*relationship between two* characters, and it does not hold *what a character is doing
+with its mouth*. Those must be stated, in words, in every prompt — which is what the
+`CONTINUITY` block in the pipeline is, appended verbatim to all sixteen.
+
+- **Scale drifted shot to shot.** The tortoise stood shoulder-high to a bird in one shot,
+  smaller than a bird's head in the next, and larger than both birds in a third. The rule
+  is now numeric and repeated everywhere: *a standing bird is about twice the tortoise's
+  height; his shell is roughly as wide as a bird's body.*
+- **The bite was wrong, and the bite is the story.** Kambugriva must carry the stick **in
+  his mouth** — that is why opening it costs him everything. The first cut had him
+  gripping the stick in his front paws, standing on it, and in one shot roped to it in a
+  little harness. With a harness the ending makes no sense: he could shout all he liked.
+  This is a **story** error that arrived dressed as an art error, and it is the reason
+  `CONTINUITY` spells out jaws-closed-on-the-wood, legs-hanging-free, never tied, never
+  held with the feet, never ridden.
+- **The birds changed species mid-film.** One shot grew them blue crests and blue wing
+  feathers. Locked: plain white all through, orange beak and legs, no crest, both birds
+  identical to each other.
+
+The negative prompt carries the same three as explicit exclusions, because saying what you
+want and saying what you must not have catch different failures.
+
+**The lesson worth keeping:** before shooting, write down the handful of facts that must
+be true in *every* frame — relative sizes, what is touching what, who is holding what and
+how — and repeat them in full each time. It feels redundant on shot three and it is the
+only thing that works by shot sixteen.
+
 ### What went wrong on the first pass, and what it teaches
 
 Both failures were the *motion* prompt, not the art, and both are worth knowing before
@@ -290,7 +322,29 @@ India app. The animation was generated with Google Veo from the app's own charac
 artwork and story painting. No ads, no tracking, nothing collected from children.
 ```
 
-## 7. Before the next episode
+## 7. Known gaps
+
+- **Hook and moral clips across the rest of the library are still in the old American
+  voice.** `tools/story-clips.js` did not emit those two keys per story, so when the
+  library was re-narrated by the Indian narrator they were skipped — 646 clips, silently.
+  The app never plays them (it renders hook and moral as text), so nothing noticed until a
+  video used them and the film changed accent at the end. The generator is fixed and
+  `pt.talkative-tortoise` is re-narrated; the remaining 322 stories are a one-command
+  re-run whenever a second episode needs them:
+
+  ```bash
+  node tools/story-clips.js /tmp/clips.json
+  python3 tools/tts.py /tmp/clips.json --voice en-IN-Chirp3-HD-Laomedeia --rate 1.02 --for en-US
+  python3 tools/voice-tune.py app/voice/st --pitch -5 --pause -15 --only <the new stems>
+  ```
+
+  **`voice-tune.py` is destructive and cumulative** — it rewrites each mp3 in place and
+  running it twice applies the change twice, with nothing in the file to say it has been
+  tuned. Always pass `--only`. (The flag exists because the obvious command — point it at
+  the directory — began re-tuning all 6,454 clips and had degraded 1,068 before it was
+  killed. They came back from git.)
+
+## 8. Before the next episode
 
 - The narration is still the **synthesised placeholder voice**. `docs/09` §9 stands: a
   human reader replaces it before launch, and the channel inherits that the moment the app

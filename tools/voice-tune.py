@@ -19,6 +19,11 @@ masters/. That is the point of this design: retuning the whole library later
 costs a local minute instead of another API bill.
 
   python3 tools/voice-tune.py app/voice/st --pitch -5 --pause -15
+  python3 tools/voice-tune.py app/voice/st --pitch -5 --pause -15 --only a-hook b-moral
+
+TUNING IS DESTRUCTIVE AND CUMULATIVE — it rewrites each mp3 in place and running it
+twice applies the change twice, with nothing in the file to say it has been tuned
+already. Use --only whenever you mean a subset.
 """
 import os, sys, subprocess, tempfile, wave
 import numpy as np
@@ -72,8 +77,39 @@ def main(argv):
     d = argv[0]
     pitch = float(argv[argv.index('--pitch') + 1]) if '--pitch' in argv else 0
     pause = float(argv[argv.index('--pause') + 1]) if '--pause' in argv else 0
+
+    # --only <name> [name ...] — TUNE JUST THESE, matched against the filename stem.
+    #
+    # THIS IS A SAFETY FLAG, not a convenience. Tuning is DESTRUCTIVE AND CUMULATIVE:
+    # it rewrites each mp3 in place, and running it twice applies -5% pitch twice. There
+    # is no way to tell a tuned clip from an untuned one by looking at it. So when two
+    # freshly-synthesised clips needed to match a library that had already been tuned,
+    # the obvious command -- point it at the directory -- began re-tuning all 6,454 and
+    # had degraded 1,068 of them before it was killed. They came back from git, which is
+    # the only reason this is a footnote instead of a re-narration bill.
+    #
+    # If you are tuning fewer than everything, you must say which. Passing no --only
+    # means the whole tree, deliberately, and it now says so out loud first.
+    only = []
+    if '--only' in argv:
+        for a in argv[argv.index('--only') + 1:]:
+            if a.startswith('-'):
+                break
+            only.append(a)
+
     files = [os.path.join(r, f) for r, _, fs in os.walk(d) for f in fs if f.endswith('.mp3')]
-    print('tuning %d clips: pitch %+g%%, pauses %+g%%' % (len(files), pitch, pause))
+    if only:
+        want = set(only)
+        files = [f for f in files if os.path.basename(f)[:-4] in want]
+        missing = want - {os.path.basename(f)[:-4] for f in files}
+        if missing:
+            raise SystemExit('--only named %d clip(s) that are not under %s: %s'
+                             % (len(missing), d, ', '.join(sorted(missing))))
+        print('tuning %d named clip(s): pitch %+g%%, pauses %+g%%' % (len(files), pitch, pause))
+    else:
+        print('tuning ALL %d clips under %s: pitch %+g%%, pauses %+g%%' % (len(files), d, pitch, pause))
+        print('  (this is cumulative and in place — pass --only to tune a subset)')
+
     for n, f in enumerate(files, 1):
         tune(f, pitch, pause)
         if n % 200 == 0:

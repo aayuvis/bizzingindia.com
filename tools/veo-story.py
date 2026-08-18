@@ -80,9 +80,50 @@ LOOK = (
   "no watermark, no speech bubbles. Gentle and warm; never scary, never sad-looking."
 )
 
+# ---------------------------------------------------------- the continuity --
+# APPENDED TO EVERY FRAME PROMPT, WORD FOR WORD. The first cut of this film was
+# rejected on three continuity failures, all of which are the same failure: a thing
+# that is obvious to a person watching the whole film is invisible to a model drawing
+# one frame. Reference images hold the DRAWING; they do not hold the RELATIONSHIP
+# between two characters, and they do not hold what a character is doing with its
+# mouth. Those have to be said, every time, in words.
+#
+#   SCALE      the tortoise came out shoulder-high to a bird in one shot and smaller
+#              than its head in the next, then larger than both birds in a third.
+#   THE BITE   the whole story turns on Kambugriva's mouth being FULL. The first cut
+#              had him gripping the stick in his front paws, standing on it, and in
+#              one shot roped to it in a little harness -- at which point opening his
+#              mouth costs him nothing and the ending makes no sense.
+#   THE BIRDS  one shot grew them blue crests and blue wing feathers. Different birds.
+#
+# None of these are style notes. Each one is load-bearing for the story.
+CONTINUITY = (
+  "\n\nCONTINUITY -- these are fixed facts of this film and override anything else:\n"
+  "SIZE: a bird standing is about TWICE the tortoise's height. The tortoise's shell is "
+  "roughly as wide as a bird's body. He is a small round tortoise beside two tall slender "
+  "birds, and that ratio is identical in every shot, near or far.\n"
+  "THE BIRDS: plain WHITE all over -- white head, white neck, white wings, white tail. "
+  "No crest, no plume, no blue or grey or coloured feathers anywhere. Orange beak, orange "
+  "legs. Both birds look the same as each other.\n"
+  "THE TOWN: a low pink-sandstone Rajasthani fort -- rounded domes, square towers, flat "
+  "walls. Never a European fairytale castle, never pointed turrets.\n"
+  "THE STICK, whenever it appears: a plain straight brown stick. Each bird holds one END "
+  "of it crosswise in its beak. Kambugriva holds the MIDDLE OF THE STICK IN HIS MOUTH -- "
+  "his jaws are closed on the wood, the stick passes between his lips, and all four of his "
+  "legs hang loose and free in the air below him. He is NEVER tied, roped, strapped, "
+  "harnessed or bandaged to the stick. He NEVER grips it with his feet or paws, never "
+  "stands on it, never sits on it, and never rides on a bird's back. His mouth is FULL: "
+  "that is the entire point of the story."
+)
+
 NEG = ("text, letters, captions, subtitles, watermark, logo, signature, frame, border, "
        "photorealism, 3D render, live action, scary, teeth, blood, violence, dead animal, "
-       "human crowd close-up, distorted anatomy, extra limbs")
+       "human crowd close-up, distorted anatomy, extra limbs, "
+       # the three continuity failures that got the first cut rejected
+       "tortoise tied to a stick, rope, harness, straps, bandage, tortoise holding a stick "
+       "with its feet, tortoise standing on a stick, tortoise riding on a bird, "
+       "blue feathers, crested bird, grey bird, fairytale castle, pointed turrets, "
+       "giant tortoise, tiny tortoise, inconsistent character sizes")
 
 # ------------------------------------------------------------- the shot list -
 # `seg` is the narration segment each shot serves (the story's scene index, or
@@ -140,11 +181,14 @@ SHOTS_LIST = [
             "excitedly behind it. A few sparkles pop in the air above him."),
 
   dict(id='04', seg=3, frame=
-       "The three of them in a row on the dry lake bed. Each bird holds one end of the straight "
-       "stick in its beak; the tortoise stands underneath at the middle of the stick, looking up "
-       "at it. The birds' eyes are serious and kind. Late afternoon light, long soft shadows.",
-       move="Slow steady hold with a very gentle push in. Each bird takes an end of the stick. "
-            "One bird looks straight down at the tortoise and gives one slow, serious nod."),
+       "The three of them in a row on the dry lake bed, the stick held level between the two "
+       "birds -- each bird's beak closed on one end of it. The small tortoise stands underneath "
+       "the middle of the stick with his head tipped back, looking straight up at the wood just "
+       "above him, mouth slightly open, about to take hold of it. The birds are twice his height. "
+       "Their eyes are serious and kind. Late afternoon light, long soft shadows.",
+       move="Slow steady hold with a very gentle push in. The tortoise reaches up and closes his "
+            "jaws on the middle of the stick. One bird looks straight down at him and gives one "
+            "slow, serious nod. Nobody ties anything to anything."),
 
   # 05a, second pass. The first take let the group shrink to specks against a huge red
   # sunburst -- Veo will happily zoom out of your subject if the move says "rises out of
@@ -158,18 +202,23 @@ SHOTS_LIST = [
             "Below, the small blurred tortoise nods."),
 
   dict(id='05a', seg=4, frame=
-       "Take-off, seen close and from the side. The two white birds fill the frame, wings "
-       "spread wide and beating, the straight stick held between their beaks, and the little "
-       "tortoise large and clear in the middle of the frame hanging from the stick by his "
-       "mouth, legs tucked in, eyes wide with wonder. The cracked lake bed just below them. "
-       "Warm marigold and gold sky, soft cream clouds. Not red, not orange.",
+       "Take-off, seen close and from the side. The two plain white birds fill the frame, "
+       "wings spread wide and beating, each beak closed on one end of the straight stick. The "
+       "small tortoise HANGS FROM THE MIDDLE OF THE STICK BY HIS MOUTH -- jaws clamped on the "
+       "wood, the stick clearly between his lips, his four short legs dangling loose in the air "
+       "beneath him, nothing tying him on. Eyes wide with wonder. He is half the height of a "
+       "bird. The cracked lake bed just below. Warm marigold and gold sky, cream clouds. Not "
+       "red, not orange.",
        move="The two birds beat their wings and climb; the camera rises with them and stays "
-            "close, so the birds and the tortoise stay large in frame the whole time. "
-            "Keep the marigold-and-gold palette. Do not zoom out."),
+            "close, so the birds and the tortoise stay large in frame the whole time. The "
+            "tortoise stays hanging by his mouth with his legs swinging loose. Keep the "
+            "marigold-and-gold palette. Do not zoom out."),
   dict(id='05b', seg=4, frame=
-       "High wide aerial shot from behind and slightly above: the two birds and the dangling "
-       "tortoise fly over patchwork green and gold fields, a dusty road, mango trees, and the "
-       "small pink walled town ahead. Sunburst rays across a big ochre sky.",
+       "High wide aerial shot from behind and slightly above: the two plain white birds fly "
+       "side by side with the stick level between their beaks, and the small tortoise hangs from "
+       "the middle of it by his mouth, legs dangling free. Below them, patchwork green and gold "
+       "fields, a dusty road, mango trees, and the low pink-sandstone walled town ahead. Sunburst "
+       "rays across a big ochre sky.",
        move="Smooth flying camera following behind them. Wings beat steadily. The landscape "
             "slides underneath. The tortoise's legs swing gently."),
 
@@ -186,17 +235,24 @@ SHOTS_LIST = [
             "doorways and point upward. The camera never descends into the street and never "
             "moves close to anyone's face."),
   dict(id='06b', seg=5, frame=
-       "Close on the tortoise hanging from the stick against the gold sky, his eyes narrowing, "
-       "his cheeks going a hot pink, indignation rising in his face. The two birds' wings frame "
-       "him on either side.",
-       move="Slow push in on the tortoise's face. His eyes narrow, his cheeks flush deeper pink, "
-            "and he begins, very slowly, to look like someone who is about to speak."),
+       "Close on the tortoise hanging from the stick against the gold sky. THE STICK IS IN "
+       "HIS MOUTH, gripped crosswise between closed jaws, running left and right out of frame to "
+       "the two birds; his four legs hang loose below him. His eyes narrow and his cheeks go a "
+       "hot pink with rising indignation. The two birds are plain white -- white heads, white "
+       "wings, no crest, no blue -- and only their inner wings and beak-tips show at the edges "
+       "of frame.",
+       move="Slow push in on the tortoise's face. The stick stays clamped in his closed jaws the "
+            "whole time. His eyes narrow, his cheeks flush deeper pink, and he begins, very "
+            "slowly, to look like someone who is about to speak but cannot."),
 
   dict(id='07', seg=6, frame=
-       "The tortoise's mouth wide open in a great shout, the stick already an inch away from his "
-       "jaws and starting to slip. Both birds' eyes go round with alarm. Bright gold sky.",
-       move="The tortoise opens his mouth in a huge shout. The stick slips free and floats up out "
-            "of frame. The two birds turn their heads sharply. Cut on the movement."),
+       "The instant after the shout: the tortoise's mouth is wide open and EMPTY, and the "
+       "stick he was biting is now a hand's width above his open jaws, no longer touching him, "
+       "still held at both ends by the two plain white birds. He is beginning to drop away from "
+       "it. Both birds' eyes go round with alarm. Bright gold sky.",
+       move="The tortoise's open mouth is already empty; the stick lifts away above him as he "
+            "drops back out of the bottom of frame. The two birds turn their heads sharply after "
+            "him. Cut on the movement."),
 
   dict(id='08', seg=7, frame=
        "A wide empty gold sky with the two white birds circling slowly, looking down, and one "
@@ -251,8 +307,8 @@ def make_frame(shot, force=False):
     if os.path.exists(path) and not force:
         return path, 'cached'
     parts = [inline(p) for p in REFS]
-    parts.append({'text': LOOK + '\n\nDraw this single frame:\n' + shot['frame'] +
-                          '\n\nAvoid: ' + NEG})
+    parts.append({'text': LOOK + CONTINUITY + '\n\nDraw this single frame:\n' +
+                          shot['frame'] + '\n\nAvoid: ' + NEG})
     for attempt in range(3):
         try:
             r = post('%s/models/%s:generateContent' % (API, IMAGE_MODEL),
@@ -282,7 +338,11 @@ def make_shot(shot, force=False):
         return None, 'no first frame'
     prompt = ("Children's 2D cartoon animation, hand-drawn storybook feel, smooth and gentle. "
               + shot['move'] +
-              " Hold the exact art style, colours and character designs of the first frame. "
+              " Hold the exact art style, colours, character designs AND RELATIVE SIZES of "
+              "the first frame for the whole shot -- the tortoise must not grow or shrink "
+              "against the birds. If the stick is in shot, his jaws stay closed on it and "
+              "his legs hang free; he is not tied to it and does not hold it with his feet. "
+              "The birds stay plain white with no crest and no coloured feathers. "
               "No dialogue, no voiceover, no singing, no on-screen text.")
     body = {'instances': [{'prompt': prompt,
                            'image': {'bytesBase64Encoded':

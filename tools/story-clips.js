@@ -15,6 +15,19 @@ const all = ['IND_STORIES','IND_STORIES_REGIONAL','IND_STORIES_MORE','IND_STORIE
 const slug = s => String(s).replace(/[^a-z0-9]+/gi, '-').toLowerCase().replace(/^-|-$/g, '').slice(0, 60);
 const out = [];
 all.forEach(s => {
+  /* HOOK AND MORAL BELONG IN THIS LIST, and their absence caused a real bug.
+     They were narrated once, early, by the American voice. Then the whole library was
+     re-narrated by the Indian narrator (en-IN-Chirp3-HD-Laomedeia) -- driven by THIS
+     list, which did not mention them -- so 646 clips silently kept the old accent while
+     every scene around them changed. Nothing in the app noticed because the app renders
+     hook and moral as TEXT and never plays them; the mismatch only surfaced when
+     tools/veo-story.py used them for a video and a listener heard the film change voice
+     at the end.
+
+     The header above says these keys mirror exactly what the reader asks for. It was
+     two keys per story short of true. */
+  if (s.hook)  out.push({ key: 'st/' + slug(s.id) + '-hook',  text: s.hook,  lang: 'en-US' });
+  if (s.moral) out.push({ key: 'st/' + slug(s.id) + '-moral', text: s.moral, lang: 'en-US' });
   (s.scenes || []).forEach((sc, i) => {
     if (sc.text) out.push({ key: 'st/' + slug(s.id) + '-' + i, text: sc.text, lang: 'en-US' });
     if (sc.ask && sc.ask.q) out.push({ key: 'st/' + slug(s.id) + '-' + i + '-q', text: sc.ask.q, lang: 'en-US' });

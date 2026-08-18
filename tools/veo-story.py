@@ -551,8 +551,19 @@ def assemble():
                     '-profile:v', 'high', '-pix_fmt', 'yuv420p',
                     '-c:a', 'aac', '-b:a', '192k', '-ac', '2',
                     '-shortest', '-movflags', '+faststart', final], check=True)
-    print('\n%s  —  %.1fs, %.1f MB' % (final, probe_seconds(final),
-                                       os.path.getsize(final) / 1e6))
+    # A PREVIEW ALONGSIDE THE MASTER. The master is the thing that goes to YouTube and it
+    # is deliberately big; it is also too big to send to anyone through most chat or mail,
+    # which is how a finished film ends up unwatched by the person who asked for it. 720p
+    # at 2.2 Mbps holds up fine for flat cel animation and lands comfortably under 30 MB.
+    prev = os.path.join(OUT, 'bizzing-india-kambugriva-preview.mp4')
+    subprocess.run([FFMPEG, '-y', '-loglevel', 'error', '-i', final,
+                    '-vf', 'scale=1280:720:flags=lanczos',
+                    '-c:v', 'libx264', '-b:v', '2200k', '-maxrate', '2600k', '-bufsize', '4400k',
+                    '-preset', 'slow', '-pix_fmt', 'yuv420p',
+                    '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', prev], check=True)
+
+    for f, what in ((final, 'master  '), (prev, 'preview ')):
+        print('%s %s  —  %.1fs, %.1f MB' % (what, f, probe_seconds(f), os.path.getsize(f) / 1e6))
     return 0
 
 

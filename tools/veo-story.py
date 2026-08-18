@@ -346,7 +346,7 @@ SHOTS_LIST = [
        # the stick had fallen out below his chin. The shout is shot 07's job; this shot is
        # only the pressure before it, and the way to get pressure is to say what must NOT
        # move. (The bad tail happened to sit outside the trim, which is luck, not a fix.)
-       end='His eyes have narrowed further and the blush on his cheeks is deeper and hotter. THE STICK IS STILL CLAMPED IN HIS CLOSED JAWS -- his mouth has NOT opened, no teeth show, and his face is still round and soft. Only the eyes and the blush have changed.',
+       end="THE CAMERA HAS NOT MOVED AT ALL: identical tight framing, the tortoise the same size in frame, the two birds' bodies still filling the left and right edges exactly as before. Do not zoom out, do not widen, do not show the landscape. The ONLY changes: his eyes have narrowed further and the blush on his cheeks is deeper and hotter. The stick is still clamped in his CLOSED jaws -- his mouth has NOT opened, no teeth show, his face is still round and soft, and his eyes are still open.",
        move="Slow push in on the tortoise's face. HIS MOUTH NEVER OPENS IN THIS SHOT: the "
             "stick stays clamped in closed jaws from the first frame to the last, lips shut "
             "around the wood, no teeth ever visible, no shouting. Everything happens in the "
@@ -376,7 +376,7 @@ SHOTS_LIST = [
        "Calm closing image: the same lake full of blue water again at sunset, reeds green, two "
        "white birds standing quietly at the water's edge looking out, and one empty warm flat "
        "stone beside them. Deep gold and indigo evening sky, first stars.",
-       end='The sky has deepened from gold towards indigo and more stars have come out. The two birds have settled closer together beside the empty stone. Nothing else has changed.',
+       end='EXACTLY TWO BIRDS, the same two tall standing birds as in the opening frame -- same size, same long legs, same long orange beaks, standing on the shore beside the empty flat stone. No third bird appears. They do not become small round ducklings and they do not sit down. The camera has not moved. The ONLY changes: the sky has deepened from gold towards indigo and a few more stars have come out.',
        move="Very slow push in on the two birds and the empty stone as the sky deepens from gold "
             "to indigo and the first stars appear."),
 ]

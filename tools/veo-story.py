@@ -216,6 +216,7 @@ SHOTS_LIST = [
        "tortoise sits on a flat warm stone at the water's edge, mouth open mid-chatter, and two "
        "white long-beaked birds stand on either side of him listening with fond patience. "
        "The walled pink town is small and far away on the horizon. Big open sky.",
+       end="The camera has moved very slightly closer. The tortoise's mouth is open a little wider mid-chatter and one front paw is raised; the two birds have turned their heads a little towards each other. Nothing else has moved.",
        move="Very slow push in towards the three friends. Reeds sway. Water sparkles. "
             "The tortoise chatters happily; the two birds exchange an amused look."),
 
@@ -223,12 +224,14 @@ SHOTS_LIST = [
        "The tortoise on his stone at the lake edge, talking and talking, front paws lifted in "
        "mid-explanation. The two white birds sit close, heads tilted, one with a wing over the "
        "other. Dragonflies over the water. Warm midday light.",
+       end='The tortoise has both front paws up mid-explanation and his eyes are shut in delight. The two birds have leaned their heads together, looking at each other with amusement.',
        move="Slow drift left to right. The tortoise talks without stopping, gesturing with both "
             "front paws; the birds nod along, then glance at each other and softly laugh."),
   dict(id='01b', seg=0, frame=
        "Closer three-quarter view of the tortoise ALONE on his stone, mid-sentence, cheeks "
        "round, eyes bright, front paws lifted mid-explanation. Behind him only the gold water "
        "and the reeds -- NO BIRDS IN THIS SHOT AT ALL.",
+       end="The tortoise's mouth is open wider, both paws raised, eyes crinkled shut with enthusiasm. He is still alone in frame.",
        move="Gentle push in on the tortoise as he keeps talking and talking, blinking between "
             "words, paws gesturing. He is the only character in frame; no bird enters."),
 
@@ -236,6 +239,7 @@ SHOTS_LIST = [
        "The same lake, now shrunk to a small brown puddle in a wide bed of cracked dry mud. "
        "The reeds are yellow and bent. The tortoise stands small in the middle of the cracks; "
        "the two birds stand with him, looking down at him with worry. Hot pale sky, no clouds.",
+       end='The dust has drifted a little further across the cracked bed and the two birds have both turned their heads down towards the tortoise between them.',
        move="Slow pull back to reveal how much lake is gone. Dust drifts across. One bird looks "
             "up at the sky, then down at the tortoise, and gently lowers its head."),
 
@@ -246,6 +250,7 @@ SHOTS_LIST = [
        "Close on the two white birds standing on the cracked mud, heads together, looking down "
        "at the little tortoise between their feet with worry in their big brown eyes. Behind "
        "them the last brown puddle and bent yellow reeds. Hot pale sky.",
+       end='Both birds have lowered their heads further towards the tortoise; one has turned its face up to the empty sky. The tortoise looks smaller and more downcast between them.',
        move="The two birds lean their heads together and look down at the tortoise, then one "
             "lifts its head to the empty sky and back down again. Dust drifts past."),
 
@@ -254,6 +259,7 @@ SHOTS_LIST = [
        "high, eyes enormous and delighted, a bright idea-sparkle above his head. A slim straight "
        "brown stick lies on the cracked ground in front of him. NO BIRDS IN THIS SHOT AT ALL -- "
        "the idea is his and he is the only character in frame.",
+       end='The tortoise has both front paws in the air and his eyes are wide open with delight; two more sparkles have appeared above his shell. He is still alone in frame.',
        move="Quick little push in as the tortoise throws a paw in the air and bounces on the "
             "spot, thrilled with himself. Sparkles pop above his shell. He is alone in frame."),
 
@@ -261,6 +267,7 @@ SHOTS_LIST = [
        "Low close view along the dry ground: a slim straight brown stick lying in the dust, "
        "and behind it, slightly out of focus, the little tortoise up on his back legs with "
        "both front paws in the air, delighted with himself. Warm gold light, long shadows.",
+       end='The camera has moved closer along the ground so the stick fills more of the foreground; behind it the tortoise has both paws raised, bouncing.',
        move="Slow push in along the ground towards the stick as the tortoise bounces "
             "excitedly behind it. A few sparkles pop in the air above him."),
 
@@ -270,6 +277,7 @@ SHOTS_LIST = [
        "the middle of the stick with his head tipped back, looking straight up at the wood just "
        "above him, mouth slightly open, about to take hold of it. The birds are twice his height. "
        "Their eyes are serious and kind. Late afternoon light, long soft shadows.",
+       end="The tortoise has CLOSED HIS JAWS ON THE MIDDLE OF THE STICK -- the wood is between his lips, held level between the two birds' beaks, and his front feet have just left the ground so his legs hang. One bird has dipped its head in a slow nod.",
        move="Slow steady hold with a very gentle push in. The tortoise reaches up and closes his "
             "jaws on the middle of the stick. One bird looks straight down at him and gives one "
             "slow, serious nod. Nobody ties anything to anything."),
@@ -282,6 +290,7 @@ SHOTS_LIST = [
        "Very close on one white bird's face in profile, the stick held firmly in its beak, its "
        "large brown eye turned down and serious. The little tortoise is small and out of focus "
        "below, looking up. Late afternoon gold.",
+       end="The bird's eye has closed in a slow blink; the stick is still gripped firmly across its beak. The small tortoise below has tipped his head up in a nod.",
        move="Hold close on the bird's serious eye as it looks down. It blinks once, slowly. "
             "Below, the small blurred tortoise nods."),
 
@@ -293,6 +302,7 @@ SHOTS_LIST = [
        "beneath him, nothing tying him on. Eyes wide with wonder. He is half the height of a "
        "bird. The cracked lake bed just below. Warm marigold and gold sky, cream clouds. Not "
        "red, not orange.",
+       end="The three of them have risen higher: the birds' wings are at the top of a beat and the cracked ground is further below. The tortoise still hangs from the middle of the stick by his closed jaws with his four legs dangling loose.",
        move="The two birds beat their wings and climb; the camera rises with them and stays "
             "close, so the birds and the tortoise stay large in frame the whole time. The "
             "tortoise stays hanging by his mouth with his legs swinging loose. Keep the "
@@ -303,6 +313,7 @@ SHOTS_LIST = [
        "the middle of it by his mouth, legs dangling free. Below them, patchwork green and gold "
        "fields, a dusty road, mango trees, and the low pink-sandstone walled town ahead. Sunburst "
        "rays across a big ochre sky.",
+       end="The landscape below has slid past so the walled town is nearer and larger. The birds' wings are on the downbeat. The tortoise still hangs from the middle of the stick by his closed jaws, legs dangling, exactly as before.",
        move="Smooth flying camera following behind them. Wings beat steadily and the landscape "
             "slides underneath. Kambugriva stays BELOW THE STICK and BETWEEN the two birds the "
             "whole time, hanging by his mouth with his legs swinging gently in open air. He "
@@ -319,6 +330,7 @@ SHOTS_LIST = [
        "figures in different bright colours, different ages, along the street and in doorways, "
        "several with an arm raised towards the birds. Terracotta rooftops, a neem tree, a well. "
        "Faces are tiny and not detailed. Warm marigold light.",
+       end='The flying group has crossed further along the sky and more small figures have come out into the street below with their arms raised towards them.',
        move="A slow, steady, HIGH drift across the rooftops as the flying group crosses the sky "
             "above. The little figures come out of doorways and point up at them. The camera "
             "never descends into the street and never moves close to anyone's face."),
@@ -334,6 +346,7 @@ SHOTS_LIST = [
        # the stick had fallen out below his chin. The shout is shot 07's job; this shot is
        # only the pressure before it, and the way to get pressure is to say what must NOT
        # move. (The bad tail happened to sit outside the trim, which is luck, not a fix.)
+       end='His eyes have narrowed further and the blush on his cheeks is deeper and hotter. THE STICK IS STILL CLAMPED IN HIS CLOSED JAWS -- his mouth has NOT opened, no teeth show, and his face is still round and soft. Only the eyes and the blush have changed.',
        move="Slow push in on the tortoise's face. HIS MOUTH NEVER OPENS IN THIS SHOT: the "
             "stick stays clamped in closed jaws from the first frame to the last, lips shut "
             "around the wood, no teeth ever visible, no shouting. Everything happens in the "
@@ -346,6 +359,7 @@ SHOTS_LIST = [
        "stick he was biting is now a hand's width above his open jaws, no longer touching him, "
        "still held at both ends by the two plain white birds. He is beginning to drop away from "
        "it. Both birds' eyes go round with alarm. Bright gold sky.",
+       end='He has dropped clear of the stick: his mouth is wide open in a shout, the stick is now well above him still held at both ends by the two birds, and he has fallen to the lower part of the frame. His eyes are wide with alarm -- he is NOT smiling. Both birds have turned their heads sharply down after him.',
        move="The tortoise's open mouth is already empty; the stick lifts away above him as he "
             "drops back out of the bottom of frame. The two birds turn their heads sharply after "
             "him. Cut on the movement."),
@@ -354,6 +368,7 @@ SHOTS_LIST = [
        "A wide empty gold sky with the two white birds circling slowly, looking down, and one "
        "small brown stick tumbling end over end far below them. No ground, no tortoise, just sky "
        "and the two birds and the falling stick.",
+       end='The two birds have circled a little further apart and the small brown stick has tumbled further down and become smaller. The sky is otherwise empty and still.',
        move="Very slow drift as the two birds circle and look down. The stick tumbles away and "
             "gets smaller. The sky is wide and quiet. Nothing else happens."),
 
@@ -361,6 +376,7 @@ SHOTS_LIST = [
        "Calm closing image: the same lake full of blue water again at sunset, reeds green, two "
        "white birds standing quietly at the water's edge looking out, and one empty warm flat "
        "stone beside them. Deep gold and indigo evening sky, first stars.",
+       end='The sky has deepened from gold towards indigo and more stars have come out. The two birds have settled closer together beside the empty stone. Nothing else has changed.',
        move="Very slow push in on the two birds and the empty stone as the sky deepens from gold "
             "to indigo and the first stars appear."),
 ]
@@ -424,6 +440,58 @@ def make_frame(shot, force=False):
     return None, 'gave up'
 
 
+def make_end_frame(shot, force=False):
+    """The frame each shot must ARRIVE at, drawn from its own start frame.
+
+    THIS IS THE FIX FOR CONTINUITY, and it is structural rather than another adjective.
+    Every shot so far was generated from ONE pinned frame and then left to invent eight
+    seconds with nothing holding the far end. So the far end drifted, every time and in
+    the same ways: the stick worked loose from the beaks and floated on its own, the bite
+    became a hold, the geese quietly re-rolled into different birds, and a tortoise falling
+    out of the sky was still smiling.
+
+    Veo takes a `lastFrame`. Given both ends it interpolates between them, so the drift has
+    nowhere to accumulate -- whatever happens in the middle, the shot ARRIVES where it was
+    told to.
+
+    The end frame is drawn from the shot's OWN start frame (passed as the last reference,
+    plus the model sheet), so it is the same scene at a later moment rather than a second
+    guess at the scene. `shot['end']` only has to say what CHANGED.
+    """
+    path = os.path.join(FRAMES, shot['id'] + '-b.png')
+    if os.path.exists(path) and not force:
+        return path, 'cached'
+    start = os.path.join(FRAMES, shot['id'] + '.png')
+    if not os.path.exists(start):
+        return None, 'no start frame'
+    parts = [inline(p) for p in refs()] + [inline(start)]
+    parts.append({'text':
+        LOOK + CONTINUITY +
+        "\n\nThe LAST reference image is the OPENING FRAME of this shot. Redraw that exact "
+        "same scene -- same characters, same composition, same camera, same background, same "
+        "colours, same style -- a few seconds later in time. Only this has changed:\n" +
+        shot['end'] +
+        "\n\nEverything not named above is IDENTICAL to the opening frame. This is the same "
+        "shot a moment later, not a new picture.\n\nAvoid: " + NEG})
+    for attempt in range(3):
+        try:
+            r = post('%s/models/%s:generateContent' % (API, IMAGE_MODEL),
+                     {'contents': [{'role': 'user', 'parts': parts}],
+                      'generationConfig': {'responseModalities': ['TEXT', 'IMAGE'],
+                                           'imageConfig': {'aspectRatio': '16:9'}}})
+            for c in r.get('candidates', []):
+                for part in c.get('content', {}).get('parts', []):
+                    if 'inlineData' in part:
+                        open(path, 'wb').write(base64.b64decode(part['inlineData']['data']))
+                        return path, 'drawn'
+            return None, 'no image in response'
+        except urllib.error.HTTPError as e:
+            if attempt == 2:
+                return None, 'HTTP %d %s' % (e.code, e.read().decode()[:200])
+            time.sleep(4 * (attempt + 1))
+    return None, 'gave up'
+
+
 # -------------------------------------------------------------- the 8s clips -
 def make_shot(shot, force=False):
     out = os.path.join(SHOTS, shot['id'] + '.mp4')
@@ -441,10 +509,17 @@ def make_shot(shot, force=False):
               "The birds keep one design all through -- plump round body, short thick neck, long "
               "straight orange beak, plain white, no crest and no coloured feathers. "
               "No dialogue, no voiceover, no singing, no on-screen text.")
-    body = {'instances': [{'prompt': prompt,
-                           'image': {'bytesBase64Encoded':
-                                     base64.b64encode(open(frame, 'rb').read()).decode(),
-                                     'mimeType': 'image/png'}}],
+    inst = {'prompt': prompt,
+            'image': {'bytesBase64Encoded': base64.b64encode(open(frame, 'rb').read()).decode(),
+                      'mimeType': 'image/png'}}
+    # BOTH ENDS PINNED. Without this the shot has eight unconstrained seconds to wander in
+    # and it always used them. (4-second shots would bound it further but the API only
+    # allows 4s at 720p, and this film is a 1080p deliverable.)
+    end = os.path.join(FRAMES, shot['id'] + '-b.png')
+    if os.path.exists(end):
+        inst['lastFrame'] = {'bytesBase64Encoded': base64.b64encode(open(end, 'rb').read()).decode(),
+                             'mimeType': 'image/png'}
+    body = {'instances': [inst],
             'parameters': {'aspectRatio': '16:9', 'durationSeconds': 8,
                            'resolution': '1080p', 'negativePrompt': NEG}}
     try:
@@ -770,6 +845,14 @@ def main(argv):
         print('drawing %d first frames (%s)...' % (len(todo), IMAGE_MODEL), flush=True)
         with cf.ThreadPoolExecutor(max_workers=4) as ex:
             for s, (p, how) in zip(todo, ex.map(lambda s: make_frame(s, force), todo)):
+                print('  %-4s %s' % (s['id'], how if p else 'FAILED: ' + how), flush=True)
+                if not p:
+                    rc = 1
+
+    if do_all or '--frames' in argv or '--endframes' in argv:
+        print('\ndrawing %d end frames...' % len(todo), flush=True)
+        with cf.ThreadPoolExecutor(max_workers=4) as ex:
+            for s, (p, how) in zip(todo, ex.map(lambda s: make_end_frame(s, force), todo)):
                 print('  %-4s %s' % (s['id'], how if p else 'FAILED: ' + how), flush=True)
                 if not p:
                     rc = 1

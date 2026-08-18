@@ -58,9 +58,76 @@ STORY = 'pt.talkative-tortoise'
 VOICE = os.path.join(APP, 'voice', 'st')
 SLUG = 'pt-talkative-tortoise'
 
-REFS = [os.path.join(APP, 'art', 'pt_tortoise.png'),
-        os.path.join(APP, 'art', 'pt_heron.png'),
-        os.path.join(APP, 'art', 'story', SLUG + '.jpg')]
+REFS_BASE = [os.path.join(APP, 'art', 'pt_tortoise.png'),
+             os.path.join(APP, 'art', 'pt_heron.png'),
+             os.path.join(APP, 'art', 'story', SLUG + '.jpg')]
+
+
+def refs():
+    """The reference images every frame call carries. The model sheet goes LAST so it is
+    the most recent thing the model saw before the instruction, and it is the one that
+    settles scale and the bird's body -- the two things prose kept failing to hold."""
+    sheet = os.path.join(FRAMES, 'charsheet.png')
+    return REFS_BASE + ([sheet] if os.path.exists(sheet) else [])
+
+# ------------------------------------------------------------ the model sheet --
+# WHY THIS EXISTS. Prose cannot hold a character. Two rounds of increasingly precise
+# wording -- a size multiplier, then a knee-height landmark, then a six-bullet
+# description of the bird's body -- still produced an egret in one shot, a goose in the
+# next and a crane in a third, with the tortoise sometimes taller than both.
+#
+# This is a solved problem in animation and the solution is not adjectives: it is a
+# MODEL SHEET. One picture of the cast standing together, drawn once, then handed to
+# every subsequent frame as a reference. The model does not have to interpret "twice his
+# height" or "a short thick neck" -- it can see them, together, in the film's own style.
+#
+# So the sheet is generated first from the app's sticker art, checked once by eye, and
+# then joined to REFS for every frame call. It is cached like everything else; delete
+# build/video/frames/charsheet.png to redraw it.
+CHARSHEET_PROMPT = (
+  "A CHARACTER MODEL SHEET for a children's cartoon, on a plain flat cream background. "
+  "Draw the two characters from reference images 1 and 2, FULL BODY, standing side by "
+  "side on the same flat ground line, in the same scene, at their true relative sizes.\n"
+  "LEFT: the small green tortoise from reference image 1 -- round domed shell, short legs, "
+  "very large dark-brown eyes, pink blush cheeks, gentle closed smile.\n"
+  "RIGHT: the white bird from reference image 2 -- plump rounded oval body, small folded "
+  "wing, short thick neck, large round head, big dark-brown eyes, pink blush cheek, one "
+  "long straight orange beak about as long as its head, two thin orange legs. Plain white "
+  "all over: no crest, no plume, no blue or grey feathers, no dark ring round the eyes.\n"
+  "THE SIZE RELATIONSHIP IS THE POINT OF THIS DRAWING: the top of the tortoise's shell "
+  "reaches only as high as the BIRD'S KNEE, the bend halfway up its leg. The bird's body "
+  "begins above the tortoise's head and its head is far above that again.\n"
+  "Style: flat cel shading, thick soft warm-brown outlines, light paper grain, the warm "
+  "palette of reference image 3. No text, no labels, no arrows, no border, no background "
+  "scenery -- just the two characters on cream."
+)
+
+
+def make_charsheet(force=False):
+    """Draw the cast together once, and use it as a reference for everything after."""
+    path = os.path.join(FRAMES, 'charsheet.png')
+    if os.path.exists(path) and not force:
+        return path, 'cached'
+    parts = [inline(p) for p in REFS_BASE]
+    parts.append({'text': CHARSHEET_PROMPT + '\n\nAvoid: ' + NEG})
+    for attempt in range(3):
+        try:
+            r = post('%s/models/%s:generateContent' % (API, IMAGE_MODEL),
+                     {'contents': [{'role': 'user', 'parts': parts}],
+                      'generationConfig': {'responseModalities': ['TEXT', 'IMAGE'],
+                                           'imageConfig': {'aspectRatio': '16:9'}}})
+            for c in r.get('candidates', []):
+                for part in c.get('content', {}).get('parts', []):
+                    if 'inlineData' in part:
+                        open(path, 'wb').write(base64.b64decode(part['inlineData']['data']))
+                        return path, 'drawn'
+            return None, 'no image in response'
+        except urllib.error.HTTPError as e:
+            if attempt == 2:
+                return None, 'HTTP %d %s' % (e.code, e.read().decode()[:200])
+            time.sleep(4 * (attempt + 1))
+    return None, 'gave up'
+
 
 # ---------------------------------------------------------------- the look --
 # One paragraph, prepended to every frame prompt, so twelve shots come out of one
@@ -98,13 +165,28 @@ LOOK = (
 #
 # None of these are style notes. Each one is load-bearing for the story.
 CONTINUITY = (
-  "\n\nCONTINUITY -- these are fixed facts of this film and override anything else:\n"
-  "SIZE: a bird standing is about TWICE the tortoise's height. The tortoise's shell is "
-  "roughly as wide as a bird's body. He is a small round tortoise beside two tall slender "
-  "birds, and that ratio is identical in every shot, near or far.\n"
-  "THE BIRDS: plain WHITE all over -- white head, white neck, white wings, white tail. "
-  "No crest, no plume, no blue or grey or coloured feathers anywhere. Orange beak, orange "
-  "legs. Both birds look the same as each other.\n"
+  "\n\nCONTINUITY -- these are fixed facts of this film and override anything else. "
+  "The LAST reference image is the CHARACTER MODEL SHEET: it shows the two characters "
+  "together at their correct relative sizes and with the bird's correct body. Match it "
+  "exactly -- it outranks every other reference for size and for the bird's shape.\n"
+  "SIZE -- use the LANDMARK, not a multiplier. Standing side by side on flat ground, the "
+  "top of Kambugriva's shell comes up only to the BIRD'S KNEE -- the bend halfway up its "
+  "leg. The bird's body starts above his head and its head is far above him again. He is a "
+  "small low round tortoise beside two tall slender birds. He is NEVER as tall as a bird's "
+  "body and NEVER taller than a bird. In a close shot both are simply nearer the camera; "
+  "their size against EACH OTHER never changes, in any shot, near or far.\n"
+  "THE BIRDS -- one design, drawn from reference image 2, and it does not vary. They came "
+  "back as an egret in one shot, a goose in the next and a long-necked crane in a third, "
+  "so the FORM is fixed here as tightly as the colour:\n"
+  "  * a plump rounded oval body, small neat folded wing, short tail;\n"
+  "  * a SHORT thick neck -- not a long curving crane or swan neck;\n"
+  "  * a large round head with big dark-brown eyes and a small pink blush oval;\n"
+  "  * one long straight orange beak, roughly as long as the head, tapering to a point;\n"
+  "  * two thin orange legs with orange feet;\n"
+  "  * plain WHITE all over -- white head, white neck, white wings, white tail. No crest, "
+  "no plume, no blue or grey or coloured feathers anywhere, and no dark or coloured patch "
+  "or ring around the eyes.\n"
+  "The two birds are identical to each other and identical to themselves in every shot.\n"
   "THE TOWN: a low pink-sandstone Rajasthani fort -- rounded domes, square towers, flat "
   "walls. Never a European fairytale castle, never pointed turrets.\n"
   "THE STICK, whenever it appears: a plain straight brown stick. Each bird holds one END "
@@ -144,10 +226,11 @@ SHOTS_LIST = [
        move="Slow drift left to right. The tortoise talks without stopping, gesturing with both "
             "front paws; the birds nod along, then glance at each other and softly laugh."),
   dict(id='01b', seg=0, frame=
-       "Closer three-quarter view of the tortoise mid-sentence, cheeks round, eyes bright, the "
-       "two birds behind him in soft focus against the gold water.",
-       move="Gentle push in on the tortoise as he keeps talking, blinking between words. "
-            "One bird behind him yawns and settles down comfortably to wait."),
+       "Closer three-quarter view of the tortoise ALONE on his stone, mid-sentence, cheeks "
+       "round, eyes bright, front paws lifted mid-explanation. Behind him only the gold water "
+       "and the reeds -- NO BIRDS IN THIS SHOT AT ALL.",
+       move="Gentle push in on the tortoise as he keeps talking and talking, blinking between "
+            "words, paws gesturing. He is the only character in frame; no bird enters."),
 
   dict(id='02', seg=1, frame=
        "The same lake, now shrunk to a small brown puddle in a wide bed of cracked dry mud. "
@@ -167,11 +250,12 @@ SHOTS_LIST = [
             "lifts its head to the empty sky and back down again. Dust drifts past."),
 
   dict(id='03', seg=2, frame=
-       "The tortoise up on his back legs, one front paw raised high in the air, eyes enormous "
-       "and delighted, a bright idea-sparkle above his head. The two birds lean back, surprised. "
-       "A slim straight brown stick lies on the dry ground between them.",
+       "The tortoise ALONE on the dry lake bed, up on his back legs with one front paw raised "
+       "high, eyes enormous and delighted, a bright idea-sparkle above his head. A slim straight "
+       "brown stick lies on the cracked ground in front of him. NO BIRDS IN THIS SHOT AT ALL -- "
+       "the idea is his and he is the only character in frame.",
        move="Quick little push in as the tortoise throws a paw in the air and bounces on the "
-            "spot, thrilled with himself. Sparkles pop above his shell. The birds blink."),
+            "spot, thrilled with himself. Sparkles pop above his shell. He is alone in frame."),
 
   dict(id='03b', seg=2, frame=
        "Low close view along the dry ground: a slim straight brown stick lying in the dust, "
@@ -226,14 +310,15 @@ SHOTS_LIST = [
   # near-identical open mouths -- which is both ugly and against rule 6 of docs/14: the
   # people are ordinary and various, never a mass of one face. Stay high, keep them small.
   dict(id='06a', seg=5, frame=
-       "A high wide view looking down on a small sunlit village street from far above. The "
-       "people are SMALL in the frame -- a scattering of figures in different bright colours, "
-       "different ages, spread out along the street and in the doorways, a few with an arm "
-       "raised towards the sky. Terracotta rooftops, a neem tree, a well. Faces are tiny and "
-       "not detailed. Warm marigold light.",
-       move="A slow, steady, HIGH drift across the rooftops. The little figures come out of "
-            "doorways and point upward. The camera never descends into the street and never "
-            "moves close to anyone's face."),
+       "A high wide view looking down on a small sunlit village street from far above, with the "
+       "two white birds and the tortoise on their stick flying SMALL and clear across the upper "
+       "part of the sky above the rooftops. Below, the people are small -- a scattering of "
+       "figures in different bright colours, different ages, along the street and in doorways, "
+       "several with an arm raised towards the birds. Terracotta rooftops, a neem tree, a well. "
+       "Faces are tiny and not detailed. Warm marigold light.",
+       move="A slow, steady, HIGH drift across the rooftops as the flying group crosses the sky "
+            "above. The little figures come out of doorways and point up at them. The camera "
+            "never descends into the street and never moves close to anyone's face."),
   dict(id='06b', seg=5, frame=
        "Close on the tortoise hanging from the stick against the gold sky. THE STICK IS IN "
        "HIS MOUTH, gripped crosswise between closed jaws, running left and right out of frame to "
@@ -306,7 +391,7 @@ def make_frame(shot, force=False):
     path = os.path.join(FRAMES, shot['id'] + '.png')
     if os.path.exists(path) and not force:
         return path, 'cached'
-    parts = [inline(p) for p in REFS]
+    parts = [inline(p) for p in refs()]
     parts.append({'text': LOOK + CONTINUITY + '\n\nDraw this single frame:\n' +
                           shot['frame'] + '\n\nAvoid: ' + NEG})
     for attempt in range(3):
@@ -342,7 +427,8 @@ def make_shot(shot, force=False):
               "the first frame for the whole shot -- the tortoise must not grow or shrink "
               "against the birds. If the stick is in shot, his jaws stay closed on it and "
               "his legs hang free; he is not tied to it and does not hold it with his feet. "
-              "The birds stay plain white with no crest and no coloured feathers. "
+              "The birds keep one design all through -- plump round body, short thick neck, long "
+              "straight orange beak, plain white, no crest and no coloured feathers. "
               "No dialogue, no voiceover, no singing, no on-screen text.")
     body = {'instances': [{'prompt': prompt,
                            'image': {'bytesBase64Encoded':
@@ -638,6 +724,14 @@ def main(argv):
     force = '--force' in argv
     do_all = '--all' in argv
     rc = 0
+
+    if do_all or '--frames' in argv or '--charsheet' in argv:
+        p, how = make_charsheet(force or '--charsheet' in argv)
+        print('character model sheet: %s' % (how if p else 'FAILED: ' + how), flush=True)
+        if not p:
+            return 1
+        if '--charsheet' in argv and '--frames' not in argv and not do_all:
+            return 0
 
     if do_all or '--frames' in argv:
         print('drawing %d first frames (%s)...' % (len(todo), IMAGE_MODEL), flush=True)

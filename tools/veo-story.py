@@ -376,7 +376,7 @@ SHOTS_LIST = [
        "Calm closing image: the same lake full of blue water again at sunset, reeds green, two "
        "white birds standing quietly at the water's edge looking out, and one empty warm flat "
        "stone beside them. Deep gold and indigo evening sky, first stars.",
-       end='EXACTLY TWO BIRDS, the same two tall standing birds as in the opening frame -- same size, same long legs, same long orange beaks, standing on the shore beside the empty flat stone. No third bird appears. They do not become small round ducklings and they do not sit down. The camera has not moved. The ONLY changes: the sky has deepened from gold towards indigo and a few more stars have come out.',
+       end='THE CAMERA HAS NOT MOVED AT ALL: identical composition to the opening frame -- the lake in the same place and the same shape, the shore and reeds in the same places, the walled town on the SAME side of frame, the flat empty stone in the same spot. Do not swing the camera round, do not change the viewpoint, do not re-arrange the scenery. EXACTLY TWO birds, the same two, standing in the SAME position beside the stone and facing the same way as in the opening frame -- same plump white bodies, same short thick necks, same long straight orange beaks. No third bird. They do not become tall thin grey herons and they do not become small ducklings. The ONLY change in the whole picture: the sky has deepened from gold towards indigo and a few more stars have come out.',
        move="Very slow push in on the two birds and the empty stone as the sky deepens from gold "
             "to indigo and the first stars appear."),
 ]

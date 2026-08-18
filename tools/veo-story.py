@@ -303,8 +303,11 @@ SHOTS_LIST = [
        "the middle of it by his mouth, legs dangling free. Below them, patchwork green and gold "
        "fields, a dusty road, mango trees, and the low pink-sandstone walled town ahead. Sunburst "
        "rays across a big ochre sky.",
-       move="Smooth flying camera following behind them. Wings beat steadily. The landscape "
-            "slides underneath. The tortoise's legs swing gently."),
+       move="Smooth flying camera following behind them. Wings beat steadily and the landscape "
+            "slides underneath. Kambugriva stays BELOW THE STICK and BETWEEN the two birds the "
+            "whole time, hanging by his mouth with his legs swinging gently in open air. He "
+            "never touches a bird, never rests on a bird's back or wing, and never moves along "
+            "the stick."),
 
   # 06a, second pass. The first take pushed down into the crowd until it became a wall of
   # near-identical open mouths -- which is both ugly and against rule 6 of docs/14: the
@@ -326,9 +329,17 @@ SHOTS_LIST = [
        "hot pink with rising indignation. The two birds are plain white -- white heads, white "
        "wings, no crest, no blue -- and only their inner wings and beak-tips show at the edges "
        "of frame.",
-       move="Slow push in on the tortoise's face. The stick stays clamped in his closed jaws the "
-            "whole time. His eyes narrow, his cheeks flush deeper pink, and he begins, very "
-            "slowly, to look like someone who is about to speak but cannot."),
+       # HIS MOUTH DOES NOT OPEN IN THIS SHOT. Told to look "about to speak", Veo obliged --
+       # by second seven he had a wide open mouth, bared teeth and a strained grimace, and
+       # the stick had fallen out below his chin. The shout is shot 07's job; this shot is
+       # only the pressure before it, and the way to get pressure is to say what must NOT
+       # move. (The bad tail happened to sit outside the trim, which is luck, not a fix.)
+       move="Slow push in on the tortoise's face. HIS MOUTH NEVER OPENS IN THIS SHOT: the "
+            "stick stays clamped in closed jaws from the first frame to the last, lips shut "
+            "around the wood, no teeth ever visible, no shouting. Everything happens in the "
+            "eyes and cheeks -- the eyes narrow slowly and the blush deepens, so he looks "
+            "like someone holding something in. His face stays round, soft and appealing "
+            "throughout: never a grimace, never strained, never ugly."),
 
   dict(id='07', seg=6, frame=
        "The instant after the shout: the tortoise's mouth is wide open and EMPTY, and the "
@@ -441,10 +452,32 @@ def make_shot(shot, force=False):
     except urllib.error.HTTPError as e:
         return None, 'HTTP %d %s' % (e.code, e.read().decode()[:200])
     name = op['name']
+    # POLLING MUST SURVIVE THE NETWORK. A generation takes 90+ seconds and this loop asks
+    # about it every ten, so over sixteen shots it makes hundreds of requests -- and one
+    # of them will eventually be met with a dropped connection. Unguarded, that single
+    # RemoteDisconnected killed the whole run at shot fifteen of sixteen and threw away
+    # nothing except the one clip, which is the good news; the bad news was a traceback
+    # instead of a result. A transient read error is not a failed generation: the job is
+    # still running on their side, so wait and ask again.
+    misses = 0
     for _ in range(90):
         time.sleep(10)
-        req = urllib.request.Request('%s/%s' % (API, name), headers={'x-goog-api-key': key()})
-        o = json.load(urllib.request.urlopen(req, timeout=60))
+        try:
+            req = urllib.request.Request('%s/%s' % (API, name), headers={'x-goog-api-key': key()})
+            o = json.load(urllib.request.urlopen(req, timeout=60))
+        except urllib.error.HTTPError as e:
+            if e.code < 500:
+                return None, 'HTTP %d while polling: %s' % (e.code, e.read().decode()[:160])
+            misses += 1
+            if misses > 8:
+                return None, 'polling kept failing: HTTP %d' % e.code
+            continue
+        except Exception as e:                       # dropped socket, DNS blip, timeout
+            misses += 1
+            if misses > 8:
+                return None, 'polling kept failing: %s' % str(e)[:120]
+            continue
+        misses = 0
         if not o.get('done'):
             continue
         if 'error' in o:

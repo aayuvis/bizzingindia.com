@@ -220,7 +220,11 @@ look:
   `loudnorm=I=-14:TP=-1.5` hands the platform the target rather than arguing with it.
 - **Bitrate.** The segment files are CRF 18 at ~10.6 Mbps, which is well past the point
   where flat cel-shaded animation gains anything. The master goes out at CRF 20, 48 kHz
-  stereo, `+faststart`. About 90 seconds, 1920×1080, 24 fps.
+  stereo, `+faststart`.
+
+Episode one measured: **90.6s, 1920×1080 at 24 fps, 8.3 Mbps video, 96 MB, −15.0 LUFS
+integrated, −4.2 dBTP.** Well inside what YouTube wants for 1080p24 and loud enough to
+sit level with the feed around it.
 
 ### Three things that will bite
 

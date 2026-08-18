@@ -71,6 +71,12 @@ The short version:
 - **Folk art traditions are credited.** Named artist where commissioned; the tradition and
   region named always. Never uncredited texture.
 - **Never** put a real model identifier in commits, PRs, code, or any pushed artefact.
+- **Video published under the brand follows [docs/14-video-look-and-feel.md](docs/14-video-look-and-feel.md)**,
+  which is binding. Nothing on the channel is invented for the channel: the words, the
+  narration, the characters and the world all come out of the app, so a child who watches
+  a video and then opens the app meets the same tortoise. Generated lettering never
+  appears in a shot — titles are composited in the app's own type. Harm and death stay as
+  elliptical as the app's own telling; never make the video braver than the text.
 
 ## Architecture (planned)
 

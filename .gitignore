@@ -19,3 +19,8 @@ tools/.art-raw/
 __pycache__/
 *.pyc
 .shots/
+
+# Rendered video. The inputs are all in the repo (story text, narration, character art,
+# the story painting) and tools/veo-story.py rebuilds the film from them, so a hundred
+# megabytes of MP4 in git would only go stale the first time a line is re-recorded.
+build/

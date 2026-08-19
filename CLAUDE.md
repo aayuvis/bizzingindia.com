@@ -71,6 +71,12 @@ The short version:
 - **Folk art traditions are credited.** Named artist where commissioned; the tradition and
   region named always. Never uncredited texture.
 - **Never** put a real model identifier in commits, PRs, code, or any pushed artefact.
+- **No Veo videos. No generated motion at all for story films.** Films are composited
+  locally from generated sprites and plates — see
+  [docs/15-video-production-brief.md](docs/15-video-production-brief.md) §0. Generative
+  *image* models stay in the pipeline and draw the sprites, plates and model sheets;
+  generated *motion* is out, because a model with no scene cannot guarantee a structural
+  fact ("both geese are holding the stick") and four rounds proved it can only be asked for.
 - **Before starting video work on any Bizzing property, read
   [docs/15-video-production-brief.md](docs/15-video-production-brief.md).** It is written to
   be read cold and its first section is the one that costs money: generative video cannot

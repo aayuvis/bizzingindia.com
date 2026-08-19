@@ -9,7 +9,24 @@ for. Read section 1 before you spend anything.
 
 ---
 
-## 1. The decision, first, because it is the one that costs money
+## 0. The standing instruction
+
+> **Do not make Veo videos. Make them the way this project makes them now:**
+> **generated sprites and plates, composited locally, with the structural facts in the rig.**
+
+That is a decision, not a recommendation, and it applies to every Bizzing property. It was
+taken after four full rounds of generative video failed on a single eighty-seven-second
+film, and it was confirmed when the local approach produced a second film with one new rig
+primitive and no further surprises.
+
+If you are about to open a generative-video API for a story film, stop and read §1.
+
+Generative **image** models stay in the pipeline and are essential — they draw the sprites,
+the plates and the model sheet. It is generated **motion** that is out.
+
+---
+
+## 1. Why, in full, because it is the one that costs money
 
 **Do not use generative video (Veo, or any equivalent) for character-driven story films.**
 

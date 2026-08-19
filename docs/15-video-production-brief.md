@@ -185,8 +185,29 @@ A failure is an **exit code**, not something a person has to notice.
    because sixteen were generated and two were checked.
 6. **Author `scenes.json`.** Shots against narration segments.
 7. **Run the assertions** (`--check`) before rendering a single frame.
-8. **Render one shot**, look at it, then render the rest.
-9. **Sample the finished film across its length**, not just first-and-last frames.
+8. **Look at a still** (`still.js`, one paused frame, a second) for every shot you changed.
+   Assertions catch what you thought to assert; a still catches what you didn't.
+9. **Render one shot**, look at it, then render the rest.
+10. **Sample the finished film across its length**, not just first-and-last frames.
+
+### The thing that actually costs you: the gap between a fix and seeing it
+
+A twelve-shot film is ~45 minutes to render. On story two that wait, not any single bug,
+was the expensive part: notes came in, the fix went into `scenes.json` in a minute, and
+then a *previous* cut got shown because the new one wasn't out yet. From the outside that
+is indistinguishable from the note being ignored, and it was said out loud.
+
+Two things close the gap, and both belong in the pipeline from day one:
+
+* **Cache each shot on its own inputs** — its page, the art that page loads, its narration
+  length. One changed shot then costs one render, not twelve.
+* **Screenshot a paused frame** at the millisecond you care about. Almost every note is
+  about a single moment: where the bubble sits, who is facing where, what is touching
+  what. You do not need a video to answer any of them.
+
+And when you do show a cut, publish it to a **content-addressed URL**
+(`name-<hash8>.mp4`). A stable path served from cache is the other way to show someone
+yesterday's film while insisting it is today's.
 
 ---
 
@@ -310,6 +331,20 @@ killed. They came back from git.
 
 If a tool is destructive and cumulative, make the subset explicit and say out loud when it
 is about to do everything.
+
+### 5.13a One renderer per film, enforced with a lock
+
+The single most expensive bug on story two was not in a shot. A render started in an
+earlier session kept running for over half an hour after it was believed dead, writing
+shot mp4s into the same output directory as the current one — so a cut assembled from
+"the finished shots" was a mix of two builds, and a film published as the fixed one was
+overwritten by the old one minutes later. From the outside this is
+*"still the old video"* and *"I feel my prompts are not being implemented"*, and neither
+diagnosis points anywhere near the real fault.
+
+Take a pid lockfile in the output directory and refuse to start a second renderer. Clear
+a stale lock (no such pid) and say so. Kill by process, not by whatever wrapper you
+think you started — a `TaskStop` on the shell can leave the node process running.
 
 ### 5.14 A speech bubble clears every body it passes, not just the speaker's
 

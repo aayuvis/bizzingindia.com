@@ -14,6 +14,13 @@
 # no copy of its own to drift from. So the new repo has a seam, $BIZZING_APP, and no
 # duplicated content.
 #
+# VERIFIED, not assumed. This script was run into a scratch directory and the repo it
+# produced was then made to work: build.js wrote twelve shot pages, cards.js rendered a
+# title and end card byte-identical in content to the ones here (which proves the font,
+# the tokens, the logo and the story text all resolve across the seam), film.js --check
+# passed all twelve contact assertions, and still.js produced a frame. A migration script
+# whose output nobody has run is a guess.
+#
 #   tools/migrate-videos.sh <target-dir> [--remove-from-source]
 #
 # Without --remove-from-source this is READ-ONLY on bizzingindia.com: it builds the new

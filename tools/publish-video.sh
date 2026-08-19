@@ -19,6 +19,14 @@ SRC=${1:?usage: publish-video.sh <local file> <path on the site>}
 DEST=${2:?usage: publish-video.sh <local file> <path on the site>}
 [ -f "$SRC" ] || { echo "no such file: $SRC" >&2; exit 1; }
 
+# A NEW CUT GETS A NEW URL. Republishing to a fixed path means the bytes change and the
+# address does not, so the browser and the CDN both go on serving what they already have --
+# and the reviewer, quite reasonably, reports that the fix is not there. It was; they could
+# not see it. So the file also lands at a content-addressed name, and THAT is the link to
+# hand anyone, because it cannot be stale by construction.
+SHORT=$(git hash-object "$SRC" | cut -c1-8)
+VDEST="${DEST%.*}-$SHORT.${DEST##*.}"
+
 git fetch origin gh-pages --quiet
 BASE=$(git rev-parse origin/gh-pages)
 BLOB=$(git hash-object -w "$SRC")
@@ -29,6 +37,7 @@ export GIT_INDEX_FILE=$(mktemp -u /tmp/pubidx.XXXXXX)
 trap 'rm -f "$GIT_INDEX_FILE"' EXIT
 git read-tree "$BASE"
 git update-index --add --cacheinfo 100644,"$BLOB","$DEST"
+git update-index --add --cacheinfo 100644,"$BLOB","$VDEST"
 TREE=$(git write-tree)
 
 if [ "$TREE" = "$(git rev-parse "$BASE^{tree}")" ]; then
@@ -39,8 +48,9 @@ fi
 COMMIT=$(git commit-tree "$TREE" -p "$BASE" -m "Publish $DEST")
 for i in 1 2 3 4 5; do
   if git push origin "$COMMIT":refs/heads/gh-pages; then
-    URL="https://$(git remote get-url origin | sed -E 's#.*github.com[:/]([^/]+)/(.+?)(\.git)?$#\1.github.io/\2#')/$DEST"
-    echo "published: $URL"
+    SITE="https://$(git remote get-url origin | sed -E 's#.*github.com[:/]([^/]+)/(.+?)(\.git)?$#\1.github.io/\2#')"
+    echo "published: $SITE/$VDEST"
+    echo "  (also at the stable path $SITE/$DEST — but that one can be served from cache)"
     exit 0
   fi
   echo "push failed, retry $i" >&2; sleep $((2**i))

@@ -71,24 +71,28 @@ The short version:
 - **Folk art traditions are credited.** Named artist where commissioned; the tradition and
   region named always. Never uncredited texture.
 - **Never** put a real model identifier in commits, PRs, code, or any pushed artefact.
+- **Video lives in [Bizzing Videos](https://github.com/aayuvis/Bizzing-Videos)**, not here.
+  The pipeline, the film assets and the two binding documents moved to that repo; `docs/14`
+  and `docs/15` here are stubs pointing at it. **Read its `docs/02` before starting video
+  work on any Bizzing property**, Bizzing Bee included — it is written to be read cold, and
+  its first section is the one that costs money.
 - **No Veo videos. No generated motion at all for story films.** Films are composited
-  locally from generated sprites and plates — see
-  [docs/15-video-production-brief.md](docs/15-video-production-brief.md) §0. Generative
-  *image* models stay in the pipeline and draw the sprites, plates and model sheets;
-  generated *motion* is out, because a model with no scene cannot guarantee a structural
-  fact ("both geese are holding the stick") and four rounds proved it can only be asked for.
-- **Before starting video work on any Bizzing property, read
-  [docs/15-video-production-brief.md](docs/15-video-production-brief.md).** It is written to
-  be read cold and its first section is the one that costs money: generative video cannot
-  guarantee a structural fact like "both geese are holding the stick", so character-driven
-  story films are composited locally from generated sprites and plates. Every trap in it was
-  paid for once already.
-- **Video published under the brand follows [docs/14-video-look-and-feel.md](docs/14-video-look-and-feel.md)**,
-  which is binding. Nothing on the channel is invented for the channel: the words, the
-  narration, the characters and the world all come out of the app, so a child who watches
-  a video and then opens the app meets the same tortoise. Generated lettering never
-  appears in a shot — titles are composited in the app's own type. Harm and death stay as
-  elliptical as the app's own telling; never make the video braver than the text.
+  locally from generated sprites and plates. Generative *image* models stay in the pipeline
+  and draw the sprites, plates and model sheets; generated *motion* is out, because a model
+  with no scene cannot guarantee a structural fact ("both geese are holding the stick") and
+  four rounds proved it can only be asked for.
+- **This app is the source of truth for everything on the channel.** The films read this
+  checkout live — the words from `app/data-stories*.js`, the narration from `app/voice/st/`,
+  the type from `app/fonts.css`, the paintings from `app/art/story/` — so a child who
+  watches a video and then opens the app meets the same tortoise. Two consequences that
+  have already bitten: **a clip the app never plays is not the app's narration** (hook and
+  moral clips were orphans in a different voice across 646 stories), and **renaming a story
+  changes the channel** (the title card went on saying the old name until it was
+  re-rendered). If a film has a better tortoise than the app, the app is what to fix.
+- **Video published under the brand follows Bizzing Videos' `docs/01`**, which is binding.
+  Generated lettering never appears in a shot — titles are composited in the app's own type.
+  Harm and death stay as elliptical as the app's own telling; never make the video braver
+  than the text.
 
 ## Architecture (planned)
 

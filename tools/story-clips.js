@@ -21,8 +21,7 @@ all.forEach(s => {
      list, which did not mention them -- so 646 clips silently kept the old accent while
      every scene around them changed. Nothing in the app noticed because the app renders
      hook and moral as TEXT and never plays them; the mismatch only surfaced when
-     tools/veo-story.py used them for a video and a listener heard the film change voice
-     at the end.
+     a video used them and a listener heard the film change voice at the end.
 
      The header above says these keys mirror exactly what the reader asks for. It was
      two keys per story short of true. */

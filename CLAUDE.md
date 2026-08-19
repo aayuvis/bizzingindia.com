@@ -71,6 +71,12 @@ The short version:
 - **Folk art traditions are credited.** Named artist where commissioned; the tradition and
   region named always. Never uncredited texture.
 - **Never** put a real model identifier in commits, PRs, code, or any pushed artefact.
+- **Before starting video work on any Bizzing property, read
+  [docs/15-video-production-brief.md](docs/15-video-production-brief.md).** It is written to
+  be read cold and its first section is the one that costs money: generative video cannot
+  guarantee a structural fact like "both geese are holding the stick", so character-driven
+  story films are composited locally from generated sprites and plates. Every trap in it was
+  paid for once already.
 - **Video published under the brand follows [docs/14-video-look-and-feel.md](docs/14-video-look-and-feel.md)**,
   which is binding. Nothing on the channel is invented for the channel: the words, the
   narration, the characters and the world all come out of the app, so a child who watches

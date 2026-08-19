@@ -83,8 +83,10 @@ function main() {
                     The app prefers a human take over the synthesised one and
                     picks a voice from \`v\`.
 
-   English story narration is en-US-Neural2-F with <phoneme> tags from
-   tools/pron-lexicon.json. Hindi/Punjabi letters and words are still TTS
+   English story narration is en-IN-Chirp3-HD-Laomedeia at rate 1.02 — an Indian
+   narrator, which is the whole point; the old en-US voice read the names as a
+   foreigner would. <phoneme> tags from tools/pron-lexicon.json where the voice
+   supports SSML. Hindi/Punjabi letters and words are still TTS
    placeholders — per docs/09 §9 these MUST be replaced with human voice before
    launch, because children imitate them. The dialogue lines are the first part
    of that replacement (tools/studio.js). */

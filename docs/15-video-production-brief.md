@@ -311,6 +311,29 @@ killed. They came back from git.
 If a tool is destructive and cumulative, make the subset explicit and say out loud when it
 is about to do everything.
 
+### 5.14 A speech bubble clears every body it passes, not just the speaker's
+
+"Above the speaker's head" is the right rule and it is not sufficient. A side-facing
+crocodile is 1,266px of animal whose head anchor is the far tip of him: hang a bubble off
+that one point and it sits neatly above his *head* and squarely across his *back*. And a
+bubble anchored to a rider has the mount underneath it too.
+
+Place it above the highest thing standing in its own column — the speaker plus every
+character box the bubble's x-range actually crosses — and point the tail at the speaker.
+The tail carries the "who is talking"; the box only has to stay out of the way.
+
+### 5.15 Know whether your coordinate is a centre or an edge
+
+The same bubble was also thrown sideways onto the crocodile by a guard meant to catch
+bubbles running off the top of frame. `cy` is the box's **top** edge — the element is
+positioned from `top:50%` with no vertical centring — but the guard tested `cy - boxH/2`,
+so a bubble sitting 48px inside the frame was declared off-frame and sent to the fallback,
+which places it *beside* the speaker at his own height. On top of him, in other words: the
+exact fault the fallback exists to fix.
+
+Assert the outcome, not the intermediate. `film.js` measures the rendered rectangles and
+fails the shot; that is what caught this, and no amount of reading the placement code did.
+
 ---
 
 ## 6. Editorial (carries to any Bizzing property)

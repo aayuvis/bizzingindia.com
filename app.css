@@ -1,0 +1,2088 @@
+/* Bizzing India — components.
+   Matched to the current Bizzing Bee: lavender dotted ground, white rounded cards,
+   pill controls, horizontal top nav, heavy serif display type. */
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0;
+  font: 15.5px/1.6 var(--body);
+  color: var(--text);
+  background-color: var(--ground);
+  background-image: linear-gradient(180deg, var(--ground2), var(--ground) 420px);
+  background-attachment: fixed;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ---------------------------------------------------------- WORLD MOTIFS
+   Each world paints its own folk-art pattern behind everything, the way
+   Bizzing Bee gives every theme a background motif. The layer drifts slowly;
+   it is decoration, so it never takes pointer events and stops dead for
+   anyone who asked for reduced motion. */
+body::before {
+  content: ''; position: fixed; inset: -60px; z-index: 0;
+  pointer-events: none; opacity: .5;
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+  animation: drift 90s linear infinite;
+}
+#app { position: relative; z-index: 1; }
+
+/* the swatch inside a Worlds card, painted with that world's own motif */
+.wpreview {
+  height: 84px; border-radius: 14px; margin-bottom: 12px;
+  border: 1px solid var(--line); overflow: hidden;
+  display: flex; align-items: center; gap: 8px; padding: 0 14px;
+  background-color: var(--ground);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.wpreview b { width: 28px; height: 28px; border-radius: 50%; flex: none; }
+.wpreview .aa { margin-left: auto; font-family: var(--display); font-weight: 800; font-size: 19px; color: var(--text); }
+
+@keyframes drift { to { transform: translate3d(60px, 60px, 0); } }
+@keyframes sway  { 50% { transform: translate3d(28px, -22px, 0); } }
+
+/* Madhubani — dense double-line lattice and dots */
+[data-world="madhubani"] body::before, .wpreview[data-world="madhubani"] {
+  background-image:
+    repeating-linear-gradient(45deg, var(--dot) 0 1.5px, transparent 1.5px 16px),
+    repeating-linear-gradient(-45deg, var(--dot) 0 1.5px, transparent 1.5px 16px),
+    radial-gradient(var(--dot) 2px, transparent 2.4px);
+  background-size: 46px 46px, 46px 46px, 46px 46px;
+  animation: sway 70s ease-in-out infinite;
+}
+/* Warli — rows of tiny triangles, the dancing figures abstracted */
+[data-world="warli"] body::before, .wpreview[data-world="warli"] {
+  background-image:
+    conic-gradient(from 45deg at 50% 60%, var(--dot) 0 90deg, transparent 90deg),
+    radial-gradient(circle at 50% 20%, var(--dot) 1.6px, transparent 2px);
+  background-size: 34px 34px, 34px 34px;
+  animation: drift 120s linear infinite;
+}
+/* Pattachitra — fine floral border rhythm */
+[data-world="pattachitra"] body::before, .wpreview[data-world="pattachitra"] {
+  background-image:
+    repeating-linear-gradient(0deg, var(--dot) 0 1px, transparent 1px 26px),
+    radial-gradient(circle, var(--dot) 2.6px, transparent 3px);
+  background-size: 26px 26px, 52px 52px;
+  animation: sway 80s ease-in-out infinite;
+}
+/* Gond — the signature dot-and-dash fill */
+[data-world="gond"] body::before, .wpreview[data-world="gond"] {
+  background-image:
+    radial-gradient(var(--dot) 2px, transparent 2.4px),
+    radial-gradient(var(--dot) 1.2px, transparent 1.6px);
+  background-size: 30px 30px, 30px 30px;
+  background-position: 0 0, 15px 15px;
+  animation: drift 60s linear infinite;
+}
+/* Kalamkari — narrative panels */
+[data-world="kalamkari"] body::before, .wpreview[data-world="kalamkari"] {
+  background-image:
+    repeating-linear-gradient(90deg, var(--dot) 0 1.5px, transparent 1.5px 64px),
+    repeating-linear-gradient(0deg, var(--dot) 0 1.5px, transparent 1.5px 64px);
+  background-size: 64px 64px;
+  animation: sway 100s ease-in-out infinite;
+}
+/* Phad — the long continuous scroll, read left to right */
+[data-world="phad"] body::before, .wpreview[data-world="phad"] {
+  background-image:
+    repeating-linear-gradient(0deg, var(--dot) 0 2px, transparent 2px 40px),
+    radial-gradient(circle at 20% 50%, var(--dot) 2px, transparent 2.6px);
+  background-size: 40px 40px, 40px 40px;
+  animation: drift 55s linear infinite;
+}
+/* Mughal — garden geometry, the charbagh grid */
+[data-world="mughal"] body::before, .wpreview[data-world="mughal"] {
+  background-image:
+    repeating-linear-gradient(45deg, var(--dot) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(-45deg, var(--dot) 0 1px, transparent 1px 28px);
+  background-size: 56px 56px;
+  animation: sway 110s ease-in-out infinite;
+}
+/* Tanjore — gem inlay */
+[data-world="tanjore"] body::before, .wpreview[data-world="tanjore"] {
+  background-image:
+    conic-gradient(var(--dot) 90deg, transparent 90deg 180deg, var(--dot) 180deg 270deg, transparent 270deg),
+    radial-gradient(var(--dot) 1.6px, transparent 2px);
+  background-size: 40px 40px, 20px 20px;
+  animation: drift 100s linear infinite;
+}
+/* Kalighat — big sweeping brushstrokes */
+[data-world="kalighat"] body::before, .wpreview[data-world="kalighat"] {
+  background-image:
+    repeating-linear-gradient(20deg, var(--dot) 0 3px, transparent 3px 44px);
+  background-size: 88px 88px;
+  animation: sway 75s ease-in-out infinite;
+}
+h1, h2, h3 { font-family: var(--display); font-weight: 800; margin: 0 0 var(--space-sm); line-height: 1.14; letter-spacing: -.01em; }
+h1 { font-size: clamp(30px, 6vw, 46px); }
+h2 { font-size: clamp(21px, 3.4vw, 28px); }
+h3 { font-size: 17px; font-weight: 700; }
+p  { margin: 0 0 var(--space-md); color: var(--text2); }
+a  { color: var(--accent); }
+button, input, select, textarea { font: inherit; color: inherit; }
+.ic { vertical-align: -4px; }
+/* SCRIPTS. Each Indian script gets its own face and its own optical size — every one of
+   them needs more size than Latin at the same nominal px, and every one of them needs more
+   leading, because marks stack above and below the line. Setting them all at 1em in a Latin
+   face is how a script ends up looking like a decorative squiggle, which CLAUDE.md forbids.
+   Tag content with lang= and it lands in the right face automatically; the .deva/.tamil/…
+   classes are the escape hatch for a fragment that cannot carry a lang attribute. */
+:lang(hi), :lang(mr), :lang(ne), :lang(sa), .deva {
+  font-family: var(--deva);
+  font-size: 1.12em;   /* Devanagari wants ~10-15% more optical size than Latin */
+  line-height: 1.75;   /* matras stack above and below, and the shirorekha needs air */
+}
+:lang(pa), .gurmukhi  { font-family: var(--gurmukhi);  font-size: 1.12em; line-height: 1.75; }
+:lang(ta), .tamil     { font-family: var(--tamil);     font-size: 1.10em; line-height: 1.8;  }
+:lang(gu), .gujarati  { font-family: var(--gujarati);  font-size: 1.12em; line-height: 1.75; }
+:lang(bn), :lang(as), .bengali { font-family: var(--bengali); font-size: 1.10em; line-height: 1.8; }
+:lang(te), .telugu    { font-family: var(--telugu);    font-size: 1.10em; line-height: 1.9; }
+:lang(kn), .kannada   { font-family: var(--kannada);   font-size: 1.10em; line-height: 1.9; }
+:lang(ml), .malayalam { font-family: var(--malayalam); font-size: 1.10em; line-height: 1.85; }
+:lang(or), .odia      { font-family: var(--odia);      font-size: 1.10em; line-height: 1.8; }
+/* Urdu is Nastaliq or it is not Urdu — same rule as the shirorekha. Nastaliq hangs from a
+   sloping baseline, so it needs more air than any other script here, and it runs right to
+   left, which the lang attribute alone does not switch. */
+:lang(ur), .urdu      { font-family: var(--urdu); font-size: 1.15em; line-height: 2.1;
+                        direction: rtl; unicode-bidi: isolate; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------------------------------------------------------------- shell */
+.wrap { max-width: 1120px; margin: 0 auto; padding: var(--space-xl) var(--space-lg) 80px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  background: var(--ground2);           /* solid: color-mix + blur rendered badly on some browsers */
+  border-bottom: 1px solid var(--line);
+}
+/* flex-wrap so a long wordmark and four controls can never sit on top of each
+   other; min-width:0 on the brand lets it shrink instead of pushing them off */
+.topbar .barrow { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-md); padding: 14px var(--space-lg) 12px; }
+/* a button now (it is the way home), so the button chrome has to be undone */
+.brand {
+  display: flex; align-items: center; gap: 14px; min-width: 0;
+  font-family: var(--display); font-weight: 800; font-size: 34px; margin-right: auto;
+  letter-spacing: -.01em;
+  border: none; background: none; padding: 0; color: inherit; cursor: pointer;
+  text-align: left; font-style: normal;
+}
+.brand:hover em { text-decoration: underline; text-underline-offset: 4px; }
+.brand em { font-style: italic; color: var(--accent); }
+/* flex:none or the mark gets squeezed flat when the bar is tight */
+.brand img, .brand svg { flex: none; width: 68px; height: 68px; border-radius: 16px; object-fit: contain; }
+/* The wordmark got big on purpose, but at phone width it was driving straight
+   into the kauri count and the language chip. Step it down before the collision
+   rather than letting the row overlap. */
+@media (max-width: 560px) {
+  .brand { font-size: 21px; gap: 9px; }
+  .brand img, .brand svg { width: 44px; height: 44px; }
+}
+@media (max-width: 430px) {
+  .brand { font-size: 18px; gap: 7px; }
+  .brand img, .brand svg { width: 36px; height: 36px; }
+  /* tighter controls so all four stay on the wordmark's line */
+  .barctl { gap: 6px; }
+  .barctl .iconbtn { width: 36px; height: 36px; }
+  .barctl .pill.stat { padding: 6px 9px; }
+}
+/* the controls travel as one block — see chrome() */
+.barctl { display: flex; align-items: center; gap: var(--space-sm); flex: none; }
+
+/* horizontal nav — the Bizzing Bee pattern. Wraps rather than scrolls, so no
+   tab is ever hidden off the edge on a phone. */
+.nav {
+  max-width: 1120px; margin: 0 auto;
+  display: flex; flex-wrap: wrap; gap: 2px;
+  padding: 0 var(--space-lg) 8px;
+}
+.navtab {
+  display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+  padding: 9px 14px; min-height: 40px; border: 0; border-radius: var(--radius-pill);
+  background: none; color: var(--text2); font-weight: 700; font-size: 14.5px; cursor: pointer;
+}
+/* on narrow screens shrink the chrome before anything is allowed to overflow */
+@media (max-width: 820px) {
+  .nav { gap: 0; padding-left: var(--space-sm); padding-right: var(--space-sm); }
+  .navtab { padding: 8px 10px; font-size: 13.5px; gap: 5px; }
+}
+@media (max-width: 430px) {
+  .navtab { padding: 8px; font-size: 12.5px; }
+  .navtab .ic { width: 17px; height: 17px; }
+}
+.navtab:hover { background: var(--accent-soft); color: var(--accent); }
+.navtab.active { background: var(--accent); color: #fff; }
+.navtab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------- cards */
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-xl); padding: var(--space-xl);
+  box-shadow: var(--shadow); margin-bottom: var(--space-lg);
+}
+.card.tight { padding: var(--space-md) var(--space-lg); }
+.card.flat { box-shadow: none; background: var(--card2); }
+.grid { display: grid; gap: var(--space-lg); }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+/* auto-fit, not auto-fill: with three items in a wide container auto-fill leaves empty
+   phantom columns and squeezes the real ones against the left edge. */
+.g3 { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.g4 { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+.row { display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap; }
+.spread { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
+.muted { color: var(--muted); }
+.tiny { font-size: 13px; }
+.center { text-align: center; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 22px; min-height: 46px;
+  border: 1px solid transparent; border-radius: var(--radius-pill);
+  background: var(--accent); color: #fff;
+  font-weight: 700; cursor: pointer; text-decoration: none;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.btn:hover { filter: brightness(1.07); }
+.btn.ghost { background: var(--card); color: var(--text); border-color: var(--line2); box-shadow: var(--shadow); }
+.btn.ghost:hover { border-color: var(--accent); color: var(--accent); filter: none; }
+.btn.block { width: 100%; }
+.btn.lg { padding: 15px 28px; font-size: 16.5px; min-height: 54px; }
+.btn.sm { padding: 8px 15px; font-size: 14px; min-height: 38px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; min-height: 38px; border-radius: var(--radius-pill);
+  background: var(--card); border: 1px solid var(--line2);
+  font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.pill:hover { border-color: var(--accent); color: var(--accent); }
+.pill.on { background: var(--accent); color: #fff; border-color: transparent; }
+.pill.stat { cursor: default; background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.pill.stat:hover { color: var(--accent); }
+
+.iconbtn {
+  display: inline-grid; place-items: center; width: 42px; height: 42px;
+  border-radius: var(--radius-md); border: 1px solid var(--line2);
+  background: var(--card); cursor: pointer; color: var(--text2);
+}
+.iconbtn:hover { color: var(--accent); border-color: var(--accent); }
+/* muted sound reads as struck through, not merely faint — a dimmer icon alone
+   is not a state a child can see across a room */
+.iconbtn.off { color: var(--muted); position: relative; }
+.iconbtn.off::after { content: ''; position: absolute; left: 9px; right: 9px; top: 50%;
+  height: 2px; border-radius: 2px; background: currentColor; transform: rotate(-38deg); }
+
+.backlink { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 8px 0 14px; font-weight: 700; }
+.backlink:hover { color: var(--accent); }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 7px 16px 7px 8px; border-radius: var(--radius-pill);
+  background: var(--card); border: 1px solid var(--line2); box-shadow: var(--shadow);
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700;
+}
+
+/* badges — Katha / Itihaas / Aaj. See docs/05. */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+  border: 1px solid var(--line2); background: var(--card2); color: var(--text2);
+}
+.badge.katha   { color: #a4671a; background: #fdf3e2; border-color: #f0dcb8; }
+.badge.itihaas { color: #2a5b9e; background: #eaf1fb; border-color: #c9dcf2; }
+.badge.aaj     { color: #1a7a54; background: #e7f6ef; border-color: #bfe6d5; }
+
+/* --------------------------------------------------------------- landing */
+.hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: var(--space-2xl); align-items: center; padding: var(--space-2xl) 0; }
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
+.hero h1 { font-size: clamp(36px, 6.4vw, 62px); font-weight: 900; letter-spacing: -.025em; }
+.hero .lede { font-size: 17.5px; max-width: 46ch; }
+.herocard { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl); padding: var(--space-2xl); box-shadow: var(--shadow-lg); text-align: center; }
+.ticks { list-style: none; padding: 0; margin: var(--space-xl) 0 0; }
+.ticks li { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 11px; font-weight: 600; color: var(--text2); }
+.ticks .ic { color: var(--accent); flex: none; }
+
+/* --------------------------------------------------------- the Living Map */
+/* The whole map has to be visible at once — a map you scroll is a map you never see the
+   shape of. The frame is 1000x1100, so capping the WIDTH at the height budget times that
+   ratio caps the height without touching the aspect. The subtracted pixels are the app
+   chrome around it: top bar, bottom nav, the card's own heading and the fact strip.
+   dvh, where it exists, is the honest viewport on a phone with a retracting URL bar. */
+.mapwrap { max-width: calc((100vh - 224px) * 0.909); margin-inline: auto; }
+@supports (height: 100dvh) { .mapwrap { max-width: calc((100dvh - 224px) * 0.909); } }
+@media (max-width: 720px) { .mapwrap { max-width: calc((100dvh - 224px) * 0.909); } }
+.mapwrap { min-width: 0; }
+/* the map view gives its card less padding than the rest -- the map is the content */
+.card.mapcard { padding: var(--space-md) var(--space-md) var(--space-lg); }
+
+.mapsvg { width: 100%; height: auto; display: block; touch-action: manipulation; }
+
+/* Each state is two stacked copies of the same shape: the painting, and a shade over it.
+   The shade is INVISIBLE at rest. Every state shows its painting at full colour all the
+   time — nothing is greyed out, dimmed or switched off, whether or not it has been met.
+
+   The shade exists only to answer the pointer: hovering or focusing a state darkens it
+   slightly so you can see which one you are about to open. That is the only thing that
+   changes it. Whether a state has been remembered is told by the green dot on its capital,
+   further down, which ADDS a mark rather than taking the colour out of the country.
+
+   The geometry never changes and no boundary animates, redraws or moves. */
+.mapsvg .terrg { cursor: pointer; }
+
+/* EVERY STATE IS TRANSPARENT AT REST, AND LIGHTS UP UNDER THE POINTER.
+   The painting is there all along at a whisper -- enough that the country reads as a
+   shape with something inside it -- and comes to full colour only for the one state you
+   are pointing at. So the map is quiet until you ask it a question, and the answer is
+   the place itself lighting up.
+
+   What is NEVER dimmed by this: the state's outline, its name, and the green dot on its
+   capital. Whether a place has been remembered has to be legible without hovering over
+   thirty-six states to find out. */
+.mapsvg .terr {
+  stroke: var(--card); stroke-width: 1.4;
+  opacity: .13; transition: opacity .2s ease;
+}
+.mapsvg .terrg:hover .terr,
+.mapsvg .terrg:focus-visible .terr,
+.mapsvg .terrg.on .terr { opacity: 1; }
+/* the shade layer is retired: nothing darkens a state any more, it brightens instead */
+.mapsvg .mist { display: none; }
+
+/* Capitals. A white-ringed dot on every capital city; it turns green once the state it
+   belongs to has been remembered. The name is set small and drops out on narrow screens,
+   where 35 city names over a phone-width map is a grey smear. */
+.mapsvg .cap circle { fill: var(--card); stroke: var(--text2); stroke-width: 1.8; pointer-events: none; }
+.mapsvg .cap.lit circle { fill: var(--good, #4fbf8b); stroke: #fff; stroke-width: 2.2; }
+.mapsvg .cap.on circle { stroke: var(--accent); stroke-width: 3; }
+.mapsvg .capname {
+  font-family: var(--body); font-size: 19px; font-weight: 800; fill: var(--text);
+  text-anchor: middle; pointer-events: none;
+  paint-order: stroke; stroke: var(--card); stroke-width: 5; stroke-linejoin: round;
+}
+.mapsvg .terrg.on .terr, .mapsvg .terrg:focus-visible .terr { stroke: var(--accent); stroke-width: 2.6; }
+/* the family's home state(s): a STATIC warm outline — never animated, never pulsing;
+   the boundary rules in CLAUDE.md forbid any boundary that moves or performs */
+.mapsvg .terrg.home .terr { stroke: var(--accent2, var(--accent)); stroke-width: 2.2; }
+
+/* The Mela shelf — cover cards in the Bizzing Bee arcade idiom: gradient cover,
+   self-animating scene, tag chip, facts underneath. Scene motion lives inside
+   each game's own SVG; reduced-motion stills all of it at once here. */
+.gcover { display: flex; flex-direction: column; text-align: left; padding: 0; overflow: hidden;
+  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card);
+  cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
+.gcover:hover, .gcover:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
+.gart { position: relative; display: grid; place-items: center; height: 112px; color: #fff; }
+/* the scene SVGs arrive with a 48-unit viewBox and no reliable width attribute —
+   size them here or one ladder swallows its whole card */
+.gart svg { display: block; width: 64px; height: 64px; overflow: visible;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,.22)); }
+/* an illustrated cover is the panel — edge to edge, no glyph, no drop shadow */
+.gart.art { padding: 0; overflow: hidden; }
+.gart.art svg.gcart { width: 100%; height: 112px; filter: none; }
+.gtag { position: absolute; top: 10px; right: 10px; font: 700 10px/1 var(--mono);
+  letter-spacing: .12em; text-transform: uppercase; background: rgba(0,0,0,.28); color: #fff;
+  padding: 5px 8px; border-radius: 999px; }
+.gbody { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 14px; }
+.gbody b { font: 800 17px/1.2 var(--display); }
+@media (prefers-reduced-motion: reduce) { .gart * { animation: none !important; } }
+
+/* THE AVATAR CARD — every companion's trading card, all wearing the same
+   glow-in-the-dark finish (rarity is paused; the glow is for everyone). The
+   card is deliberately a NIGHT object whatever the app's mode: deep indigo,
+   a luminous halo behind the art, stats that glow like diyas. The float is
+   gentle and dies under prefers-reduced-motion; the glow itself is static. */
+.avcardwrap { display: grid; place-items: center; padding: 10px 0 30px; }
+.avcard {
+  width: min(94vw, 400px); text-align: center; color: #EDE9FF;
+  background:
+    radial-gradient(80% 45% at 50% 12%, rgba(124, 92, 255, .38), transparent 70%),
+    radial-gradient(120% 60% at 50% 110%, rgba(36, 200, 180, .16), transparent 60%),
+    #171233;
+  border: 1px solid rgba(150, 130, 255, .5); border-radius: 24px;
+  padding: 26px 22px 24px;
+  box-shadow: 0 0 0 1px rgba(120, 100, 255, .18), 0 0 34px rgba(110, 90, 255, .35),
+    0 18px 50px rgba(10, 6, 40, .5);
+  animation: avfloat 5s ease-in-out infinite;
+}
+.avcard h1 { color: #fff; margin: 12px 0 2px; font-size: 28px; }
+.avtitle { color: #B9AFFF; letter-spacing: .14em; }
+.avlore { font-style: italic; color: #CFC8F5; margin: 10px 0 4px; }
+.avhalo { display: grid; place-items: center; width: 172px; height: 172px; margin: 0 auto;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, .16), rgba(124, 92, 255, .25) 55%, transparent 72%);
+  filter: drop-shadow(0 0 18px rgba(150, 130, 255, .55)); }
+.avstat { display: flex; align-items: center; gap: 10px; margin: 10px 0; text-align: left; }
+.avlbl { flex: none; width: 108px; font: 700 12px var(--mono); letter-spacing: .06em; color: #CFC8F5; }
+.avbar { flex: 1; height: 10px; border-radius: 999px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.avbar i { display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #7C5CFF, #4ED8C3);
+  box-shadow: 0 0 12px rgba(110, 220, 200, .8); }
+.avstat b { flex: none; width: 30px; font: 800 15px var(--display); color: #fff; }
+.avstats { margin: 14px 0 2px; }
+.avbeyond { margin: 16px 0 4px; font: 700 15px var(--mono); letter-spacing: .3em;
+  text-transform: uppercase; color: #FFE9A8; text-shadow: 0 0 14px rgba(255, 220, 130, .8); }
+
+/* WHERE THE NUMBERS USED TO BE, on a real person's card and an epic figure's.
+   A person is not scored out of 99 (avatar-cards.js holds the rule); the space
+   the stat bars occupied now carries the docs/05 badge, then what they did,
+   then — where one is documented — what they said. Same night-card finish, same
+   luminous palette as the bars it replaces, so the card still reads as one
+   object rather than a stats card with the stats deleted. */
+.avbadge { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap;
+  gap: 4px 8px; margin: 18px 0 2px; padding-top: 14px;
+  border-top: 1px solid rgba(150, 130, 255, .25); }
+.avbadge .avbmark { font-size: 15px; filter: drop-shadow(0 0 8px rgba(255, 220, 140, .7)); }
+.avbadge b { font: 800 12px var(--mono); letter-spacing: .18em; text-transform: uppercase;
+  color: #FFE9A8; }
+.avbadge span:not(.avbmark) { font-size: 12.5px; color: #B9AFFF; }
+
+.avdeeds { list-style: none; margin: 12px 0 2px; padding: 0; text-align: left; }
+.avdeeds li { position: relative; padding: 0 0 0 26px; margin: 0 0 11px;
+  font-size: 14.5px; line-height: 1.55; color: #E7E2FF; }
+.avdeeds li:last-child { margin-bottom: 0; }
+/* the marker: a small lit diamond in the stat-bar gradient, not a dash */
+.avdeeds li::before { content: ""; position: absolute; left: 4px; top: 7px;
+  width: 9px; height: 9px; border-radius: 2px; transform: rotate(45deg);
+  background: linear-gradient(135deg, #7C5CFF, #4ED8C3);
+  box-shadow: 0 0 10px rgba(110, 220, 200, .85); }
+/* and a hairline running down beside them, so the list reads as one column */
+.avdeeds li::after { content: ""; position: absolute; left: 8px; top: 20px; bottom: -11px;
+  width: 1px; background: linear-gradient(180deg, rgba(150, 130, 255, .45), rgba(150, 130, 255, 0)); }
+.avdeeds li:last-child::after { display: none; }
+
+/* an epic figure's other names — the detail that stands where a real person
+   has their achievements. Names, not numbers. */
+.avalias { display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 8px; margin: 14px 0 2px; }
+.avalias > span { font: 700 10.5px var(--mono); letter-spacing: .16em; text-transform: uppercase;
+  color: #9C92D8; }
+.avalias b { font: 700 13px var(--body); color: #F3F0FF; padding: 5px 11px; border-radius: 999px;
+  background: rgba(124, 92, 255, .22); border: 1px solid rgba(150, 130, 255, .38);
+  box-shadow: 0 0 12px rgba(110, 90, 255, .25); }
+
+.avquote { margin: 18px 0 0; padding: 16px 16px 14px 42px; text-align: left; position: relative;
+  border-radius: 16px; border: 1px solid rgba(150, 130, 255, .32);
+  background: linear-gradient(180deg, rgba(124, 92, 255, .18), rgba(124, 92, 255, .05)); }
+.avquote::before { content: "\201C"; position: absolute; left: 12px; top: 4px;
+  font: 700 54px/1 var(--display); color: rgba(255, 233, 168, .55);
+  text-shadow: 0 0 18px rgba(255, 210, 120, .5); }
+.avquote blockquote { margin: 0; font-size: 15.5px; line-height: 1.6; font-style: italic;
+  color: #F3F0FF; }
+.avcite { margin-top: 10px; font: 700 11px var(--mono); letter-spacing: .1em;
+  text-transform: uppercase; color: #FFE9A8; }
+.avcite span { display: block; margin-top: 4px; letter-spacing: 0; text-transform: none;
+  font: 400 12.5px/1.45 var(--body); color: #B9AFFF; }
+.avfact { margin-top: 14px; text-align: left; font-size: 14px; line-height: 1.6;
+  background: rgba(255, 255, 255, .07); border: 1px solid rgba(150, 130, 255, .3);
+  border-radius: 14px; padding: 12px 14px; color: #E4DFFB; }
+.avcard.sacred { border-color: rgba(255, 214, 130, .55);
+  box-shadow: 0 0 0 1px rgba(255, 214, 130, .2), 0 0 34px rgba(255, 200, 110, .3),
+    0 18px 50px rgba(10, 6, 40, .5); }
+@keyframes avfloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .avcard { animation: none; } }
+
+/* a world tile that carries its own animated scene (worlds-art.js supplies the SVG) */
+.wpreview.live { position: relative; overflow: hidden; padding: 0; display: block; height: 96px; }
+.wpreview.live svg { display: block; width: 100%; height: 100%; }
+
+/* The world's footer stage stands in front of the cards, so the last card on a
+   page would end up reading through a row of diyas. Reserve the stage's height
+   at the foot of the page instead of shrinking the art — the scene keeps its
+   full drama and no sentence is ever set on top of a flame. Matches the stage
+   heights declared in worlds-art.js. */
+.wrap { padding-bottom: 248px; }
+
+/* THE DECK POPUP — your companions, as a deck you can flip through. Tapping
+   the big buddy (or the topbar chip) opens it over whatever you were reading. */
+.buddybtn { border: none; background: none; padding: 0; cursor: pointer; flex: none;
+  border-radius: 20px; transition: transform .12s ease; }
+.buddybtn:hover, .buddybtn:focus-visible { transform: translateY(-2px) scale(1.03); }
+.buddybtn img, .buddybtn svg { display: block; width: 216px; height: 216px; }
+@media (max-width: 430px) { .buddybtn img, .buddybtn svg { width: 150px; height: 150px; } }
+
+.deckscrim { position: fixed; inset: 0; z-index: 120; background: rgba(14, 10, 34, .74);
+  backdrop-filter: blur(5px); display: grid; place-items: end center;
+  /* minmax(0,1fr), not the implicit auto track: an auto track sizes to the
+     widest thing inside and would shove the whole popup off-screen. */
+  grid-template-columns: minmax(0, 1fr); }
+/* NO SHEET. The popup used to be a white card holding a dark card, which read
+   as a card inside a card and stole the width the real card needed. The pills
+   and the card now stand on the scrim itself. */
+.deckwrap { width: min(100%, 560px); min-width: 0; max-height: 94vh; display: flex;
+  flex-direction: column; background: none; box-shadow: none;
+  animation: deckup .22s ease-out; }
+@keyframes deckup { from { transform: translateY(28px); opacity: .4; } }
+@media (prefers-reduced-motion: reduce) { .deckwrap { animation: none; } }
+@media (min-width: 700px) { .deckscrim { place-items: center; } }
+.deckhead { display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 16px 8px; }
+.deckhead .tiny { color: rgba(255,255,255,.72); }
+/* on a transparent sheet the close button needs its own ground */
+.deckhead .iconbtn { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.2);
+  color: #fff; width: 34px; height: 34px; }
+.deckhead .iconbtn:hover { background: rgba(255,255,255,.24); color: #fff;
+  border-color: rgba(255,255,255,.4); }
+
+/* THE DECK IS A STEPPER, not a fanned run of tiles. One whole card at a time,
+   an arrow either side, pack pills across the top — the Bizzing Bee grammar. */
+/* The pills WRAP rather than scroll sideways: nine packs at two rows is the
+   whole set visible at once, where a sideways scroller hid six of them behind
+   an edge nobody thinks to drag. */
+.deckpills { display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 5px; padding: 0 10px 9px; }
+.deckpills .pill { flex: 0 0 auto; white-space: nowrap;
+  font-size: 10px; padding: 4px 9px; letter-spacing: 0;
+  background: rgba(255,255,255,.9); color: #221b3d; border-color: transparent; }
+.deckpills .pill:hover { background: #fff; color: #221b3d; }
+.deckpills .pill.on { background: var(--accent); color: #fff; }
+
+.deckstage { position: relative; display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 4px 10px 18px; overflow-y: auto; min-height: 0; }
+.avslot { flex: 0 1 280px; min-width: 0; animation: deckflip .2s ease-out; }
+@keyframes deckflip { from { opacity: 0; transform: translateY(8px) scale(.985); } }
+@media (prefers-reduced-motion: reduce) { .avslot { animation: none; } }
+
+.deckarrow { flex: none; display: grid; place-items: center; width: 42px; height: 42px;
+  border-radius: 50%; border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.92); color: #221b3d; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(6, 3, 24, .45);
+  transition: transform .12s ease, background .12s ease; }
+.deckarrow:hover, .deckarrow:focus-visible { background: #fff; transform: scale(1.08); }
+.deckarrow:active { transform: scale(.96); }
+/* one back chevron, mirrored — no second glyph to keep in sync with the first */
+.deckarrow.next .ic { transform: rotate(180deg); }
+
+/* THE CARD IN THE POPUP IS THE SAME FACE, SET SMALLER. It was rendered at full
+   page size inside a 86vh sheet and ran off the bottom — a child never saw the
+   button. Everything steps down together so the card keeps its proportions
+   rather than becoming a squashed version of itself. */
+.avslot .avcard { width: 100%; margin: 0; padding: 14px 13px 14px; border-radius: 18px;
+  animation: none; }
+.avslot .avhalo { width: 96px; height: 96px; }
+.avslot .avhalo img, .avslot .avhalo svg { width: 82px; height: 82px; }
+.avslot .avcard h1 { font-size: 17px; margin: 7px 0 2px; }
+.avslot .avtitle { font-size: 9px; letter-spacing: .09em; }
+.avslot .avlore { font-size: 11.5px; line-height: 1.4; margin: 6px 0 2px; }
+.avslot .avstats { margin: 10px 0 2px; }
+.avslot .avstat { margin: 6px 0; gap: 7px; }
+.avslot .avlbl { width: 70px; font-size: 9.5px; }
+.avslot .avbar { height: 7px; }
+.avslot .avstat b { width: 22px; font-size: 12px; }
+.avslot .avbeyond { margin: 10px 0 2px; font-size: 11px; letter-spacing: .2em; }
+.avslot .avbadge { margin: 12px 0 2px; padding-top: 10px; }
+.avslot .avbadge b { font-size: 9px; }
+.avslot .avbadge span:not(.avbmark) { font-size: 10px; }
+.avslot .avdeeds li { font-size: 11.5px; line-height: 1.42; margin-bottom: 7px; padding-left: 20px; }
+.avslot .avalias b { font-size: 10.5px; padding: 3px 8px; }
+.avslot .avquote { margin-top: 12px; padding: 12px 12px 11px 34px; border-radius: 13px; }
+.avslot .avquote::before { font-size: 42px; left: 10px; }
+.avslot .avquote blockquote { font-size: 12px; line-height: 1.45; }
+.avslot .avcite { font-size: 10px; margin-top: 8px; }
+.avslot .avcite span { font-size: 10.5px; }
+.avslot .avfact { margin-top: 9px; font-size: 11.5px; line-height: 1.45;
+  padding: 9px 10px; border-radius: 11px; }
+.avslot .btn.lg { font-size: 13px; padding: 9px 20px; margin-top: 10px !important; }
+
+/* The card face is dark in every theme, so a page-coloured pill lands as burnt
+   orange on near-black. Give the "travelling with you" mark the card's own
+   palette rather than the page's. */
+.avcard .pill.stat { background: rgba(255,255,255,.12); color: #EDE9FF;
+  border-color: rgba(255,255,255,.16); }
+.avcard .pill.stat:hover { color: #EDE9FF; }
+
+@media (max-width: 430px) {
+  .deckstage { gap: 2px; padding: 4px 4px 14px; }
+  .deckarrow { width: 34px; height: 34px; }
+  .avslot { flex: 1 1 auto; }
+  .deckpills .pill { font-size: 9.5px; padding: 3px 8px; }
+  .deckpills { gap: 4px; padding: 0 6px 7px; }
+}
+
+/* the one-tap new-version bar (see the update nudge in app.js) */
+.updatebar { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 90;
+  background: var(--accent); color: #fff; border: none; border-radius: 999px;
+  padding: 12px 22px; font: 700 14px var(--body); cursor: pointer; box-shadow: var(--shadow-lg); }
+
+/* The story shelf's theme doors — a painting for a doorway, the room behind it.
+   Same card grammar as the Mela covers, but the cover is a real story painting. */
+.tdoor { display: flex; flex-direction: column; text-align: left; padding: 0; overflow: hidden;
+  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card);
+  cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
+.tdoor:hover, .tdoor:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
+.tpic { height: 128px; background-size: cover; background-position: center 30%;
+  background-color: var(--accent-soft); }
+.tbody { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 14px; }
+.tbody b { font: 800 18px/1.2 var(--display); }
+@media (min-width: 700px) { .doors { grid-template-columns: repeat(4, 1fr); } }
+
+/* ---------------------------------------------- THE TOP OF THE STORY SHELF
+   Three tall doors, then three short ones. The art carries the whole tile and
+   the words sit on it, so there is nothing above them to read first: a child
+   who cannot yet read still knows which one is the Ramayana. */
+/* THE BAR. The randomiser used to be a tall card in the three-across row,
+   which gave a button and one sentence the same footprint as the whole
+   Mahabharata. It is a wide, shallow bar now — the height the Family Shelf box
+   used to be — carrying the shelf's own name and its one action. */
+.pickbar {
+  position: relative; display: block; width: 100%; padding: 0; overflow: hidden;
+  min-height: 108px; text-align: left; cursor: pointer; color: #fff;
+  border: 1px solid var(--line); border-radius: var(--radius-lg);
+  background: var(--accent-soft); transition: transform .12s ease, box-shadow .12s ease;
+}
+.pickbar:hover, .pickbar:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
+.pbbody { position: relative; display: flex; align-items: center; gap: 16px;
+  min-height: 108px; padding: 16px 18px; }
+.pbtext { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.pbtext b { font: 800 22px/1.15 var(--display); color: #fff;
+  text-shadow: 0 1px 10px rgba(10,5,26,.6); }
+.pbtext .tiny { color: rgba(255,255,255,.9); text-shadow: 0 1px 8px rgba(10,5,26,.65); }
+.pickbar .btn { flex: none; pointer-events: none; }
+/* the bar's mosaic is wider and shallower than a card's, so more columns */
+.pickbar .mosaic { grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(2, 1fr); }
+.pickbar .bdveil { background: linear-gradient(180deg, rgba(18,10,32,.56) 0%,
+  rgba(18,10,32,.66) 50%, rgba(18,10,32,.8) 100%); }
+@media (max-width: 560px) {
+  .pbbody { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .pickbar .btn { align-self: stretch; text-align: center; }
+  .pbtext b { font-size: 19px; }
+}
+
+.topdeck { display: grid; gap: var(--space-md); grid-template-columns: 1fr;
+  margin-top: var(--space-md); }
+/* the recording shelf's door carries no painting, so it needs its own ground */
+.mdoor.own { background: linear-gradient(150deg, var(--accent-soft), var(--card)); }
+.mdoor.own .bdbody b, .mdoor.own .bdbody .mono { color: var(--text); text-shadow: none; }
+.mdoor.own .bdveil { background: none; }
+.minidoors { display: grid; gap: var(--space-md); grid-template-columns: repeat(4, 1fr);
+  margin-top: var(--space-md); }
+@media (max-width: 560px) { .minidoors { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 700px) { .topdeck { grid-template-columns: repeat(3, 1fr); } }
+
+.bigdoor, .mdoor {
+  position: relative; display: block; width: 100%; padding: 0; overflow: hidden;
+  text-align: left; cursor: pointer; color: #fff; border: 1px solid var(--line);
+  border-radius: var(--radius-lg); background: var(--accent-soft);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.bigdoor { min-height: 232px; }
+.mdoor   { min-height: 118px; }
+.bigdoor:hover, .bigdoor:focus-visible,
+.mdoor:hover, .mdoor:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+.bdart { position: absolute; inset: 0; background-size: cover; background-position: center 32%; }
+/* the veil is what makes white text legible over ANY painting — without it the
+   copy reads on a sunset and vanishes on a sky */
+.bdveil { position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(18,10,32,.10) 0%, rgba(18,10,32,.34) 42%,
+    rgba(18,10,32,.82) 100%); }
+.bdbody { position: relative; display: flex; flex-direction: column; gap: 5px;
+  padding: 16px 16px 15px; justify-content: flex-end; min-height: inherit; }
+.bigdoor .bdbody { min-height: 232px; }
+.mdoor   .bdbody { min-height: 118px; padding: 12px 12px 11px; }
+.bdbody b { font: 800 22px/1.15 var(--display); color: #fff;
+  text-shadow: 0 1px 10px rgba(10,5,26,.6); }
+.mdoor .bdbody b { font-size: 16px; }
+.bdbody .mono, .bdbody .tiny { color: rgba(255,255,255,.9); }
+.bdbody .tiny { text-shadow: 0 1px 8px rgba(10,5,26,.65); }
+.bdbody .btn { align-self: flex-start; margin-top: 8px; pointer-events: none; }
+
+/* the randomiser's wall: twelve paintings from twelve different shelves, laid
+   flat and pushed back far enough that the number on top is the thing you read */
+.mosaic { position: absolute; inset: 0; display: grid;
+  grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); }
+/* pushed back on purpose: twelve paintings at full strength fight the number on
+   top of them, and the number is the point of this tile */
+.mosaic i { display: block; background-size: cover; background-position: center;
+  filter: saturate(.82) brightness(.86); }
+.pick .bdveil { background: linear-gradient(180deg, rgba(18,10,32,.52) 0%,
+  rgba(18,10,32,.62) 45%, rgba(18,10,32,.86) 100%); }
+@media (max-width: 430px) {
+  .bigdoor { min-height: 200px; } .bigdoor .bdbody { min-height: 200px; }
+  .mdoor { min-height: 96px; } .mdoor .bdbody { min-height: 96px; }
+  .mdoor .bdbody b { font-size: 13.5px; }
+  .minidoors { gap: var(--space-sm); }
+}
+
+.mapsvg .terrg:focus-visible { outline: none; }
+
+.mapsvg .tlab {
+  font-family: var(--body); font-size: 13px; font-weight: 700; fill: var(--text2);
+  text-anchor: middle; dominant-baseline: middle; pointer-events: none;
+  paint-order: stroke; stroke: var(--card); stroke-width: 3.4; stroke-linejoin: round;
+  opacity: .82;
+}
+.mapsvg .tlab.lit { fill: var(--text); opacity: 1; }
+
+.mapsvg .outline { fill: none; stroke: var(--text2); stroke-width: 1.6; opacity: .35; }
+.mapsvg .pin circle { fill: var(--accent3); stroke: #fff; stroke-width: 2.5; cursor: pointer; }
+
+/* The callout sits on the map, anchored to the state it belongs to. Parking the facts in a
+   panel below turns looking at a map into reading a table underneath one. */
+.mapwrap { position: relative; width: 100%; }
+.callout {
+  position: absolute; z-index: 3; transform: translate(-50%, calc(-100% - 16px));
+  width: min(262px, 76vw); padding: var(--space-md) var(--space-lg) var(--space-lg); text-align: left;
+  background: var(--card); border: 1px solid var(--line2); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); animation: rise .2s ease-out;
+}
+.callout.below { transform: translate(-50%, 16px); }
+/* once placeCallout() has measured it, `top` is already the final pixel position */
+.callout.placed { transform: translate(-50%, 0); }
+.callout h3 { margin: 0 0 2px; font-size: 19px; padding-right: 20px; }
+.callout .cx {
+  position: absolute; top: 6px; right: 8px; width: 28px; height: 28px; line-height: 1;
+  border: 0; background: none; color: var(--muted); font-size: 21px; cursor: pointer;
+  border-radius: var(--radius-pill);
+}
+.callout .cx:hover { background: var(--ground2); color: var(--text); }
+.callout .chello { margin: 0 0 var(--space-md); font-size: 17px; color: var(--accent); }
+.callout .cfacts { display: grid; gap: 5px; margin-bottom: var(--space-sm); }
+.callout .cfacts span { display: block; line-height: 1.2; }
+.callout .cfacts b { font-size: 14.5px; line-height: 1.3; }
+.callout .ctriv {
+  margin: 0 0 var(--space-md); font-size: 13px; color: var(--text2); line-height: 1.5;
+  padding-left: 10px; border-left: 3px solid var(--accent2);
+}
+/* On a phone the bubble stops trying to be a bubble and becomes a sheet — a 300px card
+   anchored to Manipur is unreadable on a 360px screen. */
+@media (max-width: 560px) {
+  .callout, .callout.below {
+    position: static; transform: none; width: auto; margin-top: var(--space-lg);
+  }
+}
+
+/* ------------------------------------------------------------------- utsav */
+/* The festival's own name in its own script, sitting next to the roman one — a Mizo or
+   Garo festival carries no script at all rather than a Devanagari transliteration no Mizo
+   family would recognise, so this has to degrade to nothing gracefully. */
+.fscript { font-weight: 600; color: var(--accent); margin-left: 4px; }
+
+/* "one thing to actually do today" — the whole point of the pillar, so it gets weight */
+.dolist { margin: 0; padding-left: 0; list-style: none; display: grid; gap: var(--space-sm); }
+.dolist li {
+  position: relative; padding: var(--space-md) var(--space-md) var(--space-md) 38px;
+  background: var(--ground2); border-radius: var(--radius-md); line-height: 1.55;
+}
+.dolist li::before {
+  content: '·'; position: absolute; left: 14px; top: 7px;
+  font-size: 26px; line-height: 1; color: var(--accent2);
+}
+
+/* -------------------------------------------------------------------- home */
+/* Today: three invitations side by side, one per way this app gets used. Each one ends in a
+   button, because the point of this card is that something happens. */
+.today { display: grid; gap: var(--space-lg); grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+/* Home's first card: greeting, Do-one and Carry-one on ONE line, wrapping only
+   when the screen truly cannot hold them */
+.herorow { display: flex; gap: var(--space-lg); align-items: stretch; flex-wrap: wrap; }
+.herorow .greetblk { flex: 1.4 1 280px; min-width: 250px; }
+.herorow .td { flex: 1 1 200px; min-width: 190px; }
+.td {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-sm);
+  padding: var(--space-lg); background: var(--ground2);
+  border: 1px solid var(--line); border-radius: var(--radius-lg);
+}
+.td p { margin: 0; font-size: 14.5px; line-height: 1.55; flex: 1; }
+.td .btn, .td .pill { margin-top: auto; }
+
+/* Your yatra: five true numbers, not a row of identical mascots on an XP bar. */
+.ygrid {
+  display: grid; gap: var(--space-md); margin-top: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.ycell {
+  padding: var(--space-md); background: var(--ground2);
+  border-radius: var(--radius-md); display: grid; gap: 2px;
+}
+.ycell b { font-family: var(--display); font-size: 27px; line-height: 1.1; }
+.ycell > span { font-size: 13.5px; color: var(--text2); }
+
+/* An empty mala still shows its shape — a string of beads waiting, not a blank. */
+.mala.empty i { background: none; border: 1.5px dashed var(--line2); opacity: .8; }
+
+/* -------------------------------------------------------------------- geet */
+/* Verses are set to be sung from, not skimmed: generous leading, centred, and never
+   letter-spaced — several of these are Devanagari, Tamil and Gurmukhi, where letter-spacing
+   would break the script outright. */
+.lyric { text-align: center; }
+.lyric .lyr { font-size: 21px; line-height: 2; margin-bottom: var(--space-md); }
+.lyric hr { border: 0; border-top: 1px solid var(--line); margin: var(--space-lg) auto; width: 60px; }
+
+/* -------------------------------------------------------------------- nani */
+/* The week's question. It is the most important thing on the page and it is a question, so
+   it gets the display face and room to be read aloud. */
+.askcard { border: 1px solid var(--accent); box-shadow: var(--shadow-lg); }
+.askcard h2 { font-size: 22px; line-height: 1.3; }
+
+.clip {
+  display: flex; gap: var(--space-sm); align-items: center;
+  padding: var(--space-md) 0; border-bottom: 1px solid var(--line);
+}
+.clip:last-child { border-bottom: 0; }
+.clip > div:first-child { flex: 1; min-width: 0; }
+.clip b { display: block; font-size: 15px; line-height: 1.35; }
+.clip .tiny { display: block; }
+
+/* Numbered rules, in the order you would explain them to an eight-year-old standing in a
+   park. Big numerals because this gets read on a phone held at arm's length outdoors. */
+.rules { margin: 0 0 var(--space-md); padding-left: 0; list-style: none; counter-reset: r; }
+.rules li {
+  counter-increment: r; position: relative; padding: 0 0 var(--space-md) 40px; line-height: 1.6;
+}
+.rules li::before {
+  content: counter(r); position: absolute; left: 0; top: 0;
+  width: 26px; height: 26px; border-radius: var(--radius-pill);
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--mono); font-size: 13px; display: grid; place-items: center;
+}
+
+/* the ambient strip under the map, so the map is never a dead surface */
+.mfacts {
+  margin-top: var(--space-lg); padding: var(--space-lg);
+  background: var(--ground2); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  animation: rise .22s ease-out;
+}
+.mfacts.hint { color: var(--muted); font-size: 14px; text-align: center; }
+.mfacts .fgrid {
+  display: grid; gap: var(--space-sm); margin-top: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.legend { display: flex; gap: var(--space-lg); flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 13px; height: 13px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; }
+.legend i.lg-mist { background: var(--mist); }
+.legend i.lg-lit { background: linear-gradient(135deg, var(--accent2), var(--accent3)); }
+.legend i.dot { border-radius: 50%; width: 11px; height: 11px; }
+.legend i.lg-cap { background: var(--card); box-shadow: inset 0 0 0 1.6px var(--text2); }
+.legend i.lg-caplit { background: var(--good, #4fbf8b); }
+
+/* --------------------------------------------------------------- tiles */
+.tile {
+  display: block; width: 100%; text-align: left;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); padding: var(--space-lg);
+  cursor: pointer; box-shadow: var(--shadow);
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+.tile:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: var(--shadow-lg); }
+/* A tile's kicker, title and blurb are three stacked lines. Left inline they run into each
+   other — "ON THIS MONTHNuakhai" — which is how it read before this rule. */
+.tile > .mono, .tile > b { display: block; }
+.tile > b { font-family: var(--display); font-size: 17px; line-height: 1.3; margin: 4px 0; }
+.tile > .mono + b { margin-top: 6px; }
+.tile.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* avatar chip — the "Pick a buddy" grid */
+.avchip {
+  display: grid; place-items: center; gap: 6px; padding: 10px 6px;
+  background: var(--card2); border: 2px solid transparent; border-radius: var(--radius-lg);
+  cursor: pointer; text-align: center;
+}
+.avchip:hover { border-color: var(--line2); }
+.avchip.on { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 3px var(--accent-soft); }
+.avchip img, .avchip svg { width: 100%; max-width: 76px; height: auto; display: block; }
+.avchip span { font-size: 11.5px; font-weight: 700; color: var(--text2); line-height: 1.25; }
+
+/* --------------------------------------------------------------- stories */
+.stage {
+  position: relative; min-height: 230px;
+  display: flex; align-items: flex-end; justify-content: center; gap: var(--space-lg);
+  padding: var(--space-xl);
+  background: linear-gradient(180deg, var(--card2), var(--card));
+  border: 1px solid var(--line); border-radius: var(--radius-xl); overflow: hidden;
+}
+.stage img, .stage svg { filter: drop-shadow(0 10px 20px rgba(30,20,70,.14)); }
+.stage .speaking { animation: bob 1s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+
+.speech { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl); padding: var(--space-xl); box-shadow: var(--shadow); font-size: 17px; line-height: 1.68; color: var(--text); }
+.speech .who { font-family: var(--display); color: var(--accent); font-weight: 800; display: block; margin-bottom: 5px; }
+
+.opt {
+  display: block; width: 100%; text-align: left; margin-bottom: 10px;
+  padding: 15px 18px; min-height: 52px;
+  border: 1px solid var(--line2); border-radius: var(--radius-md);
+  background: var(--card); cursor: pointer; font-weight: 600; box-shadow: var(--shadow);
+}
+.opt:hover { border-color: var(--accent); color: var(--accent); }
+.opt.right { border-color: var(--good); background: #e7f6ef; color: #15694a; }
+.opt.wrong { border-color: var(--bad); background: #fdeceb; color: #8f2f2b; }
+
+.dots { max-width: 720px; margin-left: auto; margin-right: auto; display: flex; gap: 5px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line2); }
+.dots i.on { background: var(--accent); }
+
+/* ----------------------------------------------------- dashboard cards */
+/* the small status row */
+.statrow { display: grid; grid-template-columns: 1.15fr 1fr 1.25fr; gap: var(--space-lg); }
+@media (max-width: 900px) { .statrow { grid-template-columns: 1fr; } }
+
+/* a warm-tinted card, for the nugget slots */
+.tint { background: linear-gradient(180deg, #fdf6e8, var(--card)); border-color: #f0e0bd; }
+[data-mode="night"] .tint { background: var(--card2); border-color: var(--line2); }
+
+/* the corner notch — Bizzing Bee uses a honeycomb; ours is a marigold dot */
+.notch { position: relative; overflow: visible; }
+.notch::after {
+  content: ''; position: absolute; top: -7px; right: 20px;
+  width: 16px; height: 16px; border-radius: 50% 50% 50% 0;
+  background: var(--accent2); transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgba(30,20,70,.18);
+}
+
+/* speech bubble from the buddy */
+.bubble {
+  position: relative; background: var(--card2); border: 1px solid var(--line);
+  border-radius: var(--radius-md); padding: 11px 14px; font-size: 14px; font-style: italic; color: var(--text2);
+}
+.bubble::before {
+  content: ''; position: absolute; left: -7px; top: 16px; width: 12px; height: 12px;
+  background: var(--card2); border-left: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  transform: rotate(45deg);
+}
+
+/* multi-metric goal rows */
+.metric { display: flex; align-items: center; gap: 9px; font-size: 13.5px; margin-bottom: 7px; }
+.metric b { margin-left: auto; font-variant-numeric: tabular-nums; }
+.metric i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+/* the big journey cards with a painted header */
+.journey {
+  display: block; width: 100%; text-align: left; padding: 0; overflow: hidden;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow); cursor: pointer; transition: transform .15s, box-shadow .15s;
+}
+.journey:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.journey .banner { position: relative; height: 172px; background: var(--card2); background-size: cover; background-position: center; }
+.journey .banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.02)); }
+.journey .tag {
+  position: absolute; top: 14px; right: 14px; z-index: 2;
+  background: rgba(20,12,45,.82); color: #fff; font-size: 12px; font-weight: 700;
+  padding: 6px 13px; border-radius: var(--radius-pill);
+}
+.journey .chip {
+  position: absolute; top: 14px; left: 14px; z-index: 2;
+  width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--accent); color: #fff;
+}
+.journey .body { padding: var(--space-lg) var(--space-xl) var(--space-xl); }
+
+/* --------------------------------------------------------------- ladder */
+.ladder { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+.ladder::-webkit-scrollbar { display: none; }
+.rung { flex: none; width: 92px; text-align: center; padding: 12px 6px; border-radius: var(--radius-lg); border: 2px solid transparent; }
+.rung.cur { border-color: var(--accent); background: var(--card); box-shadow: 0 0 0 3px var(--accent-soft); }
+.rung.done { opacity: .95; }
+.rung.locked { opacity: .42; }
+.rung .lv { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; color: var(--muted); }
+.rung .nm { font-size: 12px; font-weight: 700; margin-top: 4px; }
+
+/* progress. NOT called .bar — that collided with .topbar .bar and was silently
+   applying height:8px + overflow:hidden to the header, which clipped the brand
+   mascot and is what "the icon is getting smushed" actually was. */
+.meter { height: 8px; border-radius: 99px; background: var(--card2); overflow: hidden; border: 1px solid var(--line); }
+.meter i { display: block; height: 100%; background: var(--accent); }
+.ring { display: grid; place-items: center; }
+
+/* ------------------------------------------------------------- language */
+.gridscript { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 9px; }
+.glyph {
+  aspect-ratio: 1; display: grid; place-items: center; align-content: center;
+  font-family: var(--deva); font-size: 29px; font-weight: 600;
+  background: var(--card); border: 1px solid var(--line2);
+  border-radius: var(--radius-md); cursor: pointer; box-shadow: var(--shadow);
+}
+.glyph:hover { border-color: var(--accent); color: var(--accent); }
+.glyph.right { border-color: var(--good); background: #e7f6ef; }
+.glyph.wrong { border-color: var(--bad); background: #fdeceb; }
+.glyph small { display: block; font-family: var(--body); font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+.bigglyph { font-family: var(--deva); font-size: clamp(58px, 15vw, 96px); line-height: 1.3; text-align: center; }
+
+/* ------------------------------------------------------------ celebration */
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  z-index: 80; padding: 13px 22px; border-radius: var(--radius-pill);
+  background: var(--accent); color: #fff; font-weight: 700;
+  box-shadow: var(--shadow-lg); animation: pop .25s ease-out; max-width: 92vw;
+}
+@keyframes pop { from { opacity: 0; transform: translate(-50%, 12px) } }
+
+.streak { display: flex; gap: 7px; flex-wrap: wrap; }
+.streak i { width: 30px; height: 30px; border-radius: 50%; background: var(--card2); border: 1px solid var(--line); display: grid; place-items: center; font-size: 14px; font-style: normal; }
+.streak i.lit { background: #fdf3e2; border-color: var(--accent2); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+/* ------------------------------------------------------------------ RARITY
+   Tier colours come from Bizzing Bee's RAR table (avatars.js) so both apps
+   grade a collection the same way. Epic and legendary glow; the glow breathes
+   only for legendary, and stops entirely under prefers-reduced-motion. */
+.avchip { position: relative; }
+.avchip[data-rar="rare"]      { --rc: #3D7DF0; }
+.avchip[data-rar="epic"]      { --rc: #B14FC4; }
+.avchip[data-rar="legendary"] { --rc: #F0B429; }
+
+.avchip[data-rar="rare"]      { border-color: color-mix(in srgb, var(--rc) 40%, transparent); }
+.avchip[data-rar="epic"] {
+  border-color: color-mix(in srgb, var(--rc) 55%, transparent);
+  background: radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--rc) 16%, transparent), var(--card2) 70%);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--rc) 28%, transparent);
+}
+.avchip[data-rar="legendary"] {
+  border-color: var(--rc);
+  background: radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--rc) 26%, transparent), var(--card2) 72%);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--rc) 45%, transparent);
+  animation: rarPulse 2.8s ease-in-out infinite;
+}
+@keyframes rarPulse {
+  50% { box-shadow: 0 0 34px color-mix(in srgb, var(--rc) 70%, transparent); }
+}
+/* the art itself catches the light */
+.avchip[data-rar="epic"] img, .avchip[data-rar="epic"] svg,
+.avchip[data-rar="legendary"] img, .avchip[data-rar="legendary"] svg {
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--rc) 65%, transparent));
+}
+/* corner tier dot */
+.avchip[data-rar]::after {
+  content: ''; position: absolute; top: 7px; right: 7px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--rc); box-shadow: 0 0 7px var(--rc);
+}
+.avchip[data-rar="free"]::after { display: none; }
+
+.rarlabel {
+  display: inline-block; padding: 2px 9px; border-radius: var(--radius-pill);
+  font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+  color: #fff; background: var(--rc, #7B8794);
+}
+@media (prefers-reduced-motion: reduce) { .avchip[data-rar="legendary"] { animation: none; } }
+
+/* ------------------------------------------------------- the River of Time */
+.river { position: relative; padding: var(--space-lg) 0 var(--space-2xl); }
+.river::before {
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 5px;
+  transform: translateX(-50%); border-radius: 99px;
+  background: linear-gradient(180deg, var(--accent2), var(--accent), var(--accent3));
+  opacity: .32;
+}
+.bend {
+  position: relative; display: grid; gap: 3px; width: min(560px, 100%);
+  text-align: left; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-xl); padding: var(--space-lg) var(--space-xl);
+  box-shadow: var(--shadow); cursor: pointer; margin: 0 0 var(--space-lg) auto;
+  transition: transform .15s, border-color .15s;
+}
+.bend:nth-child(odd) { margin: 0 auto var(--space-lg) 0; }
+.bend:hover { transform: translateY(-3px); border-color: var(--accent); }
+.bend .yr { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.bend .ttl { font-family: var(--display); font-weight: 800; font-size: 19px; }
+.bend .node {
+  position: absolute; top: 50%; width: 62px; height: 62px; border-radius: 50%;
+  display: grid; place-items: center; transform: translateY(-50%);
+  background: var(--card); border: 3px solid var(--accent2); box-shadow: var(--shadow);
+}
+.bend:nth-child(odd) .node { right: -86px; }
+.bend:nth-child(even) .node { left: -86px; }
+@media (max-width: 760px) {
+  .river::before { left: 26px; }
+  .bend, .bend:nth-child(odd) { width: 100%; margin: 0 0 var(--space-lg) 0; padding-left: 74px; }
+  .bend .node, .bend:nth-child(odd) .node, .bend:nth-child(even) .node { left: -4px; right: auto; width: 54px; height: 54px; }
+}
+
+/* ------------------------------------------------------------------- MALA
+   The payoff. Not a ladder — a garland that grows and is never finished,
+   which is also true of the thing it stands for. */
+.mala { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; padding: 4px 0; }
+.mala i {
+  width: 22px; height: 22px; border-radius: 50%;
+  box-shadow: inset 0 -3px 5px rgba(0,0,0,.18), 0 1px 3px rgba(30,20,70,.22);
+  animation: beadIn .32s ease-out;
+}
+@keyframes beadIn { from { transform: scale(.2); opacity: 0 } }
+
+/* --------------------------------------------------------- STORY LIBRARY
+   Shelves, not a path. docs/10 §3.5: no progress bar anywhere near a story,
+   and the artwork does the work a grandmother's face used to do. */
+.rail {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 232px; gap: var(--space-lg);
+  overflow-x: auto; padding: 4px 2px 14px; scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.rail > * { scroll-snap-align: start; }
+@media (max-width: 560px) { .rail { grid-auto-columns: 78vw; } }
+
+.scard {
+  position: relative; display: grid; gap: 2px; text-align: left; padding: 0 0 14px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow); cursor: pointer; overflow: hidden;
+  transition: transform .16s, box-shadow .16s;
+}
+.scard:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.scard .pic {
+  display: block; height: 154px; background-size: cover; background-position: center;
+  background-color: var(--card2);
+}
+.scard .pic.noart { display: grid; place-items: center; }
+.scard .nm {
+  font-family: var(--display); font-weight: 800; font-size: 16.5px;
+  line-height: 1.25; padding: 12px 14px 0;
+}
+.scard .hk { font-size: 12.5px; color: var(--muted); line-height: 1.45; padding: 4px 14px 0; }
+.scard .fav {
+  position: absolute; top: 10px; right: 12px; z-index: 2;
+  color: #fff; font-size: 17px; text-shadow: 0 1px 6px rgba(0,0,0,.5);
+}
+
+/* the story player's stage carries the painting */
+.stage { background-size: cover; background-position: center; }
+.heroshot {
+  height: 260px; border-radius: var(--radius-xl); margin-bottom: var(--space-lg);
+  background-size: cover; background-position: center;
+  border: 1px solid var(--line); box-shadow: var(--shadow);
+}
+
+/* ------------------------------------------------------------ STATE PAGE
+   The map is the anchor; this is where a place opens up. */
+.statehero {
+  position: relative; height: 300px; border-radius: var(--radius-xl);
+  background-size: cover; background-position: center;
+  border: 1px solid var(--line); box-shadow: var(--shadow);
+  margin-bottom: var(--space-lg); display: flex; align-items: flex-end;
+}
+.statehero .cap { padding: var(--space-xl); color: #fff; }
+.statehero h1 { color: #fff; margin: 0 0 10px; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+.statehero .pill { background: rgba(255,255,255,.92); border-color: transparent; color: var(--text); }
+@media (max-width: 560px) { .statehero { height: 220px; } }
+
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-md); }
+.fct { display: grid; gap: 2px; padding: 12px 14px; background: var(--card2); border-radius: var(--radius-md); }
+.fct b { font-family: var(--display); font-size: 17px; line-height: 1.25; }
+/* The rank and the caveat sit under the number, quieter than it — the figure is the fact,
+   where it places is the context. */
+.fct .tiny { line-height: 1.35; margin-top: 1px; }
+
+.triv { margin: 0; padding-left: 0; list-style: none; }
+.triv li {
+  position: relative; padding: 11px 0 11px 30px;
+  border-top: 1px solid var(--line); font-size: 15px;
+}
+.triv li:first-child { border-top: 0; }
+.triv li::before {
+  content: '◆'; position: absolute; left: 6px; top: 11px;
+  color: var(--accent2); font-size: 12px;
+}
+
+/* A heads-up, not a lock. Deliberately quiet — it must not read as a warning label or as a
+   thing withheld, because nothing is withheld. */
+.badge.soft { background: var(--ground2); color: var(--muted); border: 1px solid var(--line); }
+.grownup {
+  margin-top: 8px; padding: 8px 10px; font-size: 12.5px; line-height: 1.5;
+  color: var(--text2); background: var(--ground2);
+  border-left: 3px solid var(--accent2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* An episode row on the list: thumbnail beside the title, so a child picks by picture
+   rather than reading 33 titles. Falls back to a plain row when the art is absent. */
+.eprow { display: flex; gap: var(--space-lg); align-items: flex-start; }
+.eprow .epth {
+  width: 96px; height: 68px; flex: none; object-fit: cover;
+  border-radius: var(--radius-md); box-shadow: var(--shadow);
+}
+.eprow .epbody { flex: 1; min-width: 0; }
+.eprow > .epbody > .spread b { font-family: var(--display); font-size: 16.5px; line-height: 1.3; }
+@media (max-width: 480px) { .eprow .epth { width: 72px; height: 54px; } }
+
+/* ------------------------------------------------------------- the deck --
+   One card: its painting, who is speaking, the words, and the way onward. The art is INSIDE
+   the card rather than floating above it — as two separate blocks they never quite lined up
+   and left a dead white band between picture and text. */
+.deckhead {
+  display: flex; align-items: baseline; gap: var(--space-md);
+  margin: 0 auto 6px; max-width: 720px;
+}
+.deckhead .mono {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.deckhead .deckn { font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; }
+
+.deckcard {
+  position: relative; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
+  overflow: hidden; animation: turn .26s ease-out;
+  max-width: 720px; margin: 0 auto;
+}
+/* Everything in the deck shares one narrow column — stage, bubble, cast and controls — so
+   the card reads as a single object rather than a full-width page. */
+.stage, .speech, .castrow, .deckbar { max-width: 720px; margin-left: auto; margin-right: auto; }
+.deckcard.hasart .deckbody { padding-top: var(--space-lg); }
+.deckbody { padding: var(--space-xl); display: grid; gap: var(--space-lg); }
+
+.deckart {
+  width: 100%; overflow: hidden; background: var(--ground2);
+  /* Height, not aspect-ratio: with aspect-ratio a max-height makes the browser resolve the
+     whole box from the height, so the picture shrank in WIDTH too and left half the card
+     blank. An explicit responsive height keeps it full-bleed at every size, and stops a
+     16:9 painting being 600px tall on a desktop with the words below the fold. */
+  height: clamp(190px, 30vw, 360px);
+}
+.deckart img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  /* A little over-scan: several paintings carry a painted border of their own, and inside
+     the card's own rounded frame that read as a frame within a frame. */
+  transform: scale(1.08);
+}
+
+/* Speaker sits with the words, small and to the left, not stranded above them. */
+.whorow { display: flex; align-items: center; gap: var(--space-md); }
+.whorow img, .whorow svg { flex: none; }
+.whorow .whoname {
+  font-family: var(--display); font-weight: 800; font-size: 16px; color: var(--accent);
+}
+
+/* Left-aligned and measured. Long centred paragraphs are genuinely harder to read, and a
+   card can run to sixty words. */
+.deckcard p {
+  font-size: 19px; line-height: 1.7; color: var(--text); margin: 0 auto;
+  max-width: 46ch; text-align: center;
+}
+.deckbar { display: flex; gap: var(--space-sm); align-items: center; justify-content: center; }
+
+@media (max-width: 560px) {
+  .deckbody { padding: var(--space-lg); }
+  .deckcard p { font-size: 17.5px; }
+}
+
+@keyframes turn { from { opacity: 0; transform: translateX(14px) } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px) } }
+@media (max-width: 560px) { .deckcard p { font-size: 17.5px; } }
+
+/* A question at the end of an episode, never a moral. Styled as an invitation — warm,
+   open, unfinished — rather than as the boxed "moral of the story" a fable ends on. */
+.wonder { border-left: 4px solid var(--accent2); background: var(--ground2); }
+.wonder p { font-size: 17px; line-height: 1.6; max-width: 52ch; }
+
+/* WHO IS IN THIS CARD — found by name in the card's own words, so it works with or without
+   any artwork. Centred, because the characters are the subject of the card and not a label
+   filed down its left edge. Most have no painting yet, so the initial-disc stand-in has to
+   look deliberate rather than like a hole. */
+.castrow {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-lg);
+  padding: var(--space-lg); border-bottom: 1px solid var(--line); background: var(--ground2);
+}
+.castchip {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  flex: 1 1 150px; max-width: 210px; text-align: center;
+}
+.castchip b {
+  font-family: var(--display); font-weight: 800; font-size: 15px; color: var(--text);
+  line-height: 1.2;
+}
+.castchip > span:last-child {
+  font-size: 12px; line-height: 1.45; color: var(--text2);
+}
+.castmono {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--display); font-weight: 800; font-size: 20px;
+}
+/* The speaker of this card, when there is one, is lit rather than merely darker. */
+.castchip.on b { color: var(--accent); }
+.castchip.on .castmono, .castchip.on img, .castchip.on svg {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 50%;
+}
+
+
+/* ------------------------------------------------------- stage additions --
+   Names under the figures, and a stand-in for a character with no painting yet, so the
+   epic stage works before the avatars exist. */
+/* The card column is narrow; the stage must not be short as well. min-height alone left the
+   painting as a thin letterbox band once the column came in to 720px, which is not what
+   "narrower" meant. An aspect ratio ties the height to the (now narrower) width, so the
+   picture keeps its shape and its presence. */
+.stage {
+  flex-wrap: wrap;
+  aspect-ratio: 4 / 3; min-height: 0;
+  max-height: 62vh;
+}
+@media (min-width: 700px) { .stage { aspect-ratio: 3 / 2; } }
+.stage > div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.stagename {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.7); white-space: nowrap;
+}
+.stagemono {
+  display: grid; place-items: center; border-radius: 50%;
+  background: var(--card); color: var(--accent);
+  font-family: var(--display); font-weight: 800; font-size: 42px;
+  box-shadow: 0 10px 20px rgba(30,20,70,.28);
+}
+
+/* SOMEBODY IS TALKING. A tail turns the panel into a bubble, which is the difference between
+   reading a paragraph and hearing a person. Only where the card actually carries quoted
+   speech — a tail on the storyteller's own voice would attribute it to whoever is on stage. */
+.speech.bubble {
+  position: relative; border-color: var(--accent); overflow: visible;
+  /* Room for the tail, so it never lands on the first line of what is being said. */
+  margin-top: 26px !important;
+}
+/* Two stacked triangles: the outer one is the border colour, the inner one sits one pixel
+   lower in the card colour and eats the middle, which is how you get a hollow tail. */
+.speech.bubble::before,
+.speech.bubble::after {
+  content: ''; position: absolute; left: 36px; width: 0; height: 0;
+  border-left: 14px solid transparent; border-right: 14px solid transparent;
+}
+.speech.bubble::before { top: -14px; border-bottom: 14px solid var(--accent); }
+.speech.bubble::after  { top: -11px; border-bottom: 14px solid var(--card); }
+
+/* The who's-who now sits under the words as plain text, so it reads as a footnote rather
+   than competing with the picture. */
+.castrow {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-lg);
+  margin-top: var(--space-md); padding: var(--space-md) var(--space-lg);
+  background: var(--ground2); border: 1px solid var(--line); border-radius: var(--radius-lg);
+}
+.castchip { display: block; flex: 1 1 190px; max-width: 260px; text-align: center; }
+.castchip b { display: block; font-family: var(--display); font-weight: 800; font-size: 15px; }
+.castchip > span { display: block; font-size: 12px; line-height: 1.45; color: var(--text2); }
+.castchip.on b { color: var(--accent); }
+
+/* --------------------------------------------------------------- bhasha path
+   Duolingo's spine — one obvious next thing, then a vertical run of nodes you can see
+   yourself moving along — carrying Bizzing Bee's ladder and mascot. The letter chart moved
+   out from under this: a chart is a reference, and a reference is not a lesson. */
+.nextup {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  border: 2px solid var(--accent); background: var(--card);
+}
+.nextup:hover { box-shadow: var(--shadow-lg); }
+
+.path { display: grid; gap: 0; margin-top: var(--space-md); }
+.pnode {
+  position: relative; display: flex; gap: var(--space-lg); align-items: flex-start;
+  width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+  padding: var(--space-md) 0 var(--space-lg);
+}
+/* The line joining the rungs, so it reads as one climb rather than eight buttons. */
+.pnode::before {
+  content: ''; position: absolute; left: 21px; top: 44px; bottom: -4px; width: 2px;
+  background: var(--line2);
+}
+.pnode:last-child::before { display: none; }
+.pdisc {
+  flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--display); font-weight: 800; font-size: 17px;
+  background: var(--ground2); color: var(--muted); border: 2px solid var(--line2);
+  position: relative; z-index: 1;
+}
+.pnode.done .pdisc { background: var(--good, #4fbf8b); color: #fff; border-color: transparent; }
+.pnode.now .pdisc {
+  background: var(--accent); color: #fff; border-color: transparent;
+  box-shadow: 0 0 0 5px var(--accent-soft);
+}
+.pnode .pbody { display: grid; gap: 3px; padding-top: 4px; }
+.pnode .pbody b { font-family: var(--display); font-size: 16.5px; }
+.pnode.ahead .pbody b { color: var(--text2); }
+.meter.sm { height: 6px; margin-top: 6px; max-width: 220px; }
+
+/* ----------------------------------------------------- the river, in India
+   The eras as a horizontal band under the map — on the page, not behind a door. */
+.riverstrip {
+  display: flex; gap: var(--space-md); overflow-x: auto; padding: var(--space-md) 2px;
+  scrollbar-width: none;
+}
+.riverstrip::-webkit-scrollbar { display: none; }
+.riverstrip .bend { flex: 0 0 128px; }
+
+/* ----------------------------------------------------- bottom bar on phones
+   A child holds a phone by the bottom half; top tabs are desktop furniture. The same five
+   tabs move to the bottom edge, thumb-height, with the safe-area respected. The header keeps
+   the brand, the kauris and the grown-up door. */
+@media (max-width: 700px) {
+  .topbar .nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 0;
+    background: var(--card); border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 24px rgba(30, 20, 70, .10);
+    padding: 6px max(8px, env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom))
+             max(8px, env(safe-area-inset-right));
+    margin: 0; overflow: visible;
+  }
+  .topbar .nav .navtab {
+    flex-direction: column; gap: 3px; justify-content: center;
+    font-size: 11px; padding: 6px 2px; border-radius: var(--radius-md);
+    min-height: 52px;   /* a real touch target */
+  }
+  .topbar .nav .navtab svg { width: 22px; height: 22px; }
+  /* room so the last card is never hidden behind the bar OR the world's footer stage */
+  .wrap { padding-bottom: calc(214px + env(safe-area-inset-bottom)); }
+}
+
+/* -------------------------------------------------------------- the river
+   Each era is a painted bend: the state where its heart beats as the banner, its people
+   standing on it, the water alternating left and right so the page reads as a course
+   rather than a column. */
+.riverflow { display: grid; gap: var(--space-lg); position: relative; }
+.riverflow::before {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 3px;
+  background: linear-gradient(180deg, var(--accent-soft), var(--accent) 50%, var(--accent-soft));
+  border-radius: 2px; opacity: .5;
+}
+.erabend {
+  position: relative; width: min(560px, 92%); text-align: left; cursor: pointer;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl);
+  overflow: hidden; box-shadow: var(--shadow); padding: 0;
+  justify-self: start; transition: transform .15s, box-shadow .15s;
+}
+.erabend.alt { justify-self: end; }
+.erabend:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
+.erabanner {
+  height: 130px; background-size: cover; background-position: center;
+  background-color: var(--ground2);
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+}
+.erawhen {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.75);
+}
+.erafigs { display: flex; }
+.erafigs img, .erafigs svg { margin-left: -14px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.4)); }
+.erafigs > :first-child { margin-left: 0; }
+.erabody { display: grid; gap: 4px; padding: var(--space-md) var(--space-lg) var(--space-lg); }
+.erabody b { font-family: var(--display); font-size: 17.5px; line-height: 1.25; }
+@media (max-width: 640px) {
+  .riverflow::before { left: 10px; }
+  .erabend, .erabend.alt { width: 100%; justify-self: stretch; }
+}
+
+/* the timeline inside an era */
+.tline { display: grid; gap: 0; }
+.tmoment {
+  position: relative; padding: 0 0 var(--space-lg) 26px;
+}
+.tmoment::before {
+  content: ''; position: absolute; left: 6px; top: 7px; width: 9px; height: 9px;
+  border-radius: 50%; background: var(--accent2);
+}
+.tmoment::after {
+  content: ''; position: absolute; left: 10px; top: 20px; bottom: 2px; width: 1.5px;
+  background: var(--line2);
+}
+.tmoment:last-child::after { display: none; }
+.tmoment p { margin: 3px 0 0; font-size: 15px; }
+
+/* ================================================= BHASHA PHASE 0 ======= */
+/* The quiz's three interaction families: ordered build (slots + tiles),
+   the feedback strip, and the Likhna tracing canvas. Devanagari inside all
+   of them obeys the house rule: real face, roomy line-height, never
+   letter-spaced. */
+
+/* --- ordered build: answer slots --- */
+.buildclue { font-size: 17px; margin: 2px 0 12px; }
+.slots {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch;
+  justify-content: center; margin: 6px 0 16px; min-height: 58px;
+}
+.slot {
+  min-width: 52px; min-height: 54px; padding: 4px 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 2px dashed var(--line2); border-radius: var(--radius-md);
+  background: var(--card2); font-size: 24px; line-height: 1.7;
+}
+.slot.next { border-color: var(--accent); background: var(--accent-soft); }
+.slot.filled {
+  border: 2px solid var(--accent); background: var(--card); cursor: pointer;
+  font-family: inherit; color: var(--text); box-shadow: var(--shadow);
+}
+.slot.filled:hover { border-color: var(--bad); }        /* tap to take it back */
+.slot.filled.good { border-color: var(--good); background: #e7f6ef; }
+.slot.reveal { border: 2px solid var(--good); background: #e7f6ef; color: #15694a; }
+
+/* --- ordered build: the tile tray --- */
+.btiles { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-bottom: 12px; }
+.btile {
+  min-width: 56px; min-height: 56px; padding: 6px 12px; cursor: pointer;
+  border: 1px solid var(--line2); border-radius: var(--radius-md);
+  background: var(--card); color: var(--text); font-size: 24px; line-height: 1.7;
+  box-shadow: var(--shadow); display: inline-flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.btile:hover { border-color: var(--accent); color: var(--accent); }
+.btile small { font-family: var(--body); font-size: 10.5px; color: var(--muted); line-height: 1.2; }
+.btile.used { opacity: .28; cursor: default; box-shadow: none; }      /* greyed, its glyph is on a slot */
+.btile.kfocus { outline: 3px solid var(--accent); outline-offset: 2px; }  /* the keyboard ring */
+.btile:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* wrong build: a gentle shake, stilled for reduced-motion */
+.slots.shake { animation: buildshake .4s ease 1; }
+@keyframes buildshake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); } 55% { transform: translateX(5px); } 80% { transform: translateX(-3px); }
+}
+@media (prefers-reduced-motion: reduce) { .slots.shake { animation: none; } }
+
+/* --- the feedback strip: explain, never just mark --- */
+.qfb { display: none; }
+.qfb.show {
+  display: block; margin-top: 14px; padding: 12px 14px;
+  border-radius: var(--radius-md); font-size: 15px; line-height: 1.65;
+  border: 1px solid var(--line2); background: var(--card2);
+}
+.qfb.good { border-color: var(--good); background: #e7f6ef; color: #15694a; }
+.qfb.bad  { border-color: var(--accent2, var(--line2)); background: #fdf6e8; color: var(--text); }
+.qfb .fbsent { display: block; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line2); }
+
+/* --- barakhadi: the teaching row above the question --- */
+.bkrow {
+  display: flex; gap: 6px; overflow-x: auto; padding: 8px 2px; margin-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.bkcell {
+  flex: none; min-width: 44px; padding: 6px 8px; text-align: center;
+  border: 1px solid var(--line2); border-radius: var(--radius-sm);
+  background: var(--card2); font-size: 20px; line-height: 1.7;
+}
+
+/* --- oddOneOut "listen to the length": numbered speakers, in the same order
+       as the options. Numbers, never names — a roman name here would print the
+       answer beside the question. --- */
+.hearrow { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--space-md); }
+.hearone {
+  display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  padding: 7px 13px; border-radius: var(--radius-pill);
+  border: 1px solid var(--line2); background: var(--card2);
+  font: 700 13px var(--mono); color: var(--text2);
+}
+.hearone:hover { border-color: var(--accent); color: var(--accent); }
+
+/* --- matraAttach: the sign yet to be found --- */
+.qmark {
+  display: inline-grid; place-items: center; width: .9em; height: .9em;
+  border: 3px dashed var(--accent); border-radius: var(--radius-md);
+  color: var(--accent); font-size: .55em; font-family: var(--display); font-weight: 800;
+}
+
+/* --- pickReply: the line said to you --- */
+.scenechip {
+  display: inline-block; padding: 4px 12px; margin-bottom: 8px;
+  border-radius: var(--radius-pill); background: var(--accent-soft); color: var(--accent);
+  font-size: 12.5px; font-weight: 700; text-transform: capitalize;
+}
+.speech.saidtoyou { margin-bottom: 14px; }
+
+/* --- readPassage --- */
+.passage {
+  font-size: 19px; line-height: 1.9; padding: 14px 16px; margin-bottom: 14px;
+  background: var(--card2); border-left: 3px solid var(--accent2);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* --- Likhna: the tracing canvas (likhna.js renders, these dress it) --- */
+.trace { margin-top: 4px; }
+.tracehead { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.tracewrap {
+  position: relative; width: min(100%, 340px); aspect-ratio: 1; margin: 0 auto 10px;
+  border: 1px solid var(--line2); border-radius: var(--radius-lg);
+  background: var(--card2); overflow: hidden; touch-action: none;
+}
+.tguide, .tink { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tink { cursor: crosshair; }
+.tink:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; border-radius: var(--radius-lg); }
+.tpen {
+  position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px;
+  border: 2.5px solid var(--accent); border-radius: 50%; pointer-events: none;
+  background: transparent; z-index: 2;
+}
+.tpen.on { background: var(--accent); }
+.tracesay { margin: 4px 0 10px; min-height: 1.4em; }
+.tracesay.good { color: var(--good); font-weight: 700; }
+
+/* --- Bhasha Phase 1-2: the lesson spine and readiness --- */
+
+/* THE ARC STRIP — one tick per beat of the planned session, across the top of
+   every card in it. Introductions are the short pale ticks, the closing review
+   its own colour. It shows how much is LEFT, never how much you could lose:
+   this app has no hearts and this is the strip that replaces them. */
+.arcbar { display: flex; gap: 3px; margin: 0 0 var(--space-lg); align-items: center; }
+.arcbar i {
+  flex: 1 1 0; height: 5px; border-radius: 99px;
+  background: var(--line2); transition: background .25s ease;
+}
+/* a teaching beat is a dot, a drill is a bar: the rhythm of the strip is the
+   shape of the lesson — dot, bar, bar, dot, bar, bar, then the run home */
+.arcbar i.a-int { flex: 0 0 7px; height: 7px; border-radius: 50%; }
+.arcbar i.done { background: var(--accent); }
+.arcbar i.a-int.done { background: var(--accent); opacity: .5; }
+.arcbar i.a-rev { background: #cdd8ee; }
+.arcbar i.a-rev.done { background: #4d7fd6; }
+.arcbar i.at { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* the introduce beat: the new thing shown plainly, one Got-it under it */
+.introcard { text-align: center; }
+/* the glyph on its own soft plate — one thing on the card, unmistakably */
+.introplate {
+  margin: var(--space-lg) auto var(--space-md); width: min(172px, 46vw); aspect-ratio: 1;
+  border-radius: 50%; display: grid; place-items: center;
+  /* accent-soft is a 10% wash, which alone reads as grey — the disc is a
+     stronger mix with the wash as a halo around it */
+  background: color-mix(in srgb, var(--accent) 13%, var(--card));
+  box-shadow: 0 0 0 10px var(--accent-soft);
+}
+.introcard .bigglyph { margin: 0; font-size: clamp(64px, 19vw, 92px); }
+.introcard.smallglyph .introplate {
+  aspect-ratio: auto; width: 100%; border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md);
+}
+.introcard.smallglyph .bigglyph { font-size: clamp(22px, 5.5vw, 32px); line-height: 1.75; }
+.introsub { font-size: 17px; color: var(--text2); margin: 2px 0 0; }
+.introen { font-family: var(--display); font-size: 21px; margin: 6px 0 12px; }
+
+/* the band, worn as a place on a journey — its own quiet strip under the
+   pack meter rather than a second pill crowding the title */
+.bandrow {
+  display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap;
+  margin: var(--space-lg) 0 0; padding-top: var(--space-md);
+  border-top: 1px dashed var(--line2);
+}
+.bandrow .mono { margin: 0; }
+
+/* the placement step in onboarding: framed as the one answer that routes the
+   child, with the routing said out loud the moment it is given */
+.placebox {
+  margin-top: var(--space-xl); padding: var(--space-lg);
+  border: 1px solid var(--line2); border-radius: var(--radius-lg);
+  background: var(--card2);
+}
+.placeout {
+  margin: var(--space-lg) 0 0; padding-top: var(--space-md);
+  border-top: 1px dashed var(--line2); font-size: 14px; color: var(--text2);
+}
+.placeout b { color: var(--accent); }
+
+/* readiness chips on the path — counts straight off the SRS boxes */
+.rchips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.rchips .rc { font-style: normal; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; line-height: 1.5; }
+.rc-new   { background: var(--accent-soft); color: var(--accent); }
+.rc-learn { background: #fdf6e8; color: #9a6b15; }
+.rc-rev   { background: #e8f0fd; color: #2b5cab; }
+.rc-mast  { background: #e7f6ef; color: #15694a; }
+
+/* a locked stage looks locked but stays tappable — into the test-out offer */
+.pnode.locked .pdisc { background: var(--card2); color: var(--muted); border-style: dashed; }
+.pnode.locked .pbody b { color: var(--muted); }
+/* the way through a locked rung — accented, but it must NOT inherit the
+   display-serif <b> of a stage title sitting two selectors up */
+.pnode .pbody b.totlink {
+  color: var(--accent); font-weight: 700; font-family: var(--body); font-size: inherit;
+}
+.totmini {
+  border: 1.5px dashed var(--line2); background: none; border-radius: 12px;
+  padding: 8px 14px; margin: 2px 0 8px 52px; font-size: 12.5px; font-weight: 700;
+  color: var(--accent); cursor: pointer; text-align: left; display: block;
+}
+.totmini:hover { border-color: var(--accent); }
+.totoffer { border: 1.5px dashed var(--accent); }
+.bandlbl { white-space: nowrap; }
+
+/* ===================================================== THE WORD CARD (Phase 3)
+   "There are no word cards with sentences like in bizzing bee" — the audit's
+   finding, in the user's own words, and this is the answer to it. One word,
+   shown the way a flashcard shows it: big in its own script on a soft plate,
+   its roman and its meaning under it, the theme it belongs to and where it
+   stands in the child's own boxes on the shoulders of the card, and — the
+   part that did not exist — the sentence it lives in.
+
+   Two states, one card. Browsing shows the sentence whole. Testing cuts the
+   word out and leaves a gap you can see the shape of. */
+.wcard { display: grid; gap: 0; text-align: center; }
+.wcard.flat { margin: 0; }
+.wchead {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+/* the theme, worn as a door back into its room of the Shabdkosh */
+.wctheme {
+  border: 1px solid var(--line2); background: var(--card2); color: var(--text2);
+  border-radius: var(--radius-pill); padding: 4px 12px; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; line-height: 1.7;
+}
+.wctheme:hover { border-color: var(--accent); color: var(--accent); }
+.wcard .rc { font-style: normal; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 99px; }
+/* the word itself, on the same soft plate the introduce beat uses, so a word
+   met in a lesson and a word looked up read as the same object */
+.wcword {
+  font-size: clamp(40px, 12vw, 58px); line-height: 1.6; color: var(--text);
+  background: color-mix(in srgb, var(--accent) 9%, var(--card));
+  border-radius: var(--radius-lg); padding: var(--space-md) var(--space-sm);
+  box-shadow: 0 0 0 8px var(--accent-soft);
+}
+.wcroman { font-family: var(--mono); font-size: 13px; color: var(--accent); margin-top: var(--space-lg); letter-spacing: .06em; }
+.wcen { font-family: var(--display); font-size: 22px; line-height: 1.35; margin: 4px 0 var(--space-lg); }
+.wchear { margin-bottom: 0; }
+
+/* the sentence half — always framed, so the card has an obvious lower storey */
+.wcsent {
+  margin-top: var(--space-lg); padding: var(--space-md) var(--space-lg) var(--space-lg);
+  background: var(--card2); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  text-align: left;
+}
+.wcsent.masked { border-style: dashed; border-color: var(--line2); }
+.wcsent .mono { margin-bottom: 6px; }
+.wcs { font-size: 19px; line-height: 1.85; margin: 0; color: var(--text); }
+.wcsr { font-size: 13.5px; line-height: 1.65; margin: 6px 0 var(--space-md); color: var(--text2); }
+.wcsr .muted { display: block; font-family: var(--display); font-weight: 400; font-size: 15.5px; color: var(--text2); margin-top: 3px; }
+.wcsent .btn { margin-top: 2px; }
+
+/* THE GAP. Never a run of underscores — a slot the size of a word, dashed in
+   the accent, so a child can see that something is missing rather than read
+   punctuation. It is the same mark in the card and in the question. */
+.wcgap {
+  display: inline-block; width: 3.4em; height: 1.05em; vertical-align: -.22em;
+  margin: 0 .14em; border-bottom: 3px dashed var(--accent);
+  background: var(--accent-soft); border-radius: 6px 6px 3px 3px;
+}
+
+/* A word met inside a lesson: the same card, tightened — the Got-it has to be
+   in view under it or the beat looks like it has no way out. */
+.introcard.wordintro { text-align: center; }
+.introcard.wordintro .wcword { font-size: clamp(34px, 10vw, 46px); padding: var(--space-sm) var(--space-sm); }
+.introcard.wordintro .wcroman { margin-top: var(--space-md); }
+.introcard.wordintro .wcen { font-size: 19px; margin: 3px 0 var(--space-md); }
+.introcard.wordintro .wchear { min-height: 44px; padding: 10px 18px; }
+.introcard.wordintro .wcsent { margin-top: var(--space-md); padding: 10px var(--space-md) var(--space-md); }
+.introcard.wordintro .wcs { font-size: 17px; }
+.introcard.wordintro .wcsr { font-size: 12.5px; margin-bottom: 10px; }
+.introcard.wordintro .wcsr .muted { font-size: 14px; }
+.introcard.wordintro .wcsent .btn { min-height: 36px; padding: 7px 14px; }
+
+/* ------------------------------------------------------------- SHABDKOSH
+   शब्दकोश — the word-store. A reference, like the letter chart: rooms with a
+   count on the door, and every word one tap from its card. */
+/* the rooms, as one scrolling row rather than eight wrapped lines: seventeen
+   themes stacked would push the first word off a phone screen entirely */
+.koshtabs {
+  display: flex; gap: 7px; margin: 0 0 var(--space-lg);
+  overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
+}
+.koshtabs::-webkit-scrollbar { display: none; }
+.koshtabs .pill { flex: none; white-space: nowrap; }
+.koshmore { margin-top: var(--space-md); width: 100%; }
+.koshtabs .pill { font-size: 12.5px; padding: 6px 13px; }
+.koshgrid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px; margin-top: var(--space-md);
+}
+.koshw {
+  display: grid; gap: 1px; text-align: left; cursor: pointer;
+  padding: 9px 12px; border-radius: var(--radius-md);
+  border: 1px solid var(--line); background: var(--card2);
+}
+.koshw:hover { border-color: var(--accent); background: var(--card); }
+.koshw b { font-size: 20px; line-height: 1.7; font-weight: 600; }
+.koshw .tiny { line-height: 1.4; }
+.koshw .rc {
+  font-style: normal; justify-self: start; margin-top: 4px;
+  font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 99px;
+}
+
+/* -------------------------------------------------- fill the blank (s3)
+   The sentence with a hole in it, what it means underneath, and a voice that
+   reads around the hole. Nothing here may contain the answer. */
+.blanksent {
+  font-size: 21px; line-height: 1.9; text-align: center;
+  background: var(--card2); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); padding: var(--space-lg) var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.blankmean {
+  font-family: var(--display); font-size: 17px; line-height: 1.45;
+  text-align: center; color: var(--text2); margin: 0 0 var(--space-md);
+}
+.blankhear { display: block; margin: 0 auto var(--space-lg); }
+
+/* the answer, arriving in its gap — and the card, one tap away */
+.qfb .fbfill {
+  background: color-mix(in srgb, var(--good) 18%, transparent);
+  border-radius: 5px; padding: 0 4px; font-weight: 700;
+}
+.fbcard {
+  display: block; margin-top: 10px; padding: 8px 14px; cursor: pointer;
+  border: 1px solid currentColor; border-radius: var(--radius-pill);
+  background: transparent; color: inherit; font-size: 13px; font-weight: 700;
+  opacity: .85;
+}
+.fbcard:hover { opacity: 1; }
+
+/* the covered card — the Bee's revise card: everything except the one thing
+   you are trying to remember. The plate keeps its size, so the card does not
+   jump when it flips face up. */
+.wcard .wcword.covered {
+  display: grid; place-items: center; min-height: 104px;
+  background: var(--card2); border: 1.5px dashed var(--line2); box-shadow: none;
+}
+.wcgap.big { width: 4.6em; height: 1.35em; font-size: 26px; }
+.wcard.covered .wcen { margin-top: var(--space-lg); }
+.wcflip { margin-top: var(--space-lg); }
+
+
+/* ===================================== PHASE B — WRITE IT (production) =====
+   The keypad is the script's own letters, laid out the way the abugida works:
+   vowels on their own row, then consonants, then the signs that hang on them.
+   A system keyboard would hide exactly the structure stage 2 teaches. */
+.prompthint { text-align: center; font: 600 17px/1.4 var(--body); color: var(--text);
+  margin: 10px 0 12px; }
+.prompthint span { display: block; margin-top: 2px; font: 400 13px var(--mono);
+  letter-spacing: .06em; color: var(--muted); }
+.pbox { min-height: 62px; display: flex; align-items: center; justify-content: center;
+  gap: 2px; font-size: 30px; line-height: 1.7; padding: 8px 14px; margin-bottom: 12px;
+  background: var(--card2); border: 2px dashed var(--line2); border-radius: var(--radius-md);
+  color: var(--text); }
+.pcaret { display: inline-block; width: 2px; height: 28px; background: var(--accent);
+  animation: pblink 1.1s steps(1) infinite; }
+@keyframes pblink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pcaret { animation: none; } }
+.pbox.shake { animation: shake .32s; border-color: var(--bad, #C4485C); }
+
+.pkeys { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.pkrow { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+.pkey { min-width: 38px; min-height: 40px; padding: 4px 6px; font-size: 19px; line-height: 1.6;
+  background: var(--card); color: var(--text); border: 1px solid var(--line2);
+  border-radius: 9px; cursor: pointer; }
+.pkey:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pkey:active:not(:disabled) { transform: translateY(1px); }
+.pkey:disabled { opacity: .45; cursor: default; }
+/* the vowel-sign row reads as attachments, not letters — tinted so a child
+   does not hunt for them among the consonants */
+.pkrow.pm .pkey { background: var(--accent-soft); border-color: transparent; }
+.pkrow.pv .pkey { background: var(--card2); }
+.prow { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
+.pshow { display: block; margin-top: 6px; font-size: 15px; }
+.pshow .deva { font-size: 22px; }
+@media (max-width: 430px) {
+  .pkey { min-width: 32px; min-height: 36px; font-size: 17px; }
+  .pbox { font-size: 26px; }
+}
+
+/* an option with its own listen button — the ear sits beside the choice, never
+   inside it (a button inside a button is invalid and dead on iOS) */
+.optrow { display: flex; align-items: stretch; gap: 8px; margin-bottom: 8px; }
+.optrow .opt { flex: 1; margin-bottom: 0; }
+.optear { flex: none; width: 44px; display: grid; place-items: center;
+  background: var(--card2); border: 1px solid var(--line2); border-radius: var(--radius-md);
+  color: var(--text2); cursor: pointer; }
+.optear:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ================================ THE STORY READER, MADE TO FIT ============
+   A scene used to be a tall stack that simply ran off the bottom: at 390x760 —
+   an ordinary phone — the "Then what happened?" button sat at 791px in a 760px
+   viewport, so a child had to scroll to turn the page, on a SHORT scene. Longer
+   scenes were worse, and turning Hindi on roughly doubles the text.
+
+   So the reader is a column that owns the viewport: the art gives up height
+   first, the words take what is left and scroll inside their own panel if they
+   must, and the controls are pinned where a thumb already is. Nothing about a
+   page turn moves, whatever the scene is. */
+.reader {
+  display: flex; flex-direction: column; gap: 10px;
+  /* A DEFINITE height, not a minimum. With min-height the column is free to
+     grow past the screen and nothing ever shrinks — which is exactly what
+     happened: the reserve was correct and the page turn button still sat under
+     the navigation, because the speech panel had no reason to give way. A fixed
+     height makes the flex children negotiate, and .speech scrolls inside itself.
+
+     dvh, not vh: on a phone the browser's own chrome slides away and vh lies
+     about how much room there actually is. */
+  height: calc(100dvh - var(--readerchrome, 210px));
+  max-width: 720px; margin: 0 auto;
+}
+.rhead { display: flex; align-items: center; gap: 10px; flex: none; }
+.rhead .dots { flex: 1; margin: 0; }
+.rhead .badge { flex: none; }
+
+/* The art yields first — it is the most compressible thing on the page, and a
+   scene that has to lose something should lose picture, never words. */
+.reader .stage { flex: 1 1 auto; min-height: 120px; max-height: 34vh; margin: 0; }
+.reader .stage img, .reader .stage svg { max-height: 26vh; width: auto; height: auto; }
+
+.reader .speech {
+  flex: 0 1 auto; min-height: 0; overflow-y: auto; margin: 0;
+  padding: 16px 18px; font-size: 16.5px;
+}
+.reader .speech p { margin: 0; }
+.reader .speech .sen + .sdeva, .reader .speech .sdeva + .sen { margin-top: 10px; }
+.rfoot { flex: none; }
+.rfoot .card { margin-top: 0; }
+
+/* The Hindi lane. Real Devanagari face, ~12% up on the Latin beside it,
+   line-height well clear of 1.7, never letter-spaced (CLAUDE.md). It leads,
+   because when the toggle is on Hindi is the thing being read and English is
+   the crib. */
+.sdeva {
+  font-family: var(--deva); font-size: 18.5px; line-height: 1.85;
+  letter-spacing: normal; color: var(--text);
+}
+.reader.twoup .sen { color: var(--text2); font-size: 15.5px; line-height: 1.6; }
+.reader.twoup .speech { padding-top: 14px; }
+/* a hairline between the two languages, so they read as a pair not a paragraph */
+.reader.twoup .sen { border-top: 1px solid var(--line); padding-top: 10px; }
+
+/* Wide screens have the room, so give the art back its presence rather than
+   letterboxing a desktop window to phone proportions. */
+@media (min-width: 900px) {
+  /* Also measured: on a 1280x860 window the topbar ends at 144 and there is no
+     bottom nav at all, so 716px is available and 210 was leaving 66px unused
+     while clipping the longest scene. */
+  .reader { --readerchrome: 164px; }
+  .reader .stage { max-height: 42vh; }
+  .reader .stage img, .reader .stage svg { max-height: 34vh; }
+  .reader .speech { font-size: 17.5px; }
+  .sdeva { font-size: 20px; }
+}
+/* WITH BOTH LANGUAGES UP, THE PICTURE GIVES WAY.
+   The first cut kept the art at full height and let the speech panel scroll,
+   which quietly defeated the whole feature: the Hindi filled the panel and the
+   English crib was below the fold, so "side by side" was one language and a
+   scrollbar. The art is the compressible thing here — a child reading two
+   languages is reading, not looking. */
+.reader.twoup .stage { max-height: 22vh; }
+.reader.twoup .stage img, .reader.twoup .stage svg { max-height: 18vh; }
+@media (min-width: 900px) {
+  /* a desktop window has the room for both languages AND the painting */
+  .reader.twoup .stage { max-height: 34vh; }
+  .reader.twoup .stage img, .reader.twoup .stage svg { max-height: 28vh; }
+}
+
+@media (max-width: 430px) {
+  /* The reserve covers BOTH bars: the topbar, which wraps to two rows on a
+     phone, and the nav pinned to the bottom edge. MEASURED, not guessed, and
+     twice — 232px put the page-turn button under the navigation, then 300px
+     over-corrected and starved the text panel by 63px while leaving 119px of
+     the screen doing nothing. On a 390x760 phone the topbar ends at 113 and the
+     nav starts at 692, so 579px is genuinely available and the reserve is 181
+     plus a little breathing room. */
+  .reader { --readerchrome: 196px; gap: 8px; }
+  .reader .stage { max-height: 28vh; }
+  .reader .stage img, .reader .stage svg { max-height: 22vh; }
+  .reader .speech { font-size: 15.5px; padding: 13px 15px; }
+  .sdeva { font-size: 17px; line-height: 1.8; }
+  .reader.twoup .sen { font-size: 14px; }
+  .reader.twoup .stage { max-height: 17vh; }
+  .reader.twoup .stage img, .reader.twoup .stage svg { max-height: 14vh; }
+}
+
+/* the Hindi switch, beside the family-language chip */
+.hitoggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.hitoggle .deva { font-family: var(--deva); font-size: 15px; line-height: 1; }
+.hitoggle .hilbl { font-size: 12.5px; }
+.hitoggle.on { background: var(--accent); color: #fff; border-color: transparent; }
+.hitoggle.on:hover { color: #fff; }
+@media (max-width: 560px) { .hitoggle .hilbl { display: none; } }
+
+/* a labelled group inside Grown-ups */
+.setlbl { font: 700 11px var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin: 20px 0 8px; }
+.row.seg { gap: 6px; }
+
+/* ------------------------------------------------------- the locked avatar card
+   A card you have not met shows its silhouette, its name, its published drop rate
+   and its price — never a blank grey box. A child has to be able to want it, and a
+   grown-up has to be able to read the odds before a coin is spent. */
+.avlocked { text-align: center; padding: var(--space-xl) var(--space-lg); }
+.avlocked .avlockart { opacity: .3; filter: grayscale(1); }
+.avlocked h3 { font-size: 19px; }
+/* a price on a world tile reads as a price, not as a status badge */
+.badge.price { background: var(--accent-soft); color: var(--accent); font-weight: 800; }
+.tile.locked { opacity: .82; }
+.tile.locked .wpreview { filter: saturate(.35); }
+
+/* ------------------------------------------------------- the world's emblem
+   The wordmark stepped down so the bar can carry the world you are in between the
+   name and the coins. It is the one object you would name if asked what this world
+   looks like — and it changes when the world does. */
+.brand { font-size: 27px; gap: 11px; }
+.brand img, .brand svg { width: 54px; height: 54px; border-radius: 13px; }
+/* The frieze takes whatever room is left between the wordmark and the controls, and
+   fades out at both ends so it reads as part of the bar rather than a panel on it.
+   Never interactive — the world is changed from the picker, not from here. */
+.worldfrieze {
+  flex: 1 1 auto; min-width: 0; margin-right: auto; line-height: 0;
+  pointer-events: none; opacity: .95;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+}
+.worldfrieze .wa-frieze { display: block; width: 100%; height: 52px; }
+/* below the tablet break the bar has no room to spare — the controls come first */
+@media (max-width: 860px) { .worldfrieze { display: none; } }
+@media (max-width: 700px) {
+  .brand { font-size: 21px; }
+  .brand img, .brand svg { width: 42px; height: 42px; }
+
+}
+
+/* ---------------------------------------------------------------- vyakaran
+   A grammar point reads as a card you can hold, not a table row: the rule big, the
+   trap boxed, and the worked examples as things you can tap and hear. */
+.gcard .gline {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px;
+  width: 100%; text-align: left; margin-top: 8px; padding: 10px 12px; cursor: pointer;
+  background: var(--card2); border: 1px solid var(--line); border-radius: var(--radius-md);
+  color: var(--text);
+}
+.gcard .gline .deva { font-size: 19px; line-height: 1.7; grid-column: 1; }
+.gcard .gline .tiny { grid-column: 1; }
+.gcard .gline svg { grid-column: 2; grid-row: 1 / span 2; color: var(--accent); }
+.gcard .gline:hover { border-color: var(--accent); }
+
+/* --------------------------------------------------------------- the pitara
+   The shop lives inside the settings page, one block per pack under a shelf
+   heading. A locked pack is dimmed but never hidden and never un-tappable —
+   a child has to be able to see what they are saving for. */
+.packblk { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.packblk:first-of-type { border-top: 0; }
+.packhead b { font-size: 15px; }
+.packblk.locked .avchip:not(.unmet) { opacity: .95; }
+
+/* how far through a pack you are — no numbers on the bar itself, the count is
+   already on the heading line and two of the same number is noise */
+.packbar { height: 6px; border-radius: 999px; background: var(--card2); overflow: hidden; margin: 0 0 10px; }
+.packbar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+
+/* NOT MET YET. Dimmed and desaturated so it reads as absent at a glance, but the
+   art and the name both stay: a nameless silhouette is a mystery box, and this
+   app does not sell mystery boxes. The price sits where the rarity label sits on
+   a card you own, so the two never fight for the same corner. */
+.avchip.unmet { opacity: .5; filter: grayscale(1); border-style: dashed; }
+.avchip.unmet:hover, .avchip.unmet:focus-visible { opacity: .85; filter: grayscale(.35); }
+.avchip.unmet .rarlabel {
+  background: var(--accent-soft); color: var(--accent); font-weight: 800;
+}
+
+/* ------------------------------------------------- the closing practice set
+   Its own tick on the arc bar, in the accent rather than the review blue: a
+   practice beat is the lesson's own round-up, not the SRS catching something
+   that slipped, and the two should not read as the same thing. */
+.arcbar i.a-prac { background: color-mix(in srgb, var(--accent) 34%, var(--card2)); }
+.arcbar i.a-prac.done { background: var(--accent); }
+
+/* Announced once, on the beat it begins — see practiceBanner(). */
+.pracflag {
+  margin: 10px 0 2px; padding: 7px 12px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 12.5px; font-weight: 800; text-align: center;
+}
+
+/* the headword, marked where it sits inside its example sentence — the second
+   of the two sightings the card exists to give */
+.wcs-hit {
+  font-weight: 700; color: var(--accent);
+  box-shadow: inset 0 -0.32em 0 var(--accent-soft);
+}

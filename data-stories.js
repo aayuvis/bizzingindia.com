@@ -140,7 +140,7 @@ window.IND_STORIES = [
       hi: 'बंदर उस पेड़ पर इतनी तेज़ी से चढ़ा जितनी तेज़ी से वह कभी कुछ नहीं चढ़ा था। सबसे ऊँची डाल से उसने नीचे पुकारा: “मेरा कलेजा वहीं है जहाँ हमेशा से था — मेरे अंदर। घर जाओ। और लौटकर मत आना।”',
       text: 'The monkey went up that tree faster than he had ever climbed anything. From the top branch he called down: "My heart is where it has always been — inside me. Go home. And do not come back."' }
   ],
-  moral: 'Keep your wits about you, especially with people you love. Panic is what the trap is waiting for.',
+  moral: 'Do not trust someone whose nature is to harm you. And keep your wits about you in a tough spot — panic is what the trap is waiting for.',
   source: 'Panchatantra, Book IV (Labdha-praṇāśam).'
 },
 

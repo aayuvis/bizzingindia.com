@@ -97,6 +97,21 @@ window.IND_SABHYATA = {
       what: 'Ride the winds out and home: +2 of everything from every port on a route.' }
   ],
 
+  /* THE RIVERS — the map's own veins, projected from real courses through the same
+     Mercator fit as everything else (tools/map-capitals.py), then simplified to a
+     handful of waypoints each: this is a child's map, not a survey sheet. Terrain
+     only — nothing interactive, nothing gamified, no boundary meaning. */
+  rivers: [
+    { n: 'Sutlej', p: [[316.0,242.0],[256.0,257.0],[221.3,290.4],[202.4,301.4]] },
+    { n: 'Yamuna', p: [[347.6,264.4],[326.4,348.6],[351.4,400.3],[383.2,415.0],[472.3,462.2]] },
+    { n: 'Ganga', p: [[359.3,294.4],[355.8,300.0],[357.0,341.7],[398.1,388.8],[424.9,426.4],[472.3,462.2],[508.6,466.5],[576.1,456.6],[634.8,468.9],[666.4,498.8],[679.0,537.2],[685.3,578.8]] },
+    { n: 'Brahmaputra', p: [[915.7,374.4],[884.2,389.9],[817.9,420.0],[784.8,436.0],[728.9,441.7],[723.2,467.2]] },
+    { n: 'Narmada', p: [[469.1,559.1],[411.7,541.7],[334.9,561.5],[271.8,571.9],[192.3,592.5]] },
+    { n: 'Godavari', p: [[208.7,652.6],[328.6,681.1],[410.7,691.2],[470.0,751.6],[486.5,761.6]] },
+    { n: 'Krishna', p: [[215.0,720.8],[284.4,761.6],[331.8,778.2],[432.8,768.2],[445.4,791.5]] },
+    { n: 'Kaveri', p: [[271.8,904.1],[309.1,902.8],[331.8,919.7],[357.0,949.1],[391.8,952.3],[409.1,945.8]] }
+  ],
+
   /* ports, for Monsoon Sailing */
   ports: ['lothal', 'sopara', 'mamallapuram', 'muziris', 'konark'],
 

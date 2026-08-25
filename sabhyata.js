@@ -49,7 +49,10 @@
     eventEvery: 40,                 /* mean seconds between help events */
     eventAsk:   25,                 /* anna asked for */
     eventKatha: 30,                 /* katha earned by helping */
-    eventLen:   20                  /* seconds to answer */
+    eventLen:   20,                 /* seconds to answer */
+    questMax:   3,                  /* live quest scrolls at once */
+    questGap:   18,                 /* seconds between new scrolls appearing */
+    reward: { carry: 40, road: 35, wake: 50, utsav: 35, riddle: 30 }   /* katha */
   };
 
   /* ==================================================================
@@ -113,6 +116,28 @@
     '.sab-card .row{display:flex;gap:8px;flex-wrap:wrap}',
 
     '.sab-help{font-size:12.5px;color:var(--muted)}',
+    '.sab-guide{margin:0;font-size:14px;font-weight:700;color:var(--text2,var(--text));background:var(--card);border:1px dashed var(--line);border-radius:var(--radius-lg);padding:9px 12px}',
+    '.sab-guide b{color:var(--accent)}',
+
+    /* the quest scroll on the map: a small marigold badge riding the lamp */
+    '.sab-qb circle{fill:var(--accent2);stroke:#fff;stroke-width:2}',
+    '.sab-qb text{font:800 15px var(--body,system-ui);fill:#fff;stroke:none;text-anchor:middle}',
+
+    /* THE CITY, FROM INSIDE — a full-stage panel, not a small modal */
+    '.sab-city{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;background:var(--ground2);overflow:auto;padding:16px}',
+    '.sab-city .chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}',
+    '.sab-city h3{margin:0;font:800 24px/1.1 var(--display,Georgia,serif)}',
+    '.sab-city .mono{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}',
+    '.sab-works{display:flex;flex-direction:column;gap:6px;margin:12px 0}',
+    '.sab-work{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:14.5px;opacity:.45}',
+    '.sab-work.built{opacity:1;font-weight:700}',
+    '.sab-work.now{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft,rgba(0,0,0,.05))}',
+    '.sab-work i{font-style:normal;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:none}',
+    '.sab-work.built i{background:var(--accent);border-color:var(--accent);color:#fff}',
+    '.sab-quest{background:var(--card);border:1px solid var(--accent2);border-radius:var(--radius-lg);padding:12px;margin:6px 0}',
+    '.sab-quest .who{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2)}',
+    '.sab-quest p{margin:6px 0 10px;font-size:15px;line-height:1.5}',
+    '.sab-cfact{font-size:14px;line-height:1.55;color:var(--text2,var(--text));background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px;margin:6px 0}',
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp{animation:none}}'
   ].join('\n');
 
@@ -152,7 +177,8 @@
       SITES.forEach(function (s) { st[s.id] = { lv: 1, zzz: s.era > 0 || s.id !== 'dholavira', fade: -1, idle: 0, seen: false }; });
       st.dholavira.seen = true;
       return { era: 0, res: { anna: T.startRes.anna, kala: T.startRes.kala, katha: T.startRes.katha },
-               sites: st, routes: [], t: 0, utsav: 0, ev: null, score: 0, won: false };
+               sites: st, routes: [], t: 0, utsav: 0, ev: null, score: 0, won: false,
+               quests: {}, qdone: 0, lastq: 0 };
     }
 
     /* ---- rules helpers ---- */
@@ -171,6 +197,86 @@
       return G.era < ERAS.length - 1 && eraDone() && G.res.katha >= ERAS[G.era].katha;
     }
     function allAwake() { return SITES.every(function (s) { return awake(s.id); }); }
+
+    /* ================================================================
+       QUESTS — the game's sense of direction. A folk of the city asks for
+       something the verbs can already do; the scroll badge on the lamp is
+       the "come here" and the reward is katha, the era-gating currency —
+       so quests ARE the road to the next age, not a side dish.
+       ================================================================ */
+    var FOLK = { kheti: 'the granary keeper', shilpa: 'the master builder', vidya: 'the teacher' };
+
+    function questText(qq, here) {
+      var t = qq.target ? byId[qq.target] : null;
+      if (qq.kind === 'road')   return 'Our traders ask for a road between ' + here.name + ' and ' + t.name + '.';
+      if (qq.kind === 'wake')   return 'They say ' + t.name + ' sleeps under the mist. Reach it, and tell its story again.';
+      if (qq.kind === 'carry')  return 'We need ' + T.eventAsk + ' kala of good craft brought in along the roads.';
+      if (qq.kind === 'utsav')  return 'The season has been long. Hold an utsav here, in ' + here.name + ' itself.';
+      if (qq.kind === 'riddle') return 'A question, traveller — answer it and the telling is yours to keep.';
+      return '';
+    }
+
+    function spawnQuest() {
+      if (Object.keys(G.quests).length >= T.questMax) return;
+      if (G.t - G.lastq < T.questGap) return;
+      var homes = SITES.filter(function (x) {
+        return inEra(x) && awake(x.id) && !G.quests[x.id];
+      });
+      if (!homes.length) return;
+      var here = homes[(G.t * 13) % homes.length];
+      var kinds = [];
+      var sleeping = SITES.filter(function (x) { return inEra(x) && !awake(x.id); });
+      var unroaded = SITES.filter(function (x) {
+        return inEra(x) && awake(x.id) && x.id !== here.id && !routed(here.id, x.id);
+      });
+      if (unroaded.length) kinds.push('road');
+      if (sleeping.length) kinds.push('wake');
+      if (connected(here.id)) kinds.push('carry', 'utsav');
+      if (here.ask && G.sites[here.id].seen) kinds.push('riddle');
+      if (!kinds.length) return;
+      var kind = kinds[(G.t * 7 + here.name.length) % kinds.length];
+      var target = kind === 'road' ? unroaded[(G.t * 3) % unroaded.length].id
+                 : kind === 'wake' ? sleeping[(G.t * 3) % sleeping.length].id : null;
+      G.quests[here.id] = { kind: kind, target: target };
+      G.lastq = G.t;
+      say(FOLK[here.kind] + ' of ' + here.name + ' has a request — the scroll is on the map.', 'warm');
+    }
+
+    function finishQuest(id, extra) {
+      var qq = G.quests[id]; if (!qq) return;
+      delete G.quests[id];
+      var pay = T.reward[qq.kind] || 30;
+      G.res.katha += pay; G.qdone++; G.score += 30;
+      say((extra || 'Done!') + ' ' + byId[id].name + ' is glad — the story travels. +' + pay + ' \ud83d\udcdc', 'warm');
+    }
+
+    /* road/wake scrolls complete themselves the moment the world satisfies them */
+    function checkQuests() {
+      Object.keys(G.quests).forEach(function (id) {
+        var qq = G.quests[id];
+        if (qq.kind === 'road' && routed(id, qq.target)) finishQuest(id, 'The road is walked.');
+        if (qq.kind === 'wake' && awake(qq.target)) finishQuest(id, byId[qq.target].name + ' is awake.');
+      });
+    }
+
+    /* ---- the guide line: the game always says what it would do next ---- */
+    function hint() {
+      var fading = SITES.filter(function (x) { return inEra(x) && G.sites[x.id].fade >= 0; })[0];
+      if (fading) return 'The mist is over <b>' + esc(fading.name) + '</b> — route it, or hold an utsav.';
+      if (G.ev) return '<b>' + esc(byId[G.ev.id].name) + '</b> asks for grain — tap it (or press H) to help.';
+      var qid = Object.keys(G.quests)[0];
+      if (qid) return 'A scroll waits at <b>' + esc(byId[qid].name) + '</b> — enter the city and take the quest.';
+      var zz = SITES.filter(function (x) { return inEra(x) && !awake(x.id); })[0];
+      if (zz) {
+        if (!connected(zz.id)) return 'Build a road toward <b>' + esc(zz.name) + '</b> — it sleeps under the mist.';
+        if (G.res.katha >= T.wakeCost) return '<b>' + esc(zz.name) + '</b> is reached — wake it (' + T.wakeCost + ' \ud83d\udcdc).';
+        return 'Earn katha to wake <b>' + esc(zz.name) + '</b> — quests and lean-season help pay best.';
+      }
+      if (canAdvance()) return 'The age is complete — press <b>New era</b>.';
+      if (G.era < ERAS.length - 1)
+        return (ERAS[G.era].katha - Math.floor(G.res.katha)) + ' more \ud83d\udcdc to the new era — quest scrolls are the fastest way.';
+      return 'Every lamp of this age burns. Grow the cities tall.';
+    }
 
     /* ---- transient ui state (not saved) ---- */
     var sel = null, targeting = false, kbd = null, feed = '', feedCls = '', overlay = null, pause = false;
@@ -202,6 +308,8 @@
         '<circle class="ring r2" cx="' + s.x + '" cy="' + s.y + '" r="' + (r + 5) + '"/>' +
         '<circle class="ring r3" cx="' + s.x + '" cy="' + s.y + '" r="' + (r + 10) + '"/>' +
         '<circle class="core sab-lamp" cx="' + s.x + '" cy="' + s.y + '" r="' + r + '"/>' +
+        '<g class="sab-qb" style="display:none"><circle cx="' + (s.x + r + 4) + '" cy="' + (s.y - r - 4) + '" r="11"/>' +
+        '<text x="' + (s.x + r + 4) + '" y="' + (s.y - r + 1) + '">!</text></g>' +
         '<text x="' + lx + '" y="' + ly + '" text-anchor="' + anc + '">' + esc(s.name) + '</text>' +
         '</g>';
     }
@@ -240,9 +348,11 @@
         '</div>' +
         '<div class="sab-stage" id="sab-stage">' + board() + '<div id="sab-ovhost"></div></div>' +
         '<p class="sab-feed" id="sab-feed" aria-live="polite"></p>' +
+        '<p class="sab-guide" id="sab-guide"></p>' +
         '<div class="sab-sheet" id="sab-sheet" hidden></div>' +
         '<p class="sab-help">Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
-          '<b>1–4</b> fire an action, <b>Esc</b> cancels, <b>P</b> pauses. Routes are how a place stays safe from the mist.</p>' +
+          '<b>1–4</b> fire an action (<b>4</b> steps inside the city), <b>Esc</b> cancels, <b>P</b> pauses. ' +
+          'Routes keep a place safe from the mist; the <b>!</b> scrolls are quests, and quests are the road to the next age.</p>' +
         '</div>';
       paintAll();
     }
@@ -283,6 +393,8 @@
       var m = g.querySelector('.mistv');
       m.style.display = (q.zzz || q.fade >= 0) ? '' : 'none';
       m.setAttribute('opacity', q.zzz ? 1 : Math.min(1, q.fade / T.fadeLen).toFixed(2));
+      var qb = g.querySelector('.sab-qb');
+      if (qb) qb.style.display = G.quests[s.id] ? '' : 'none';
     }
     function paintRoutes() {
       var gEl = D.getElementById('sab-routes');
@@ -303,13 +415,92 @@
         b.push('<button class="sab-btn" data-sab-act="route">2 · Route (' + T.routeCost + ' 🛠️)</button>');
         b.push('<button class="sab-btn" data-sab-act="utsav"' + (G.utsav > 0 ? ' disabled' : '') + '>3 · Utsav ' +
           (G.utsav > 0 ? '(' + G.utsav + 's)' : '(' + T.utsavCost.anna + ' 🌾 + ' + T.utsavCost.kala + ' 🛠️)') + '</button>');
+        b.push('<button class="sab-btn go" data-sab-act="city">4 · Enter the city' +
+          (G.quests[sel] ? ' — a scroll waits!' : '') + '</button>');
       }
       b.push('<button class="sab-btn" data-sab-act="close">Close</button>');
       if (targeting) b.push('<span class="tiny">Now choose the other end of the route — tap a lamp, or arrows + Enter.</span>');
       sh.hidden = false; sh.innerHTML = b.join('');
     }
+    function paintGuide() {
+      var el = D.getElementById('sab-guide');
+      if (el) el.innerHTML = 'Next: ' + hint();
+    }
     function paintAll() {
-      paintHud(); SITES.forEach(paintSite); paintRoutes(); paintSheet(); paintFeed();
+      paintHud(); SITES.forEach(paintSite); paintRoutes(); paintSheet(); paintFeed(); paintGuide();
+    }
+
+    /* ================================================================
+       THE CITY, FROM INSIDE. Tap "Enter the city" and the board gives way
+       to the town itself: what stands at this level (the works, the real
+       ones), the place's own telling to re-read, and whichever folk has a
+       scroll. This panel is where carry and riddle quests are resolved —
+       the ones that need a decision, not a road.
+       ================================================================ */
+    var city = null;       /* site id when inside a city */
+    var riddleWrong = false;
+
+    /* the riddle's options are shuffled by a per-city seed so the right answer's
+       POSITION never leaks; the right answer's TEXT the child earned from the
+       fact card when the city woke. */
+    function riddleOptions(s) {
+      var o = s.ask.o.slice(), seed = s.name.length * 7 + s.x;
+      for (var i = o.length - 1; i > 0; i--) {
+        var j = Math.floor((seed = (seed * 9301 + 49297) % 233280) / 233280 * (i + 1));
+        var t = o[i]; o[i] = o[j]; o[j] = t;
+      }
+      return o;
+    }
+
+    function cityHTML(id) {
+      var s = byId[id], q = G.sites[id], qq = G.quests[id];
+      var h = '<div class="sab-city" role="dialog" aria-label="' + esc(s.name) + '">' +
+        '<div class="chead"><h3>' + esc(s.name) + '</h3>' +
+        '<span class="mono">' + esc(ERAS[s.era].name) + ' · level ' + q.lv +
+        (connected(id) ? ' · on the roads' : ' · no road yet') + '</span>' +
+        '<span style="flex:1"></span>' +
+        '<button class="sab-btn" data-sab-act="leave">Back to the map</button></div>';
+      h += '<div class="sab-works">' + (s.works || []).map(function (w, i) {
+        return '<div class="sab-work' + (q.lv > i ? ' built' : '') + (q.lv === i + 1 ? ' now' : '') + '">' +
+          '<i>' + (q.lv > i ? '✓' : (i + 1)) + '</i>' + esc(w) +
+          (q.lv === i && i + 1 < 4 ? '<span style="flex:1"></span><span class="tiny" style="color:var(--muted)">grow the city to build this</span>' : '') +
+          '</div>';
+      }).join('') + '</div>';
+      if (qq) {
+        h += '<div class="sab-quest"><div class="who">' + esc(FOLK[s.kind]) + ' asks</div>' +
+          '<p>' + esc(questText(qq, s)) + '</p>';
+        if (qq.kind === 'carry') {
+          h += '<button class="sab-btn go" data-sab-act="qcarry"' +
+            (connected(id) && G.res.kala >= T.eventAsk ? '' : ' disabled') + '>Bring it in (' + T.eventAsk + ' 🛠️)</button>' +
+            (!connected(id) ? '<p class="tiny" style="color:var(--muted);margin:8px 0 0">It needs a road into the city first.</p>' : '');
+        } else if (qq.kind === 'utsav') {
+          h += '<button class="sab-btn go" data-sab-act="qutsav"' +
+            (G.utsav <= 0 && G.res.anna >= T.utsavCost.anna && G.res.kala >= T.utsavCost.kala ? '' : ' disabled') +
+            '>Hold the utsav here (' + T.utsavCost.anna + ' 🌾 + ' + T.utsavCost.kala + ' 🛠️)</button>';
+        } else if (qq.kind === 'riddle') {
+          h += riddleOptions(s).map(function (o) {
+            return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" ' +
+              'data-sab-act="qriddle" data-o="' + esc(o) + '">' + esc(o) + '</button>';
+          }).join('') + (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — the city\u2019s own telling below has it. Another go.</p>' : '');
+        } else {
+          h += '<p class="tiny" style="color:var(--muted)">This one is done out on the map — the scroll will close itself.</p>';
+        }
+        h += '</div>';
+      } else {
+        h += '<div class="sab-quest" style="border-style:dashed;opacity:.75"><div class="who">the town square</div>' +
+          '<p>No scroll here right now. The folk bring requests as the world turns.</p></div>';
+      }
+      if (q.seen) h += '<div class="sab-cfact">' + esc(s.fact) + '</div>';
+      h += '</div>';
+      return h;
+    }
+    function paintCity() {
+      var hostEl = D.getElementById('sab-ovhost');
+      var stage = D.getElementById('sab-stage');
+      var open = !!city;
+      hostEl.innerHTML = open ? cityHTML(city) : (overlay ? hostEl.innerHTML : '');
+      if (open) { var f = hostEl.querySelector('.sab-btn'); if (f) f.focus(); }
+      if (!open && overlay) showOverlay(overlay);
     }
 
     /* ---- overlays: fact cards, era cards, endings, resume ---- */
@@ -327,6 +518,7 @@
       if (!sel || G.won) return;
       var s = byId[sel], q = G.sites[sel];
       if (name === 'close') { sel = null; targeting = false; paintAll(); return; }
+      if (name === 'city' && !q.zzz) { city = sel; riddleWrong = false; paintCity(); return; }
       if (name === 'grow' && !q.zzz && q.lv < T.maxLevel) {
         var cost = T.growCost[q.lv];
         if (G.res.anna < cost) return say('Not enough anna yet — the fields are still filling.', '');
@@ -344,6 +536,8 @@
         G.res.katha += T.utsavKatha; G.utsav = T.utsavCd; G.score += 15;
         SITES.forEach(function (t) { var w = G.sites[t.id]; if (w.fade >= 0) { w.fade = -1; w.idle = 0; } });
         say('Utsav at ' + s.name + '! Songs carry far — the mist pulls back from every fading lamp.', 'warm');
+        var uq = G.quests[sel];
+        if (uq && uq.kind === 'utsav') finishQuest(sel, 'The whole town danced.');
       }
       if (name === 'wake' && q.zzz) {
         if (!connected(sel)) return say(s.name + ' needs a road first — a story has to travel to be heard.', '');
@@ -400,7 +594,7 @@
        THE TICK — one second of the world
        ================================================================ */
     function tick() {
-      if (pause || overlay || G.won || dead) return;
+      if (pause || overlay || city || G.won || dead) return;   /* inside a city, time waits */
       G.t++;
       if (G.utsav > 0) G.utsav--;
 
@@ -448,8 +642,11 @@
         }
       }
 
+      spawnQuest();
+      checkQuests();
+
       if (G.t % 5 === 0) save(G);
-      paintHud(); SITES.forEach(paintSite);
+      paintHud(); SITES.forEach(paintSite); paintGuide();
     }
 
     function helpEvent() {
@@ -471,6 +668,24 @@
       var actEl = e.target.closest ? e.target.closest('[data-sab-act]') : null;
       if (actEl) {
         var a = actEl.getAttribute('data-sab-act');
+        if (a === 'leave') { city = null; riddleWrong = false; paintCity(); paintAll(); return; }
+        if (a === 'qcarry' && city) {
+          if (G.res.kala >= T.eventAsk && connected(city)) {
+            G.res.kala -= T.eventAsk; finishQuest(city, 'The carts roll in.');
+            paintCity(); paintAll();
+          }
+          return;
+        }
+        if (a === 'qutsav' && city) {
+          var keep = sel; sel = city; act('utsav'); sel = keep;
+          paintCity(); return;
+        }
+        if (a === 'qriddle' && city) {
+          var pick = actEl.getAttribute('data-o'), site = byId[city];
+          if (pick === site.ask.o[0]) { riddleWrong = false; finishQuest(city, 'Well answered!'); }
+          else { riddleWrong = true; }
+          paintCity(); paintAll(); return;
+        }
         if (a === 'ovclose') { showOverlay(null); paintAll(); maybeEnd(); return; }
         if (a === 'finish') { showOverlay(null); if (typeof done === 'function') done({ win: true, score: G.score, kauris: 25 }); return; }
         return act(a);
@@ -483,26 +698,42 @@
       }
       if (targeting) { targeting = false; say('Road put away.', ''); paintSheet(); }
     }
+    /* Listens in the CAPTURE phase, because the app shell also listens on the document
+       and its Escape means "go home" — attached before this engine existed, so bubble
+       order cannot be won. Capture runs first; every key the game actually consumes is
+       stopped there, and every key it does not falls through to the shell untouched.
+       So Esc closes the city, then cancels a route, then clears the selection — and
+       only with nothing left open does it hand you back to the app. A door, then a
+       door, then the front door. */
     function onKey(e) {
       if (dead) return;
-      if (overlay) { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); var f = D.querySelector('#sab-ovhost [data-sab-act]'); if (f) f.click(); } return; }
+      var eat = function () { e.preventDefault(); e.stopPropagation(); };
+      if (city) {
+        if (e.key === 'Escape') { eat(); city = null; riddleWrong = false; paintCity(); paintAll(); }
+        return;   /* inside the city, buttons are tabbable and Esc is the door */
+      }
+      if (overlay) { if (e.key === 'Enter' || e.key === 'Escape') { eat(); var f = D.querySelector('#sab-ovhost [data-sab-act]'); if (f) f.click(); } return; }
       var k = e.key;
-      if (k === 'p' || k === 'P') { e.preventDefault(); return togglePause(); }
-      if (k === 'h' || k === 'H') { e.preventDefault(); return helpEvent(); }
-      if (k === 'Escape') { e.preventDefault(); targeting = false; sel = null; paintAll(); return; }
+      if (k === 'p' || k === 'P') { eat(); return togglePause(); }
+      if (k === 'h' || k === 'H') { eat(); return helpEvent(); }
+      if (k === 'Escape') {
+        if (!targeting && !sel) return;            /* nothing open: the shell may take it home */
+        eat(); targeting = false; sel = null; paintAll(); return;
+      }
       if (k === 'Enter' || k === ' ') {
-        if (kbd) { e.preventDefault();
+        if (kbd) { eat();
           if (targeting) return tryRoute(kbd);
           sel = kbd; paintAll(); }
         return;
       }
-      if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'Tab' && !e.shiftKey) { e.preventDefault(); step(1); return; }
-      if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'Tab') { e.preventDefault(); step(-1); return; }
-      if (sel && k >= '1' && k <= '3') {
-        e.preventDefault();
+      if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'Tab' && !e.shiftKey) { eat(); step(1); return; }
+      if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'Tab') { eat(); step(-1); return; }
+      if (sel && k >= '1' && k <= '4') {
+        eat();
         var q = G.sites[sel];
         if (q.zzz) { if (k === '1') act('wake'); return; }
         if (k === '1') act('grow'); if (k === '2') act('route'); if (k === '3') act('utsav');
+        if (k === '4') act('city');
       }
     }
     function step(dir) {
@@ -525,6 +756,8 @@
        ================================================================ */
     var saved = load();
     G = (saved && !saved.won && saved.sites && saved.sites.dholavira) ? saved : fresh();
+    /* saves from before the quest scrolls simply gain empty ones */
+    G.quests = G.quests || {}; G.qdone = G.qdone || 0; G.lastq = G.lastq || 0;
     shell();
     if (saved && saved === G) {
       say('Welcome back. The lamps kept burning while you were away.', 'warm');
@@ -532,6 +765,7 @@
       showOverlay('<h3>Sabhyata — the first city</h3>' +
         '<p>Dholavira is awake, and the rest of India sleeps under Vismriti, the Forgetting. ' +
         'Grow your city, build roads, and wake the land one lamp at a time. ' +
+        'Step <i>into</i> a city and its folk will hand you quest scrolls — the fastest road to the next age. ' +
         'Nothing here is ever conquered — only reached.</p>' +
         '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Light the first lamp</button></div>');
     }
@@ -542,7 +776,7 @@
     /* keys live on the document: focus often rests on the page body, and a game whose
        keyboard only works after a click is a game with no keyboard (house rule). The
        teardown removes it, and `dead` guards the gap. */
-    D.addEventListener('keydown', onKey);
+    D.addEventListener('keydown', onKey, true);
     timer = setInterval(tick, TICK_MS);
 
     return function teardown() {
@@ -550,7 +784,7 @@
       clearInterval(timer);
       if (G && !G.won) save(G);
       host.removeEventListener('click', onClick);
-      D.removeEventListener('keydown', onKey);
+      D.removeEventListener('keydown', onKey, true);
     };
   }
 

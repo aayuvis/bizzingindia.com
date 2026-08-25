@@ -66,7 +66,15 @@
                   { anna: 80, kala: 80, katha: 60 } ],
     quizPay:    10,                 /* gurukul trivia, own city */
     quizFarPay: 15,                 /* with Brahmi script, about other cities */
-    quizCd:     25                  /* seconds between questions per city */
+    quizCd:     25,                 /* seconds between questions per city */
+
+    eat:        0.25,               /* anna per citizen per turn — the balance */
+    raidEvery:  45,                 /* seconds between raids, somewhere */
+    raidBase:   6,                  /* what an unwatched raid carries off, +4 per era */
+    raidGuard:  2,                  /* rakshaks needed to fend a raid off entirely */
+    heroAt:     3,                  /* city level where a great one may rise */
+    kingdomEra: 1,                  /* kingdoms begin with the janapadas */
+    kingdomMin: 3                   /* cities (incl. the seat) a crown needs connected */
   };
 
   /* ==================================================================
@@ -156,6 +164,11 @@
     '.sab-quest .who{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2)}',
     '.sab-quest p{margin:6px 0 10px;font-size:15px;line-height:1.5}',
     '.sab-cfact{font-size:14px;line-height:1.55;color:var(--text2,var(--text));background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px;margin:6px 0}',
+    '.sab-hero{width:100%;aspect-ratio:3/1.35;object-fit:cover;border-radius:var(--radius-lg);border:1px solid var(--line);margin:10px 0 2px;display:block}',
+    '.sab-hero.dim{filter:grayscale(.85) sepia(.15) brightness(.92)}',
+    '.sab-herocap{font-size:12px;color:var(--muted);margin:4px 0 8px}',
+    '.sab-vthumb{width:112px;height:75px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex:none}',
+    '.sab-cardart{width:100%;border-radius:12px;margin:0 0 10px;display:block}',
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp{animation:none}}'
   ].join('\n');
 
@@ -193,12 +206,13 @@
     function fresh() {
       var st = {};
       SITES.forEach(function (s) { st[s.id] = { lv: 1, zzz: s.era > 0 || s.id !== 'dholavira', fade: -1, idle: 0, seen: false,
-                                                bld: {}, mon: false, neg: 0 }; });
+                                                bld: {}, mon: false, neg: 0, jobs: null, hero: null }; });
       st.dholavira.seen = true;
       return { era: 0, res: { anna: T.startRes.anna, kala: T.startRes.kala, katha: T.startRes.katha },
                sites: st, routes: [], t: 0, utsav: 0, ev: null, score: 0, won: false,
                quests: {}, qdone: 0, lastq: 0,
-               tech: {}, capital: null, disp: null, lastd: 0, quizAt: {}, quizN: 0 };
+               tech: {}, capital: null, disp: null, lastd: 0, quizAt: {}, quizN: 0,
+               kingdoms: {}, lastraid: 0 };
     }
 
     /* ---- rules helpers ---- */
@@ -226,6 +240,32 @@
        ================================================================ */
     var FOLK = { kheti: 'the granary keeper', shilpa: 'the master builder', vidya: 'the teacher' };
     var BLD = DATA.buildings, TECHS = DATA.techs, PORTS = DATA.ports || [];
+
+    /* THE PAINTINGS (tools/gen-sabhyata-art.py). Each city's painting shows it at its
+       height with its monument at the centre — and the game shows it DESATURATED until
+       the monument is raised. The same picture, remembered into colour: the whole game
+       in one CSS filter. Art is optional by construction: no manifest entry, no img. */
+    function artOf(id) {
+      var m = W.IND_SABHYATA_ART || [];
+      return m.indexOf(id) >= 0 ? 'art/sabhyata/' + id + '.jpg' : null;
+    }
+    /* THE APP'S OWN ART, REUSED (the founder's note: reuse what is already here).
+       Mithu the storyteller opens the game and takes the bow, Vismriti itself appears
+       when the mist takes a town, the motif set dresses the kingdom and hero cards,
+       and the icon glyphs replace loose emoji where a fit exists. All guarded — the
+       game renders fine without any of them, same as every Mela engine. */
+    function mascot(kind, mood, size) {
+      var fn = kind === 'mithu' ? W.MITHU : kind === 'vismriti' ? W.VISMRITI : W.GATTU;
+      if (!fn) return '';
+      return '<div style="width:' + size + 'px;margin:0 auto 6px">' + fn(mood) + '</div>';
+    }
+    function motif(name, size) {
+      return (W.IND_MOTIF && W.IND_MOTIF[name])
+        ? '<span style="display:inline-block;width:' + size + 'px;vertical-align:middle">' + W.IND_MOTIF[name] + '</span> ' : '';
+    }
+    function glyph(name, fallback) {
+      return W.IND_ICON ? W.IND_ICON(name, 16) : fallback;
+    }
 
     /* ---- money: one place understands discounts, affording and paying ---- */
     function costOf(c, kind) {
@@ -255,13 +295,68 @@
     }
     function inDispute(id) { return G.disp && (G.disp.a === id || G.disp.b === id); }
 
+    /* ================================================================
+       THE PRAJA. A city is its people: 2 + 2·level of them (+1 with a
+       granary), each with a job the player allocates — kisan, karigar,
+       kathakar, rakshak. Workers in the city's own speciality count
+       double (Lothal breeds bead-makers), rakshaks earn nothing and are
+       worth everything when the boar find the wheat, and every citizen
+       eats. Production minus appetite is the whole balance of the game.
+       ================================================================ */
+    var JOB_OF_KIND = { kheti: 'kisan', shilpa: 'karigar', vidya: 'kathakar' };
+    function popOf(id) {
+      var q = G.sites[id];
+      return 2 + q.lv * 2 + (q.bld.granary ? 1 : 0);
+    }
+    /* default split, and the top-up rule when the town grows: new hands farm first —
+       which is also the deadlock guarantee: kisan exist from the first minute */
+    function jobsOf(id) {
+      var q = G.sites[id], x = byId[id], pop = popOf(id);
+      if (!q.jobs) {
+        q.jobs = { kisan: 2, karigar: 0, kathakar: 1, rakshak: 0 };
+        q.jobs[JOB_OF_KIND[x.kind]] += pop - 3 > 0 ? 1 : 0;
+      }
+      var total = q.jobs.kisan + q.jobs.karigar + q.jobs.kathakar + q.jobs.rakshak;
+      if (total < pop) q.jobs.kisan += pop - total;          /* newcomers farm */
+      while (total > pop) {                                   /* shrink fairly */
+        var big = ['kisan', 'karigar', 'kathakar', 'rakshak'].sort(function (a, b) { return q.jobs[b] - q.jobs[a]; })[0];
+        q.jobs[big]--; total--;
+      }
+      return q.jobs;
+    }
+    function inKingdomOf(id) {
+      var seats = Object.keys(G.kingdoms);
+      for (var i = 0; i < seats.length; i++) {
+        if (seats[i] === id || reach(seats[i]).indexOf(id) >= 0) return seats[i];
+      }
+      return null;
+    }
+    /* everything a road can reach from here — a kingdom is a connected realm */
+    function reach(from) {
+      var seen = {}, queue = [from];
+      while (queue.length) {
+        var at = queue.pop();
+        G.routes.forEach(function (r) {
+          var next = r[0] === at ? r[1] : r[1] === at ? r[0] : null;
+          if (next && !seen[next]) { seen[next] = true; queue.push(next); }
+        });
+      }
+      return Object.keys(seen);
+    }
+
     /* ---- what a city actually brings in each turn, all rules in one place ---- */
     function yieldOf(x) {
       var q = G.sites[x.id];
       if (q.zzz || q.fade >= 0) return null;
       var conn = connected(x.id) && !inDispute(x.id);
       var out = { anna: 0, kala: 0, katha: 0 };
-      out[YIELD[x.kind]] += q.lv * (conn ? 2 : 1);
+      var j = jobsOf(x.id), spec = JOB_OF_KIND[x.kind];
+      out.anna += j.kisan * (spec === 'kisan' ? 2 : 1);
+      out.kala += j.karigar * (spec === 'karigar' ? 2 : 1);
+      out.katha += j.kathakar * (spec === 'kathakar' ? 2 : 1);
+      if (conn) ['anna', 'kala', 'katha'].forEach(function (k) { if (out[k]) out[k] += 1; });
+      if (q.hero && !q.hero.gone) out[YIELD[x.kind]] += 2;
+      if (inKingdomOf(x.id)) { out.anna += 1; out.kala += 1; out.katha += 1; }
       if (q.bld.granary) out.anna += 1;
       if (q.bld.workshop) out.kala += 1;
       if (q.bld.gurukul) out.katha += 1;
@@ -338,6 +433,8 @@
       if (G.ev) return '<b>' + esc(byId[G.ev.id].name) + '</b> asks for grain — tap it (or press H) to help.';
       var dust = SITES.filter(function (x) { return inEra(x) && dusty(x.id); })[0];
       if (dust) return '<b>' + esc(dust.name) + '</b> is dusty and earning half — visit it, grow it, or build there.';
+      var hero1 = SITES.filter(function (x) { var q2 = G.sites[x.id]; return inEra(x) && q2.hero && !q2.hero.used && !q2.hero.gone; })[0];
+      if (hero1) return 'A great one waits in <b>' + esc(hero1.name) + '</b> — enter the city and ask for the deed.';
       var qid = Object.keys(G.quests)[0];
       if (qid) return 'A scroll waits at <b>' + esc(byId[qid].name) + '</b> — enter the city and take the quest.';
       var zz = SITES.filter(function (x) { return inEra(x) && !awake(x.id); })[0];
@@ -447,9 +544,17 @@
       var e = ERAS[G.era];
       D.getElementById('sab-eraname').textContent = e.name;
       D.getElementById('sab-eradate').textContent = 'Era ' + (G.era + 1) + ' · ' + e.dates;
+      var net = { anna: 0, kala: 0, katha: 0 };
+      SITES.forEach(function (x) {
+        if (!inEra(x)) return;
+        var y = yieldOf(x);
+        if (y) { net.anna += y.anna; net.kala += y.kala; net.katha += y.katha; }
+        if (!G.sites[x.id].zzz) net.anna -= popOf(x.id) * T.eat;
+      });
       D.getElementById('sab-res').innerHTML = ['anna', 'kala', 'katha'].map(function (k) {
+        var d = Math.round(net[k] * 10) / 10;
         return '<span class="sab-chip">' + ICON[k] + ' ' + Math.floor(G.res[k]) +
-          ' <small>' + DATA.resources[k].name + '</small></span>';
+          ' <small>' + (d >= 0 ? '+' : '') + d + '/turn</small></span>';
       }).join('');
       var adv = D.getElementById('sab-adv');
       if (G.era < ERAS.length - 1) {
@@ -559,6 +664,51 @@
         (y ? '<span class="sab-chip">brings in ' + ['anna','kala','katha'].filter(function (k) { return y[k]; })
               .map(function (k) { return '+' + y[k] + ' ' + ICON[k]; }).join(' ') + '</span>' : '') +
         '<button class="sab-btn" data-sab-act="leave">Back to the map</button></div>';
+      var heroArt = artOf(id);
+      if (heroArt) h += '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">' +
+        (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument and the colours come back.</div>');
+
+      /* THE PEOPLE — allocation is the strategy. Kisan feed, karigar craft, kathakar
+         tell, rakshak watch; the city's own trade counts double, and everyone eats. */
+      var j = jobsOf(id), pop = popOf(id), spec = JOB_OF_KIND[s.kind];
+      var king = inKingdomOf(id);
+      if (king) h += '<div class="sab-herocap" style="font-weight:800;color:var(--accent)">' +
+        motif('lotus', 20) + esc(G.kingdoms[king].name) + (king === id ? ' — this is the seat' : '') + '</div>';
+      h += '<div class="mono" style="margin-top:4px">The people · ' + pop + ' praja · eat ' +
+        (pop * T.eat) + ' \ud83c\udf3e each turn</div><div class="sab-works">' +
+        Object.keys(DATA.jobs).map(function (jid) {
+          var jd = DATA.jobs[jid];
+          var jicon = (jid === 'rakshak' && W.IND_AVATAR_ART && W.IND_AVATAR_ART.guard)
+            ? '<i style="overflow:hidden;border-radius:50%">' + W.IND_AVATAR_ART.guard + '</i>'
+            : '<i>' + jd.icon + '</i>';
+          return '<div class="sab-work built">' + jicon +
+            '<b style="min-width:86px">' + esc(jd.name) + (jid === spec ? ' ×2' : '') + '</b>' +
+            '<span class="tiny" style="color:var(--muted);flex:1">' + esc(jd.what) + '</span>' +
+            '<button class="sab-btn" data-sab-act="job" data-j="' + jid + '" data-d="-1"' + (j[jid] ? '' : ' disabled') + '>\u2212</button>' +
+            '<b style="min-width:22px;text-align:center">' + j[jid] + '</b>' +
+            '<button class="sab-btn" data-sab-act="job" data-j="' + jid + '" data-d="1"' + (j.kisan + j.karigar + j.kathakar + j.rakshak < pop ? '' : (jid === 'kisan' ? ' disabled' : '')) + '>+</button>' +
+            '</div>';
+        }).join('') + '</div>';
+
+      /* A GREAT ONE, when one has risen here */
+      if (q.hero && !q.hero.gone) {
+        var hd = DATA.heroes[s.kind];
+        h += '<div class="sab-quest" style="border-color:var(--accent)"><div class="who" style="color:var(--accent)">' +
+          motif('peacock', 22) + esc(hd.name) + ' is here · ' + esc(hd.gift) + '</div>';
+        if (!q.hero.used) {
+          h += '<p><b>' + esc(hd.deed) + '</b> — ' + esc(hd.deedWhat) + '.</p>' +
+            '<button class="sab-btn go" data-sab-act="deed">Ask for the great deed</button>';
+          if (G.era >= T.kingdomEra && !king)
+            h += '<button class="sab-btn" style="margin-left:8px" data-sab-act="crown"' +
+              (reach(id).filter(function (o) { return awake(o); }).length + 1 >= T.kingdomMin ? '' : ' disabled') +
+              '>Or: crown ' + esc(s.name) + ' — found a kingdom</button>' +
+              '<p class="tiny" style="color:var(--muted);margin:8px 0 0">A crown needs ' + T.kingdomMin +
+              ' awake towns joined by roads. Every town the roads reach shares the kingdom\u2019s strength (+1 of everything).</p>';
+        } else {
+          h += '<p class="tiny" style="color:var(--muted)">Their great deed is done; they stay for the gift.</p>';
+        }
+        h += '</div>';
+      }
 
       /* THE QUARREL COMES FIRST. If this town is in a dispute, the panchayat sits
          before anything else gets built — that is what a panchayat is for. */
@@ -685,7 +835,9 @@
       var rows = TECHS.map(function (t) {
         if (t.era > G.era) return '';
         var have = !!G.tech[t.id], c = costOf(t.cost, 'tech');
-        return '<div class="sab-work' + (have ? ' built' : ' now') + '"><i>' + (have ? '✓' : '?') + '</i>' +
+        var va = artOf('vidya-' + t.id);
+        return '<div class="sab-work' + (have ? ' built' : ' now') + '">' +
+          (va ? '<img class="sab-vthumb" src="' + va + '" alt=""' + (have ? '' : ' style="filter:grayscale(.8)"') + '>' : '<i>' + (have ? '✓' : '?') + '</i>') +
           '<span><b>' + esc(t.name) + '</b> · <span class="tiny" style="color:var(--muted)">' + esc(t.what) + '</span></span>' +
           '<span style="flex:1"></span>' +
           (have ? '' : '<button class="sab-btn" data-sab-act="tech" data-t="' + t.id + '"' +
@@ -745,8 +897,11 @@
         if (G.res.katha < T.wakeCost) return say('Not enough katha — stories are earned by helping and holding utsavs.', '');
         G.res.katha -= T.wakeCost; q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
         say(s.name + ' wakes!', 'warm');
-        if (!q.seen) { q.seen = true; showOverlay('<h3>' + esc(s.name) + '</h3><p>' + esc(s.fact) + '</p>' +
-          '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Onward</button></div>'); }
+        if (!q.seen) { q.seen = true;
+          var wa = artOf(sel);
+          showOverlay((wa ? '<img class="sab-cardart" src="' + wa + '" alt="">' : '') +
+            '<h3>' + esc(s.name) + '</h3><p>' + esc(s.fact) + '</p>' +
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Onward</button></div>'); }
       }
       paintAll(); maybeEnd();
     }
@@ -769,9 +924,12 @@
       if (!canAdvance()) return;
       G.res.katha -= ERAS[G.era].katha;
       var aha = ERAS[G.era].aha;
+      var AHA_ART = ['vidya-iron', 'vidya-script', 'vidya-zero', 'vidya-monsoon'];
+      var ea = artOf(AHA_ART[G.era]);
       G.era++; G.score += 50;
       var next = ERAS[G.era];
-      showOverlay('<h3>' + esc(aha.title) + '</h3><p>' + esc(aha.text) + '</p>' +
+      showOverlay((ea ? '<img class="sab-cardart" src="' + ea + '" alt="">' : '') +
+        '<h3>' + esc(aha.title) + '</h3><p>' + esc(aha.text) + '</p>' +
         '<p><b>' + esc(next.name) + '</b> · ' + esc(next.dates) + '<br>' + esc(next.note) + '</p>' +
         '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Begin</button></div>');
       say('New places wait under the mist. Reach them.', 'mist');
@@ -786,7 +944,7 @@
       if (overlay) return;
       if (G.won || G.era < ERAS.length - 1 || !allAwake()) return;
       G.won = true; wipe();
-      showOverlay('<h3>India remembers.</h3>' +
+      showOverlay(mascot('gattu', 'happy', 110) + '<h3>India remembers.</h3>' +
         '<p>Every lamp is lit, every road is walked, and the mist has gone back to the sea. ' +
         'Five thousand years, and not one of these places was taken — every one was reached.</p>' +
         '<div class="row"><button class="sab-btn go" data-sab-act="finish">Take a bow</button></div>');
@@ -800,12 +958,64 @@
       G.t++;
       if (G.utsav > 0) G.utsav--;
 
-      /* yields — every rule lives in yieldOf, so the HUD, the city screen and the
-         tests all read the same arithmetic */
+      /* yields minus appetite — every rule lives in yieldOf, so the HUD, the city
+         screen and the tests all read the same arithmetic. Anna floors at zero and
+         a hungry turn makes every city dusty at once: the granaries come first. */
+      var eaten = 0;
       SITES.forEach(function (s) {
         if (!inEra(s)) return;
         var y = yieldOf(s);
         if (y) { G.res.anna += y.anna; G.res.kala += y.kala; G.res.katha += y.katha; }
+        var q = G.sites[s.id];
+        if (!q.zzz) eaten += popOf(s.id) * T.eat;
+      });
+      if (eaten) {
+        if (G.res.anna >= eaten) G.res.anna -= eaten;
+        else {
+          G.res.anna = 0;
+          SITES.forEach(function (s) { var q = G.sites[s.id]; if (inEra(s) && !q.zzz) q.neg = Math.max(q.neg, negLimit(s.id)); });
+          say('The granaries are empty and every town feels it — put more hands to farming.', 'mist');
+        }
+      }
+
+      /* RAIDS. The wilds test the towns — boar in the wheat, an elephant herd at the
+         stores, locusts, storms, a push of the mist itself. Never people: every
+         human raider is somebody's ancestor, and this game does not do enemies with
+         faces. Rakshaks fend a raid off completely, and the fending is always
+         gentle — drums, torches, lanterns, mended fences. */
+      if (G.t - G.lastraid >= T.raidEvery) {
+        var towns = SITES.filter(function (x) { return inEra(x) && awake(x.id); });
+        if (towns.length) {
+          var tgt = towns[(G.t * 17) % towns.length];
+          var pool = DATA.raids.filter(function (r) { return r.minEra <= G.era; });
+          var raid = pool[(G.t * 5) % pool.length];
+          var guards = jobsOf(tgt.id).rakshak;
+          G.lastraid = G.t;
+          if (guards >= T.raidGuard || G.sites[tgt.id].mon) {
+            G.res.katha += 10; G.score += 10;
+            say(raid.what + ' at ' + tgt.name + ' — but ' + raid.fended + '. The story is worth 10 \ud83d\udcdc.', 'warm');
+          } else if (raid.hits === 'fade') {
+            var qf = G.sites[tgt.id]; if (qf.fade < 0) qf.fade = 0;
+            say(raid.what + ' at ' + tgt.name + ' — with no rakshaks on watch, the lamps gutter. Reach it!', 'mist');
+          } else {
+            var loss = T.raidBase + G.era * 4 - guards * 3;
+            G.res[raid.hits] = Math.max(0, G.res[raid.hits] - Math.max(0, loss));
+            var qt = G.sites[tgt.id]; qt.neg = Math.max(qt.neg, negLimit(tgt.id));
+            say(raid.what + ' at ' + tgt.name + ' — ' + Math.max(0, loss) + ' ' + ICON[raid.hits] +
+                ' carried off. A rakshak or two on watch would have turned them.', 'mist');
+          }
+        }
+      }
+
+      /* A GREAT ONE RISES. A level-3 town may produce a hero — a role, never a named
+         ruler: the Annadata, the Sthapati, the Acharya. One great deed each, and a
+         quiet gift while they stay. */
+      SITES.forEach(function (s) {
+        var q = G.sites[s.id];
+        if (!inEra(s) || q.zzz || q.hero || q.lv < T.heroAt) return;
+        var hd = DATA.heroes[s.kind];
+        q.hero = { used: false, gone: false };
+        say(hd.name + ' has risen in ' + s.name + '! Enter the city — a great deed waits.', 'warm');
       });
 
       /* NEGLECT. A city nobody has touched in a while turns dusty and brings in half —
@@ -858,7 +1068,11 @@
         if (connected(s.id)) { q.idle = 0; if (q.fade >= 0 && !G.ev) q.fade = -1; return; }
         if (q.fade >= 0) {
           q.fade++;
-          if (q.fade >= T.fadeLen) { q.zzz = true; q.fade = -1; say('The mist has taken ' + s.name + ' — for now. Reach it again.', 'mist'); }
+          if (q.fade >= T.fadeLen) { q.zzz = true; q.fade = -1;
+            showOverlay(mascot('vismriti', null, 90) + '<h3>' + esc(s.name) + ' sleeps.</h3>' +
+              '<p>Vismriti has drifted over its lamps — for now. Nothing is lost that a road and a story cannot bring back.</p>' +
+              '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Reach it again</button></div>');
+            say('The mist has taken ' + s.name + ' — for now. Reach it again.', 'mist'); }
         } else {
           q.idle++;
           if (q.idle >= T.fadeIdle) { q.fade = 0; say('The mist is drifting over ' + s.name + '. A road would hold it.', 'mist'); }
@@ -912,6 +1126,43 @@
       if (actEl) {
         var a = actEl.getAttribute('data-sab-act');
         if (a === 'leave') { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
+        if (a === 'job' && city) {
+          var jj = jobsOf(city), jid = actEl.getAttribute('data-j'), dd = Number(actEl.getAttribute('data-d'));
+          var total = jj.kisan + jj.karigar + jj.kathakar + jj.rakshak;
+          if (dd > 0 && total < popOf(city)) jj[jid]++;
+          else if (dd > 0 && jj.kisan > 0 && jid !== 'kisan') { jj.kisan--; jj[jid]++; }   /* full town: new hands come off the fields */
+          else if (dd < 0 && jj[jid] > 0) { jj[jid]--; jj.kisan++; }                        /* freed hands farm */
+          touch(city); paintCity(); paintAll(); return;
+        }
+        if (a === 'deed' && city) {
+          var qh = G.sites[city], sh = byId[city];
+          if (!qh.hero || qh.hero.used) return;
+          var hd = DATA.heroes[sh.kind];
+          qh.hero.used = true; touch(city); G.score += 50;
+          if (sh.kind === 'kheti') {
+            G.res.anna += 120;
+            SITES.forEach(function (x) { var w = G.sites[x.id]; if (w) w.neg = 0; });
+            say(hd.name + ' brings the Golden Harvest — +120 \ud83c\udf3e, and every town stands proud again.', 'warm');
+          } else if (sh.kind === 'shilpa') {
+            if (!qh.mon && qh.lv >= 3) { qh.mon = true; G.res.katha += 10;
+              say(hd.name + ' raises ' + sh.works[2] + ' in a single season. Stone remembers.', 'warm');
+            } else { G.res.kala += 100; say(hd.name + ' fills the workshops instead — +100 \ud83d\udee0\ufe0f.', 'warm'); }
+          } else {
+            var un2 = TECHS.filter(function (t) { return t.era <= G.era && !G.tech[t.id]; })[0];
+            if (un2) { G.tech[un2.id] = true; say(hd.name + ' teaches ' + un2.name + ' to everyone, freely. ' + un2.what, 'warm'); }
+            else { G.res.katha += 100; say(hd.name + ' tells the whole age\u2019s stories in one sitting — +100 \ud83d\udcdc.', 'warm'); }
+          }
+          paintCity(); paintAll(); return;
+        }
+        if (a === 'crown' && city) {
+          var qc = G.sites[city], sc = byId[city];
+          if (!qc.hero || qc.hero.used || G.era < T.kingdomEra || inKingdomOf(city)) return;
+          if (reach(city).filter(function (o) { return awake(o); }).length + 1 < T.kingdomMin) return;
+          qc.hero.used = true; touch(city); G.score += 80;
+          G.kingdoms[city] = { name: 'The Kingdom of ' + sc.name, t: G.t };
+          say('\ud83d\udc51 ' + sc.name + ' is crowned! Every town its roads reach now shares the kingdom\u2019s strength.', 'warm');
+          paintCity(); paintAll(); return;
+        }
         if (a === 'peace' && city && inDispute(city)) {
           var di = Number(actEl.getAttribute('data-i'));
           if (di >= 0) { var fx = costOf(G.disp.fix[di].cost, 'peace'); if (!canPay(fx)) return; pay(fx); }
@@ -1075,12 +1326,14 @@
     G.quests = G.quests || {}; G.qdone = G.qdone || 0; G.lastq = G.lastq || 0;
     G.tech = G.tech || {}; G.capital = G.capital || null; G.disp = G.disp || null;
     G.lastd = G.lastd || 0; G.quizAt = G.quizAt || {}; G.quizN = G.quizN || 0;
-    SITES.forEach(function (x) { var q = G.sites[x.id]; if (q) { q.bld = q.bld || {}; q.mon = !!q.mon; q.neg = q.neg || 0; } });
+    G.kingdoms = G.kingdoms || {}; G.lastraid = G.lastraid || 0;
+    SITES.forEach(function (x) { var q = G.sites[x.id]; if (q) { q.bld = q.bld || {}; q.mon = !!q.mon; q.neg = q.neg || 0;
+      q.jobs = q.jobs || null; q.hero = q.hero || null; } });
     shell();
     if (saved && saved === G) {
       say('Welcome back. The lamps kept burning while you were away.', 'warm');
     } else {
-      showOverlay('<h3>Sabhyata — the first city</h3>' +
+      showOverlay(mascot('mithu', 'talk', 96) + '<h3>Sabhyata — the first city</h3>' +
         '<p>Dholavira is awake, and the rest of India sleeps under Vismriti, the Forgetting. ' +
         'Grow your city, build roads, and wake the land one lamp at a time. ' +
         'Step <i>into</i> a city to build granaries, gurukuls and monuments, settle quarrels, raise a capital and take quest scrolls. ' +
@@ -1116,7 +1369,12 @@
     id: 'sabhyata', name: 'Sabhyata', icon: 'map', minutes: 12, tag: 'Civilization',
     c: '#8a5a2b', c2: '#d9a23d',
     blurb: 'Grow the first cities, wake five thousand years of India lamp by lamp — and hold back the Forgetting. Nothing is conquered here; everything is reached.',
-    scene: '<svg viewBox="0 0 100 70" aria-hidden="true"><path d="M20 52 Q35 30 52 38 Q70 46 82 24" fill="none" stroke="#fff3d0" stroke-width="2.5" stroke-dasharray="1 6" stroke-linecap="round"/><circle cx="20" cy="52" r="6" fill="#ffd76e"/><circle cx="52" cy="38" r="5" fill="#ffd76e"/><circle cx="82" cy="24" r="7" fill="#fff3d0"/><circle cx="82" cy="24" r="11" fill="none" stroke="#fff3d0" stroke-opacity=".5"/></svg>',
+    /* the cover is the game's own Kashi painting with the lamp-road drawn over it */
+    scene: '<svg viewBox="0 0 100 70" aria-hidden="true" preserveAspectRatio="xMidYMid slice">' +
+      '<image href="art/sabhyata/kashi.jpg" x="0" y="0" width="100" height="70" preserveAspectRatio="xMidYMid slice"/>' +
+      '<path d="M20 52 Q35 30 52 38 Q70 46 82 24" fill="none" stroke="#fff3d0" stroke-width="2.5" stroke-dasharray="1 6" stroke-linecap="round"/>' +
+      '<circle cx="20" cy="52" r="5" fill="#ffd76e"/><circle cx="52" cy="38" r="4" fill="#ffd76e"/>' +
+      '<circle cx="82" cy="24" r="6" fill="#fff3d0"/><circle cx="82" cy="24" r="10" fill="none" stroke="#fff3d0" stroke-opacity=".5"/></svg>',
     engine: sabhyata
   });
 })();

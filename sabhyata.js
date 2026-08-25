@@ -184,28 +184,28 @@
     '.sab-cb text{font:800 12px var(--body,system-ui);fill:#fff;stroke:none;text-anchor:middle}',
 
     /* THE CITY, FROM INSIDE — a full-stage panel, not a small modal */
-    '.sab-city{background:var(--card);border:0;border-radius:22px;padding:16px 16px 20px;box-shadow:0 2px 6px rgba(30,20,64,.05),0 14px 40px rgba(30,20,64,.08)}',
+    '.sab-city{background:var(--card);border:0;border-radius:20px;padding:12px 12px 16px;box-shadow:0 2px 6px rgba(30,20,64,.05),0 14px 40px rgba(30,20,64,.08)}',
     '.sab-city .chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}',
-    '.sab-city h3{margin:0;font:800 24px/1.1 var(--display,Georgia,serif)}',
+    '.sab-city h3{margin:0;font:800 20px/1.1 var(--display,Georgia,serif)}',
     '.sab-city .mono{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}',
-    '.sab-works{display:flex;flex-direction:column;gap:6px;margin:12px 0}',
-    '.sab-work{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:10px 13px;border:0;border-radius:16px;background:var(--card2,var(--card));box-shadow:0 1px 2px rgba(30,20,64,.05),0 4px 14px rgba(30,20,64,.06);font-size:14.5px;opacity:.5}',
+    '.sab-works{display:flex;flex-direction:column;gap:5px;margin:8px 0}',
+    '.sab-work{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:7px 11px;border:0;border-radius:13px;background:var(--card2,var(--card));box-shadow:0 1px 2px rgba(30,20,64,.05),0 4px 14px rgba(30,20,64,.06);font-size:13.5px;opacity:.5}',
     '.sab-work.built{opacity:1;font-weight:700}',
     '.sab-work.now{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft,rgba(0,0,0,.05))}',
     '.sab-work i{font-style:normal;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:none}',
     /* the praja: four compact tiles, not four banners — icon, name, a count flanked
        by round +/- , the explainer as a whisper underneath */
-    '.sab-jobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:8px;margin:8px 0}',
-    '.sab-job{display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;padding:9px 8px;border-radius:14px;' +
+    '.sab-jobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:7px;margin:6px 0}',
+    '.sab-job{display:flex;flex-direction:column;gap:3px;align-items:center;text-align:center;padding:7px 6px;border-radius:12px;' +
       'background:linear-gradient(165deg,var(--card),var(--card2,var(--card)));box-shadow:0 1px 2px rgba(30,20,64,.06),0 6px 18px rgba(30,20,64,.07)}',
-    '.sab-job b{font:800 13.5px var(--body,system-ui)}',
+    '.sab-job b{font:800 12px var(--body,system-ui)}',
     '.sab-job .row2{display:flex;align-items:center;gap:10px}',
-    '.sab-job .n{font:800 20px var(--display,Georgia,serif);min-width:26px}',
-    '.sab-job .pm{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent-soft,rgba(91,63,214,.1));color:var(--accent);font:800 20px/1 var(--body,system-ui);cursor:pointer;box-shadow:0 1px 3px rgba(30,20,64,.1)}',
+    '.sab-job .n{font:800 17px var(--display,Georgia,serif);min-width:22px}',
+    '.sab-job .pm{width:40px;height:40px;border-radius:50%;border:0;background:var(--accent-soft,rgba(91,63,214,.1));color:var(--accent);font:800 20px/1 var(--body,system-ui);cursor:pointer;box-shadow:0 1px 3px rgba(30,20,64,.1)}',
     '.sab-job .pm:disabled{opacity:.35;cursor:default}',
-    '.sab-job .what{font-size:11px;color:var(--muted);line-height:1.35}',
+    '.sab-job .what{font-size:10px;color:var(--muted);line-height:1.3}',
     '.sab-work.built i{background:var(--accent);border-color:var(--accent);color:#fff}',
-    '.sab-quest{background:linear-gradient(165deg,var(--card),color-mix(in srgb,var(--accent2) 7%,var(--card)));border:0;border-left:4px solid var(--accent2);border-radius:16px;padding:12px 14px;margin:6px 0;box-shadow:0 4px 14px rgba(30,20,64,.06)}',
+    '.sab-quest{background:linear-gradient(165deg,var(--card),color-mix(in srgb,var(--accent2) 7%,var(--card)));border:0;border-left:4px solid var(--accent2);border-radius:14px;padding:9px 12px;margin:5px 0;box-shadow:0 4px 14px rgba(30,20,64,.06)}',
     '.sab-quest .who{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2)}',
     '.sab-quest p{margin:6px 0 10px;font-size:15px;line-height:1.5}',
     '.sab-cfact{font-size:14px;line-height:1.55;color:var(--text2,var(--text));background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px;margin:6px 0}',
@@ -331,9 +331,9 @@
       var q = G.sites[id];
       if (q && !q.zzz) {
         if (q.lv >= 3 && !q.mon && canPay(costOf(T.monCost[byId[id].era], 'monument')))
-          out.push({ act: 'cjump', t: 'sab-sec-works', icon: 'temple', name: 'Monument' });
+          out.push({ act: 'mon', t: 'sab-sec-works', icon: 'temple', name: 'Monument' });
         if (q.bld.gurukul && (G.quizAt[id] || -999) + T.quizCd - G.t <= 0)
-          out.push({ act: 'cjump', t: 'sab-sec-guru', icon: 'book', name: 'Teacher' });
+          out.push({ act: 'quizstart', t: 'sab-sec-guru', icon: 'book', name: 'Teacher' });
         if (q.hero) out.push({ act: 'cjump', t: 'sab-sec-hero', icon: 'star', name: 'Great one' });
       }
       return out;
@@ -968,7 +968,7 @@
           var jd = DATA.jobs[jid];
           var up = j.kisan + j.karigar + j.kathakar + j.rakshak < pop;
           return '<div class="sab-job">' +
-            '<span class="sab-tico">' + ic({ kisan: 'wheat', karigar: 'hammer', kathakar: 'scroll', rakshak: 'shield' }[jid], 24) + '</span>' +
+            '<span class="sab-tico" style="width:28px;height:28px;border-radius:9px">' + ic({ kisan: 'wheat', karigar: 'hammer', kathakar: 'scroll', rakshak: 'shield' }[jid], 18) + '</span>' +
             '<b>' + esc(jd.name) + (jid === spec ? ' \u00d72' : '') + '</b>' +
             '<span class="row2">' +
             '<button class="pm" data-sab-act="job" data-j="' + jid + '" data-d="-1"' + (j[jid] ? '' : ' disabled') + '>\u2212</button>' +
@@ -1040,17 +1040,20 @@
 
       /* BUILD — the strategic coins: the same anna and kala also want to be roads,
          growth and peace, and that tension is the game. */
-      h += '<div class="mono" style="margin-top:4px">Build</div><div class="sab-works">' +
+      h += '<div class="mono" style="margin-top:4px">Build</div><div class="sab-jobs" id="sab-sec-build">' +
         Object.keys(BLD).map(function (bid) {
           var bd = BLD[bid];
           if (bd.era > G.era) return '';
-          if (q.bld[bid]) return '<div class="sab-work built"><i>' + bd.icon + '</i>' + esc(bd.name) +
-            '<span style="flex:1"></span><span class="tiny" style="color:var(--muted)">' + esc(bd.what) + '</span></div>';
+          var bicon = '<span class="sab-tico" style="width:28px;height:28px;border-radius:9px;font-size:15px">' + bd.icon + '</span>';
+          if (q.bld[bid]) return '<div class="sab-job" style="opacity:.8" title="' + esc(bd.what) + '">' + bicon +
+            '<b>' + esc(bd.name) + '</b><span class="what">\u2713 built</span></div>';
           var c = costOf(bd.cost, 'building');
-          return '<div class="sab-work now"><i>' + bd.icon + '</i>' + esc(bd.name) +
-            '<span class="tiny" style="color:var(--muted);flex:1"> ' + esc(bd.what) + '</span>' +
-            '<button class="sab-btn" data-sab-act="build" data-b="' + bid + '"' + (canPay(c) ? '' : ' disabled') + '>' +
-            costStr(c) + '</button></div>';
+          return '<div class="sab-job" title="' + esc(bd.what) + '">' + bicon +
+            '<b>' + esc(bd.name) + '</b>' +
+            '<button class="sab-btn" style="min-height:40px;padding:6px 10px;font-size:12px" data-sab-act="build" data-b="' + bid + '"' +
+            (canPay(c) ? '' : ' disabled') + '>' + costStr(c) + '</button>' +
+            '<span class="what">' + esc(bd.what) + '</span>' +
+            '</div>';
         }).join('') + '</div>';
 
       /* THE CAPITAL — one city carries the realm. Moving it is how it always was:
@@ -1505,15 +1508,16 @@
         if (a === 'zin')  { vzZoom(1 / 1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
         if (a === 'zout') { vzZoom(1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
         if (a === 'zreset') { VZ = { x: 0, y: 0, w: 1000, h: 1100 }; vzApply(); return; }
-        if (a === 'cjump') {
-          var sec = D.getElementById(actEl.getAttribute('data-t'));
+        var flashSec = function (secId) {
+          if (!secId) return;
+          var sec = D.getElementById(secId);
           if (sec) {
             sec.scrollIntoView({ block: 'center', behavior: 'smooth' });
             sec.classList.remove('sab-flash'); void sec.offsetWidth;
             sec.classList.add('sab-flash');
           }
-          return;
-        }
+        };
+        if (a === 'cjump') { flashSec(actEl.getAttribute('data-t')); return; }
         if (a === 'leave') { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
         if (a === 'job' && city) {
           var jj = jobsOf(city), jid = actEl.getAttribute('data-j'), dd = Number(actEl.getAttribute('data-d'));
@@ -1572,6 +1576,7 @@
           paintCity(); paintAll(); return;
         }
         if (a === 'mon' && city) {
+          flashSec(actEl.getAttribute('data-t'));
           var qm = G.sites[city], sm = byId[city];
           if (qm.mon || qm.lv < 3) return;
           var mc = costOf(T.monCost[sm.era], 'monument');
@@ -1591,6 +1596,7 @@
           paintCity(); paintAll(); return;
         }
         if (a === 'quizstart' && city) {
+          flashSec(actEl.getAttribute('data-t'));
           var pool = G.tech.script
             ? SITES.filter(function (x) { return G.sites[x.id].seen && x.ask; })
             : SITES.filter(function (x) { return x.id === city && G.sites[x.id].seen && x.ask; });

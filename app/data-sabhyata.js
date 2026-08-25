@@ -100,6 +100,47 @@ window.IND_SABHYATA = {
   /* ports, for Monsoon Sailing */
   ports: ['lothal', 'sopara', 'mamallapuram', 'muziris', 'konark'],
 
+  /* THE PEOPLE. Every city has praja — citizens with jobs the player allocates.
+     Jobs are era-honest and gentle; the rakshaks are a village WATCH, not an army:
+     they drive crop-raiders off with drums, torches and mended fences, and nobody
+     in this game is ever hurt. */
+  jobs: {
+    kisan:   { name: 'Kisan',   icon: '🌾', what: 'farms — feeds everyone, earns anna' },
+    karigar: { name: 'Karigar', icon: '🛠️', what: 'crafts — earns kala' },
+    kathakar:{ name: 'Kathakar',icon: '📜', what: 'tells and teaches — earns katha' },
+    rakshak: { name: 'Rakshak', icon: '🛡️', what: 'keeps watch — drives raids off, earns nothing' }
+  },
+
+  /* RAIDS — the wilds test the granaries, never people. Real, era-honest hazards a
+     child can meet without fear; each names what the rakshaks actually do. */
+  raids: [
+    { id: 'boar',    minEra: 0, hits: 'anna', what: 'Wild boar are in the wheat at night',
+      fended: 'the rakshaks drum and wave torches till the boar trot back to the forest' },
+    { id: 'elephant',minEra: 0, hits: 'anna', what: 'A wild elephant herd has found the grain stores',
+      fended: 'the rakshaks guide the herd away with lanterns, drums and a clear path out' },
+    { id: 'locust',  minEra: 1, hits: 'anna', what: 'A locust cloud is settling on the fields',
+      fended: 'everyone under the rakshaks\u2019 lead beats pans and smokes the swarm onward' },
+    { id: 'storm',   minEra: 2, hits: 'kala', what: 'A storm off the sea is battering the workshops',
+      fended: 'the rakshaks had lashed the roofs and hauled the boats high already' },
+    { id: 'mist',    minEra: 0, hits: 'fade', what: 'Vismriti itself pushes at the lamps',
+      fended: 'the rakshaks walk the lanes all night relighting every lamp that gutters' }
+  ],
+
+  /* HEROES — one may rise in a level-3 city, and they are ROLES, never named rulers
+     (docs/05: rulers are people, not player pieces). Each has one great deed and a
+     quiet gift while they stay. */
+  heroes: {
+    kheti:  { name: 'The Annadata', icon: '🌾',
+              deed: 'The Golden Harvest', deedWhat: 'a year of plenty: +120 anna, and every dusty town shakes itself proud again',
+              gift: '+2 anna each turn while they stay' },
+    shilpa: { name: 'The Sthapati', icon: '🛠️',
+              deed: 'The Master Work', deedWhat: 'raises this city\u2019s monument in a single season, free',
+              gift: '+2 kala each turn while they stay' },
+    vidya:  { name: 'The Acharya',  icon: '📜',
+              deed: 'The Great Teaching', deedWhat: 'one learning of this age comes to everyone, free',
+              gift: '+2 katha each turn while they stay' }
+  },
+
   /* Quarrels between neighbours — real kinds of dispute, no armies, no winners.
      Two settlements each; both work, they just spend different coins. */
   disputes: [

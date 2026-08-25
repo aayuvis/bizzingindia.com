@@ -103,7 +103,35 @@ The city is now the strategy layer, and everything in it obeys the same editoria
 - **Trivia as income**: a gurukul takes questions (+katha, cooldown); with Brahmi
   Script the teacher asks about *any* woken city — recall across the whole map.
 
-## 6. Phase 2 and beyond (not in this build)
+## 6. The people, the wilds and the great ones (v4)
+
+The founder's second round of notes asked for citizens, upkeep, defence, attacks,
+heroes and kingdoms. All in, and each passed through the same editorial gate:
+
+- **Praja**: every city has 2 + 2·level citizens, each with a job the player
+  allocates — kisan, karigar, kathakar, **rakshak**. The city's own trade counts
+  double. Everyone eats (0.25 anna/turn): production minus appetite is the balance,
+  and the HUD shows the net per turn. An empty granary makes every town dusty at
+  once — the granaries come first.
+- **The rakshaks are a watch, not an army.** Raids come from the wilds and the mist,
+  never from people — every human raider is somebody's ancestor. Wild boar in the
+  wheat, an elephant herd at the stores, locusts, sea-storms, a push of Vismriti
+  itself; two rakshaks fend a raid off entirely, and the fending is always gentle:
+  drums, torches, lanterns, mended fences. A fended raid *earns* katha — the story
+  of the night the boar came is worth telling.
+- **Heroes are roles, never named rulers** (docs/05): the Annadata, the Sthapati,
+  the Acharya may rise in a level-3 town — one great deed each (a golden harvest; a
+  monument in a single season; a free learning for everyone) and a quiet gift while
+  they stay.
+- **Kingdoms**: from the janapada era, a hero can be asked to **crown** their city
+  instead of the deed. Every town its roads reach shares the kingdom's strength —
+  the kingdom IS the road network, so the boundary rules never come into play: a
+  realm here is a set of connections, not a coloured area.
+- **Art is reused before it is generated**: Mithu opens the game and takes the bow,
+  Vismriti itself appears when a town sleeps, the motif set dresses hero and
+  kingdom cards, and the Mela cover is the game's own Kashi painting.
+
+## 7. Phase 2 and beyond (not in this build)
 
 Narrated site cards in the app's own voice; more eras (Vijayanagara, the takeoff era
 bridging to Itihaas); a "visit the story" link from a woken site into the story library;

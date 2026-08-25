@@ -143,12 +143,17 @@ CITY_PROMPTS = {
         "animals and trees, pilgrim families with marigold garlands walking the "
         "circular path, monks in ochre robes, the plain of fields and mango groves "
         "far below."),
+    # The first pass painted a legible-looking invented inscription in the wrong
+    # script (the real edicts are Brahmi) — the exact thing docs/05 forbids. The
+    # scene now centres the carved elephant, which is real, wordless and gentle,
+    # and the rock is described only as stone.
     "dhauli": p(
-        "the rock of Dhauli above a bend of green river fields — a smooth granite "
-        "boulder carved with weathered ancient marks, a sculpted stone elephant "
-        "emerging from the rock beside it, village children listening as an old man "
-        "traces the carvings with his finger, white herons rising from the paddy "
-        "below, a soft rain-washed sky."),
+        "the rock of Dhauli above a bend of green river fields in soft rain-washed "
+        "light — a great smooth granite boulder from which a gentle stone elephant "
+        "emerges, carved long ago, trunk lowered kindly; village children lay "
+        "marigolds at the elephant's feet while an old storyteller speaks with open "
+        "hands, white herons rise from the flooded paddy below, the wide river "
+        "bends away."),
     "sopara": p(
         "an ancient western sea-port in full sail-mending, cargo-hauling life — broad "
         "wooden ships riding at anchor beyond the surf, longboats ferrying bales of "
@@ -233,11 +238,15 @@ VIDYA_PROMPTS = {
         "letterforms in smooth river sand with sticks, palm-leaf manuscripts tied in "
         "bundles beside them, a stone pillar in the courtyard bearing weathered "
         "carved marks, a parrot watching from the eaves, morning light on it all."),
+    # The first pass wrote the words "WELL-CARVED MILESTONE" onto the milestone in
+    # English — the model transcribed the prompt onto the stone. The waystone is now
+    # described purely by shape and ornament.
     "vidya-roads": p(
         "the royal roads — a wide tree-lined highway running straight to the horizon "
-        "through green country, carved milestone at the verge, a rest-house with a "
-        "well and mango shade where travellers water their bullocks, a merchant "
-        "caravan and a family on foot and a royal messenger all sharing the road."),
+        "through green country, a smooth rounded waystone at the verge crowned with "
+        "a carved lotus, a rest-house with a well and mango shade where travellers "
+        "water their bullocks, a merchant caravan and a family on foot and a royal "
+        "messenger all sharing the road."),
     "vidya-zero": p(
         "the idea of zero — an astronomer-teacher at night on a rooftop drawing a "
         "perfect glowing circle in white on a slate, students leaning in wonder, "

@@ -31,7 +31,9 @@
   var D = W.document || null;
   if (!D) return;
 
-  var SAVE_KEY = 'india.sabhyata.v1';
+  /* v2: jobs, fog, explorers and kingdoms changed the save's meaning — a clean
+     start at Dholavira is kinder than a half-migrated world (founder's call). */
+  var SAVE_KEY = 'india.sabhyata.v2';
   /* A TURN IS THREE SECONDS. At one second the coins piled up faster than a child
      could decide what they meant — the numbers moved and the game did not. Every
      per-turn constant below reads as turns, so slowing the clock slowed the whole
@@ -137,7 +139,8 @@
     '.sab-sheet b{font:800 15px var(--display,Georgia,serif);margin-right:2px}',
     '.sab-sheet .tiny{width:100%;color:var(--muted);font-size:12.5px}',
 
-    '.sab-over{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--ground) 82%,transparent);padding:18px;z-index:4}',
+    '.sab-over{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;background:color-mix(in srgb,var(--ground) 82%,transparent);padding:18px;z-index:4;overflow:auto}',
+    '.sab-over .sab-card{margin:auto}',
     '.sab-card{max-width:460px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.25)}',
     '.sab-card h3{margin:0 0 8px;font:800 20px/1.2 var(--display,Georgia,serif)}',
     '.sab-card p{margin:0 0 12px;font-size:15px;line-height:1.55}',
@@ -156,12 +159,12 @@
     '.sab-cb text{font:800 12px var(--body,system-ui);fill:#fff;stroke:none;text-anchor:middle}',
 
     /* THE CITY, FROM INSIDE — a full-stage panel, not a small modal */
-    '.sab-city{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;background:var(--ground2);overflow:auto;padding:16px}',
+    '.sab-city{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:14px 14px 18px}',
     '.sab-city .chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}',
     '.sab-city h3{margin:0;font:800 24px/1.1 var(--display,Georgia,serif)}',
     '.sab-city .mono{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}',
     '.sab-works{display:flex;flex-direction:column;gap:6px;margin:12px 0}',
-    '.sab-work{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:14.5px;opacity:.45}',
+    '.sab-work{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:14.5px;opacity:.45}',
     '.sab-work.built{opacity:1;font-weight:700}',
     '.sab-work.now{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft,rgba(0,0,0,.05))}',
     '.sab-work i{font-style:normal;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:none}',
@@ -623,9 +626,11 @@
           '<div style="display:flex;gap:8px">' +
             '<button class="sab-btn go" id="sab-adv" hidden></button>' +
             '<button class="sab-btn" id="sab-tech">Vidya</button>' +
+            '<button class="sab-btn" id="sab-restart" aria-label="Start again">\u21ba</button>' +
             '<button class="sab-btn" id="sab-pause" aria-pressed="false">Pause</button>' +
           '</div>' +
         '</div>' +
+        '<div id="sab-cityhost"></div>' +
         '<div class="sab-stage" id="sab-stage">' + board() +
           '<div style="position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:3">' +
           '<button class="sab-btn" data-sab-act="zin" aria-label="Zoom in">+</button>' +
@@ -812,10 +817,11 @@
             : '<i>' + jd.icon + '</i>';
           return '<div class="sab-work built">' + jicon +
             '<b style="min-width:86px">' + esc(jd.name) + (jid === spec ? ' ×2' : '') + '</b>' +
-            '<span class="tiny" style="color:var(--muted);flex:1">' + esc(jd.what) + '</span>' +
+            '<span style="flex:1"></span>' +
             '<button class="sab-btn" data-sab-act="job" data-j="' + jid + '" data-d="-1"' + (j[jid] ? '' : ' disabled') + '>\u2212</button>' +
             '<b style="min-width:22px;text-align:center">' + j[jid] + '</b>' +
             '<button class="sab-btn" data-sab-act="job" data-j="' + jid + '" data-d="1"' + (j.kisan + j.karigar + j.kathakar + j.rakshak < pop ? '' : (jid === 'kisan' ? ' disabled' : '')) + '>+</button>' +
+            '<span class="tiny" style="color:var(--muted);width:100%">' + esc(jd.what) + '</span>' +
             '</div>';
         }).join('') + '</div>';
 
@@ -949,13 +955,43 @@
       h += '</div>';
       return h;
     }
+    /* THE CITY IS A PAGE, NOT A POPUP. It used to render absolutely positioned
+       inside the map box — overflow hidden, 64vh tall — so its details could not
+       scroll and the buttons at the bottom were simply unreachable on a phone.
+       It renders in normal document flow now, the map hidden while you are inside:
+       the page itself scrolls, like every other screen in the app. Autofocus runs
+       on the way IN only — refocusing on every repaint threw keyboard users back
+       to the top button, which read as "the buttons are inaccessible". */
+    var cityOpened = false, cityReturnY = 0;
     function paintCity() {
-      var hostEl = D.getElementById('sab-ovhost');
+      var hostEl = D.getElementById('sab-cityhost');
       var stage = D.getElementById('sab-stage');
+      var sheet = D.getElementById('sab-sheet');
       var open = !!city;
-      hostEl.innerHTML = open ? cityHTML(city) : (overlay ? hostEl.innerHTML : '');
-      if (open) { var f = hostEl.querySelector('.sab-btn'); if (f) f.focus({ preventScroll: true }); }
-      if (!open && overlay) showOverlay(overlay);
+      stage.style.display = open ? 'none' : '';
+      if (sheet && open) sheet.hidden = true;
+      /* replacing a block this large lets the browser's scroll anchoring re-guess
+         the position — a job tap mid-panel lurched the page 400px. Pin it. */
+      var keepY = W.scrollY;
+      hostEl.innerHTML = open ? cityHTML(city) : '';
+      /* pin on repaint AND on the way out — swapping a page-sized block either way
+         lets scroll anchoring re-guess, and "leave" was landing the page at 0 */
+      if (open && cityOpened) W.scrollTo(0, keepY);
+      if (open && !cityOpened) {
+        cityOpened = true; cityReturnY = keepY;
+        var f = hostEl.querySelector('.sab-btn'); if (f) f.focus({ preventScroll: true });
+        hostEl.scrollIntoView({ block: 'start' });
+      }
+      if (!open && cityOpened) {
+        cityOpened = false;
+        /* walking out shows you the map — deliberately. The page collapses to the
+           top as the panel unmounts, and the map lives there; scrolling the stage
+           into view makes that the designed landing rather than an accident. */
+        requestAnimationFrame(function () {
+          var st3 = D.getElementById('sab-stage');
+          if (st3) st3.scrollIntoView({ block: 'nearest' });
+        });
+      }
     }
 
     /* ---- THE VIDYA PANEL: the tech tree, two doors an era ---- */
@@ -980,9 +1016,18 @@
         '<p class="tiny" style="color:var(--muted)">Two doors open in every age, and the coins rarely stretch to both at once. The order you choose is the strategy.</p>' +
         '</div>';
     }
+    var techOpened = false;
     function paintTech() {
-      D.getElementById('sab-ovhost').innerHTML = techOpen ? techHTML() : '';
-      if (techOpen) { var f = D.querySelector('#sab-ovhost .sab-btn'); if (f) f.focus({ preventScroll: true }); }
+      var hostEl = D.getElementById('sab-cityhost');
+      var stage = D.getElementById('sab-stage');
+      stage.style.display = (techOpen || city) ? 'none' : '';
+      hostEl.innerHTML = techOpen ? techHTML() : (city ? hostEl.innerHTML : '');
+      if (techOpen && !techOpened) {
+        techOpened = true;
+        var f = hostEl.querySelector('.sab-btn'); if (f) f.focus({ preventScroll: true });
+        hostEl.scrollIntoView({ block: 'start' });
+      }
+      if (!techOpen) techOpened = false;
     }
 
     /* ---- overlays: fact cards, era cards, endings, resume ---- */
@@ -1429,6 +1474,9 @@
           paintTech(); paintAll(); return;
         }
         if (a === 'techclose') { techOpen = false; paintTech(); paintAll(); return; }
+        if (a === 'restart2') { wipe(); G = fresh(); sel = null; kbd = null; targeting = false;
+          overlay = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
+          shell(); bindHud(); say('A new dawn at Dholavira.', 'warm'); return; }
         if (a === 'ovclose') { showOverlay(null); paintAll(); maybeEnd(); return; }
         if (a === 'finish') { showOverlay(null); if (typeof done === 'function') done({ win: true, score: G.score, kauris: 25 }); return; }
         return act(a);
@@ -1437,7 +1485,13 @@
       if (id) {
         if (G.ev && id === G.ev.id) return helpEvent();
         if (targeting) return tryRoute(id);
-        sel = id; kbd = id; paintAll(); return;
+        sel = id; kbd = id; paintAll();
+        var sh2 = D.getElementById('sab-sheet');
+        if (sh2 && !sh2.hidden) {
+          var r2 = sh2.getBoundingClientRect();
+          if (r2.bottom > (W.innerHeight || 800)) sh2.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+        return;
       }
       if (targeting) { targeting = false; say('Road put away.', ''); paintSheet(); }
     }
@@ -1530,16 +1584,28 @@
         'Nothing here is ever conquered — only reached.</p>' +
         '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Light the first lamp</button></div>');
     }
-    var advBtn = D.getElementById('sab-adv');
-    advBtn.addEventListener('click', advance);
-    D.getElementById('sab-tech').addEventListener('click', function () {
-      techOpen = !techOpen; if (techOpen) { city = null; quiz = null; } paintTech(); });
-    D.getElementById('sab-pause').addEventListener('click', togglePause);
+    /* HUD buttons are re-created whenever shell() rebuilds the DOM (a restart does),
+       so their listeners bind per-shell — bound once at boot, a restarted game's
+       HUD was a row of dead buttons. */
+    function bindHud() {
+      D.getElementById('sab-adv').addEventListener('click', advance);
+      D.getElementById('sab-pause').addEventListener('click', togglePause);
+      D.getElementById('sab-tech').addEventListener('click', function () {
+        techOpen = !techOpen; if (techOpen) { city = null; quiz = null; } paintTech(); });
+      D.getElementById('sab-restart').addEventListener('click', function () {
+        city = null; techOpen = false; paintCity(); paintTech();
+        showOverlay('<h3>Start the sabhyata again?</h3>' +
+          '<p>The whole journey begins afresh at Dholavira, and this one is forgotten. There is no undo.</p>' +
+          '<div class="row"><button class="sab-btn go" data-sab-act="restart2">Start again</button>' +
+          '<button class="sab-btn" data-sab-act="ovclose">Keep playing</button></div>');
+      });
+      var st2 = D.getElementById('sab-stage');
+      st2.addEventListener('wheel', onWheel, { passive: false });
+      st2.addEventListener('pointerdown', onPointerDown);
+    }
+    bindHud();
     host.addEventListener('mousedown', onMouseDown);
     host.addEventListener('click', onClick);
-    var stageEl = D.getElementById('sab-stage');
-    stageEl.addEventListener('wheel', onWheel, { passive: false });
-    stageEl.addEventListener('pointerdown', onPointerDown);
     D.addEventListener('pointermove', onPointerMove);
     D.addEventListener('pointerup', onPointerUp);
     D.addEventListener('pointercancel', onPointerUp);

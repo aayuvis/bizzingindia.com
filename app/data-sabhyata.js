@@ -54,6 +54,69 @@ window.IND_SABHYATA = {
       aha: null }
   ],
 
+  /* THE CITY'S OWN ECONOMY — buildings a player chooses, techs a player unlocks,
+     and the one monument each city is famous for. All names are era-honest; the
+     monument is always the city's real signature (works[2]), so "build the
+     monument" means building the thing that actually stands there.
+
+     Buildings: available everywhere once their era arrives; each is a decision
+     because the same coins also want to be roads, growth and peace. */
+  buildings: {
+    granary:  { name: 'Granary',  icon: '🏺', era: 0, cost: { anna: 30 },
+                what: '+1 🌾 each turn, and the town forgets hunger slower.' },
+    workshop: { name: 'Workshop', icon: '🧱', era: 0, cost: { anna: 20, kala: 20 },
+                what: '+1 🛠️ each turn.' },
+    gurukul:  { name: 'Gurukul',  icon: '🪔', era: 1, cost: { anna: 20, katha: 15 },
+                what: '+1 📜 each turn, and the teacher will take questions here.' },
+    bazaar:   { name: 'Bazaar',   icon: '⚖️', era: 1, cost: { kala: 35 },
+                what: '+1 of everything while the city is on a route.' },
+    stepwell: { name: 'Stepwell', icon: '💧', era: 2, cost: { kala: 30, anna: 15 },
+                what: 'The city weathers neglect three times longer.' }
+  },
+
+  /* Techs: two choices an era, and the coins rarely stretch to both at once —
+     the order IS the strategy. Each names a real thing. */
+  techs: [
+    { id: 'plough',   era: 0, name: 'The Plough',      cost: { katha: 25, kala: 15 },
+      what: 'Kalibangan\u2019s furrows everywhere: +1 🌾 from every farming city.' },
+    { id: 'brick',    era: 0, name: 'Fired Brick',     cost: { katha: 25, anna: 15 },
+      what: 'Kiln-fired and true: buildings cost a third less.' },
+    { id: 'iron',     era: 1, name: 'Iron Tools',      cost: { katha: 40, kala: 20 },
+      what: 'The forests open: +1 🛠️ from every craft city.' },
+    { id: 'panchayat',era: 1, name: 'The Panchayat',   cost: { katha: 35, anna: 20 },
+      what: 'Five who sit together: settling a quarrel costs nothing.' },
+    { id: 'script',   era: 2, name: 'Brahmi Script',   cost: { katha: 50, kala: 25 },
+      what: 'Written down, a question travels: every gurukul can ask about every woken city.' },
+    { id: 'roads',    era: 2, name: 'Royal Roads',     cost: { katha: 45, anna: 25 },
+      what: 'Milestones and rest-houses: routes cost half.' },
+    { id: 'zero',     era: 3, name: 'Zero',            cost: { katha: 60, kala: 30 },
+      what: 'Nothing, counted: +1 📜 from every learning city.' },
+    { id: 'temple',   era: 3, name: 'Temple Craft',    cost: { katha: 55, anna: 30 },
+      what: 'Stone on stone to the sky: monuments cost a third less.' },
+    { id: 'monsoon',  era: 4, name: 'Monsoon Sailing', cost: { katha: 70, kala: 35 },
+      what: 'Ride the winds out and home: +2 of everything from every port on a route.' }
+  ],
+
+  /* ports, for Monsoon Sailing */
+  ports: ['lothal', 'sopara', 'mamallapuram', 'muziris', 'konark'],
+
+  /* Quarrels between neighbours — real kinds of dispute, no armies, no winners.
+     Two settlements each; both work, they just spend different coins. */
+  disputes: [
+    { over: 'the river water, in a dry year',
+      fix: [{ what: 'Dig a shared channel', cost: { kala: 25 } },
+            { what: 'Share the granaries till the rains', cost: { anna: 30 } }] },
+    { over: 'tolls on the road between them',
+      fix: [{ what: 'Agree one fair weight and measure', cost: { kala: 20, katha: 10 } },
+            { what: 'Hold a joint market day', cost: { anna: 25 } }] },
+    { over: 'whose potters may sell at the fair',
+      fix: [{ what: 'Two rows of stalls, side by side', cost: { anna: 20 } },
+            { what: 'A shared kiln, built between the towns', cost: { kala: 30 } }] },
+    { over: 'an old promise, half-remembered differently',
+      fix: [{ what: 'Let the elders retell it together', cost: { katha: 20 } },
+            { what: 'Write it down at last, and seal it', cost: { kala: 15, katha: 10 } }] }
+  ],
+
   /* fact:  shown once, when the site wakes — the teaching moment per place.
      works: what stands in the city at level 1, 2, 3 — growth you can SEE from inside.
      ask:   one recall riddle for the city's teacher — the answer is always the first

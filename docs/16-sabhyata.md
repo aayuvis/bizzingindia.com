@@ -73,7 +73,34 @@ Ending: every lamp lit, the mist off the land — *India remembers*.
 - Saves through the **Store seam** (device-level snapshot, no child data).
 - Registered in `window.IND_GAMES` like every Mela engine — host, done, teardown.
 
-## 5. Phase 2 and beyond (not in this build)
+## 5. The city, from inside (v3)
+
+The first build's cities were spectators; the note back was exact: *"when I enter the
+city nothing much happens… I'm not building anything… not making strategic decisions."*
+The city is now the strategy layer, and everything in it obeys the same editorial frame:
+
+- **Buildings** (granary, workshop, gurukul, bazaar, stepwell) — one shared coin pool
+  with roads, growth and peace, so every purchase is a real trade-off.
+- **The monument** is the city's own `works[2]` — the thing that actually stands there,
+  buildable at level 3, expensive, and once raised the town is exempt from mist and
+  dust: *a monument is a memory made of stone.*
+- **Techs** (the Vidya panel): two real doors per era — plough/brick, iron/panchayat,
+  script/roads, zero/temple, monsoon — and the coins rarely stretch to both, so the
+  order chosen is the strategy.
+- **The capital**: one city carries the realm (+1 of everything, never dusty, never
+  quarrels). Moving it echoes Rajagriha → Pataliputra.
+- **Neglect**: an untouched city turns *dusty* and earns half — roads keep the mist
+  out, but only attention keeps a town proud. The stepwell stretches patience.
+- **Quarrels, not wars**: two routed towns fall out over water, tolls, stall-space or
+  an old promise. No armies, no winners, nothing burns — the road just carries nothing
+  until the player sits the panchayat and picks one of two priced settlements (or the
+  Panchayat tech makes it free). Unresolved quarrels invite the mist. This is the
+  game's whole answer to "cities fight": they *quarrel*, and the player's role is the
+  peace.
+- **Trivia as income**: a gurukul takes questions (+katha, cooldown); with Brahmi
+  Script the teacher asks about *any* woken city — recall across the whole map.
+
+## 6. Phase 2 and beyond (not in this build)
 
 Narrated site cards in the app's own voice; more eras (Vijayanagara, the takeoff era
 bridging to Itihaas); a "visit the story" link from a woken site into the story library;

@@ -52,7 +52,21 @@
     eventLen:   20,                 /* seconds to answer */
     questMax:   3,                  /* live quest scrolls at once */
     questGap:   18,                 /* seconds between new scrolls appearing */
-    reward: { carry: 40, road: 35, wake: 50, utsav: 35, riddle: 30 }   /* katha */
+    reward: { carry: 40, road: 35, wake: 50, utsav: 35, riddle: 30, peace: 45 },  /* katha */
+
+    negAfter:   75,                 /* seconds untouched before a city turns dusty (yields halve) */
+    stepwellX:  3,                  /* stepwell stretches that */
+    dispEvery:  50,                 /* seconds between quarrels */
+    dispGrace:  75,                 /* unresolved this long and both towns start to fade */
+    capCost:    { anna: 40, kala: 40 },
+    monCost:    [ { anna: 40, kala: 40, katha: 20 },   /* monument cost by era */
+                  { anna: 50, kala: 50, katha: 30 },
+                  { anna: 60, kala: 60, katha: 40 },
+                  { anna: 70, kala: 70, katha: 50 },
+                  { anna: 80, kala: 80, katha: 60 } ],
+    quizPay:    10,                 /* gurukul trivia, own city */
+    quizFarPay: 15,                 /* with Brahmi script, about other cities */
+    quizCd:     25                  /* seconds between questions per city */
   };
 
   /* ==================================================================
@@ -122,6 +136,10 @@
     /* the quest scroll on the map: a small marigold badge riding the lamp */
     '.sab-qb circle{fill:var(--accent2);stroke:#fff;stroke-width:2}',
     '.sab-qb text{font:800 15px var(--body,system-ui);fill:#fff;stroke:none;text-anchor:middle}',
+    '.sab-db circle{fill:var(--accent3);stroke:#fff;stroke-width:2}',
+    '.sab-db text{font:800 12px var(--body,system-ui);fill:#fff;stroke:none;text-anchor:middle}',
+    '.sab-cb circle{fill:var(--accent);stroke:#fff;stroke-width:2}',
+    '.sab-cb text{font:800 12px var(--body,system-ui);fill:#fff;stroke:none;text-anchor:middle}',
 
     /* THE CITY, FROM INSIDE — a full-stage panel, not a small modal */
     '.sab-city{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;background:var(--ground2);overflow:auto;padding:16px}',
@@ -174,11 +192,13 @@
     var G = null;
     function fresh() {
       var st = {};
-      SITES.forEach(function (s) { st[s.id] = { lv: 1, zzz: s.era > 0 || s.id !== 'dholavira', fade: -1, idle: 0, seen: false }; });
+      SITES.forEach(function (s) { st[s.id] = { lv: 1, zzz: s.era > 0 || s.id !== 'dholavira', fade: -1, idle: 0, seen: false,
+                                                bld: {}, mon: false, neg: 0 }; });
       st.dholavira.seen = true;
       return { era: 0, res: { anna: T.startRes.anna, kala: T.startRes.kala, katha: T.startRes.katha },
                sites: st, routes: [], t: 0, utsav: 0, ev: null, score: 0, won: false,
-               quests: {}, qdone: 0, lastq: 0 };
+               quests: {}, qdone: 0, lastq: 0,
+               tech: {}, capital: null, disp: null, lastd: 0, quizAt: {}, quizN: 0 };
     }
 
     /* ---- rules helpers ---- */
@@ -205,6 +225,56 @@
        so quests ARE the road to the next age, not a side dish.
        ================================================================ */
     var FOLK = { kheti: 'the granary keeper', shilpa: 'the master builder', vidya: 'the teacher' };
+    var BLD = DATA.buildings, TECHS = DATA.techs, PORTS = DATA.ports || [];
+
+    /* ---- money: one place understands discounts, affording and paying ---- */
+    function costOf(c, kind) {
+      var f = 1;
+      if (kind === 'building' && G.tech.brick) f = 2 / 3;
+      if (kind === 'monument' && G.tech.temple) f = 2 / 3;
+      if (kind === 'route' && G.tech.roads) f = 1 / 2;
+      var out = {};
+      Object.keys(c).forEach(function (k) { out[k] = Math.ceil(c[k] * f); });
+      return out;
+    }
+    function canPay(c) { return Object.keys(c).every(function (k) { return G.res[k] >= c[k]; }); }
+    function pay(c) { Object.keys(c).forEach(function (k) { G.res[k] -= c[k]; }); }
+    function costStr(c) {
+      return Object.keys(c).map(function (k) { return c[k] + ' ' + ICON[k]; }).join(' + ');
+    }
+
+    /* a touched city is a remembered city: any deliberate act resets its neglect */
+    function touch(id) { var q = G.sites[id]; if (q) q.neg = 0; }
+    function negLimit(id) {
+      var q = G.sites[id];
+      return T.negAfter * (q.bld.stepwell ? T.stepwellX : 1);
+    }
+    function dusty(id) {
+      var q = G.sites[id];
+      return !q.zzz && !q.mon && G.capital !== id && q.neg >= negLimit(id);
+    }
+    function inDispute(id) { return G.disp && (G.disp.a === id || G.disp.b === id); }
+
+    /* ---- what a city actually brings in each turn, all rules in one place ---- */
+    function yieldOf(x) {
+      var q = G.sites[x.id];
+      if (q.zzz || q.fade >= 0) return null;
+      var conn = connected(x.id) && !inDispute(x.id);
+      var out = { anna: 0, kala: 0, katha: 0 };
+      out[YIELD[x.kind]] += q.lv * (conn ? 2 : 1);
+      if (q.bld.granary) out.anna += 1;
+      if (q.bld.workshop) out.kala += 1;
+      if (q.bld.gurukul) out.katha += 1;
+      if (q.bld.bazaar && conn) { out.anna += 1; out.kala += 1; out.katha += 1; }
+      if (G.tech.plough && x.kind === 'kheti') out.anna += 1;
+      if (G.tech.iron && x.kind === 'shilpa') out.kala += 1;
+      if (G.tech.zero && x.kind === 'vidya') out.katha += 1;
+      if (G.tech.monsoon && conn && PORTS.indexOf(x.id) >= 0) { out.anna += 2; out.kala += 2; out.katha += 2; }
+      if (q.mon) out.katha += 2;
+      if (G.capital === x.id) { out.anna += 1; out.kala += 1; out.katha += 1; }
+      if (dusty(x.id)) Object.keys(out).forEach(function (k) { out[k] = Math.floor(out[k] / 2); });
+      return out;
+    }
 
     function questText(qq, here) {
       var t = qq.target ? byId[qq.target] : null;
@@ -261,9 +331,13 @@
 
     /* ---- the guide line: the game always says what it would do next ---- */
     function hint() {
+      if (G.disp) return '<b>' + esc(byId[G.disp.a].name) + '</b> and <b>' + esc(byId[G.disp.b].name) +
+        '</b> are quarrelling — enter either town and sit the panchayat (' + G.disp.left + 's).';
       var fading = SITES.filter(function (x) { return inEra(x) && G.sites[x.id].fade >= 0; })[0];
       if (fading) return 'The mist is over <b>' + esc(fading.name) + '</b> — route it, or hold an utsav.';
       if (G.ev) return '<b>' + esc(byId[G.ev.id].name) + '</b> asks for grain — tap it (or press H) to help.';
+      var dust = SITES.filter(function (x) { return inEra(x) && dusty(x.id); })[0];
+      if (dust) return '<b>' + esc(dust.name) + '</b> is dusty and earning half — visit it, grow it, or build there.';
       var qid = Object.keys(G.quests)[0];
       if (qid) return 'A scroll waits at <b>' + esc(byId[qid].name) + '</b> — enter the city and take the quest.';
       var zz = SITES.filter(function (x) { return inEra(x) && !awake(x.id); })[0];
@@ -272,6 +346,11 @@
         if (G.res.katha >= T.wakeCost) return '<b>' + esc(zz.name) + '</b> is reached — wake it (' + T.wakeCost + ' \ud83d\udcdc).';
         return 'Earn katha to wake <b>' + esc(zz.name) + '</b> — quests and lean-season help pay best.';
       }
+      var m3 = SITES.filter(function (x) { return inEra(x) && awake(x.id) && G.sites[x.id].lv >= 3 && !G.sites[x.id].mon; })[0];
+      if (m3 && canPay(costOf(T.monCost[m3.era], 'monument')))
+        return '<b>' + esc(m3.name) + '</b> could raise its monument — enter the city. Stone remembers.';
+      var un = TECHS.filter(function (t) { return t.era <= G.era && !G.tech[t.id] && canPay(costOf(t.cost, 'tech')); })[0];
+      if (un) return 'The age has learning to buy — open <b>Vidya</b> (' + esc(un.name) + ' is affordable).';
       if (canAdvance()) return 'The age is complete — press <b>New era</b>.';
       if (G.era < ERAS.length - 1)
         return (ERAS[G.era].katha - Math.floor(G.res.katha)) + ' more \ud83d\udcdc to the new era — quest scrolls are the fastest way.';
@@ -310,6 +389,10 @@
         '<circle class="core sab-lamp" cx="' + s.x + '" cy="' + s.y + '" r="' + r + '"/>' +
         '<g class="sab-qb" style="display:none"><circle cx="' + (s.x + r + 4) + '" cy="' + (s.y - r - 4) + '" r="11"/>' +
         '<text x="' + (s.x + r + 4) + '" y="' + (s.y - r + 1) + '">!</text></g>' +
+        '<g class="sab-db" style="display:none"><circle cx="' + (s.x - r - 4) + '" cy="' + (s.y - r - 4) + '" r="11"/>' +
+        '<text x="' + (s.x - r - 4) + '" y="' + (s.y - r + 1) + '">\u26a1</text></g>' +
+        '<g class="sab-cb" style="display:none"><circle cx="' + s.x + '" cy="' + (s.y + r + 8) + '" r="10"/>' +
+        '<text x="' + s.x + '" y="' + (s.y + r + 13) + '">\u2605</text></g>' +
         '<text x="' + lx + '" y="' + ly + '" text-anchor="' + anc + '">' + esc(s.name) + '</text>' +
         '</g>';
     }
@@ -343,6 +426,7 @@
           '<div class="sab-res" id="sab-res" aria-live="off"></div>' +
           '<div style="display:flex;gap:8px">' +
             '<button class="sab-btn go" id="sab-adv" hidden></button>' +
+            '<button class="sab-btn" id="sab-tech">Vidya</button>' +
             '<button class="sab-btn" id="sab-pause" aria-pressed="false">Pause</button>' +
           '</div>' +
         '</div>' +
@@ -352,7 +436,8 @@
         '<div class="sab-sheet" id="sab-sheet" hidden></div>' +
         '<p class="sab-help">Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
           '<b>1–4</b> fire an action (<b>4</b> steps inside the city), <b>Esc</b> cancels, <b>P</b> pauses. ' +
-          'Routes keep a place safe from the mist; the <b>!</b> scrolls are quests, and quests are the road to the next age.</p>' +
+          'Routes keep a place safe from the mist; <b>!</b> is a quest, <b>\u26a1</b> a quarrel for your panchayat, <b>\u2605</b> the capital. ' +
+          'Cities gather dust if nobody visits — and a monument, once raised, is never forgotten.</p>' +
         '</div>';
       paintAll();
     }
@@ -395,6 +480,11 @@
       m.setAttribute('opacity', q.zzz ? 1 : Math.min(1, q.fade / T.fadeLen).toFixed(2));
       var qb = g.querySelector('.sab-qb');
       if (qb) qb.style.display = G.quests[s.id] ? '' : 'none';
+      var db = g.querySelector('.sab-db');
+      if (db) db.style.display = inDispute(s.id) ? '' : 'none';
+      var cb = g.querySelector('.sab-cb');
+      if (cb) cb.style.display = G.capital === s.id ? '' : 'none';
+      g.querySelector('.core').style.opacity = dusty(s.id) ? .55 : '';
     }
     function paintRoutes() {
       var gEl = D.getElementById('sab-routes');
@@ -410,9 +500,13 @@
         b.push('<span class="sab-chip">asleep under the mist</span>');
         b.push('<button class="sab-btn go" data-sab-act="wake">1 · Wake — tell its story (' + T.wakeCost + ' 📜)</button>');
       } else {
-        b.push('<span class="sab-chip">' + ICON[YIELD[s.kind]] + ' level ' + q.lv + (connected(sel) ? ' · on a route' : ' · alone') + '</span>');
+        b.push('<span class="sab-chip">' + ICON[YIELD[s.kind]] + ' level ' + q.lv +
+          (G.capital === sel ? ' · the capital' : '') +
+          (connected(sel) ? ' · on a route' : ' · alone') +
+          (dusty(sel) ? ' · dusty' : '') +
+          (inDispute(sel) ? ' · in a quarrel' : '') + '</span>');
         if (q.lv < T.maxLevel) b.push('<button class="sab-btn" data-sab-act="grow">1 · Grow (' + T.growCost[q.lv] + ' 🌾)</button>');
-        b.push('<button class="sab-btn" data-sab-act="route">2 · Route (' + T.routeCost + ' 🛠️)</button>');
+        b.push('<button class="sab-btn" data-sab-act="route">2 · Route (' + costStr(costOf({ kala: T.routeCost }, 'route')) + ')</button>');
         b.push('<button class="sab-btn" data-sab-act="utsav"' + (G.utsav > 0 ? ' disabled' : '') + '>3 · Utsav ' +
           (G.utsav > 0 ? '(' + G.utsav + 's)' : '(' + T.utsavCost.anna + ' 🌾 + ' + T.utsavCost.kala + ' 🛠️)') + '</button>');
         b.push('<button class="sab-btn go" data-sab-act="city">4 · Enter the city' +
@@ -439,6 +533,7 @@
        ================================================================ */
     var city = null;       /* site id when inside a city */
     var riddleWrong = false;
+    var quiz = null;       /* { at: gurukul city, of: city the question is about } */
 
     /* the riddle's options are shuffled by a per-city seed so the right answer's
        POSITION never leaks; the right answer's TEXT the child earned from the
@@ -454,18 +549,99 @@
 
     function cityHTML(id) {
       var s = byId[id], q = G.sites[id], qq = G.quests[id];
+      var y = yieldOf(s);
       var h = '<div class="sab-city" role="dialog" aria-label="' + esc(s.name) + '">' +
-        '<div class="chead"><h3>' + esc(s.name) + '</h3>' +
+        '<div class="chead"><h3>' + esc(s.name) + (G.capital === id ? ' ★' : '') + '</h3>' +
         '<span class="mono">' + esc(ERAS[s.era].name) + ' · level ' + q.lv +
-        (connected(id) ? ' · on the roads' : ' · no road yet') + '</span>' +
+        (connected(id) ? ' · on the roads' : ' · no road yet') +
+        (dusty(id) ? ' · DUSTY — half yields' : '') + '</span>' +
         '<span style="flex:1"></span>' +
+        (y ? '<span class="sab-chip">brings in ' + ['anna','kala','katha'].filter(function (k) { return y[k]; })
+              .map(function (k) { return '+' + y[k] + ' ' + ICON[k]; }).join(' ') + '</span>' : '') +
         '<button class="sab-btn" data-sab-act="leave">Back to the map</button></div>';
-      h += '<div class="sab-works">' + (s.works || []).map(function (w, i) {
+
+      /* THE QUARREL COMES FIRST. If this town is in a dispute, the panchayat sits
+         before anything else gets built — that is what a panchayat is for. */
+      if (inDispute(id)) {
+        var other = byId[G.disp.a === id ? G.disp.b : G.disp.a];
+        h += '<div class="sab-quest" style="border-color:var(--accent3)"><div class="who" style="color:var(--accent3)">the panchayat sits · ' +
+          G.disp.left + 's</div>' +
+          '<p>' + esc(s.name) + ' and ' + esc(other.name) + ' have quarrelled over ' + esc(G.disp.over) +
+          '. The road between them carries nothing until it is settled.</p>' +
+          (G.tech.panchayat
+            ? '<button class="sab-btn go" data-sab-act="peace" data-i="-1">Let the five settle it (free — the Panchayat)</button>'
+            : G.disp.fix.map(function (f, i) {
+                var c = costOf(f.cost, 'peace');
+                return '<button class="sab-btn go" style="margin:4px 6px 0 0" data-sab-act="peace" data-i="' + i + '"' +
+                  (canPay(c) ? '' : ' disabled') + '>' + esc(f.what) + ' (' + costStr(c) + ')</button>';
+              }).join('')) +
+          '</div>';
+      }
+      h += '<div class="sab-works">' + (s.works || []).slice(0, 2).map(function (w, i) {
         return '<div class="sab-work' + (q.lv > i ? ' built' : '') + (q.lv === i + 1 ? ' now' : '') + '">' +
           '<i>' + (q.lv > i ? '✓' : (i + 1)) + '</i>' + esc(w) +
-          (q.lv === i && i + 1 < 4 ? '<span style="flex:1"></span><span class="tiny" style="color:var(--muted)">grow the city to build this</span>' : '') +
+          (q.lv === i ? '<span style="flex:1"></span><span class="tiny" style="color:var(--muted)">grow the city to build this</span>' : '') +
           '</div>';
-      }).join('') + '</div>';
+      }).join('') +
+      /* THE MONUMENT — works[2], the thing this city is actually famous for. Building
+         it is a decision, not a level-up side effect: it is expensive, it needs a
+         level-3 town, and once it stands the city can never be forgotten — no dust,
+         no mist. A monument is a memory made of stone. */
+      (function () {
+        var mc = costOf(T.monCost[s.era], 'monument');
+        if (q.mon) return '<div class="sab-work built" style="border-color:var(--accent2)"><i>★</i>' +
+          esc(s.works[2]) + '<span style="flex:1"></span><span class="tiny" style="color:var(--muted)">the monument stands — +2 📜, and the mist cannot touch this town</span></div>';
+        return '<div class="sab-work' + (q.lv >= 3 ? ' now' : '') + '"><i>★</i>' + esc(s.works[2]) +
+          '<span style="flex:1"></span>' +
+          (q.lv >= 3
+            ? '<button class="sab-btn go" data-sab-act="mon"' + (canPay(mc) ? '' : ' disabled') + '>Build the monument (' + costStr(mc) + ')</button>'
+            : '<span class="tiny" style="color:var(--muted)">a level-3 city may raise its monument</span>') +
+          '</div>';
+      })() + '</div>';
+
+      /* BUILD — the strategic coins: the same anna and kala also want to be roads,
+         growth and peace, and that tension is the game. */
+      h += '<div class="mono" style="margin-top:4px">Build</div><div class="sab-works">' +
+        Object.keys(BLD).map(function (bid) {
+          var bd = BLD[bid];
+          if (bd.era > G.era) return '';
+          if (q.bld[bid]) return '<div class="sab-work built"><i>' + bd.icon + '</i>' + esc(bd.name) +
+            '<span style="flex:1"></span><span class="tiny" style="color:var(--muted)">' + esc(bd.what) + '</span></div>';
+          var c = costOf(bd.cost, 'building');
+          return '<div class="sab-work now"><i>' + bd.icon + '</i>' + esc(bd.name) +
+            '<span class="tiny" style="color:var(--muted);flex:1"> ' + esc(bd.what) + '</span>' +
+            '<button class="sab-btn" data-sab-act="build" data-b="' + bid + '"' + (canPay(c) ? '' : ' disabled') + '>' +
+            costStr(c) + '</button></div>';
+        }).join('') + '</div>';
+
+      /* THE CAPITAL — one city carries the realm. Moving it is how it always was:
+         the Magadha kings left Rajagriha for Pataliputra when the river roads mattered
+         more than the hills. */
+      if (G.capital !== id) {
+        var cc = T.capCost;
+        h += '<div class="sab-quest" style="border-style:dashed"><div class="who">the seat of the realm</div>' +
+          '<p>' + (G.capital ? 'The capital is at ' + esc(byId[G.capital].name) + '. Moving it here costs the move itself.'
+                             : 'The realm has no capital yet. A capital never gathers dust, never quarrels, and adds +1 of everything.') + '</p>' +
+          '<button class="sab-btn" data-sab-act="cap"' + (canPay(cc) ? '' : ' disabled') + '>Make ' + esc(s.name) +
+          ' the capital (' + costStr(cc) + ')</button></div>';
+      }
+
+      /* THE GURUKUL — trivia as a living income. Build it and the teacher takes
+         questions; with Brahmi Script, questions about every woken city on the map. */
+      if (q.bld.gurukul) {
+        var cd = Math.max(0, (G.quizAt[id] || -999) + T.quizCd - G.t);
+        h += '<div class="sab-quest"><div class="who">the gurukul</div>' +
+          (quiz && quiz.at === id
+            ? '<p>' + (quiz.of !== id ? 'About <b>' + esc(byId[quiz.of].name) + '</b>: ' : '') + esc(byId[quiz.of].ask.q) + '</p>' +
+              riddleOptions(byId[quiz.of]).map(function (o) {
+                return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" data-sab-act="quiz" data-o="' + esc(o) + '">' + esc(o) + '</button>';
+              }).join('') +
+              (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — think of the city\u2019s own telling. Another go.</p>' : '')
+            : '<p>The teacher will take a question' + (G.tech.script ? ' about any woken city' : '') + '.</p>' +
+              '<button class="sab-btn" data-sab-act="quizstart"' + (cd > 0 ? ' disabled' : '') + '>' +
+              (cd > 0 ? 'The teacher rests (' + cd + 's)' : 'Ask me one (+' + (G.tech.script ? T.quizFarPay : T.quizPay) + ' 📜)') + '</button>') +
+          '</div>';
+      }
       if (qq) {
         h += '<div class="sab-quest"><div class="who">' + esc(FOLK[s.kind]) + ' asks</div>' +
           '<p>' + esc(questText(qq, s)) + '</p>';
@@ -503,6 +679,31 @@
       if (!open && overlay) showOverlay(overlay);
     }
 
+    /* ---- THE VIDYA PANEL: the tech tree, two doors an era ---- */
+    var techOpen = false;
+    function techHTML() {
+      var rows = TECHS.map(function (t) {
+        if (t.era > G.era) return '';
+        var have = !!G.tech[t.id], c = costOf(t.cost, 'tech');
+        return '<div class="sab-work' + (have ? ' built' : ' now') + '"><i>' + (have ? '✓' : '?') + '</i>' +
+          '<span><b>' + esc(t.name) + '</b> · <span class="tiny" style="color:var(--muted)">' + esc(t.what) + '</span></span>' +
+          '<span style="flex:1"></span>' +
+          (have ? '' : '<button class="sab-btn" data-sab-act="tech" data-t="' + t.id + '"' +
+            (canPay(c) ? '' : ' disabled') + '>' + costStr(c) + '</button>') +
+          '</div>';
+      }).join('');
+      return '<div class="sab-city" role="dialog" aria-label="Vidya — what the age knows">' +
+        '<div class="chead"><h3>Vidya</h3><span class="mono">what the age knows how to do</span>' +
+        '<span style="flex:1"></span><button class="sab-btn" data-sab-act="techclose">Back to the map</button></div>' +
+        '<div class="sab-works">' + rows + '</div>' +
+        '<p class="tiny" style="color:var(--muted)">Two doors open in every age, and the coins rarely stretch to both at once. The order you choose is the strategy.</p>' +
+        '</div>';
+    }
+    function paintTech() {
+      D.getElementById('sab-ovhost').innerHTML = techOpen ? techHTML() : '';
+      if (techOpen) { var f = D.querySelector('#sab-ovhost .sab-btn'); if (f) f.focus(); }
+    }
+
     /* ---- overlays: fact cards, era cards, endings, resume ---- */
     function showOverlay(html) {
       overlay = html;
@@ -518,22 +719,22 @@
       if (!sel || G.won) return;
       var s = byId[sel], q = G.sites[sel];
       if (name === 'close') { sel = null; targeting = false; paintAll(); return; }
-      if (name === 'city' && !q.zzz) { city = sel; riddleWrong = false; paintCity(); return; }
+      if (name === 'city' && !q.zzz) { city = sel; riddleWrong = false; touch(sel); paintCity(); return; }
       if (name === 'grow' && !q.zzz && q.lv < T.maxLevel) {
         var cost = T.growCost[q.lv];
         if (G.res.anna < cost) return say('Not enough anna yet — the fields are still filling.', '');
-        G.res.anna -= cost; q.lv++; G.score += 10;
+        G.res.anna -= cost; q.lv++; G.score += 10; touch(sel);
         say(s.name + ' grows. The lamps burn a little brighter.', 'warm');
       }
       if (name === 'route') {
-        if (G.res.kala < T.routeCost) return say('Routes take kala — grow a craft town, or wait for the workshops.', '');
+        if (!canPay(costOf({ kala: T.routeCost }, 'route'))) return say('Routes take kala — grow a craft town, or wait for the workshops.', '');
         targeting = true; say('Choose where the road from ' + s.name + ' should go.', '');
       }
       if (name === 'utsav' && G.utsav <= 0) {
         if (G.res.anna < T.utsavCost.anna || G.res.kala < T.utsavCost.kala)
           return say('An utsav needs both grain and craft — the whole village brings something.', '');
         G.res.anna -= T.utsavCost.anna; G.res.kala -= T.utsavCost.kala;
-        G.res.katha += T.utsavKatha; G.utsav = T.utsavCd; G.score += 15;
+        G.res.katha += T.utsavKatha; G.utsav = T.utsavCd; G.score += 15; touch(sel);
         SITES.forEach(function (t) { var w = G.sites[t.id]; if (w.fade >= 0) { w.fade = -1; w.idle = 0; } });
         say('Utsav at ' + s.name + '! Songs carry far — the mist pulls back from every fading lamp.', 'warm');
         var uq = G.quests[sel];
@@ -542,7 +743,7 @@
       if (name === 'wake' && q.zzz) {
         if (!connected(sel)) return say(s.name + ' needs a road first — a story has to travel to be heard.', '');
         if (G.res.katha < T.wakeCost) return say('Not enough katha — stories are earned by helping and holding utsavs.', '');
-        G.res.katha -= T.wakeCost; q.zzz = false; q.fade = -1; q.idle = 0; G.score += 25;
+        G.res.katha -= T.wakeCost; q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
         say(s.name + ' wakes!', 'warm');
         if (!q.seen) { q.seen = true; showOverlay('<h3>' + esc(s.name) + '</h3><p>' + esc(s.fact) + '</p>' +
           '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Onward</button></div>'); }
@@ -554,9 +755,10 @@
       var a = sel, b = target;
       if (!a || a === b || !inEra(byId[b])) return;
       if (routed(a, b)) { targeting = false; return say('That road is already walked.', ''); }
-      if (G.res.kala < T.routeCost) { targeting = false; return say('Not enough kala for this road.', ''); }
-      G.res.kala -= T.routeCost; G.routes.push([a, b]); G.score += 15;
-      targeting = false;
+      var rc = costOf({ kala: T.routeCost }, 'route');
+      if (!canPay(rc)) { targeting = false; return say('Not enough kala for this road.', ''); }
+      pay(rc); G.routes.push([a, b]); G.score += 15;
+      targeting = false; touch(a); touch(b);
       var q = G.sites[a]; q.idle = 0; if (q.fade >= 0) q.fade = -1;
       var p = G.sites[b]; p.idle = 0; if (p.fade >= 0) p.fade = -1;
       say('A road now runs between ' + byId[a].name + ' and ' + byId[b].name + '. Connected places thrive.', 'warm');
@@ -594,17 +796,58 @@
        THE TICK — one second of the world
        ================================================================ */
     function tick() {
-      if (pause || overlay || city || G.won || dead) return;   /* inside a city, time waits */
+      if (pause || overlay || city || techOpen || G.won || dead) return;   /* inside a city or the vidya panel, time waits */
       G.t++;
       if (G.utsav > 0) G.utsav--;
 
-      /* yields */
+      /* yields — every rule lives in yieldOf, so the HUD, the city screen and the
+         tests all read the same arithmetic */
+      SITES.forEach(function (s) {
+        if (!inEra(s)) return;
+        var y = yieldOf(s);
+        if (y) { G.res.anna += y.anna; G.res.kala += y.kala; G.res.katha += y.katha; }
+      });
+
+      /* NEGLECT. A city nobody has touched in a while turns dusty and brings in half —
+         even a connected one. Roads keep the mist out; only attention keeps a town
+         proud. Monuments and the capital are exempt: some places are remembered for
+         you. The stepwell stretches the patience threefold. */
       SITES.forEach(function (s) {
         if (!inEra(s)) return;
         var q = G.sites[s.id];
-        if (q.zzz || q.fade >= 0) return;
-        G.res[YIELD[s.kind]] += q.lv * (connected(s.id) ? 2 : 1);
+        if (q.zzz) return;
+        q.neg++;
+        if (q.neg === negLimit(s.id) && !q.mon && G.capital !== s.id)
+          say(s.name + ' is gathering dust — visit it, grow it, or give it work.', 'mist');
       });
+
+      /* QUARRELS. Two towns that share a road fall out over something real — water,
+         tolls, stall-space, an old promise. No armies and no winners: while it stands
+         the road between them carries nothing, and the player is the panchayat. */
+      if (!G.disp && G.t - G.lastd >= T.dispEvery) {
+        var pairs = G.routes.filter(function (r) {
+          return awake(r[0]) && awake(r[1]) && G.capital !== r[0] && G.capital !== r[1];
+        });
+        if (pairs.length) {
+          var pr = pairs[(G.t * 11) % pairs.length];
+          var tpl = DATA.disputes[(G.t * 7) % DATA.disputes.length];
+          G.disp = { a: pr[0], b: pr[1], over: tpl.over, fix: tpl.fix, left: T.dispGrace };
+          G.lastd = G.t;
+          say(byId[pr[0]].name + ' and ' + byId[pr[1]].name + ' have quarrelled over ' + tpl.over +
+              ' — enter either town and sit the panchayat.', 'mist');
+        }
+      }
+      if (G.disp) {
+        G.disp.left--;
+        if (G.disp.left <= 0) {
+          [G.disp.a, G.disp.b].forEach(function (id) {
+            var q = G.sites[id]; if (!q.zzz && q.fade < 0) q.fade = 0;
+          });
+          say('The quarrel between ' + byId[G.disp.a].name + ' and ' + byId[G.disp.b].name +
+              ' hardens, and the mist likes nothing better.', 'mist');
+          G.lastd = G.t; G.disp = null;
+        }
+      }
 
       /* the mist: an awake place left alone starts to fade; a fading place sleeps.
          Connected places are safe — that is the whole lesson of the game. */
@@ -668,7 +911,64 @@
       var actEl = e.target.closest ? e.target.closest('[data-sab-act]') : null;
       if (actEl) {
         var a = actEl.getAttribute('data-sab-act');
-        if (a === 'leave') { city = null; riddleWrong = false; paintCity(); paintAll(); return; }
+        if (a === 'leave') { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
+        if (a === 'peace' && city && inDispute(city)) {
+          var di = Number(actEl.getAttribute('data-i'));
+          if (di >= 0) { var fx = costOf(G.disp.fix[di].cost, 'peace'); if (!canPay(fx)) return; pay(fx); }
+          var pa = byId[G.disp.a].name, pb = byId[G.disp.b].name;
+          touch(G.disp.a); touch(G.disp.b);
+          G.disp = null; G.lastd = G.t;
+          G.res.katha += T.reward.peace; G.score += 40;
+          say('The panchayat rises: ' + pa + ' and ' + pb + ' shake on it. Peace pays. +' + T.reward.peace + ' \ud83d\udcdc', 'warm');
+          paintCity(); paintAll(); return;
+        }
+        if (a === 'build' && city) {
+          var bid = actEl.getAttribute('data-b'), bd = BLD[bid], qy = G.sites[city];
+          if (!bd || qy.bld[bid] || bd.era > G.era) return;
+          var bc = costOf(bd.cost, 'building');
+          if (!canPay(bc)) return;
+          pay(bc); qy.bld[bid] = true; touch(city); G.score += 15;
+          say(bd.name + ' raised in ' + byId[city].name + '.', 'warm');
+          paintCity(); paintAll(); return;
+        }
+        if (a === 'mon' && city) {
+          var qm = G.sites[city], sm = byId[city];
+          if (qm.mon || qm.lv < 3) return;
+          var mc = costOf(T.monCost[sm.era], 'monument');
+          if (!canPay(mc)) return;
+          pay(mc); qm.mon = true; touch(city); G.score += 60; G.res.katha += 10;
+          say(sm.works[2].charAt(0).toUpperCase() + sm.works[2].slice(1) + ' — ' + sm.name +
+              ' has raised its monument. Stone remembers.', 'warm');
+          paintCity(); paintAll(); return;
+        }
+        if (a === 'cap' && city) {
+          if (!canPay(T.capCost)) return;
+          pay(T.capCost);
+          var was = G.capital; G.capital = city; touch(city); G.score += 25;
+          say(was
+            ? 'The capital moves from ' + byId[was].name + ' to ' + byId[city].name + ', as it once moved to Pataliputra.'
+            : byId[city].name + ' is the capital now. The realm has a heart.', 'warm');
+          paintCity(); paintAll(); return;
+        }
+        if (a === 'quizstart' && city) {
+          var pool = G.tech.script
+            ? SITES.filter(function (x) { return G.sites[x.id].seen && x.ask; })
+            : SITES.filter(function (x) { return x.id === city && G.sites[x.id].seen && x.ask; });
+          if (!pool.length) return;
+          var pick2 = pool[(G.quizN + G.t) % pool.length];
+          quiz = { at: city, of: pick2.id }; riddleWrong = false; G.quizN++;
+          paintCity(); return;
+        }
+        if (a === 'quiz' && city && quiz) {
+          var po = actEl.getAttribute('data-o'), qs = byId[quiz.of];
+          if (po === qs.ask.o[0]) {
+            var payq = quiz.of === city ? T.quizPay : T.quizFarPay;
+            G.res.katha += payq; G.score += 10; G.quizAt[city] = G.t; touch(city);
+            say('Well answered — +' + payq + ' \ud83d\udcdc from the gurukul of ' + byId[city].name + '.', 'warm');
+            quiz = null; riddleWrong = false;
+          } else riddleWrong = true;
+          paintCity(); paintAll(); return;
+        }
         if (a === 'qcarry' && city) {
           if (G.res.kala >= T.eventAsk && connected(city)) {
             G.res.kala -= T.eventAsk; finishQuest(city, 'The carts roll in.');
@@ -686,6 +986,17 @@
           else { riddleWrong = true; }
           paintCity(); paintAll(); return;
         }
+        if (a === 'tech') {
+          var tid = actEl.getAttribute('data-t');
+          var td = null; TECHS.forEach(function (t) { if (t.id === tid) td = t; });
+          if (!td || G.tech[tid] || td.era > G.era) return;
+          var tc = costOf(td.cost, 'tech');
+          if (!canPay(tc)) return;
+          pay(tc); G.tech[tid] = true; G.score += 30;
+          say(td.name + '! ' + td.what, 'warm');
+          paintTech(); paintAll(); return;
+        }
+        if (a === 'techclose') { techOpen = false; paintTech(); paintAll(); return; }
         if (a === 'ovclose') { showOverlay(null); paintAll(); maybeEnd(); return; }
         if (a === 'finish') { showOverlay(null); if (typeof done === 'function') done({ win: true, score: G.score, kauris: 25 }); return; }
         return act(a);
@@ -709,8 +1020,12 @@
       if (dead) return;
       var eat = function () { e.preventDefault(); e.stopPropagation(); };
       if (city) {
-        if (e.key === 'Escape') { eat(); city = null; riddleWrong = false; paintCity(); paintAll(); }
+        if (e.key === 'Escape') { eat(); city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); }
         return;   /* inside the city, buttons are tabbable and Esc is the door */
+      }
+      if (techOpen) {
+        if (e.key === 'Escape') { eat(); techOpen = false; paintTech(); paintAll(); }
+        return;
       }
       if (overlay) { if (e.key === 'Enter' || e.key === 'Escape') { eat(); var f = D.querySelector('#sab-ovhost [data-sab-act]'); if (f) f.click(); } return; }
       var k = e.key;
@@ -758,6 +1073,9 @@
     G = (saved && !saved.won && saved.sites && saved.sites.dholavira) ? saved : fresh();
     /* saves from before the quest scrolls simply gain empty ones */
     G.quests = G.quests || {}; G.qdone = G.qdone || 0; G.lastq = G.lastq || 0;
+    G.tech = G.tech || {}; G.capital = G.capital || null; G.disp = G.disp || null;
+    G.lastd = G.lastd || 0; G.quizAt = G.quizAt || {}; G.quizN = G.quizN || 0;
+    SITES.forEach(function (x) { var q = G.sites[x.id]; if (q) { q.bld = q.bld || {}; q.mon = !!q.mon; q.neg = q.neg || 0; } });
     shell();
     if (saved && saved === G) {
       say('Welcome back. The lamps kept burning while you were away.', 'warm');
@@ -765,12 +1083,14 @@
       showOverlay('<h3>Sabhyata — the first city</h3>' +
         '<p>Dholavira is awake, and the rest of India sleeps under Vismriti, the Forgetting. ' +
         'Grow your city, build roads, and wake the land one lamp at a time. ' +
-        'Step <i>into</i> a city and its folk will hand you quest scrolls — the fastest road to the next age. ' +
+        'Step <i>into</i> a city to build granaries, gurukuls and monuments, settle quarrels, raise a capital and take quest scrolls. ' +
         'Nothing here is ever conquered — only reached.</p>' +
         '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Light the first lamp</button></div>');
     }
     var advBtn = D.getElementById('sab-adv');
     advBtn.addEventListener('click', advance);
+    D.getElementById('sab-tech').addEventListener('click', function () {
+      techOpen = !techOpen; if (techOpen) { city = null; quiz = null; } paintTech(); });
     D.getElementById('sab-pause').addEventListener('click', togglePause);
     host.addEventListener('click', onClick);
     /* keys live on the document: focus often rests on the page body, and a game whose

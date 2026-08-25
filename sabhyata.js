@@ -94,7 +94,7 @@
     '.sab-era b{display:block;font:800 18px/1.15 var(--display,Georgia,serif)}',
     '.sab-era span{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}',
     '.sab-res{display:flex;gap:8px;flex-wrap:wrap}',
-    '.sab-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card);font-weight:800;font-size:14px}',
+    '.sab-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07),0 3px 10px rgba(30,20,64,.06);font-weight:800;font-size:14px}',
     '.sab-chip small{font-weight:600;color:var(--muted)}',
     '.sab-btn{min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font:700 14px var(--body,system-ui);cursor:pointer}',
     '.sab-btn:disabled{opacity:.45;cursor:default}',
@@ -135,19 +135,41 @@
     '.sab-feed.warm{color:var(--good)}',
     '.sab-feed.mist{color:var(--accent2)}',
 
-    '.sab-sheet{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:10px}',
-    '.sab-sheet b{font:800 15px var(--display,Georgia,serif);margin-right:2px}',
-    '.sab-sheet .tiny{width:100%;color:var(--muted);font-size:12.5px}',
+    /* THE VERB TILES. The action row was a strip of long bordered buttons — "long
+       banner actions" was the exact complaint. Verbs are square-ish tiles now: a
+       stroke icon in a soft accent chip, the word, the cost — hover lifts, press
+       settles, a marigold badge counts what waits inside. */
+    '.sab-sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;align-items:stretch}',
+    '.sab-shead{grid-column:1/-1;display:flex;align-items:baseline;gap:8px;margin:2px 2px -2px}',
+    '.sab-shead b{font:800 17px/1.1 var(--display,Georgia,serif)}',
+    '.sab-shead span{font-size:12px;color:var(--muted);font-weight:600}',
+    '.sab-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;' +
+      'padding:12px 8px 10px;border:0;border-radius:18px;cursor:pointer;color:var(--text);' +
+      'background:linear-gradient(165deg,var(--card),var(--card2,var(--card)));' +
+      'box-shadow:0 1px 2px rgba(30,20,64,.06),0 6px 18px rgba(30,20,64,.07);' +
+      'font:700 13px/1.2 var(--body,system-ui);transition:transform .15s,box-shadow .15s}',
+    '.sab-tile:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(30,20,64,.08),0 12px 26px rgba(30,20,64,.10)}',
+    '.sab-tile:active{transform:scale(.97)}',
+    '.sab-tile:disabled{opacity:.4;cursor:default;transform:none}',
+    '.sab-tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    '.sab-tile.go{background:linear-gradient(165deg,var(--accent),color-mix(in srgb,var(--accent) 78%,#000 8%));color:#fff}',
+    '.sab-tile.go .sab-tico{background:rgba(255,255,255,.18);color:#fff}',
+    '.sab-tile .cost{font-size:11.5px;font-weight:600;color:inherit;opacity:.75}',
+    '.sab-tico{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex:none;' +
+      'background:var(--accent-soft,rgba(91,63,214,.1));color:var(--accent)}',
+    '.sab-badge{position:absolute;top:-6px;right:-6px;min-width:21px;height:21px;padding:0 5px;border-radius:999px;' +
+      'background:var(--accent2);color:#fff;font:800 12px/21px var(--body,system-ui);border:2px solid var(--card);box-shadow:0 2px 6px rgba(0,0,0,.18)}',
+    '.sab-badge.hot{background:var(--accent3)}',
 
     '.sab-over{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;background:color-mix(in srgb,var(--ground) 82%,transparent);padding:18px;z-index:4;overflow:auto}',
     '.sab-over .sab-card{margin:auto}',
-    '.sab-card{max-width:460px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.25)}',
+    '.sab-card{max-width:430px;background:var(--card);border:0;border-radius:22px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.25)}',
     '.sab-card h3{margin:0 0 8px;font:800 20px/1.2 var(--display,Georgia,serif)}',
     '.sab-card p{margin:0 0 12px;font-size:15px;line-height:1.55}',
     '.sab-card .row{display:flex;gap:8px;flex-wrap:wrap}',
 
     '.sab-help{font-size:12.5px;color:var(--muted)}',
-    '.sab-guide{margin:0;font-size:14px;font-weight:700;color:var(--text2,var(--text));background:var(--card);border:1px dashed var(--line);border-radius:var(--radius-lg);padding:9px 12px}',
+    '.sab-guide{margin:0;font-size:13.5px;font-weight:700;color:var(--text2,var(--text));background:color-mix(in srgb,var(--card) 72%,transparent);border:0;border-radius:14px;padding:8px 12px;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 16%,transparent)}',
     '.sab-guide b{color:var(--accent)}',
 
     /* the quest scroll on the map: a small marigold badge riding the lamp */
@@ -159,17 +181,28 @@
     '.sab-cb text{font:800 12px var(--body,system-ui);fill:#fff;stroke:none;text-anchor:middle}',
 
     /* THE CITY, FROM INSIDE — a full-stage panel, not a small modal */
-    '.sab-city{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:14px 14px 18px}',
+    '.sab-city{background:var(--card);border:0;border-radius:22px;padding:16px 16px 20px;box-shadow:0 2px 6px rgba(30,20,64,.05),0 14px 40px rgba(30,20,64,.08)}',
     '.sab-city .chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}',
     '.sab-city h3{margin:0;font:800 24px/1.1 var(--display,Georgia,serif)}',
     '.sab-city .mono{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}',
     '.sab-works{display:flex;flex-direction:column;gap:6px;margin:12px 0}',
-    '.sab-work{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:14.5px;opacity:.45}',
+    '.sab-work{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:10px 13px;border:0;border-radius:16px;background:var(--card2,var(--card));box-shadow:0 1px 2px rgba(30,20,64,.05),0 4px 14px rgba(30,20,64,.06);font-size:14.5px;opacity:.5}',
     '.sab-work.built{opacity:1;font-weight:700}',
     '.sab-work.now{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft,rgba(0,0,0,.05))}',
     '.sab-work i{font-style:normal;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:none}',
+    /* the praja: four compact tiles, not four banners — icon, name, a count flanked
+       by round +/- , the explainer as a whisper underneath */
+    '.sab-jobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0}',
+    '.sab-job{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;padding:12px 10px;border-radius:18px;' +
+      'background:linear-gradient(165deg,var(--card),var(--card2,var(--card)));box-shadow:0 1px 2px rgba(30,20,64,.06),0 6px 18px rgba(30,20,64,.07)}',
+    '.sab-job b{font:800 13.5px var(--body,system-ui)}',
+    '.sab-job .row2{display:flex;align-items:center;gap:10px}',
+    '.sab-job .n{font:800 20px var(--display,Georgia,serif);min-width:26px}',
+    '.sab-job .pm{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent-soft,rgba(91,63,214,.1));color:var(--accent);font:800 20px/1 var(--body,system-ui);cursor:pointer;box-shadow:0 1px 3px rgba(30,20,64,.1)}',
+    '.sab-job .pm:disabled{opacity:.35;cursor:default}',
+    '.sab-job .what{font-size:11px;color:var(--muted);line-height:1.35}',
     '.sab-work.built i{background:var(--accent);border-color:var(--accent);color:#fff}',
-    '.sab-quest{background:var(--card);border:1px solid var(--accent2);border-radius:var(--radius-lg);padding:12px;margin:6px 0}',
+    '.sab-quest{background:linear-gradient(165deg,var(--card),color-mix(in srgb,var(--accent2) 7%,var(--card)));border:0;border-left:4px solid var(--accent2);border-radius:16px;padding:12px 14px;margin:6px 0;box-shadow:0 4px 14px rgba(30,20,64,.06)}',
     '.sab-quest .who{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2)}',
     '.sab-quest p{margin:6px 0 10px;font-size:15px;line-height:1.5}',
     '.sab-cfact{font-size:14px;line-height:1.55;color:var(--text2,var(--text));background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px;margin:6px 0}',
@@ -177,7 +210,7 @@
     '.sab-hero.dim{filter:grayscale(.85) sepia(.15) brightness(.92)}',
     '.sab-herocap{font-size:12px;color:var(--muted);margin:4px 0 8px}',
     '.sab-vthumb{width:112px;height:75px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex:none}',
-    '.sab-cardart{width:100%;border-radius:12px;margin:0 0 10px;display:block}',
+    '.sab-cardart{width:100%;max-height:150px;object-fit:cover;border-radius:14px;margin:0 0 10px;display:block}',
     /* DESKTOP FIT. On a monitor the HUD, the action row, the map and the guide should
        share one screen without the page scrolling — the map gives a little height and
        the paintings stop being posters. Phones keep the tall map. */
@@ -268,6 +301,41 @@
        height with its monument at the centre — and the game shows it DESATURATED until
        the monument is raised. The same picture, remembered into colour: the whole game
        in one CSS filter. Art is optional by construction: no manifest entry, no img. */
+    /* stroke icons: the app's own IND_ICON set where it fits, plus a few drawn for
+       the game in the identical idiom (24-box, 1.7 stroke, round caps) */
+    var SAB_PATHS = {
+      wheat:  '<path d="M12 21V8M12 8c-3 0-5-2-5-5 3 0 5 2 5 5zM12 8c3 0 5-2 5-5-3 0-5 2-5 5zM12 13c-3 0-5-2-5-5 3 0 5 2 5 5zM12 13c3 0 5-2 5-5-3 0-5 2-5 5z"/>',
+      hammer: '<path d="M14 4l6 6-2 2-6-6zM12 6L4 14l3 3 8-8M6.5 16.5L4 21"/>',
+      scroll: '<path d="M6 4h10a2 2 0 012 2v12a2 2 0 002 2H8a2 2 0 01-2-2V4zM6 4a2 2 0 00-2 2v2h4M9 9h6M9 13h6"/>',
+      shield: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',
+      peace:  '<path d="M7 12l3 3 7-7M4 15c2 4 5 6 8 6s6-2 8-6"/>',
+      road:   '<path d="M4 20C8 14 16 10 20 4M9 6l2 2M14 17l2 2"/>',
+      crown:  '<path d="M4 17l1-9 4.5 4L12 5l2.5 7L19 8l1 9zM4 20h16"/>'
+    };
+    function ic(name, size) {
+      if (SAB_PATHS[name])
+        return '<svg viewBox="0 0 24 24" width="' + (size || 22) + '" height="' + (size || 22) +
+          '" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          SAB_PATHS[name] + '</svg>';
+      return W.IND_ICON ? W.IND_ICON(name, size || 22) : '';
+    }
+
+    /* what waits inside a city — the number on the Enter tile, and the in-city nav */
+    function cityJobsWaiting(id) {
+      var out = [];
+      if (inDispute(id)) out.push({ act: 'cjump', t: 'sab-sec-quarrel', icon: 'peace', name: 'Panchayat', hot: true });
+      if (G.quests[id]) out.push({ act: 'cjump', t: 'sab-sec-quest', icon: 'scroll', name: 'Quest' });
+      var q = G.sites[id];
+      if (q && !q.zzz) {
+        if (q.lv >= 3 && !q.mon && canPay(costOf(T.monCost[byId[id].era], 'monument')))
+          out.push({ act: 'cjump', t: 'sab-sec-works', icon: 'temple', name: 'Monument' });
+        if (q.bld.gurukul && (G.quizAt[id] || -999) + T.quizCd - G.t <= 0)
+          out.push({ act: 'cjump', t: 'sab-sec-guru', icon: 'book', name: 'Teacher' });
+        if (q.hero) out.push({ act: 'cjump', t: 'sab-sec-hero', icon: 'star', name: 'Great one' });
+      }
+      return out;
+    }
+
     function artOf(id) {
       var m = W.IND_SABHYATA_ART || [];
       return m.indexOf(id) >= 0 ? 'art/sabhyata/' + id + '.jpg' : null;
@@ -561,6 +629,24 @@
        so panning across a lamp does not select it.
        ================================================================ */
     var VZ = { x: 0, y: 0, w: 1000, h: 1100 };
+    /* THE MAP OPENS ZOOMED TO YOUR WORLD, not to all of India — a fresh game is one
+       lamp in the fog, and a whole-subcontinent view makes it a dot in a grey sea.
+       Fit the found sites (plus a walking explorer) with generous margin; the whole
+       map is one \u2302 away. */
+    function fitFound() {
+      var pts = SITES.filter(onMap).map(function (x) { return [x.x, x.y]; });
+      G.explorers.forEach(function (ex) { pts.push([ex.x, ex.y]); });
+      if (!pts.length) return;
+      var xs = pts.map(function (q2) { return q2[0]; }), ys = pts.map(function (q2) { return q2[1]; });
+      var cx = (Math.min.apply(0, xs) + Math.max.apply(0, xs)) / 2;
+      var cy = (Math.min.apply(0, ys) + Math.max.apply(0, ys)) / 2;
+      var span = Math.max(Math.max.apply(0, xs) - Math.min.apply(0, xs),
+                          (Math.max.apply(0, ys) - Math.min.apply(0, ys)) / 1.1);
+      VZ.w = Math.max(430, Math.min(1000, span + 340));
+      VZ.h = VZ.w * 1.1;
+      VZ.x = cx - VZ.w / 2; VZ.y = cy - VZ.h / 2;
+      vzClamp(); vzApply();
+    }
     var panning = null, swallowClick = false, pinch = null;
     function vzApply() {
       var svg = D.querySelector('#sab-stage svg');
@@ -736,32 +822,61 @@
       var gEl = D.getElementById('sab-routes');
       if (gEl) gEl.innerHTML = G.routes.map(routeSVG).join('');
     }
+    /* the tile helper: icon chip, word, cost — with an optional waiting-count badge */
+    function tile(act, icon, name, cost, opts) {
+      opts = opts || {};
+      return '<button class="sab-tile' + (opts.go ? ' go' : '') + '" data-sab-act="' + act + '"' +
+        (opts.attrs || '') + (opts.disabled ? ' disabled' : '') + '>' +
+        (opts.badge ? '<span class="sab-badge' + (opts.hot ? ' hot' : '') + '">' + opts.badge + '</span>' : '') +
+        '<span class="sab-tico">' + ic(icon, 24) + '</span>' +
+        '<span>' + name + '</span>' +
+        (cost ? '<span class="cost">' + cost + '</span>' : '') +
+        '</button>';
+    }
+
     function paintSheet() {
       var sh = D.getElementById('sab-sheet');
+      if (!sh) return;
+
+      /* IN THE CITY, THE ROW BECOMES THE CITY'S OWN NAV: the way back, and a tile
+         for each thing waiting inside — the same list the Enter badge counted. */
+      if (city) {
+        var waits = cityJobsWaiting(city);
+        sh.hidden = false;
+        sh.innerHTML = '<div class="sab-shead"><b>' + esc(byId[city].name) + '</b><span>inside the city</span></div>' +
+          tile('leave', 'back', 'Back to map', '', { go: true }) +
+          waits.map(function (w2) {
+            return tile(w2.act, w2.icon, w2.name, '', { attrs: ' data-t="' + w2.t + '"', badge: '!', hot: w2.hot });
+          }).join('');
+        return;
+      }
+
       if (!sel) { sh.hidden = true; sh.innerHTML = ''; return; }
       var s = byId[sel], q = G.sites[sel];
       var b = [];
-      b.push('<b>' + esc(s.name) + '</b>');
+      b.push('<div class="sab-shead"><b>' + esc(s.name) + '</b><span>' +
+        (q.zzz ? 'asleep under the mist'
+               : ICON[YIELD[s.kind]] + ' level ' + q.lv +
+                 (G.capital === sel ? ' · the capital' : '') +
+                 (connected(sel) ? ' · on a route' : ' · alone') +
+                 (dusty(sel) ? ' · dusty' : '') +
+                 (inDispute(sel) ? ' · in a quarrel' : '')) +
+        (targeting ? ' — now choose the other end of the road' : '') + '</span></div>');
       if (q.zzz) {
-        b.push('<span class="sab-chip">asleep under the mist</span>');
-        b.push('<button class="sab-btn go" data-sab-act="wake">1 · Wake — tell its story (' + T.wakeCost + ' 📜)</button>');
+        b.push(tile('wake', 'sun', 'Wake', T.wakeCost + ' \ud83d\udcdc', { go: true }));
       } else {
-        b.push('<span class="sab-chip">' + ICON[YIELD[s.kind]] + ' level ' + q.lv +
-          (G.capital === sel ? ' · the capital' : '') +
-          (connected(sel) ? ' · on a route' : ' · alone') +
-          (dusty(sel) ? ' · dusty' : '') +
-          (inDispute(sel) ? ' · in a quarrel' : '') + '</span>');
-        if (q.lv < T.maxLevel) b.push('<button class="sab-btn" data-sab-act="grow">1 · Grow (' + T.growCost[q.lv] + ' 🌾)</button>');
-        b.push('<button class="sab-btn" data-sab-act="route">2 · Route (' + costStr(costOf({ kala: T.routeCost }, 'route')) + ')</button>');
-        b.push('<button class="sab-btn" data-sab-act="utsav"' + (G.utsav > 0 ? ' disabled' : '') + '>3 · Utsav ' +
-          (G.utsav > 0 ? '(' + G.utsav + 's)' : '(' + T.utsavCost.anna + ' 🌾 + ' + T.utsavCost.kala + ' 🛠️)') + '</button>');
-        b.push('<button class="sab-btn go" data-sab-act="city">4 · Enter the city' +
-          (G.quests[sel] ? ' — a scroll waits!' : '') + '</button>');
+        if (q.lv < T.maxLevel) b.push(tile('grow', 'tree', 'Grow', T.growCost[q.lv] + ' \ud83c\udf3e'));
+        b.push(tile('route', 'road', 'Route', costStr(costOf({ kala: T.routeCost }, 'route'))));
+        b.push(tile('utsav', 'lamp', 'Utsav',
+          G.utsav > 0 ? G.utsav + 's' : T.utsavCost.anna + ' \ud83c\udf3e + ' + T.utsavCost.kala + ' \ud83d\udee0\ufe0f',
+          { disabled: G.utsav > 0 }));
+        var waiting = cityJobsWaiting(sel).length;
+        b.push(tile('city', 'temple', 'Enter city', waiting ? 'a scroll waits!' : '',
+          { go: true, badge: waiting || '', hot: inDispute(sel) }));
         if (hiddenSites().length)
-          b.push('<button class="sab-btn" data-sab-act="explore">5 · Send an explorer (' + T.exploreCost + ' 🌾)</button>');
+          b.push(tile('explore', 'run', 'Explorer', T.exploreCost + ' \ud83c\udf3e'));
       }
-      b.push('<button class="sab-btn" data-sab-act="close">Close</button>');
-      if (targeting) b.push('<span class="tiny">Now choose the other end of the route — tap a lamp, or arrows + Enter.</span>');
+      b.push(tile('close', 'back', 'Close', ''));
       sh.hidden = false; sh.innerHTML = b.join('');
     }
     function paintGuide() {
@@ -819,26 +934,26 @@
       if (king) h += '<div class="sab-herocap" style="font-weight:800;color:var(--accent)">' +
         motif('lotus', 20) + esc(G.kingdoms[king].name) + (king === id ? ' — this is the seat' : '') + '</div>';
       h += '<div class="mono" style="margin-top:4px">The people · ' + pop + ' praja · eat ' +
-        (pop * T.eat) + ' \ud83c\udf3e each turn</div><div class="sab-works">' +
+        (pop * T.eat) + ' \ud83c\udf3e each turn</div><div class="sab-jobs" id="sab-sec-people">' +
         Object.keys(DATA.jobs).map(function (jid) {
           var jd = DATA.jobs[jid];
-          var jicon = (jid === 'rakshak' && W.IND_AVATAR_ART && W.IND_AVATAR_ART.guard)
-            ? '<i style="overflow:hidden;border-radius:50%">' + W.IND_AVATAR_ART.guard + '</i>'
-            : '<i>' + jd.icon + '</i>';
-          return '<div class="sab-work built">' + jicon +
-            '<b style="min-width:86px">' + esc(jd.name) + (jid === spec ? ' ×2' : '') + '</b>' +
-            '<span style="flex:1"></span>' +
-            '<button class="sab-btn" data-sab-act="job" data-j="' + jid + '" data-d="-1"' + (j[jid] ? '' : ' disabled') + '>\u2212</button>' +
-            '<b style="min-width:22px;text-align:center">' + j[jid] + '</b>' +
-            '<button class="sab-btn" data-sab-act="job" data-j="' + jid + '" data-d="1"' + (j.kisan + j.karigar + j.kathakar + j.rakshak < pop ? '' : (jid === 'kisan' ? ' disabled' : '')) + '>+</button>' +
-            '<span class="tiny" style="color:var(--muted);width:100%">' + esc(jd.what) + '</span>' +
+          var up = j.kisan + j.karigar + j.kathakar + j.rakshak < pop;
+          return '<div class="sab-job">' +
+            '<span class="sab-tico">' + ic({ kisan: 'wheat', karigar: 'hammer', kathakar: 'scroll', rakshak: 'shield' }[jid], 24) + '</span>' +
+            '<b>' + esc(jd.name) + (jid === spec ? ' \u00d72' : '') + '</b>' +
+            '<span class="row2">' +
+            '<button class="pm" data-sab-act="job" data-j="' + jid + '" data-d="-1"' + (j[jid] ? '' : ' disabled') + '>\u2212</button>' +
+            '<span class="n">' + j[jid] + '</span>' +
+            '<button class="pm" data-sab-act="job" data-j="' + jid + '" data-d="1"' + (up ? '' : ' disabled') + '>+</button>' +
+            '</span>' +
+            '<span class="what">' + esc(jd.what) + '</span>' +
             '</div>';
         }).join('') + '</div>';
 
       /* A GREAT ONE, when one has risen here */
       if (q.hero && !q.hero.gone) {
         var hd = DATA.heroes[s.kind];
-        h += '<div class="sab-quest" style="border-color:var(--accent)"><div class="who" style="color:var(--accent)">' +
+        h += '<div class="sab-quest" id="sab-sec-hero" style="border-color:var(--accent)"><div class="who" style="color:var(--accent)">' +
           motif('peacock', 22) + esc(hd.name) + ' is here · ' + esc(hd.gift) + '</div>';
         if (!q.hero.used) {
           h += '<p><b>' + esc(hd.deed) + '</b> — ' + esc(hd.deedWhat) + '.</p>' +
@@ -859,7 +974,7 @@
          before anything else gets built — that is what a panchayat is for. */
       if (inDispute(id)) {
         var other = byId[G.disp.a === id ? G.disp.b : G.disp.a];
-        h += '<div class="sab-quest" style="border-color:var(--accent3)"><div class="who" style="color:var(--accent3)">the panchayat sits · ' +
+        h += '<div class="sab-quest" id="sab-sec-quarrel" style="border-color:var(--accent3)"><div class="who" style="color:var(--accent3)">the panchayat sits · ' +
           G.disp.left + 's</div>' +
           '<p>' + esc(s.name) + ' and ' + esc(other.name) + ' have quarrelled over ' + esc(G.disp.over) +
           '. The road between them carries nothing until it is settled.</p>' +
@@ -872,7 +987,7 @@
               }).join('')) +
           '</div>';
       }
-      h += '<div class="sab-works">' + (s.works || []).slice(0, 2).map(function (w, i) {
+      h += '<div class="sab-works" id="sab-sec-works">' + (s.works || []).slice(0, 2).map(function (w, i) {
         return '<div class="sab-work' + (q.lv > i ? ' built' : '') + (q.lv === i + 1 ? ' now' : '') + '">' +
           '<i>' + (q.lv > i ? '✓' : (i + 1)) + '</i>' + esc(w) +
           (q.lv === i ? '<span style="flex:1"></span><span class="tiny" style="color:var(--muted)">grow the city to build this</span>' : '') +
@@ -925,7 +1040,7 @@
          questions; with Brahmi Script, questions about every woken city on the map. */
       if (q.bld.gurukul) {
         var cd = Math.max(0, (G.quizAt[id] || -999) + T.quizCd - G.t);
-        h += '<div class="sab-quest"><div class="who">the gurukul</div>' +
+        h += '<div class="sab-quest" id="sab-sec-guru"><div class="who">the gurukul</div>' +
           (quiz && quiz.at === id
             ? '<p>' + (quiz.of !== id ? 'About <b>' + esc(byId[quiz.of].name) + '</b>: ' : '') + esc(byId[quiz.of].ask.q) + '</p>' +
               riddleOptions(byId[quiz.of]).map(function (o) {
@@ -938,7 +1053,7 @@
           '</div>';
       }
       if (qq) {
-        h += '<div class="sab-quest"><div class="who">' + esc(FOLK[s.kind]) + ' asks</div>' +
+        h += '<div class="sab-quest" id="sab-sec-quest"><div class="who">' + esc(FOLK[s.kind]) + ' asks</div>' +
           '<p>' + esc(questText(qq, s)) + '</p>';
         if (qq.kind === 'carry') {
           h += '<button class="sab-btn go" data-sab-act="qcarry"' +
@@ -976,14 +1091,13 @@
     function paintCity() {
       var hostEl = D.getElementById('sab-cityhost');
       var stage = D.getElementById('sab-stage');
-      var sheet = D.getElementById('sab-sheet');
       var open = !!city;
       stage.style.display = open ? 'none' : '';
-      if (sheet && open) sheet.hidden = true;
       /* replacing a block this large lets the browser's scroll anchoring re-guess
          the position — a job tap mid-panel lurched the page 400px. Pin it. */
       var keepY = W.scrollY;
       hostEl.innerHTML = open ? cityHTML(city) : '';
+      paintSheet();   /* the sheet is the city's nav while inside */
       /* pin on repaint AND on the way out — swapping a page-sized block either way
          lets scroll anchoring re-guess, and "leave" was landing the page at 0 */
       if (open && cityOpened) W.scrollTo(0, keepY);
@@ -1199,6 +1313,7 @@
             '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Onward</button></div>');
           say(s2.name + ' is found!', 'warm');
         });
+        if (arrived.length) fitFound();
         paintFog(); paintExplorers();
       }
 
@@ -1486,7 +1601,7 @@
         if (a === 'techclose') { techOpen = false; paintTech(); paintAll(); return; }
         if (a === 'restart2') { wipe(); G = fresh(); sel = null; kbd = null; targeting = false;
           overlay = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
-          shell(); bindHud(); say('A new dawn at Dholavira.', 'warm'); return; }
+          shell(); bindHud(); fitFound(); say('A new dawn at Dholavira.', 'warm'); return; }
         if (a === 'ovclose') { showOverlay(null); paintAll(); maybeEnd(); return; }
         if (a === 'finish') { showOverlay(null); if (typeof done === 'function') done({ win: true, score: G.score, kauris: 25 }); return; }
         return act(a);
@@ -1609,6 +1724,7 @@
       st2.addEventListener('pointerdown', onPointerDown);
     }
     bindHud();
+    fitFound();
     host.addEventListener('mousedown', onMouseDown);
     host.addEventListener('click', onClick);
     D.addEventListener('pointermove', onPointerMove);

@@ -261,6 +261,12 @@
       if (q.zzz || q.fade >= 0) return null;
       var conn = connected(x.id) && !inDispute(x.id);
       var out = { anna: 0, kala: 0, katha: 0 };
+      /* EVERY TOWN FEEDS ITSELF. One flat anna from every awake city, before any
+         speciality — because the opening could deadlock without it: the first city
+         is a craft town, both farming towns start asleep, and utsav (the only early
+         katha) costs anna. Spend the starting grain wrong and no verb could ever
+         earn it back. Also true: there was no ancient city that did not farm. */
+      out.anna += 1;
       out[YIELD[x.kind]] += q.lv * (conn ? 2 : 1);
       if (q.bld.granary) out.anna += 1;
       if (q.bld.workshop) out.kala += 1;

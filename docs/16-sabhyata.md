@@ -33,6 +33,9 @@ CLAUDE.md and docs/05:
 
 Real places appear era by era, asleep under the mist. You:
 
+- Every awake city **feeds itself** — a flat +1 🌾 before its speciality — so grain can
+  always be earned back. (The opening could deadlock without this: the first city is a
+  craft town, and utsav — the only early katha — costs grain.)
 - **Grow** a settlement (🌾 anna — grain)
 - **Connect** two places with a route (🛠️ kala — craft). Connected places thrive:
   double yield, and the mist cannot take them.

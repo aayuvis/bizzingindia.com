@@ -825,7 +825,7 @@
       var stage = D.getElementById('sab-stage');
       var open = !!city;
       hostEl.innerHTML = open ? cityHTML(city) : (overlay ? hostEl.innerHTML : '');
-      if (open) { var f = hostEl.querySelector('.sab-btn'); if (f) f.focus(); }
+      if (open) { var f = hostEl.querySelector('.sab-btn'); if (f) f.focus({ preventScroll: true }); }
       if (!open && overlay) showOverlay(overlay);
     }
 
@@ -853,7 +853,7 @@
     }
     function paintTech() {
       D.getElementById('sab-ovhost').innerHTML = techOpen ? techHTML() : '';
-      if (techOpen) { var f = D.querySelector('#sab-ovhost .sab-btn'); if (f) f.focus(); }
+      if (techOpen) { var f = D.querySelector('#sab-ovhost .sab-btn'); if (f) f.focus({ preventScroll: true }); }
     }
 
     /* ---- overlays: fact cards, era cards, endings, resume ---- */
@@ -861,7 +861,7 @@
       overlay = html;
       D.getElementById('sab-ovhost').innerHTML =
         html ? '<div class="sab-over"><div class="sab-card" role="dialog" aria-modal="true">' + html + '</div></div>' : '';
-      if (html) { var f = D.querySelector('#sab-ovhost .sab-btn'); if (f) f.focus(); }
+      if (html) { var f = D.querySelector('#sab-ovhost .sab-btn'); if (f) f.focus({ preventScroll: true }); }
     }
 
     /* ================================================================
@@ -1121,6 +1121,14 @@
       while (el && el !== host) { if (el.getAttribute && el.getAttribute('data-sab')) return el.getAttribute('data-sab'); el = el.parentNode; }
       return null;
     }
+    function onMouseDown(e) {
+      var id = siteAt(e.target);
+      if (id) {
+        e.preventDefault();
+        var g = D.getElementById('sab-' + id);
+        if (g) g.focus({ preventScroll: true });
+      }
+    }
     function onClick(e) {
       var actEl = e.target.closest ? e.target.closest('[data-sab-act]') : null;
       if (actEl) {
@@ -1306,6 +1314,8 @@
       var vis = order.filter(function (id) { return inEra(byId[id]); });
       var i = vis.indexOf(kbd); i = i < 0 ? 0 : (i + dir + vis.length) % vis.length;
       kbd = vis[i];
+      /* keyboard is the one place the reveal is WANTED: arrows move you to a lamp,
+         and a lamp you cannot see is not navigation. Pointer focus never scrolls. */
       var el = D.getElementById('sab-' + kbd); if (el) el.focus();
       SITES.forEach(paintSite);
     }
@@ -1345,6 +1355,7 @@
     D.getElementById('sab-tech').addEventListener('click', function () {
       techOpen = !techOpen; if (techOpen) { city = null; quiz = null; } paintTech(); });
     D.getElementById('sab-pause').addEventListener('click', togglePause);
+    host.addEventListener('mousedown', onMouseDown);
     host.addEventListener('click', onClick);
     /* keys live on the document: focus often rests on the page body, and a game whose
        keyboard only works after a click is a game with no keyboard (house rule). The
@@ -1356,6 +1367,7 @@
       dead = true;
       clearInterval(timer);
       if (G && !G.won) save(G);
+      host.removeEventListener('mousedown', onMouseDown);
       host.removeEventListener('click', onClick);
       D.removeEventListener('keydown', onKey, true);
     };

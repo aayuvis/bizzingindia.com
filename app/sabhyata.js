@@ -156,6 +156,11 @@
     '.sab-quest .who{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2)}',
     '.sab-quest p{margin:6px 0 10px;font-size:15px;line-height:1.5}',
     '.sab-cfact{font-size:14px;line-height:1.55;color:var(--text2,var(--text));background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px;margin:6px 0}',
+    '.sab-hero{width:100%;aspect-ratio:3/1.35;object-fit:cover;border-radius:var(--radius-lg);border:1px solid var(--line);margin:10px 0 2px;display:block}',
+    '.sab-hero.dim{filter:grayscale(.85) sepia(.15) brightness(.92)}',
+    '.sab-herocap{font-size:12px;color:var(--muted);margin:4px 0 8px}',
+    '.sab-vthumb{width:112px;height:75px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex:none}',
+    '.sab-cardart{width:100%;border-radius:12px;margin:0 0 10px;display:block}',
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp{animation:none}}'
   ].join('\n');
 
@@ -226,6 +231,15 @@
        ================================================================ */
     var FOLK = { kheti: 'the granary keeper', shilpa: 'the master builder', vidya: 'the teacher' };
     var BLD = DATA.buildings, TECHS = DATA.techs, PORTS = DATA.ports || [];
+
+    /* THE PAINTINGS (tools/gen-sabhyata-art.py). Each city's painting shows it at its
+       height with its monument at the centre — and the game shows it DESATURATED until
+       the monument is raised. The same picture, remembered into colour: the whole game
+       in one CSS filter. Art is optional by construction: no manifest entry, no img. */
+    function artOf(id) {
+      var m = W.IND_SABHYATA_ART || [];
+      return m.indexOf(id) >= 0 ? 'art/sabhyata/' + id + '.jpg' : null;
+    }
 
     /* ---- money: one place understands discounts, affording and paying ---- */
     function costOf(c, kind) {
@@ -565,6 +579,9 @@
         (y ? '<span class="sab-chip">brings in ' + ['anna','kala','katha'].filter(function (k) { return y[k]; })
               .map(function (k) { return '+' + y[k] + ' ' + ICON[k]; }).join(' ') + '</span>' : '') +
         '<button class="sab-btn" data-sab-act="leave">Back to the map</button></div>';
+      var hero = artOf(id);
+      if (hero) h += '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + hero + '" alt="">' +
+        (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument and the colours come back.</div>');
 
       /* THE QUARREL COMES FIRST. If this town is in a dispute, the panchayat sits
          before anything else gets built — that is what a panchayat is for. */
@@ -691,7 +708,9 @@
       var rows = TECHS.map(function (t) {
         if (t.era > G.era) return '';
         var have = !!G.tech[t.id], c = costOf(t.cost, 'tech');
-        return '<div class="sab-work' + (have ? ' built' : ' now') + '"><i>' + (have ? '✓' : '?') + '</i>' +
+        var va = artOf('vidya-' + t.id);
+        return '<div class="sab-work' + (have ? ' built' : ' now') + '">' +
+          (va ? '<img class="sab-vthumb" src="' + va + '" alt=""' + (have ? '' : ' style="filter:grayscale(.8)"') + '>' : '<i>' + (have ? '✓' : '?') + '</i>') +
           '<span><b>' + esc(t.name) + '</b> · <span class="tiny" style="color:var(--muted)">' + esc(t.what) + '</span></span>' +
           '<span style="flex:1"></span>' +
           (have ? '' : '<button class="sab-btn" data-sab-act="tech" data-t="' + t.id + '"' +
@@ -751,8 +770,11 @@
         if (G.res.katha < T.wakeCost) return say('Not enough katha — stories are earned by helping and holding utsavs.', '');
         G.res.katha -= T.wakeCost; q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
         say(s.name + ' wakes!', 'warm');
-        if (!q.seen) { q.seen = true; showOverlay('<h3>' + esc(s.name) + '</h3><p>' + esc(s.fact) + '</p>' +
-          '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Onward</button></div>'); }
+        if (!q.seen) { q.seen = true;
+          var wa = artOf(sel);
+          showOverlay((wa ? '<img class="sab-cardart" src="' + wa + '" alt="">' : '') +
+            '<h3>' + esc(s.name) + '</h3><p>' + esc(s.fact) + '</p>' +
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Onward</button></div>'); }
       }
       paintAll(); maybeEnd();
     }
@@ -775,9 +797,12 @@
       if (!canAdvance()) return;
       G.res.katha -= ERAS[G.era].katha;
       var aha = ERAS[G.era].aha;
+      var AHA_ART = ['vidya-iron', 'vidya-script', 'vidya-zero', 'vidya-monsoon'];
+      var ea = artOf(AHA_ART[G.era]);
       G.era++; G.score += 50;
       var next = ERAS[G.era];
-      showOverlay('<h3>' + esc(aha.title) + '</h3><p>' + esc(aha.text) + '</p>' +
+      showOverlay((ea ? '<img class="sab-cardart" src="' + ea + '" alt="">' : '') +
+        '<h3>' + esc(aha.title) + '</h3><p>' + esc(aha.text) + '</p>' +
         '<p><b>' + esc(next.name) + '</b> · ' + esc(next.dates) + '<br>' + esc(next.note) + '</p>' +
         '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Begin</button></div>');
       say('New places wait under the mist. Reach them.', 'mist');

@@ -178,6 +178,16 @@
     '.sab-herocap{font-size:12px;color:var(--muted);margin:4px 0 8px}',
     '.sab-vthumb{width:112px;height:75px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex:none}',
     '.sab-cardart{width:100%;border-radius:12px;margin:0 0 10px;display:block}',
+    /* DESKTOP FIT. On a monitor the HUD, the action row, the map and the guide should
+       share one screen without the page scrolling — the map gives a little height and
+       the paintings stop being posters. Phones keep the tall map. */
+    '@media (min-width: 900px){' +
+      '.sab-wrap{gap:8px}' +
+      '.sab-stage svg{max-height:44vh}' +
+      '.sab-hero{max-height:180px;aspect-ratio:auto}' +
+      '.sab-cardart{max-height:170px;object-fit:cover}' +
+      '.sab-vthumb{width:96px;height:64px}' +
+    '}',
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp{animation:none}}'
   ].join('\n');
 
@@ -630,6 +640,7 @@
             '<button class="sab-btn" id="sab-pause" aria-pressed="false">Pause</button>' +
           '</div>' +
         '</div>' +
+        '<div class="sab-sheet" id="sab-sheet" hidden></div>' +
         '<div id="sab-cityhost"></div>' +
         '<div class="sab-stage" id="sab-stage">' + board() +
           '<div style="position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:3">' +
@@ -639,7 +650,6 @@
           '<div id="sab-ovhost"></div></div>' +
         '<p class="sab-feed" id="sab-feed" aria-live="polite"></p>' +
         '<p class="sab-guide" id="sab-guide"></p>' +
-        '<div class="sab-sheet" id="sab-sheet" hidden></div>' +
         '<p class="sab-help">Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
           '<b>1–4</b> fire an action (<b>4</b> steps inside the city), <b>Esc</b> cancels, <b>P</b> pauses. ' +
           'Routes keep a place safe from the mist; <b>!</b> is a quest, <b>\u26a1</b> a quarrel for your panchayat, <b>\u2605</b> the capital. ' +
@@ -1486,11 +1496,6 @@
         if (G.ev && id === G.ev.id) return helpEvent();
         if (targeting) return tryRoute(id);
         sel = id; kbd = id; paintAll();
-        var sh2 = D.getElementById('sab-sheet');
-        if (sh2 && !sh2.hidden) {
-          var r2 = sh2.getBoundingClientRect();
-          if (r2.bottom > (W.innerHeight || 800)) sh2.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        }
         return;
       }
       if (targeting) { targeting = false; say('Road put away.', ''); paintSheet(); }

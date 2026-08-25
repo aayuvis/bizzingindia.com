@@ -32,7 +32,11 @@
   if (!D) return;
 
   var SAVE_KEY = 'india.sabhyata.v1';
-  var TICK_MS = 1000;
+  /* A TURN IS THREE SECONDS. At one second the coins piled up faster than a child
+     could decide what they meant — the numbers moved and the game did not. Every
+     per-turn constant below reads as turns, so slowing the clock slowed the whole
+     world by the same breath. */
+  var TICK_MS = 3000;
 
   /* ---- tuning, in one place ---- */
   var T = {
@@ -73,6 +77,8 @@
     raidBase:   6,                  /* what an unwatched raid carries off, +4 per era */
     raidGuard:  2,                  /* rakshaks needed to fend a raid off entirely */
     heroAt:     3,                  /* city level where a great one may rise */
+    exploreCost: 20,                /* anna — provisions for the road */
+    exploreSpeed: 55,               /* map-units an explorer walks each turn */
     kingdomEra: 1,                  /* kingdoms begin with the janapadas */
     kingdomMin: 3                   /* cities (incl. the seat) a crown needs connected */
   };
@@ -206,17 +212,21 @@
     function fresh() {
       var st = {};
       SITES.forEach(function (s) { st[s.id] = { lv: 1, zzz: s.era > 0 || s.id !== 'dholavira', fade: -1, idle: 0, seen: false,
-                                                bld: {}, mon: false, neg: 0, jobs: null, hero: null }; });
+                                                bld: {}, mon: false, neg: 0, jobs: null, hero: null,
+                                                found: s.id === 'dholavira' }; });
       st.dholavira.seen = true;
       return { era: 0, res: { anna: T.startRes.anna, kala: T.startRes.kala, katha: T.startRes.katha },
                sites: st, routes: [], t: 0, utsav: 0, ev: null, score: 0, won: false,
                quests: {}, qdone: 0, lastq: 0,
                tech: {}, capital: null, disp: null, lastd: 0, quizAt: {}, quizN: 0,
-               kingdoms: {}, lastraid: 0 };
+               kingdoms: {}, lastraid: 0, explorers: [] };
     }
 
     /* ---- rules helpers ---- */
     function inEra(s) { return s.era <= G.era; }
+    function found(id) { var q = G.sites[id]; return q && q.found; }
+    function onMap(s) { return inEra(s) && found(s.id); }
+    function hiddenSites() { return SITES.filter(function (x) { return inEra(x) && !found(x.id); }); }
     function connected(id) {
       return G.routes.some(function (r) { return r[0] === id || r[1] === id; });
     }
@@ -225,7 +235,7 @@
       return G.routes.some(function (r) { return (r[0] === a && r[1] === b) || (r[0] === b && r[1] === a); });
     }
     function eraDone() {
-      return SITES.every(function (s) { return !inEra(s) || awake(s.id); });
+      return SITES.every(function (s) { return !inEra(s) || (found(s.id) && awake(s.id)); });
     }
     function canAdvance() {
       return G.era < ERAS.length - 1 && eraDone() && G.res.katha >= ERAS[G.era].katha;
@@ -390,7 +400,7 @@
       if (!homes.length) return;
       var here = homes[(G.t * 13) % homes.length];
       var kinds = [];
-      var sleeping = SITES.filter(function (x) { return inEra(x) && !awake(x.id); });
+      var sleeping = SITES.filter(function (x) { return onMap(x) && !awake(x.id); });
       var unroaded = SITES.filter(function (x) {
         return inEra(x) && awake(x.id) && x.id !== here.id && !routed(here.id, x.id);
       });
@@ -437,7 +447,12 @@
       if (hero1) return 'A great one waits in <b>' + esc(hero1.name) + '</b> — enter the city and ask for the deed.';
       var qid = Object.keys(G.quests)[0];
       if (qid) return 'A scroll waits at <b>' + esc(byId[qid].name) + '</b> — enter the city and take the quest.';
-      var zz = SITES.filter(function (x) { return inEra(x) && !awake(x.id); })[0];
+      var hid2 = hiddenSites();
+      if (hid2.length && !G.explorers.length)
+        return 'Somewhere out in the mist lies <b>' + (hid2.length === 1 ? 'one more place' : 'more of India') +
+          '</b> — select a city and send an explorer (' + T.exploreCost + ' \ud83c\udf3e).';
+      if (G.explorers.length) return 'Your explorer is out walking the mist — the fog opens where the lamp goes.';
+      var zz = SITES.filter(function (x) { return onMap(x) && !awake(x.id); })[0];
       if (zz) {
         if (!connected(zz.id)) return 'Build a road toward <b>' + esc(zz.name) + '</b> — it sleeps under the mist.';
         if (G.res.katha >= T.wakeCost) return '<b>' + esc(zz.name) + '</b> is reached — wake it (' + T.wakeCost + ' \ud83d\udcdc).';
@@ -511,9 +526,93 @@
            interactive, nothing changes colour, and no line ever moves: the boundary
            rules are absolute, and this game keeps clear of them by construction. */
         '<g>' + terr + '</g>' +
+        /* THE FOG IS VISMRITI'S OWN. Undiscovered land sits under a grey veil with
+           holes of clear light punched around every found place and every walking
+           explorer — the world is revealed by going and looking, which is the whole
+           point of the explorers. The mask is rebuilt each paint; twenty circles. */
+        '<mask id="sabfog"><rect x="-200" y="-200" width="1400" height="1500" fill="#fff"/>' +
+        '<g id="sab-fogholes"></g></mask>' +
+        '<rect id="sab-fogrect" x="-200" y="-200" width="1400" height="1500" fill="#8d93a5" opacity=".62" ' +
+          'mask="url(#sabfog)" pointer-events="none"/>' +
         '<g id="sab-routes">' + G.routes.map(routeSVG).join('') + '</g>' +
+        '<g id="sab-explorers"></g>' +
         '<g id="sab-sites">' + SITES.map(siteSVG).join('') + '</g>' +
         '</svg>';
+    }
+
+    /* ================================================================
+       ZOOM AND PAN. The board is a viewBox window onto the 1000x1100
+       map: wheel or pinch to zoom (anchored under the pointer, the way
+       maps behave), drag to pan, corner buttons and + - 0 for keyboards.
+       A drag longer than a thumb-tremor swallows the click it ends with,
+       so panning across a lamp does not select it.
+       ================================================================ */
+    var VZ = { x: 0, y: 0, w: 1000, h: 1100 };
+    var panning = null, swallowClick = false, pinch = null;
+    function vzApply() {
+      var svg = D.querySelector('#sab-stage svg');
+      if (svg) svg.setAttribute('viewBox', VZ.x.toFixed(1) + ' ' + VZ.y.toFixed(1) + ' ' + VZ.w.toFixed(1) + ' ' + VZ.h.toFixed(1));
+    }
+    function vzClamp() {
+      VZ.w = Math.max(240, Math.min(1000, VZ.w)); VZ.h = VZ.w * 1.1;
+      VZ.x = Math.max(-60, Math.min(1060 - VZ.w, VZ.x));
+      VZ.y = Math.max(-60, Math.min(1160 - VZ.h, VZ.y));
+    }
+    function vzPoint(e) {
+      var svg = D.querySelector('#sab-stage svg'), r = svg.getBoundingClientRect();
+      return { x: VZ.x + (e.clientX - r.left) / r.width * VZ.w,
+               y: VZ.y + (e.clientY - r.top) / r.height * VZ.h };
+    }
+    function vzZoom(factor, at) {
+      var w2 = Math.max(240, Math.min(1000, VZ.w * factor));
+      var k = w2 / VZ.w;
+      VZ.x = at.x - (at.x - VZ.x) * k;
+      VZ.y = at.y - (at.y - VZ.y) * k;
+      VZ.w = w2; vzClamp(); vzApply();
+    }
+    function onWheel(e) {
+      e.preventDefault();
+      vzZoom(e.deltaY > 0 ? 1.18 : 1 / 1.18, vzPoint(e));
+    }
+    function onPointerDown(e) {
+      var stage = D.getElementById('sab-stage');
+      if (!stage || !stage.contains(e.target)) return;
+      if (pinch === null && panning === null) panning = { id: e.pointerId, cx: e.clientX, cy: e.clientY, moved: 0 };
+      else if (panning && e.pointerId !== panning.id && !pinch) {
+        pinch = { a: panning.id, b: e.pointerId, ax: panning.cx, ay: panning.cy, bx: e.clientX, by: e.clientY };
+      }
+    }
+    function onPointerMove(e) {
+      if (pinch) {
+        if (e.pointerId === pinch.a) { pinch.ax = e.clientX; pinch.ay = e.clientY; }
+        if (e.pointerId === pinch.b) { pinch.bx = e.clientX; pinch.by = e.clientY; }
+        var d = Math.hypot(pinch.ax - pinch.bx, pinch.ay - pinch.by);
+        if (pinch.d0 === undefined) { pinch.d0 = d; pinch.w0 = VZ.w; return; }
+        if (d > 8) {
+          var mid = vzPoint({ clientX: (pinch.ax + pinch.bx) / 2, clientY: (pinch.ay + pinch.by) / 2 });
+          var w2 = Math.max(240, Math.min(1000, pinch.w0 * pinch.d0 / d));
+          var k = w2 / VZ.w;
+          VZ.x = mid.x - (mid.x - VZ.x) * k; VZ.y = mid.y - (mid.y - VZ.y) * k; VZ.w = w2;
+          vzClamp(); vzApply(); swallowClick = true;
+        }
+        return;
+      }
+      if (!panning || e.pointerId !== panning.id) return;
+      var svg = D.querySelector('#sab-stage svg'); if (!svg) return;
+      var r = svg.getBoundingClientRect();
+      var dx = (e.clientX - panning.cx) / r.width * VZ.w;
+      var dy = (e.clientY - panning.cy) / r.height * VZ.h;
+      panning.moved += Math.abs(e.clientX - panning.cx) + Math.abs(e.clientY - panning.cy);
+      panning.cx = e.clientX; panning.cy = e.clientY;
+      if (panning.moved > 8) {
+        VZ.x -= dx; VZ.y -= dy; vzClamp(); vzApply();
+        swallowClick = true;
+      }
+    }
+    function onPointerUp(e) {
+      if (pinch && (e.pointerId === pinch.a || e.pointerId === pinch.b)) pinch = null;
+      if (panning && e.pointerId === panning.id) panning = null;
+      if (!panning && !pinch) setTimeout(function () { swallowClick = false; }, 0);
     }
 
     function shell() {
@@ -527,7 +626,12 @@
             '<button class="sab-btn" id="sab-pause" aria-pressed="false">Pause</button>' +
           '</div>' +
         '</div>' +
-        '<div class="sab-stage" id="sab-stage">' + board() + '<div id="sab-ovhost"></div></div>' +
+        '<div class="sab-stage" id="sab-stage">' + board() +
+          '<div style="position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:3">' +
+          '<button class="sab-btn" data-sab-act="zin" aria-label="Zoom in">+</button>' +
+          '<button class="sab-btn" data-sab-act="zout" aria-label="Zoom out">\u2212</button>' +
+          '<button class="sab-btn" data-sab-act="zreset" aria-label="Whole map">\u2302</button></div>' +
+          '<div id="sab-ovhost"></div></div>' +
         '<p class="sab-feed" id="sab-feed" aria-live="polite"></p>' +
         '<p class="sab-guide" id="sab-guide"></p>' +
         '<div class="sab-sheet" id="sab-sheet" hidden></div>' +
@@ -569,7 +673,7 @@
     }
     function paintSite(s) {
       var g = D.getElementById('sab-' + s.id); if (!g) return;
-      var q = G.sites[s.id], vis = inEra(s);
+      var q = G.sites[s.id], vis = onMap(s);
       g.style.display = vis ? '' : 'none';
       if (!vis) return;
       g.setAttribute('class', 'sab-site' +
@@ -590,6 +694,28 @@
       var cb = g.querySelector('.sab-cb');
       if (cb) cb.style.display = G.capital === s.id ? '' : 'none';
       g.querySelector('.core').style.opacity = dusty(s.id) ? .55 : '';
+    }
+    function paintFog() {
+      var holes = D.getElementById('sab-fogholes');
+      if (!holes) return;
+      var out = SITES.filter(onMap).map(function (x) {
+        return '<circle cx="' + x.x + '" cy="' + x.y + '" r="120" fill="#000"/>';
+      });
+      G.explorers.forEach(function (ex) {
+        out.push('<circle cx="' + ex.x.toFixed(1) + '" cy="' + ex.y.toFixed(1) + '" r="80" fill="#000"/>');
+      });
+      holes.innerHTML = out.join('');
+    }
+    function paintExplorers() {
+      var g = D.getElementById('sab-explorers');
+      if (!g) return;
+      g.innerHTML = G.explorers.map(function (ex) {
+        return '<g style="transition:transform ' + (TICK_MS / 1000) + 's linear;transform:translate(' +
+            ex.x.toFixed(1) + 'px,' + ex.y.toFixed(1) + 'px)">' +
+          '<circle r="8" fill="var(--accent3)" stroke="#fff" stroke-width="2"/>' +
+          '<circle r="3" cy="-10" fill="#ffd76e"/>' +
+          '</g>';
+      }).join('');
     }
     function paintRoutes() {
       var gEl = D.getElementById('sab-routes');
@@ -616,6 +742,8 @@
           (G.utsav > 0 ? '(' + G.utsav + 's)' : '(' + T.utsavCost.anna + ' 🌾 + ' + T.utsavCost.kala + ' 🛠️)') + '</button>');
         b.push('<button class="sab-btn go" data-sab-act="city">4 · Enter the city' +
           (G.quests[sel] ? ' — a scroll waits!' : '') + '</button>');
+        if (hiddenSites().length)
+          b.push('<button class="sab-btn" data-sab-act="explore">5 · Send an explorer (' + T.exploreCost + ' 🌾)</button>');
       }
       b.push('<button class="sab-btn" data-sab-act="close">Close</button>');
       if (targeting) b.push('<span class="tiny">Now choose the other end of the route — tap a lamp, or arrows + Enter.</span>');
@@ -626,7 +754,8 @@
       if (el) el.innerHTML = 'Next: ' + hint();
     }
     function paintAll() {
-      paintHud(); SITES.forEach(paintSite); paintRoutes(); paintSheet(); paintFeed(); paintGuide();
+      paintHud(); SITES.forEach(paintSite); paintRoutes(); paintFog(); paintExplorers();
+      paintSheet(); paintFeed(); paintGuide();
     }
 
     /* ================================================================
@@ -872,6 +1001,21 @@
       var s = byId[sel], q = G.sites[sel];
       if (name === 'close') { sel = null; targeting = false; paintAll(); return; }
       if (name === 'city' && !q.zzz) { city = sel; riddleWrong = false; touch(sel); paintCity(); return; }
+      if (name === 'explore' && !q.zzz) {
+        var hid = hiddenSites();
+        if (!hid.length) return say('There is nothing left unfound in this age.', '');
+        if (G.res.anna < T.exploreCost) return say('An explorer needs provisions — ' + T.exploreCost + ' anna for the road.', '');
+        /* the explorer walks toward the NEAREST unfound place; where they arrive is
+           discovered, and the fog opens along their path as they go */
+        var near = null, best = 1e9;
+        hid.forEach(function (t2) {
+          var dx = t2.x - s.x, dy = t2.y - s.y, d2 = dx * dx + dy * dy;
+          if (d2 < best) { best = d2; near = t2; }
+        });
+        G.res.anna -= T.exploreCost; G.score += 10; touch(sel);
+        G.explorers.push({ from: sel, target: near.id, x: s.x, y: s.y });
+        say('An explorer sets out from ' + s.name + ', lamp in hand, into the mist.', 'warm');
+      }
       if (name === 'grow' && !q.zzz && q.lv < T.maxLevel) {
         var cost = T.growCost[q.lv];
         if (G.res.anna < cost) return say('Not enough anna yet — the fields are still filling.', '');
@@ -908,7 +1052,7 @@
 
     function tryRoute(target) {
       var a = sel, b = target;
-      if (!a || a === b || !inEra(byId[b])) return;
+      if (!a || a === b || !onMap(byId[b])) return;
       if (routed(a, b)) { targeting = false; return say('That road is already walked.', ''); }
       var rc = costOf({ kala: T.routeCost }, 'route');
       if (!canPay(rc)) { targeting = false; return say('Not enough kala for this road.', ''); }
@@ -976,6 +1120,31 @@
           SITES.forEach(function (s) { var q = G.sites[s.id]; if (inEra(s) && !q.zzz) q.neg = Math.max(q.neg, negLimit(s.id)); });
           say('The granaries are empty and every town feels it — put more hands to farming.', 'mist');
         }
+      }
+
+      /* EXPLORERS WALK. Each turn they cover a stretch of country, the fog opening
+         around their lamp; arriving, the place is FOUND — visible, asleep, ready
+         for a road. Discovery is its own reward: the finding pays katha. */
+      if (G.explorers.length) {
+        var arrived = [];
+        G.explorers.forEach(function (ex) {
+          var t2 = byId[ex.target];
+          if (!t2 || found(ex.target)) { ex.done = true; return; }
+          var dx = t2.x - ex.x, dy = t2.y - ex.y, d = Math.sqrt(dx * dx + dy * dy);
+          if (d <= T.exploreSpeed) { ex.x = t2.x; ex.y = t2.y; ex.done = true; arrived.push(ex.target); }
+          else { ex.x += dx / d * T.exploreSpeed; ex.y += dy / d * T.exploreSpeed; }
+        });
+        G.explorers = G.explorers.filter(function (ex) { return !ex.done; });
+        arrived.forEach(function (id) {
+          var q2 = G.sites[id]; q2.found = true; G.res.katha += 15; G.score += 20;
+          var s2 = byId[id];
+          showOverlay('<h3>' + esc(s2.name) + ' — found!</h3>' +
+            '<p>Your explorer walks into ' + esc(s2.name) + ' through the thinning mist. It sleeps — ' +
+            'reach it with a road, and wake it with its own story. The finding alone is worth 15 \ud83d\udcdc.</p>' +
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Onward</button></div>');
+          say(s2.name + ' is found!', 'warm');
+        });
+        paintFog(); paintExplorers();
       }
 
       /* RAIDS. The wilds test the towns — boar in the wheat, an elephant herd at the
@@ -1130,9 +1299,13 @@
       }
     }
     function onClick(e) {
+      if (swallowClick) { swallowClick = false; return; }   /* that was a drag, not a tap */
       var actEl = e.target.closest ? e.target.closest('[data-sab-act]') : null;
       if (actEl) {
         var a = actEl.getAttribute('data-sab-act');
+        if (a === 'zin')  { vzZoom(1 / 1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
+        if (a === 'zout') { vzZoom(1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
+        if (a === 'zreset') { VZ = { x: 0, y: 0, w: 1000, h: 1100 }; vzApply(); return; }
         if (a === 'leave') { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
         if (a === 'job' && city) {
           var jj = jobsOf(city), jid = actEl.getAttribute('data-j'), dd = Number(actEl.getAttribute('data-d'));
@@ -1288,6 +1461,9 @@
       }
       if (overlay) { if (e.key === 'Enter' || e.key === 'Escape') { eat(); var f = D.querySelector('#sab-ovhost [data-sab-act]'); if (f) f.click(); } return; }
       var k = e.key;
+      if (k === '+' || k === '=') { eat(); vzZoom(1 / 1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
+      if (k === '-' || k === '_') { eat(); vzZoom(1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
+      if (k === '0') { eat(); VZ = { x: 0, y: 0, w: 1000, h: 1100 }; vzApply(); return; }
       if (k === 'p' || k === 'P') { eat(); return togglePause(); }
       if (k === 'h' || k === 'H') { eat(); return helpEvent(); }
       if (k === 'Escape') {
@@ -1302,6 +1478,7 @@
       }
       if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'Tab' && !e.shiftKey) { eat(); step(1); return; }
       if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'Tab') { eat(); step(-1); return; }
+      if (sel && k === '5') { eat(); act('explore'); return; }
       if (sel && k >= '1' && k <= '4') {
         eat();
         var q = G.sites[sel];
@@ -1311,7 +1488,7 @@
       }
     }
     function step(dir) {
-      var vis = order.filter(function (id) { return inEra(byId[id]); });
+      var vis = order.filter(function (id) { return onMap(byId[id]); });
       var i = vis.indexOf(kbd); i = i < 0 ? 0 : (i + dir + vis.length) % vis.length;
       kbd = vis[i];
       /* keyboard is the one place the reveal is WANTED: arrows move you to a lamp,
@@ -1336,16 +1513,19 @@
     G.quests = G.quests || {}; G.qdone = G.qdone || 0; G.lastq = G.lastq || 0;
     G.tech = G.tech || {}; G.capital = G.capital || null; G.disp = G.disp || null;
     G.lastd = G.lastd || 0; G.quizAt = G.quizAt || {}; G.quizN = G.quizN || 0;
-    G.kingdoms = G.kingdoms || {}; G.lastraid = G.lastraid || 0;
+    G.kingdoms = G.kingdoms || {}; G.lastraid = G.lastraid || 0; G.explorers = G.explorers || [];
     SITES.forEach(function (x) { var q = G.sites[x.id]; if (q) { q.bld = q.bld || {}; q.mon = !!q.mon; q.neg = q.neg || 0;
-      q.jobs = q.jobs || null; q.hero = q.hero || null; } });
+      q.jobs = q.jobs || null; q.hero = q.hero || null;
+      /* saves from before the fog: what the era had already brought in counts as found */
+      if (q.found === undefined) q.found = x.era <= G.era; } });
     shell();
     if (saved && saved === G) {
       say('Welcome back. The lamps kept burning while you were away.', 'warm');
     } else {
       showOverlay(mascot('mithu', 'talk', 96) + '<h3>Sabhyata — the first city</h3>' +
         '<p>Dholavira is awake, and the rest of India sleeps under Vismriti, the Forgetting. ' +
-        'Grow your city, build roads, and wake the land one lamp at a time. ' +
+        'All of India but this one city sleeps unseen under the fog. Send explorers out to find the ' +
+        'others, then build roads to reach them, and wake the land one lamp at a time. ' +
         'Step <i>into</i> a city to build granaries, gurukuls and monuments, settle quarrels, raise a capital and take quest scrolls. ' +
         'Nothing here is ever conquered — only reached.</p>' +
         '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Light the first lamp</button></div>');
@@ -1357,6 +1537,12 @@
     D.getElementById('sab-pause').addEventListener('click', togglePause);
     host.addEventListener('mousedown', onMouseDown);
     host.addEventListener('click', onClick);
+    var stageEl = D.getElementById('sab-stage');
+    stageEl.addEventListener('wheel', onWheel, { passive: false });
+    stageEl.addEventListener('pointerdown', onPointerDown);
+    D.addEventListener('pointermove', onPointerMove);
+    D.addEventListener('pointerup', onPointerUp);
+    D.addEventListener('pointercancel', onPointerUp);
     /* keys live on the document: focus often rests on the page body, and a game whose
        keyboard only works after a click is a game with no keyboard (house rule). The
        teardown removes it, and `dead` guards the gap. */
@@ -1369,6 +1555,9 @@
       if (G && !G.won) save(G);
       host.removeEventListener('mousedown', onMouseDown);
       host.removeEventListener('click', onClick);
+      D.removeEventListener('pointermove', onPointerMove);
+      D.removeEventListener('pointerup', onPointerUp);
+      D.removeEventListener('pointercancel', onPointerUp);
       D.removeEventListener('keydown', onKey, true);
     };
   }

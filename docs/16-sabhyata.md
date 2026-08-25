@@ -131,7 +131,24 @@ heroes and kingdoms. All in, and each passed through the same editorial gate:
   Vismriti itself appears when a town sleeps, the motif set dresses hero and
   kingdom cards, and the Mela cover is the game's own Kashi painting.
 
-## 7. Phase 2 and beyond (not in this build)
+## 7. The fog, the explorers, and the pace (v5)
+
+- **A turn is three seconds.** At one second the coins moved faster than a child could
+  decide what they meant. Every constant reads in turns, so the whole world slowed by
+  the same breath.
+- **The fog is Vismriti's own.** Undiscovered places are not shown at all; the land
+  sits under a grey veil with clear light around every found place and every walking
+  explorer. You begin with one city — Dholavira — and all of India unseen.
+- **Explorers** are the discovering verb: provisioned with anna, one walks from a
+  chosen city toward the nearest unfound place, the fog opening along the lamp as
+  they go, a few turns of real anticipation. Arrival FINDS the place (asleep, ready
+  for a road) and pays katha — discovery is itself a story. Then roads, then waking:
+  explore → connect → wake is now the game's full sentence.
+- **The map is a place you lean into**: wheel or pinch to zoom anchored under the
+  pointer, drag to pan, corner buttons and + − 0 for keyboards. A drag never selects
+  the lamp it ends on.
+
+## 8. Phase 2 and beyond (not in this build)
 
 Narrated site cards in the app's own voice; more eras (Vijayanagara, the takeoff era
 bridging to Itihaas); a "visit the story" link from a woken site into the story library;

@@ -104,6 +104,7 @@
     '.sab-stage{position:relative;background:var(--ground2);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}',
     '.sab-stage svg{display:block;width:100%;height:auto;max-height:64vh}',
     '.sab-terr{fill:var(--mist);stroke:var(--line);stroke-width:1;pointer-events:none}',
+    '.sab-river{fill:none;stroke:#7ba6c9;stroke-width:4.5;stroke-linecap:round;opacity:.6;pointer-events:none}',
 
     /* a road is two strokes: a quiet solid bed, and marigold beads walking it —
        one animated stroke alone vanished into the land at map scale */
@@ -139,27 +140,29 @@
        banner actions" was the exact complaint. Verbs are square-ish tiles now: a
        stroke icon in a soft accent chip, the word, the cost — hover lifts, press
        settles, a marigold badge counts what waits inside. */
-    '.sab-sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;align-items:stretch}',
+    '.sab-sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px;align-items:stretch}',
     '.sab-shead{grid-column:1/-1;display:flex;align-items:baseline;gap:8px;margin:2px 2px -2px}',
     '.sab-shead b{font:800 17px/1.1 var(--display,Georgia,serif)}',
     '.sab-shead span{font-size:12px;color:var(--muted);font-weight:600}',
     '.sab-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;' +
-      'padding:12px 8px 10px;border:0;border-radius:18px;cursor:pointer;color:var(--text);' +
+      'padding:8px 6px 7px;border:0;border-radius:14px;cursor:pointer;color:var(--text);' +
       'background:linear-gradient(165deg,var(--card),var(--card2,var(--card)));' +
       'box-shadow:0 1px 2px rgba(30,20,64,.06),0 6px 18px rgba(30,20,64,.07);' +
-      'font:700 13px/1.2 var(--body,system-ui);transition:transform .15s,box-shadow .15s}',
+      'font:700 12px/1.2 var(--body,system-ui);transition:transform .15s,box-shadow .15s}',
     '.sab-tile:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(30,20,64,.08),0 12px 26px rgba(30,20,64,.10)}',
     '.sab-tile:active{transform:scale(.97)}',
     '.sab-tile:disabled{opacity:.4;cursor:default;transform:none}',
     '.sab-tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
     '.sab-tile.go{background:linear-gradient(165deg,var(--accent),color-mix(in srgb,var(--accent) 78%,#000 8%));color:#fff}',
     '.sab-tile.go .sab-tico{background:rgba(255,255,255,.18);color:#fff}',
-    '.sab-tile .cost{font-size:11.5px;font-weight:600;color:inherit;opacity:.75}',
-    '.sab-tico{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex:none;' +
+    '.sab-tile .cost{font-size:10.5px;font-weight:600;color:inherit;opacity:.75}',
+    '.sab-tico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none;' +
       'background:var(--accent-soft,rgba(91,63,214,.1));color:var(--accent)}',
     '.sab-badge{position:absolute;top:-6px;right:-6px;min-width:21px;height:21px;padding:0 5px;border-radius:999px;' +
       'background:var(--accent2);color:#fff;font:800 12px/21px var(--body,system-ui);border:2px solid var(--card);box-shadow:0 2px 6px rgba(0,0,0,.18)}',
     '.sab-badge.hot{background:var(--accent3)}',
+    '@keyframes sabflash{0%,100%{box-shadow:0 4px 14px rgba(30,20,64,.06)}35%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent2) 55%,transparent),0 4px 14px rgba(30,20,64,.06)}}',
+    '.sab-flash{animation:sabflash 1s ease 2}',
 
     '.sab-over{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;background:color-mix(in srgb,var(--ground) 82%,transparent);padding:18px;z-index:4;overflow:auto}',
     '.sab-over .sab-card{margin:auto}',
@@ -192,8 +195,8 @@
     '.sab-work i{font-style:normal;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:none}',
     /* the praja: four compact tiles, not four banners — icon, name, a count flanked
        by round +/- , the explainer as a whisper underneath */
-    '.sab-jobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0}',
-    '.sab-job{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;padding:12px 10px;border-radius:18px;' +
+    '.sab-jobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:8px;margin:8px 0}',
+    '.sab-job{display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;padding:9px 8px;border-radius:14px;' +
       'background:linear-gradient(165deg,var(--card),var(--card2,var(--card)));box-shadow:0 1px 2px rgba(30,20,64,.06),0 6px 18px rgba(30,20,64,.07)}',
     '.sab-job b{font:800 13.5px var(--body,system-ui)}',
     '.sab-job .row2{display:flex;align-items:center;gap:10px}',
@@ -607,6 +610,18 @@
            interactive, nothing changes colour, and no line ever moves: the boundary
            rules are absolute, and this game keeps clear of them by construction. */
         '<g>' + terr + '</g>' +
+        /* the rivers: smoothed polylines in the terrain layer — under the fog, over
+           the wash, never interactive. A child who follows the Ganga finds Kashi. */
+        '<g>' + (DATA.rivers || []).map(function (rv) {
+          var d2 = 'M' + rv.p[0][0] + ' ' + rv.p[0][1];
+          for (var ri = 1; ri < rv.p.length - 1; ri++) {
+            var mx2 = (rv.p[ri][0] + rv.p[ri + 1][0]) / 2, my2 = (rv.p[ri][1] + rv.p[ri + 1][1]) / 2;
+            d2 += ' Q' + rv.p[ri][0] + ' ' + rv.p[ri][1] + ' ' + mx2 + ' ' + my2;
+          }
+          var lp = rv.p[rv.p.length - 1];
+          d2 += ' L' + lp[0] + ' ' + lp[1];
+          return '<path class="sab-river" d="' + d2 + '"><title>' + esc(rv.n) + '</title></path>';
+        }).join('') + '</g>' +
         /* THE FOG IS VISMRITI'S OWN. Undiscovered land sits under a grey veil with
            holes of clear light punched around every found place and every walking
            explorer — the world is revealed by going and looking, which is the whole
@@ -802,6 +817,15 @@
       var out = SITES.filter(onMap).map(function (x) {
         return '<circle cx="' + x.x + '" cy="' + x.y + '" r="120" fill="#000"/>';
       });
+      /* a road is a corridor of clear light for its whole length — with holes only at
+         the towns, the middle of every route drowned in grey and "the roads have
+         disappeared". Lines AND lights, as designed. */
+      G.routes.forEach(function (r) {
+        var a = byId[r[0]], b2 = byId[r[1]];
+        var mx = (a.x + b2.x) / 2, my = (a.y + b2.y) / 2 - 24;
+        out.push('<path d="M' + a.x + ' ' + a.y + ' Q' + mx + ' ' + my + ' ' + b2.x + ' ' + b2.y +
+          '" fill="none" stroke="#000" stroke-width="90" stroke-linecap="round"/>');
+      });
       G.explorers.forEach(function (ex) {
         out.push('<circle cx="' + ex.x.toFixed(1) + '" cy="' + ex.y.toFixed(1) + '" r="80" fill="#000"/>');
       });
@@ -863,7 +887,12 @@
                  (inDispute(sel) ? ' · in a quarrel' : '')) +
         (targeting ? ' — now choose the other end of the road' : '') + '</span></div>');
       if (q.zzz) {
-        b.push(tile('wake', 'sun', 'Wake', T.wakeCost + ' \ud83d\udcdc', { go: true }));
+        /* the dead end the explorer walked into: a found, sleeping city offered only
+           Wake — which needs a road — and no way to build one. Roads are undirected,
+           so the sleeping town can start its own: Reach it, then Wake it. */
+        b.push(tile('route', 'road', 'Reach it', costStr(costOf({ kala: T.routeCost }, 'route'))));
+        b.push(tile('wake', 'sun', 'Wake', connected(sel) ? T.wakeCost + ' \ud83d\udcdc' : 'needs a road',
+          { go: true, disabled: !connected(sel) }));
       } else {
         if (q.lv < T.maxLevel) b.push(tile('grow', 'tree', 'Grow', T.growCost[q.lv] + ' \ud83c\udf3e'));
         b.push(tile('route', 'road', 'Route', costStr(costOf({ kala: T.routeCost }, 'route'))));
@@ -1230,7 +1259,7 @@
       var q = G.sites[a]; q.idle = 0; if (q.fade >= 0) q.fade = -1;
       var p = G.sites[b]; p.idle = 0; if (p.fade >= 0) p.fade = -1;
       say('A road now runs between ' + byId[a].name + ' and ' + byId[b].name + '. Connected places thrive.', 'warm');
-      paintAll();
+      paintAll(); paintFog();
     }
 
     function advance() {
@@ -1476,6 +1505,15 @@
         if (a === 'zin')  { vzZoom(1 / 1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
         if (a === 'zout') { vzZoom(1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
         if (a === 'zreset') { VZ = { x: 0, y: 0, w: 1000, h: 1100 }; vzApply(); return; }
+        if (a === 'cjump') {
+          var sec = D.getElementById(actEl.getAttribute('data-t'));
+          if (sec) {
+            sec.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            sec.classList.remove('sab-flash'); void sec.offsetWidth;
+            sec.classList.add('sab-flash');
+          }
+          return;
+        }
         if (a === 'leave') { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
         if (a === 'job' && city) {
           var jj = jobsOf(city), jid = actEl.getAttribute('data-j'), dd = Number(actEl.getAttribute('data-d'));

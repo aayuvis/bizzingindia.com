@@ -477,6 +477,23 @@
       var m = W.IND_SABHYATA_SPRITES || [];
       return m.indexOf(id) >= 0 ? 'art/sabhyata/sp/' + id + '.png' : null;
     }
+    /* THE DIORAMAS (tools/gen-sabhyata-dioramas.py): the same city as a tilted
+       board-game plate — high three-quarter view, terrain to the edges, the
+       monument at the centre by compositional contract. The city scene prefers
+       the plate; the eye-level painting stays as the fallback and as the card
+       art on wake overlays. */
+    function dioOf(id) {
+      var m = W.IND_SABHYATA_DIO || [];
+      return m.indexOf(id) >= 0 ? 'art/sabhyata/dio/' + id + '.jpg' : null;
+    }
+    /* per-city anchor tuning against the plates: where the contract and the
+       painting disagree (a monument that landed off-centre, a moor that wants
+       the other bank), the override wins. Styles are inline CSS fragments. */
+    var DIO_TUNE = {
+      /* Ajanta's "monument" is the cave crescent in the upper half of its
+         plate; the bamboo stands against the cliff, not in the gorge */
+      ajanta: { scaf: 'bottom:34%;height:42%' }
+    };
     /* respect the system's reduced-motion ask: the world stands calm and the
        game plays identically — every mover is presentation, never state */
     var REDUCED = !!(W.matchMedia && W.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -1254,7 +1271,8 @@
          scene. Presentation only (aria-hidden, pointer-events none): the
          same game, now watchable. Walk phases are clocked off real time so
          the 3s repaints never reset anyone mid-stride. */
-      var heroArt = artOf(id);
+      var heroArt = dioOf(id) || artOf(id);
+      var tune = (dioOf(id) && DIO_TUNE[id]) || {};
       if (heroArt) {
         var walkers = '', wi = 0, nowS = Date.now() / 1000;
         if (!REDUCED && !q.zzz) {
@@ -1282,14 +1300,15 @@
         var scaf = '';
         if (!q.mon && spOf('scaffold')) {
           var mc0 = costOf(T.monCost[s.era], 'monument');
+          var scafStyle = tune.scaf ? ' style="' + tune.scaf + '"' : '';
           if (q.lv >= 3) {
-            scaf = '<button class="sab-scafbtn' + (canPay(mc0) ? ' can' : '') + '" data-sab-act="mon"' +
+            scaf = '<button class="sab-scafbtn' + (canPay(mc0) ? ' can' : '') + '"' + scafStyle + ' data-sab-act="mon"' +
               (canPay(mc0) ? '' : ' disabled') +
               ' aria-label="Raise the monument — ' + esc(s.works[2]) + ' (' + costStr(mc0) + ')">' +
               '<img src="' + spOf('scaffold') + '" alt=""><em>' +
               (canPay(mc0) ? 'Raise it! ' : '') + costStr(mc0) + '</em></button>';
           } else {
-            scaf = '<button class="sab-scafbtn" data-sab-act="cjump" data-t="sab-sec-works"' +
+            scaf = '<button class="sab-scafbtn"' + scafStyle + ' data-sab-act="cjump" data-t="sab-sec-works"' +
               ' aria-label="' + esc(s.works[2]) + ' — a level-3 city may raise it">' +
               '<img src="' + spOf('scaffold') + '" alt=""><em>grows at level 3</em></button>';
           }

@@ -4264,6 +4264,119 @@
       'money, and nothing on this page is a real-money purchase.</div>';
   }
 
+  /* ------------------------------------------------- TAKE IT OFFLINE (dl UI)
+     The Grown-ups' download shelf, over the seams built for it: IND_PACKS_DL
+     (what exists and what it weighs), IND_DL (the cache loop), IND_ENT (the
+     gate). Cache API statuses come back asynchronously, so rows render from a
+     small last-known cache (DLC) and a refresh pass corrects it once the DOM
+     is in — at most one extra render, then it is settled. Progress during a
+     download patches the row's counter in place; a full render every ten
+     files would fight the reader's scroll. */
+  var DLC = {};                       /* packId -> {have,total,done} last known */
+
+  /* copy-to-clipboard for browsers without navigator.clipboard (older WebViews) */
+  function fallbackCopy(txt) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = txt;
+      ta.style.cssText = 'position:fixed;left:-999px;top:0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (e) {}
+  }
+
+  function dlRefresh() {
+    var DL = window.IND_DL, packs = window.IND_PACKS_DL || {};
+    if (!DL || !DL.supported()) return;
+    var ids = Object.keys(packs), left = ids.length, dirty = false;
+    if (!left) return;
+    ids.forEach(function (id) {
+      DL.status(id, function (st) {
+        var old = DLC[id] || {};
+        if (old.have !== st.have || !!old.done !== !!st.done) dirty = true;
+        DLC[id] = st;
+        if (--left === 0 && dirty && view.name === 'me') render();
+      });
+    });
+  }
+
+  function dlRows() {
+    var DL = window.IND_DL, packs = window.IND_PACKS_DL || {};
+    if (!DL || !DL.supported() || !Object.keys(packs).length) {
+      return '<p class="tiny muted" style="margin:6px 0 0">This browser cannot keep the app’s ' +
+        'sound on the device. Everything still plays while you are online.</p>';
+    }
+    setTimeout(dlRefresh, 60);        /* correct the rows once this render is in the DOM */
+    var ent = window.IND_ENT, groups = {};
+    Object.keys(packs).forEach(function (id) {
+      var g = packs[id].group || 'Packs';
+      (groups[g] = groups[g] || []).push(id);
+    });
+    return '<p class="tiny muted" style="margin:6px 0 0">Downloads live on this device, so ' +
+      'stories and lessons play on the plane, in the car, and anywhere the internet isn’t. ' +
+      'Anything already heard online is kept automatically.</p>' +
+      Object.keys(groups).map(function (g) {
+        return '<h5 class="tiny muted" style="margin:10px 0 2px;text-transform:uppercase;letter-spacing:.04em">' +
+          esc(g) + '</h5>' +
+          groups[g].map(function (id) {
+            var p = packs[id], st = DLC[id] || {}, act = DL.active(id);
+            var open = !ent || ent.canDownload(id), right;
+            if (act) {
+              right = '<span class="tiny mono" id="dlp-' + esc(id) + '">' + act.done + ' / ' + act.total + '</span>' +
+                '<button class="pill" data-act="dlcancel" data-id="' + esc(id) + '">Stop</button>';
+            } else if (st.done) {
+              right = '<span class="tiny" style="font-weight:700">On this device ✓</span>' +
+                '<button class="pill" data-act="dlrm" data-id="' + esc(id) + '">Remove</button>';
+            } else if (!open) {
+              right = '<button class="pill" data-act="dl" data-id="' + esc(id) + '">🔒 Needs the Pass</button>';
+            } else {
+              right = (st.have ? '<span class="tiny mono">' + st.have + ' of ' + st.total + '</span>' : '') +
+                '<button class="pill" data-act="dl" data-id="' + esc(id) + '">' +
+                (st.have ? 'Finish' : 'Download') + '</button>';
+            }
+            return '<div class="spread" style="gap:8px;margin:4px 0;align-items:center">' +
+              '<span class="tiny">' + esc(p.name) +
+              ' <span class="muted mono" style="white-space:nowrap">' + p.mb + ' MB</span></span>' +
+              '<span class="row" style="gap:6px;flex-wrap:nowrap">' + right + '</span></div>';
+          }).join('');
+      }).join('');
+  }
+
+  function passCard() {
+    var ent = window.IND_ENT;
+    if (!ent) return '';
+    if (ent.hasPass()) {
+      return '<p class="tiny" style="margin:6px 0 0"><b>' + esc(ent.planName() || 'Pass') +
+        '</b> is on for this device — every pack above is open.</p>' +
+        '<div class="row" style="margin-top:6px">' +
+        '<button class="pill" data-act="passclear">Switch it off on this device</button></div>';
+    }
+    /* honest copy: no payment exists yet, and the demo code is handed out by a
+       person, never printed here. The real check is server-side (CLAUDE.md). */
+    return '<p class="tiny muted" style="margin:6px 0 0">Reading, playing and streaming are free. ' +
+      'The Parivaar Pass opens the offline packs above. Payments are still being built — ' +
+      'if you have a family code, it works today.</p>' +
+      '<div class="row" style="margin-top:6px">' +
+      '<input id="passcode" class="opt" autocomplete="off" autocapitalize="characters" ' +
+      'placeholder="Family code" style="max-width:170px;margin:0">' +
+      '<button class="pill" data-act="passredeem">Use the code</button></div>';
+  }
+
+  function diagCard() {
+    var DG = window.IND_DIAG;
+    if (!DG) return '';
+    var n = DG.list().length;
+    return '<p class="tiny muted" style="margin:6px 0 0">' +
+      (n ? n + ' note' + (n === 1 ? '' : 's') + ' recorded on this device — nothing is sent anywhere.'
+         : 'Nothing has gone wrong on this device.') +
+      ' If something misbehaves, copy the report and send it to us with the build number below.</p>' +
+      '<div class="row" style="margin-top:6px">' +
+      '<button class="pill" data-act="diagcopy">Copy the report</button>' +
+      (n ? '<button class="pill" data-act="diagclear">Clear it</button>' : '') + '</div>';
+  }
+
   V.me = function () {
     var packs = window.IND_AVATAR_PACKS || [];
     return '<div class="card"><div class="row" style="flex-wrap:nowrap">' + art(S.buddy, 92) +
@@ -4350,6 +4463,9 @@
       'avatar pack and stops sikke being spent, so you can walk the whole app without ' +
       'grinding for it. Nothing is bought and nothing is lost — turn it off and your real ' +
       'sikke and your real collection are exactly as you left them.</p>' +
+      '<h4 class="setlbl">Take it offline</h4>' + dlRows() +
+      '<h4 class="setlbl">Parivaar Pass</h4>' + passCard() +
+      '<h4 class="setlbl">If something breaks</h4>' + diagCard() +
       '<p class="tiny muted" style="margin-top:12px">Build <b>' + esc(window.IND_BUILD || 'dev') + '</b>' +
       ' — if something looks wrong, quote this number so we know which version you are on.</p>' +
       '<p class="tiny muted">This demo keeps everything on this device. No account, ' +
@@ -5101,6 +5217,66 @@
       paintChrome(); return render();
     }
     if (a === 'reset')  { if (confirm('Clear everything on this device and start again?')) { localStorage.removeItem(Store.KEY); location.reload(); } return; }
+
+    /* ---- Take it offline / Pass / diagnostics (the Grown-ups' plumbing) ---- */
+    if (a === 'dl') {
+      var did = t.getAttribute('data-id');
+      if (window.IND_ENT && !window.IND_ENT.canDownload(did)) {
+        toast('That pack needs the Parivaar Pass — the code box is just below.');
+        var pc = $('#passcode'); if (pc) pc.focus();
+        return;
+      }
+      if (!window.IND_DL) return;
+      window.IND_DL.download(did, function (done, total) {
+        /* patch the counter in place — a render every ten files fights the scroll */
+        var el = $('#dlp-' + did); if (el) el.textContent = done + ' / ' + total;
+      }, function (finished) {
+        dlRefresh();
+        toast(finished ? 'Done — that pack now plays with no internet at all.' : 'Download stopped.');
+        if (view.name === 'me') render();
+      });
+      return render();                 /* shows the live row (Stop + counter) */
+    }
+    if (a === 'dlcancel') { if (window.IND_DL) window.IND_DL.cancel(t.getAttribute('data-id')); return; }
+    if (a === 'dlrm') {
+      var rid = t.getAttribute('data-id');
+      if (!window.IND_DL) return;
+      window.IND_DL.remove(rid, function () {
+        var rp = (window.IND_PACKS_DL || {})[rid];
+        DLC[rid] = { have: 0, total: rp ? rp.n : 0, done: false };
+        toast('Removed from this device. It still streams while online.');
+        if (view.name === 'me') render();
+      });
+      return;
+    }
+    if (a === 'passredeem') {
+      var pin = $('#passcode');
+      if (window.IND_ENT && window.IND_ENT.redeem(pin && pin.value)) {
+        toast('The Parivaar Pass is on — every pack is open.');
+        return render();
+      }
+      toast('That code didn’t work. Check it and try once more.');
+      return;
+    }
+    if (a === 'passclear') {
+      if (window.IND_ENT) window.IND_ENT.clear();
+      toast('Pass switched off on this device.');
+      return render();
+    }
+    if (a === 'diagcopy') {
+      var dtxt = (window.IND_DIAG ? window.IND_DIAG.text() : '') +
+        '\nbuild ' + (window.IND_BUILD || 'dev');
+      var okc = function () { toast('Copied — paste it into a message to us.'); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(dtxt).then(okc, function () { fallbackCopy(dtxt); okc(); });
+      } else { fallbackCopy(dtxt); okc(); }
+      return;
+    }
+    if (a === 'diagclear') {
+      if (window.IND_DIAG) window.IND_DIAG.clear();
+      toast('Cleared.');
+      return render();
+    }
     if (a === 'mon')    { var mo = (window.IND_GEO.monuments || []).filter(function (x) { return x.id === t.getAttribute('data-id'); })[0]; if (mo) toast(mo.name + ' — ' + mo.fact); return; }
     if (a === 'pack')   { quiz = quizReset(null); return go('pack', t.getAttribute('data-id')); }
     if (a === 'game')   return go('game', t.getAttribute('data-id'));

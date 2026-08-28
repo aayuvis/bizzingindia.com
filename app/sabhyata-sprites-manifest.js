@@ -3,4 +3,4 @@
    app/art/sabhyata/sp/<id>.png. The game falls back to its plain
    shapes for anything missing — a lost sprite is a quieter board,
    never a broken one. */
-window.IND_SABHYATA_SPRITES = ["boat", "cart", "city1", "city2", "city3", "explorer", "karigar", "kathakar", "kisan", "rakshak", "scaffold"];
+window.IND_SABHYATA_SPRITES = ["bazaar", "boat", "cart", "city1", "city2", "city3", "explorer", "granary", "gurukul", "karigar", "kathakar", "kisan", "rakshak", "scaffold", "stepwell", "workshop"];

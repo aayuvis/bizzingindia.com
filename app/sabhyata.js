@@ -256,8 +256,31 @@
       'animation:sabwalk 18s linear infinite,sabwbob .7s ease-in-out infinite alternate}',
     '@keyframes sabwalk{from{left:-14%}to{left:104%}}',
     '@keyframes sabwbob{from{transform:translateY(0)}to{transform:translateY(-1.5%)}}',
-    '.sab-scaffold{position:absolute;left:50%;bottom:4%;height:58%;width:auto;transform:translateX(-50%);' +
+    '.sab-scaffold{position:absolute;left:50%;bottom:16%;height:52%;width:auto;transform:translateX(-50%);' +
       'pointer-events:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}',
+    /* THE BUILD PLOTS — Civ\'s own move, made native: tap a plot on the city
+       painting and the building rises there, permanently. Unbuilt plots are
+       ghost outlines with the cost; built ones stand in colour with a name
+       chip. Real buttons in DOM order — keyboard and touch both, >=44px. */
+    '.sab-plots{position:absolute;inset:0;pointer-events:none}',
+    '.sab-plot{pointer-events:auto;position:absolute;bottom:2%;width:18%;min-width:56px;min-height:44px;' +
+      'display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;' +
+      'padding:3px 2px;border:0;background:none;cursor:pointer;font:700 10px/1.15 var(--body,system-ui);color:#fff}',
+    '.sab-plot img{width:88%;height:auto;max-height:54px;object-fit:contain;' +
+      'filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}',
+    '.sab-plot img.ghost{opacity:.68;filter:grayscale(1) brightness(1.3) drop-shadow(0 2px 3px rgba(0,0,0,.3))}',
+    '.sab-plot:not(:disabled):not(.built):hover img.ghost{opacity:.95;filter:grayscale(.4) brightness(1.15) drop-shadow(0 2px 5px rgba(0,0,0,.4))}',
+    '.sab-plot i{font-style:normal;background:rgba(22,17,44,.6);padding:1px 7px;border-radius:999px;white-space:nowrap;text-shadow:none}',
+    '.sab-plot em{font-style:normal;background:rgba(255,251,238,.9);color:#4a3810;padding:1px 7px;border-radius:999px;font-size:9.5px}',
+    '.sab-plot:disabled{cursor:default;opacity:.55}',
+    '.sab-plot.built{pointer-events:none}',
+    '.sab-plot:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:12px}',
+    '.sab-plot.rise img{animation:sabrise .9s cubic-bezier(.2,.8,.3,1.15)}',
+    '@keyframes sabrise{from{transform:translateY(26px) scale(.4);opacity:0}to{transform:none;opacity:1}}',
+    /* a port city keeps a boat moored at the edge of its painting */
+    '.sab-moor{position:absolute;right:2%;bottom:3%;height:15%;width:auto;pointer-events:none;' +
+      'filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));animation:sabmoor 4.5s ease-in-out infinite}',
+    '@keyframes sabmoor{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-2.5px) rotate(1.5deg)}}',
     '.sab-bird{position:absolute;top:10%;left:-8%;width:26px;opacity:.8;animation:sabfly 24s linear infinite}',
     '@keyframes sabfly{0%{left:-8%;top:14%}50%{top:6%}100%{left:104%;top:11%}}',
     /* the age tints the land, gently — terrain wash only, never territory */
@@ -268,7 +291,8 @@
     '.sab-e4 #sab-terrg{filter:saturate(1.14) brightness(1.02)}',
 
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
-      '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird{animation:none}}'
+      '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
+      '.sab-plot.rise img,.sab-moor{animation:none}}'
   ].join('\n');
 
   var cssIn = false;
@@ -401,6 +425,20 @@
     /* respect the system's reduced-motion ask: the world stands calm and the
        game plays identically — every mover is presentation, never state */
     var REDUCED = !!(W.matchMedia && W.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    /* which built buildings this sitting has already seen standing, so the
+       rise animation greets a NEW building once and never replays on a loaded
+       save or a routine repaint */
+    var bldSeen = null;
+    function bldSeenInit() {
+      if (bldSeen) return;
+      bldSeen = {};
+      SITES.forEach(function (s2) {
+        var q2 = G.sites[s2.id];
+        if (q2 && q2.bld) {
+          for (var b2 in q2.bld) { if (q2.bld[b2]) bldSeen[s2.id + ':' + b2] = 1; }
+        }
+      });
+    }
     /* THE APP'S OWN ART, REUSED (the founder's note: reuse what is already here).
        Mithu the storyteller opens the game and takes the bow, Vismriti itself appears
        when the mist takes a town, the motif set dresses the kingdom and hero cards,
@@ -1184,9 +1222,40 @@
             ((nowS + 12) % 34).toFixed(1) + 's;opacity:.6"><path d="M2 8 Q7 2 12 7 Q17 2 22 8" fill="none" stroke="#2e2e40" stroke-width="1.6" stroke-linecap="round"/></svg>';
         var scaf = (!q.mon && spOf('scaffold'))
           ? '<img class="sab-scaffold" src="' + spOf('scaffold') + '" alt="">' : '';
+        /* THE BUILD PLOTS. The buildings were rows of text under the painting;
+           now the painting is the build board — Civ's own move. An unbuilt
+           plot is a ghost of the thing with its cost, a real button firing
+           the same 'build' action as the rows below (which stay: they carry
+           the full explanations). A built one stands on the scene for good,
+           and rises once, the first time this sitting sees it. */
+        bldSeenInit();
+        var plots = '', PLOT_X = [1, 20, 39.5, 61, 80];
+        Object.keys(BLD).filter(function (b2) { return BLD[b2].era <= G.era; })
+          .slice(0, 5).forEach(function (bid, pi) {
+            var bd = BLD[bid], bsp = spOf(bid), left = PLOT_X[pi];
+            var art2 = bsp ? '<img' + (q.bld[bid] ? '' : ' class="ghost"') + ' src="' + bsp + '" alt="">'
+                           : '<span style="font-size:26px">' + bd.icon + '</span>';
+            if (q.bld[bid]) {
+              var rise = !bldSeen[id + ':' + bid];
+              bldSeen[id + ':' + bid] = 1;
+              plots += '<div class="sab-plot built' + (rise && !REDUCED ? ' rise' : '') +
+                '" style="left:' + left + '%" title="' + esc(bd.what) + '">' + art2 +
+                '<i>' + esc(bd.name) + '</i></div>';
+            } else {
+              var c2 = costOf(bd.cost, 'building');
+              plots += '<button class="sab-plot" style="left:' + left + '%" data-sab-act="build" data-b="' + bid + '"' +
+                (canPay(c2) ? '' : ' disabled') +
+                ' aria-label="Build the ' + esc(bd.name) + ' — ' + esc(bd.what) + '">' + art2 +
+                '<i>' + esc(bd.name) + '</i><em>' + costStr(c2) + '</em></button>';
+            }
+          });
+        /* a port keeps its boat moored — the city's kind, visible at a glance */
+        var moor = (PORTS.indexOf(id) >= 0 && spOf('boat'))
+          ? '<img class="sab-moor" src="' + spOf('boat') + '" alt="">' : '';
         h += '<div class="sab-scene">' +
           '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">' +
-          scaf + '<div class="sab-praja" aria-hidden="true">' + walkers + birds + '</div></div>' +
+          scaf + '<div class="sab-praja" aria-hidden="true">' + walkers + birds + moor + '</div>' +
+          '<div class="sab-plots">' + plots + '</div></div>' +
           (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
             'the scaffolding comes down, and the colours come back.</div>');
       }
@@ -1880,7 +1949,7 @@
           paintTech(); paintAll(); return;
         }
         if (a === 'techclose') { techOpen = false; paintTech(); paintAll(); return; }
-        if (a === 'restart2') { wipe(); G = fresh(); sel = null; kbd = null; targeting = false;
+        if (a === 'restart2') { wipe(); G = fresh(); sel = null; kbd = null; targeting = false; bldSeen = null;
           overlay = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
           shell(); bindHud(); fitFound(); say('A new dawn at Dholavira.', 'warm'); return; }
         if (a === 'ovclose') { showOverlay(null); paintAll(); maybeEnd(); return; }

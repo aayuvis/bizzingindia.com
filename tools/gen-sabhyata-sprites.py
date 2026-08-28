@@ -92,6 +92,27 @@ SPRITES = {
         "a half-built stone monument wrapped in a bamboo scaffolding lattice "
         "with ropes and a simple wooden hoist, a few dressed stone blocks "
         "waiting at its foot."),
+    # ---- the buildings a player raises (data-sabhyata buildings{}) ----------
+    "granary": p(
+        "a rounded clay grain store on a raised wooden platform, a little "
+        "thatched cap on top, plump grain sacks and a winnowing basket at its "
+        "foot, seen from the front as one compact object."),
+    "workshop": p(
+        "a potter's open-sided workshop: a small brick kiln with a gentle warm "
+        "flame, a shelf of painted clay pots, a low workbench with tools, all "
+        "under one thatched lean-to roof, one compact object."),
+    "gurukul": p(
+        "a small open-air school under one green banyan tree: a low stone "
+        "platform with a woven mat, a teacher's low seat, palm-leaf scrolls "
+        "and a lit brass oil lamp, one compact object."),
+    "bazaar": p(
+        "a small market stall with a striped cloth awning on bamboo poles, "
+        "hanging brass balance scales, baskets of fruit and folded bright "
+        "cloth on the counter, one compact object."),
+    "stepwell": p(
+        "a small square stone stepwell seen at a gentle angle: carved stone "
+        "steps descending inside to bright turquoise water, a little carved "
+        "pavilion at its rim, one compact object."),
 }
 
 

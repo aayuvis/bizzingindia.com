@@ -281,6 +281,60 @@
     '.sab-moor{position:absolute;right:2%;bottom:3%;height:15%;width:auto;pointer-events:none;' +
       'filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));animation:sabmoor 4.5s ease-in-out infinite}',
     '@keyframes sabmoor{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-2.5px) rotate(1.5deg)}}',
+
+    /* ============ THE CITY, SCENE-FIRST (the Civ screen) ============
+       Inside a city the painting is no longer a banner — it is the whole
+       game surface. Full 3:2 frame; the people, the decisions and the doors
+       all live ON it; the text below is the detail layer, not the game. */
+    '.sab-scene .sab-hero{aspect-ratio:3/2;max-height:none}',
+    '@media (min-width:900px){.sab-scene .sab-hero{max-height:480px;width:100%;object-fit:cover}}',
+    /* the city banner, Civ-style, top centre */
+    '.sab-nameplate{position:absolute;top:2.2%;left:50%;transform:translateX(-50%);text-align:center;' +
+      'background:rgba(22,17,44,.58);color:#fff;padding:5px 16px;border-radius:999px;pointer-events:none;max-width:78%}',
+    '.sab-nameplate b{font:800 15px/1.15 var(--display,Georgia,serif);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.sab-nameplate span{font-size:10px;font-weight:700;opacity:.92;letter-spacing:.03em}',
+    /* job stations: the four kinds of praja stand at their corners of the
+       city, count on their shoulder — tap one to reach the allocation tiles */
+    '.sab-station{pointer-events:auto;position:absolute;width:17%;min-width:56px;min-height:52px;border:0;' +
+      'background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;padding:0;' +
+      'color:#fff;font:700 10px var(--body,system-ui)}',
+    '.sab-station img{height:46px;width:auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.42));animation:sabbob 1.7s ease-in-out infinite}',
+    '.sab-station b{position:absolute;top:-6px;right:16%;min-width:21px;height:21px;border-radius:999px;padding:0 4px;' +
+      'background:var(--accent);color:#fff;font:800 12px/21px var(--body,system-ui);border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.3)}',
+    '.sab-station i{font-style:normal;background:rgba(22,17,44,.6);padding:1px 7px;border-radius:999px;white-space:nowrap}',
+    '.sab-station:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:12px}',
+    /* the calls of the moment ride the sky: quest, quarrel, great one */
+    '.sab-cbadge{pointer-events:auto;position:absolute;top:11%;min-width:48px;min-height:48px;border:0;border-radius:14px;' +
+      'cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 9px;' +
+      'background:rgba(255,251,238,.94);box-shadow:0 3px 10px rgba(0,0,0,.28);font:800 9.5px var(--body,system-ui);' +
+      'color:var(--text);animation:sabbadge 2.2s ease-in-out infinite}',
+    '.sab-cbadge em{font-style:normal;font-size:19px;line-height:1.1}',
+    '.sab-cbadge.hot{background:var(--accent3);color:#fff;animation:sabbadgehot 1.1s ease-in-out infinite}',
+    '.sab-cbadge:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    '@keyframes sabbadge{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}',
+    '@keyframes sabbadgehot{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}',
+    /* the scaffold IS the build-the-monument button; it glows when the coins reach */
+    '.sab-scafbtn{pointer-events:auto;position:absolute;left:50%;bottom:16%;height:52%;transform:translateX(-50%);' +
+      'border:0;background:none;padding:0;cursor:pointer}',
+    '.sab-scafbtn:disabled{cursor:default}',
+    '.sab-scafbtn img{height:100%;width:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}',
+    '.sab-scafbtn.can img{animation:sabglow 1.6s ease-in-out infinite}',
+    '@keyframes sabglow{0%,100%{filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}50%{filter:drop-shadow(0 0 20px rgba(255,215,110,.95))}}',
+    '.sab-scafbtn em{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);font-style:normal;' +
+      'background:rgba(255,251,238,.94);color:#4a3810;padding:2px 9px;border-radius:999px;' +
+      'font:700 10px var(--body,system-ui);white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}',
+    '.sab-scafbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:12px}',
+    /* hearth smoke, and a cart crossing the street — the town breathes */
+    '.sab-smoke{position:absolute;width:22px;height:22px;border-radius:50%;pointer-events:none;' +
+      'background:radial-gradient(circle,rgba(244,242,248,.55),rgba(244,242,248,0) 68%);animation:sabsmoke 6.5s ease-in infinite}',
+    '@keyframes sabsmoke{0%{opacity:0;transform:translateY(0) scale(.45)}20%{opacity:.75}100%{opacity:0;transform:translateY(-54px) scale(1.7)}}',
+    '.sab-cross{position:absolute;bottom:13.5%;left:-24%;height:15%;width:auto;pointer-events:none;' +
+      'filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));animation:sabwalk 38s linear infinite}',
+    /* the built gurukul is the teacher\'s own door — a bell rings when ready */
+    '.sab-plot.teach{pointer-events:auto}',
+    '.sab-plot .pbell{position:absolute;top:-8px;right:8%;font-size:13px;background:var(--accent2);border-radius:999px;' +
+      'width:24px;height:24px;line-height:24px;text-align:center;border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.3);' +
+      'animation:sabbadge 1.5s ease-in-out infinite}',
     '.sab-bird{position:absolute;top:10%;left:-8%;width:26px;opacity:.8;animation:sabfly 24s linear infinite}',
     '@keyframes sabfly{0%{left:-8%;top:14%}50%{top:6%}100%{left:104%;top:11%}}',
     /* the age tints the land, gently — terrain wash only, never territory */
@@ -292,7 +346,8 @@
 
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
-      '.sab-plot.rise img,.sab-moor{animation:none}}'
+      '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-cbadge,.sab-scafbtn.can img,' +
+      '.sab-smoke,.sab-cross,.sab-plot .pbell{animation:none}}'
   ].join('\n');
 
   var cssIn = false;
@@ -1205,13 +1260,13 @@
         if (!REDUCED && !q.zzz) {
           ['kisan', 'karigar', 'kathakar', 'rakshak'].forEach(function (jid) {
             var spw = spOf(jid); if (!spw) return;
-            for (var k = 0; k < Math.min(j[jid], 4) && wi < 10; k++) {
+            for (var k = 0; k < Math.min(j[jid], 5) && wi < 12; k++) {
               wi++;
-              var dur = 15 + ((wi * 7) % 12);
+              var dur = 14 + ((wi * 7) % 14);
               walkers += '<img class="sab-walker" src="' + spw + '" alt="" style="' +
                 'animation-duration:' + dur + 's,' + (0.6 + (wi % 3) * 0.15) + 's;' +
                 'animation-delay:-' + ((nowS + wi * 3.7) % dur).toFixed(2) + 's,0s;' +
-                'bottom:' + (1.5 + (wi % 4) * 2.5) + '%;height:' + (10 + (wi % 3) * 2) + '%">';
+                'bottom:' + (1.5 + (wi % 5) * 2.2) + '%;height:' + (9 + (wi % 4) * 2) + '%">';
             }
           });
         }
@@ -1220,8 +1275,54 @@
             (nowS % 26).toFixed(1) + 's"><path d="M2 8 Q7 2 12 7 Q17 2 22 8" fill="none" stroke="#2e2e40" stroke-width="1.6" stroke-linecap="round"/></svg>' +
           '<svg class="sab-bird" viewBox="0 0 24 12" style="width:19px;animation-duration:34s;animation-delay:-' +
             ((nowS + 12) % 34).toFixed(1) + 's;opacity:.6"><path d="M2 8 Q7 2 12 7 Q17 2 22 8" fill="none" stroke="#2e2e40" stroke-width="1.6" stroke-linecap="round"/></svg>';
-        var scaf = (!q.mon && spOf('scaffold'))
-          ? '<img class="sab-scaffold" src="' + spOf('scaffold') + '" alt="">' : '';
+        /* THE SCAFFOLD IS THE BUTTON. At level 3 the bamboo itself is how you
+           raise the monument — it glows when the coins reach, wears its cost,
+           and one tap brings it down and the colours back. Below level 3 it
+           stands quiet with the reason on it. */
+        var scaf = '';
+        if (!q.mon && spOf('scaffold')) {
+          var mc0 = costOf(T.monCost[s.era], 'monument');
+          if (q.lv >= 3) {
+            scaf = '<button class="sab-scafbtn' + (canPay(mc0) ? ' can' : '') + '" data-sab-act="mon"' +
+              (canPay(mc0) ? '' : ' disabled') +
+              ' aria-label="Raise the monument — ' + esc(s.works[2]) + ' (' + costStr(mc0) + ')">' +
+              '<img src="' + spOf('scaffold') + '" alt=""><em>' +
+              (canPay(mc0) ? 'Raise it! ' : '') + costStr(mc0) + '</em></button>';
+          } else {
+            scaf = '<button class="sab-scafbtn" data-sab-act="cjump" data-t="sab-sec-works"' +
+              ' aria-label="' + esc(s.works[2]) + ' — a level-3 city may raise it">' +
+              '<img src="' + spOf('scaffold') + '" alt=""><em>grows at level 3</em></button>';
+          }
+        }
+        /* the city banner, the four stations, and the calls of the moment */
+        var plate = '<div class="sab-nameplate"><b>' + esc(s.name) + (G.capital === id ? ' ★' : '') + '</b>' +
+          '<span>lv ' + q.lv + ' · ' + pop + ' praja' +
+          (y ? ' · ' + ['anna', 'kala', 'katha'].filter(function (k2) { return y[k2]; })
+            .map(function (k2) { return '+' + y[k2] + ' ' + ICON[k2]; }).join(' ') : '') + '</span></div>';
+        var ST_POS = { kisan: 'left:1.5%;bottom:26%', karigar: 'left:81%;bottom:26%',
+                       kathakar: 'left:1.5%;top:15%', rakshak: 'left:81%;top:15%' };
+        var stations = ['kisan', 'karigar', 'kathakar', 'rakshak'].map(function (jid) {
+          var spw = spOf(jid); if (!spw) return '';
+          return '<button class="sab-station" style="' + ST_POS[jid] + '" data-sab-act="cjump" data-t="sab-sec-people"' +
+            ' aria-label="' + esc(DATA.jobs[jid].name) + ' — ' + j[jid] + ' at work. Assign the people.">' +
+            '<img src="' + spw + '" alt=""><b>' + j[jid] + '</b><i>' + esc(DATA.jobs[jid].name) + '</i></button>';
+        }).join('');
+        var badges = '';
+        if (inDispute(id)) badges += '<button class="sab-cbadge hot" style="right:2%" data-sab-act="cjump" ' +
+          'data-t="sab-sec-quarrel" aria-label="A quarrel — the panchayat sits"><em>⚡</em>panchayat</button>';
+        if (qq) badges += '<button class="sab-cbadge" style="right:' + (inDispute(id) ? 17 : 2) + '%" ' +
+          'data-sab-act="cjump" data-t="sab-sec-quest" aria-label="A quest waits"><em>📜</em>quest</button>';
+        if (q.hero && !q.hero.gone) badges += '<button class="sab-cbadge" style="left:2%;top:2.5%" ' +
+          'data-sab-act="cjump" data-t="sab-sec-hero" aria-label="A great one is here"><em>★</em>great one</button>';
+        /* hearth smoke and a cart on the street — the town breathes */
+        var breath = '';
+        if (!REDUCED && !q.zzz) {
+          breath = '<span class="sab-smoke" style="left:26%;top:34%;animation-delay:-' + (nowS % 6.5).toFixed(1) + 's"></span>' +
+            '<span class="sab-smoke" style="left:57%;top:28%;animation-delay:-' + ((nowS + 2.3) % 6.5).toFixed(1) + 's"></span>' +
+            '<span class="sab-smoke" style="left:74%;top:38%;animation-delay:-' + ((nowS + 4.1) % 6.5).toFixed(1) + 's"></span>' +
+            (spOf('cart') ? '<img class="sab-cross" src="' + spOf('cart') + '" alt="" style="animation-delay:-' +
+              ((nowS + 9) % 38).toFixed(1) + 's">' : '');
+        }
         /* THE BUILD PLOTS. The buildings were rows of text under the painting;
            now the painting is the build board — Civ's own move. An unbuilt
            plot is a ghost of the thing with its cost, a real button firing
@@ -1238,9 +1339,21 @@
             if (q.bld[bid]) {
               var rise = !bldSeen[id + ':' + bid];
               bldSeen[id + ':' + bid] = 1;
-              plots += '<div class="sab-plot built' + (rise && !REDUCED ? ' rise' : '') +
-                '" style="left:' + left + '%" title="' + esc(bd.what) + '">' + art2 +
-                '<i>' + esc(bd.name) + '</i></div>';
+              /* the built gurukul is a door, not a decoration: tap it to ask
+                 the teacher — the bell rings when a question is ready */
+              if (bid === 'gurukul') {
+                var ready = (G.quizAt[id] || -999) + T.quizCd - G.t <= 0;
+                plots += '<button class="sab-plot built teach' + (rise && !REDUCED ? ' rise' : '') +
+                  '" style="left:' + left + '%" data-sab-act="' + (ready ? 'quizstart' : 'cjump') + '"' +
+                  (ready ? '' : ' data-t="sab-sec-guru"') +
+                  ' aria-label="The gurukul — ' + (ready ? 'the teacher will take a question' : 'the teacher rests') + '">' +
+                  art2 + (ready && !REDUCED ? '<b class="pbell">🔔</b>' : '') +
+                  '<i>' + esc(bd.name) + '</i></button>';
+              } else {
+                plots += '<div class="sab-plot built' + (rise && !REDUCED ? ' rise' : '') +
+                  '" style="left:' + left + '%" title="' + esc(bd.what) + '">' + art2 +
+                  '<i>' + esc(bd.name) + '</i></div>';
+              }
             } else {
               var c2 = costOf(bd.cost, 'building');
               plots += '<button class="sab-plot" style="left:' + left + '%" data-sab-act="build" data-b="' + bid + '"' +
@@ -1254,7 +1367,8 @@
           ? '<img class="sab-moor" src="' + spOf('boat') + '" alt="">' : '';
         h += '<div class="sab-scene">' +
           '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">' +
-          scaf + '<div class="sab-praja" aria-hidden="true">' + walkers + birds + moor + '</div>' +
+          '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
+          scaf + plate + stations + badges +
           '<div class="sab-plots">' + plots + '</div></div>' +
           (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
             'the scaffolding comes down, and the colours come back.</div>');

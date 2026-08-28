@@ -4211,6 +4211,25 @@
       '<div class="mono">The Mela — the fairground</div>' +
       '<p style="margin:10px 0 0">Some stalls are as old as ' +
       'India, some are drills wearing a costume — every one plays with fingers and with keys.</p></div>';
+    /* THE HERO STALL. Sabhyata is the fair's big wheel — it gets the top of the
+       page as a full-width living banner: the Kashi diorama with drifting mist,
+       a cart crossing, an explorer waiting, lamps breathing. One tap plays. */
+    if (byId.sabhyata) {
+      used.sabhyata = 1;
+      out += '<button class="ghero" data-act="game" data-id="sabhyata"' +
+        ' aria-label="Play Sabhyata — grow the first cities of India">' +
+        '<img class="gh-bg" src="art/sabhyata/dio/kashi.jpg" alt="">' +
+        '<span class="gh-mist m1"></span><span class="gh-mist m2"></span>' +
+        '<span class="gh-lamp l1"></span><span class="gh-lamp l2"></span><span class="gh-lamp l3"></span>' +
+        '<img class="gh-cart" src="art/sabhyata/sp/cart.png" alt="">' +
+        '<img class="gh-walk" src="art/sabhyata/sp/explorer.png" alt="">' +
+        '<span class="gh-body"><span class="gh-kicker">The hero game · Civilization</span>' +
+        '<b>Sabhyata</b>' +
+        '<span class="gh-blurb">Grow the first cities, light five thousand years of India lamp ' +
+        'by lamp — and hold back the Forgetting. Nothing is conquered here; everything is reached.</span>' +
+        '<span class="gh-cta">' + icon('play', 17) + ' Play — ' +
+        (byId.sabhyata.minutes || 12) + ' min</span></span></button>';
+    }
     MELA_GROUPS.forEach(function (grp) {
       var list = grp[2].map(function (id) { used[id] = 1; return byId[id]; }).filter(Boolean);
       if (!list.length) return;

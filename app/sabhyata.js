@@ -166,9 +166,11 @@
 
     '.sab-over{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;background:color-mix(in srgb,var(--ground) 82%,transparent);padding:18px;z-index:4;overflow:auto}',
     '.sab-over .sab-card{margin:auto}',
-    '.sab-card{max-width:430px;background:var(--card);border:0;border-radius:22px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.25)}',
-    '.sab-card h3{margin:0 0 8px;font:800 20px/1.2 var(--display,Georgia,serif)}',
-    '.sab-card p{margin:0 0 12px;font-size:15px;line-height:1.55}',
+    /* the fact / era / wake cards: SMALL on purpose — a note held up over the
+       game, not a page replacing it. The map stays visible around them. */
+    '.sab-card{max-width:330px;background:var(--card);border:0;border-radius:18px;padding:13px 14px;box-shadow:0 14px 40px rgba(0,0,0,.25)}',
+    '.sab-card h3{margin:0 0 6px;font:800 16.5px/1.2 var(--display,Georgia,serif)}',
+    '.sab-card p{margin:0 0 9px;font-size:13.5px;line-height:1.5}',
     '.sab-card .row{display:flex;gap:8px;flex-wrap:wrap}',
 
     '.sab-help{font-size:12.5px;color:var(--muted)}',
@@ -213,7 +215,7 @@
     '.sab-hero.dim{filter:grayscale(.85) sepia(.15) brightness(.92)}',
     '.sab-herocap{font-size:12px;color:var(--muted);margin:4px 0 8px}',
     '.sab-vthumb{width:112px;height:75px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex:none}',
-    '.sab-cardart{width:100%;max-height:150px;object-fit:cover;border-radius:14px;margin:0 0 10px;display:block}',
+    '.sab-cardart{width:100%;max-height:96px;object-fit:cover;border-radius:12px;margin:0 0 8px;display:block}',
     /* DESKTOP FIT. On a monitor the HUD, the action row, the map and the guide should
        share one screen without the page scrolling — the map gives a little height and
        the paintings stop being posters. Phones keep the tall map. */
@@ -221,7 +223,7 @@
       '.sab-wrap{gap:8px}' +
       '.sab-stage svg{max-height:44vh}' +
       '.sab-hero{max-height:180px;aspect-ratio:auto}' +
-      '.sab-cardart{max-height:170px;object-fit:cover}' +
+      '.sab-cardart{max-height:110px;object-fit:cover}' +
       '.sab-vthumb{width:96px;height:64px}' +
     '}',
     /* ============ SABHYATA ALIVE — the sprite and motion layer ============ */
@@ -837,19 +839,46 @@
        lamp in the fog, and a whole-subcontinent view makes it a dot in a grey sea.
        Fit the found sites (plus a walking explorer) with generous margin; the whole
        map is one \u2302 away. */
-    function fitFound() {
+    /* THREE LEVELS OF ZOOM, no in-between (the founder's spec): NEAR is one
+       neighbourhood of lamps, REGION frames everything revealed so far, ALL is
+       the whole subcontinent — mostly Vismriti's grey until you have earned it.
+       The map opens at REGION and stays zoomed in; wheel, pinch, +/- and the
+       keyboard all STEP between the levels instead of free-scaling, and the
+       drag pan is fenced to the land you have revealed — the mist is not a
+       place you can wander, only a place you can send explorers into. */
+    var zlevel = 1;                       /* 0 near · 1 region · 2 all */
+    function revealedBox() {
       var pts = SITES.filter(onMap).map(function (x) { return [x.x, x.y]; });
       G.explorers.forEach(function (ex) { pts.push([ex.x, ex.y]); });
-      if (!pts.length) return;
+      if (!pts.length) pts = [[500, 550]];
       var xs = pts.map(function (q2) { return q2[0]; }), ys = pts.map(function (q2) { return q2[1]; });
-      var cx = (Math.min.apply(0, xs) + Math.max.apply(0, xs)) / 2;
-      var cy = (Math.min.apply(0, ys) + Math.max.apply(0, ys)) / 2;
-      var span = Math.max(Math.max.apply(0, xs) - Math.min.apply(0, xs),
-                          (Math.max.apply(0, ys) - Math.min.apply(0, ys)) / 1.1);
-      VZ.w = Math.max(430, Math.min(1000, span + 340));
+      var M2 = 190;                       /* breathing room past the last lamp */
+      return { x0: Math.max(-60, Math.min.apply(0, xs) - M2),
+               y0: Math.max(-60, Math.min.apply(0, ys) - M2),
+               x1: Math.min(1060, Math.max.apply(0, xs) + M2),
+               y1: Math.min(1160, Math.max.apply(0, ys) + M2) };
+    }
+    function zoomTo(level, at) {
+      zlevel = Math.max(0, Math.min(2, level));
+      if (zlevel === 2) { VZ = { x: 0, y: 0, w: 1000, h: 1100 }; vzApply(); return; }
+      var b = revealedBox();
+      var cx = at ? at.x : VZ.x + VZ.w / 2, cy = at ? at.y : VZ.y + VZ.h / 2;
+      if (zlevel === 0) {
+        VZ.w = 340;
+      } else {
+        var span = Math.max(b.x1 - b.x0 - 100, (b.y1 - b.y0 - 100) / 1.1);
+        VZ.w = Math.max(430, Math.min(1000, span + 240));
+        cx = (b.x0 + b.x1) / 2; cy = (b.y0 + b.y1) / 2;
+      }
       VZ.h = VZ.w * 1.1;
       VZ.x = cx - VZ.w / 2; VZ.y = cy - VZ.h / 2;
       vzClamp(); vzApply();
+    }
+    /* region fit — the map's home framing; also called when explorers arrive
+       somewhere new, but only while the player IS at region level, so a chosen
+       near or all view is never yanked away mid-look */
+    function fitFound(force) {
+      if (force || zlevel === 1) zoomTo(1);
     }
     var panning = null, swallowClick = false, pinch = null;
     function vzApply() {
@@ -857,25 +886,32 @@
       if (svg) svg.setAttribute('viewBox', VZ.x.toFixed(1) + ' ' + VZ.y.toFixed(1) + ' ' + VZ.w.toFixed(1) + ' ' + VZ.h.toFixed(1));
     }
     function vzClamp() {
-      VZ.w = Math.max(240, Math.min(1000, VZ.w)); VZ.h = VZ.w * 1.1;
-      VZ.x = Math.max(-60, Math.min(1060 - VZ.w, VZ.x));
-      VZ.y = Math.max(-60, Math.min(1160 - VZ.h, VZ.y));
+      VZ.h = VZ.w * 1.1;
+      /* the pan fence: at near and region the view stays over revealed land;
+         only ALL roams the whole map */
+      var bx = zlevel === 2 ? { x0: -60, y0: -60, x1: 1060, y1: 1160 } : revealedBox();
+      if (VZ.w >= bx.x1 - bx.x0) VZ.x = (bx.x0 + bx.x1 - VZ.w) / 2;
+      else VZ.x = Math.max(bx.x0, Math.min(bx.x1 - VZ.w, VZ.x));
+      if (VZ.h >= bx.y1 - bx.y0) VZ.y = (bx.y0 + bx.y1 - VZ.h) / 2;
+      else VZ.y = Math.max(bx.y0, Math.min(bx.y1 - VZ.h, VZ.y));
     }
     function vzPoint(e) {
       var svg = D.querySelector('#sab-stage svg'), r = svg.getBoundingClientRect();
       return { x: VZ.x + (e.clientX - r.left) / r.width * VZ.w,
                y: VZ.y + (e.clientY - r.top) / r.height * VZ.h };
     }
-    function vzZoom(factor, at) {
-      var w2 = Math.max(240, Math.min(1000, VZ.w * factor));
-      var k = w2 / VZ.w;
-      VZ.x = at.x - (at.x - VZ.x) * k;
-      VZ.y = at.y - (at.y - VZ.y) * k;
-      VZ.w = w2; vzClamp(); vzApply();
+    /* wheel and pinch STEP the level — with a cooldown, because one trackpad
+       gesture fires dozens of deltas and would slam near straight to all */
+    var wheelAt = 0;
+    function vzStep(dir, at) {
+      var now = Date.now();
+      if (now - wheelAt < 320) return;
+      wheelAt = now;
+      zoomTo(zlevel + dir, at);
     }
     function onWheel(e) {
       e.preventDefault();
-      vzZoom(e.deltaY > 0 ? 1.18 : 1 / 1.18, vzPoint(e));
+      vzStep(e.deltaY > 0 ? 1 : -1, vzPoint(e));
     }
     function onPointerDown(e) {
       var stage = D.getElementById('sab-stage');
@@ -890,13 +926,14 @@
         if (e.pointerId === pinch.a) { pinch.ax = e.clientX; pinch.ay = e.clientY; }
         if (e.pointerId === pinch.b) { pinch.bx = e.clientX; pinch.by = e.clientY; }
         var d = Math.hypot(pinch.ax - pinch.bx, pinch.ay - pinch.by);
-        if (pinch.d0 === undefined) { pinch.d0 = d; pinch.w0 = VZ.w; return; }
-        if (d > 8) {
+        if (pinch.d0 === undefined) { pinch.d0 = d; return; }
+        /* a pinch is a STEP too: spread far enough for the next level in,
+           squeeze for the next level out, then re-baseline for another step */
+        if (d > pinch.d0 * 1.35 || d < pinch.d0 / 1.35) {
           var mid = vzPoint({ clientX: (pinch.ax + pinch.bx) / 2, clientY: (pinch.ay + pinch.by) / 2 });
-          var w2 = Math.max(240, Math.min(1000, pinch.w0 * pinch.d0 / d));
-          var k = w2 / VZ.w;
-          VZ.x = mid.x - (mid.x - VZ.x) * k; VZ.y = mid.y - (mid.y - VZ.y) * k; VZ.w = w2;
-          vzClamp(); vzApply(); swallowClick = true;
+          zoomTo(zlevel + (d > pinch.d0 ? -1 : 1), mid);
+          pinch.d0 = d;
+          swallowClick = true;
         }
         return;
       }
@@ -1944,9 +1981,9 @@
       var actEl = e.target.closest ? e.target.closest('[data-sab-act]') : null;
       if (actEl) {
         var a = actEl.getAttribute('data-sab-act');
-        if (a === 'zin')  { vzZoom(1 / 1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
-        if (a === 'zout') { vzZoom(1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
-        if (a === 'zreset') { VZ = { x: 0, y: 0, w: 1000, h: 1100 }; vzApply(); return; }
+        if (a === 'zin')  { zoomTo(zlevel - 1, sel && byId[sel] ? byId[sel] : null); return; }
+        if (a === 'zout') { zoomTo(zlevel + 1); return; }
+        if (a === 'zreset') { zoomTo(2); return; }
         var flashSec = function (secId) {
           if (!secId) return;
           var sec = D.getElementById(secId);
@@ -2084,7 +2121,7 @@
         if (a === 'techclose') { techOpen = false; paintTech(); paintAll(); return; }
         if (a === 'restart2') { wipe(); G = fresh(); sel = null; kbd = null; targeting = false; bldSeen = null;
           overlay = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
-          shell(); bindHud(); fitFound(); say('A new dawn at Dholavira.', 'warm'); return; }
+          shell(); bindHud(); zlevel = 1; fitFound(true); say('A new dawn at Dholavira.', 'warm'); return; }
         if (a === 'ovclose') { showOverlay(null); paintAll(); maybeEnd(); return; }
         if (a === 'finish') { showOverlay(null); if (typeof done === 'function') done({ win: true, score: G.score, kauris: 25 }); return; }
         return act(a);
@@ -2118,8 +2155,8 @@
       }
       if (overlay) { if (e.key === 'Enter' || e.key === 'Escape') { eat(); var f = D.querySelector('#sab-ovhost [data-sab-act]'); if (f) f.click(); } return; }
       var k = e.key;
-      if (k === '+' || k === '=') { eat(); vzZoom(1 / 1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
-      if (k === '-' || k === '_') { eat(); vzZoom(1.35, { x: VZ.x + VZ.w / 2, y: VZ.y + VZ.h / 2 }); return; }
+      if (k === '+' || k === '=') { eat(); zoomTo(zlevel - 1, kbd && byId[kbd] ? byId[kbd] : null); return; }
+      if (k === '-' || k === '_') { eat(); zoomTo(zlevel + 1); return; }
       if (k === '0') { eat(); VZ = { x: 0, y: 0, w: 1000, h: 1100 }; vzApply(); return; }
       if (k === 'p' || k === 'P') { eat(); return togglePause(); }
       if (k === 'h' || k === 'H') { eat(); return helpEvent(); }

@@ -224,7 +224,51 @@
       '.sab-cardart{max-height:170px;object-fit:cover}' +
       '.sab-vthumb{width:96px;height:64px}' +
     '}',
-    '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp{animation:none}}'
+    /* ============ SABHYATA ALIVE — the sprite and motion layer ============ */
+    /* towns as painted sprites that grow with level; the lamp stays lit at
+       their foot. Selection and keyboard cues move to the halo ring. */
+    '.sab-cityimg{pointer-events:none;filter:drop-shadow(0 3px 3px rgba(30,20,64,.28))}',
+    '.sab-site.asleep .sab-cityimg{filter:grayscale(.92) brightness(.9);opacity:.7}',
+    '.sab-site.dustyv .sab-cityimg{filter:grayscale(.45) brightness(.95) drop-shadow(0 3px 3px rgba(30,20,64,.2))}',
+    '.sab-site.sel circle.halo{stroke:var(--accent3);stroke-width:3.5;opacity:.9}',
+    /* the movers: carts on roads, boats on rivers, walkers in the mist */
+    '.sab-cart image,.sab-boat image,.sab-exwalk image{pointer-events:none}',
+    '.sab-exwalk image{animation:sabbob 1.05s ease-in-out infinite}',
+    '@keyframes sabbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}',
+    /* Vismriti breathes: two soft wisps drifting inside the fog’s own mask */
+    '.sab-mistdrift ellipse{animation:sabdrift 46s ease-in-out infinite alternate}',
+    '.sab-mistdrift ellipse:nth-child(2){animation-duration:61s;animation-delay:-20s}',
+    '@keyframes sabdrift{from{transform:translate(-60px,20px)}to{transform:translate(70px,-30px)}}',
+    /* event sparks: diyas rising at an utsav, a grey swirl for the mist, rings for growth */
+    '.sab-diya{animation:sabdiya 2.4s ease-out forwards}',
+    '@keyframes sabdiya{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-75px) scale(.7)}}',
+    '.sab-swirl{animation:sabswirl 2.8s ease-in-out forwards}',
+    '@keyframes sabswirl{0%{opacity:0;transform:scale(.4) rotate(0deg)}30%{opacity:.75}100%{opacity:0;transform:scale(1.5) rotate(150deg)}}',
+    '.sab-ringfx{fill:none;stroke:var(--accent2);stroke-width:3;animation:sabringfx 1.6s ease-out forwards}',
+    '@keyframes sabringfx{from{opacity:.9;transform:scale(.3)}to{opacity:0;transform:scale(2.2)}}',
+    /* the city painting becomes a stage: praja walk it, birds cross it,
+       the unbuilt monument stands in bamboo */
+    '.sab-scene{position:relative;overflow:hidden;border-radius:var(--radius-lg);border:1px solid var(--line);margin:10px 0 2px}',
+    '.sab-scene .sab-hero{margin:0;border:0;border-radius:0}',
+    '.sab-praja{position:absolute;inset:0;pointer-events:none}',
+    '.sab-walker{position:absolute;left:-14%;bottom:2%;height:12%;width:auto;' +
+      'filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));' +
+      'animation:sabwalk 18s linear infinite,sabwbob .7s ease-in-out infinite alternate}',
+    '@keyframes sabwalk{from{left:-14%}to{left:104%}}',
+    '@keyframes sabwbob{from{transform:translateY(0)}to{transform:translateY(-1.5%)}}',
+    '.sab-scaffold{position:absolute;left:50%;bottom:4%;height:58%;width:auto;transform:translateX(-50%);' +
+      'pointer-events:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}',
+    '.sab-bird{position:absolute;top:10%;left:-8%;width:26px;opacity:.8;animation:sabfly 24s linear infinite}',
+    '@keyframes sabfly{0%{left:-8%;top:14%}50%{top:6%}100%{left:104%;top:11%}}',
+    /* the age tints the land, gently — terrain wash only, never territory */
+    '#sab-terrg{transition:filter 2s}',
+    '.sab-e1 #sab-terrg{filter:sepia(.06) saturate(1.04)}',
+    '.sab-e2 #sab-terrg{filter:sepia(.1) hue-rotate(-6deg) saturate(1.06)}',
+    '.sab-e3 #sab-terrg{filter:sepia(.05) hue-rotate(4deg) saturate(1.1)}',
+    '.sab-e4 #sab-terrg{filter:saturate(1.14) brightness(1.02)}',
+
+    '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
+      '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird{animation:none}}'
   ].join('\n');
 
   var cssIn = false;
@@ -343,6 +387,20 @@
       var m = W.IND_SABHYATA_ART || [];
       return m.indexOf(id) >= 0 ? 'art/sabhyata/' + id + '.jpg' : null;
     }
+    /* THE SPRITES (tools/gen-sabhyata-sprites.py) — the little painted figures
+       that make the board live: carts on the roads, boats on the rivers,
+       walking explorers, towns that visibly grow, praja crossing their own
+       city painting. Same fallback contract as the paintings: no manifest
+       entry, no sprite, and the plain shapes carry on — a missing file is a
+       quieter board, never a broken one. All motion is the game's own
+       (transform animation over a fixed still), never generated. */
+    function spOf(id) {
+      var m = W.IND_SABHYATA_SPRITES || [];
+      return m.indexOf(id) >= 0 ? 'art/sabhyata/sp/' + id + '.png' : null;
+    }
+    /* respect the system's reduced-motion ask: the world stands calm and the
+       game plays identically — every mover is presentation, never state */
+    var REDUCED = !!(W.matchMedia && W.matchMedia('(prefers-reduced-motion: reduce)').matches);
     /* THE APP'S OWN ART, REUSED (the founder's note: reuse what is already here).
        Mithu the storyteller opens the game and takes the bow, Vismriti itself appears
        when the mist takes a town, the motif set dresses the kingdom and hero cards,
@@ -576,13 +634,19 @@
       if (lab === 's') { ly = s.y + r + 30; }
       if (lab === 'e') { lx = s.x + r + 10; ly = s.y + 8; anc = 'start'; }
       if (lab === 'w') { lx = s.x - r - 10; ly = s.y + 8; anc = 'end'; }
+      /* the town is a painted sprite when one exists — the circles stay for the
+         hit area, the halo cues and the lamp glowing at its foot; the sprite
+         itself grows with level in paintSite */
+      var csp = spOf('city1');
       return '<g class="sab-site" id="sab-' + s.id + '" data-sab="' + s.id + '" tabindex="-1" role="button" aria-label="' + esc(s.name) + '">' +
         '<circle class="hit" cx="' + s.x + '" cy="' + s.y + '" r="' + (r + 18) + '" fill="none"/>' +
         '<circle class="halo" cx="' + s.x + '" cy="' + s.y + '" r="' + (r + 12) + '" fill="none"/>' +
         '<circle class="mistv sab-mist" cx="' + s.x + '" cy="' + s.y + '" r="46"/>' +
         '<circle class="ring r2" cx="' + s.x + '" cy="' + s.y + '" r="' + (r + 5) + '"/>' +
         '<circle class="ring r3" cx="' + s.x + '" cy="' + s.y + '" r="' + (r + 10) + '"/>' +
-        '<circle class="core sab-lamp" cx="' + s.x + '" cy="' + s.y + '" r="' + r + '"/>' +
+        (csp ? '<image class="sab-cityimg" href="' + csp + '" x="' + (s.x - 24) + '" y="' + (s.y - 36) +
+          '" width="48" height="40" preserveAspectRatio="xMidYMax meet"/>' : '') +
+        '<circle class="core sab-lamp" cx="' + s.x + '" cy="' + (csp ? s.y + 8 : s.y) + '" r="' + (csp ? 5 : r) + '"/>' +
         '<g class="sab-qb" style="display:none"><circle cx="' + (s.x + r + 4) + '" cy="' + (s.y - r - 4) + '" r="11"/>' +
         '<text x="' + (s.x + r + 4) + '" y="' + (s.y - r + 1) + '">!</text></g>' +
         '<g class="sab-db" style="display:none"><circle cx="' + (s.x - r - 4) + '" cy="' + (s.y - r - 4) + '" r="11"/>' +
@@ -608,8 +672,10 @@
         '<stop offset="100%" stop-color="#9aa0a6" stop-opacity="0"/></radialGradient></defs>' +
         /* one neutral wash for every state — terrain, not territory. Nothing here is
            interactive, nothing changes colour, and no line ever moves: the boundary
-           rules are absolute, and this game keeps clear of them by construction. */
-        '<g>' + terr + '</g>' +
+           rules are absolute, and this game keeps clear of them by construction.
+           (The era filter on the GROUP is a light grade over the whole wash at once —
+           one filter, every state identical, still nothing territorial.) */
+        '<g id="sab-terrg">' + terr + '</g>' +
         /* the rivers: smoothed polylines in the terrain layer — under the fog, over
            the wash, never interactive. A child who follows the Ganga finds Kashi. */
         '<g>' + (DATA.rivers || []).map(function (rv) {
@@ -620,8 +686,13 @@
           }
           var lp = rv.p[rv.p.length - 1];
           d2 += ' L' + lp[0] + ' ' + lp[1];
-          return '<path class="sab-river" d="' + d2 + '"><title>' + esc(rv.n) + '</title></path>';
+          return '<path class="sab-river" id="sabrv-' + esc(rv.n).replace(/\s+/g, '-') + '" d="' + d2 + '">' +
+            '<title>' + esc(rv.n) + '</title></path>';
         }).join('') + '</g>' +
+        /* the boats live UNDER the fog on purpose: a river the mist still holds
+           carries its trade unseen, and clearing the fog reveals a world that
+           was already moving — which is the truest thing this game says */
+        '<g id="sab-boats"></g>' +
         /* THE FOG IS VISMRITI'S OWN. Undiscovered land sits under a grey veil with
            holes of clear light punched around every found place and every walking
            explorer — the world is revealed by going and looking, which is the whole
@@ -630,9 +701,17 @@
         '<g id="sab-fogholes"></g></mask>' +
         '<rect id="sab-fogrect" x="-200" y="-200" width="1400" height="1500" fill="#8d93a5" opacity=".62" ' +
           'mask="url(#sabfog)" pointer-events="none"/>' +
+        /* Vismriti breathes: two blurred wisps drifting inside the fog's own
+           mask, so the grey is weather rather than paint */
+        '<g class="sab-mistdrift" mask="url(#sabfog)" pointer-events="none">' +
+          '<ellipse cx="300" cy="380" rx="260" ry="150" fill="#fff" opacity=".1" style="filter:blur(40px)"/>' +
+          '<ellipse cx="680" cy="700" rx="300" ry="170" fill="#6d7387" opacity=".12" style="filter:blur(46px)"/>' +
+        '</g>' +
         '<g id="sab-routes">' + G.routes.map(routeSVG).join('') + '</g>' +
+        '<g id="sab-carts"></g>' +
         '<g id="sab-explorers"></g>' +
         '<g id="sab-sites">' + SITES.map(siteSVG).join('') + '</g>' +
+        '<g id="sab-fx" pointer-events="none"></g>' +
         '</svg>';
     }
 
@@ -764,6 +843,9 @@
       var e = ERAS[G.era];
       D.getElementById('sab-eraname').textContent = e.name;
       D.getElementById('sab-eradate').textContent = 'Era ' + (G.era + 1) + ' · ' + e.dates;
+      /* the age grades the light on the land — one filter on the whole wash */
+      var svgEl = D.querySelector('#sab-stage svg');
+      if (svgEl) svgEl.setAttribute('class', 'sab-e' + G.era);
       var net = { anna: 0, kala: 0, katha: 0 };
       SITES.forEach(function (x) {
         if (!inEra(x)) return;
@@ -794,12 +876,39 @@
       if (!vis) return;
       g.setAttribute('class', 'sab-site' +
         (q.zzz ? ' asleep' : (q.fade >= 0 ? ' fading' : '')) +
+        (dusty(s.id) ? ' dustyv' : '') +
         (sel === s.id ? ' sel' : '') + (kbd === s.id ? ' kbd' : ''));
       g.setAttribute('tabindex', '0');
       var r = 9 + q.lv * 2;
-      g.querySelector('.core').setAttribute('r', r);
-      g.querySelector('.r2').style.display = (!q.zzz && q.lv >= 2) ? '' : 'none';
-      g.querySelector('.r3').style.display = (!q.zzz && q.lv >= 3) ? '' : 'none';
+      var img = g.querySelector('.sab-cityimg');
+      if (img) {
+        /* the town grows on the land: hamlet, town, walled city — the one
+           visual the whole game turns on, so it lives on the map itself */
+        var stage = q.zzz ? 1 : Math.min(3, Math.max(1, q.lv));
+        var su = spOf('city' + stage);
+        if (su) img.setAttribute('href', su);
+        var iw = 40 + q.lv * 10, ih = iw * 0.84;
+        img.setAttribute('width', iw); img.setAttribute('height', ih);
+        img.setAttribute('x', s.x - iw / 2); img.setAttribute('y', s.y - ih + 8);
+        /* the cues follow the sprite's true size */
+        g.querySelector('.halo').setAttribute('r', iw / 2 + 5);
+        g.querySelector('.hit').setAttribute('r', Math.max(r + 18, iw / 2 + 10));
+        var txt = g.querySelector('text');
+        if (txt) {
+          var lab2 = s.lab || 'n';
+          if (lab2 === 'n') txt.setAttribute('y', s.y - ih + 8 - 8);
+          if (lab2 === 's') txt.setAttribute('y', s.y + 34);
+          if (lab2 === 'e') txt.setAttribute('x', s.x + iw / 2 + 8);
+          if (lab2 === 'w') txt.setAttribute('x', s.x - iw / 2 - 8);
+        }
+        g.querySelector('.core').setAttribute('r', 5);
+        g.querySelector('.r2').style.display = 'none';
+        g.querySelector('.r3').style.display = 'none';
+      } else {
+        g.querySelector('.core').setAttribute('r', r);
+        g.querySelector('.r2').style.display = (!q.zzz && q.lv >= 2) ? '' : 'none';
+        g.querySelector('.r3').style.display = (!q.zzz && q.lv >= 3) ? '' : 'none';
+      }
       var m = g.querySelector('.mistv');
       m.style.display = (q.zzz || q.fade >= 0) ? '' : 'none';
       m.setAttribute('opacity', q.zzz ? 1 : Math.min(1, q.fade / T.fadeLen).toFixed(2));
@@ -834,17 +943,105 @@
     function paintExplorers() {
       var g = D.getElementById('sab-explorers');
       if (!g) return;
+      var esp = spOf('explorer');
       g.innerHTML = G.explorers.map(function (ex) {
-        return '<g style="transition:transform ' + (TICK_MS / 1000) + 's linear;transform:translate(' +
+        return '<g class="sab-exwalk" style="transition:transform ' + (TICK_MS / 1000) + 's linear;transform:translate(' +
             ex.x.toFixed(1) + 'px,' + ex.y.toFixed(1) + 'px)">' +
-          '<circle r="8" fill="var(--accent3)" stroke="#fff" stroke-width="2"/>' +
-          '<circle r="3" cy="-10" fill="#ffd76e"/>' +
+          (esp
+            ? '<circle r="16" cy="-14" fill="#ffd76e" opacity=".18"/>' +
+              '<image href="' + esp + '" x="-13" y="-30" width="26" height="32" preserveAspectRatio="xMidYMax meet"/>'
+            : '<circle r="8" fill="var(--accent3)" stroke="#fff" stroke-width="2"/>' +
+              '<circle r="3" cy="-10" fill="#ffd76e"/>') +
           '</g>';
       }).join('');
     }
     function paintRoutes() {
       var gEl = D.getElementById('sab-routes');
       if (gEl) gEl.innerHTML = G.routes.map(routeSVG).join('');
+      cartN = -1;   /* the cart flock re-syncs to the new road count */
+    }
+
+    /* ================================================================
+       THE LIVING BOARD. Carts shuttle the roads, boats work the rivers,
+       and events throw sparks — all presentation, never state: the same
+       game plays underneath, and prefers-reduced-motion stills all of it.
+       One rAF, throttled to ~30fps, that only touches transforms.
+       ================================================================ */
+    var lifeRAF = 0, lifeSkip = false, cartN = -1, boatsN = -1;
+    function ensureCarts() {
+      var g = D.getElementById('sab-carts'); if (!g) return;
+      var sp = spOf('cart');
+      if (!sp || REDUCED) { if (cartN !== 0) { g.innerHTML = ''; cartN = 0; } return; }
+      if (cartN === G.routes.length) return;
+      cartN = G.routes.length;
+      var out = '';
+      for (var i = 0; i < cartN; i++) {
+        out += '<g class="sab-cart" data-i="' + i + '">' +
+          '<image href="' + sp + '" x="-19" y="-27" width="38" height="29" preserveAspectRatio="xMidYMax meet"/></g>';
+      }
+      g.innerHTML = out;
+    }
+    function ensureBoats() {
+      var g = D.getElementById('sab-boats'); if (!g) return;
+      var sp = spOf('boat'), rivers = DATA.rivers || [];
+      if (!sp || REDUCED) { g.innerHTML = ''; boatsN = 0; return; }
+      if (boatsN === rivers.length) return;
+      boatsN = rivers.length;
+      g.innerHTML = rivers.map(function (rv, i) {
+        return '<g class="sab-boat" data-r="sabrv-' + esc(rv.n).replace(/\s+/g, '-') + '" data-i="' + i + '">' +
+          '<image href="' + sp + '" x="-18" y="-26" width="36" height="28" preserveAspectRatio="xMidYMax meet"/></g>';
+      }).join('');
+    }
+    function moveAlong(el, path, ts, period, phase) {
+      var L = path.getTotalLength(); if (!L) return;
+      var t = ((ts + phase) % (2 * period)) / period;          /* 0..2, ping-pong */
+      var p = t < 1 ? t : 2 - t, dir = t < 1 ? 1 : -1;
+      var a = path.getPointAtLength(p * L);
+      var b = path.getPointAtLength(Math.min(1, Math.max(0, p + 0.02 * dir)) * L);
+      var hx = (b.x - a.x) * dir;
+      el.setAttribute('transform', 'translate(' + a.x.toFixed(1) + ' ' + a.y.toFixed(1) +
+        ') scale(' + (hx >= 0 ? 1 : -1) + ' 1)');
+    }
+    function lifeStep(ts) {
+      lifeRAF = requestAnimationFrame(lifeStep);
+      lifeSkip = !lifeSkip; if (lifeSkip) return;              /* ~30fps is plenty for a cart */
+      if (REDUCED || pause || city || techOpen || G.won) return;
+      ensureCarts(); ensureBoats();
+      var carts = D.querySelectorAll('#sab-carts .sab-cart'), i, el, path;
+      for (i = 0; i < carts.length; i++) {
+        el = carts[i]; path = D.getElementById('sabr-' + el.getAttribute('data-i'));
+        if (path) moveAlong(el, path, ts, 24000 + (i % 5) * 3400, i * 4700);
+      }
+      var boats = D.querySelectorAll('#sab-boats .sab-boat');
+      for (i = 0; i < boats.length; i++) {
+        el = boats[i]; path = D.getElementById(el.getAttribute('data-r'));
+        if (path) moveAlong(el, path, ts, 46000 + (i % 4) * 6200, i * 9100);
+      }
+    }
+    /* event sparks at a point on the board — fire and forget, self-removing */
+    function fxAt(x, y, kind) {
+      if (REDUCED) return;
+      var g = D.getElementById('sab-fx'); if (!g) return;
+      var el = D.createElementNS('http://www.w3.org/2000/svg', 'g');
+      el.setAttribute('transform', 'translate(' + x + ' ' + y + ')');
+      var out = '', i;
+      if (kind === 'utsav' || kind === 'glory') {
+        for (i = 0; i < 6; i++) {
+          out += '<g transform="translate(' + (((i * 37) % 52) - 26) + ',0)">' +
+            '<circle class="sab-diya" r="3.2" fill="' + (kind === 'glory' ? '#ffe9a8' : '#ffd76e') +
+            '" style="animation-delay:' + (i * 0.14) + 's"/></g>';
+        }
+        out += '<circle class="sab-ringfx" r="18" style="stroke:' +
+          (kind === 'glory' ? '#e8b64c' : 'var(--accent2)') + '"/>';
+      } else if (kind === 'mist') {
+        out = '<circle class="sab-swirl" r="26" fill="#8d93a5" opacity=".5" style="filter:blur(5px)"/>' +
+          '<circle class="sab-swirl" r="38" fill="#6d7387" opacity=".35" style="filter:blur(8px);animation-delay:.3s"/>';
+      } else {  /* grow */
+        out = '<circle class="sab-ringfx" r="18"/>';
+      }
+      el.innerHTML = out;
+      g.appendChild(el);
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 3400);
     }
     /* the tile helper: icon chip, word, cost — with an optional waiting-count badge */
     function tile(act, icon, name, cost, opts) {
@@ -952,13 +1149,47 @@
         (y ? '<span class="sab-chip">brings in ' + ['anna','kala','katha'].filter(function (k) { return y[k]; })
               .map(function (k) { return '+' + y[k] + ' ' + ICON[k]; }).join(' ') + '</span>' : '') +
         '<button class="sab-btn" data-sab-act="leave">Back to the map</button></div>';
-      var heroArt = artOf(id);
-      if (heroArt) h += '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">' +
-        (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument and the colours come back.</div>');
-
       /* THE PEOPLE — allocation is the strategy. Kisan feed, karigar craft, kathakar
-         tell, rakshak watch; the city's own trade counts double, and everyone eats. */
+         tell, rakshak watch; the city's own trade counts double, and everyone eats.
+         (Computed here because the painting below SHOWS them.) */
       var j = jobsOf(id), pop = popOf(id), spec = JOB_OF_KIND[s.kind];
+
+      /* THE PAINTING IS A STAGE. The city's own praja walk across it — one
+         figure per assigned worker, so moving a person onto a job visibly
+         puts a person on the street — birds cross the sky, and until the
+         monument is raised it stands in bamboo scaffolding over the dimmed
+         scene. Presentation only (aria-hidden, pointer-events none): the
+         same game, now watchable. Walk phases are clocked off real time so
+         the 3s repaints never reset anyone mid-stride. */
+      var heroArt = artOf(id);
+      if (heroArt) {
+        var walkers = '', wi = 0, nowS = Date.now() / 1000;
+        if (!REDUCED && !q.zzz) {
+          ['kisan', 'karigar', 'kathakar', 'rakshak'].forEach(function (jid) {
+            var spw = spOf(jid); if (!spw) return;
+            for (var k = 0; k < Math.min(j[jid], 4) && wi < 10; k++) {
+              wi++;
+              var dur = 15 + ((wi * 7) % 12);
+              walkers += '<img class="sab-walker" src="' + spw + '" alt="" style="' +
+                'animation-duration:' + dur + 's,' + (0.6 + (wi % 3) * 0.15) + 's;' +
+                'animation-delay:-' + ((nowS + wi * 3.7) % dur).toFixed(2) + 's,0s;' +
+                'bottom:' + (1.5 + (wi % 4) * 2.5) + '%;height:' + (10 + (wi % 3) * 2) + '%">';
+            }
+          });
+        }
+        var birds = REDUCED ? '' :
+          '<svg class="sab-bird" viewBox="0 0 24 12" style="animation-duration:26s;animation-delay:-' +
+            (nowS % 26).toFixed(1) + 's"><path d="M2 8 Q7 2 12 7 Q17 2 22 8" fill="none" stroke="#2e2e40" stroke-width="1.6" stroke-linecap="round"/></svg>' +
+          '<svg class="sab-bird" viewBox="0 0 24 12" style="width:19px;animation-duration:34s;animation-delay:-' +
+            ((nowS + 12) % 34).toFixed(1) + 's;opacity:.6"><path d="M2 8 Q7 2 12 7 Q17 2 22 8" fill="none" stroke="#2e2e40" stroke-width="1.6" stroke-linecap="round"/></svg>';
+        var scaf = (!q.mon && spOf('scaffold'))
+          ? '<img class="sab-scaffold" src="' + spOf('scaffold') + '" alt="">' : '';
+        h += '<div class="sab-scene">' +
+          '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">' +
+          scaf + '<div class="sab-praja" aria-hidden="true">' + walkers + birds + '</div></div>' +
+          (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
+            'the scaffolding comes down, and the colours come back.</div>');
+      }
       var king = inKingdomOf(id);
       if (king) h += '<div class="sab-herocap" style="font-weight:800;color:var(--accent)">' +
         motif('lotus', 20) + esc(G.kingdoms[king].name) + (king === id ? ' — this is the seat' : '') + '</div>';
@@ -1221,6 +1452,7 @@
         var cost = T.growCost[q.lv];
         if (G.res.anna < cost) return say('Not enough anna yet — the fields are still filling.', '');
         G.res.anna -= cost; q.lv++; G.score += 10; touch(sel);
+        fxAt(s.x, s.y, 'grow');
         say(s.name + ' grows. The lamps burn a little brighter.', 'warm');
       }
       if (name === 'route') {
@@ -1233,6 +1465,7 @@
         G.res.anna -= T.utsavCost.anna; G.res.kala -= T.utsavCost.kala;
         G.res.katha += T.utsavKatha; G.utsav = T.utsavCd; G.score += 15; touch(sel);
         SITES.forEach(function (t) { var w = G.sites[t.id]; if (w.fade >= 0) { w.fade = -1; w.idle = 0; } });
+        fxAt(s.x, s.y, 'utsav');
         say('Utsav at ' + s.name + '! Songs carry far — the mist pulls back from every fading lamp.', 'warm');
         var uq = G.quests[sel];
         if (uq && uq.kind === 'utsav') finishQuest(sel, 'The whole town danced.');
@@ -1241,6 +1474,7 @@
         if (!connected(sel)) return say(s.name + ' needs a road first — a story has to travel to be heard.', '');
         if (G.res.katha < T.wakeCost) return say('Not enough katha — stories are earned by helping and holding utsavs.', '');
         G.res.katha -= T.wakeCost; q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
+        fxAt(s.x, s.y, 'utsav');
         say(s.name + ' wakes!', 'warm');
         if (!q.seen) { q.seen = true;
           var wa = artOf(sel);
@@ -1364,12 +1598,15 @@
           G.lastraid = G.t;
           if (guards >= T.raidGuard || G.sites[tgt.id].mon) {
             G.res.katha += 10; G.score += 10;
+            fxAt(tgt.x, tgt.y, 'utsav');   /* the fending is a small celebration */
             say(raid.what + ' at ' + tgt.name + ' — but ' + raid.fended + '. The story is worth 10 \ud83d\udcdc.', 'warm');
           } else if (raid.hits === 'fade') {
             var qf = G.sites[tgt.id]; if (qf.fade < 0) qf.fade = 0;
+            fxAt(tgt.x, tgt.y, 'mist');
             say(raid.what + ' at ' + tgt.name + ' — with no rakshaks on watch, the lamps gutter. Reach it!', 'mist');
           } else {
             var loss = T.raidBase + G.era * 4 - guards * 3;
+            fxAt(tgt.x, tgt.y, 'mist');
             G.res[raid.hits] = Math.max(0, G.res[raid.hits] - Math.max(0, loss));
             var qt = G.sites[tgt.id]; qt.neg = Math.max(qt.neg, negLimit(tgt.id));
             say(raid.what + ' at ' + tgt.name + ' — ' + Math.max(0, loss) + ' ' + ICON[raid.hits] +
@@ -1779,10 +2016,12 @@
        teardown removes it, and `dead` guards the gap. */
     D.addEventListener('keydown', onKey, true);
     timer = setInterval(tick, TICK_MS);
+    if (!REDUCED) lifeRAF = requestAnimationFrame(lifeStep);
 
     return function teardown() {
       dead = true;
       clearInterval(timer);
+      if (lifeRAF) cancelAnimationFrame(lifeRAF);
       if (G && !G.won) save(G);
       host.removeEventListener('mousedown', onMouseDown);
       host.removeEventListener('click', onClick);

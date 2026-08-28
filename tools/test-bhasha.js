@@ -979,6 +979,104 @@ hdr('dialogue audio keys');
   console.log('  no silent clips: every letter, matra and word clip has audio in it');
 }());
 
+
+/* ================= 2026-08 AUDIT FIXES (docs/17) ================= */
+/* Each block here pins one finding of the deep Hindi-engine audit so it
+   cannot quietly come back. */
+console.log('\n=== AUDIT FIXES (docs/17) ===');
+
+/* F2 — sentenceBuild must be silent before the answer, and not pure
+   elimination. The old shape spoke the full sentence as the question opened
+   (echo, not construction — the heritage child understands spoken Hindi) and
+   handed over exactly the answer's tiles. */
+(function () {
+  var it = P.hi.stages[4].items[10];
+  var q = B.sentenceBuild('hi', { item: it, seed: 'audit-sb' });
+  eq('sentenceBuild: no audio before the answer', q.audio, null);
+  eq('sentenceBuild: nothing to speak before the answer', q.say, null);
+  eq('sentenceBuild: the sentence rides to the feedback beat as `full`', q.full, it.hi);
+  ok('sentenceBuild: decoy tiles beyond the answer', q.tiles.length > q.answer.length,
+     q.tiles.length + ' tiles for ' + q.answer.length + ' words');
+  var missing = q.answer.filter(function (w) { return q.tiles.indexOf(w) < 0; });
+  eq('sentenceBuild: every answer word is a tile', missing.join(','), '');
+  var inOrder = true, i;
+  for (i = 0; i < q.answer.length; i++) { if (q.tiles[i] !== q.answer[i]) inOrder = false; }
+  ok('sentenceBuild: the tray does not open with the answer laid out', !inOrder);
+}());
+
+/* F5 — a miss writes `lapses`, the field the parent view reads. It was read
+   and never written: "missed more than once" was permanently, silently empty. */
+(function () {
+  var card = { key: 'word:x' };
+  SRS.review(card, false, 1000);
+  SRS.review(card, false, 2000);
+  eq('srsReview: two misses are two lapses', card.lapses, 2);
+  SRS.review(card, true, 3000);
+  eq('srsReview: a right answer does not add a lapse', card.lapses, 2);
+}());
+
+/* F7 — oddOneOut explains itself in a child's words, not a linguist's. */
+(function () {
+  var jargon = /\b(velar|palatal|retroflex|dental|labial|semivowel|sibilant)\b/;
+  var bad = 0, i;
+  for (i = 0; i < 40; i++) {
+    var q = B.oddOneOut('devanagari', { seed: 'jargon-' + i, strategy: 'family' });
+    if (jargon.test(q.why)) bad++;
+  }
+  eq('oddOneOut: no phonetics jargon in the feedback line', bad, 0);
+}());
+
+/* F6 — readPassage grades the story bank against the child's own ground.
+   With an empty SRS, no bank passage is in reach and only the twelve authored
+   passages (graded by hand) may be served; option lines stay tappable. */
+(function () {
+  var i, allAuthored = true, longOpt = 0;
+  for (i = 0; i < 30; i++) {
+    var q = B.readPassage('hi', { seed: 'rp-' + i, srs: {} });
+    if (q.type !== 'readPassage') continue;
+    if (!/^passage:read-/.test(q.itemKey)) allAuthored = false;
+    q.options.forEach(function (o) { if (String(o.en).length > 120) longOpt++; });
+  }
+  ok('readPassage: empty SRS never draws from the ungraded story bank', allAuthored);
+  eq('readPassage: option lines stay short enough to tap', longOpt, 0);
+  /* and a child whose cards DO cover a passage's words can meet it */
+  var bank = (W.IND_BHASHA_PASSAGES || {}).hi || [];
+  var small = null;
+  for (i = 0; i < bank.length; i++) {
+    if (bank[i] && String(bank[i].hi || '').length <= 160 && (bank[i].lex || []).length >= 3) { small = bank[i]; break; }
+  }
+  if (small) {
+    var srs = {};
+    small.lex.forEach(function (w) { srs['word:' + w] = { key: 'word:' + w, box: 2 }; });
+    var reached = false;
+    for (i = 0; i < 400 && !reached; i++) {
+      var q2 = B.readPassage('hi', { seed: 'rp2-' + i, srs: srs });
+      if (q2.type === 'readPassage' && q2.itemKey === 'passage:' + small.id) reached = true;
+    }
+    ok('readPassage: a bank passage on held ground is reachable', reached, small.id);
+  }
+}());
+
+/* F1 — the syllable/conjunct/nukta clips the generators derive keys for must
+   exist: a sound-first drill with no sound is unanswerable. This is the
+   audit's biggest finding — 396 barakhadi clips, 0 recorded, because the
+   recording list came from srsItems() and srsItems never mentions bk-. */
+(function () {
+  var V = {}, i; (W.IND_VOICE || []).forEach(function (k) { V[k] = 1; });
+  var d = S.devanagari, missing = [];
+  d.consonants.forEach(function (c) {
+    d.matras.forEach(function (m) {
+      var k = d.audioNs + '/bk-' + c.name + '-' + m.name;
+      if (!V[k]) missing.push(k);
+    });
+  });
+  eq('every Devanagari barakhadi syllable has a clip (33×12)', missing.length, 0);
+  if (missing.length) console.log('     e.g. ' + missing.slice(0, 6).join(', '));
+  var mc = d.hardConjuncts.filter(function (c) { return c.audio && !V[c.audio]; });
+  eq('every keyed Devanagari conjunct has a clip', mc.length, 0);
+  var mn = (d.nuktaLetters || []).filter(function (n) { return n.audio && !V[n.audio]; });
+  eq('every Devanagari nukta letter has a clip', mn.length, 0);
+}());
 /* ================= result ================= */
 console.log('\n' + (fails ? 'FAILED ' + fails + ' of ' + checks + ' checks' : 'ALL ' + checks + ' CHECKS PASSED'));
 process.exit(fails ? 1 : 0);

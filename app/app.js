@@ -3026,8 +3026,11 @@
       speak(quiz.q.audio, quiz.q.say, packLang());
       return;
     }
+    /* srs rides along so readPassage can gate the story bank by the ground
+       this child actually holds — the generator never writes it */
     quiz.q = window.IND_BHASHA.nextQuestion(quiz.packId, quiz.stage, Date.now() + quiz.pi,
-      { item: sp.item, type: sp.type, index: stageStat(quiz.packId, quiz.stage).asked });
+      { item: sp.item, type: sp.type, index: stageStat(quiz.packId, quiz.stage).asked,
+        srs: ensureLang(quiz.packId).srs });
     if (quiz.q) speak(quiz.q.audio, quiz.q.say, packLang());
   }
   function startSession(sid, mode) {
@@ -3060,6 +3063,15 @@
       var card = rec.srs[key] || (rec.srs[key] = { key: key });
       fresh = window.IND_SRS.box(card) <= 2 ? 1 : 0;   /* new-ish at the moment of asking */
       window.IND_SRS.review(card, ok, Date.now());
+    }
+    /* THE GRAMMAR TRACK, finally written. Every s4 sentence carries a `point`
+       and each point has a card key (gram:<id>) that the parent's grammar map
+       and the vyakaran page read — and nothing ever wrote. A sentence answered
+       IS that point practised, so the answer moves the point's card too. */
+    if (window.IND_SRS && quiz.q && quiz.q.point) {
+      var gkey = 'gram:' + quiz.q.point;
+      var gcard = rec.srs[gkey] || (rec.srs[gkey] = { key: gkey });
+      window.IND_SRS.review(gcard, ok, Date.now());
     }
     /* the rolling window (last 12 graded answers for this pack) feeds the 85%
        steering and the band; the band resets the window when it moves so one
@@ -3168,7 +3180,7 @@
           '<span class="muted">' + esc(q.fullRoman || '') + ' — ' + esc(q.en || '') + '</span></span>';
         cardWord = q.answerWord; break;
       case 'sentenceBuild':
-        body = '<span class="deva">' + esc(q.say) + '</span> <span class="muted">' + esc(q.roman || '') + '</span>' +
+        body = '<span class="deva">' + esc(q.full || q.say || '') + '</span> <span class="muted">' + esc(q.roman || '') + '</span>' +
                (POINTS[q.point] ? '<br>' + esc(POINTS[q.point]) : ''); break;
       case 'conjunctSplit':
         var pr = [];
@@ -3219,6 +3231,9 @@
     quiz.lock = true;
     quiz.reveal = !ok;                        /* show the correct arrangement briefly */
     quiz.fb = fbFor(q, ok, -1);
+    /* a built sentence is HEARD now, not before — before the answer the audio
+       IS the answer (word order), so the voice is the reward for finishing */
+    if (q.type === 'sentenceBuild' && q.full) speak(null, q.full, packLang());
     render();
     advance(ok ? 1100 : 2600);
   }
@@ -3571,11 +3586,35 @@
         esc(g.en) + '</span>';
     }).join(' ') : '';
 
-    /* missed twice — the only list a parent can actually do something about tonight */
+    /* missed twice — the only list a parent can actually do something about tonight.
+       Keys are storage ids; a parent gets the THING — the word itself, the
+       sentence itself — because "s4-12" is not something you can say at dinner. */
+    var stuckLabel = function (k) {
+      var kind = k.split(':')[0], id = k.slice(kind.length + 1), i, st, it;
+      if (kind === 'word' || kind === 'letter' || kind === 'matra' || kind === 'conjunct') return id;
+      if (kind === 'gram') {
+        var gb = B.grammar ? B.grammar(pack) : null;
+        if (gb) { for (i = 0; i < gb.length; i++) { if (gb[i].id === id) return gb[i].en; } }
+        return null;
+      }
+      /* sent:/dlg:/passage: — find the item and show its own line, shortened */
+      for (var s = 0; s < (P.stages || []).length; s++) {
+        st = P.stages[s];
+        for (i = 0; i < (st.items || []).length; i++) {
+          it = st.items[i];
+          if (it && typeof it === 'object' && (it.id === id || it.hi === id)) {
+            return (it.hi || '').length > 28 ? it.hi.slice(0, 26) + '…' : it.hi;
+          }
+        }
+      }
+      return null;
+    };
     var stuck = keys.filter(function (k) {
       var c = srs[k];
       return c && (c.lapses || 0) >= 2;
-    }).slice(0, 12);
+    }).map(function (k) { return { k: k, label: stuckLabel(k) }; })
+      .filter(function (x) { return !!x.label; })
+      .slice(0, 12);
 
     var started = keys.length > 0;
     return '<button class="backlink" data-act="go" data-v="bhasha">' + icon('back', 18) + ' Bhasha</button>' +
@@ -3597,8 +3636,8 @@
         ? '<div class="card tint"><h3 style="margin-top:0">Missed more than once</h3>' +
           '<p class="tiny muted" style="margin:0 0 10px">The only list on this page worth ' +
           'acting on. Say these out loud together at dinner — that is genuinely all it takes.</p>' +
-          '<div class="row" style="flex-wrap:wrap;gap:6px">' + stuck.map(function (k) {
-            return '<span class="pill">' + esc(k.replace(/^[a-z]+:/, '')) + '</span>';
+          '<div class="row" style="flex-wrap:wrap;gap:6px">' + stuck.map(function (x) {
+            return '<span class="pill deva">' + esc(x.label) + '</span>';
           }).join('') + '</div></div>'
         : (started ? '<div class="card flat tiny">Nothing has been missed twice. ' +
           'That is the whole report on that front.</div>' : '')) +
@@ -4065,12 +4104,15 @@
           (q.promptRoman ? '<span class="muted tiny" style="display:block;margin-top:2px">' + esc(q.promptRoman) + '</span>' : '') +
           '</div>';
         subFor = function (o) { return o.roman; };   /* roman, not en — the gloss comes after the answer */
-        /* Each option gets its own listen button once a human has recorded it.
-           A four-year-old cannot read the choices, so an unrecorded option is a
-           choice they cannot make; the button appears only when the clip is
-           real, which keeps the affordance honest. */
+        /* Each option gets its own listen button when a clip exists — in the
+           ordinary manifest OR the human one. The first version gated on the
+           human manifest alone, which is empty until a person records, so all
+           360 dialogue clips sat on disk while a four-year-old faced three
+           lines they could not read OR hear. The button appears only when a
+           clip is real, which keeps the affordance honest. */
         optAudio = function (o) {
-          return (o.audio && window.IND_VOICE_HUMAN && window.IND_VOICE_HUMAN[o.audio]) ? o.audio : null;
+          return (o.audio && (hasVoice(o.audio) ||
+            (window.IND_VOICE_HUMAN && window.IND_VOICE_HUMAN[o.audio]))) ? o.audio : null;
         };
         break;
       case 'readPassage':
@@ -5299,6 +5341,12 @@
       if (gsp && gsp.key) {
         var gcard = grec.srs[gsp.key] || (grec.srs[gsp.key] = { key: gsp.key });
         if (!gcard.intro) gcard.intro = Date.now();
+        /* meeting a sentence is meeting its grammar point: light it on the map */
+        if (gsp.item && gsp.item.point) {
+          var gpk = 'gram:' + gsp.item.point;
+          var gpc = grec.srs[gpk] || (grec.srs[gpk] = { key: gpk });
+          if (!gpc.intro) gpc.intro = Date.now();
+        }
         save();
       }
       quiz.pi++; planStep();

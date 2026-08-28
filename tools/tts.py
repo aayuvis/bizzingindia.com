@@ -112,6 +112,24 @@ Object.keys(window.IND_PACKS).forEach(function (id) {
     var say = (it.kind === 'matra' && ex[it.audio]) ? ex[it.audio] : it.char;
     out.push({ pack: id, key: it.audio, text: say, kind: it.kind, glyph: it.char });
   });
+  /* THE CLIPS srsItems NEVER MENTIONS, which is exactly how stage 2 shipped
+     silent: barakhadi/matraAttach/soundMatch derive 'bk-<cons>-<matra>' keys at
+     question time, the recording list came from srsItems alone, and a key no
+     list carries is a clip nobody records. Ask the same derivation the
+     generators use, so the two can never drift again. Conjuncts and nukta
+     letters carry keys of their own and were missing for the same reason. */
+  (scr.consonants || []).forEach(function (c) {
+    (scr.matras || []).forEach(function (m) {
+      out.push({ pack: id, key: scr.audioNs + '/bk-' + c.name + '-' + m.name,
+                 text: c.char + m.sign, kind: 'syllable', glyph: c.char + m.sign });
+    });
+  });
+  (scr.hardConjuncts || []).forEach(function (c) {
+    if (c.audio) out.push({ pack: id, key: c.audio, text: c.char, kind: 'conjunct', glyph: c.char });
+  });
+  (scr.nuktaLetters || []).forEach(function (n) {
+    if (n.audio) out.push({ pack: id, key: n.audio, text: n.char, kind: 'nukta', glyph: n.char });
+  });
 });
 process.stdout.write(JSON.stringify(out));
 """

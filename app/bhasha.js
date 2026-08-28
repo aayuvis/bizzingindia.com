@@ -2554,6 +2554,17 @@ function oddOneOut(script, opts) {
     }
     return { map: g, keys: keys };
   }
+  /* How a group is described to a CHILD. "velar" and "palatal" are the right
+     ids for the data and the wrong words for a seven-year-old's feedback line;
+     what a child (and the parent beside them) can actually use is where in the
+     mouth the sound is made. Script-generic on purpose — the varga layout is
+     the shared skeleton of every Indic script this engine will carry. */
+  var GROUP_KID = {
+    velar: 'made at the back of the throat', palatal: 'made at the middle of the mouth',
+    retroflex: 'made with the tongue curled back', dental: 'made with the tongue on the teeth',
+    labial: 'made with both lips', semivowel: 'the soft gliding sounds', sibilant: 'the hissing sounds'
+  };
+  function kidGroup(id) { return GROUP_KID[id] || (id + ' sounds'); }
 
   if (strategy === 'family') {
     /* three from one varga, one from another */
@@ -2573,7 +2584,7 @@ function oddOneOut(script, opts) {
     var three = sample(rng, G.map[homeKey], 3);
     answer = one.char;
     items = shuffle(rng, three.concat([one]));
-    why = 'Three of them are ' + homeKey + ' sounds. That one is ' + one.group + '.';
+    why = 'Three of them are ' + kidGroup(homeKey) + '. That one is ' + kidGroup(one.group) + '.';
     prompt = 'Three of these belong together. Which one does not?';
   } else if (strategy === 'length') {
     /* three long vowels and one short, or the other way round */
@@ -2793,8 +2804,16 @@ function readAloud(pack, opts) {
 
    Tiles are whole words, not letters — the point here is SOV order and
    postpositions, not spelling, and that is already stage 3's job. Decoys are
-   drawn from the same sentence's neighbours in the pack so the wrong answers are
-   plausible Hindi rather than obvious filler. */
+   drawn from OTHER sentences in the pack so the wrong answers are plausible
+   Hindi rather than obvious filler — without them a three-word sentence is
+   pure elimination, and most of these are three or four words.
+
+   NOTHING HERE SPEAKS BEFORE THE ANSWER. The first version set `say` to the
+   full sentence and the session player read it aloud as the question opened —
+   which, for a heritage child who understands spoken Hindi perfectly (the
+   child this app is FOR), turned the whole stage into echo: hear the order,
+   tap the order. The audio is the answer, so it moves to the feedback beat;
+   `full` carries the sentence there. */
 function sentenceBuild(pack, opts) {
   pack = resolvePack(pack);
   opts = opts || {};
@@ -2806,15 +2825,32 @@ function sentenceBuild(pack, opts) {
   /* Split on spaces; the danda stays attached to the last word so the child is
      not asked to place punctuation as if it were a word. */
   var words = String(it.hi).trim().split(/\s+/);
-  var tiles = shuffle(rng, words.slice());
-  var same = true, i;
-  for (i = 0; i < words.length; i++) { if (tiles[i] !== words[i]) { same = false; break; } }
-  if (same && words.length > 1) { var t = tiles[0]; tiles[0] = tiles[1]; tiles[1] = t; }
+  /* two decoy words from other sentences — never a word already in this one
+     (an identical tile would grade as correct, honestly but confusingly) */
+  var i, inSent = {}, dpool = [], j, ws;
+  for (i = 0; i < words.length; i++) inSent[words[i].replace(/[।?!]$/, '')] = 1;
+  for (i = 0; i < items.length; i++) {
+    if (items[i] === it || !items[i].hi) continue;
+    ws = String(items[i].hi).trim().split(/\s+/);
+    for (j = 0; j < ws.length; j++) {
+      var wd = ws[j].replace(/[।?!]$/, '');
+      if (wd && !inSent[wd]) { dpool.push(wd); inSent[wd] = 1; }
+    }
+    if (dpool.length > 24) break;
+  }
+  var decoys = sample(rng, dpool, Math.min(2, dpool.length));
+  /* shuffle LAST, then make sure the tray does not open with the answer laid
+     out left to right — that reads as a bug and plays as a giveaway */
+  var tiles = shuffle(rng, words.concat(decoys));
+  var same = words.length > 1;
+  for (i = 0; i < words.length && same; i++) { if (tiles[i] !== words[i]) same = false; }
+  if (same) { var t = tiles[0]; tiles[0] = tiles[1]; tiles[1] = t; }
   return {
     type: 'sentenceBuild',
     itemKey: 'sent:' + (it.id || it.hi),
     prompt: it.en,
-    say: it.hi,
+    /* silent until answered — see the note above */
+    audio: null, say: null, full: it.hi,
     roman: it.roman,
     answer: words,
     tiles: tiles,
@@ -2935,6 +2971,27 @@ function pickReply(pack, opts) {
    the answer — showing it up front would let the child bypass the script,
    which is the skill s6 exists to build. Falls back to wordBuild for packs
    whose stage 6 has no authored passages yet. */
+/* Is this passage on ground the child holds? Counts its lexicon words whose SRS
+   card has left box 0 — a passage is IN REACH when most of its anchor words
+   are. Without an srs to read (browsing, tests) everything is in reach. */
+function passageInReach(p, srs) {
+  if (!srs) return true;
+  var lex = p.lex || [], known = 0, i;
+  if (lex.length < 3) return false;        /* too few anchors to judge — not for a lesson */
+  for (i = 0; i < lex.length; i++) {
+    var c = srs['word:' + lex[i]];
+    if (c && typeof c.box === 'number' && c.box >= 1) known++;
+  }
+  return known >= 3 && known / lex.length >= 0.6;
+}
+/* one kid-sized line of a meaning, for an option button — the full paragraph
+   is the feedback's job. Cut at the first sentence, cap the runaway ones. */
+function meaningLine(en) {
+  var t = String(en || '');
+  var m = t.match(/^[^.!?]*[.!?]/);        /* the first sentence, no lookbehind: old Safari parses this file */
+  var s = m ? m[0] : t;
+  return s.length > 90 ? s.slice(0, 87) + '…' : s;
+}
 function readPassage(pack, opts) {
   pack = resolvePack(pack);
   opts = opts || {};
@@ -2944,15 +3001,37 @@ function readPassage(pack, opts) {
      bhasha.js evaluates, and the registered banks load AFTER it, so folding them
      into stage.items there read an empty registry and silently kept the twelve
      authored passages. Reading the bank here is the same lateness the sentence
-     and dialogue seams already rely on. */
-  var items = ((stage && stage.items) || []).concat(passageBank(pack) || []), ps = [], i;
-  for (i = 0; i < items.length; i++) { if (items[i] && items[i].kind === 'passage') ps.push(items[i]); }
+     and dialogue seams already rely on.
+
+     THE BANK IS GATED, TWICE. The story passages arrive ungraded — a scene of
+     a story is whatever length and register the story needed, and the first
+     cut of this served a seven-year-old a 370-character philosophy paragraph.
+     So a bank passage is drawn only when (a) it is kid-sized, and (b) the
+     child's own SRS says its anchor words are ground they hold
+     (passageInReach). The twelve authored passages are graded by hand and
+     pass as they are. */
+  var authored = (stage && stage.items) || [], bank = passageBank(pack) || [];
+  var ps = [], i, srs = opts.srs || null;
+  for (i = 0; i < authored.length; i++) { if (authored[i] && authored[i].kind === 'passage') ps.push(authored[i]); }
+  for (i = 0; i < bank.length; i++) {
+    var bp = bank[i];
+    if (!bp || bp.kind !== 'passage') continue;
+    if (String(bp.hi || '').length > 160) continue;
+    if (!passageInReach(bp, srs)) continue;
+    ps.push(bp);
+  }
   if (ps.length < 3) return wordBuild(pack, opts);      /* need two plausible wrong meanings */
   var p = (opts.item && opts.item.kind === 'passage') ? opts.item : pick(rng, ps);
   var others = sample(rng, ps, 2, function (x) { return x.id === p.id; });
-  var os = shuffle(rng, [{ en: p.en }, { en: others[0].en }, { en: others[1].en }]);
+  /* options are one readable line each; duplicates after trimming fall back to
+     the full meanings so the right answer is never ambiguous on screen */
+  var lines = [meaningLine(p.en), meaningLine(others[0].en), meaningLine(others[1].en)];
+  if (lines[0] === lines[1] || lines[0] === lines[2] || lines[1] === lines[2]) {
+    lines = [p.en, others[0].en, others[1].en];
+  }
+  var os = shuffle(rng, [{ en: lines[0], key: 0 }, { en: lines[1], key: 1 }, { en: lines[2], key: 2 }]);
   var ai = 0;
-  for (i = 0; i < os.length; i++) { if (os[i].en === p.en) ai = i; }
+  for (i = 0; i < os.length; i++) { if (os[i].key === 0) ai = i; delete os[i].key; }
   return {
     type: 'readPassage', pack: pack.id,
     itemKey: 'passage:' + p.id,
@@ -3021,7 +3100,7 @@ var GENERATORS = {
   listenPoint:   function (pack, script, rng, o) { return listenPoint(pack, { rng: rng, theme: o.theme, options: o.options, word: typeof o.item === 'string' ? o.item : undefined }); },
   sentenceBlank: function (pack, script, rng, o) { return sentenceBlank(pack, { rng: rng, theme: o.theme, options: o.options, word: typeof o.item === 'string' ? o.item : undefined }); },
   readAloud:     function (pack, script, rng, o) { return readAloud(pack, { rng: rng, word: typeof o.item === 'string' ? o.item : undefined }); },
-  readPassage:   function (pack, script, rng, o) { return readPassage(pack, { rng: rng, item: o.item }); },
+  readPassage:   function (pack, script, rng, o) { return readPassage(pack, { rng: rng, item: o.item, srs: o.srs }); },
   trace:         function (pack, script, rng, o) { return trace(pack, { rng: rng, index: o.index, letter: typeof o.item === 'string' ? o.item : undefined }); },
   wordProduce:   function (pack, script, rng, o) { return wordProduce(pack, { rng: rng, theme: o.theme, maxLen: o.maxLen, word: typeof o.item === 'string' ? o.item : undefined }); }
 };
@@ -3605,6 +3684,10 @@ function srsReview(item, correct, now) {
     item.box = Math.min(BOX_MS.length - 1, box + 1);
   } else {
     item.wrong = (item.wrong || 0) + 1;
+    /* lapses is what the parent's view reads: "missed more than once" is the
+       one list on that page worth acting on, and it was reading a field
+       nothing wrote — permanently, silently empty. Every miss is a lapse. */
+    item.lapses = (item.lapses || 0) + 1;
     item.streak = 0;
     item.box = Math.max(0, box - 1);
   }

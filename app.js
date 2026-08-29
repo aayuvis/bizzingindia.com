@@ -749,7 +749,18 @@
 
     /* one line: the greeting and the day's two invitations side by side,
        wrapping only when the screen genuinely cannot hold them */
-    return '<div class="card notch"><div class="herorow">' +
+    return (
+      /* THE PINNED ASK (Bee's placement callout, India's version): until the
+         family's language is chosen the app cannot lean anyone's way, so the
+         ask rides the top of Home — once answered it disappears for good. */
+      !S.tongue
+        ? '<button class="card callout" data-act="go" data-v="tongue" style="width:100%;text-align:left;margin-bottom:var(--space-lg)">' +
+          '<div class="row" style="align-items:center;flex-wrap:nowrap;gap:12px">' + icon('script', 24) +
+          '<span style="flex:1"><b>Your family’s language</b>' +
+          '<span class="tiny muted" style="display:block">Tell us once — the stories, the words and the map lean your way.</span></span>' +
+          '<span class="pill stat" style="white-space:nowrap">Choose →</span></div></button>'
+        : '') +
+      '<div class="card notch"><div class="herorow">' +
         '<div class="greetblk"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
         /* the companion, at twice the size and tappable: it opens the deck */
         '<button class="buddybtn" data-act="deck" aria-label="Your companions">' +
@@ -775,6 +786,80 @@
             '<button class="pill" data-act="say" data-k="' + esc(w[3] || '') + '" data-t="' + esc(w[0]) +
             '" data-l="' + esc(wLang) + '-IN">' + icon('sound', 16) + ' hear it</button></div>' +
         '</div></div>' +
+
+      /* TODAY'S RING (Bee's daily goal, in India's own currency). The ring
+         counts DEEDS — a story finished, a lesson answered, a game played,
+         the day's deed — the exact things markToday() already counts; never
+         pages read, never fractions of the library (docs/10 §3.5). The
+         target is the family's to choose and lives in S.goal. */
+      (function () {
+        var n = (S.todayOn === today()) ? (S.todayCount || 0) : 0;
+        var goal = S.goal || 3, ringDone = n >= goal;
+        var C = 2 * Math.PI * 26;
+        return '<div class="card goalcard notch">' +
+          '<svg class="goring" viewBox="0 0 64 64" aria-hidden="true">' +
+            '<circle cx="32" cy="32" r="26" class="bg"/>' +
+            '<circle cx="32" cy="32" r="26" class="fg" stroke-dasharray="' + C.toFixed(1) +
+              '" stroke-dashoffset="' + (C * (1 - Math.min(1, n / goal))).toFixed(1) + '"/>' +
+            '<text x="32" y="31">' + Math.min(n, 99) + '/' + goal + '</text>' +
+            '<text x="32" y="43" class="sub">today</text></svg>' +
+          '<div style="flex:1;min-width:180px">' +
+          '<h3 style="margin:0 0 2px">' + (ringDone ? 'Ring closed — shabash! 🪔' : 'Today’s ring') + '</h3>' +
+          '<p class="tiny muted" style="margin:0">' + (ringDone
+            ? 'Everything from here is extra shine.'
+            : 'A story finished, a lesson, a game or the day’s deed — each fills it one notch.') + '</p>' +
+          '<div class="row" style="margin-top:9px;align-items:center">' +
+          (ringDone ? '' : '<button class="btn" data-act="go" data-v="stories">' + icon('play', 15) + ' Start — hear a story</button>') +
+          '<span class="row goalpick" role="group" aria-label="How many a day">' +
+          [2, 3, 5].map(function (g2) {
+            return '<button class="pill' + (goal === g2 ? ' on' : '') + '" data-act="goalset" data-g="' + g2 +
+              '" aria-pressed="' + (goal === g2 ? 'true' : 'false') + '">' + g2 + '</button>';
+          }).join('') + '<span class="tiny muted">a day</span></span>' +
+          '</div></div></div>';
+      })() +
+
+      /* KEEP GOING (Bee's resume cards). Whatever was open last — a story
+         mid-telling, a language pack, a game with cities waiting — comes back
+         as one tap. A finished story drops off; abundance, not homework. */
+      (function () {
+        var R = S.resume || {}, cards = [];
+        if (R.story) {
+          var so = allStories().filter(function (x) { return x.id === R.story.id; })[0];
+          if (so && !S.read[so.id]) cards.push({ at: R.story.at || 0,
+            h: '<button class="tile keepon" data-act="story" data-id="' + esc(so.id) + '">' +
+               '<span class="mono">Keep going</span><b>' + esc(so.title) + '</b>' +
+               '<p class="tiny">The story is waiting where you left it.</p></button>' });
+        }
+        if (R.pack && window.IND_PACKS && window.IND_PACKS[R.pack.id]) {
+          var pk = window.IND_PACKS[R.pack.id];
+          cards.push({ at: R.pack.at || 0,
+            h: '<button class="tile keepon" data-act="pack" data-id="' + esc(R.pack.id) + '">' +
+               '<span class="mono">Keep going</span><b>' + esc(pk.name || 'Bhasha') + '</b>' +
+               '<p class="tiny">Your letters and words remember you.</p></button>' });
+        }
+        if (R.game) {
+          var g3 = (window.IND_GAMES || []).filter(function (x) { return x.id === R.game.id; })[0];
+          if (g3) {
+            var note = 'Jump back in.';
+            if (g3.id === 'sabhyata') {
+              try {
+                var sv = JSON.parse(localStorage.getItem('india.sabhyata.v2') || 'null');
+                if (sv && window.IND_SABHYATA && window.IND_SABHYATA.eras[sv.era])
+                  note = 'Era ' + (sv.era + 1) + ' · ' + window.IND_SABHYATA.eras[sv.era].name +
+                    ' — your cities are waiting.';
+              } catch (e2) {}
+            }
+            cards.push({ at: R.game.at || 0,
+              h: '<button class="tile keepon" data-act="game" data-id="' + esc(g3.id) + '">' +
+                 '<span class="mono">Keep going</span><b>' + esc(g3.name) + '</b>' +
+                 '<p class="tiny">' + esc(note) + '</p></button>' });
+          }
+        }
+        if (!cards.length) return '';
+        cards.sort(function (a2, b2) { return (b2.at || 0) - (a2.at || 0); });
+        return '<div class="grid g3" style="margin-top:var(--space-lg)">' +
+          cards.slice(0, 3).map(function (c2) { return c2.h; }).join('') + '</div>';
+      })() +
 
       /* the two big illustrated journeys */
       '<div class="grid g2" style="grid-template-columns:1fr 1fr">' +
@@ -899,7 +984,11 @@
           '</div>' +
           '<div class="meter" style="margin-top:var(--space-lg)"><i style="width:' + pct + '%"></i></div>' +
           '<p class="tiny muted" style="margin-top:8px">' +
-            (lv < RANKS.length - 1 ? 'Next: <b>' + esc(RANKS[lv + 1]) + '</b>' : 'You are at the top of the ladder') +
+            /* distance, not just destination (the Bee lesson): "how close am I"
+               is what pulls a child back, so the next title says how far */
+            (lv < RANKS.length - 1
+              ? 'Next: <b>' + esc(RANKS[lv + 1]) + '</b> · 🐚 ' + (60 - (S.xp % 60)) + ' more'
+              : 'You are at the top of the ladder') +
           '</p></div>';
       })() +
 
@@ -4730,7 +4819,13 @@
         var label = t[0] === 'stories' ? kinTerm('nani') + '-' + kinTerm('nana') : t[1];
         return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 19) +
           '<span>' + esc(label) + '</span></button>';
-      }).join('') + '</nav></header><main class="wrap" id="main"></main>';
+      }).join('') +
+      /* phone only (CSS): the bar drops to the bottom of the screen with five
+         doors — Home, Stories, Bhasha, Khel and this More — the rest one tap
+         behind it. Desktop keeps the full row and never sees this button. */
+      '<button class="navtab navmore" data-act="navmore" aria-haspopup="true" aria-label="More">' +
+      '<span class="moredots" aria-hidden="true">⋯</span><span>More</span></button>' +
+      '</nav></header><main class="wrap" id="main"></main>';
   }
 
   /* chrome() is built once and then left alone, so the two toggles that live in
@@ -4948,8 +5043,34 @@
     var t = e.target.closest('[data-act]'); if (!t) return;
     var a = t.getAttribute('data-act');
 
+    /* the More sheet (phone nav) closes on any other action */
+    var nms = $('#navmoresheet');
+    if (nms && a !== 'navmore') nms.remove();
+
     if (a === 'begin')  { view = { name: 'onboard' }; return render(); }
     if (a === 'go')     return go(t.getAttribute('data-v'));
+    /* the day's target is the family's to choose (Bee's goal picker) */
+    if (a === 'goalset') {
+      S.goal = +t.getAttribute('data-g') || 3; save();
+      toast(S.goal + ' a day — a small habit beats a big plan.');
+      return render();
+    }
+    /* the phone nav's More: a small sheet with the pillars that do not fit */
+    if (a === 'navmore') {
+      if (nms) { nms.remove(); return; }
+      var sh2 = document.createElement('div');
+      sh2.id = 'navmoresheet';
+      sh2.innerHTML = '<div class="nm-in" role="menu">' +
+        [['map', 'India', 'map'], ['itihaas', 'Itihaas', 'clock'],
+         ['neeti', 'Neeti', 'star'], ['me', 'You & Grown-ups', 'parent']]
+          .map(function (t2) {
+            return '<button class="nm-row" data-act="go" data-v="' + t2[0] + '">' +
+              icon(t2[2], 20) + '<span>' + t2[1] + '</span></button>';
+          }).join('') + '</div>';
+      sh2.addEventListener('click', function (e2) { if (e2.target === sh2) sh2.remove(); });
+      document.body.appendChild(sh2);
+      return;
+    }
     if (a === 'state')  return go('state', t.getAttribute('data-code'));
     /* Tapping a state on the map shows its facts in place rather than navigating away —
        the map is for browsing, and being thrown into a full page on every touch is what
@@ -5089,7 +5210,7 @@
       var vid = t.getAttribute('data-id');
       S.mala = S.mala || [];
       S.mala.push({ v: vid, on: today() });
-      save(); earn(5, 'you did it');
+      save(); earn(5, 'you did it'); markToday();   /* the deed fills the day's ring too */
       toast('A bead for your mala.');
       return render();
     }
@@ -5102,6 +5223,7 @@
     }
     if (a === 'story') {
       var id = t.getAttribute('data-id');
+      S.resume = S.resume || {}; S.resume.story = { id: id, at: Date.now() }; save();
       play = { story: null, i: 0, answered: false }; go('story', id);
       var s = allStories().filter(function (x) { return x.id === id; })[0];
       if (s) sayScene(s, 0);
@@ -5339,8 +5461,14 @@
       return render();
     }
     if (a === 'mon')    { var mo = (window.IND_GEO.monuments || []).filter(function (x) { return x.id === t.getAttribute('data-id'); })[0]; if (mo) toast(mo.name + ' — ' + mo.fact); return; }
-    if (a === 'pack')   { quiz = quizReset(null); return go('pack', t.getAttribute('data-id')); }
-    if (a === 'game')   return go('game', t.getAttribute('data-id'));
+    if (a === 'pack')   {
+      S.resume = S.resume || {}; S.resume.pack = { id: t.getAttribute('data-id'), at: Date.now() }; save();
+      quiz = quizReset(null); return go('pack', t.getAttribute('data-id'));
+    }
+    if (a === 'game')   {
+      S.resume = S.resume || {}; S.resume.game = { id: t.getAttribute('data-id'), at: Date.now() }; save();
+      return go('game', t.getAttribute('data-id'));
+    }
     if (a === 'kahani') return go('kahani', t.getAttribute('data-id'));
     /* the deck opens ON the companion you are already travelling with, not at
        card one — you came to look at someone, usually them */

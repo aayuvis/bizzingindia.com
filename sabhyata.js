@@ -69,7 +69,17 @@
                   { anna: 50, kala: 50, katha: 30 },
                   { anna: 60, kala: 60, katha: 40 },
                   { anna: 70, kala: 70, katha: 50 },
-                  { anna: 80, kala: 80, katha: 60 } ],
+                  { anna: 80, kala: 80, katha: 60 },
+                  { anna: 85, kala: 85, katha: 65 },
+                  { anna: 90, kala: 90, katha: 70 },
+                  { anna: 95, kala: 95, katha: 75 },
+                  { anna: 100, kala: 100, katha: 80 },
+                  { anna: 105, kala: 105, katha: 85 },
+                  { anna: 110, kala: 110, katha: 90 },
+                  { anna: 115, kala: 115, katha: 95 },
+                  { anna: 120, kala: 120, katha: 100 } ],
+    akalEvery:  70,                 /* seconds between droughts, somewhere (era 2+) */
+    akalLen:    40,                 /* turns an akal holds unless a stepwell stands */
     quizPay:    10,                 /* gurukul trivia, own city */
     quizFarPay: 15,                 /* with Brahmi script, about other cities */
     quizCd:     25,                 /* seconds between questions per city */
@@ -232,6 +242,11 @@
     '.sab-cityimg{pointer-events:none;filter:drop-shadow(0 3px 3px rgba(30,20,64,.28))}',
     '.sab-site.asleep .sab-cityimg{filter:grayscale(.92) brightness(.9);opacity:.7}',
     '.sab-site.dustyv .sab-cityimg{filter:grayscale(.45) brightness(.95) drop-shadow(0 3px 3px rgba(30,20,64,.2))}',
+    /* a remembered city: golden, quiet, and never in anyone\'s way */
+    '.sab-site.hercity .sab-cityimg{filter:sepia(.55) saturate(.75) brightness(1.03) drop-shadow(0 2px 3px rgba(160,120,40,.35));opacity:.9}',
+    '.sab-site.hercity circle.core{fill:#c9a24b;animation-duration:5s}',
+    '.sab-site.hercity circle.halo{stroke:#c9a24b;stroke-width:2;opacity:.5}',
+    '.sab-site.hercity text{opacity:.75}',
     '.sab-site.sel circle.halo{stroke:var(--accent3);stroke-width:3.5;opacity:.9}',
     /* the movers: carts on roads, boats on rivers, walkers in the mist */
     '.sab-cart image,.sab-boat image,.sab-exwalk image{pointer-events:none}',
@@ -345,6 +360,14 @@
     '.sab-e2 #sab-terrg{filter:sepia(.1) hue-rotate(-6deg) saturate(1.06)}',
     '.sab-e3 #sab-terrg{filter:sepia(.05) hue-rotate(4deg) saturate(1.1)}',
     '.sab-e4 #sab-terrg{filter:saturate(1.14) brightness(1.02)}',
+    '.sab-e5 #sab-terrg{filter:sepia(.08) hue-rotate(-4deg) saturate(1.08)}',
+    '.sab-e6 #sab-terrg{filter:sepia(.12) saturate(1.1) brightness(1.01)}',
+    '.sab-e7 #sab-terrg{filter:sepia(.06) hue-rotate(5deg) saturate(1.12)}',
+    '.sab-e8 #sab-terrg{filter:hue-rotate(-7deg) saturate(1.08)}',
+    '.sab-e9 #sab-terrg{filter:sepia(.1) saturate(.98) brightness(.99)}',
+    '.sab-e10 #sab-terrg{filter:sepia(.04) saturate(1.06) brightness(1.01)}',
+    '.sab-e11 #sab-terrg{filter:hue-rotate(4deg) saturate(1.12) brightness(1.02)}',
+    '.sab-e12 #sab-terrg{filter:saturate(1.18) brightness(1.04)}',
 
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
@@ -408,6 +431,22 @@
     function routed(a, b) {
       return G.routes.some(function (r) { return (r[0] === a && r[1] === b) || (r[0] === b && r[1] === a); });
     }
+    /* CITIES RENAME ACROSS THE AGES — that is the truth of Indian cities:
+       Pataliputra answers to Patna, Kashi to Banaras to Varanasi, Bombay to
+       Mumbai. nameOf() gives the name the current age uses; the old names
+       are announced when the age turns, never erased. */
+    function nameOf(s) {
+      var n = s.name;
+      (s.renames || []).forEach(function (r) { if (r.era <= G.era) n = r.name; });
+      return n;
+    }
+    /* HERITAGE — the answer to "too many cities". Two full ages after its own,
+       an awake city folds into memory: its people walk to a living neighbour
+       (which grows), its monument keeps shining and still earns katha, and
+       nothing there needs tending again. The causes are the ages themselves —
+       rivers shift, rains move, roads go elsewhere — NEVER war (docs/05 §7:
+       the only antagonist in this game is the impersonal mist). */
+    function isHer(id) { var q = G.sites[id]; return !!(q && q.her); }
     function eraDone() {
       return SITES.every(function (s) { return !inEra(s) || (found(s.id) && awake(s.id)); });
     }
@@ -451,6 +490,7 @@
     /* what waits inside a city — the number on the Enter tile, and the in-city nav */
     function cityJobsWaiting(id) {
       var out = [];
+      if (isHer(id)) return out;      /* memory has no chores */
       if (inDispute(id)) out.push({ act: 'cjump', t: 'sab-sec-quarrel', icon: 'peace', name: 'Panchayat', hot: true });
       if (G.quests[id]) out.push({ act: 'cjump', t: 'sab-sec-quest', icon: 'scroll', name: 'Quest' });
       var q = G.sites[id];
@@ -537,12 +577,17 @@
       if (kind === 'building' && G.tech.brick) f = 2 / 3;
       if (kind === 'monument' && G.tech.temple) f = 2 / 3;
       if (kind === 'route' && G.tech.roads) f = 1 / 2;
+      if (kind === 'route' && G.tech.railway) f = f / 2;     /* iron roads stack */
+      if (kind === 'utsav' && G.tech.chahbagh) f = 1 / 2;    /* the town is already outdoors */
       var out = {};
       Object.keys(c).forEach(function (k) { out[k] = Math.ceil(c[k] * f); });
       return out;
     }
     function canPay(c) { return Object.keys(c).every(function (k) { return G.res[k] >= c[k]; }); }
     function pay(c) { Object.keys(c).forEach(function (k) { G.res[k] -= c[k]; }); }
+    /* the utsav's price goes through the same discount door as everything
+       else — the Char Bagh halves it */
+    function utsavCost() { return costOf(T.utsavCost, 'utsav'); }
     function costStr(c) {
       return Object.keys(c).map(function (k) { return c[k] + ' ' + ICON[k]; }).join(' + ');
     }
@@ -555,7 +600,7 @@
     }
     function dusty(id) {
       var q = G.sites[id];
-      return !q.zzz && !q.mon && G.capital !== id && q.neg >= negLimit(id);
+      return !q.zzz && !q.her && !q.mon && G.capital !== id && q.neg >= negLimit(id);
     }
     function inDispute(id) { return G.disp && (G.disp.a === id || G.disp.b === id); }
 
@@ -611,6 +656,9 @@
     /* ---- what a city actually brings in each turn, all rules in one place ---- */
     function yieldOf(x) {
       var q = G.sites[x.id];
+      /* a heritage city asks nothing and gives one thing: its monument keeps
+         telling its story. Stone remembers — that rule outlives the city. */
+      if (q.her) return q.mon ? { anna: 0, kala: 0, katha: 1 } : null;
       if (q.zzz || q.fade >= 0) return null;
       var conn = connected(x.id) && !inDispute(x.id);
       var out = { anna: 0, kala: 0, katha: 0 };
@@ -629,8 +677,15 @@
       if (G.tech.iron && x.kind === 'shilpa') out.kala += 1;
       if (G.tech.zero && x.kind === 'vidya') out.katha += 1;
       if (G.tech.monsoon && conn && PORTS.indexOf(x.id) >= 0) { out.anna += 2; out.kala += 2; out.katha += 2; }
+      /* the later ladder's doors */
+      if (G.tech.paper && x.kind === 'vidya') out.katha += 1;
+      if (G.tech.charkha && x.kind === 'shilpa') out.kala += 1;
+      if (G.tech.ship && conn && PORTS.indexOf(x.id) >= 0) { out.anna += 1; out.kala += 1; out.katha += 1; }
+      if (G.tech.harit && x.kind === 'kheti') out.anna += 2;
       if (q.mon) out.katha += 2;
       if (G.capital === x.id) { out.anna += 1; out.kala += 1; out.katha += 1; }
+      /* an akal (drought) halves the fields until the rains return */
+      if (q.dry > 0) out.anna = Math.floor(out.anna / 2);
       if (dusty(x.id)) Object.keys(out).forEach(function (k) { out[k] = Math.floor(out[k] / 2); });
       return out;
     }
@@ -649,14 +704,14 @@
       if (Object.keys(G.quests).length >= T.questMax) return;
       if (G.t - G.lastq < T.questGap) return;
       var homes = SITES.filter(function (x) {
-        return inEra(x) && awake(x.id) && !G.quests[x.id];
+        return inEra(x) && awake(x.id) && !isHer(x.id) && !G.quests[x.id];
       });
       if (!homes.length) return;
       var here = homes[(G.t * 13) % homes.length];
       var kinds = [];
       var sleeping = SITES.filter(function (x) { return onMap(x) && !awake(x.id); });
       var unroaded = SITES.filter(function (x) {
-        return inEra(x) && awake(x.id) && x.id !== here.id && !routed(here.id, x.id);
+        return inEra(x) && awake(x.id) && !isHer(x.id) && x.id !== here.id && !routed(here.id, x.id);
       });
       if (unroaded.length) kinds.push('road');
       if (sleeping.length) kinds.push('wake');
@@ -712,7 +767,7 @@
         if (G.res.katha >= T.wakeCost) return '<b>' + esc(zz.name) + '</b> is reached — wake it (' + T.wakeCost + ' \ud83d\udcdc).';
         return 'Earn katha to wake <b>' + esc(zz.name) + '</b> — quests and lean-season help pay best.';
       }
-      var m3 = SITES.filter(function (x) { return inEra(x) && awake(x.id) && G.sites[x.id].lv >= 3 && !G.sites[x.id].mon; })[0];
+      var m3 = SITES.filter(function (x) { return inEra(x) && awake(x.id) && !isHer(x.id) && G.sites[x.id].lv >= 3 && !G.sites[x.id].mon; })[0];
       if (m3 && canPay(costOf(T.monCost[m3.era], 'monument')))
         return '<b>' + esc(m3.name) + '</b> could raise its monument — enter the city. Stone remembers.';
       var un = TECHS.filter(function (t) { return t.era <= G.era && !G.tech[t.id] && canPay(costOf(t.cost, 'tech')); })[0];
@@ -1023,9 +1078,13 @@
       if (!vis) return;
       g.setAttribute('class', 'sab-site' +
         (q.zzz ? ' asleep' : (q.fade >= 0 ? ' fading' : '')) +
+        (q.her ? ' hercity' : '') +
         (dusty(s.id) ? ' dustyv' : '') +
         (sel === s.id ? ' sel' : '') + (kbd === s.id ? ' kbd' : ''));
       g.setAttribute('tabindex', '0');
+      g.setAttribute('aria-label', nameOf(s));
+      var lbl = g.querySelector('text');
+      if (lbl && lbl.textContent !== nameOf(s)) lbl.textContent = nameOf(s);   /* the ages rename cities */
       var r = 9 + q.lv * 2;
       var img = g.querySelector('.sab-cityimg');
       if (img) {
@@ -1222,15 +1281,19 @@
       if (!sel) { sh.hidden = true; sh.innerHTML = ''; return; }
       var s = byId[sel], q = G.sites[sel];
       var b = [];
-      b.push('<div class="sab-shead"><b>' + esc(s.name) + '</b><span>' +
-        (q.zzz ? 'asleep under the mist'
+      b.push('<div class="sab-shead"><b>' + esc(nameOf(s)) + '</b><span>' +
+        (q.her ? 'a remembered city — its monument keeps its story'
+               : q.zzz ? 'asleep under the mist'
                : ICON[YIELD[s.kind]] + ' level ' + q.lv +
                  (G.capital === sel ? ' · the capital' : '') +
                  (connected(sel) ? ' · on a route' : ' · alone') +
+                 (q.dry > 0 ? ' · AKAL — the rains hold off' : '') +
                  (dusty(sel) ? ' · dusty' : '') +
                  (inDispute(sel) ? ' · in a quarrel' : '')) +
         (targeting ? ' — now choose the other end of the road' : '') + '</span></div>');
-      if (q.zzz) {
+      if (q.her) {
+        b.push(tile('city', 'lamp', 'Visit the memory', '', { go: true }));
+      } else if (q.zzz) {
         /* the dead end the explorer walked into: a found, sleeping city offered only
            Wake — which needs a road — and no way to build one. Roads are undirected,
            so the sleeping town can start its own: Reach it, then Wake it. */
@@ -1241,7 +1304,7 @@
         if (q.lv < T.maxLevel) b.push(tile('grow', 'tree', 'Grow', T.growCost[q.lv] + ' \ud83c\udf3e'));
         b.push(tile('route', 'road', 'Route', costStr(costOf({ kala: T.routeCost }, 'route'))));
         b.push(tile('utsav', 'lamp', 'Utsav',
-          G.utsav > 0 ? G.utsav + 's' : T.utsavCost.anna + ' \ud83c\udf3e + ' + T.utsavCost.kala + ' \ud83d\udee0\ufe0f',
+          G.utsav > 0 ? G.utsav + 's' : utsavCost().anna + ' \ud83c\udf3e + ' + utsavCost().kala + ' \ud83d\udee0\ufe0f',
           { disabled: G.utsav > 0 }));
         var waiting = cityJobsWaiting(sel).length;
         b.push(tile('city', 'temple', 'Enter city', waiting ? 'a scroll waits!' : '',
@@ -1287,8 +1350,8 @@
     function cityHTML(id) {
       var s = byId[id], q = G.sites[id], qq = G.quests[id];
       var y = yieldOf(s);
-      var h = '<div class="sab-city" role="dialog" aria-label="' + esc(s.name) + '">' +
-        '<div class="chead"><h3>' + esc(s.name) + (G.capital === id ? ' ★' : '') + '</h3>' +
+      var h = '<div class="sab-city" role="dialog" aria-label="' + esc(nameOf(s)) + '">' +
+        '<div class="chead"><h3>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</h3>' +
         '<span class="mono">' + esc(ERAS[s.era].name) + ' · level ' + q.lv +
         (connected(id) ? ' · on the roads' : ' · no road yet') +
         (dusty(id) ? ' · DUSTY — half yields' : '') + '</span>' +
@@ -1351,7 +1414,7 @@
           }
         }
         /* the city banner, the four stations, and the calls of the moment */
-        var plate = '<div class="sab-nameplate"><b>' + esc(s.name) + (G.capital === id ? ' ★' : '') + '</b>' +
+        var plate = '<div class="sab-nameplate"><b>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</b>' +
           '<span>lv ' + q.lv + ' · ' + pop + ' praja' +
           (y ? ' · ' + ['anna', 'kala', 'katha'].filter(function (k2) { return y[k2]; })
             .map(function (k2) { return '+' + y[k2] + ' ' + ICON[k2]; }).join(' ') : '') + '</span></div>';
@@ -1551,7 +1614,8 @@
               (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — think of the city\u2019s own telling. Another go.</p>' : '')
             : '<p>The teacher will take a question' + (G.tech.script ? ' about any woken city' : '') + '.</p>' +
               '<button class="sab-btn" data-sab-act="quizstart"' + (cd > 0 ? ' disabled' : '') + '>' +
-              (cd > 0 ? 'The teacher rests (' + cd + 's)' : 'Ask me one (+' + (G.tech.script ? T.quizFarPay : T.quizPay) + ' 📜)') + '</button>') +
+              (cd > 0 ? 'The teacher rests (' + cd + 's)' : 'Ask me one (+' +
+                ((G.tech.script ? T.quizFarPay : T.quizPay) * (G.tech.press ? 2 : 1)) + ' 📜)') + '</button>') +
           '</div>';
       }
       if (qq) {
@@ -1563,8 +1627,8 @@
             (!connected(id) ? '<p class="tiny" style="color:var(--muted);margin:8px 0 0">It needs a road into the city first.</p>' : '');
         } else if (qq.kind === 'utsav') {
           h += '<button class="sab-btn go" data-sab-act="qutsav"' +
-            (G.utsav <= 0 && G.res.anna >= T.utsavCost.anna && G.res.kala >= T.utsavCost.kala ? '' : ' disabled') +
-            '>Hold the utsav here (' + T.utsavCost.anna + ' 🌾 + ' + T.utsavCost.kala + ' 🛠️)</button>';
+            (G.utsav <= 0 && G.res.anna >= utsavCost().anna && G.res.kala >= utsavCost().kala ? '' : ' disabled') +
+            '>Hold the utsav here (' + utsavCost().anna + ' 🌾 + ' + utsavCost().kala + ' 🛠️)</button>';
         } else if (qq.kind === 'riddle') {
           h += riddleOptions(s).map(function (o) {
             return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" ' +
@@ -1671,6 +1735,18 @@
       if (!sel || G.won) return;
       var s = byId[sel], q = G.sites[sel];
       if (name === 'close') { sel = null; targeting = false; paintAll(); return; }
+      if (name === 'city' && q.her) {
+        /* a heritage city opens as a remembrance, not a to-do list */
+        showOverlay('<div class="mono" style="color:var(--accent2)">a remembered city</div>' +
+          '<h3>' + esc(nameOf(s)) + '</h3>' +
+          (artOf(sel) ? '<img class="sab-cardart" src="' + artOf(sel) + '" alt="">' : '') +
+          '<p>' + esc(s.fact) + '</p>' +
+          '<p class="tiny" style="color:var(--muted)">The ages turned and its people walked on — but ' +
+          (q.mon ? 'its monument still stands, and stone remembers: +1 📜 each turn, forever.'
+                 : 'its stones still hold the story.') + '</p>' +
+          '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Leave a lamp</button></div>');
+        return;
+      }
       if (name === 'city' && !q.zzz) { city = sel; riddleWrong = false; touch(sel); paintCity(); return; }
       if (name === 'explore' && !q.zzz) {
         var hid = hiddenSites();
@@ -1699,9 +1775,9 @@
         targeting = true; say('Choose where the road from ' + s.name + ' should go.', '');
       }
       if (name === 'utsav' && G.utsav <= 0) {
-        if (G.res.anna < T.utsavCost.anna || G.res.kala < T.utsavCost.kala)
+        if (G.res.anna < utsavCost().anna || G.res.kala < utsavCost().kala)
           return say('An utsav needs both grain and craft — the whole village brings something.', '');
-        G.res.anna -= T.utsavCost.anna; G.res.kala -= T.utsavCost.kala;
+        G.res.anna -= utsavCost().anna; G.res.kala -= utsavCost().kala;
         G.res.katha += T.utsavKatha; G.utsav = T.utsavCd; G.score += 15; touch(sel);
         SITES.forEach(function (t) { var w = G.sites[t.id]; if (w.fade >= 0) { w.fade = -1; w.idle = 0; } });
         fxAt(s.x, s.y, 'utsav');
@@ -1742,13 +1818,66 @@
       if (!canAdvance()) return;
       G.res.katha -= ERAS[G.era].katha;
       var aha = ERAS[G.era].aha;
-      var AHA_ART = ['vidya-iron', 'vidya-script', 'vidya-zero', 'vidya-monsoon'];
+      var AHA_ART = ['vidya-iron', 'vidya-script', 'vidya-zero', 'vidya-monsoon',
+                     'vidya-paper', 'vidya-charkha', 'vidya-chahbagh', 'vidya-ship',
+                     'vidya-railway', 'vidya-swadeshi', 'vidya-samvidhan', 'vidya-khula'];
       var ea = artOf(AHA_ART[G.era]);
       G.era++; G.score += 50;
       var next = ERAS[G.era];
+
+      /* THE AGE TURNS OVER THE CITIES TOO. Two full ages behind, an awake city
+         folds into memory: the rains move, the rivers shift, the roads go
+         elsewhere — its people walk to the nearest living neighbour, which
+         grows, and its monument keeps shining forever. Capitals are exempt
+         (some places are carried), and NOTHING here is a war: the causes are
+         the ages themselves, which is the truth of most of these cities. */
+      var folded = [];
+      SITES.forEach(function (s) {
+        var q = G.sites[s.id];
+        /* three things carry a city across the ages: its MONUMENT (raised
+           stone is never forgotten — the game's oldest promise, now the
+           strategic reason to build one), its CONTINUITY (a city with later
+           names, like Kashi-Banaras-Varanasi, never stopped being lived in),
+           and the CROWN (the capital is carried). Everything else, two full
+           ages behind, folds gently into memory. */
+        if (!q || q.zzz || q.her || q.mon || (s.renames && s.renames.length) ||
+            s.era > G.era - 2 || G.capital === s.id) return;
+        q.her = true; q.fade = -1; q.idle = 0; q.neg = 0; q.dry = 0;
+        if (G.quests[s.id]) delete G.quests[s.id];
+        if (q.hero) q.hero.gone = true;
+        /* the people walk to the nearest living city, and it grows */
+        var near = null, best = 1e9;
+        SITES.forEach(function (o) {
+          var qo = G.sites[o.id];
+          if (o.id === s.id || !qo || qo.zzz || qo.her || !found(o.id)) return;
+          var dx = o.x - s.x, dy = o.y - s.y, d2 = dx * dx + dy * dy;
+          if (d2 < best) { best = d2; near = o; }
+        });
+        if (near && G.sites[near.id].lv < T.maxLevel) G.sites[near.id].lv++;
+        folded.push({ from: s, to: near });
+      });
+      /* names change with the age — the city is the same city */
+      var renamed = [];
+      SITES.forEach(function (s) {
+        (s.renames || []).forEach(function (r) { if (r.era === G.era && found(s.id)) renamed.push(s); });
+      });
+
+      var lines = '';
+      if (folded.length) {
+        lines += '<p class="tiny" style="color:var(--muted)">' + folded.map(function (f) {
+          return 'The ages turn at <b>' + esc(f.from.name) + '</b> — its people walk to ' +
+            (f.to ? '<b>' + esc(nameOf(f.to)) + '</b>' : 'the living towns') +
+            (G.sites[f.from.id].mon ? ', and its monument keeps telling its story' : '') + '.';
+        }).join(' ') + '</p>';
+      }
+      if (renamed.length) {
+        lines += '<p class="tiny" style="color:var(--muted)">' + renamed.map(function (s) {
+          return '<b>' + esc(s.name) + '</b> now answers to <b>' + esc(nameOf(s)) + '</b> — the city is the same city.';
+        }).join(' ') + '</p>';
+      }
       showOverlay((ea ? '<img class="sab-cardart" src="' + ea + '" alt="">' : '') +
         '<h3>' + esc(aha.title) + '</h3><p>' + esc(aha.text) + '</p>' +
-        '<p><b>' + esc(next.name) + '</b> · ' + esc(next.dates) + '<br>' + esc(next.note) + '</p>' +
+        '<p><b>' + esc(next.name) + '</b> · ' + esc(next.dates) + '<br>' + esc(next.note) + '</p>' + lines +
         '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Begin</button></div>');
       say('New places wait under the mist. Reach them.', 'mist');
       paintAll();
@@ -1763,8 +1892,10 @@
       if (G.won || G.era < ERAS.length - 1 || !allAwake()) return;
       G.won = true; wipe();
       showOverlay(mascot('gattu', 'happy', 110) + '<h3>India remembers.</h3>' +
-        '<p>Every lamp is lit, every road is walked, and the mist has gone back to the sea. ' +
-        'Five thousand years, and not one of these places was taken — every one was reached.</p>' +
+        '<p>From the first brick of Dholavira to this morning’s countdown at Sriharikota — ' +
+        'every lamp lit, every road walked, and the mist gone back to the sea. ' +
+        'Five thousand years, and not one of these places was taken: every one was reached, ' +
+        'and the ones that grew quiet are remembered by their stones.</p>' +
         '<div class="row"><button class="sab-btn go" data-sab-act="finish">Take a bow</button></div>');
     }
 
@@ -1785,7 +1916,7 @@
         var y = yieldOf(s);
         if (y) { G.res.anna += y.anna; G.res.kala += y.kala; G.res.katha += y.katha; }
         var q = G.sites[s.id];
-        if (!q.zzz) eaten += popOf(s.id) * T.eat;
+        if (!q.zzz && !q.her) eaten += popOf(s.id) * T.eat;
       });
       if (eaten) {
         if (G.res.anna >= eaten) G.res.anna -= eaten;
@@ -1805,8 +1936,9 @@
           var t2 = byId[ex.target];
           if (!t2 || found(ex.target)) { ex.done = true; return; }
           var dx = t2.x - ex.x, dy = t2.y - ex.y, d = Math.sqrt(dx * dx + dy * dy);
-          if (d <= T.exploreSpeed) { ex.x = t2.x; ex.y = t2.y; ex.done = true; arrived.push(ex.target); }
-          else { ex.x += dx / d * T.exploreSpeed; ex.y += dy / d * T.exploreSpeed; }
+          var spd = T.exploreSpeed * (G.tech.satellite ? 2 : 1);   /* an eye in the sky finds the way */
+          if (d <= spd) { ex.x = t2.x; ex.y = t2.y; ex.done = true; arrived.push(ex.target); }
+          else { ex.x += dx / d * spd; ex.y += dy / d * spd; }
         });
         G.explorers = G.explorers.filter(function (ex) { return !ex.done; });
         arrived.forEach(function (id) {
@@ -1827,8 +1959,8 @@
          human raider is somebody's ancestor, and this game does not do enemies with
          faces. Rakshaks fend a raid off completely, and the fending is always
          gentle — drums, torches, lanterns, mended fences. */
-      if (G.t - G.lastraid >= T.raidEvery) {
-        var towns = SITES.filter(function (x) { return inEra(x) && awake(x.id); });
+      if (G.t - G.lastraid >= T.raidEvery && !(G.calmUntil > G.t)) {   /* ahimsa holds */
+        var towns = SITES.filter(function (x) { return inEra(x) && awake(x.id) && !isHer(x.id); });
         if (towns.length) {
           var tgt = towns[(G.t * 17) % towns.length];
           var pool = DATA.raids.filter(function (r) { return r.minEra <= G.era; });
@@ -1854,12 +1986,67 @@
         }
       }
 
+      /* AKAL — the rains fail somewhere. Impersonal like everything else that
+         tests this world: the fields halve until the clouds come back, a
+         stepwell makes a town immune, and nobody is ever to blame. */
+      if (G.era >= 2 && G.t - (G.lastakal || 0) >= T.akalEvery) {
+        var dryable = SITES.filter(function (x) {
+          var qx = G.sites[x.id];
+          return inEra(x) && awake(x.id) && !isHer(x.id) && x.kind === 'kheti' &&
+            !qx.bld.stepwell && !(qx.dry > 0);
+        });
+        if (dryable.length) {
+          var dt = dryable[(G.t * 13) % dryable.length];
+          G.sites[dt.id].dry = T.akalLen;
+          G.lastakal = G.t;
+          fxAt(dt.x, dt.y, 'mist');
+          say('The rains hold off over ' + nameOf(dt) + ' — an akal. The fields bring in half until the clouds return; a stepwell would have held water.', 'mist');
+        } else G.lastakal = G.t;
+      }
+      SITES.forEach(function (s) {
+        var qd = G.sites[s.id];
+        if (qd && qd.dry > 0) {
+          qd.dry--;
+          if (qd.dry === 0) say('The clouds break over ' + nameOf(s) + ' — the akal ends and the fields drink.', 'warm');
+        }
+      });
+
+      /* DARSHAN — a great one passes through, and the world receives them.
+         Fired once each, era-gated, at their own city; a card with its frame
+         badge and sources, and a boon the player never owns or spends. */
+      if (!overlay && G.t - (G.lastdarshan || 0) >= 50) {
+        var dar = (DATA.darshan || []).filter(function (d) {
+          return !G.darshan[d.id] && d.era <= G.era && G.sites[d.site] &&
+            found(d.site) && awake(d.site) && !isHer(d.site);
+        })[0];
+        if (dar) {
+          G.darshan[dar.id] = true; G.lastdarshan = G.t; G.score += 30;
+          var ds = byId[dar.site], b3 = dar.boon || {};
+          if (b3.katha) G.res.katha += b3.katha;
+          if (b3.anna) G.res.anna += b3.anna;
+          if (b3.kind === 'peace' && G.disp) { G.disp = null; G.lastd = G.t; }
+          if (b3.kind === 'calm') G.calmUntil = G.t + (b3.len || 40) * 3;
+          if (b3.kind === 'shine') SITES.forEach(function (s2) {
+            var q3 = G.sites[s2.id];
+            if (q3 && !q3.zzz) { if (q3.fade >= 0) q3.fade = -1; q3.idle = 0; q3.neg = 0; }
+          });
+          fxAt(ds.x, ds.y, 'utsav');
+          showOverlay('<div class="mono" style="color:var(--accent2)">' +
+            (dar.frame === 'katha' ? '🪔 katha — as it is told' : '📜 itihaas — what evidence shows') + '</div>' +
+            '<h3>' + esc(dar.name) + '</h3><p>' + esc(dar.text) + '</p>' +
+            '<p class="tiny" style="color:var(--accent);font-weight:700">' + esc(dar.boonLine) + '</p>' +
+            '<p class="tiny" style="color:var(--muted)">' + esc((dar.sources || []).join(' · ')) + '</p>' +
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Carry it onward</button></div>');
+          say('A darshan at ' + nameOf(ds) + '.', 'warm');
+        }
+      }
+
       /* A GREAT ONE RISES. A level-3 town may produce a hero — a role, never a named
          ruler: the Annadata, the Sthapati, the Acharya. One great deed each, and a
          quiet gift while they stay. */
       SITES.forEach(function (s) {
         var q = G.sites[s.id];
-        if (!inEra(s) || q.zzz || q.hero || q.lv < T.heroAt) return;
+        if (!inEra(s) || q.zzz || q.her || q.hero || q.lv < T.heroAt) return;
         var hd = DATA.heroes[s.kind];
         q.hero = { used: false, gone: false };
         say(hd.name + ' has risen in ' + s.name + '! Enter the city — a great deed waits.', 'warm');
@@ -1883,7 +2070,7 @@
          the road between them carries nothing, and the player is the panchayat. */
       if (!G.disp && G.t - G.lastd >= T.dispEvery) {
         var pairs = G.routes.filter(function (r) {
-          return awake(r[0]) && awake(r[1]) && G.capital !== r[0] && G.capital !== r[1];
+          return awake(r[0]) && awake(r[1]) && !isHer(r[0]) && !isHer(r[1]) && G.capital !== r[0] && G.capital !== r[1];
         });
         if (pairs.length) {
           var pr = pairs[(G.t * 11) % pairs.length];
@@ -1911,7 +2098,8 @@
       SITES.forEach(function (s) {
         if (!inEra(s)) return;
         var q = G.sites[s.id];
-        if (q.zzz) return;
+        if (q.zzz || q.her) return;                 /* memory does not fade twice */
+        if (G.tech.satellite) { q.idle = 0; if (q.fade >= 0) q.fade = -1; return; }   /* nothing found is ever lost again */
         if (connected(s.id)) { q.idle = 0; if (q.fade >= 0 && !G.ev) q.fade = -1; return; }
         if (q.fade >= 0) {
           q.fade++;
@@ -1929,7 +2117,7 @@
       /* help events — the collaboration verb. Only connected places ask, because the
          request travels by road, and helping pays better than anything else. */
       if (!G.ev && G.t % T.eventEvery === Math.floor(T.eventEvery / 2)) {
-        var cands = SITES.filter(function (s) { return inEra(s) && awake(s.id) && connected(s.id); });
+        var cands = SITES.filter(function (s) { return inEra(s) && awake(s.id) && !isHer(s.id) && connected(s.id); });
         if (cands.length > 1) {
           var pick = cands[(G.t * 7) % cands.length];
           G.ev = { id: pick.id, left: T.eventLen };
@@ -1948,6 +2136,10 @@
 
       spawnQuest();
       checkQuests();
+
+      /* the ending must not wait for a click: a world that becomes complete
+         by simply living completes (maybeEnd guards itself against overlays) */
+      maybeEnd();
 
       if (G.t % 5 === 0) save(G);
       paintHud(); SITES.forEach(paintSite); paintGuide();
@@ -2085,6 +2277,7 @@
           var po = actEl.getAttribute('data-o'), qs = byId[quiz.of];
           if (po === qs.ask.o[0]) {
             var payq = quiz.of === city ? T.quizPay : T.quizFarPay;
+            if (G.tech.press) payq *= 2;   /* a thousand copies by morning */
             G.res.katha += payq; G.score += 10; G.quizAt[city] = G.t; touch(city);
             say('Well answered — +' + payq + ' \ud83d\udcdc from the gurukul of ' + byId[city].name + '.', 'warm');
             quiz = null; riddleWrong = false;
@@ -2208,6 +2401,17 @@
     G.tech = G.tech || {}; G.capital = G.capital || null; G.disp = G.disp || null;
     G.lastd = G.lastd || 0; G.quizAt = G.quizAt || {}; G.quizN = G.quizN || 0;
     G.kingdoms = G.kingdoms || {}; G.lastraid = G.lastraid || 0; G.explorers = G.explorers || [];
+    /* the later ages' fields, absent on older saves — and the later ages'
+       CITIES, which an old save has never heard of: they arrive asleep under
+       the mist, exactly as a fresh world would hold them */
+    G.darshan = G.darshan || {}; G.lastakal = G.lastakal || 0;
+    G.lastdarshan = G.lastdarshan || 0; G.calmUntil = G.calmUntil || 0;
+    SITES.forEach(function (s) {
+      if (!G.sites[s.id]) G.sites[s.id] = { lv: 1, zzz: true, fade: -1, idle: 0, seen: false,
+        found: false, bld: {}, mon: false, neg: 0, jobs: null, hero: null };
+      var q = G.sites[s.id];
+      q.her = q.her || false; q.dry = q.dry || 0;
+    });
     SITES.forEach(function (x) { var q = G.sites[x.id]; if (q) { q.bld = q.bld || {}; q.mon = !!q.mon; q.neg = q.neg || 0;
       q.jobs = q.jobs || null; q.hero = q.hero || null;
       /* saves from before the fog: what the era had already brought in counts as found */

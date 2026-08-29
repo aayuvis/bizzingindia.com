@@ -177,6 +177,67 @@ DIO_PROMPTS = {
         "stacked high. The winding green backwater runs along the RIGHT edge with "
         "a broad-beamed foreign ship moored and longboats ferrying sacks; coconut "
         "palms and spice gardens quilt the rest."),
+    "delhi": p(
+        "Delhi of the great tower, from high above. At the centre, the fluted "
+        "Qutb Minar rising from its arched courtyard. Around it, walled quarters "
+        "of flat-roofed houses, domed gateways and bazaar lanes radiating out; "
+        "scrubland and old ruined city walls of earlier Delhis at the frame's "
+        "edges."),
+    "hampi": p(
+        "Hampi among its golden boulders, from high above. At the centre, the "
+        "Vittala courtyard with its stone chariot. Around it, long straight "
+        "bazaar streets, pillared mandapas, banana groves between giant rounded "
+        "boulders, and the river threading the top edge."),
+    "agra": p(
+        "Agra of the gardens, from high above. At the centre, the Taj Mahal on "
+        "its marble terrace, its char bagh garden of four quarters laid out "
+        "before it with crossing water channels. The Yamuna curves along the top "
+        "edge; garden tombs and the city's rooftops fill the rest."),
+    "amritsar": p(
+        "Amritsar, from high above, painted with reverence. At the centre, "
+        "Harmandir Sahib golden in its great square pool, the white walkway "
+        "around it and the causeway reaching the shrine. Around the pool, the "
+        "town's lanes and the long langar halls; green wheat country to the "
+        "frame's edges."),
+    "surat": p(
+        "the port of Surat, from high above. At the centre, the walled riverside "
+        "trading quarter with its warehouses and weighing yards. The wide Tapi "
+        "river runs along the RIGHT edge crowded with anchored wooden ships and "
+        "ferry boats; garden suburbs and roads fill the rest."),
+    "mumbai": p(
+        "Bombay of the railways, from high above. At the centre, the great "
+        "carved railway terminus with its dome and train shed, steam trains "
+        "leaving on shining rails that fan across the frame. The harbour with "
+        "ships runs along the RIGHT edge; docks, mills with tall chimneys and "
+        "dense rooftops fill the islands."),
+    "kolkata": p(
+        "Calcutta of the presses, from high above. At the centre, the Howrah "
+        "Bridge's steel span crossing the wide Hooghly, which runs top to bottom "
+        "just RIGHT of centre with boats and a ferry. On the near bank, College "
+        "Street's bookstalls, college courtyards and printing quarters; warehouses "
+        "on the far bank."),
+    "ahmedabad": p(
+        "Ahmedabad on the Sabarmati, from high above. At the centre, the quiet "
+        "ashram compound of white cottages under neem trees on the river bank. "
+        "The river runs along the RIGHT edge; the old city's dense pols, mosque "
+        "courtyards and mill chimneys spread left, with a small walking group "
+        "setting out along the bank road."),
+    "chandigarh": p(
+        "Chandigarh from high above, a planned city like a printed circuit of "
+        "gardens. At the centre, the Open Hand monument on its plaza among clean "
+        "geometric concrete buildings. Straight tree-lined avenues divide green "
+        "sectors of low houses to every edge, with a lake along the top."),
+    "bengaluru": p(
+        "Bengaluru from high above. At the centre, the old science institute's "
+        "pale tower in its green campus of rain trees. Around it, garden suburbs, "
+        "lakes, flowering avenues, and quarters of newer glass buildings "
+        "catching the light; no sea, green to every edge."),
+    "sriharikota": p(
+        "Sriharikota from high above. At the centre, the launch pad with its "
+        "white rocket and gantry tower on open ground. Casuarina forest quilts "
+        "the island; the lagoon runs along the LEFT edge and the open sea along "
+        "the RIGHT edge, with the long beach between; assembly buildings and a "
+        "straight causeway road below."),
 }
 
 

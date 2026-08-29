@@ -206,10 +206,115 @@ CITY_PROMPTS = {
         "black pepper and baskets of ginger going aboard by longboat, merchants "
         "weighing spice against bright coins under palm-thatch, kingfishers and "
         "coconut palms over the water."),
+    # ------------------------------------------------ the later ages (11) --
+    "delhi": p(
+        "the Qutb Minar of Delhi rising over its courtyard at golden evening — the "
+        "great fluted sandstone tower banded with carving, arched colonnades and a "
+        "domed gateway around it, pigeons wheeling, a lively bazaar lane of many "
+        "dresses and tongues leading up to the gate."),
+    "hampi": p(
+        "the stone chariot of Hampi in the Vittala courtyard at first light — the "
+        "carved granite chariot with its stone wheels, pillared mandapas behind, "
+        "giant golden boulders and banana groves beyond, and the long bazaar street "
+        "stretching away with awnings and heaps of bright goods."),
+    "agra": p(
+        "the Taj Mahal at dawn from across a garden watercourse — the white marble "
+        "dome and minarets doubled in the long reflecting channel, cypress trees, "
+        "inlaid flowers hinted on the gateway arch in the foreground, mist on the "
+        "Yamuna behind."),
+    "amritsar": p(
+        "Harmandir Sahib shining from the middle of its great pool at dusk — the "
+        "gilded shrine doubled in still water, the white marble walkway around the "
+        "pool, and in the foreground the langar: rows of people of every dress "
+        "seated together on the ground sharing a meal, painted with warmth and "
+        "reverence."),
+    "surat": p(
+        "the river port of Surat in full trade — broad-beamed wooden ships riding "
+        "the Tapi, longboats ferrying bales and jars to stone steps, warehouses "
+        "with tiled roofs, merchants of many lands weighing goods under awnings, "
+        "flags of many colours on the masts."),
+    "mumbai": p(
+        "the great railway terminus of Bombay at evening — the grand carved stone "
+        "station with its dome and pointed arches glowing warm, a steam train "
+        "waiting under the iron canopy, tonga carriages and porters with bundles "
+        "in the busy forecourt, gulls over the harbour beyond."),
+    "kolkata": p(
+        "the Howrah Bridge stretching over the Hooghly at sunset — the vast steel "
+        "cantilever span crowded with walkers, hand-pulled rickshaws and a tram, "
+        "boats with lamps on the wide river below, and the city's bookstalls and "
+        "college rooftops warm on the far bank."),
+    "ahmedabad": p(
+        "the quiet ashram on the Sabarmati at morning — low whitewashed cottages "
+        "under neem trees, a spinning wheel on a veranda, the river flat and "
+        "silver behind, and a small group setting out on foot along the bank with "
+        "walking sticks, painted gently and without any crowd."),
+    "chandigarh": p(
+        "the Open Hand monument of Chandigarh turning against a blue sky — the "
+        "great metal hand-dove on its tall mast above the sunken plaza, clean "
+        "geometric concrete buildings and green lawns around it, children flying "
+        "kites in the foreground."),
+    "bengaluru": p(
+        "a garden city of science at golden hour — the grand pale tower and "
+        "colonnades of the old science institute rising among rain trees and "
+        "flowering jacaranda, students with books and bicycles on the long avenue, "
+        "and glass buildings glinting beyond the green."),
+    "sriharikota": p(
+        "a white rocket on its launch tower on a casuarina island at dawn — the "
+        "gantry lit, the long beach and lagoon stretching away, egrets rising, "
+        "engineers tiny at the pad's edge, the first sun catching the rocket's "
+        "nose."),
 }
 
 # ------------------------------------------------------------- the vidyas (9) --
 VIDYA_PROMPTS = {
+    "vidya-paper": p(
+        "the gift of paper — a paper-maker's courtyard where sheets are lifted "
+        "from a vat on screens and hung to dry like pale flags, finished books "
+        "being stitched at a low table, a child carrying a tall stack of fresh "
+        "pages, patterned margins and no readable words anywhere."),
+    "vidya-charkha": p(
+        "the charkha — a courtyard at dusk where a grandmother spins at a wooden "
+        "spinning wheel, a thread of cotton glowing in lamplight, baskets of white "
+        "cotton and hanks of finished yarn, a child winding a bobbin beside her."),
+    "vidya-chahbagh": p(
+        "the char bagh — a garden of four quarters seen from a terrace: narrow "
+        "water channels crossing at a central fountain, fruit trees in blossom, "
+        "cypress rows, families resting on carpets in the shade."),
+    "vidya-ship": p(
+        "the shipyards — a great wooden hull rising on a beach slipway, shipwrights "
+        "with adzes and mallets on bamboo staging, coils of rope and cut timber, "
+        "a finished ship with sails riding at anchor beyond."),
+    "vidya-railway": p(
+        "the first railway — a bright steam engine pulling wooden carriages across "
+        "a stone viaduct through green fields, villagers waving from a level "
+        "crossing, smoke curling white against a monsoon sky."),
+    "vidya-press": p(
+        "the printing press — a busy press room at lamplight: a great hand press, "
+        "trays of type, boys carrying bundles of fresh newspapers out of the door, "
+        "pages hung to dry on lines like washing, no readable words anywhere."),
+    "vidya-harit": p(
+        "the green revolution — golden wheat standing tall and thick to the "
+        "horizon, a farmer and a scientist kneeling together over seedlings, a "
+        "canal bringing silver water, grain sacks stacked on a bullock cart."),
+    "vidya-satellite": p(
+        "the satellite — engineers in a clean workshop around a small faceted "
+        "satellite with unfolded solar panels, the tricolour on its side as plain "
+        "bands of colour, a chalkboard of orbits behind, a window showing a rocket "
+        "on a distant pad."),
+    "vidya-swadeshi": p(
+        "swadeshi — a village square where a bonfire of foreign cloth glows while "
+        "women spin at charkhas and a weaver holds up a bolt of homespun khadi, "
+        "everyone calm and resolved, painted with dignity, no readable words."),
+    "vidya-samvidhan": p(
+        "the constitution — a great decorated book open on a table, its margins "
+        "rich with painted borders and no readable words, and around the table "
+        "people of every dress of India standing together as equals, one lamp "
+        "lighting all their faces."),
+    "vidya-khula": p(
+        "1991, the doors open — a bazaar street where old shops and new glass "
+        "shopfronts stand side by side, a young woman with a computer monitor on "
+        "a handcart, ships and planes tiny on the horizon, everything bustling "
+        "and hopeful."),
     "vidya-plough": p(
         "the gift of the plough — a farmer and two garlanded white oxen cutting the "
         "first long furrows through rich dark earth at sunrise, the wooden plough "

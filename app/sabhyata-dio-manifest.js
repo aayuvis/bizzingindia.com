@@ -2,4 +2,4 @@
    Ids listed here have a tilted board-game plate at
    app/art/sabhyata/dio/<id>.jpg (900x600). The city scene prefers
    the diorama and falls back to the eye-level painting. */
-window.IND_SABHYATA_DIO = ["ajanta", "dhauli", "dholavira", "hastinapura", "kalibangan", "kashi", "konark", "lothal", "madurai", "mamallapuram", "mathura", "muziris", "nalanda", "pataliputra", "rakhigarhi", "sanchi", "sopara", "thanjavur", "ujjain", "vaishali"];
+window.IND_SABHYATA_DIO = ["agra", "ahmedabad", "ajanta", "amritsar", "bengaluru", "chandigarh", "delhi", "dhauli", "dholavira", "hampi", "hastinapura", "kalibangan", "kashi", "kolkata", "konark", "lothal", "madurai", "mamallapuram", "mathura", "mumbai", "muziris", "nalanda", "pataliputra", "rakhigarhi", "sanchi", "sopara", "sriharikota", "surat", "thanjavur", "ujjain", "vaishali"];

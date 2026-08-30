@@ -146,29 +146,38 @@
     '.sab-feed.warm{color:var(--good)}',
     '.sab-feed.mist{color:var(--accent2)}',
 
-    /* THE VERB TILES. The action row was a strip of long bordered buttons — "long
-       banner actions" was the exact complaint. Verbs are square-ish tiles now: a
-       stroke icon in a soft accent chip, the word, the cost — hover lifts, press
-       settles, a marigold badge counts what waits inside. */
-    '.sab-sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px;align-items:stretch}',
-    '.sab-shead{grid-column:1/-1;display:flex;align-items:baseline;gap:8px;margin:2px 2px -2px}',
-    '.sab-shead b{font:800 17px/1.1 var(--display,Georgia,serif)}',
-    '.sab-shead span{font-size:12px;color:var(--muted);font-weight:600}',
-    '.sab-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;' +
-      'padding:8px 6px 7px;border:0;border-radius:14px;cursor:pointer;color:var(--text);' +
-      'background:linear-gradient(165deg,var(--card),var(--card2,var(--card)));' +
-      'box-shadow:0 1px 2px rgba(30,20,64,.06),0 6px 18px rgba(30,20,64,.07);' +
-      'font:700 12px/1.2 var(--body,system-ui);transition:transform .15s,box-shadow .15s}',
-    '.sab-tile:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(30,20,64,.08),0 12px 26px rgba(30,20,64,.10)}',
-    '.sab-tile:active{transform:scale(.97)}',
-    '.sab-tile:disabled{opacity:.4;cursor:default;transform:none}',
-    '.sab-tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
-    '.sab-tile.go{background:linear-gradient(165deg,var(--accent),color-mix(in srgb,var(--accent) 78%,#000 8%));color:#fff}',
-    '.sab-tile.go .sab-tico{background:rgba(255,255,255,.18);color:#fff}',
-    '.sab-tile .cost{font-size:10.5px;font-weight:600;color:inherit;opacity:.75}',
+    /* ONE BAR OF VERBS. There were two rows of buttons — the HUD's own
+       (New era, Vidya, restart, pause) and the selection's big tiles below.
+       They share a single compact bar now: the selection's name and state
+       stand flat and boxless on the left (info wears no button clothes),
+       the selection's verbs follow as small round pills — icon chip, word,
+       cost tucked underneath — and the game's own verbs keep the right
+       edge, always in reach. */
+    '.sab-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
+    '.sab-verbs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}',
+    '.sab-gap{flex:1}',
+    '.sab-globals{display:flex;gap:8px;margin-left:auto}',
+    '.sab-who{display:flex;flex-direction:column;justify-content:center;padding:0 8px 0 2px;max-width:250px}',
+    '.sab-who b{font:800 15.5px/1.1 var(--display,Georgia,serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.sab-who span{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.02em}',
+    '.sab-act{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:4px 13px 4px 8px;' +
+      'border:1px solid var(--line);border-radius:999px;cursor:pointer;color:var(--text);background:var(--card);' +
+      'box-shadow:0 1px 3px rgba(30,20,64,.08);font:700 12.5px/1.15 var(--body,system-ui);' +
+      'transition:transform .15s,box-shadow .15s}',
+    '.sab-act:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(30,20,64,.13)}',
+    '.sab-act:active{transform:scale(.97)}',
+    '.sab-act:disabled{opacity:.4;cursor:default;transform:none}',
+    '.sab-act:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    '.sab-act .sab-tico{width:27px;height:27px;border-radius:999px}',
+    '.sab-act .lbl{display:flex;flex-direction:column;align-items:flex-start;text-align:left}',
+    '.sab-act .lbl em{font-style:normal;font-size:9.5px;font-weight:700;color:var(--muted);white-space:nowrap}',
+    '.sab-act.go{background:var(--accent);border-color:var(--accent);color:#fff}',
+    '.sab-act.go .sab-tico{background:rgba(255,255,255,.2);color:#fff}',
+    '.sab-act.go .lbl em{color:rgba(255,255,255,.85)}',
+    '.sab-act.txt{padding:4px 15px}',   /* the game's own text verbs (Vidya, Pause) */
     '.sab-tico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none;' +
       'background:var(--accent-soft,rgba(91,63,214,.1));color:var(--accent)}',
-    '.sab-badge{position:absolute;top:-6px;right:-6px;min-width:21px;height:21px;padding:0 5px;border-radius:999px;' +
+    '.sab-badge{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;' +
       'background:var(--accent2);color:#fff;font:800 12px/21px var(--body,system-ui);border:2px solid var(--card);box-shadow:0 2px 6px rgba(0,0,0,.18)}',
     '.sab-badge.hot{background:var(--accent3)}',
     '@keyframes sabflash{0%,100%{box-shadow:0 4px 14px rgba(30,20,64,.06)}35%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent2) 55%,transparent),0 4px 14px rgba(30,20,64,.06)}}',
@@ -1107,14 +1116,17 @@
         '<div class="sab-hud">' +
           '<div class="sab-era"><span id="sab-eradate"></span><b id="sab-eraname"></b></div>' +
           '<div class="sab-res" id="sab-res" aria-live="off"></div>' +
-          '<div style="display:flex;gap:8px">' +
-            '<button class="sab-btn go" id="sab-adv" hidden></button>' +
-            '<button class="sab-btn" id="sab-tech">Vidya</button>' +
-            '<button class="sab-btn" id="sab-restart" aria-label="Start again">\u21ba</button>' +
-            '<button class="sab-btn" id="sab-pause" aria-pressed="false">Pause</button>' +
+        '</div>' +
+        '<div class="sab-bar">' +
+          '<div class="sab-verbs" id="sab-sheet" hidden></div>' +
+          '<span class="sab-gap"></span>' +
+          '<div class="sab-globals">' +
+            '<button class="sab-act txt go" id="sab-adv" hidden></button>' +
+            '<button class="sab-act txt" id="sab-tech">Vidya</button>' +
+            '<button class="sab-act txt" id="sab-restart" aria-label="Start again">\u21ba</button>' +
+            '<button class="sab-act txt" id="sab-pause" aria-pressed="false">Pause</button>' +
           '</div>' +
         '</div>' +
-        '<div class="sab-sheet" id="sab-sheet" hidden></div>' +
         '<div id="sab-cityhost"></div>' +
         '<div class="sab-stage" id="sab-stage">' + board() +
           '<div style="position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:3">' +
@@ -1350,15 +1362,16 @@
       g.appendChild(el);
       setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 3400);
     }
-    /* the tile helper: icon chip, word, cost — with an optional waiting-count badge */
+    /* the pill helper: icon chip, word with the cost tucked under it — and an
+       optional waiting-count badge. Compact on purpose: every verb fits one bar. */
     function tile(act, icon, name, cost, opts) {
       opts = opts || {};
-      return '<button class="sab-tile' + (opts.go ? ' go' : '') + '" data-sab-act="' + act + '"' +
-        (opts.attrs || '') + (opts.disabled ? ' disabled' : '') + '>' +
+      return '<button class="sab-act' + (opts.go ? ' go' : '') + '" data-sab-act="' + act + '"' +
+        (opts.attrs || '') + (opts.disabled ? ' disabled' : '') +
+        (cost ? ' aria-label="' + name + ' — ' + cost + '"' : '') + '>' +
         (opts.badge ? '<span class="sab-badge' + (opts.hot ? ' hot' : '') + '">' + opts.badge + '</span>' : '') +
-        '<span class="sab-tico">' + ic(icon, 24) + '</span>' +
-        '<span>' + name + '</span>' +
-        (cost ? '<span class="cost">' + cost + '</span>' : '') +
+        '<span class="sab-tico">' + ic(icon, 16) + '</span>' +
+        '<span class="lbl">' + name + (cost ? '<em>' + cost + '</em>' : '') + '</span>' +
         '</button>';
     }
 
@@ -1371,8 +1384,8 @@
       if (city) {
         var waits = cityJobsWaiting(city);
         sh.hidden = false;
-        sh.innerHTML = '<div class="sab-shead"><b>' + esc(byId[city].name) + '</b><span>inside the city</span></div>' +
-          tile('leave', 'back', 'Back to map', '', { go: true }) +
+        sh.innerHTML = '<div class="sab-who"><b>' + esc(byId[city].name) + '</b><span>inside the city</span></div>' +
+          tile('leave', 'back', 'Map', '', { go: true }) +
           waits.map(function (w2) {
             return tile(w2.act, w2.icon, w2.name, '', { attrs: ' data-t="' + w2.t + '"', badge: '!', hot: w2.hot });
           }).join('');
@@ -1382,7 +1395,7 @@
       if (!sel) { sh.hidden = true; sh.innerHTML = ''; return; }
       var s = byId[sel], q = G.sites[sel];
       var b = [];
-      b.push('<div class="sab-shead"><b>' + esc(nameOf(s)) + '</b><span>' +
+      b.push('<div class="sab-who"><b>' + esc(nameOf(s)) + '</b><span>' +
         (q.her ? 'a remembered city — its monument keeps its story'
                : q.zzz ? 'asleep under the mist'
                : ICON[YIELD[s.kind]] + ' level ' + q.lv +
@@ -1460,8 +1473,7 @@
         (dusty(id) ? ' · DUSTY — half yields' : '') + '</span>' +
         '<span style="flex:1"></span>' +
         (y ? '<span class="sab-chip">brings in ' + ['anna','kala','katha'].filter(function (k) { return y[k]; })
-              .map(function (k) { return '+' + y[k] + ' ' + ICON[k]; }).join(' ') + '</span>' : '') +
-        '<button class="sab-btn" data-sab-act="leave">Back to the map</button></div>';
+              .map(function (k) { return '+' + y[k] + ' ' + ICON[k]; }).join(' ') + '</span>' : '') + '</div>';
       /* THE PEOPLE — allocation is the strategy. Kisan feed, karigar craft, kathakar
          tell, rakshak watch; the city's own trade counts double, and everyone eats.
          (Computed here because the painting below SHOWS them.) */
@@ -1867,7 +1879,9 @@
       if (open && cityOpened) W.scrollTo(0, keepY);
       if (open && !cityOpened) {
         cityOpened = true; cityReturnY = keepY;
-        var f = hostEl.querySelector('.sab-btn'); if (f) f.focus({ preventScroll: true });
+        /* the way out lives on the bar now — land the focus on its Map pill */
+        var f = D.querySelector('#sab-sheet .sab-act') || hostEl.querySelector('button');
+        if (f) f.focus({ preventScroll: true });
         /* the topbar is sticky: without a scroll margin the nameplate and the
            sky badges land underneath it and the city seems to have no name */
         var hdr = D.querySelector('.topbar');

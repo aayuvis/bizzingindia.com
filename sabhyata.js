@@ -359,6 +359,28 @@
     '@keyframes sabglint{0%,72%,100%{opacity:0;transform:scale(.6) rotate(0deg)}80%{opacity:.95;transform:scale(1.15) rotate(40deg)}88%{opacity:0;transform:scale(.6) rotate(80deg)}}',
     '.sab-trespot:focus-visible{outline:3px solid var(--accent2);outline-offset:-6px;border-radius:50%}',
     '.sab-treshint{font-size:12px;color:var(--muted);margin:4px 0 0;font-style:italic}',
+    /* standers: most praja stand about their work, swaying gently */
+    '.sab-stand{position:absolute;width:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));' +
+      'animation:sabsway 5s ease-in-out infinite;transform-origin:50% 100%}',
+    '@keyframes sabsway{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}',
+    /* the stations carry the \u2212/+ now \u2014 the allocation lives on the plate */
+    '.sab-station .srow{display:flex;gap:5px;margin-top:2px}',
+    '.sab-station .pm{min-width:40px;min-height:40px;border:0;border-radius:13px;cursor:pointer;' +
+      'background:rgba(255,251,238,.94);color:#4a3810;font:800 17px/1 var(--body,system-ui);' +
+      'box-shadow:0 2px 6px rgba(0,0,0,.28)}',
+    '.sab-station .pm:disabled{opacity:.45;cursor:default}',
+    '.sab-station .pm:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    /* milestone chips: one quiet line where three tall rows stood */
+    '.sab-mile{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}',
+    '.mch{font:700 11.5px/1.3 var(--body,system-ui);padding:5px 11px;border-radius:999px;' +
+      'border:1px solid var(--line);color:var(--muted);background:var(--card,#fff)}',
+    '.mch.done{color:var(--accent);border-color:var(--accent)}',
+    '.mch.next{color:var(--text);border-color:var(--accent2);box-shadow:0 0 0 2px rgba(240,180,80,.25)}',
+    '.mch.star{color:var(--accent2);border-color:var(--accent2);font-weight:800}',
+    /* the crown badge wears its price; a disabled badge stands quiet */
+    '.sab-cbadge u{text-decoration:none;font-style:normal;font-size:8px;line-height:1.1;opacity:.85}',
+    '.sab-cbadge.cap{animation:none}',   /* permanent chrome holds still */
+    '.sab-cbadge:disabled{opacity:.55;cursor:default;animation:none}',
     /* WALK MODE: the yatri stands ON the plate and walks where you tap;
        the camera (a gentle zoom on the whole painted world) eases after
        them, clamped so the plate always fills the frame edge to edge.
@@ -397,7 +419,7 @@
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
       '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,.sab-trespot .glint,' +
-      '.sab-smoke,.sab-cross,.sab-plot .pbell,.sab-yatri.walking img{animation:none}' +
+      '.sab-smoke,.sab-cross,.sab-plot .pbell,.sab-yatri.walking img,.sab-stand{animation:none}' +
       '.sab-trespot .glint{opacity:.55}.sab-cam{transition:none}}'   /* still findable when nothing may move */
   ].join('\n');
 
@@ -1431,16 +1453,26 @@
       var tune = (dioOf(id) && DIO_TUNE[id]) || {};
       if (heroArt) {
         var walkers = '', wi = 0, nowS = Date.now() / 1000;
-        if (!REDUCED && !q.zzz) {
+        if (!q.zzz) {
+          /* the town no longer buzzes: most praja STAND about their work,
+             swaying gently in place; one in three strolls, slowly. Reduced
+             motion keeps the standers (still) and sends the strollers home. */
           ['kisan', 'karigar', 'kathakar', 'rakshak'].forEach(function (jid) {
             var spw = spOf(jid); if (!spw) return;
             for (var k = 0; k < Math.min(j[jid], 5) && wi < 12; k++) {
               wi++;
-              var dur = 14 + ((wi * 7) % 14);
-              walkers += '<img class="sab-walker" src="' + spw + '" alt="" style="' +
-                'animation-duration:' + dur + 's,' + (0.6 + (wi % 3) * 0.15) + 's;' +
-                'animation-delay:-' + ((nowS + wi * 3.7) % dur).toFixed(2) + 's,0s;' +
-                'bottom:' + (1.5 + (wi % 5) * 2.2) + '%;height:' + (9 + (wi % 4) * 2) + '%">';
+              if (!REDUCED && wi % 3 === 0) {
+                var dur = 48 + ((wi * 9) % 28);
+                walkers += '<img class="sab-walker" src="' + spw + '" alt="" style="' +
+                  'animation-duration:' + dur + 's,1.4s;' +
+                  'animation-delay:-' + ((nowS + wi * 3.7) % dur).toFixed(2) + 's,0s;' +
+                  'bottom:' + (1.5 + (wi % 5) * 2.2) + '%;height:' + (9 + (wi % 4) * 2) + '%">';
+              } else {
+                walkers += '<img class="sab-stand" src="' + spw + '" alt="" style="' +
+                  'left:' + (7 + ((wi * 17) % 80)) + '%;' +
+                  'bottom:' + (2 + (wi % 5) * 2.4) + '%;height:' + (9 + (wi % 4) * 2) + '%;' +
+                  'animation-delay:-' + ((nowS + wi) % 5).toFixed(1) + 's">';
+              }
             }
           });
         }
@@ -1471,16 +1503,29 @@
         }
         /* the city banner, the four stations, and the calls of the moment */
         var plate = '<div class="sab-nameplate"><b>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</b>' +
-          '<span>lv ' + q.lv + ' · ' + pop + ' praja' +
+          '<span>lv ' + q.lv + ' · ' + pop + ' praja · eat ' + (pop * T.eat) + ' 🌾' +
           (y ? ' · ' + ['anna', 'kala', 'katha'].filter(function (k2) { return y[k2]; })
             .map(function (k2) { return '+' + y[k2] + ' ' + ICON[k2]; }).join(' ') : '') + '</span></div>';
+        /* THE STATIONS ARE THE ALLOCATION. The four kinds of praja stand at
+           their corners wearing the live count — and the −/+ that used to
+           live in tiles below now hang right on their shoulders. What each
+           job does rides the aria-label; the tiles below are gone. */
         var ST_POS = { kisan: 'left:1.5%;bottom:26%', karigar: 'left:81%;bottom:26%',
                        kathakar: 'left:1.5%;top:15%', rakshak: 'left:81%;top:15%' };
+        var totalJ = j.kisan + j.karigar + j.kathakar + j.rakshak;
         var stations = ['kisan', 'karigar', 'kathakar', 'rakshak'].map(function (jid) {
           var spw = spOf(jid); if (!spw) return '';
-          return '<button class="sab-station" style="' + ST_POS[jid] + '" data-sab-act="cjump" data-t="sab-sec-people"' +
-            ' aria-label="' + esc(DATA.jobs[jid].name) + ' — ' + j[jid] + ' at work. Assign the people.">' +
-            '<img src="' + spw + '" alt=""><b>' + j[jid] + '</b><i>' + esc(DATA.jobs[jid].name) + '</i></button>';
+          var jd = DATA.jobs[jid];
+          var canUp = totalJ < pop || (j.kisan > 0 && jid !== 'kisan');
+          return '<div class="sab-station" style="' + ST_POS[jid] + '">' +
+            '<img src="' + spw + '" alt=""><b>' + j[jid] + '</b>' +
+            '<i>' + esc(jd.name) + (jid === spec ? ' ×2' : '') + '</i>' +
+            '<span class="srow">' +
+            '<button class="pm" data-sab-act="job" data-j="' + jid + '" data-d="-1"' + (j[jid] ? '' : ' disabled') +
+            ' aria-label="One fewer ' + esc(jd.name) + ' — ' + esc(jd.what) + '">−</button>' +
+            '<button class="pm" data-sab-act="job" data-j="' + jid + '" data-d="1"' + (canUp ? '' : ' disabled') +
+            ' aria-label="One more ' + esc(jd.name) + ' — ' + esc(jd.what) + '">+</button>' +
+            '</span></div>';
         }).join('');
         /* the great one stands IN the city, glowing gently, one tap from
            their deed — a painted role, present on the land like everything
@@ -1500,6 +1545,14 @@
           'data-sab-act="cjump" data-t="sab-sec-quest" aria-label="A quest waits"><em>📜</em>quest</button>';
         if (q.hero && !q.hero.gone) badges += '<button class="sab-cbadge" style="left:2%;top:2.5%" ' +
           'data-sab-act="cjump" data-t="sab-sec-hero" aria-label="A great one is here"><em>★</em>great one</button>';
+        /* THE SEAT OF THE REALM, on the sky: the capital card below is gone —
+           the crown badge wears the price and does the deed. */
+        if (G.capital !== id) badges += '<button class="sab-cbadge cap" style="right:2%;top:2.5%" data-sab-act="cap"' +
+          (canPay(T.capCost) ? '' : ' disabled') +
+          ' aria-label="Make ' + esc(nameOf(s)) + ' the capital (' + costStr(T.capCost) + ').' +
+          (G.capital ? ' The capital is at ' + esc(nameOf(byId[G.capital])) + '.'
+                     : ' A capital never gathers dust, never quarrels, and adds +1 of everything.') + '">' +
+          '<em>👑</em>capital<u>' + costStr(T.capCost) + '</u></button>';
         /* hearth smoke and a cart on the street — the town breathes */
         var breath = '';
         if (!REDUCED && !q.zzz) {
@@ -1586,7 +1639,9 @@
       var king = inKingdomOf(id);
       if (king) h += '<div class="sab-herocap" style="font-weight:800;color:var(--accent)">' +
         motif('lotus', 20) + esc(G.kingdoms[king].name) + (king === id ? ' — this is the seat' : '') + '</div>';
-      h += '<div class="mono" style="margin-top:4px">The people · ' + pop + ' praja · eat ' +
+      /* with a plate, the stations ARE the people UI — the tiles stay only
+         for a city with no painting to stand them on */
+      if (!heroArt) h += '<div class="mono" style="margin-top:4px">The people · ' + pop + ' praja · eat ' +
         (pop * T.eat) + ' \ud83c\udf3e each turn</div><div class="sab-jobs" id="sab-sec-people">' +
         Object.keys(DATA.jobs).map(function (jid) {
           var jd = DATA.jobs[jid];
@@ -1609,6 +1664,12 @@
         /* the great one has a FACE now — an invented role, painted, never a
            real person (docs/05: roles may be pieces; people may not) */
         var hface = spOf({ kheti: 'hero-annadata', shilpa: 'hero-sthapati', vidya: 'hero-acharya' }[s.kind]);
+        if (q.hero.used) {
+          /* the deed is done: one quiet chip, not a whole card — the gift
+             still reads, and the page gets its air back */
+          h += '<div class="sab-mile" id="sab-sec-hero"><span class="mch star">★ ' +
+            esc(hd.name) + ' stays · ' + esc(hd.gift) + '</span></div>';
+        } else {
         h += '<div class="sab-quest" id="sab-sec-hero" style="border-color:var(--accent)">' +
           (hface ? '<img class="sab-heroface" src="' + hface + '" alt="">' : '') +
           '<div class="who" style="color:var(--accent)">' +
@@ -1622,10 +1683,9 @@
               '>Or: crown ' + esc(s.name) + ' — found a kingdom</button>' +
               '<p class="tiny" style="color:var(--muted);margin:8px 0 0">A crown needs ' + T.kingdomMin +
               ' awake towns joined by roads. Every town the roads reach shares the kingdom\u2019s strength (+1 of everything).</p>';
-        } else {
-          h += '<p class="tiny" style="color:var(--muted)">Their great deed is done; they stay for the gift.</p>';
         }
         h += '</div>';
+        }
       }
 
       /* THE QUARREL COMES FIRST. If this town is in a dispute, the panchayat sits
@@ -1645,6 +1705,24 @@
               }).join('')) +
           '</div>';
       }
+      /* THE MILESTONES, AS CHIPS. The works rows and the monument row were
+         three tall boxes retelling what the plate already shows (the scaffold
+         IS the monument button); one line of chips keeps the story. The full
+         rows remain for a city with no painting. */
+      if (heroArt) {
+        h += '<div class="sab-mile" id="sab-sec-works">' +
+          (s.works || []).slice(0, 2).map(function (w2, i2) {
+            return '<span class="mch' + (q.lv > i2 ? ' done' : (q.lv === i2 ? ' next' : '')) + '"' +
+              (q.lv === i2 ? ' title="grow the city to build this"' : '') + '>' +
+              (q.lv > i2 ? '✓ ' : '') + esc(w2) + '</span>';
+          }).join('') +
+          (q.mon
+            ? '<span class="mch star" title="the monument stands — +2 📜, and the mist cannot touch this town">★ ' + esc(s.works[2]) + '</span>'
+            : '<span class="mch' + (q.lv >= 3 ? ' next' : '') + '" title="' +
+              (q.lv >= 3 ? 'raise it on the scaffold above' : 'a level-3 city may raise its monument') +
+              '">★ ' + esc(s.works[2]) + '</span>') +
+          '</div>';
+      } else
       h += '<div class="sab-works" id="sab-sec-works">' + (s.works || []).slice(0, 2).map(function (w, i) {
         return '<div class="sab-work' + (q.lv > i ? ' built' : '') + (q.lv === i + 1 ? ' now' : '') + '">' +
           '<i>' + (q.lv > i ? '✓' : (i + 1)) + '</i>' + esc(w) +
@@ -1669,7 +1747,9 @@
 
       /* BUILD — the strategic coins: the same anna and kala also want to be roads,
          growth and peace, and that tension is the game. */
-      h += '<div class="mono" style="margin-top:4px">Build</div><div class="sab-jobs" id="sab-sec-build">' +
+      /* the plate's plots ARE the build board (all five buildings fit);
+         the rows stay only for a city with no painting */
+      if (!heroArt) h += '<div class="mono" style="margin-top:4px">Build</div><div class="sab-jobs" id="sab-sec-build">' +
         Object.keys(BLD).map(function (bid) {
           var bd = BLD[bid];
           if (bd.era > G.era) return '';
@@ -1688,7 +1768,7 @@
       /* THE CAPITAL — one city carries the realm. Moving it is how it always was:
          the Magadha kings left Rajagriha for Pataliputra when the river roads mattered
          more than the hills. */
-      if (G.capital !== id) {
+      if (G.capital !== id && !heroArt) {
         var cc = T.capCost;
         h += '<div class="sab-quest" style="border-style:dashed"><div class="who">the seat of the realm</div>' +
           '<p>' + (G.capital ? 'The capital is at ' + esc(byId[G.capital].name) + '. Moving it here costs the move itself.'
@@ -1734,9 +1814,6 @@
           h += '<p class="tiny" style="color:var(--muted)">This one is done out on the map — the scroll will close itself.</p>';
         }
         h += '</div>';
-      } else {
-        h += '<div class="sab-quest" style="border-style:dashed;opacity:.75"><div class="who">the town square</div>' +
-          '<p>No scroll here right now. The folk bring requests as the world turns.</p></div>';
       }
       if (q.seen) h += '<div class="sab-cfact">' + esc(s.fact) + '</div>';
       h += '</div>';
@@ -1766,6 +1843,10 @@
       if (open && !cityOpened) {
         cityOpened = true; cityReturnY = keepY;
         var f = hostEl.querySelector('.sab-btn'); if (f) f.focus({ preventScroll: true });
+        /* the topbar is sticky: without a scroll margin the nameplate and the
+           sky badges land underneath it and the city seems to have no name */
+        var hdr = D.querySelector('.topbar');
+        hostEl.style.scrollMarginTop = hdr ? (hdr.getBoundingClientRect().height + 8) + 'px' : '96px';
         hostEl.scrollIntoView({ block: 'start' });
       }
       if (!open && cityOpened) {

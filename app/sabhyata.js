@@ -112,7 +112,7 @@
     '.sab-btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
 
     '.sab-stage{position:relative;background:var(--ground2);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}',
-    '.sab-stage svg{display:block;width:100%;height:auto;max-height:64vh}',
+    '.sab-stage svg{display:block;width:100%;height:auto;max-height:72vh}',
     '.sab-terr{fill:var(--mist);stroke:var(--line);stroke-width:1;pointer-events:none}',
     '.sab-river{fill:none;stroke:#7ba6c9;stroke-width:4.5;stroke-linecap:round;opacity:.6;pointer-events:none}',
 
@@ -178,7 +178,7 @@
     '.sab-over .sab-card{margin:auto}',
     /* the fact / era / wake cards: SMALL on purpose — a note held up over the
        game, not a page replacing it. The map stays visible around them. */
-    '.sab-card{max-width:330px;background:var(--card);border:0;border-radius:18px;padding:13px 14px;box-shadow:0 14px 40px rgba(0,0,0,.25)}',
+    '.sab-card{max-width:min(560px,86vw);background:var(--card);border:0;border-radius:18px;padding:14px 18px;box-shadow:0 14px 40px rgba(0,0,0,.25)}',
     '.sab-card h3{margin:0 0 6px;font:800 16.5px/1.2 var(--display,Georgia,serif)}',
     '.sab-card p{margin:0 0 9px;font-size:13.5px;line-height:1.5}',
     '.sab-card .row{display:flex;gap:8px;flex-wrap:wrap}',
@@ -231,9 +231,9 @@
        the paintings stop being posters. Phones keep the tall map. */
     '@media (min-width: 900px){' +
       '.sab-wrap{gap:8px}' +
-      '.sab-stage svg{max-height:44vh}' +
+      '.sab-stage svg{max-height:70vh}' +
       '.sab-hero{max-height:180px;aspect-ratio:auto}' +
-      '.sab-cardart{max-height:110px;object-fit:cover}' +
+      '.sab-cardart{max-height:170px;object-fit:cover}' +
       '.sab-vthumb{width:96px;height:64px}' +
     '}',
     /* ============ SABHYATA ALIVE — the sprite and motion layer ============ */
@@ -969,6 +969,19 @@
        drag pan is fenced to the land you have revealed — the mist is not a
        place you can wander, only a place you can send explorers into. */
     var zlevel = 1;                       /* 0 near · 1 region · 2 all */
+    /* THE WINDOW MATCHES THE BOX. The viewBox was always portrait (h = w*1.1),
+       so on a wide desktop the map letterboxed into a narrow strip between
+       grey gutters. At NEAR and REGION the window now takes the stage's own
+       shape (clamped: never wider than 2:1, never taller than portrait), so
+       the land fills the full width. ALL stays portrait — whole India is a
+       portrait country. Phones compute >1.1 and clamp back to 1.1: unchanged. */
+    function vasp() {
+      if (zlevel === 2) return 1.1;
+      var st = D.getElementById('sab-stage');
+      var w2 = st ? st.clientWidth : 0;
+      if (!w2) return 1.1;
+      return Math.max(0.5, Math.min(1.1, (W.innerHeight * 0.66) / w2));
+    }
     function revealedBox() {
       var pts = SITES.filter(onMap).map(function (x) { return [x.x, x.y]; });
       G.explorers.forEach(function (ex) { pts.push([ex.x, ex.y]); });
@@ -988,11 +1001,11 @@
       if (zlevel === 0) {
         VZ.w = 280;
       } else {
-        var span = Math.max(b.x1 - b.x0 - 100, (b.y1 - b.y0 - 100) / 1.1);
+        var span = Math.max(b.x1 - b.x0 - 100, (b.y1 - b.y0 - 100) / vasp());
         VZ.w = Math.max(380, Math.min(1000, span + 180));
         cx = (b.x0 + b.x1) / 2; cy = (b.y0 + b.y1) / 2;
       }
-      VZ.h = VZ.w * 1.1;
+      VZ.h = VZ.w * vasp();
       VZ.x = cx - VZ.w / 2; VZ.y = cy - VZ.h / 2;
       vzClamp(); vzApply();
     }
@@ -1002,13 +1015,19 @@
     function fitFound(force) {
       if (force || zlevel === 1) zoomTo(1);
     }
+    var rsTm = null;
+    function onResize() {
+      clearTimeout(rsTm);
+      rsTm = setTimeout(function () { if (!dead) { vzClamp(); vzApply(); } }, 200);
+    }
+    W.addEventListener('resize', onResize);
     var panning = null, swallowClick = false, pinch = null;
     function vzApply() {
       var svg = D.querySelector('#sab-stage svg');
       if (svg) svg.setAttribute('viewBox', VZ.x.toFixed(1) + ' ' + VZ.y.toFixed(1) + ' ' + VZ.w.toFixed(1) + ' ' + VZ.h.toFixed(1));
     }
     function vzClamp() {
-      VZ.h = VZ.w * 1.1;
+      VZ.h = VZ.w * vasp();
       /* the pan fence: at near and region the view stays over revealed land;
          only ALL roams the whole map */
       var bx = zlevel === 2 ? { x0: -60, y0: -60, x1: 1060, y1: 1160 } : revealedBox();
@@ -1016,6 +1035,12 @@
       else VZ.x = Math.max(bx.x0, Math.min(bx.x1 - VZ.w, VZ.x));
       if (VZ.h >= bx.y1 - bx.y0) VZ.y = (bx.y0 + bx.y1 - VZ.h) / 2;
       else VZ.y = Math.max(bx.y0, Math.min(bx.y1 - VZ.h, VZ.y));
+      /* a wide window centred on a western cluster can hang off the map
+         sheet; slide it back over the land (never past the sheet's edges) */
+      if (zlevel !== 2) {
+        if (VZ.w < 1120) VZ.x = Math.max(-60, Math.min(1060 - VZ.w, VZ.x));
+        if (VZ.h < 1220) VZ.y = Math.max(-60, Math.min(1160 - VZ.h, VZ.y));
+      }
     }
     function vzPoint(e) {
       var svg = D.querySelector('#sab-stage svg'), r = svg.getBoundingClientRect();
@@ -2819,6 +2844,8 @@
       D.removeEventListener('pointerup', onPointerUp);
       D.removeEventListener('pointercancel', onPointerUp);
       D.removeEventListener('keydown', onKey, true);
+      W.removeEventListener('resize', onResize);
+      clearTimeout(rsTm);
     };
   }
 

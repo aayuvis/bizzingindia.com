@@ -3497,7 +3497,14 @@
     }
   };
   /* ============================================================ MANIFEST OUT */
-  var list = W.map(function (w) {
+  /* FIVE WORLDS IN THE PICKER, the rest archived in place. The scenes,
+     tiles and friezes of the archived ten stay in this file untouched — one
+     id added back to ACTIVE re-opens a world whole. The five cover the
+     registers: a street, a folk-art tradition, a festival, the sky, and
+     play. A profile saved on an archived world is healed to the first
+     active one by worldFix() in app.js. */
+  var ACTIVE = ['delhi6', 'madhubani', 'diwali', 'antariksh', 'cricket'];
+  var list = W.filter(function (w) { return ACTIVE.indexOf(w.id) >= 0; }).map(function (w) {
     return { id: w.id, name: w.name, region: w.region, note: w.note, credit: w.credit,
       full: !!w.full, tokens: w.t, tile: (TILES[w.id] || '') };
   });

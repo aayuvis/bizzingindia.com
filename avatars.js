@@ -577,33 +577,48 @@ sarojini: '<circle cx="60" cy="60" r="54" fill="#2FA89B" opacity=".2"/>' +
 
 /* ------------------------------------------------------------------- packs */
 
+/* THE SHELVES ARE CURATED, THE DRAWINGS ARE NOT DELETED. Every pack keeps
+   two lists: `ids` is what the picker, the companion shelf and the card deck
+   actually offer; `arch` is the archive — the SVGs stay registered, the
+   stories keep their faces, a child whose buddy is archived keeps that buddy,
+   and IND_BUDDY_TIER still knows everyone's shelf. Moving a name between the
+   lists is one line, so the shop can re-open an archived face any day. */
 window.IND_AVATAR_PACKS = [
   { id: 'devas', shelf: 'sacred',  name: 'Gods & Teachers', note: 'Drawn the way folk painters draw them.',
-    ids: ['ganesha','krishna','hanuman','durga','saraswati','shiva','brahma','vishnu','rama','lakshmi','buddha','mahavira','khanda','harmandir'] },
+    ids: ['ganesha','krishna','hanuman','durga','saraswati','shiva','rama','lakshmi','buddha','mahavira','khanda'],
+    arch: ['brahma','vishnu','harmandir'] },
   { id: 'panch', shelf: 'tales',  name: 'Panchatantra',    note: 'The animals who tell the oldest stories.',
-    ids: ['pt_lion','pt_jackal','pt_bull','pt_crow','pt_tortoise','pt_mouse','pt_deer','pt_crocodile','pt_monkey','pt_rabbit','pt_heron','pt_elephant'] },
+    ids: ['pt_lion','pt_crow','pt_tortoise','pt_mouse','pt_monkey','pt_rabbit'],
+    arch: ['pt_jackal','pt_bull','pt_deer','pt_crocodile','pt_heron','pt_elephant'] },
   { id: 'darbar', shelf: 'tales', name: "Akbar's Darbar",  note: 'The cleverest court in the world.',
-    ids: ['akbar','birbal','tansen','courtier','guard','royal_elephant'] },
+    ids: ['akbar','birbal','tansen'],
+    arch: ['courtier','guard','royal_elephant'] },
   { id: 'great', shelf: 'people',  name: 'Great Indians',   note: 'Real people. Every one has an Itihaas card.',
-    ids: ['ashoka','chanakya','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','aryabhata','tagore','kalpana','sarojini','savitribai','hansa_mehta'] },
+    ids: ['ashoka','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','savitribai'],
+    arch: ['chanakya','aryabhata','tagore','kalpana','sarojini','hansa_mehta'] },
 
   /* Modern India. Real people again — athletes and builders, chosen so a child sees
      women and men, north and south, plains and hills, a wheelchair and a turban, all
      under the same word: champion. No politician is in either pack, deliberately. */
   { id: 'khel', shelf: 'people',   name: 'India at Play',   note: 'The athletes who made a billion people look up.',
-    ids: ['dhyanchand','milkha','kapil','sachin','dhoni','kohli','mithali','marykom','sindhu','saina','neeraj','malleswari','mirabai','anand','gukesh','avani'] },
+    ids: ['dhyanchand','milkha','sachin','marykom','sindhu','neeraj','mirabai','avani'],
+    arch: ['kapil','dhoni','kohli','mithali','saina','malleswari','anand','gukesh'] },
   { id: 'naya', shelf: 'people',   name: 'The Builders',    note: 'Milk, software, rockets, startups, a bank for working women — made here.',
-    ids: ['kurien','n_murthy','sudha_murty','falguni','kiran_shaw','ela_bhatt','ritesh','rocket','unicorn'] },
+    ids: ['kurien','sudha_murty','ela_bhatt','falguni','rocket'],
+    arch: ['n_murthy','kiran_shaw','ritesh','unicorn'] },
   { id: 'vigyan', shelf: 'people', name: 'The Scientists',  note: 'They asked why, and kept asking. Kalam, Kalpana and Aryabhata keep their place among the Great Indians.',
-    ids: ['raman','ramanujan','bhabha','sarabhai','jcbose','janaki_ammal','annamani','tessy','swaminathan','salimali'] },
+    ids: ['raman','ramanujan','jcbose','janaki_ammal','swaminathan'],
+    arch: ['bhabha','sarabhai','annamani','tessy','salimali'] },
 
   /* The epic casts. All 30 PNGs live under app/art and in art-manifest.js.
      Rama, Hanuman and Krishna stay in the Devas pack and are deliberately not repeated
      here — an id in two packs renders twice in the picker. */
   { id: 'ramayana', shelf: 'sacred', name: 'The Ramayana',    note: 'Everyone the story is about, not only the ones who win.',
-    ids: ['sita','lakshmana','bharata','dasharatha','kaikeyi','ravana','vibhishana','sugriva','jatayu','shabari','vishwamitra','mandodari','valmiki'] },
+    ids: ['sita','lakshmana','ravana','vibhishana','jatayu','shabari','valmiki'],
+    arch: ['bharata','dasharatha','kaikeyi','sugriva','vishwamitra','mandodari'] },
   { id: 'mahabharata', shelf: 'sacred', name: 'The Mahabharata', note: 'One family that could not stop. Nobody here is only a villain.',
-    ids: ['draupadi','arjuna','bhima','yudhishthira','nakula','sahadeva','karna','bhishma','drona','dhritarashtra','gandhari','kunti','duryodhana','shakuni','vidura','ekalavya','abhimanyu'] },
+    ids: ['draupadi','arjuna','bhima','yudhishthira','karna','bhishma','gandhari','ekalavya'],
+    arch: ['nakula','sahadeva','drona','dhritarashtra','kunti','duryodhana','shakuni','vidura','abhimanyu'] },
 
   /* THE TEN DESCENTS. Rama, Krishna and the Buddha are deliberately NOT repeated
      here — they already stand in Gods & Teachers, and an id in two packs renders
@@ -616,13 +631,15 @@ window.IND_AVATAR_PACKS = [
      instead of the Buddha, and some count both. Balarama is here for that reason.
      The Bhagavata Purana itself gives a longer list elsewhere and says the
      descents are beyond counting. */
+  /* kept WHOLE in the cut: a pack named for counting to ten cannot be half */
   { id: 'dashavatara', shelf: 'sacred', name: 'The Ten Avatars', note: 'The descents of Vishnu. Rama, Krishna and the Buddha keep their place in Gods & Teachers.',
     ids: ['matsya','kurma','varaha','narasimha','vamana','parashurama','balarama','kalki'] },
 
   /* The wider pantheon — the devas a child meets in the festivals, the rivers and
      the sky before they ever meet them in a book. */
   { id: 'pantheon', shelf: 'sacred', name: 'The Devas', note: 'Rain, fire, wind, water, sun, moon — and the ones who keep them.',
-    ids: ['indra','agni','vayu','varuna','surya','chandra','yama','kubera','kartikeya','parvati','kali','ganga','vishwakarma'] },
+    ids: ['indra','agni','surya','ganga','parvati','kartikeya'],
+    arch: ['vayu','varuna','chandra','yama','kubera','kali','vishwakarma'] },
 
   /* THE ASURAS. Read the pack note twice before adding anyone here.
      "Asura" is not a synonym for evil and this pack exists partly to say so.
@@ -637,7 +654,8 @@ window.IND_AVATAR_PACKS = [
      §7, and the note at the top of this file about the epic antagonists). The
      generation prompts carry an explicit no-snarl, no-fangs, no-red-eyes clause. */
   { id: 'asuras', shelf: 'sacred', name: 'The Asuras', note: 'Not a word for evil. Kings, devotees and teachers — half-brothers to the devas, churning the same ocean.',
-    ids: ['bali','prahlada','hiranyakashipu','hiranyaksha','mahishasura','tarakasura','shukracharya','banasura','vritra','bhasmasura'] }
+    ids: ['bali','prahlada','hiranyakashipu','shukracharya','mahishasura'],
+    arch: ['hiranyaksha','tarakasura','banasura','vritra','bhasmasura'] }
 ];
 
 window.IND_AVATAR_NAMES = {

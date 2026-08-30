@@ -2928,9 +2928,10 @@
   };
 
   /* --------------------------------------------------------------- WORLDS */
-  /* The picker reads worlds-art.js when it is loaded — that file owns the fifteen
-     worlds, their palettes, their animated tiles and their credit lines. The old
-     hardcoded WORLDS array stays only as the fallback for a build without it. */
+  /* The picker reads worlds-art.js when it is loaded — that file owns the
+     worlds (five active; ten more archived in place), their palettes, tiles
+     and credit lines. The old hardcoded WORLDS array stays only as the
+     fallback for a build without it. */
   function worldList() {
     return (window.IND_WORLDS && window.IND_WORLDS.list) || WORLDS;
   }
@@ -5722,9 +5723,11 @@
       return (window.IND_ART_IMG && window.IND_ART_IMG.indexOf(id) >= 0) ? 'art/' + id + '.png' : '';
     };
     window.IND_BUDDY_TIER = function (id) {
+      /* archived avatars keep their shelf: a sacred figure never becomes a
+         game piece just because the picker stopped offering them */
       var P = window.IND_AVATAR_PACKS || [];
       for (var i = 0; i < P.length; i++)
-        if ((P[i].ids || []).indexOf(id) >= 0) return P[i].shelf || 'tales';
+        if ((P[i].ids || []).concat(P[i].arch || []).indexOf(id) >= 0) return P[i].shelf || 'tales';
       return 'tales';
     };
     window.addEventListener('ind-reward', function (e) {

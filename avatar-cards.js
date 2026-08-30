@@ -638,7 +638,9 @@
   function packOf(id) {
     var ps = PACKS();
     for (var i = 0; i < ps.length; i++) {
-      if (ps[i].ids && ps[i].ids.indexOf(id) >= 0) return ps[i];
+      /* the archive keeps its cards: an avatar the picker no longer offers
+         still resolves — stories, decks and old buddies depend on it */
+      if ((ps[i].ids || []).concat(ps[i].arch || []).indexOf(id) >= 0) return ps[i];
     }
     return null;
   }

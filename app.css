@@ -153,6 +153,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ---------------------------------------------------------------- shell */
 .wrap { max-width: 1120px; margin: 0 auto; padding: var(--space-xl) var(--space-lg) 80px; }
+/* the game runs wide: one bar of verbs and a big board want the room */
+.wrap:has(#gamehost) { max-width: 1500px; }
 
 .topbar {
   position: sticky; top: 0; z-index: 40;

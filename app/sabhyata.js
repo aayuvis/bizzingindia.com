@@ -351,6 +351,14 @@
     '.sab-herostand img{height:52px;animation:sabglow 2.2s ease-in-out infinite}',
     '.sab-heroface{width:62px;height:auto;float:left;margin:0 10px 4px 0;' +
       'filter:drop-shadow(0 2px 4px rgba(30,20,64,.25))}',
+    /* khazana: the treasure spot and the whispered hint */
+    '.sab-trespot{pointer-events:auto;position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;' +
+      'border:0;background:none;cursor:pointer;display:grid;place-items:center}',
+    '.sab-trespot .glint{font-size:13px;color:#ffe9a8;opacity:0;text-shadow:0 0 6px rgba(255,215,110,.9);' +
+      'animation:sabglint 5s ease-in-out infinite}',
+    '@keyframes sabglint{0%,72%,100%{opacity:0;transform:scale(.6) rotate(0deg)}80%{opacity:.95;transform:scale(1.15) rotate(40deg)}88%{opacity:0;transform:scale(.6) rotate(80deg)}}',
+    '.sab-trespot:focus-visible{outline:3px solid var(--accent2);outline-offset:-6px;border-radius:50%}',
+    '.sab-treshint{font-size:12px;color:var(--muted);margin:4px 0 0;font-style:italic}',
     /* the built gurukul is the teacher\'s own door — a bell rings when ready */
     '.sab-plot.teach{pointer-events:auto}',
     '.sab-plot .pbell{position:absolute;top:-8px;right:8%;font-size:13px;background:var(--accent2);border-radius:999px;' +
@@ -375,8 +383,9 @@
 
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
-      '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,' +
-      '.sab-smoke,.sab-cross,.sab-plot .pbell{animation:none}}'
+      '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,.sab-trespot .glint,' +
+      '.sab-smoke,.sab-cross,.sab-plot .pbell{animation:none}' +
+      '.sab-trespot .glint{opacity:.55}}'   /* still findable when nothing may move */
   ].join('\n');
 
   var cssIn = false;
@@ -421,7 +430,7 @@
                quests: {}, qdone: 0, lastq: 0,
                tech: {}, capital: null, disp: null, lastd: 0, quizAt: {}, quizN: 0,
                kingdoms: {}, lastraid: 0, explorers: [],
-               darshan: {}, sutra: {}, lastakal: 0, lastdarshan: 0, calmUntil: 0 };
+               darshan: {}, sutra: {}, tre: {}, lastakal: 0, lastdarshan: 0, calmUntil: 0 };
     }
 
     /* ---- rules helpers ---- */
@@ -930,7 +939,7 @@
       G.explorers.forEach(function (ex) { pts.push([ex.x, ex.y]); });
       if (!pts.length) pts = [[500, 550]];
       var xs = pts.map(function (q2) { return q2[0]; }), ys = pts.map(function (q2) { return q2[1]; });
-      var M2 = 190;                       /* breathing room past the last lamp */
+      var M2 = 150;                       /* breathing room past the last lamp */
       return { x0: Math.max(-60, Math.min.apply(0, xs) - M2),
                y0: Math.max(-60, Math.min.apply(0, ys) - M2),
                x1: Math.min(1060, Math.max.apply(0, xs) + M2),
@@ -942,10 +951,10 @@
       var b = revealedBox();
       var cx = at ? at.x : VZ.x + VZ.w / 2, cy = at ? at.y : VZ.y + VZ.h / 2;
       if (zlevel === 0) {
-        VZ.w = 340;
+        VZ.w = 280;
       } else {
         var span = Math.max(b.x1 - b.x0 - 100, (b.y1 - b.y0 - 100) / 1.1);
-        VZ.w = Math.max(430, Math.min(1000, span + 240));
+        VZ.w = Math.max(380, Math.min(1000, span + 180));
         cx = (b.x0 + b.x1) / 2; cy = (b.y0 + b.y1) / 2;
       }
       VZ.h = VZ.w * 1.1;
@@ -1527,11 +1536,24 @@
         /* a port keeps its boat moored — the city's kind, visible at a glance */
         var moor = (PORTS.indexOf(id) >= 0 && spOf('boat'))
           ? '<img class="sab-moor" src="' + spOf('boat') + '" alt="">' : '';
+        /* KHAZANA — the city's hidden treasure. A real artifact (sourced),
+           tucked at a spot on the plate: the folk whisper a hint below the
+           scene, a faint glint betrays it to a patient eye, and it can only
+           be found while the city LIVES — the fold takes unfound treasures
+           into memory with it. The spot is a real >=44px button, reachable
+           by tab as well as by hunting (accessibility is not a spoiler). */
+        var trez = (DATA.treasures || {})[id], treHunt = '', treHint = '';
+        if (trez && !G.tre[id]) {
+          treHunt = '<button class="sab-trespot" style="left:' + trez.x + '%;top:' + trez.y + '%"' +
+            ' data-sab-act="khazana" aria-label="Search here"><span class="glint">✦</span></button>';
+          treHint = '<div class="sab-treshint">🔍 ' + esc(FOLK[s.kind]) + ' whispers: “' +
+            esc(trez.hint) + '”</div>';
+        }
         h += '<div class="sab-scene">' +
           '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">' +
           '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
-          scaf + plate + stations + badges +
-          '<div class="sab-plots">' + plots + '</div></div>' +
+          scaf + plate + stations + badges + treHunt +
+          '<div class="sab-plots">' + plots + '</div></div>' + treHint +
           (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
             'the scaffolding comes down, and the colours come back.</div>');
       }
@@ -1770,6 +1792,15 @@
           ? '<div class="mono" style="margin-top:8px">Sutras — the threads through the ages</div>' +
             '<div class="sab-works">' + threads + '</div>'
           : '') +
+        (function () {
+          var tot = Object.keys(DATA.treasures || {}).length;
+          if (!tot) return '';
+          var got2 = Object.keys(G.tre || {}).length;
+          return '<div class="mono" style="margin-top:8px">Khazana — ' + got2 + ' of ' + tot +
+            ' treasures found</div><p class="tiny" style="color:var(--muted);margin:2px 0 8px">' +
+            'Every living city hides one real thing. The folk whisper where; a patient eye catches the glint. ' +
+            'A city folded into memory keeps its unfound khazana forever.</p>';
+        })() +
         '<div class="sab-works">' + rows + '</div>' +
         '<p class="tiny" style="color:var(--muted)">Two doors open in every age, and the coins rarely stretch to both at once. The order you choose is the strategy.</p>' +
         '</div>';
@@ -1894,7 +1925,7 @@
       var next = ERAS[G.era];
       grant(40, 'a new age — ' + next.name);   /* a pitara draw's worth, into the child's pocket */
 
-      /* THE AGE TURNS OVER THE CITIES TOO. Two full ages behind, an awake city
+      /* THE AGE TURNS OVER THE CITIES TOO. One full age behind, an awake city
          folds into memory: the rains move, the rivers shift, the roads go
          elsewhere — its people walk to the nearest living neighbour, which
          grows, and its monument keeps shining forever. Capitals are exempt
@@ -1910,7 +1941,7 @@
            and the CROWN (the capital is carried). Everything else, two full
            ages behind, folds gently into memory. */
         if (!q || q.zzz || q.her || q.mon || (s.renames && s.renames.length) ||
-            s.era > G.era - 2 || G.capital === s.id) return;
+            s.era > G.era - 1 || G.capital === s.id) return;
         q.her = true; q.fade = -1; q.idle = 0; q.neg = 0; q.dry = 0;
         if (G.quests[s.id]) delete G.quests[s.id];
         if (q.hero) q.hero.gone = true;
@@ -2295,6 +2326,23 @@
         };
         if (a === 'cjump') { flashSec(actEl.getAttribute('data-t')); return; }
         if (a === 'leave') { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
+        if (a === 'khazana' && city && !G.tre[city]) {
+          var tz = (DATA.treasures || {})[city];
+          if (tz) {
+            G.tre[city] = true; G.score += 30; G.res.katha += 20;
+            grant(20, 'khazana — ' + tz.name);
+            var tzs = byId[city];
+            fxAt(tzs.x, tzs.y, 'glory');
+            showOverlay('<div class="mono" style="color:var(--accent2)">✦ khazana — found!</div>' +
+              '<h3>' + esc(tz.name) + '</h3><p>' + esc(tz.what) + '</p>' +
+              '<p class="tiny" style="color:var(--accent);font-weight:700">🪙 +20 · +20 📜 — a story worth keeping</p>' +
+              '<p class="tiny" style="color:var(--muted)">' + esc(tz.src) + '</p>' +
+              '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Into the pothi</button></div>');
+            say('Khazana! ' + tz.name + ' found at ' + nameOf(tzs) + '.', 'warm');
+            paintCity();
+          }
+          return;
+        }
         if (a === 'job' && city) {
           var jj = jobsOf(city), jid = actEl.getAttribute('data-j'), dd = Number(actEl.getAttribute('data-d'));
           var total = jj.kisan + jj.karigar + jj.kathakar + jj.rakshak;
@@ -2513,7 +2561,7 @@
     /* the later ages' fields, absent on older saves — and the later ages'
        CITIES, which an old save has never heard of: they arrive asleep under
        the mist, exactly as a fresh world would hold them */
-    G.darshan = G.darshan || {}; G.sutra = G.sutra || {}; G.lastakal = G.lastakal || 0;
+    G.darshan = G.darshan || {}; G.sutra = G.sutra || {}; G.tre = G.tre || {}; G.lastakal = G.lastakal || 0;
     G.lastdarshan = G.lastdarshan || 0; G.calmUntil = G.calmUntil || 0;
     SITES.forEach(function (s) {
       if (!G.sites[s.id]) G.sites[s.id] = { lv: 1, zzz: true, fade: -1, idle: 0, seen: false,

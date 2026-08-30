@@ -100,11 +100,14 @@
      ================================================================== */
   var CSS = [
     '.sab-wrap{display:flex;flex-direction:column;gap:10px;color:var(--text);font-family:var(--body,system-ui,sans-serif);-webkit-tap-highlight-color:transparent}',
-    '.sab-hud{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}',
-    '.sab-era b{display:block;font:800 18px/1.15 var(--display,Georgia,serif)}',
-    '.sab-era span{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}',
+    /* ONE LINE RUNS THE GAME. Era, coins, the selected place and every verb
+       share a single strip; on a narrow screen it wraps, on a monitor it is
+       one line. The era and the coins are information and stay flat. */
+    '.sab-era{display:flex;flex-direction:column;justify-content:center;padding-right:4px}',
+    '.sab-era b{display:block;font:800 14.5px/1.1 var(--display,Georgia,serif);white-space:nowrap}',
+    '.sab-era span{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}',
     '.sab-res{display:flex;gap:8px;flex-wrap:wrap}',
-    '.sab-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07),0 3px 10px rgba(30,20,64,.06);font-weight:800;font-size:14px}',
+    '.sab-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07),0 3px 10px rgba(30,20,64,.06);font-weight:800;font-size:12.5px}',
     '.sab-chip small{font-weight:600;color:var(--muted)}',
     '.sab-btn{min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font:700 14px var(--body,system-ui);cursor:pointer}',
     '.sab-btn:disabled{opacity:.45;cursor:default}',
@@ -153,11 +156,12 @@
        the selection's verbs follow as small round pills — icon chip, word,
        cost tucked underneath — and the game's own verbs keep the right
        edge, always in reach. */
-    '.sab-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
+    '.sab-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;row-gap:6px}',
+    '.sab-res{display:flex;gap:6px;flex-wrap:wrap;padding-right:4px}',
     '.sab-verbs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}',
     '.sab-gap{flex:1}',
     '.sab-globals{display:flex;gap:8px;margin-left:auto}',
-    '.sab-who{display:flex;flex-direction:column;justify-content:center;padding:0 8px 0 2px;max-width:250px}',
+    '.sab-who{display:flex;flex-direction:column;justify-content:center;padding:0 6px 0 2px;max-width:200px}',
     '.sab-who b{font:800 15.5px/1.1 var(--display,Georgia,serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.sab-who span{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.02em}',
     '.sab-act{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:4px 13px 4px 8px;' +
@@ -174,7 +178,8 @@
     '.sab-act.go{background:var(--accent);border-color:var(--accent);color:#fff}',
     '.sab-act.go .sab-tico{background:rgba(255,255,255,.2);color:#fff}',
     '.sab-act.go .lbl em{color:rgba(255,255,255,.85)}',
-    '.sab-act.txt{padding:4px 15px}',   /* the game's own text verbs (Vidya, Pause) */
+    '.sab-act.txt{padding:4px 15px}',   /* the game's own text verbs (Vidya) */
+    '.sab-act.sq{width:44px;justify-content:center;padding:4px;font-size:16px}',   /* icon verbs: pause, restart, close */
     '.sab-tico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none;' +
       'background:var(--accent-soft,rgba(91,63,214,.1));color:var(--accent)}',
     '.sab-badge{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;' +
@@ -1113,18 +1118,16 @@
 
     function shell() {
       host.innerHTML = '<div class="sab-wrap" id="sabwrap">' +
-        '<div class="sab-hud">' +
+        '<div class="sab-bar">' +
           '<div class="sab-era"><span id="sab-eradate"></span><b id="sab-eraname"></b></div>' +
           '<div class="sab-res" id="sab-res" aria-live="off"></div>' +
-        '</div>' +
-        '<div class="sab-bar">' +
           '<div class="sab-verbs" id="sab-sheet" hidden></div>' +
           '<span class="sab-gap"></span>' +
           '<div class="sab-globals">' +
             '<button class="sab-act txt go" id="sab-adv" hidden></button>' +
             '<button class="sab-act txt" id="sab-tech">Vidya</button>' +
-            '<button class="sab-act txt" id="sab-restart" aria-label="Start again">\u21ba</button>' +
-            '<button class="sab-act txt" id="sab-pause" aria-pressed="false">Pause</button>' +
+            '<button class="sab-act sq" id="sab-restart" aria-label="Start again">\u21ba</button>' +
+            '<button class="sab-act sq" id="sab-pause" aria-pressed="false" aria-label="Pause">⏸</button>' +
           '</div>' +
         '</div>' +
         '<div id="sab-cityhost"></div>' +
@@ -1168,7 +1171,7 @@
       if (G.era < ERAS.length - 1) {
         adv.hidden = false;
         adv.disabled = !canAdvance();
-        adv.textContent = 'New era — ' + ERAS[G.era].katha + ' 📜';
+        adv.innerHTML = '<span class="lbl">New era<em>' + ERAS[G.era].katha + ' 📜</em></span>';
       } else adv.hidden = true;
     }
     function paintFeed() {
@@ -1384,7 +1387,11 @@
       if (city) {
         var waits = cityJobsWaiting(city);
         sh.hidden = false;
-        sh.innerHTML = '<div class="sab-who"><b>' + esc(byId[city].name) + '</b><span>inside the city</span></div>' +
+        var qc2 = G.sites[city];
+        sh.innerHTML = '<div class="sab-who"><b>' + esc(nameOf(byId[city])) +
+          (G.capital === city ? ' ★' : '') + '</b><span>lv ' + qc2.lv +
+          (connected(city) ? ' · on the roads' : ' · no road yet') +
+          (dusty(city) ? ' · dusty' : '') + '</span></div>' +
           tile('leave', 'back', 'Map', '', { go: true }) +
           waits.map(function (w2) {
             return tile(w2.act, w2.icon, w2.name, '', { attrs: ' data-t="' + w2.t + '"', badge: '!', hot: w2.hot });
@@ -1426,7 +1433,7 @@
         if (hiddenSites().length)
           b.push(tile('explore', 'run', 'Explorer', T.exploreCost + ' \ud83c\udf3e'));
       }
-      b.push(tile('close', 'back', 'Close', ''));
+      b.push('<button class="sab-act sq" data-sab-act="close" aria-label="Close">✕</button>');
       sh.hidden = false; sh.innerHTML = b.join('');
     }
     function paintGuide() {
@@ -1466,14 +1473,10 @@
     function cityHTML(id) {
       var s = byId[id], q = G.sites[id], qq = G.quests[id];
       var y = yieldOf(s);
-      var h = '<div class="sab-city" role="dialog" aria-label="' + esc(nameOf(s)) + '">' +
-        '<div class="chead"><h3>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</h3>' +
-        '<span class="mono">' + esc(ERAS[s.era].name) + ' · level ' + q.lv +
-        (connected(id) ? ' · on the roads' : ' · no road yet') +
-        (dusty(id) ? ' · DUSTY — half yields' : '') + '</span>' +
-        '<span style="flex:1"></span>' +
-        (y ? '<span class="sab-chip">brings in ' + ['anna','kala','katha'].filter(function (k) { return y[k]; })
-              .map(function (k) { return '+' + y[k] + ' ' + ICON[k]; }).join(' ') + '</span>' : '') + '</div>';
+      /* no header row: the bar names the city and its state, the nameplate on
+         the plate carries the level, the praja and the yields — a third telling
+         of "Dholavira" earned nothing but height */
+      var h = '<div class="sab-city" role="dialog" aria-label="' + esc(nameOf(s)) + '">';
       /* THE PEOPLE — allocation is the strategy. Kisan feed, karigar craft, kathakar
          tell, rakshak watch; the city's own trade counts double, and everyone eats.
          (Computed here because the painting below SHOWS them.) */
@@ -2772,7 +2775,8 @@
     function togglePause() {
       pause = !pause;
       var b = D.getElementById('sab-pause');
-      b.textContent = pause ? 'Play' : 'Pause';
+      b.textContent = pause ? '▶' : '⏸';
+      b.setAttribute('aria-label', pause ? 'Play' : 'Pause');
       b.setAttribute('aria-pressed', String(pause));
       say(pause ? 'The world holds its breath.' : '', '');
     }

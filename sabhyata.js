@@ -158,10 +158,16 @@
        edge, always in reach. */
     '.sab-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;row-gap:6px}',
     '.sab-res{display:flex;gap:6px;flex-wrap:wrap;padding-right:4px}',
-    '.sab-verbs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}',
+    /* THE SELECTION TRAY, the second line: it exists only while a place is
+       chosen — tap a lamp and it slides in under the game strip, wearing the
+       accent's rule so it clearly belongs to the lamp, not to the game. */
+    '.sab-tray{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 12px;' +
+      'border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:14px;' +
+      'background:var(--card);box-shadow:0 2px 8px rgba(30,20,64,.06);animation:sabtray .22s ease}',
+    '@keyframes sabtray{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}',
     '.sab-gap{flex:1}',
     '.sab-globals{display:flex;gap:8px;margin-left:auto}',
-    '.sab-who{display:flex;flex-direction:column;justify-content:center;padding:0 6px 0 2px;max-width:200px}',
+    '.sab-who{display:flex;flex-direction:column;justify-content:center;padding:0 10px 0 2px;max-width:300px}',
     '.sab-who b{font:800 15.5px/1.1 var(--display,Georgia,serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.sab-who span{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.02em}',
     '.sab-act{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:4px 13px 4px 8px;' +
@@ -434,7 +440,7 @@
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
       '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,.sab-trespot .glint,' +
       '.sab-smoke,.sab-cross,.sab-plot .pbell,.sab-yatri.walking img,.sab-stand{animation:none}' +
-      '.sab-trespot .glint{opacity:.55}.sab-cam{transition:none}}'   /* still findable when nothing may move */
+      '.sab-trespot .glint{opacity:.55}.sab-cam{transition:none}.sab-tray{animation:none}}'   /* still findable when nothing may move */
   ].join('\n');
 
   var cssIn = false;
@@ -1095,7 +1101,6 @@
         '<div class="sab-bar">' +
           '<div class="sab-era"><span id="sab-eradate"></span><b id="sab-eraname"></b></div>' +
           '<div class="sab-res" id="sab-res" aria-live="off"></div>' +
-          '<div class="sab-verbs" id="sab-sheet" hidden></div>' +
           '<span class="sab-gap"></span>' +
           '<div class="sab-globals">' +
             '<button class="sab-act txt go" id="sab-adv" hidden></button>' +
@@ -1104,6 +1109,7 @@
             '<button class="sab-act sq" id="sab-pause" aria-pressed="false" aria-label="Pause">⏸</button>' +
           '</div>' +
         '</div>' +
+        '<div class="sab-tray" id="sab-sheet" hidden></div>' +
         '<div id="sab-cityhost"></div>' +
         '<div class="sab-stage" id="sab-stage">' + board() +
           '<div style="position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:3">' +

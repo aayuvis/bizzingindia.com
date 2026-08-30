@@ -347,6 +347,10 @@
     '@keyframes sabsmoke{0%{opacity:0;transform:translateY(0) scale(.45)}20%{opacity:.75}100%{opacity:0;transform:translateY(-54px) scale(1.7)}}',
     '.sab-cross{position:absolute;bottom:13.5%;left:-24%;height:15%;width:auto;pointer-events:none;' +
       'filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));animation:sabwalk 38s linear infinite}',
+    /* the great one standing in the city, and their face on the hero card */
+    '.sab-herostand img{height:52px;animation:sabglow 2.2s ease-in-out infinite}',
+    '.sab-heroface{width:62px;height:auto;float:left;margin:0 10px 4px 0;' +
+      'filter:drop-shadow(0 2px 4px rgba(30,20,64,.25))}',
     /* the built gurukul is the teacher\'s own door — a bell rings when ready */
     '.sab-plot.teach{pointer-events:auto}',
     '.sab-plot .pbell{position:absolute;top:-8px;right:8%;font-size:13px;background:var(--accent2);border-radius:999px;' +
@@ -371,7 +375,7 @@
 
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
-      '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-cbadge,.sab-scafbtn.can img,' +
+      '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,' +
       '.sab-smoke,.sab-cross,.sab-plot .pbell{animation:none}}'
   ].join('\n');
 
@@ -518,6 +522,24 @@
     function spOf(id) {
       var m = W.IND_SABHYATA_SPRITES || [];
       return m.indexOf(id) >= 0 ? 'art/sabhyata/sp/' + id + '.png' : null;
+    }
+    /* THE COMPANION COMES ALONG (the character framework): the child's chosen
+       buddy joins the yatra. A fictional tales-shelf buddy IS the walking
+       piece — the tortoise explores India. A sacred figure or a real person
+       travels AT the explorer's side as a small companion chip, never as the
+       piece. */
+    function buddyPiece() {
+      try {
+        var bid = (W.BI && W.BI.S && W.BI.S.buddy) || null;
+        if (!bid || !W.IND_ART_SRC) return null;
+        var src = W.IND_ART_SRC(bid);
+        if (!src) return null;
+        return { src: src, tier: (W.IND_BUDDY_TIER && W.IND_BUDDY_TIER(bid)) || 'tales' };
+      } catch (e) { return null; }
+    }
+    /* mid-run rewards go to the shell's economy through one capped event */
+    function grant(n, why) {
+      try { W.dispatchEvent(new CustomEvent('ind-reward', { detail: { n: n, why: why } })); } catch (e) {}
     }
     /* THE DIORAMAS (tools/gen-sabhyata-dioramas.py): the same city as a tilted
        board-game plate — high three-quarter view, terrain to the edges, the
@@ -1149,16 +1171,25 @@
     function paintExplorers() {
       var g = D.getElementById('sab-explorers');
       if (!g) return;
-      var esp = spOf('explorer');
+      var esp = spOf('explorer'), bp = buddyPiece();
       g.innerHTML = G.explorers.map(function (ex) {
-        return '<g class="sab-exwalk" style="transition:transform ' + (TICK_MS / 1000) + 's linear;transform:translate(' +
-            ex.x.toFixed(1) + 'px,' + ex.y.toFixed(1) + 'px)">' +
-          (esp
+        var body;
+        if (bp && bp.tier === 'tales') {
+          /* the buddy IS the yatri — the tortoise walks India */
+          body = '<circle r="16" cy="-13" fill="#ffd76e" opacity=".18"/>' +
+            '<image href="' + bp.src + '" x="-15" y="-30" width="30" height="30" preserveAspectRatio="xMidYMax meet"/>';
+        } else {
+          body = (esp
             ? '<circle r="16" cy="-14" fill="#ffd76e" opacity=".18"/>' +
               '<image href="' + esp + '" x="-13" y="-30" width="26" height="32" preserveAspectRatio="xMidYMax meet"/>'
             : '<circle r="8" fill="var(--accent3)" stroke="#fff" stroke-width="2"/>' +
               '<circle r="3" cy="-10" fill="#ffd76e"/>') +
-          '</g>';
+            /* a sacred or real companion travels alongside, never as the piece */
+            (bp ? '<circle r="10" cx="17" cy="-27" fill="#fffbee" stroke="#c9a24b" stroke-width="1.5"/>' +
+                  '<image href="' + bp.src + '" x="9" y="-35" width="16" height="16"/>' : '');
+        }
+        return '<g class="sab-exwalk" style="transition:transform ' + (TICK_MS / 1000) + 's linear;transform:translate(' +
+            ex.x.toFixed(1) + 'px,' + ex.y.toFixed(1) + 'px)">' + body + '</g>';
       }).join('');
     }
     function paintRoutes() {
@@ -1426,7 +1457,18 @@
             ' aria-label="' + esc(DATA.jobs[jid].name) + ' — ' + j[jid] + ' at work. Assign the people.">' +
             '<img src="' + spw + '" alt=""><b>' + j[jid] + '</b><i>' + esc(DATA.jobs[jid].name) + '</i></button>';
         }).join('');
-        var badges = '';
+        /* the great one stands IN the city, glowing gently, one tap from
+           their deed — a painted role, present on the land like everything
+           else that matters here */
+        var herostand = '';
+        if (q.hero && !q.hero.gone) {
+          var hsp = spOf({ kheti: 'hero-annadata', shilpa: 'hero-sthapati', vidya: 'hero-acharya' }[s.kind]);
+          if (hsp) herostand = '<button class="sab-station sab-herostand" style="left:20%;bottom:31%"' +
+            ' data-sab-act="cjump" data-t="sab-sec-hero"' +
+            ' aria-label="' + esc(DATA.heroes[s.kind].name) + ' is here — see their deed">' +
+            '<img src="' + hsp + '" alt=""><i>' + esc(DATA.heroes[s.kind].name) + '</i></button>';
+        }
+        var badges = herostand;
         if (inDispute(id)) badges += '<button class="sab-cbadge hot" style="right:2%" data-sab-act="cjump" ' +
           'data-t="sab-sec-quarrel" aria-label="A quarrel — the panchayat sits"><em>⚡</em>panchayat</button>';
         if (qq) badges += '<button class="sab-cbadge" style="right:' + (inDispute(id) ? 17 : 2) + '%" ' +
@@ -1515,7 +1557,12 @@
       /* A GREAT ONE, when one has risen here */
       if (q.hero && !q.hero.gone) {
         var hd = DATA.heroes[s.kind];
-        h += '<div class="sab-quest" id="sab-sec-hero" style="border-color:var(--accent)"><div class="who" style="color:var(--accent)">' +
+        /* the great one has a FACE now — an invented role, painted, never a
+           real person (docs/05: roles may be pieces; people may not) */
+        var hface = spOf({ kheti: 'hero-annadata', shilpa: 'hero-sthapati', vidya: 'hero-acharya' }[s.kind]);
+        h += '<div class="sab-quest" id="sab-sec-hero" style="border-color:var(--accent)">' +
+          (hface ? '<img class="sab-heroface" src="' + hface + '" alt="">' : '') +
+          '<div class="who" style="color:var(--accent)">' +
           motif('peacock', 22) + esc(hd.name) + ' is here · ' + esc(hd.gift) + '</div>';
         if (!q.hero.used) {
           h += '<p><b>' + esc(hd.deed) + '</b> — ' + esc(hd.deedWhat) + '.</p>' +
@@ -1824,6 +1871,7 @@
       var ea = artOf(AHA_ART[G.era]);
       G.era++; G.score += 50;
       var next = ERAS[G.era];
+      grant(40, 'a new age — ' + next.name);   /* a pitara draw's worth, into the child's pocket */
 
       /* THE AGE TURNS OVER THE CITIES TOO. Two full ages behind, an awake city
          folds into memory: the rains move, the rivers shift, the roads go
@@ -1891,6 +1939,7 @@
       if (overlay) return;
       if (G.won || G.era < ERAS.length - 1 || !allAwake()) return;
       G.won = true; wipe();
+      grant(60, 'India remembers');
       showOverlay(mascot('gattu', 'happy', 110) + '<h3>India remembers.</h3>' +
         '<p>From the first brick of Dholavira to this morning’s countdown at Sriharikota — ' +
         'every lamp lit, every road walked, and the mist gone back to the sea. ' +
@@ -2250,6 +2299,7 @@
           var mc = costOf(T.monCost[sm.era], 'monument');
           if (!canPay(mc)) return;
           pay(mc); qm.mon = true; touch(city); G.score += 60; G.res.katha += 10;
+          grant(15, 'a monument raised');
           say(sm.works[2].charAt(0).toUpperCase() + sm.works[2].slice(1) + ' — ' + sm.name +
               ' has raised its monument. Stone remembers.', 'warm');
           paintCity(); paintAll(); return;

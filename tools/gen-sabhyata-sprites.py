@@ -113,6 +113,19 @@ SPRITES = {
         "a small square stone stepwell seen at a gentle angle: carved stone "
         "steps descending inside to bright turquoise water, a little carved "
         "pavilion at its rim, one compact object."),
+    # ---- the great ones (invented ROLES, never real people — safe as pieces) --
+    "hero-annadata": p(
+        "a radiant elder farmer, the Annadata, standing proud with a tall sheaf "
+        "of golden wheat cradled in one arm and an overflowing basket of grain "
+        "at their feet, marigold garland, gentle smile, warm morning glow."),
+    "hero-sthapati": p(
+        "a master builder, the Sthapati, standing proud with a rolled plan under "
+        "one arm and a plumb-line and chisel in hand, a small model of a temple "
+        "tower at their feet, tool sash, quiet confident smile."),
+    "hero-acharya": p(
+        "a beloved teacher, the Acharya, standing with a bundle of palm-leaf "
+        "manuscripts under one arm and a small lit brass lamp raised in the "
+        "other hand, a white shawl, warm patient smile."),
 }
 
 

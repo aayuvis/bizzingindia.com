@@ -5707,5 +5707,30 @@
                   /* read-only view of the live quiz for tools/verify.js's
                      no-dead-ends walk — a getter because `quiz` is reassigned */
                   quizState: function () { return quiz; } };
+
+    /* ---- THE CHARACTER SEAMS the games hang from ----
+       IND_ART_SRC: the arcade has asked for this since its first commit and it
+       was never defined — every buddy face silently fell back to an initial
+       disc. It answers with the PNG url when one exists.
+       IND_BUDDY_TIER: the piece rule (docs/05, the companion framework) —
+       FICTIONAL tales-shelf characters may be IN a child's hands as game
+       pieces; SACRED figures and REAL people stay AT their side: companions,
+       witnesses, darshans — never tokens. Games ask this one question.
+       ind-reward: games grant sikke mid-run through one event, so the economy
+       stays in the shell — capped, and never negative. */
+    window.IND_ART_SRC = function (id) {
+      return (window.IND_ART_IMG && window.IND_ART_IMG.indexOf(id) >= 0) ? 'art/' + id + '.png' : '';
+    };
+    window.IND_BUDDY_TIER = function (id) {
+      var P = window.IND_AVATAR_PACKS || [];
+      for (var i = 0; i < P.length; i++)
+        if ((P[i].ids || []).indexOf(id) >= 0) return P[i].shelf || 'tales';
+      return 'tales';
+    };
+    window.addEventListener('ind-reward', function (e) {
+      var d = (e && e.detail) || {};
+      var n = Math.round(+d.n || 0);
+      if (n > 0 && n <= 100) { earn(n, d.why || 'well played'); markToday(); }
+    });
   });
 })();

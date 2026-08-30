@@ -243,8 +243,19 @@
   function artSrc(id) {
     try { return (W.IND_ART_SRC && W.IND_ART_SRC(id)) || ''; } catch (e) { return ''; }
   }
-  /* The child's token wears their chosen buddy's face. */
+  /* The child's chosen buddy, and THE PIECE RULE (docs/05, the companion
+     framework): a fictional tales-shelf character may BE the token in a
+     child's hands — the tortoise races, the jackal jumps. A sacred figure or
+     a real person stays AT the child's side: their face appears in the
+     player chip (a companion, a witness), but the token on the board is the
+     child's own — never Ganesha down a snake. */
   function buddySrc() { return artSrc(profile().buddy || 'ganesha'); }
+  function buddyTier() {
+    try {
+      return (W.IND_BUDDY_TIER && W.IND_BUDDY_TIER(profile().buddy || 'ganesha')) || 'tales';
+    } catch (e) { return 'tales'; }
+  }
+  function pieceSrc() { return buddyTier() === 'tales' ? buddySrc() : ''; }
   function gattuSrc() { return artSrc('gattu'); }
   function gattuHTML(size) {
     var src = gattuSrc();
@@ -715,7 +726,7 @@
     }
 
     function tokHTML(side) {
-      var src = side === 'you' ? buddySrc() : gattuSrc();
+      var src = side === 'you' ? pieceSrc() : gattuSrc();   /* the piece rule */
       var xy = ssXYu(1);
       return '<div class="arc-tok ' + side + '" data-tok="' + side + '" aria-hidden="true" ' +
         'style="left:' + ssPct(xy.x) + '%;top:' + ssPct(xy.y) + '%">' +
@@ -1112,7 +1123,7 @@
     }
     /* tokens live in their own layer so a repaint never rebuilds the board */
     s += '<g data-toks>';
-    var ySrc = buddySrc(), gSrc = gattuSrc(), t;
+    var ySrc = pieceSrc(), gSrc = gattuSrc(), t;            /* the piece rule */
     for (t = 0; t < 4; t++) s += lTokenSVG('you', t, ySrc, uid);
     for (t = 0; t < 4; t++) s += lTokenSVG('gattu', t, gSrc, uid);
     s += '</g></svg>';

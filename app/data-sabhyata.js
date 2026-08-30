@@ -465,5 +465,126 @@ window.IND_SABHYATA = {
       text: 'Dr Kalam and his teams count down India’s own rockets — failures first, then wings. He spends the rest of his life telling children to dream bigger than their circumstances.',
       boon: { kind: 'katha', katha: 60 }, boonLine: '+60 📜 — a whole generation looks up',
       sources: ['ISRO SLV-3 programme (1980); A. P. J. Abdul Kalam, Wings of Fire'] }
+  ],
+
+  /* SUTRAS — the threads through the ages (the founder's ask: story ARCS).
+     A sutra is a presence that keeps returning, era after era, one bead at a
+     time: each beat fires as a card (in order, at its own era and city), the
+     thread draws as a mala filling bead by bead, and a finished mala pays a
+     pitara draw. Editorial law holds bead by bead: every beat sourced; a
+     debated reading SAYS it is debated on the card (the Pashupati seal, the
+     Ghaggar-Hakra river); the sacred is framed from inside and never played
+     with; and threads touching faith carry review:true for the named human
+     reviewer (docs/05 §6) on top of this file's needs_review. */
+  sutras: [
+    { id: 'pashupati', name: 'The Lord of Animals', review: true, beats: [
+      { era: 0, site: 'lothal', frame: 'itihaas',
+        text: 'A trader’s seal comes down the river to Lothal: a horned figure seated cross-legged, animals gathered round. What did its maker mean? The clay keeps that secret. Many, centuries later, would see Pashupati here — Shiva, lord of animals — already seated. Scholars still debate it; the seal just smiles.',
+        src: 'The Mohenjo-daro "Pashupati" seal — Marshall’s proto-Shiva reading (1931), widely debated since; NCERT, Our Pasts I (seals)' },
+      { era: 1, site: 'kashi', frame: 'itihaas',
+        text: 'By the rivers, the singers sing to Rudra — the storm, the healer, the wild one who is also kind. Kashi will keep his name close for three thousand years.',
+        src: 'The Rigveda’s hymns to Rudra, as the tradition transmits them; NCERT, Our Pasts I' },
+      { era: 4, site: 'thanjavur', frame: 'itihaas',
+        text: 'In bronze, the lord of animals now dances. The Chola casters make Nataraja — one foot raised, the drum and the flame in balance — and many call it the most beautiful thing ever cast in metal.',
+        src: 'Chola bronze Nataraja tradition; museum and iconography literature; NCERT' },
+      { era: 5, site: 'kashi', frame: 'itihaas',
+        text: 'Pilgrims walk to Banaras as they always have — the city of Shiva, lamps going down the dark river. The name on the maps changes; the walking never stops.',
+        src: 'The continuous pilgrimage tradition of Kashi/Banaras; NCERT, Our Pasts II (devotional paths)' },
+      { era: 12, site: 'bengaluru', frame: 'katha',
+        text: 'On a morning bus between two glass offices, somebody hums Om Namah Shivaya, the way somebody always has. The oldest face of this thread, still riding along.',
+        src: 'Living devotional practice, told as it is lived (🧭 Aaj)' } ] },
+
+    { id: 'walkers', name: 'The Walkers', review: true, beats: [
+      { era: 1, site: 'kashi', frame: 'itihaas',
+        text: 'The Buddha’s teaching travels at walking pace — down every road out of Sarnath, carried by people on foot with begging bowls, for five hundred years before anyone carves it in stone.',
+        src: 'NCERT, Our Pasts I (the Buddha and the sangha); Sarnath tradition' },
+      { era: 1, site: 'vaishali', frame: 'itihaas',
+        text: 'Mahavira walks barefoot from Vaishali, watching where he steps so that nothing small is crushed. The walk itself is the teaching.',
+        src: 'NCERT, Our Pasts I (Jainism); Jain tradition, from the inside' },
+      { era: 4, site: 'kashi', frame: 'itihaas',
+        text: 'A young teacher from Kerala walks the whole map — north, south, east, west — and the tradition remembers a school of learning founded at each corner. It remembers him as Adi Shankara, and it remembers the WALK as the point.',
+        src: 'The matha traditions (Sringeri, Puri, Dwarka, Jyotirmath), as tradition keeps them' },
+      { era: 7, site: 'amritsar', frame: 'itihaas',
+        text: 'Guru Nanak walks farther than almost anyone of his age — by tradition to the far corners of the map and beyond — singing that there is one human family and honest work is worship.',
+        src: 'The janamsakhi tradition of the udasis, from the inside; NCERT, Our Pasts II' },
+      { era: 10, site: 'ahmedabad', frame: 'itihaas',
+        text: 'Gandhi walks twenty-four days to the sea for a handful of salt. And look at your own map: the explorer you have been sending into the mist all game walks in this same long line.',
+        src: 'NCERT, India and the Contemporary World II (the salt march, 1930)' } ] },
+
+    { id: 'tellers', name: 'The Tellers', beats: [
+      { era: 1, site: 'vaishali', frame: 'itihaas',
+        text: 'Nothing is written down yet, and nothing is lost: in the assemblies and courtyards, the reciters carry whole oceans of story by heart, checking each other line by line.',
+        src: 'Oral transmission of the early texts; NCERT, Our Pasts I' },
+      { era: 3, site: 'madurai', frame: 'itihaas',
+        text: 'At the sangam of Madurai the poets read aloud to each other, and the Tamil anthologies they leave behind still name the bees, the hills and the heartbreaks of two thousand years ago.',
+        src: 'The Sangam anthologies (Akananuru, Purananuru); NCERT' },
+      { era: 6, site: 'kashi', frame: 'katha',
+        text: 'Kabir weaves and sings, and his dohas travel out of Banaras in every direction without a single book — pinned to memory by rhyme, repeated by weavers, farmers and kings.',
+        src: 'The dohas of Kabir, Bhakti tradition; NCERT, Our Pasts II' },
+      { era: 9, site: 'kolkata', frame: 'itihaas',
+        text: 'The presses of Calcutta put the old tales into print in a dozen tongues — and a story that once needed a teller in the room can now wait quietly in a satchel for a child to find it.',
+        src: 'NCERT, India and the Contemporary World II (print culture)' },
+      { era: 12, site: 'bengaluru', frame: 'katha',
+        text: 'The stories ride screens now — and the newest teller in this whole unbroken line is holding one right now. Yes: you. Tell somebody one.',
+        src: 'The app’s own frame — the child as the next teller (🧭 Aaj)' } ] },
+
+    { id: 'annapurna', name: 'Annapurna’s Kitchen', review: true, beats: [
+      { era: 0, site: 'rakhigarhi', frame: 'itihaas',
+        text: 'The biggest buildings the first towns raise are not palaces — they are storehouses for grain, built so that a bad year does not become a hungry one.',
+        src: 'Harappan storehouse structures (their exact use is studied and discussed); NCERT, Our Pasts I' },
+      { era: 1, site: 'kashi', frame: 'katha',
+        text: 'In Kashi they tell of Annapurna, the giver of food, from whose kitchen no one is turned away — even Shiva holds out his bowl to her. A city that tells that story feeds its pilgrims.',
+        src: 'The Annapurna katha of Kashi, as it is told' },
+      { era: 7, site: 'amritsar', frame: 'itihaas',
+        text: 'At Amritsar the langar seats everyone in the same row on the same floor — a king beside a farmer, anyone beside everyone — and the kitchen simply never closes.',
+        src: 'The langar tradition, from the inside (docs/05 §4); NCERT, Our Pasts II' },
+      { era: 11, site: 'amritsar', frame: 'itihaas',
+        text: 'New seeds and shared science come to Punjab’s fields, and a country that once feared famine begins to fill its own storehouses again — the oldest promise of this thread, kept with tractors.',
+        src: 'The Green Revolution in Punjab (1960s); NCERT economics chapters' } ] },
+
+    { id: 'starcounters', name: 'The Star-Counters', beats: [
+      { era: 1, site: 'ujjain', frame: 'itihaas',
+        text: 'On a flat roof in Ujjain, watchers line a bronze rod against the night sky and write down what returns. Counting the sky becomes an Indian habit early.',
+        src: 'Ujjain’s ancient astronomical tradition (the prime meridian of Indian astronomy); NCERT' },
+      { era: 3, site: 'pataliputra', frame: 'itihaas',
+        text: 'Aryabhata writes that the earth turns, and shows how to reckon with zero — verses of mathematics a student can sing.',
+        src: 'Aryabhatiya (499 CE); NCERT mathematics history' },
+      { era: 8, site: 'delhi', frame: 'itihaas',
+        text: 'At Delhi, a king of Jaipur builds instruments the size of buildings — stairways that climb to nowhere and measure everything. The sky, counted in stone.',
+        src: 'Jantar Mantar, Delhi (Sawai Jai Singh II, c. 1724); ASI' },
+      { era: 12, site: 'sriharikota', frame: 'itihaas',
+        text: 'India’s first satellite goes up carrying the old star-counter’s name — Aryabhata — and from Sriharikota the counting continues, now from the other side of the sky.',
+        src: 'ISRO: Aryabhata (1975), SLV-3/Rohini (1980)' } ] },
+
+    { id: 'hands', name: 'The Hands', beats: [
+      { era: 0, site: 'dholavira', frame: 'itihaas',
+        text: 'Every brick in every Harappan town follows one recipe — the same proportions, city after city, before anyone wrote a single rule down. The hands agreed.',
+        src: 'The standardized Harappan brick ratio; NCERT, Our Pasts I' },
+      { era: 2, site: 'sanchi', frame: 'itihaas',
+        text: 'On a gateway at Sanchi, the carvers leave a signature — a guild of ivory-workers from the nearby town, proud enough of their stone to put their trade on it.',
+        src: 'The Sanchi south gateway inscription of the ivory-carvers of Vidisha; ASI' },
+      { era: 4, site: 'thanjavur', frame: 'itihaas',
+        text: 'The Chola casters pour bronze into a mould of wax and clay that must be broken to open — so every bronze is one of one, and the hands must be sure.',
+        src: 'The lost-wax (cire perdue) casting of the Chola bronzes' },
+      { era: 7, site: 'agra', frame: 'itihaas',
+        text: 'At Agra the inlayers set flowers of carnelian and jade into white marble, petal by petal — work so fine you must touch it to believe it is stone in stone.',
+        src: 'Parchin kari (pietra dura) inlay of the Taj Mahal; ASI' },
+      { era: 11, site: 'chandigarh', frame: 'itihaas',
+        text: 'The material is concrete now and the drawings come from far away — but the shuttering, the finishing, the pride of a true edge: the same hands, five thousand years on.',
+        src: 'The construction of Chandigarh’s Capitol Complex (1950s)' } ] },
+
+    { id: 'river', name: 'The River', review: true, beats: [
+      { era: 0, site: 'kalibangan', frame: 'itihaas',
+        text: 'The wide river beside Kalibangan is thinning. Many scholars read the dry bed of the Ghaggar-Hakra as the reason whole towns eventually walked away — the reading is debated, but this much is sure: in this land, the rivers decide.',
+        src: 'Ghaggar-Hakra palaeochannel studies (its identification with the Sarasvati is debated); NCERT, Our Pasts I' },
+      { era: 1, site: 'kashi', frame: 'katha',
+        text: 'To those who love her, Ganga is not water but a mother who came down from the sky — and at Kashi her lamps go out on the current every single evening.',
+        src: 'The Ganga avatarana katha, as it is told; living arti tradition' },
+      { era: 9, site: 'kolkata', frame: 'itihaas',
+        text: 'The river carries bridges now: at Calcutta the Hooghly — Ganga by another name — takes a road of steel across her back without a single pier in the water.',
+        src: 'Howrah Bridge (1943) engineering records' },
+      { era: 11, site: 'chandigarh', frame: 'itihaas',
+        text: 'The young Republic asks the rivers to light its lamps: at Bhakra the Sutlej turns turbines, and villages that never had a bulb switch one on.',
+        src: 'Bhakra-Nangal project (dedicated 1963); NCERT' } ] }
   ]
 };

@@ -420,7 +420,8 @@
                sites: st, routes: [], t: 0, utsav: 0, ev: null, score: 0, won: false,
                quests: {}, qdone: 0, lastq: 0,
                tech: {}, capital: null, disp: null, lastd: 0, quizAt: {}, quizN: 0,
-               kingdoms: {}, lastraid: 0, explorers: [] };
+               kingdoms: {}, lastraid: 0, explorers: [],
+               darshan: {}, sutra: {}, lastakal: 0, lastdarshan: 0, calmUntil: 0 };
     }
 
     /* ---- rules helpers ---- */
@@ -1746,9 +1747,29 @@
             (canPay(c) ? '' : ' disabled') + '>' + costStr(c) + '</button>') +
           '</div>';
       }).join('');
+      /* SUTRAS — the threads through the ages, drawn as malas filling bead by
+         bead. Only threads the player has actually met appear: an arc is a
+         discovery, not a checklist handed out in advance. */
+      var threads = (DATA.sutras || []).map(function (t3) {
+        var got = t3.beats.filter(function (_, bi) { return G.sutra[t3.id + ':' + bi]; }).length;
+        if (!got) return '';
+        var whole = got === t3.beats.length;
+        return '<div class="sab-work' + (whole ? ' built' : ' now') + '">' +
+          '<i>' + (whole ? '✓' : got) + '</i>' +
+          '<span><b>' + esc(t3.name) + '</b> · <span style="letter-spacing:2px">' +
+          t3.beats.map(function (_, bi) {
+            return '<span style="color:' + (G.sutra[t3.id + ':' + bi] ? 'var(--accent2)' : 'var(--line)') + '">●</span>';
+          }).join('') + '</span>' +
+          (whole ? ' <span class="tiny" style="color:var(--muted)">— the mala is complete</span>' : '') +
+          '</span></div>';
+      }).join('');
       return '<div class="sab-city" role="dialog" aria-label="Vidya — what the age knows">' +
         '<div class="chead"><h3>Vidya</h3><span class="mono">what the age knows how to do</span>' +
         '<span style="flex:1"></span><button class="sab-btn" data-sab-act="techclose">Back to the map</button></div>' +
+        (threads
+          ? '<div class="mono" style="margin-top:8px">Sutras — the threads through the ages</div>' +
+            '<div class="sab-works">' + threads + '</div>'
+          : '') +
         '<div class="sab-works">' + rows + '</div>' +
         '<p class="tiny" style="color:var(--muted)">Two doors open in every age, and the coins rarely stretch to both at once. The order you choose is the strategy.</p>' +
         '</div>';
@@ -2063,7 +2084,8 @@
       /* DARSHAN — a great one passes through, and the world receives them.
          Fired once each, era-gated, at their own city; a card with its frame
          badge and sources, and a boon the player never owns or spends. */
-      if (!overlay && G.t - (G.lastdarshan || 0) >= 50) {
+      /* one card roughly every 45 real seconds — G.t is a 3-second tick */
+      if (!overlay && G.t - (G.lastdarshan || 0) >= 15) {
         var dar = (DATA.darshan || []).filter(function (d) {
           return !G.darshan[d.id] && d.era <= G.era && G.sites[d.site] &&
             found(d.site) && awake(d.site) && !isHer(d.site);
@@ -2087,6 +2109,43 @@
             '<p class="tiny" style="color:var(--muted)">' + esc((dar.sources || []).join(' · ')) + '</p>' +
             '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Carry it onward</button></div>');
           say('A darshan at ' + nameOf(ds) + '.', 'warm');
+        } else {
+          /* SUTRA BEATS — the threads through the ages. Each thread fires its
+             beads strictly IN ORDER, at its own era and city, on the same
+             gentle cadence as the darshans; a finished mala pays a pitara
+             draw. The card carries the frame badge, the beads and the source,
+             so the arc teaches the way everything here teaches. */
+          var nt = null, nb = null, ni = 0;
+          (DATA.sutras || []).some(function (t3) {
+            var i3 = 0;
+            while (G.sutra[t3.id + ':' + i3]) i3++;
+            var b4 = t3.beats[i3];
+            if (b4 && b4.era <= G.era && G.sites[b4.site] && found(b4.site) &&
+                (awake(b4.site) || isHer(b4.site))) { nt = t3; nb = b4; ni = i3; return true; }
+            return false;
+          });
+          if (nt) {
+            G.sutra[nt.id + ':' + ni] = true; G.lastdarshan = G.t;
+            G.score += 25; G.res.katha += 25;
+            var wholeMala = nt.beats.every(function (_, bi) { return G.sutra[nt.id + ':' + bi]; });
+            if (wholeMala) grant(40, 'a thread complete — ' + nt.name);
+            var bs = byId[nb.site];
+            fxAt(bs.x, bs.y, 'utsav');
+            var dots = nt.beats.map(function (_, bi) {
+              return '<span style="color:' + (G.sutra[nt.id + ':' + bi] ? 'var(--accent2)' : 'var(--line)') + '">●</span>';
+            }).join(' ');
+            showOverlay('<div class="mono" style="color:var(--accent2)">' +
+              (nb.frame === 'katha' ? '🪔 katha — as it is told' : '📜 itihaas — what evidence shows') + '</div>' +
+              '<h3>' + esc(nt.name) + '</h3>' +
+              '<div style="font-size:12px;margin:0 0 8px">' + dots +
+              ' <span class="tiny" style="color:var(--muted)">bead ' + (ni + 1) + ' of ' + nt.beats.length + '</span></div>' +
+              '<p>' + esc(nb.text) + '</p>' +
+              '<p class="tiny" style="color:var(--accent);font-weight:700">+25 📜 — a thread worth telling' +
+              (wholeMala ? ' · the mala is complete! 🪙 +40' : '') + '</p>' +
+              '<p class="tiny" style="color:var(--muted)">' + esc(nb.src) + '</p>' +
+              '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Carry it onward</button></div>');
+            say('A thread continues at ' + nameOf(bs) + ' — ' + nt.name + '.', 'warm');
+          }
         }
       }
 
@@ -2454,7 +2513,7 @@
     /* the later ages' fields, absent on older saves — and the later ages'
        CITIES, which an old save has never heard of: they arrive asleep under
        the mist, exactly as a fresh world would hold them */
-    G.darshan = G.darshan || {}; G.lastakal = G.lastakal || 0;
+    G.darshan = G.darshan || {}; G.sutra = G.sutra || {}; G.lastakal = G.lastakal || 0;
     G.lastdarshan = G.lastdarshan || 0; G.calmUntil = G.calmUntil || 0;
     SITES.forEach(function (s) {
       if (!G.sites[s.id]) G.sites[s.id] = { lv: 1, zzz: true, fade: -1, idle: 0, seen: false,

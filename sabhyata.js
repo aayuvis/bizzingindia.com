@@ -965,10 +965,9 @@
 
     /* ================================================================
        ZOOM AND PAN. The board is a viewBox window onto the 1000x1100
-       map: wheel or pinch to zoom (anchored under the pointer, the way
-       maps behave), drag to pan, corner buttons and + - 0 for keyboards.
-       A drag longer than a thumb-tremor swallows the click it ends with,
-       so panning across a lamp does not select it.
+       map: the corner buttons (and + - 0 on a keyboard) step the zoom,
+       drag to pan. A drag longer than a thumb-tremor swallows the click
+       it ends with, so panning across a lamp does not select it.
        ================================================================ */
     var VZ = { x: 0, y: 0, w: 1000, h: 1100 };
     /* THE MAP OPENS ZOOMED TO YOUR WORLD, not to all of India — a fresh game is one
@@ -978,8 +977,8 @@
     /* THREE LEVELS OF ZOOM, no in-between (the founder's spec): NEAR is one
        neighbourhood of lamps, REGION frames everything revealed so far, ALL is
        the whole subcontinent — mostly Vismriti's grey until you have earned it.
-       The map opens at REGION and stays zoomed in; wheel, pinch, +/- and the
-       keyboard all STEP between the levels instead of free-scaling, and the
+       The map opens at REGION and stays zoomed in; the buttons and the
+       keyboard STEP between the levels instead of free-scaling, and the
        drag pan is fenced to the land you have revealed — the mist is not a
        place you can wander, only a place you can send explorers into. */
     var zlevel = 1;                       /* 0 near · 1 region · 2 all */
@@ -1035,7 +1034,7 @@
       rsTm = setTimeout(function () { if (!dead) { vzClamp(); vzApply(); } }, 200);
     }
     W.addEventListener('resize', onResize);
-    var panning = null, swallowClick = false, pinch = null;
+    var panning = null, swallowClick = false;
     function vzApply() {
       var svg = D.querySelector('#sab-stage svg');
       if (svg) svg.setAttribute('viewBox', VZ.x.toFixed(1) + ' ' + VZ.y.toFixed(1) + ' ' + VZ.w.toFixed(1) + ' ' + VZ.h.toFixed(1));
@@ -1061,43 +1060,19 @@
       return { x: VZ.x + (e.clientX - r.left) / r.width * VZ.w,
                y: VZ.y + (e.clientY - r.top) / r.height * VZ.h };
     }
-    /* wheel and pinch STEP the level — with a cooldown, because one trackpad
-       gesture fires dozens of deltas and would slam near straight to all */
-    var wheelAt = 0;
-    function vzStep(dir, at) {
-      var now = Date.now();
-      if (now - wheelAt < 320) return;
-      wheelAt = now;
-      zoomTo(zlevel + dir, at);
-    }
-    function onWheel(e) {
-      e.preventDefault();
-      vzStep(e.deltaY > 0 ? 1 : -1, vzPoint(e));
-    }
+    /* ZOOM IS A DECISION, NOT A TWITCH. The wheel and the pinch used to
+       step the level, and a trackpad scroll or a clumsy two-finger drag kept
+       yanking the world nearer and farther mid-thought. Zooming now belongs
+       to the + \u2212 \u2302 buttons (and their keyboard twins); the wheel
+       scrolls the page like everywhere else, and any number of fingers on
+       the map can only pan it.
+       ================================================================ */
     function onPointerDown(e) {
       var stage = D.getElementById('sab-stage');
       if (!stage || !stage.contains(e.target)) return;
-      if (pinch === null && panning === null) panning = { id: e.pointerId, cx: e.clientX, cy: e.clientY, moved: 0 };
-      else if (panning && e.pointerId !== panning.id && !pinch) {
-        pinch = { a: panning.id, b: e.pointerId, ax: panning.cx, ay: panning.cy, bx: e.clientX, by: e.clientY };
-      }
+      if (panning === null) panning = { id: e.pointerId, cx: e.clientX, cy: e.clientY, moved: 0 };
     }
     function onPointerMove(e) {
-      if (pinch) {
-        if (e.pointerId === pinch.a) { pinch.ax = e.clientX; pinch.ay = e.clientY; }
-        if (e.pointerId === pinch.b) { pinch.bx = e.clientX; pinch.by = e.clientY; }
-        var d = Math.hypot(pinch.ax - pinch.bx, pinch.ay - pinch.by);
-        if (pinch.d0 === undefined) { pinch.d0 = d; return; }
-        /* a pinch is a STEP too: spread far enough for the next level in,
-           squeeze for the next level out, then re-baseline for another step */
-        if (d > pinch.d0 * 1.35 || d < pinch.d0 / 1.35) {
-          var mid = vzPoint({ clientX: (pinch.ax + pinch.bx) / 2, clientY: (pinch.ay + pinch.by) / 2 });
-          zoomTo(zlevel + (d > pinch.d0 ? -1 : 1), mid);
-          pinch.d0 = d;
-          swallowClick = true;
-        }
-        return;
-      }
       if (!panning || e.pointerId !== panning.id) return;
       var svg = D.querySelector('#sab-stage svg'); if (!svg) return;
       var r = svg.getBoundingClientRect();
@@ -1111,9 +1086,8 @@
       }
     }
     function onPointerUp(e) {
-      if (pinch && (e.pointerId === pinch.a || e.pointerId === pinch.b)) pinch = null;
       if (panning && e.pointerId === panning.id) panning = null;
-      if (!panning && !pinch) setTimeout(function () { swallowClick = false; }, 0);
+      if (!panning) setTimeout(function () { swallowClick = false; }, 0);
     }
 
     function shell() {
@@ -2834,7 +2808,6 @@
           '<button class="sab-btn" data-sab-act="ovclose">Keep playing</button></div>');
       });
       var st2 = D.getElementById('sab-stage');
-      st2.addEventListener('wheel', onWheel, { passive: false });
       st2.addEventListener('pointerdown', onPointerDown);
     }
     bindHud();

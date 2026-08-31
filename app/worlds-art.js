@@ -432,6 +432,58 @@
       '.wa-back{opacity:.72}',
       '.wa-stage{opacity:.82}',
       '.wa-bd{position:absolute;inset:0;overflow:hidden}',
+      /* PAINTED BACKDROPS (art/worlds): a day and a night painting cross-fade
+         with data-mode, and a small set of dynamic drifters lives ON the
+         painting — a painting must not be a poster. Feature-agnostic motion
+         only (cover-crop shifts the painting's landmarks with the window
+         shape): birds, kites, fireflies, fireworks, stars. Transform and
+         opacity only; the hidden state's animations are hard-paused, and
+         reduced-motion / data-calm still all of it. */
+      '.wa-back.haspaint{opacity:.88}',
+      '.wa-bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.2s ease}',
+      '.wa-bgnight{opacity:0}',
+      'html[data-mode="night"] .wa-bgnight{opacity:1}',
+      'html[data-mode="night"] .wa-bgday{opacity:0}',
+      '.wa-fxday,.wa-fxnight{position:absolute;inset:0;transition:opacity 1.2s ease;pointer-events:none}',
+      '.wa-fxnight{opacity:0}',
+      '.wa-fxnight *{animation-play-state:paused}',
+      'html[data-mode="night"] .wa-fxday{opacity:0}',
+      'html[data-mode="night"] .wa-fxday *{animation-play-state:paused}',
+      'html[data-mode="night"] .wa-fxnight{opacity:1}',
+      'html[data-mode="night"] .wa-fxnight *{animation-play-state:running}',
+      '.wa-fx{position:absolute}',
+      '.wa-drift{left:-6%;animation:wabgdrift linear infinite}',
+      '@keyframes wabgdrift{to{transform:translateX(116vw)}}',
+      '.wa-fly{width:5px;height:5px;border-radius:50%;background:#ffd98a;' +
+        'box-shadow:0 0 9px 3px rgba(255,217,138,.75);animation:wafly 7s ease-in-out infinite}',
+      '@keyframes wafly{0%,100%{opacity:0;transform:translate(0,0)}18%{opacity:.95}' +
+        '50%{opacity:.3;transform:translate(15px,-20px)}82%{opacity:.9;transform:translate(-9px,-34px)}}',
+      '.wa-kite{animation:wakite 8s ease-in-out infinite alternate}',
+      '@keyframes wakite{from{transform:translate(0,0) rotate(-6deg)}to{transform:translate(10px,-14px) rotate(6deg)}}',
+      '.wa-ball{width:9px;height:9px;border-radius:50%;background:#c0392b;left:-4%;' +
+        'box-shadow:0 1px 2px rgba(0,0,0,.3);animation:waball 21s linear infinite}',
+      '@keyframes waball{0%{transform:translate(0,0);opacity:0}4%{opacity:1}' +
+        '46%{transform:translate(54vw,-15vh)}88%{transform:translate(106vw,6vh);opacity:1}91%,100%{opacity:0}}',
+      '.wa-boom{width:12px;height:12px;border-radius:50%;' +
+        'background:radial-gradient(circle,rgba(255,215,94,.95),rgba(255,143,134,.5) 55%,transparent 75%);' +
+        'animation:waboom 9s ease-out infinite}',
+      '@keyframes waboom{0%,66%{opacity:0;transform:scale(.2)}70%{opacity:.95;transform:scale(1)}' +
+        '84%{opacity:.35;transform:scale(3.6)}100%{opacity:0;transform:scale(4.2)}}',
+      '.wa-tw{animation:watw 4.2s ease-in-out infinite alternate}',
+      '@keyframes watw{from{opacity:.25}to{opacity:.95}}',
+      '.wa-shoot{width:74px;height:2px;border-radius:2px;transform:rotate(-28deg);' +
+        'background:linear-gradient(90deg,rgba(255,255,255,.95),transparent);animation:washoot 24s linear infinite}',
+      '@keyframes washoot{0%,92%{opacity:0;transform:rotate(-28deg) translateX(0)}' +
+        '93%{opacity:.95}97%{opacity:0;transform:rotate(-28deg) translateX(26vw)}100%{opacity:0}}',
+      '.wa-sat{width:7px;height:7px;border-radius:2px;background:#cfd8ff;box-shadow:-9px 0 0 -2px #8fa6ef,9px 0 0 -2px #8fa6ef;' +
+        'animation:wasat 88s linear infinite}',
+      '@keyframes wasat{to{transform:translateX(112vw)}}',
+      '.wa-cloud{width:180px;height:44px;border-radius:50%;filter:blur(2px);opacity:.5;' +
+        'background:radial-gradient(ellipse,rgba(255,255,255,.85),transparent 70%);animation:wabgdrift linear infinite}',
+      '@media (prefers-reduced-motion: reduce){.wa-bd .wa-fx,.wa-bd .wa-fly,.wa-bd .wa-ball,' +
+        '.wa-bd .wa-boom,.wa-bd .wa-shoot,.wa-bd .wa-sat,.wa-bd .wa-cloud,.wa-bd .wa-kite,' +
+        '.wa-bd .wa-tw,.wa-bd .wa-drift{animation:none!important}}',
+      'html[data-calm="1"] .wa-bd .wa-fx,html[data-calm="1"] .wa-bd *{animation:none!important}',
       /* .wa-air was the full-bleed wash that lived in FRONT of the cards. It
          is behind them now with everything else, and held lower still, so it
          tints the page's open ground rather than veiling what is on it. */
@@ -3574,6 +3626,47 @@
     stage.style.setProperty('--wa-foot-off', footOff + 'px');
   }
 
+  /* the drifters that live on each painted backdrop, day and night */
+  function fxBird(top, dur, col) {
+    return '<svg class="wa-fx wa-drift" style="top:' + top + '%;width:26px;animation-duration:' + dur +
+      's;animation-delay:' + dly('b' + top + dur, 20000) + '" viewBox="0 0 24 12">' +
+      '<path d="M2 8 Q7 2 12 7 Q17 2 22 8" fill="none" stroke="' + col + '" stroke-width="1.7" stroke-linecap="round"/></svg>';
+  }
+  function fxFly(left, top, delay) {
+    return '<i class="wa-fx wa-fly" style="left:' + left + '%;top:' + top + '%;animation-delay:-' + delay + 's"></i>';
+  }
+  function fxKite(left, top, col, delay) {
+    return '<svg class="wa-fx wa-kite" style="left:' + left + '%;top:' + top + '%;width:30px;animation-delay:-' + delay +
+      's" viewBox="0 0 20 34"><path d="M10 1 18 11 10 21 2 11z" fill="' + col + '" opacity=".9"/>' +
+      '<path d="M10 21q3 5 -1 7t1 6" fill="none" stroke="' + col + '" stroke-width="1.1" opacity=".7"/></svg>';
+  }
+  var BGFX = {
+    madhubani: {
+      day: function () { return fxBird(12, 58, '#3a1410') + fxBird(24, 76, '#7a3020'); },
+      night: function () { return fxFly(16, 34, 0) + fxFly(70, 26, 2.4) + fxFly(44, 46, 4.6) + fxFly(86, 58, 1.2) + fxFly(7, 60, 5.4); }
+    },
+    cricket: {
+      day: function () { return fxKite(12, 10, '#e0483f', 0) + fxKite(24, 20, '#efb71e', 3.5) + '<i class="wa-fx wa-ball" style="top:36%"></i>'; },
+      night: function () { return '<i class="wa-fx wa-boom" style="left:26%;top:18%"></i>' +
+        '<i class="wa-fx wa-boom" style="left:71%;top:12%;animation-delay:-4.5s"></i>'; }
+    },
+    antariksh: {
+      day: function () { return '<i class="wa-fx wa-cloud" style="top:12%;animation-duration:95s"></i>' +
+        '<i class="wa-fx wa-cloud" style="top:26%;width:120px;animation-duration:130s;animation-delay:-40s"></i>' +
+        fxBird(20, 70, '#27407f'); },
+      night: function () {
+        var tw = function (l, t, d) {
+          return '<svg class="wa-fx wa-tw" style="left:' + l + '%;top:' + t + '%;width:34px;animation-delay:-' + d +
+            's" viewBox="0 0 34 20">' +
+            '<circle cx="4" cy="6" r="1.4" fill="#fff"/><circle cx="16" cy="3" r="1" fill="#dfe6ff"/>' +
+            '<circle cx="27" cy="9" r="1.5" fill="#fff"/><circle cx="10" cy="15" r="1" fill="#cfd8ff"/></svg>';
+        };
+        return tw(12, 10, 0) + tw(56, 6, 1.6) + tw(82, 22, 2.8) +
+          '<i class="wa-fx wa-shoot" style="left:34%;top:9%"></i>' +
+          '<i class="wa-fx wa-sat" style="left:-4%;top:16%"></i>';
+      }
+    }
+  };
   function apply() {
     if (!stage) return;
     measure();
@@ -3584,8 +3677,29 @@
     if (!sc) {   /* unknown / legacy world id — both layers go quiet */
       slots.bd.innerHTML = ''; slots.air.innerHTML = ''; slots.band.innerHTML = '';
       slots.sky.innerHTML = ''; slots.foot.innerHTML = '';
+      back.classList.remove('haspaint');
       return;
     }
+    /* A PAINTED BACKDROP REPLACES THE DRAWN SCENE WHOLESALE: the day/night
+       image pair cross-fades with the mode, its own drifters live on the
+       paint, and the old air/sky/band/foot layers all stand down — they were
+       the weak drawing the painting replaces. */
+    var bgs = window.IND_WORLD_BG || [];
+    if (bgs.indexOf(id + '-day') >= 0) {
+      back.classList.add('haspaint');
+      slots.bd.innerHTML =
+        '<img class="wa-bgimg wa-bgday" src="art/worlds/' + id + '-day.jpg" alt="">' +
+        (bgs.indexOf(id + '-night') >= 0
+          ? '<img class="wa-bgimg wa-bgnight" src="art/worlds/' + id + '-night.jpg" alt="">' : '') +
+        '<div class="wa-fxday">' + (BGFX[id] && BGFX[id].day ? BGFX[id].day() : '') + '</div>' +
+        '<div class="wa-fxnight">' + (BGFX[id] && BGFX[id].night ? BGFX[id].night() : '') + '</div>';
+      slots.air.innerHTML = '';
+      slots.sky.innerHTML = '';
+      slots.foot.innerHTML = '';
+      slots.band.innerHTML = '';   /* the old frieze reads as a barcode on paint */
+      return;
+    }
+    back.classList.remove('haspaint');
     slots.bd.innerHTML = sc.bd ? sc.bd() : '';
     /* the world's air wash, plus the two gutter objects that stand in the desktop margins */
     slots.air.innerHTML = (sc.air ? sc.air() : '') + (SIDES[id] ? SIDES[id]() : '');

@@ -1043,9 +1043,11 @@
      photo credit is the license's own condition, not decor) */
   function cityPhoto(sid) {
     var ph = (window.IND_CITY_PHOTOS || {})[sid];
-    if (!ph) return '';
-    return '<figure class="tm-photo"><img src="art/itihaas/ph/' + ph.file + '" alt="" loading="lazy">' +
+    if (ph) return '<figure class="tm-photo"><img src="art/itihaas/ph/' + ph.file + '" alt="" loading="lazy">' +
       '<figcaption class="tiny muted">' + esc(ph.credit) + '</figcaption></figure>';
+    if ((window.IND_CITY_ART || []).indexOf(sid) >= 0)
+      return '<figure class="tm-photo art"><img src="art/itihaas/ct/' + sid + '.jpg" alt="" loading="lazy"></figure>';
+    return '';
   }
   window.IND_CITY_PHOTO_HTML = cityPhoto;
   var timeSite = null;   /* the tapped place on an era map */
@@ -1303,22 +1305,29 @@
     if (timeSite) {
       var cx2 = xsiteOf(timeSite);
       var cs = cx2 || siteOf(timeSite);
-      if (cs) cal = '<div class="tm-callout"><div class="spread"><b>' + esc(cx2 ? cs.name : nameInAge(cs)) + '</b>' +
-        '<button class="pill" data-act="tsite" data-id="' + timeSite + '">close</button></div>' +
-        cityPhoto(timeSite) +
-        '<p style="margin:6px 0 4px">' + esc(cs.fact) + '</p>' +
-        (cs.more || []).map(function (mf) {
-          return '<p style="margin:6px 0 4px">' + esc(mf) + '</p>';
-        }).join('') +
-        (cx2 ? '<p class="tiny muted" style="margin:4px 0 0">Beyond today\u2019s outline \u2014 this city is in Pakistan now; the story has never stopped at a modern border.</p>' : '') +
-        '</div>';
+      if (cs) {
+        var pnm = cx2 ? cs.name : nameInAge(cs);
+        var pf = [cs.fact].concat(cs.more || []);
+        var chars = pf.join(' ').length;
+        /* the card wears its text: short tellings get a snug card, long ones a
+           wide one, and past 84vh the card scrolls inside itself */
+        cal = '<button class="tm-scrim" data-act="tsite" data-id="' + timeSite +
+            '" aria-label="close"></button>' +
+          '<div class="tm-pop' + (chars < 460 ? ' snug' : '') + '" role="dialog" aria-label="' + esc(pnm) + '">' +
+          cityPhoto(timeSite) +
+          '<div class="spread tm-prow"><b class="tm-pname">' + esc(pnm) + '</b>' +
+            '<button class="pill" data-act="tsite" data-id="' + timeSite + '">close</button></div>' +
+          pf.map(function (mf) { return '<p class="tm-fact">' + esc(mf) + '</p>'; }).join('') +
+          (cx2 ? '<p class="tm-fact tiny muted">Beyond today\u2019s outline \u2014 this city is in Pakistan now; the story has never stopped at a modern border.</p>' : '') +
+          '</div>';
+      }
     }
-    return '<div class="card"><div class="spread">' +
-      '<div><span class="badge itihaas">itihaas</span>' +
-      '<h1 style="margin:6px 0 0">' + esc(e.title) + '</h1>' +
-      '<div class="mono">' + esc(e.when) + '</div></div>' +
-      '<button class="btn ghost" data-act="era" data-id="' + e.id + '">Open this age \u2192</button></div>' +
-      '<p style="margin:10px 0 0">' + esc(e.hook) + '</p></div>' +
+    return '<div class="card tm-head"><div class="spread">' +
+      '<div class="tm-headL"><span class="badge itihaas">itihaas</span>' +
+      '<b class="tm-title">' + esc(e.title) + '</b>' +
+      '<span class="mono tiny">' + esc(e.when) + '</span></div>' +
+      '<button class="btn ghost" data-act="era" data-id="' + e.id + '">Open \u2192</button></div>' +
+      '<p class="tm-hook">' + esc(e.hook) + ' \u00b7 <i>tap a city for its tellings</i></p></div>' +
       '<div class="tmwrap">' +
         '<div class="card tmap">' + svg + cal +
           '<p class="tiny muted" style="margin:8px 0 0">A soft glow, not a border \u2014 where this age\u2019s ' +

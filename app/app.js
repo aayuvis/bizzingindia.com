@@ -1059,6 +1059,33 @@
     modern: ['chandigarh', 'delhi', 'mumbai', 'kolkata'],
     'naya-bharat': ['bengaluru', 'sriharikota', 'mumbai', 'ahmedabad']
   };
+  /* cities of the story that stand BEYOND today's outline, on the soft
+     wider-subcontinent wash — the ages spilled past every modern border,
+     and the First Cities map without Harappa and Mohenjo-daro is a hole.
+     Facts are sourced here directly (they have no Sabhyata site to lean
+     on, because the game keeps to today's India); a pin is a place and a
+     telling, never a boundary. */
+  var TIME_XSITES = {
+    harappa: [
+      { id: 'x-harappa', x: 95, y: 250, name: 'Harappa',
+        fact: 'The city on the old Ravi that gave the whole civilization its name — excavated from 1921 under Daya Ram Sahni, the first of the great Indus cities to be dug.',
+        sources: ['Possehl, The Indus Civilization: A Contemporary Perspective (2002)'] },
+      { id: 'x-mohenjo', x: -35, y: 440, name: 'Mohenjo-daro',
+        fact: 'The largest city of the Indus world, on the lower Indus in Sindh — home of the Great Bath, dug from 1922 and a UNESCO World Heritage Site since 1980.',
+        sources: ['UNESCO World Heritage listing: Archaeological Ruins at Moenjodaro (1980)'] }
+    ],
+    'buddha-age': [
+      { id: 'x-taxila', x: 60, y: 165, name: 'Takshashila',
+        fact: 'The great crossroads city of Gandhara on the Uttarapatha road, remembered as a centre of learning — its mounds, dug by John Marshall over two decades, are a UNESCO World Heritage Site.',
+        sources: ['Marshall, Taxila (1951); UNESCO World Heritage listing: Taxila (1980)'] }
+    ],
+    'marathas-sikhs': [
+      { id: 'x-lahore', x: 165, y: 228, name: 'Lahore',
+        fact: 'Maharaja Ranjit Singh took Lahore in 1799 and made it the capital of the Sikh Empire — the court that held the Punjab together for half a century.',
+        sources: ['Khushwant Singh, A History of the Sikhs, Vol. 1 (2004)'] }
+    ]
+  };
+  TIME_XSITES.maurya = TIME_XSITES['buddha-age'];
   var TIME_SAB_ERA = { harappa: 0, vedic: 1, 'buddha-age': 2, maurya: 2, gupta: 3, souths: 3,
     chola: 4, 'temple-builders': 4, 'sultanate-mughal': 6, 'marathas-sikhs': 7,
     colonial: 9, freedom: 10, modern: 11, 'naya-bharat': 12 };
@@ -1176,7 +1203,21 @@
       (s2.renames || []).forEach(function (r2) { if (r2.era <= sabEra) nm = r2.name; });
       return nm;
     };
-    var pins = (TIME_SITES[id] || []).map(function (sid) {
+    var xsiteOf = function (sid) {
+      var ls = TIME_XSITES[id] || [];
+      for (var xi = 0; xi < ls.length; xi++) if (ls[xi].id === sid) return ls[xi];
+      return null;
+    };
+    var xpins = (TIME_XSITES[id] || []).map(function (s2) {
+      return '<g class="tm-city' + (timeSite === s2.id ? ' on' : '') + '" data-act="tsite" data-id="' + s2.id +
+        '" role="button" tabindex="0" aria-label="' + esc(s2.name) + ' \u2014 beyond today\u2019s outline; tap for its telling">' +
+        '<circle class="tm-hit" cx="' + s2.x + '" cy="' + (s2.y - 8) + '" r="46" fill="transparent"/>' +
+        (cspr ? '<image href="' + cspr + '" x="' + (s2.x - 27) + '" y="' + (s2.y - 42) +
+          '" width="54" height="42" preserveAspectRatio="xMidYMax meet" opacity=".88"/>' : '') +
+        '<circle class="tm-lamp" cx="' + s2.x + '" cy="' + (s2.y + 7) + '" r="7"/>' +
+        '<text class="tm-name" x="' + s2.x + '" y="' + (s2.y + 34) + '" text-anchor="middle">' + esc(s2.name) + '</text></g>';
+    }).join('');
+    var pins = xpins + (TIME_SITES[id] || []).map(function (sid) {
       var s2 = siteOf(sid); if (!s2) return '';
       var nm = nameInAge(s2);
       return '<g class="tm-city' + (timeSite === sid ? ' on' : '') + '" data-act="tsite" data-id="' + sid +
@@ -1241,10 +1282,12 @@
         'Open this age to read what the evidence shows.</p></div>';
     }
     if (timeSite) {
-      var cs = siteOf(timeSite);
-      if (cs) cal = '<div class="tm-callout"><div class="spread"><b>' + esc(nameInAge(cs)) + '</b>' +
+      var cx2 = xsiteOf(timeSite);
+      var cs = cx2 || siteOf(timeSite);
+      if (cs) cal = '<div class="tm-callout"><div class="spread"><b>' + esc(cx2 ? cs.name : nameInAge(cs)) + '</b>' +
         '<button class="pill" data-act="tsite" data-id="' + timeSite + '">close</button></div>' +
         '<p style="margin:6px 0 4px">' + esc(cs.fact) + '</p>' +
+        (cx2 ? '<p class="tiny" style="margin:0 0 4px">Beyond today\u2019s outline \u2014 this city is in Pakistan now; the story has never stopped at a modern border.</p>' : '') +
         ((cs.sources || [])[0] ? '<span class="tiny muted">' + esc(cs.sources[0]) + '</span>' : '') + '</div>';
     }
     return '<div class="card"><div class="spread">' +

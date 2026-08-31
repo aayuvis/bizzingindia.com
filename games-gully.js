@@ -50,7 +50,7 @@
     var s = el('style'); s.id = 'gully-css';
     s.textContent =
       '.gy-wrap{display:grid;gap:12px;justify-items:center}' +
-      '.gy-stage{width:100%;max-width:560px;background:var(--card2);border:1px solid var(--line);' +
+      '.gy-stage{width:100%;max-width:860px;background:var(--card2);border:1px solid var(--line);' +
         'border-radius:18px;overflow:hidden;touch-action:none;display:block}' +
       '.gy-hud{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}' +
       '.gy-pill{font:700 13px/1 var(--body);background:var(--card);border:1px solid var(--line);' +
@@ -97,8 +97,9 @@
     svg.setAttribute('aria-label', 'Kancha — aim and flick your marble');
     svg.setAttribute('tabindex', '0');
     var hint = el('div', 'gy-hint',
-      '<b>Keys:</b> ← → to aim · ↑ ↓ for power · <b>Space</b> to flick. ' +
-      '<b>Finger:</b> drag back from your marble and let go — like a real flick.');
+      '<b>Win 4 of the 6</b> to take the ring. <b>Finger:</b> grab your marble — slide it ' +
+      'along the line, pull back past the line and let go to flick (a small pull cancels). ' +
+      '<b>Keys:</b> ← → aim · ↑ ↓ power · <b>Space</b> flicks.');
     wrap.appendChild(hud); wrap.appendChild(svg); wrap.appendChild(hint);
     host.innerHTML = ''; host.appendChild(wrap);
 
@@ -185,7 +186,8 @@
       if (moving) { raf = requestAnimationFrame(step); return; }
       /* the shot has come to rest */
       phase = 'aim';
-      striker.x = CX; striker.y = CY + R + 26; striker.vx = 0; striker.vy = 0;
+      striker.y = CY + R + 26; striker.vx = 0; striker.vy = 0;
+      striker.x = Math.max(40, Math.min(Wd - 40, striker.x));
       if (potted >= 6 || shots <= 0) return finish();
       draw();
     }
@@ -227,24 +229,45 @@
     };
     document.addEventListener('keydown', keyed);
 
-    /* touch/mouse: drag back from the striker, let go to flick — a real flick gesture */
-    var dragging = false;
+    /* TOUCH, THE CARROM WAY. The old input fired a shot from ANY drag
+       anywhere — a stray thumb was a wasted shot, and the striker could
+       never be placed. Now: grab the striker and it slides along its line;
+       pull back past the line and the grab becomes the flick sling; let go
+       to shoot — and a tiny pull is a cancel, not a misfire. A drag that
+       starts away from the striker does nothing at all. */
+    var dragging = null;
     function pt(e) {
       var r = svg.getBoundingClientRect();
       var t = (e.touches && e.touches[0]) || e;
       return { x: (t.clientX - r.left) / r.width * Wd, y: (t.clientY - r.top) / r.height * Ht };
     }
-    function dstart(e) { if (over || phase === 'fly') return; dragging = true; dmove(e); }
+    var LINE_Y = CY + R + 26;
+    function dstart(e) {
+      if (over || phase === 'fly') return;
+      var q = pt(e);
+      var dx = q.x - striker.x, dy = q.y - striker.y;
+      if (dx * dx + dy * dy < 34 * 34) { dragging = { mode: 'stick' }; }
+      if (e.cancelable) e.preventDefault();
+    }
     function dmove(e) {
       if (!dragging || over) return;
       var q = pt(e);
+      if (dragging.mode === 'stick') {
+        if (q.y - LINE_Y > 26) dragging = { mode: 'sling' };
+        else { striker.x = Math.max(40, Math.min(Wd - 40, q.x)); draw(); return; }
+      }
       var dx = striker.x - q.x, dy = striker.y - q.y;
       angle = Math.atan2(dy, dx);
       power = Math.max(0.1, Math.min(1, Math.sqrt(dx * dx + dy * dy) / 140));
+      dragging.armed = Math.sqrt(dx * dx + dy * dy) > 22;
       draw();
       if (e.cancelable) e.preventDefault();
     }
-    function dend() { if (!dragging) return; dragging = false; flick(); }
+    function dend() {
+      if (!dragging) return;
+      var was = dragging; dragging = null;
+      if (was.mode === 'sling' && was.armed) flick();
+    }
     svg.addEventListener('pointerdown', dstart);
     svg.addEventListener('pointermove', dmove);
     svg.addEventListener('pointerup', dend);
@@ -416,17 +439,188 @@
     return teardown;
   }
 
+
+  /* ============================================================ PALLANGUZHI
+     The shell-and-pit game of Tamil homes, played across the south as Ali
+     Guli Mane and Vamana Guntalu. Families play many ways; this is ONE
+     simple way, and the blurb says so. Two rows of seven pits, five shells
+     each. Sow anticlockwise; if the pit after your last shell is empty, the
+     shells in the pit beyond it are yours. When a row is empty the game
+     ends, and the fuller pouch wins. Tap a pit or press 1-7 (your pits,
+     left to right) — keyboard and touch both, house rule. */
+  function pallanguzhi(host, opts, done) {
+    css();
+    var Wd = 860, Ht = 400;
+    var pits = [];                     /* 0-6 yours L->R, 7-13 Gattu R->L (CCW ring) */
+    for (var i = 0; i < 14; i++) pits.push(5);
+    var pouch = { you: 0, gattu: 0 };
+    var turn = 'you', busy = false, over = false, raf = null, timers = [];
+    var REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    var wrap = el('div', 'gy-wrap');
+    var hud = el('div', 'gy-hud',
+      '<span class="gy-pill">Your pouch <b id="pzY">0</b></span>' +
+      '<span class="gy-pill" id="pzT">your turn — pick a pit</span>' +
+      '<span class="gy-pill">Gattu <b id="pzG">0</b></span>');
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + Wd + ' ' + Ht);
+    svg.setAttribute('class', 'gy-stage');
+    svg.setAttribute('role', 'application');
+    svg.setAttribute('aria-label', 'Pallanguzhi board, two rows of seven pits');
+    svg.setAttribute('tabindex', '0');
+    var hint = el('div', 'gy-hint',
+      'Sow anticlockwise, one shell a pit. Land so the NEXT pit is empty and the shells ' +
+      'beyond it are yours. <b>Tap a pit</b> or press <b>1-7</b>.');
+    wrap.appendChild(hud); wrap.appendChild(svg); wrap.appendChild(hint);
+    host.innerHTML = ''; host.appendChild(wrap);
+
+    /* pit centres: your row along the bottom L->R, Gattu's along the top R->L,
+       so index+1 always steps anticlockwise around the board */
+    function at(i) {
+      var col = i < 7 ? i : 13 - i;
+      return { x: 92 + col * 112, y: i < 7 ? 288 : 112 };
+    }
+    function shellDots(n, cx, cy) {
+      var out = '', k;
+      for (k = 0; k < Math.min(n, 12); k++) {
+        var a = (k / 6) * Math.PI * 2, rr = k < 6 ? 13 : 24;
+        out += '<circle cx="' + (cx + Math.cos(a) * rr).toFixed(1) + '" cy="' +
+          (cy + Math.sin(a) * rr * 0.72).toFixed(1) + '" r="4.6" fill="#f3e7cf" stroke="#b99b6b"/>';
+      }
+      return out;
+    }
+    function draw(litFrom) {
+      var out = '<rect width="' + Wd + '" height="' + Ht + '" rx="26" fill="#7a5320"/>' +
+        '<rect x="10" y="10" width="' + (Wd - 20) + '" height="' + (Ht - 20) + '" rx="20" ' +
+          'fill="#8f6428" stroke="#5c3d14" stroke-width="3"/>';
+      for (var i = 0; i < 14; i++) {
+        var c = at(i), mine = i < 7, can = mine && turn === 'you' && !busy && !over && pits[i] > 0;
+        out += '<g data-pit="' + i + '"' + (can ? ' class="pz-can" role="button" tabindex="-1"' : '') + '>' +
+          '<ellipse cx="' + c.x + '" cy="' + c.y + '" rx="46" ry="36" fill="#4a2f0e"/>' +
+          '<ellipse cx="' + c.x + '" cy="' + (c.y - 3) + '" rx="44" ry="33" fill="#3a250b"' +
+            (can ? ' stroke="var(--accent2)" stroke-width="3"' : '') + '/>' +
+          shellDots(pits[i], c.x, c.y - 3) +
+          '<text x="' + c.x + '" y="' + (c.y + (mine ? 58 : -48)) + '" text-anchor="middle" ' +
+            'font-size="15" font-weight="800" fill="#f6ecd7">' + pits[i] + '</text>' +
+          (mine ? '<text x="' + c.x + '" y="' + (c.y + 76) + '" text-anchor="middle" font-size="11" ' +
+            'fill="#d8c39a">' + (i + 1) + '</text>' : '') + '</g>';
+      }
+      if (litFrom !== undefined) {
+        var lc = at(litFrom);
+        out += '<ellipse cx="' + lc.x + '" cy="' + (lc.y - 3) + '" rx="44" ry="33" fill="none" ' +
+          'stroke="#ffd98a" stroke-width="4" opacity=".9"/>';
+      }
+      svg.innerHTML = out;
+    }
+    function hud2(msg) {
+      document.getElementById('pzY').textContent = pouch.you;
+      document.getElementById('pzG').textContent = pouch.gattu;
+      if (msg) document.getElementById('pzT').textContent = msg;
+    }
+
+    /* sow with a little clock so a child can follow the shells around */
+    function sow(start, who, then) {
+      var hand = pits[start]; pits[start] = 0;
+      var i = start;
+      function drop() {
+        i = (i + 1) % 14; pits[i]++; hand--;
+        draw(i);
+        if (hand > 0) { timers.push(setTimeout(drop, REDUCED ? 0 : 170)); return; }
+        /* the kasi: the pit after the last shell is empty, the one beyond is won */
+        var nxt = (i + 1) % 14, beyond = (i + 2) % 14, won = 0;
+        if (pits[nxt] === 0 && pits[beyond] > 0) { won = pits[beyond]; pits[beyond] = 0; pouch[who] += won; }
+        draw();
+        then(won);
+      }
+      if (REDUCED) { while (hand > 0) { i = (i + 1) % 14; pits[i]++; hand--; }
+        var nx = (i + 1) % 14, by = (i + 2) % 14, w2 = 0;
+        if (pits[nx] === 0 && pits[by] > 0) { w2 = pits[by]; pits[by] = 0; pouch[who] += w2; }
+        draw(); then(w2); return; }
+      drop();
+    }
+    function rowEmpty(who) {
+      var a = who === 'you' ? 0 : 7, i;
+      for (i = a; i < a + 7; i++) if (pits[i] > 0) return false;
+      return true;
+    }
+    function finish() {
+      over = true;
+      /* whatever still sits in a row goes to its own pouch, like packing up */
+      for (var i = 0; i < 7; i++) { pouch.you += pits[i]; pits[i] = 0; }
+      for (i = 7; i < 14; i++) { pouch.gattu += pits[i]; pits[i] = 0; }
+      draw(); hud2(pouch.you > pouch.gattu ? 'Your pouch is fuller — you win!'
+        : pouch.you === pouch.gattu ? 'Dead even — play again!' : 'Gattu\u2019s pouch is fuller this time.');
+      var win = pouch.you > pouch.gattu;
+      timers.push(setTimeout(function () {
+        done({ win: win, score: pouch.you, sikke: win ? 10 : 4 });
+      }, 1400));
+    }
+    function afterMove(who, won) {
+      hud2(won ? (who === 'you' ? 'You pouch ' + won + '!' : 'Gattu pouches ' + won + '.') : undefined);
+      var next = who === 'you' ? 'gattu' : 'you';
+      if (rowEmpty(next)) return finish();
+      turn = next; busy = false; draw();
+      hud2(next === 'you' ? 'your turn — pick a pit' : 'Gattu is thinking\u2026');
+      if (next === 'gattu') timers.push(setTimeout(gattuMove, REDUCED ? 60 : 750));
+    }
+    function play(i) {
+      if (over || busy || turn !== 'you' || i < 0 || i > 6 || pits[i] === 0) return;
+      busy = true; hud2('sowing\u2026');
+      sow(i, 'you', function (won) { afterMove('you', won); });
+    }
+    function gattuMove() {
+      if (over) return;
+      busy = true;
+      /* Gattu tries each pit and keeps the best immediate pouch — greedy, honest */
+      var best = -1, bestWon = -1, i;
+      for (i = 7; i < 14; i++) {
+        if (!pits[i]) continue;
+        var t = pits.slice(), hand = t[i], j = i; t[i] = 0;
+        while (hand > 0) { j = (j + 1) % 14; t[j]++; hand--; }
+        var won = (t[(j + 1) % 14] === 0) ? t[(j + 2) % 14] : 0;
+        if (won > bestWon) { bestWon = won; best = i; }
+      }
+      if (best < 0) return finish();
+      sow(best, 'gattu', function (won) { afterMove('gattu', won); });
+    }
+
+    function onTap(e) {
+      var g = e.target.closest ? e.target.closest('[data-pit]') : null;
+      if (!g) return;
+      play(+g.getAttribute('data-pit'));
+    }
+    function onKey(e) {
+      var k = e.key;
+      if (k >= '1' && k <= '7') { play(+k - 1); e.preventDefault(); }
+    }
+    svg.addEventListener('click', onTap);
+    document.addEventListener('keydown', onKey);
+    draw(); hud2();
+    try { svg.focus({ preventScroll: true }); } catch (e) {}
+
+    function teardown() {
+      over = true;
+      timers.forEach(clearTimeout);
+      if (raf) cancelAnimationFrame(raf);
+      document.removeEventListener('keydown', onKey);
+    }
+    teardown.destroy = teardown;
+    return teardown;
+  }
+
   /* ================================================================== REGISTRY
-     Push, never replace: games.js owns the array. */
+     Push, never replace: games.js owns the array. Patang is ARCHIVED — the
+     engine stays above for the day it earns its wind back, but the shelf no
+     longer offers it (the founder's verdict: useless as it stood). */
   W.IND_GAMES = W.IND_GAMES || [];
   W.IND_GAMES.push(
     { id: 'kancha', name: 'Kancha', icon: 'star', minutes: 4,
-      blurb: 'A ring scratched in the dust and six glass kancha in it. Aim, pick your power, flick — everything you knock out of the ring is yours.',
+      blurb: 'A ring scratched in the dust and six glass kancha in it. Slide your marble along the line, pull back, flick — everything you knock out of the ring is yours.',
       tag: 'flick', c: '#7a5320', c2: '#33200b',
       engine: kancha },
-    { id: 'patang', name: 'Patang', icon: 'star', minutes: 5,
-      blurb: 'Two kites, one sky. Let line out to climb, dip to gather speed, and cross their line from above to cut it. Best of three.',
-      tag: 'duel', c: '#1f6f9f', c2: '#0b2f4a',
-      engine: patang }
+    { id: 'pallanguzhi', name: 'Pallanguzhi', icon: 'star', minutes: 6,
+      blurb: 'The shell-and-pit game of Tamil homes — played across the south as Ali Guli Mane and Vamana Guntalu. Sow your shells round the board and fill your pouch. Families play many ways; this is one simple way.',
+      tag: 'board', c: '#8f6428', c2: '#3a250b',
+      engine: pallanguzhi }
   );
 })();

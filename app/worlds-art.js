@@ -439,7 +439,9 @@
          shape): birds, kites, fireflies, fireworks, stars. Transform and
          opacity only; the hidden state's animations are hard-paused, and
          reduced-motion / data-calm still all of it. */
-      '.wa-back.haspaint{opacity:.88}',
+      /* the paintings sit well back: soft enough that the content, not
+         the wall, is what a child reads first */
+      '.wa-back.haspaint{opacity:.5}',
       '.wa-bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.2s ease}',
       '.wa-bgnight{opacity:0}',
       'html[data-mode="night"] .wa-bgnight{opacity:1}',

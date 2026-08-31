@@ -1148,6 +1148,90 @@
     souths: 650, chola: 1000, 'temple-builders': 1150, 'sultanate-mughal': 1300,
     'marathas-sikhs': 1700, colonial: 1800, freedom: 1900, modern: 1955, 'naya-bharat': 2000 };
   var timePeek = null;   /* the bubble whose name is popped up, one tap short of travelling */
+  /* ============== BHUGOL — the physical land, on today's map ==============
+     A toggle beside Aaj's map swaps politics for geography: the same Survey
+     of India outline, but filled with landform washes (elevation and soil,
+     never a boundary) and ~400 real places — rivers, lakes, parks, falls,
+     peaks, passes, caves, coasts — each a tap away from its own telling.
+     The legend chips double as filters. Data: data-bhugol.js, sourced. */
+  var mapMode = 'rajya';       /* 'rajya' states · 'bhugol' the land itself */
+  var bhugolType = 'all';      /* legend filter */
+  var bhugolFeat = null;       /* the open feature card */
+  function bhugolView() {
+    var B = window.IND_BHUGOL || { types: {}, features: [] };
+    var M2 = window.IND_MAP;
+    var SB2 = window.IND_SABHYATA || {};
+    var feats = B.features.filter(function (ft) {
+      return bhugolType === 'all' || ft.t === bhugolType;
+    });
+    /* legend chips, with live counts — tapping filters */
+    var counts = {};
+    B.features.forEach(function (ft) { counts[ft.t] = (counts[ft.t] || 0) + 1; });
+    var legend = '<button class="bg-chip' + (bhugolType === 'all' ? ' on' : '') +
+      '" data-act="btype" data-t="all">All \u00b7 ' + B.features.length + '</button>' +
+      Object.keys(B.types).map(function (tk) {
+        var tv = B.types[tk];
+        return '<button class="bg-chip' + (bhugolType === tk ? ' on' : '') + '" data-act="btype" data-t="' + tk +
+          '" style="--tc:' + tv.c + '"><i>' + tv.g + '</i>' + esc(tv.n) + ' \u00b7 ' + (counts[tk] || 0) + '</button>';
+      }).join('');
+    /* the big rivers as blue threads (same geometry the era maps use) */
+    var rivers = (SB2.rivers || []).map(function (rv) {
+      var d2 = 'M' + rv.p[0][0] + ' ' + rv.p[0][1];
+      for (var ri = 1; ri < rv.p.length - 1; ri++) {
+        var mx2 = (rv.p[ri][0] + rv.p[ri + 1][0]) / 2, my2 = (rv.p[ri][1] + rv.p[ri + 1][1]) / 2;
+        d2 += ' Q' + rv.p[ri][0] + ' ' + rv.p[ri][1] + ' ' + mx2 + ' ' + my2;
+      }
+      var lp = rv.p[rv.p.length - 1];
+      return '<path class="bg-river" d="' + d2 + ' L' + lp[0] + ' ' + lp[1] + '"><title>' + esc(rv.n) + '</title></path>';
+    }).join('');
+    var marks = feats.map(function (ft) {
+      var tv = B.types[ft.t] || {};
+      return '<g class="bg-mark' + (bhugolFeat === ft.id ? ' on' : '') + '" data-act="bfeat" data-id="' + ft.id +
+        '" role="button" tabindex="0" aria-label="' + esc(ft.n) + ' \u2014 ' + esc(tv.n || ft.t) + '; tap for its telling">' +
+        '<circle cx="' + ft.x + '" cy="' + ft.y + '" r="16" fill="transparent"/>' +
+        '<circle class="bg-dot" cx="' + ft.x + '" cy="' + ft.y + '" r="9" fill="' + (tv.c || '#888') + '"/>' +
+        '<text class="bg-g" x="' + ft.x + '" y="' + (ft.y + 4.2) + '" text-anchor="middle">' + (tv.g || '\u2022') + '</text>' +
+        '</g>';
+    }).join('');
+    /* landform washes, clipped to the one true outline: the high white north,
+       the Thar's sand, the Deccan's ochre, the plains' green, the coasts'
+       palms of teal. Elevation and soil — never a boundary. */
+    var svg2 = '<svg class="tmsvg bgsvg" viewBox="-30 30 1060 1120" role="group" aria-label="The physical land of India">' +
+      '<defs><clipPath id="bgclip"><path d="' + M2.outline + '"/></clipPath>' +
+      '<filter id="bgw" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter></defs>' +
+      '<path d="' + M2.outline + '" fill="#e8ecd8" stroke="var(--line2,var(--line))" stroke-width="2.5"/>' +
+      '<g clip-path="url(#bgclip)"><g filter="url(#bgw)">' +
+        '<ellipse cx="470" cy="180" rx="460" ry="120" fill="#f3f2fa"/>' +      /* Himalayan snows */
+        '<ellipse cx="300" cy="255" rx="330" ry="70" fill="#d9d4ec" opacity=".8"/>' +
+        '<ellipse cx="190" cy="430" rx="150" ry="120" fill="#ecd9a8"/>' +      /* the Thar */
+        '<ellipse cx="480" cy="440" rx="260" ry="110" fill="#dcecc8"/>' +      /* the plains */
+        '<ellipse cx="660" cy="520" rx="180" ry="90" fill="#d4eac4"/>' +
+        '<ellipse cx="360" cy="740" rx="220" ry="180" fill="#e6d9b4"/>' +      /* the Deccan */
+        '<ellipse cx="250" cy="800" rx="70" ry="200" fill="#c8e2b8"/>' +       /* Western Ghats green */
+        '<ellipse cx="850" cy="330" rx="140" ry="110" fill="#cfe6c2"/>' +      /* the green northeast */
+        '<ellipse cx="330" cy="990" rx="120" ry="110" fill="#d2e8c0"/>' +
+      '</g></g>' +
+      rivers + marks + '</svg>';
+    var pop = '';
+    if (bhugolFeat) {
+      var cf = null;
+      B.features.forEach(function (ft) { if (ft.id === bhugolFeat) cf = ft; });
+      if (cf) {
+        var tv2 = B.types[cf.t] || {};
+        pop = '<button class="tm-scrim" data-act="bfeat" data-id="' + cf.id + '" aria-label="close"></button>' +
+          '<div class="tm-pop snug" role="dialog" aria-label="' + esc(cf.n) + '">' +
+          '<div class="bg-band" style="background:' + (tv2.c || '#888') + '"><i>' + (tv2.g || '') + '</i>' + esc(tv2.n || cf.t) + '</div>' +
+          '<div class="spread tm-prow"><b class="tm-pname">' + esc(cf.n) + '</b>' +
+            '<button class="pill" data-act="bfeat" data-id="' + cf.id + '">close</button></div>' +
+          '<p class="tiny muted" style="margin:2px 0 0">' + esc(stateName(cf.st)) + '</p>' +
+          '<p class="tm-fact">' + esc(cf.f) + '</p></div>';
+      }
+    }
+    return '<div class="card mapcard bgcard">' + svg2 +
+      '<div class="bg-legend">' + legend + '</div>' +
+      '<p class="tiny muted" style="margin:8px 0 0">The land itself \u2014 washes are landforms, never lines; ' +
+      'every dot is a real place with its own telling. Tap one.</p></div>' + pop;
+  }
   var timeZone = null;   /* the tapped zone of influence on an era map */
   function timeStrip() {
     /* ONE LINE OF TIME, 3300 BCE to today, never wider than the page. Every
@@ -1409,6 +1493,11 @@
        (tstrip, not strip: this view already owns a 'strip' for the day-fact.) */
     var tstrip = timeStrip();
     if (timeStop !== 'aaj') return tstrip + timeLens(timeStop);
+    /* today's map has two skins: the states (rajya) and the land (bhugol) */
+    var mtoggle = '<div class="bg-toggle" role="tablist" aria-label="Map view">' +
+      '<button class="bg-tab' + (mapMode === 'rajya' ? ' on' : '') + '" data-act="mapmode" data-m="rajya" role="tab">\ud83d\uddfa\ufe0f Rajya \u00b7 the states</button>' +
+      '<button class="bg-tab' + (mapMode === 'bhugol' ? ' on' : '') + '" data-act="mapmode" data-m="bhugol" role="tab">\u26f0\ufe0f Bhugol \u00b7 the land</button></div>';
+    if (mapMode === 'bhugol') return tstrip + mtoggle + bhugolView();
     var codes = Object.keys(M.paths);
     var lit = Object.keys(S.lit).length, total = codes.length;
     var bb = M.bbox || {};
@@ -1547,7 +1636,7 @@
        heading used to be a two-line block with its own margin -- about 70px above the
        map, on a screen where the map is fighting for its height. It says the same things
        on one line now, and the map grew by that much. */
-    return tstrip + '<div class="card mapcard">' +
+    return tstrip + mtoggle + '<div class="card mapcard">' +
       '<div class="spread" style="margin-bottom:6px;align-items:baseline">' +
         '<h2 style="margin:0;font-size:20px">India</h2>' +
         '<span class="tiny muted" style="flex:1;margin-left:10px">' + lit + ' of ' + total +
@@ -5527,6 +5616,22 @@
       timeSite = null;
       return render();
     }
+    if (a === 'mapmode') {
+      mapMode = t.getAttribute('data-m') || 'rajya';
+      bhugolFeat = null;
+      return render();
+    }
+    if (a === 'btype') {
+      var btv = t.getAttribute('data-t') || 'all';
+      bhugolType = (bhugolType === btv) ? 'all' : btv;
+      bhugolFeat = null;
+      return render();
+    }
+    if (a === 'bfeat') {
+      var bfv = t.getAttribute('data-id');
+      bhugolFeat = (bhugolFeat === bfv || !bfv) ? null : bfv;
+      return render();
+    }
     if (a === 'tsite')  {
       var tsv = t.getAttribute('data-id');
       timeSite = (timeSite === tsv || !tsv) ? null : tsv;
@@ -5960,8 +6065,8 @@
   document.addEventListener('keydown', function (e) {
     /* Esc closes the city telling card over the map — every dialog needs a
        keyboard way out */
-    if (e.key === 'Escape' && timeSite && view.name === 'map') {
-      timeSite = null; render(); return;
+    if (e.key === 'Escape' && (timeSite || bhugolFeat) && view.name === 'map') {
+      timeSite = null; bhugolFeat = null; render(); return;
     }
     /* Ordered-build keyboard controls (every drill needs keys as well as
        touch): ← → walk the unused tiles with a visible ring, Enter places

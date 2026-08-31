@@ -1037,6 +1037,31 @@
      anchors in the same 1000x1100 frame; radii are deliberately generous,
      because vagueness here is honesty. */
   var timeStop = 'aaj';
+  var timeSite = null;   /* the tapped place on an era map */
+  /* which Sabhyata sites stand on each age's map (same 1000x1100 frame), and
+     which Sabhyata era index to use so a city wears its name OF THAT AGE —
+     Kashi is Banaras under the sultans and Varanasi today; Bombay only
+     becomes Mumbai in the takeoff. The facts behind every pin are the
+     sites' own, already written and sourced in data-sabhyata. */
+  var TIME_SITES = {
+    harappa: ['dholavira', 'lothal', 'rakhigarhi', 'kalibangan'],
+    vedic: ['hastinapura', 'kashi', 'ujjain', 'vaishali'],
+    'buddha-age': ['vaishali', 'kashi', 'pataliputra', 'sanchi'],
+    maurya: ['pataliputra', 'sanchi', 'dhauli', 'ujjain', 'sopara'],
+    gupta: ['pataliputra', 'nalanda', 'mathura', 'ujjain', 'ajanta'],
+    souths: ['madurai', 'muziris', 'sopara', 'ajanta'],
+    chola: ['thanjavur', 'mamallapuram', 'madurai'],
+    'temple-builders': ['konark', 'thanjavur', 'mamallapuram', 'madurai'],
+    'sultanate-mughal': ['delhi', 'agra', 'hampi'],
+    'marathas-sikhs': ['amritsar', 'surat', 'delhi'],
+    colonial: ['mumbai', 'kolkata', 'surat', 'delhi'],
+    freedom: ['ahmedabad', 'delhi', 'amritsar', 'kolkata'],
+    modern: ['chandigarh', 'delhi', 'mumbai', 'kolkata'],
+    'naya-bharat': ['bengaluru', 'sriharikota', 'mumbai', 'ahmedabad']
+  };
+  var TIME_SAB_ERA = { harappa: 0, vedic: 1, 'buddha-age': 2, maurya: 2, gupta: 3, souths: 3,
+    chola: 4, 'temple-builders': 4, 'sultanate-mughal': 6, 'marathas-sikhs': 7,
+    colonial: 9, freedom: 10, modern: 11, 'naya-bharat': 12 };
   var TIME_ZONES = {
     harappa: [[150, 480, 130], [275, 300, 140], [40, 380, 150]],
     vedic: [[240, 280, 150], [420, 400, 160], [60, 300, 120]],
@@ -1070,7 +1095,59 @@
     if (!e || !M) return '<div class="card">This stretch of the river is still being written.</div>';
     var z = TIME_ZONES[id] || [];
     var figs = (e.figures || []).filter(function (f) { return f.id; }).slice(0, 4);
-    var svg = '<svg class="tmsvg" viewBox="-230 -40 1330 1180" role="img" aria-label="' +
+    /* THE AGE'S MAP IS A LIVING BOARD, like Aaj's: the rivers run (a child
+       who follows the Ganga still finds Kashi), the age's own cities stand
+       on it as tappable sprites wearing their names OF THAT AGE, lamps
+       breathe, birds cross, boats bob on the rivers — and tapping a city
+       opens its own sourced telling below the map. Cities may pulse;
+       boundaries never do (there are none drawn to pulse). */
+    var SB = window.IND_SABHYATA || {};
+    var sabEra = TIME_SAB_ERA[id] || 0;
+    var rivers = (SB.rivers || []).map(function (rv) {
+      var d2 = 'M' + rv.p[0][0] + ' ' + rv.p[0][1];
+      for (var ri = 1; ri < rv.p.length - 1; ri++) {
+        var mx2 = (rv.p[ri][0] + rv.p[ri + 1][0]) / 2, my2 = (rv.p[ri][1] + rv.p[ri + 1][1]) / 2;
+        d2 += ' Q' + rv.p[ri][0] + ' ' + rv.p[ri][1] + ' ' + mx2 + ' ' + my2;
+      }
+      var lp = rv.p[rv.p.length - 1];
+      return '<path class="tm-river" d="' + d2 + ' L' + lp[0] + ' ' + lp[1] + '"><title>' + esc(rv.n) + '</title></path>';
+    }).join('');
+    var sprites = window.IND_SABHYATA_SPRITES || [];
+    var cspr = sprites.indexOf('city2') >= 0 ? 'art/sabhyata/sp/city2.png' : null;
+    var siteOf = function (sid) {
+      return ((SB.sites || []).filter(function (x2) { return x2.id === sid; })[0]) || null;
+    };
+    var nameInAge = function (s2) {
+      var nm = s2.name;
+      (s2.renames || []).forEach(function (r2) { if (r2.era <= sabEra) nm = r2.name; });
+      return nm;
+    };
+    var pins = (TIME_SITES[id] || []).map(function (sid) {
+      var s2 = siteOf(sid); if (!s2) return '';
+      var nm = nameInAge(s2);
+      return '<g class="tm-city' + (timeSite === sid ? ' on' : '') + '" data-act="tsite" data-id="' + sid +
+        '" role="button" tabindex="0" aria-label="' + esc(nm) + ' \u2014 tap for its telling">' +
+        '<circle class="tm-hit" cx="' + s2.x + '" cy="' + (s2.y - 8) + '" r="46" fill="transparent"/>' +
+        (cspr ? '<image href="' + cspr + '" x="' + (s2.x - 27) + '" y="' + (s2.y - 42) +
+          '" width="54" height="42" preserveAspectRatio="xMidYMax meet"/>' : '') +
+        '<circle class="tm-lamp" cx="' + s2.x + '" cy="' + (s2.y + 7) + '" r="7"/>' +
+        '<text class="tm-name" x="' + s2.x + '" y="' + (s2.y + 34) + '" text-anchor="middle">' + esc(nm) + '</text></g>';
+    }).join('');
+    /* the life layer: birds across the sky, boats bobbing mid-river */
+    var boatSpr = sprites.indexOf('boat') >= 0 ? 'art/sabhyata/sp/boat.png' : null;
+    var boats = '';
+    if (boatSpr && (SB.rivers || []).length > 3) {
+      [1, 3].forEach(function (bi, k) {
+        var rp = SB.rivers[bi].p, mid = rp[Math.floor(rp.length / 2)];
+        boats += '<image class="tm-boat" style="animation-delay:-' + (k * 1.7) + 's" href="' + boatSpr +
+          '" x="' + (mid[0] - 16) + '" y="' + (mid[1] - 24) + '" width="34" height="26"/>';
+      });
+    }
+    var life = '<g class="tm-life" aria-hidden="true">' + boats +
+      '<path class="tm-bird" style="animation-duration:38s" d="M0 0 q7 -7 14 0 q7 -7 14 0" transform="translate(120,120)"/>' +
+      '<path class="tm-bird" style="animation-duration:52s;animation-delay:-18s" d="M0 0 q6 -6 12 0 q6 -6 12 0" transform="translate(60,220)"/>' +
+      '</g>';
+    var svg = '<svg class="tmsvg" viewBox="-230 -40 1330 1180" role="group" aria-label="' +
       'India in ' + esc(e.when) + ' \u2014 soft zones of influence, not borders">' +
       '<defs><filter id="tmz" x="-60%" y="-60%" width="220%" height="220%">' +
       '<feGaussianBlur stdDeviation="42"/></filter>' +
@@ -1086,8 +1163,19 @@
       z.map(function (c) {
         return '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '" fill="var(--accent2)"/>';
       }).join('') + '</g>' +
+      rivers +
       '<path d="' + M.outline + '" fill="none" stroke="var(--line2,var(--line))" stroke-width="2.5"/>' +
+      life + pins +
       '</svg>';
+    /* the tapped city's own telling, from data-sabhyata, sources and all */
+    var cal = '';
+    if (timeSite) {
+      var cs = siteOf(timeSite);
+      if (cs) cal = '<div class="tm-callout"><div class="spread"><b>' + esc(nameInAge(cs)) + '</b>' +
+        '<button class="pill" data-act="tsite" data-id="' + timeSite + '">close</button></div>' +
+        '<p style="margin:6px 0 4px">' + esc(cs.fact) + '</p>' +
+        ((cs.sources || [])[0] ? '<span class="tiny muted">' + esc(cs.sources[0]) + '</span>' : '') + '</div>';
+    }
     return '<div class="card"><div class="spread">' +
       '<div><span class="badge itihaas">itihaas</span>' +
       '<h1 style="margin:6px 0 0">' + esc(e.title) + '</h1>' +
@@ -1095,7 +1183,7 @@
       '<button class="btn ghost" data-act="era" data-id="' + e.id + '">Open this age \u2192</button></div>' +
       '<p style="margin:10px 0 0">' + esc(e.hook) + '</p></div>' +
       '<div class="tmwrap">' +
-        '<div class="card tmap">' + svg +
+        '<div class="card tmap">' + svg + cal +
           '<p class="tiny muted" style="margin:8px 0 0">A soft glow, not a border \u2014 where this age\u2019s ' +
           'story burned brightest; empires faded at their edges. The faint land beyond today\u2019s outline is ' +
           'the wider subcontinent \u2014 the story has never stopped at a modern border.</p></div>' +
@@ -5273,7 +5361,12 @@
       return;
     }
     if (a === 'era')    return go('era', t.getAttribute('data-id'));
-    if (a === 'tstop')  { timeStop = t.getAttribute('data-id') || 'aaj'; go('map'); return; }
+    if (a === 'tstop')  { timeStop = t.getAttribute('data-id') || 'aaj'; timeSite = null; go('map'); return; }
+    if (a === 'tsite')  {
+      var tsv = t.getAttribute('data-id');
+      timeSite = (timeSite === tsv || !tsv) ? null : tsv;
+      return render();
+    }
     if (a === 'rishquiz') {
       if (t.getAttribute('data-reset') || rish.i >= window.IND_RISHTEY.tree.length) rish = { i: 0, picked: null, right: 0 };
       return go('rishquiz');

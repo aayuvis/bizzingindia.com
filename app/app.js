@@ -2988,6 +2988,10 @@
        remembered word for word. Splitting that across two tabs made each half look like a
        module, and this app does not sell modules. */
     var fest = (typeof utsavNow === 'function') ? utsavNow() : [];
+    var festGame = (window.IND_GAMES || []).some(function (g2) { return g2.id === 'festival'; })
+      ? '<button class="tile" data-act="game" data-id="festival"><b>Festival Frenzy</b>' +
+        '<span class="tiny muted">Twelve festivals, one year \u2014 match each to its month and its home. Play it here, beside the festivals themselves.</span></button>'
+      : '';
     return '<div class="card"><h1>Moral Science</h1>' +
       '<div class="mono" style="margin-bottom:8px">neeti \u00b7 \u0928\u0940\u0924\u093f \u2014 the art of living well</div><p>' + esc(K.intro) + '</p>' +
       '<p class="tiny muted">No levels here, and nothing to finish. You get a bead when you ' +
@@ -3011,6 +3015,7 @@
             window.IND_UTSAV.festivals.length + ' festivals — the days all of this is lived.' +
             '</p></div></div></button>'
           : '') +
+        festGame +
       '</div>' +
 
       '<button class="tile" style="margin-bottom:var(--space-lg)" data-act="go" data-v="shlok">' +
@@ -4533,7 +4538,7 @@
   var MELA_GROUPS = [
     ['Aangan ke khel', 'From India’s own courtyard — these were being played centuries before there were screens to play them on.', ['saapsidi', 'ludo', 'carrom']],
     ['Quiz shows', 'Ladders, lifelines, streaks — the hot seat is yours.', ['gyanpati', 'triviamaster']],
-    ['Drills in costume', 'Secretly practice. Openly a fair.', ['shabd', 'rangoli', 'statehunt', 'festival', 'jataka']]
+    ['Drills in costume', 'Secretly practice. Openly a fair.', ['shabd', 'rangoli', 'statehunt', 'jataka']]
   ];
   V.mela = function () {
     var G = window.IND_GAMES || [];
@@ -4589,7 +4594,7 @@
         '<p class="tiny muted" style="margin:0 0 12px">' + grp[1] + '</p>' +
         '<div class="grid g3 gshelf">' + list.map(cover).join('') + '</div>';
     });
-    var rest = G.filter(function (g) { return !used[g.id]; });
+    var rest = G.filter(function (g) { return !used[g.id] && !g.hide; });
     if (rest.length) out += '<h3 style="margin:26px 0 12px">More stalls</h3>' +
       '<div class="grid g3 gshelf">' + rest.map(cover).join('') + '</div>';
     return out;

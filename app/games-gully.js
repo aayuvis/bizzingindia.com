@@ -1109,14 +1109,8 @@
       blurb: 'The shell-and-pit game of Tamil homes — played across the south as Ali Guli Mane and Vamana Guntalu. Sow your shells round the board and fill your pouch. Families play many ways; this is one simple way.',
       tag: 'board', c: '#8f6428', c2: '#3a250b',
       engine: pallanguzhi },
-    { id: 'gillidanda', name: 'Gilli Danda', icon: 'star', minutes: 3,
-      blurb: 'The oldest bat-and-ball in the gully. Tip the gilli up with one tap, strike it at the sweet moment with the next — 90 gaz over three strikes takes the game.',
-      tag: 'timing', c: '#b98d4f', c2: '#4a2f0e',
-      engine: gillidanda },
-    { id: 'pithoo', name: 'Pithoo', icon: 'star', minutes: 4,
-      blurb: 'Lagori — seven stones. Sling the ball, topple the tower, then rebuild it biggest-first before Gattu’s ball comes back.',
-      tag: 'flick', c: '#a8793a', c2: '#3a250b',
-      engine: pithoo },
+    /* gillidanda and pithoo are ARCHIVED (founder's verdict: bad) — the
+       engines stay above, unregistered, in case a better idea revives them */
     { id: 'gutte', name: 'Gutte', icon: 'star', minutes: 3,
       blurb: 'Five stones, one hand. Toss the mother stone, snatch what you can while she flies, and catch her before she lands.',
       tag: 'timing', c: '#8f7f6a', c2: '#3d352a',

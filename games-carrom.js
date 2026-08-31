@@ -239,8 +239,8 @@
           '<div><span class="car-kicker">Mela &middot; flick &amp; pocket</span>' +
           '<b class="car-title">Carrom</b></div>' +
           '<div class="car-chips">' +
-            '<span class="car-chip"><i class="car-dot w"></i>You <b data-r="you">6</b></span>' +
-            '<span class="car-chip"><i class="car-dot b"></i>Gattu <b data-r="gattu">6</b></span>' +
+            '<span class="car-chip"><i class="car-dot w"></i><span data-nm="you">You</span> <b data-r="you">6</b></span>' +
+            '<span class="car-chip"><i class="car-dot b"></i><span data-nm="gattu">Gattu</span> <b data-r="gattu">6</b></span>' +
             '<span class="car-chip"><i class="car-dot q"></i><span data-r="queen">in the middle</span></span>' +
           '</div>' +
         '</div>' +
@@ -307,6 +307,17 @@
       pops: []               /* decorative pocket-drop animations            */
     };
     host.__carState = st;
+
+    /* pass-and-play: 'gattu' plays himself; '2p' hands the board across
+       the carpet — white shoots from the bottom, black from the top */
+    var vs = 'gattu';
+    function human(side) { return side === 'you' || vs === '2p'; }
+    function baseY(side) { return side === 'you' ? YOU_Y : GATTU_Y; }
+    function nmS(side) {
+      return side === 'you' ? (vs === '2p' ? 'Player 1' : 'You')
+                            : (vs === '2p' ? 'Player 2' : 'Gattu');
+    }
+    function colr(side) { return side === 'you' ? 'white' : 'black'; }
 
     /* ----------------------------------------------------------- board */
     function buildCoins() {
@@ -479,7 +490,7 @@
 
     function playerFire() {
       say('');
-      fire(st.sx, YOU_Y, st.aimA, MAXV * (0.18 + 0.82 * st.charge), 'you');
+      fire(st.sx, baseY(st.turn), st.aimA, MAXV * (0.18 + 0.82 * st.charge), st.turn);
     }
 
     function resolveShot() {
@@ -497,7 +508,7 @@
         else opp++;
       }
 
-      var who = s === 'you' ? 'You' : 'Gattu';
+      var who = nmS(s);
       var msg = '', tone = '';
 
       if (strikerIn) {
@@ -508,8 +519,9 @@
           revive(queenBody()); st.queenBy = null; st.queenPending = false;
         }
         var gave = reviveOneCoin(s);
-        msg = (s === 'you' ? 'Oops — the striker went in. ' : 'Gattu sank the striker! ') +
-              (gave ? 'One ' + (s === 'you' ? 'white' : 'black') + ' comes back to the middle.' : 'Nothing to give back — lucky.');
+        msg = (vs === '2p' ? who + ' sank the striker — foul! '
+               : s === 'you' ? 'Oops — the striker went in. ' : 'Gattu sank the striker! ') +
+              (gave ? 'One ' + colr(s) + ' comes back to the middle.' : 'Nothing to give back — lucky.');
         tone = 'warm';
         st.turn = o;
       } else {
@@ -518,17 +530,17 @@
           if (own > 0) {
             st.queenPending = false; st.queenCovered = s;
             msg = who + ' pocketed the queen AND covered her — three points!';
-            tone = s === 'you' ? 'good' : 'warm';
+            tone = human(s) ? 'good' : 'warm';
           } else {
             st.queenPending = true;
-            msg = who + ' pocketed the queen! Cover her: a ' + (s === 'you' ? 'white' : 'black') + ' must drop on the very next shot.';
+            msg = who + ' pocketed the queen! Cover her: a ' + colr(s) + ' must drop on the very next shot.';
             tone = 'warm';
           }
         } else if (st.queenPending && st.queenBy === s) {
           if (own > 0) {
             st.queenPending = false; st.queenCovered = s;
-            msg = 'Covered! The queen stays with ' + (s === 'you' ? 'you' : 'Gattu') + ' — three points.';
-            tone = s === 'you' ? 'good' : 'warm';
+            msg = 'Covered! The queen stays with ' + (vs === '2p' ? who : (s === 'you' ? 'you' : 'Gattu')) + ' — three points.';
+            tone = human(s) ? 'good' : 'warm';
           } else {
             revive(queenBody()); st.queenBy = null; st.queenPending = false;
             msg = 'No cover, so the queen climbs back out to the middle.';
@@ -537,20 +549,25 @@
         }
         if (!msg) {
           if (own > 0) {
-            msg = s === 'you'
+            msg = vs === '2p'
+              ? 'Shabaash! ' + who + ' sank ' + own + ' ' + colr(s) + (own > 1 ? 's' : '') + ' — shoot again.'
+              : s === 'you'
               ? 'Shabaash! ' + own + ' white' + (own > 1 ? 's' : '') + ' in — shoot again.'
               : 'Gattu sank ' + own + ' black' + (own > 1 ? 's' : '') + ' — he shoots again.';
-            tone = s === 'you' ? 'good' : '';
+            tone = human(s) ? 'good' : '';
           } else if (opp > 0) {
-            msg = s === 'you'
+            msg = vs === '2p'
+              ? 'A ' + colr(o) + ' went in — that one counts for ' + nmS(o) + '. Their turn.'
+              : s === 'you'
               ? 'A black went in — that one counts for Gattu. His turn.'
               : 'Gattu knocked a white in — it counts for you! Your turn.';
-            tone = s === 'you' ? 'warm' : 'good';
+            tone = vs === '2p' ? 'warm' : s === 'you' ? 'warm' : 'good';
           } else {
-            msg = s === 'you' ? 'Nothing dropped — Gattu’s turn.' : 'Gattu missed — your turn.';
+            msg = vs === '2p' ? 'Nothing dropped — ' + nmS(o) + '’s turn.'
+              : s === 'you' ? 'Nothing dropped — Gattu’s turn.' : 'Gattu missed — your turn.';
           }
         } else if (own > 0) {
-          msg += s === 'you' ? ' Shoot again.' : ' He shoots again.';
+          msg += human(s) ? ' Shoot again.' : ' He shoots again.';
         }
         st.turn = own > 0 ? s : o;
       }
@@ -562,10 +579,16 @@
       if (aliveCount(s) === 0) return endMatch(s, msg);
       if (aliveCount(o) === 0) return endMatch(o, msg);
 
+      if (vs === '2p' && st.turn !== s) {
+        msg += ' Hand the board — ' + nmS(st.turn) + ' (' + colr(st.turn) + ') shoots from the ' +
+               (st.turn === 'you' ? 'bottom' : 'top') + '.';
+      }
       say(msg, tone);
-      if (st.turn === 'you') {
+      if (human(st.turn)) {
         st.phase = 'aim';
-        st.sx = 50; st.aimA = -Math.PI / 2; st.charge = 0; st.charging = false;
+        st.sx = 50;
+        st.aimA = st.turn === 'you' ? -Math.PI / 2 : Math.PI / 2;
+        st.charge = 0; st.charging = false;
       } else {
         gattuTurn();
       }
@@ -673,11 +696,16 @@
     /* ------------------------------------------------------- match flow */
     function refreshHud() {
       var y = host.querySelector('[data-r="you"]'), g = host.querySelector('[data-r="gattu"]');
+      var ny = host.querySelector('[data-nm="you"]'), ng = host.querySelector('[data-nm="gattu"]');
+      if (ny) ny.textContent = vs === '2p' ? 'P1' : 'You';
+      if (ng) ng.textContent = vs === '2p' ? 'P2' : 'Gattu';
       var q = host.querySelector('[data-r="queen"]');
       if (y) y.textContent = String(aliveCount('you'));
       if (g) g.textContent = String(aliveCount('gattu'));
       if (q) {
-        q.textContent = st.queenCovered ? ('with ' + (st.queenCovered === 'you' ? 'you' : 'Gattu'))
+        q.textContent = st.queenCovered
+          ? ('with ' + (vs === '2p' ? (st.queenCovered === 'you' ? 'P1' : 'P2')
+                        : st.queenCovered === 'you' ? 'you' : 'Gattu'))
           : st.queenPending ? 'needs a cover!'
           : 'in the middle';
       }
@@ -693,7 +721,8 @@
       st.phase = 'aim';
       over.hidden = true;
       refreshHud();
-      say('Your shot — you are white. Slide, aim, flick.');
+      say(vs === '2p' ? 'Player 1 shoots first — white, from the bottom. Slide, aim, flick.'
+                      : 'Your shot — you are white. Slide, aim, flick.');
       /* arrows must work with no click-first: hand the board the focus */
       focusSoft(canvas);
     }
@@ -706,8 +735,12 @@
       say(lastMsg || '');
       over.innerHTML =
         '<div class="car-panel" role="dialog" aria-label="Game over">' +
-          '<h3>' + (winner === 'you' ? 'Shabaash — the whites are home!' : 'Gattu cleared his blacks first') + '</h3>' +
-          '<p>' + (winner === 'you'
+          '<h3>' + (vs === '2p'
+              ? nmS(winner) + ' cleared the ' + colr(winner) + 's — shabaash!'
+              : winner === 'you' ? 'Shabaash — the whites are home!' : 'Gattu cleared his blacks first') + '</h3>' +
+          '<p>' + (vs === '2p'
+              ? 'A proper living-room match' + (st.queenCovered ? ' — and the queen was covered.' : '.') + ' Again?'
+              : winner === 'you'
               ? 'Every white coin pocketed' + (st.queenCovered === 'you' ? ', and the queen covered too.' : '.')
               : 'He got there first this time — another game?') + '</p>' +
           '<p><b>' + score + '</b> point' + (score === 1 ? '' : 's') +
@@ -741,7 +774,8 @@
             '<li>Striker in a pocket is a foul &mdash; one of your coins comes back.</li>' +
             '<li>Clear your six first to win. A coin is 1 point, the covered queen is 3.</li>' +
           '</ul>' +
-          '<div class="car-row"><button type="button" class="car-btn" data-go="start">Play</button></div>' +
+          '<div class="car-row"><button type="button" class="car-btn" data-go="start">Play Gattu</button>' +
+          '<button type="button" class="car-btn ghost" data-go="start2">Pass &amp; play — 2 players</button></div>' +
         '</div>';
       over.hidden = false;
       sc.later(function () { focusSoft(over.querySelector('[data-go="start"]')); }, 60);
@@ -1077,14 +1111,15 @@
 
       /* your striker on the baseline with slide chevrons, the dashed
          trajectory with its ghost striker, and the power arc */
-      if (st.phase === 'aim' && st.turn === 'you') {
-        bodyShadow(st.sx, YOU_Y, RS);
-        drawStrikerAt(st.sx, YOU_Y);
+      if (st.phase === 'aim' && human(st.turn)) {
+        var by = baseY(st.turn);
+        bodyShadow(st.sx, by, RS);
+        drawStrikerAt(st.sx, by);
 
         var ca = Math.cos(st.aimA), sa = Math.sin(st.aimA);
-        var len = rayLimit(st.sx, YOU_Y, ca, sa, 24 + st.charge * 26);
-        var x0 = st.sx + ca * (RS + 0.9), y0 = YOU_Y + sa * (RS + 0.9);
-        var x1 = st.sx + ca * len, y1 = YOU_Y + sa * len;
+        var len = rayLimit(st.sx, by, ca, sa, 24 + st.charge * 26);
+        var x0 = st.sx + ca * (RS + 0.9), y0 = by + sa * (RS + 0.9);
+        var x1 = st.sx + ca * len, y1 = by + sa * len;
         ctx.save();
         ctx.setLineDash([1.8, 2.6]);
         if (!reduced) ctx.lineDashOffset = -(now / 90) % 4.4;
@@ -1108,12 +1143,12 @@
           var cxL = st.sx - RS - 2.6 - wob, cxR = st.sx + RS + 2.6 + wob;
           if (st.sx > SXMIN + 0.5) {
             ctx.beginPath();
-            ctx.moveTo(cxL + 1.1, YOU_Y - 1.6); ctx.lineTo(cxL - 0.5, YOU_Y); ctx.lineTo(cxL + 1.1, YOU_Y + 1.6);
+            ctx.moveTo(cxL + 1.1, by - 1.6); ctx.lineTo(cxL - 0.5, by); ctx.lineTo(cxL + 1.1, by + 1.6);
             ctx.stroke();
           }
           if (st.sx < SXMAX - 0.5) {
             ctx.beginPath();
-            ctx.moveTo(cxR - 1.1, YOU_Y - 1.6); ctx.lineTo(cxR + 0.5, YOU_Y); ctx.lineTo(cxR - 1.1, YOU_Y + 1.6);
+            ctx.moveTo(cxR - 1.1, by - 1.6); ctx.lineTo(cxR + 0.5, by); ctx.lineTo(cxR - 1.1, by + 1.6);
             ctx.stroke();
           }
           ctx.restore();
@@ -1124,10 +1159,10 @@
           var mr = RS + 1.9;
           ctx.save();
           ctx.lineCap = 'round';
-          ctx.beginPath(); ctx.arc(st.sx, YOU_Y, mr, 0, TAU);
+          ctx.beginPath(); ctx.arc(st.sx, by, mr, 0, TAU);
           ctx.strokeStyle = 'rgba(40,20,8,.18)'; ctx.lineWidth = 1.05; ctx.stroke();
           if (st.charge > 0.01) {
-            ctx.beginPath(); ctx.arc(st.sx, YOU_Y, mr, -Math.PI / 2, -Math.PI / 2 + st.charge * TAU);
+            ctx.beginPath(); ctx.arc(st.sx, by, mr, -Math.PI / 2, -Math.PI / 2 + st.charge * TAU);
             ctx.strokeStyle = st.charge < 0.45 ? pal.good : st.charge < 0.8 ? pal.acc2 : pal.acc3;
             ctx.lineWidth = 1.35; ctx.stroke();
           }
@@ -1139,7 +1174,7 @@
       if (slider) {
         var v = String(Math.round(st.sx));
         if (slider.value !== v) slider.value = v;
-        var dis = !(st.phase === 'aim' && st.turn === 'you');
+        var dis = !(st.phase === 'aim' && human(st.turn));
         if (slider.disabled !== dis) slider.disabled = dis;
       }
     }
@@ -1155,7 +1190,7 @@
       if (detached(host)) { sc.kill(); return; }
       var dt = lastT ? Math.min(0.05, (ts - lastT) / 1000) : 0.016;
       lastT = ts;
-      if (st.charging && st.phase === 'aim' && st.turn === 'you') {
+      if (st.charging && st.phase === 'aim' && human(st.turn)) {
         st.charge = Math.min(1, st.charge + dt * 0.8);
       }
       if (st.phase === 'rolling') {
@@ -1195,9 +1230,9 @@
     var drag = null;
     sc.on(canvas, 'pointerdown', function (e) {
       focusSoft(canvas);
-      if (st.phase !== 'aim' || st.turn !== 'you') return;
+      if (st.phase !== 'aim' || !human(st.turn)) return;
       var p = toBoard(e);
-      var dx = p.x - st.sx, dy = p.y - YOU_Y;
+      var dx = p.x - st.sx, dy = p.y - baseY(st.turn);
       if (dx * dx + dy * dy < (RS * 3) * (RS * 3)) {
         /* grab the striker itself: it slides along the baseline — and the
            moment the pull comes BACK past the line, the grab becomes the
@@ -1216,8 +1251,11 @@
       if (!drag || st.phase !== 'aim') return;
       var p = toBoard(e);
       if (drag.mode === 'stick') {
-        if (p.y - YOU_Y > RS * 2.6) {
-          drag = { mode: 'sling', x0: st.sx, y0: YOU_Y };   /* pulled back: now a sling */
+        /* "back" is away from the board: down for white, up for black */
+        var by2 = baseY(st.turn);
+        var back = st.turn === 'you' ? (p.y - by2 > RS * 2.6) : (by2 - p.y > RS * 2.6);
+        if (back) {
+          drag = { mode: 'sling', x0: st.sx, y0: by2 };   /* pulled back: now a sling */
         } else { st.sx = clamp(p.x, SXMIN, SXMAX); return; }
       }
       /* sling: the flick goes opposite the pull, scaled by how far you pull */
@@ -1229,7 +1267,7 @@
     function pointerEnd(e) {
       if (!drag) return;
       var was = drag; drag = null;
-      if (was.mode === 'sling' && st.phase === 'aim' && st.turn === 'you') {
+      if (was.mode === 'sling' && st.phase === 'aim' && human(st.turn)) {
         if (st.charge > 0.07) playerFire();
         else st.charge = 0;
       }
@@ -1239,7 +1277,7 @@
 
     /* the slider is a plain range input: full keyboard and touch for free */
     sc.on(slider, 'input', function () {
-      if (st.phase === 'aim' && st.turn === 'you') st.sx = clamp(+slider.value, SXMIN, SXMAX);
+      if (st.phase === 'aim' && human(st.turn)) st.sx = clamp(+slider.value, SXMIN, SXMAX);
     });
 
     /* Document-level keys, so arrows work with no click-first anywhere. */
@@ -1249,7 +1287,7 @@
       var tag = (e.target && e.target.tagName || '').toLowerCase();
       if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
       /* on the intro / result cards, keys stay with the focused button */
-      if (st.phase !== 'aim' || st.turn !== 'you') return;
+      if (st.phase !== 'aim' || !human(st.turn)) return;
       if (e.key === 'ArrowLeft') { e.preventDefault(); st.sx = Math.max(SXMIN, st.sx - 2); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); st.sx = Math.min(SXMAX, st.sx + 2); }
       else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowUp') { e.preventDefault(); st.aimA -= 0.055; }
@@ -1264,7 +1302,7 @@
       if ((e.key === ' ' || e.code === 'Space') && st.charging) {
         e.preventDefault();
         st.charging = false;
-        if (st.phase === 'aim' && st.turn === 'you') playerFire();
+        if (st.phase === 'aim' && human(st.turn)) playerFire();
       }
     });
 
@@ -1272,7 +1310,9 @@
       var t = e.target.closest ? e.target.closest('[data-go]') : null;
       if (!t) return;
       var what = t.getAttribute('data-go');
-      if (what === 'start' || what === 'again') startMatch();
+      if (what === 'start') { vs = 'gattu'; startMatch(); }
+      else if (what === 'start2') { vs = '2p'; startMatch(); }
+      else if (what === 'again') startMatch();
       else if (what === 'out') bail();
     });
 

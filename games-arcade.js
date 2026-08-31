@@ -449,9 +449,11 @@
       '<p>' + how1 + '</p><p>' + how2 + '</p>' +
       '<p class="arc-heritage">' + heritage + '</p>' +
       '<div class="arc-row">' +
-        '<button type="button" class="arc-btn" data-go="start">Play</button>' +
+        '<button type="button" class="arc-btn" data-go="start">Play Gattu</button>' +
+        '<button type="button" class="arc-btn ghost" data-go="start2">Pass &amp; play — 2 players</button>' +
       '</div>' +
-      '<p class="arc-hint">Enter starts. Space or Enter rolls the die once you are in.</p>' +
+      '<p class="arc-hint">Enter starts. Space or Enter rolls the die once you are in. ' +
+      'Pass &amp; play: one screen, handed across the carpet — the way these boards were always played.</p>' +
     '</div>';
   }
 
@@ -710,6 +712,20 @@
     var mode = 'intro';                 /* intro | play | over */
     var phase = 'idle';                 /* roll (yours) | busy */
     var pos = { you: 1, gattu: 1 };
+    var vs = 'gattu';   /* 'gattu' plays himself; '2p' hands the screen over */
+    function nm(side) {
+      return side === 'you' ? (vs === '2p' ? 'Player 1' : playerName())
+                            : (vs === '2p' ? 'Player 2' : 'Gattu');
+    }
+    function fix2p() {
+      if (vs !== '2p') return;
+      var gn = ref.stage.querySelector('[data-pl="gattu"] [data-n]');
+      if (gn) gn.textContent = 'Player 2';
+      var gf = ref.stage.querySelector('[data-pl="gattu"] .face');
+      if (gf) gf.innerHTML = faceHTML(null, '2');
+      var yn = ref.stage.querySelector('[data-pl="you"] [data-n]');
+      if (yn) yn.textContent = 'Player 1';
+    }
     var moved = 0;                      /* squares the child's token walked — the score */
     var finished = false, winFlag = false;
     var turnIsYou = true;
@@ -840,7 +856,7 @@
       dieEnable(ref, false);
       place();
       var v = rollDie();
-      var who = side === 'you' ? playerName() : 'Gattu';
+      var who = nm(side);
       ref.say(who + ' rolls…', side === 'you' ? '' : 'warm');
       dieRoll(sc, ref, RM, v, function () {
         var cur = pos[side], path = [], sq;
@@ -860,7 +876,7 @@
     }
 
     function settle(side, sq) {
-      var who = side === 'you' ? playerName() : 'Gattu';
+      var who = nm(side);
       if (ladAt[sq]) {
         var l = ladAt[sq];
         toast('lad', 'Sidi · ' + l.name, l.gloss);
@@ -882,7 +898,19 @@
     function after(side, sq) {
       if (sq === 100) { finishScreen(side === 'you'); return; }
       if (side === 'you') {
-        sc.later(function () { if (mode === 'play') takeTurn('gattu'); }, 850);
+        if (vs === '2p') {
+          /* the screen is handed across the carpet, not to an AI */
+          sc.later(function () {
+            if (mode !== 'play') return;
+            phase = 'roll';
+            turnIsYou = false;
+            place();
+            dieEnable(ref, true);
+            ref.say('Hand the die — ' + nm('gattu') + ' rolls. Space or tap.');
+          }, 550);
+        } else {
+          sc.later(function () { if (mode === 'play') takeTurn('gattu'); }, 850);
+        }
       } else {
         sc.later(function () {
           if (mode !== 'play') return;
@@ -890,7 +918,7 @@
           turnIsYou = true;
           place();
           dieEnable(ref, true);
-          ref.say('Your roll — Space or tap the die.');
+          ref.say((vs === '2p' ? nm('you') + ' — your roll.' : 'Your roll — Space or tap the die.'));
         }, 550);
       }
     }
@@ -902,7 +930,7 @@
       ref.wrap.classList.remove('playing');
       ref.say('');
       ref.stage.innerHTML = doneHTML(
-        win ? one(CHEERS) : 'Gattu got there first',
+        win ? (vs === '2p' ? nm('you') + ' lights the diya!' : one(CHEERS)) : nm('gattu') + ' got there first',
         win ? 'Square 100 — the diya is lit! The ladders liked you today; every one of them was a virtue with a name.'
             : 'The snakes were hungry today. No matter — every ladder is still exactly where it was.',
         [[String(moved), 'squares walked'], [String(win ? 3 : 1), 'kauris']]
@@ -934,8 +962,9 @@
       var go = e.target.closest ? e.target.closest('[data-go]') : null;
       if (!go) return;
       var what = go.getAttribute('data-go');
-      if (what === 'start') renderPlay();
-      else if (what === 'roll') { if (phase === 'roll') takeTurn('you'); }
+      if (what === 'start') { vs = 'gattu'; renderPlay(); fix2p(); }
+      else if (what === 'start2') { vs = '2p'; renderPlay(); fix2p(); }
+      else if (what === 'roll') { if (phase === 'roll') takeTurn(turnIsYou ? 'you' : 'gattu'); }
       else if (what === 'leave') leaveVia(function () { endGame(false); });
       else if (what === 'again') reset();
       else if (what === 'out') endGame(winFlag);
@@ -956,10 +985,10 @@
                     e.key.indexOf('Arrow') === 0;
       if (mode === 'play' && gameKey) e.preventDefault();
       if (e.key !== ' ' && e.key !== 'Enter' && e.key !== 'Spacebar') return;
-      if (mode === 'intro') { e.preventDefault(); renderPlay(); return; }
+      if (mode === 'intro') { e.preventDefault(); renderPlay(); fix2p(); return; }
       if (mode === 'over') { e.preventDefault(); endGame(winFlag); return; }
       if (mode === 'play' && phase === 'roll') {
-        takeTurn('you');
+        takeTurn(turnIsYou ? 'you' : 'gattu');
       }
     });
 
@@ -1139,6 +1168,20 @@
     var phase = 'idle';                    /* roll | choose | busy */
     var T = { you: [-1, -1, -1, -1], gattu: [-1, -1, -1, -1] };
     var die = 0, sixes = 0, movable = [], sel = 0;
+    var vs = 'gattu', curSide = 'you';
+    function nm(side) {
+      return side === 'you' ? (vs === '2p' ? 'Player 1' : playerName())
+                            : (vs === '2p' ? 'Player 2' : 'Gattu');
+    }
+    function fix2p() {
+      if (vs !== '2p') return;
+      var gn = ref.stage.querySelector('[data-pl="gattu"] [data-n]');
+      if (gn) gn.textContent = 'Player 2';
+      var gf = ref.stage.querySelector('[data-pl="gattu"] .face');
+      if (gf) gf.innerHTML = faceHTML(null, '2');
+      var yn = ref.stage.querySelector('[data-pl="you"] [data-n]');
+      if (yn) yn.textContent = 'Player 1';
+    }
     var finished = false, winFlag = false;
 
     function endGame(win) {
@@ -1199,7 +1242,7 @@
         var slot = list.indexOf(side + ti), n = list.length;
         var off = n > 1 ? (slot - (n - 1) / 2) * 0.28 : 0;
         el.setAttribute('transform', 'translate(' + r2(xy.x + off) + ',' + r2(xy.y) + ')');
-        var live = phase === 'choose' && side === 'you' && movable.indexOf(ti) >= 0;
+        var live = phase === 'choose' && side === curSide && movable.indexOf(ti) >= 0;
         var cls = 'arc-ltok ' + side + (live ? ' live' : '') +
           (live && movable[sel] === ti ? ' sel' : '') +
           (el.getAttribute('class').indexOf('ride') >= 0 ? ' ride' : '');
@@ -1235,29 +1278,44 @@
 
     /* ---- your turn ---- */
     function youRoll() {
+      /* rolls for whichever human holds the die — you, or Player 2 in pass & play */
       if (phase !== 'roll') return;
       phase = 'busy';
-      yourMove = true;
+      yourMove = curSide === 'you';
       die = rollDie();
       dieEnable(ref, false);
-      ref.say('You roll…');
+      ref.say(nm(curSide) + ' rolls…');
       dieRoll(sc, ref, RM, die, function () {
-        movable = calcMovable('you', die);
+        movable = calcMovable(curSide, die);
         if (!movable.length) {
-          ref.say('You rolled ' + die + ' — nothing can move (the last step needs the exact number). Gattu’s turn.', 'warm');
-          sc.later(function () { if (mode === 'play') gattuTurn(); }, 1100);
+          ref.say(nm(curSide) + ' rolled ' + die + ' — nothing can move (the last step needs the exact number).', 'warm');
+          sc.later(function () { if (mode === 'play') passTurn(); }, 1100);
           return;
         }
         if (movable.length === 1) {
-          ref.say('You rolled ' + die + ' — only one token can go.');
-          sc.later(function () { if (mode === 'play') moveTok('you', movable[0]); }, 450);
+          ref.say(nm(curSide) + ' rolled ' + die + ' — only one token can go.');
+          sc.later(function () { if (mode === 'play') moveTok(curSide, movable[0]); }, 450);
           return;
         }
         phase = 'choose';
         sel = 0;
         paint();
-        ref.say('You rolled ' + die + ' — pick a glowing token: tap it, or arrows then Enter.');
+        ref.say(nm(curSide) + ' rolled ' + die + ' — pick a glowing token: tap it, or arrows then Enter.');
       });
+    }
+    /* the die passes across the carpet (or to Gattu) */
+    function passTurn() {
+      if (curSide === 'you') {
+        if (vs === '2p') {
+          curSide = 'gattu'; sixes = 0; phase = 'roll'; paint();
+          ref.say('Hand the phone — ' + nm('gattu') + ' rolls. Space or tap the die.');
+          dieEnable(ref, true);
+        } else gattuTurn();
+      } else {
+        curSide = 'you'; sixes = 0; phase = 'roll'; paint();
+        ref.say(nm('you') + ' — your roll. Space or tap the die.');
+        dieEnable(ref, true);
+      }
     }
 
     function confirmSel() {
@@ -1265,14 +1323,14 @@
       var ti = movable[sel];
       phase = 'busy';
       paint();
-      moveTok('you', ti);
+      moveTok(curSide, ti);
     }
     function cycleSel(dir) {
       if (phase !== 'choose') return;
       sel = (sel + dir + movable.length) % movable.length;
       paint();
       var ti = movable[sel];
-      ref.say('You rolled ' + die + ' — token ' + (ti + 1) + ', ' + describe('you', ti) + '. Enter moves it.');
+      ref.say(nm(curSide) + ' rolled ' + die + ' — token ' + (ti + 1) + ', ' + describe(curSide, ti) + '. Enter moves it.');
     }
 
     /* Tokens walk the ring cell by cell rather than teleporting. */
@@ -1319,7 +1377,7 @@
 
     function resolve(side, ti) {
       if (mode !== 'play') return;
-      var who = side === 'you' ? playerName() : 'Gattu';
+      var who = nm(side);
       var p = T[side][ti];
       var opp = side === 'you' ? 'gattu' : 'you';
       var caught = 0;
@@ -1335,9 +1393,8 @@
         }
       }
       if (caught) {
-        ref.say(side === 'you'
-          ? 'Caught! Gattu’s token rides back to its yard. ' + one(CHEERS)
-          : 'Oh! Gattu caught your token — back to the yard, it will come round again.',
+        ref.say('Caught! ' + nm(side === 'you' ? 'gattu' : 'you') + '’s token rides back to its yard.' +
+          (side === 'you' ? ' ' + one(CHEERS) : ''),
           side === 'you' ? 'good' : 'warm');
       } else if (p === L_HOME_P) {
         ref.say(who + ' brought a token home! ' + (side === 'you' ? one(CHEERS) : ''), side === 'you' ? 'good' : 'warm');
@@ -1349,10 +1406,11 @@
         sixes++;
         sc.later(function () {
           if (mode !== 'play') return;
-          if (side === 'you') {
+          if (side === 'you' || vs === '2p') {
             phase = 'roll';
             paint();
-            ref.say('A six — roll again!', 'good');
+            dieEnable(ref, true);
+            ref.say('A six — ' + nm(side) + ' rolls again!', 'good');
           } else {
             ref.say('Gattu rolled a six — he goes again.', 'warm');
             sc.later(gattuRoll, 700);
@@ -1361,17 +1419,12 @@
         return;
       }
       if (die === 6) {
-        ref.say(side === 'you' ? 'Three sixes — that’s the lot!' : 'Three sixes for Gattu — done.', 'warm');
+        ref.say('Three sixes for ' + nm(side) + ' — that’s the lot!', 'warm');
       }
       sc.later(function () {
         if (mode !== 'play') return;
-        if (side === 'you') gattuTurn();
-        else {
-          sixes = 0;
-          phase = 'roll';
-          paint();
-          ref.say('Your turn — Space rolls.');
-        }
+        curSide = side;
+        passTurn();
       }, delay);
     }
 
@@ -1459,7 +1512,7 @@
 
     sc.on(ref.wrap, 'click', function (e) {
       var tok = e.target.closest ? e.target.closest('.arc-ltok') : null;
-      if (tok && phase === 'choose' && tok.getAttribute('data-side') === 'you') {
+      if (tok && phase === 'choose' && tok.getAttribute('data-side') === curSide) {
         var ti = +tok.getAttribute('data-i');
         var at = movable.indexOf(ti);
         if (at >= 0) { sel = at; confirmSel(); }
@@ -1468,7 +1521,8 @@
       var go = e.target.closest ? e.target.closest('[data-go]') : null;
       if (!go) return;
       var what = go.getAttribute('data-go');
-      if (what === 'start') renderPlay();
+      if (what === 'start') { vs = 'gattu'; curSide = 'you'; renderPlay(); fix2p(); }
+      else if (what === 'start2') { vs = '2p'; curSide = 'you'; renderPlay(); fix2p(); }
       else if (what === 'roll') youRoll();
       else if (what === 'leave') leaveVia(function () { endGame(false); });
       else if (what === 'again') reset();

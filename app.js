@@ -1062,32 +1062,86 @@
   var TIME_SAB_ERA = { harappa: 0, vedic: 1, 'buddha-age': 2, maurya: 2, gupta: 3, souths: 3,
     chola: 4, 'temple-builders': 4, 'sultanate-mughal': 6, 'marathas-sikhs': 7,
     colonial: 9, freedom: 10, modern: 11, 'naya-bharat': 12 };
+  /* every zone carries a NAME a child can tap for — broad-strokes labels
+     (a river country, a heartland, a coast), never a border and never a
+     claim of one: the callout says so in words every time */
   var TIME_ZONES = {
-    harappa: [[150, 480, 130], [275, 300, 140], [40, 380, 150]],
-    vedic: [[240, 280, 150], [420, 400, 160], [60, 300, 120]],
-    'buddha-age': [[576, 457, 150], [460, 430, 130]],
-    maurya: [[576, 457, 190], [360, 400, 190], [280, 570, 180], [350, 760, 150], [60, 300, 150]],
-    gupta: [[576, 457, 170], [400, 410, 170], [300, 550, 120]],
-    souths: [[360, 970, 120], [302, 807, 130], [210, 730, 120], [420, 700, 120]],
-    chola: [[390, 950, 140], [430, 860, 120], [340, 1000, 100]],
-    'temple-builders': [[387, 956, 110], [302, 807, 120], [500, 610, 110], [190, 560, 110], [680, 560, 110]],
-    'sultanate-mughal': [[326, 347, 180], [460, 450, 190], [300, 610, 160], [620, 480, 150]],
-    'marathas-sikhs': [[215, 690, 170], [252, 237, 130], [330, 560, 140]],
-    colonial: [[400, 550, 300], [620, 450, 240], [250, 750, 200]],
-    freedom: [[400, 550, 300], [620, 450, 240], [250, 750, 200]],
-    modern: [[400, 550, 300], [620, 450, 240], [250, 750, 200]],
-    'naya-bharat': [[400, 550, 300], [620, 450, 240], [421, 860, 110]]
+    harappa: [[150, 480, 130, 'Around Dholavira and Lothal'], [275, 300, 140, 'Around Rakhigarhi and Kalibangan'],
+      [40, 380, 150, 'Towards Harappa and Mohenjo-daro']],
+    vedic: [[240, 280, 150, 'The Sapta Sindhu country'], [420, 400, 160, 'The Ganga\u2013Yamuna doab'],
+      [60, 300, 120, 'Towards the northwest passes']],
+    'buddha-age': [[576, 457, 150, 'Magadha'], [460, 430, 130, 'Kashi and Kosala']],
+    maurya: [[576, 457, 190, 'Magadha, the heart'], [360, 400, 190, 'The northern plains'],
+      [280, 570, 180, 'Malwa and the west'], [350, 760, 150, 'The southern reaches'],
+      [60, 300, 150, 'Towards Gandhara']],
+    gupta: [[576, 457, 170, 'The Gupta heartland'], [400, 410, 170, 'The northern plains'], [300, 550, 120, 'Malwa']],
+    souths: [[360, 970, 120, 'The Tamil country'], [302, 807, 130, 'The southern Deccan'],
+      [210, 730, 120, 'The Konkan coast'], [420, 700, 120, 'The eastern Deccan']],
+    chola: [[390, 950, 140, 'The Kaveri delta \u2014 the Chola heart'], [430, 860, 120, 'The coast the ships knew'],
+      [340, 1000, 100, 'The Pandya south']],
+    'temple-builders': [[387, 956, 110, 'The Kaveri delta'], [302, 807, 120, 'The Deccan of the Chalukyas'],
+      [500, 610, 110, 'Kalinga, of Konark'], [190, 560, 110, 'The western kingdoms'], [680, 560, 110, 'Bengal']],
+    'sultanate-mughal': [[326, 347, 180, 'Delhi, the seat'], [460, 450, 190, 'The Gangetic plain'],
+      [300, 610, 160, 'Malwa and the Deccan edge'], [620, 480, 150, 'Bengal']],
+    'marathas-sikhs': [[215, 690, 170, 'The Maratha country'], [252, 237, 130, 'The Sikh Punjab'],
+      [330, 560, 140, 'Malwa and the trade routes']],
+    colonial: [[400, 550, 300, 'Under colonial rule'], [620, 450, 240, 'Under colonial rule'],
+      [250, 750, 200, 'Under colonial rule']],
+    freedom: [[400, 550, 300, 'The freedom movement, everywhere'], [620, 450, 240, 'The freedom movement, everywhere'],
+      [250, 750, 200, 'The freedom movement, everywhere']],
+    modern: [[400, 550, 300, 'The young Republic'], [620, 450, 240, 'The young Republic'],
+      [250, 750, 200, 'The young Republic']],
+    'naya-bharat': [[400, 550, 300, 'India in the takeoff'], [620, 450, 240, 'India in the takeoff'],
+      [421, 860, 110, 'To the stars from Sriharikota']]
   };
+  /* one anchor year per age, monotonic in the book's own order, so the
+     timeline can place its bubbles proportionally from 3300 BCE to today */
+  var TIME_YEARS = { harappa: -3300, vedic: -1500, 'buddha-age': -600, maurya: -322, gupta: 320,
+    souths: 650, chola: 1000, 'temple-builders': 1150, 'sultanate-mughal': 1300,
+    'marathas-sikhs': 1700, colonial: 1800, freedom: 1900, modern: 1955, 'naya-bharat': 2000 };
+  var timePeek = null;   /* the bubble whose name is popped up, one tap short of travelling */
+  var timeZone = null;   /* the tapped zone of influence on an era map */
   function timeStrip() {
+    /* ONE LINE OF TIME, 3300 BCE to today, never wider than the page. Every
+       age is a bubble placed proportionally on the line (with just enough
+       spread that the crowded last centuries stay tappable). One tap pops
+       the age's name up; a second tap on the same bubble \u2014 or a
+       double-click \u2014 travels there. The open age burns as the lit
+       bubble. */
     var I = window.IND_ITIHAAS;
     if (!I) return '';
-    var stops = I.eras.map(function (e) {
-      return '<button class="tstop' + (timeStop === e.id ? ' on' : '') + '" data-act="tstop" data-id="' + e.id + '">' +
-        '<i>' + esc(e.when) + '</i><b>' + esc(e.title) + '</b></button>';
+    var items = I.eras.map(function (e) {
+      return { id: e.id, name: e.title, when: e.when, yr: TIME_YEARS[e.id] || 0 };
+    });
+    items.push({ id: 'aaj', name: 'Aaj \u00b7 today', when: 'now', yr: 2026 });
+    var y0 = -3300, y1 = 2026;
+    var xs = items.map(function (it) { return 3 + (it.yr - y0) / (y1 - y0) * 94; });
+    var i;
+    for (i = 1; i < xs.length; i++) if (xs[i] < xs[i - 1] + 5.6) xs[i] = xs[i - 1] + 5.6;
+    for (i = xs.length - 1; i >= 0; i--) {
+      if (i === xs.length - 1) { if (xs[i] > 97) xs[i] = 97; }
+      else if (xs[i] > xs[i + 1] - 5.6) xs[i] = xs[i + 1] - 5.6;
+    }
+    var dots = items.map(function (it, k) {
+      var open = timeStop === it.id, peek = timePeek === it.id;
+      var pop = '';
+      if (peek || open) {
+        var edge = xs[k] < 12 ? ' edgeL' : xs[k] > 88 ? ' edgeR' : '';
+        pop = '<span class="tmpop' + edge + (open ? ' open' : '') + '">' +
+          '<b>' + esc(it.name) + '</b><i>' + esc(it.when) + '</i>' +
+          (open ? '' : '<u>tap again to travel</u>') + '</span>';
+      }
+      return '<button class="tmdot' + (open ? ' on' : '') + (it.id === 'aaj' ? ' aaj' : '') +
+        '" style="left:' + xs[k].toFixed(2) + '%" data-act="tstop" data-id="' + it.id +
+        '" aria-label="' + esc(it.name) + ' \u00b7 ' + esc(it.when) +
+        (open ? ' \u2014 open now' : ' \u2014 press twice to travel') + '">' + pop + '</button>';
     }).join('');
-    return '<div class="tmline" role="tablist" aria-label="The river of time">' + stops +
-      '<button class="tstop aaj' + (timeStop === 'aaj' ? ' on' : '') + '" data-act="tstop" data-id="aaj">' +
-      '<i>now</i><b>Aaj \u00b7 today</b></button></div>';
+    return '<div class="tmband" role="tablist" aria-label="The river of time, 3300 BCE to today">' +
+      '<span class="tmrail"></span>' + dots +
+      '<span class="tmtick" style="left:3%">3300 BCE</span>' +
+      '<span class="tmtick" style="left:' + (3 + (0 - y0) / (y1 - y0) * 94).toFixed(1) + '%">year 0</span>' +
+      '<span class="tmtick" style="left:97%">today</span>' +
+      '</div>';
   }
   function timeLens(id) {
     var I = window.IND_ITIHAAS, M = window.IND_MAP;
@@ -1160,15 +1214,32 @@
       '<ellipse cx="820" cy="480" rx="240" ry="220" fill="var(--mist)"/></g>' +
       '<path d="' + M.outline + '" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>' +
       '<g filter="url(#tmz)" opacity=".42">' +
-      z.map(function (c) {
-        return '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '" fill="var(--accent2)"/>';
+      z.map(function (c, zi) {
+        return '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '" fill="var(--accent2)"' +
+          (String(zi) === timeZone ? ' opacity="1.35"' : '') + '/>';
       }).join('') + '</g>' +
+      /* the zones are tappable \u2014 a name, never a border */
+      z.map(function (c, zi) {
+        return '<circle class="tm-zone' + (String(zi) === timeZone ? ' on' : '') + '" cx="' + c[0] +
+          '" cy="' + c[1] + '" r="' + Math.max(60, c[2] * 0.8) + '" data-act="tzone" data-i="' + zi +
+          '" role="button" tabindex="0" aria-label="' + esc(c[3] || 'a zone of influence') +
+          ' \u2014 a soft zone of influence, not a border"/>';
+      }).join('') +
       rivers +
       '<path d="' + M.outline + '" fill="none" stroke="var(--line2,var(--line))" stroke-width="2.5"/>' +
       life + pins +
       '</svg>';
-    /* the tapped city's own telling, from data-sabhyata, sources and all */
+    /* the tapped city's own telling, from data-sabhyata, sources and all;
+       a tapped zone gets its name and the honest line about edges */
     var cal = '';
+    if (!timeSite && timeZone !== null && z[+timeZone]) {
+      var zc = z[+timeZone];
+      cal = '<div class="tm-callout"><div class="spread"><b>' + esc(zc[3] || 'A zone of influence') + '</b>' +
+        '<button class="pill" data-act="tzone" data-i="' + timeZone + '">close</button></div>' +
+        '<p style="margin:6px 0 0">A soft zone of influence, shown as lamplight \u2014 not a border. ' +
+        'Real edges faded, moved with the seasons, and were argued over; nobody drew a line on the land. ' +
+        'Open this age to read what the evidence shows.</p></div>';
+    }
     if (timeSite) {
       var cs = siteOf(timeSite);
       if (cs) cal = '<div class="tm-callout"><div class="spread"><b>' + esc(nameInAge(cs)) + '</b>' +
@@ -5361,7 +5432,20 @@
       return;
     }
     if (a === 'era')    return go('era', t.getAttribute('data-id'));
-    if (a === 'tstop')  { timeStop = t.getAttribute('data-id') || 'aaj'; timeSite = null; go('map'); return; }
+    if (a === 'tstop')  {
+      var tsv2 = t.getAttribute('data-id') || 'aaj';
+      /* first tap pops the name; the second tap (or a double-click) travels */
+      if (timeStop === tsv2 || timePeek === tsv2) {
+        timeStop = tsv2; timePeek = null; timeSite = null; timeZone = null; go('map');
+      } else { timePeek = tsv2; render(); }
+      return;
+    }
+    if (a === 'tzone')  {
+      var tzv = t.getAttribute('data-i');
+      timeZone = (timeZone === tzv || tzv === null) ? null : tzv;
+      timeSite = null;
+      return render();
+    }
     if (a === 'tsite')  {
       var tsv = t.getAttribute('data-id');
       timeSite = (timeSite === tsv || !tsv) ? null : tsv;

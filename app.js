@@ -1018,6 +1018,103 @@
      a fixed shape, and no border ever moves, draws itself or gets won. */
   var mapFocus = null;   /* the state whose facts are showing under the map */
 
+  /* ================= THE RIVER OF TIME, ON THE MAP =================
+     India's nav door now holds Itihaas: a timeline of discrete stops rides
+     above the map. The last stop is Aaj (today) — the living state map,
+     unchanged. Every earlier stop re-lights the SAME land as that age saw
+     it: the story of the age on the left, its key moments (already written
+     and sourced in data-itihaas) on the right, and the door into the full
+     era page below. The Sabhyata banner closes the view — the game IS this
+     river, playable.
+
+     THE MAP LAW HOLDS (CLAUDE.md): the geometry never varies — one Survey
+     of India outline, J&K whole, at every stop. A pre-modern age is shown
+     as SOFT ZONES of influence: blurred washes of lamplight with no edge,
+     no border, no animation — nothing is drawn crisper than an empire's
+     own fading. The faint land beyond the outline is the wider subcontinent
+     (ages spill past today's borders); it is a borderless wash — no other
+     country's boundary is ever drawn. Zone centres reuse the Sabhyata city
+     anchors in the same 1000x1100 frame; radii are deliberately generous,
+     because vagueness here is honesty. */
+  var timeStop = 'aaj';
+  var TIME_ZONES = {
+    harappa: [[150, 480, 130], [275, 300, 140], [40, 380, 150]],
+    vedic: [[240, 280, 150], [420, 400, 160], [60, 300, 120]],
+    'buddha-age': [[576, 457, 150], [460, 430, 130]],
+    maurya: [[576, 457, 190], [360, 400, 190], [280, 570, 180], [350, 760, 150], [60, 300, 150]],
+    gupta: [[576, 457, 170], [400, 410, 170], [300, 550, 120]],
+    souths: [[360, 970, 120], [302, 807, 130], [210, 730, 120], [420, 700, 120]],
+    chola: [[390, 950, 140], [430, 860, 120], [340, 1000, 100]],
+    'temple-builders': [[387, 956, 110], [302, 807, 120], [500, 610, 110], [190, 560, 110], [680, 560, 110]],
+    'sultanate-mughal': [[326, 347, 180], [460, 450, 190], [300, 610, 160], [620, 480, 150]],
+    'marathas-sikhs': [[215, 690, 170], [252, 237, 130], [330, 560, 140]],
+    colonial: [[400, 550, 300], [620, 450, 240], [250, 750, 200]],
+    freedom: [[400, 550, 300], [620, 450, 240], [250, 750, 200]],
+    modern: [[400, 550, 300], [620, 450, 240], [250, 750, 200]],
+    'naya-bharat': [[400, 550, 300], [620, 450, 240], [421, 860, 110]]
+  };
+  function timeStrip() {
+    var I = window.IND_ITIHAAS;
+    if (!I) return '';
+    var stops = I.eras.map(function (e) {
+      return '<button class="tstop' + (timeStop === e.id ? ' on' : '') + '" data-act="tstop" data-id="' + e.id + '">' +
+        '<i>' + esc(e.when) + '</i><b>' + esc(e.title) + '</b></button>';
+    }).join('');
+    return '<div class="tmline" role="tablist" aria-label="The river of time">' + stops +
+      '<button class="tstop aaj' + (timeStop === 'aaj' ? ' on' : '') + '" data-act="tstop" data-id="aaj">' +
+      '<i>now</i><b>Aaj \u00b7 today</b></button></div>';
+  }
+  function timeLens(id) {
+    var I = window.IND_ITIHAAS, M = window.IND_MAP;
+    var e = I && I.eras.filter(function (x) { return x.id === id; })[0];
+    if (!e || !M) return '<div class="card">This stretch of the river is still being written.</div>';
+    var z = TIME_ZONES[id] || [];
+    var figs = (e.figures || []).filter(function (f) { return f.id; }).slice(0, 4);
+    var svg = '<svg class="tmsvg" viewBox="-230 -40 1330 1180" role="img" aria-label="' +
+      'India in ' + esc(e.when) + ' \u2014 soft zones of influence, not borders">' +
+      '<defs><filter id="tmz" x="-60%" y="-60%" width="220%" height="220%">' +
+      '<feGaussianBlur stdDeviation="42"/></filter>' +
+      '<filter id="tml" x="-60%" y="-60%" width="220%" height="220%">' +
+      '<feGaussianBlur stdDeviation="34"/></filter></defs>' +
+      /* the wider subcontinent: soft land with NO borders \u2014 ages spill past */
+      '<g filter="url(#tml)" opacity=".35">' +
+      '<ellipse cx="40" cy="330" rx="290" ry="380" fill="var(--mist)"/>' +
+      '<ellipse cx="420" cy="40" rx="520" ry="150" fill="var(--mist)"/>' +
+      '<ellipse cx="820" cy="480" rx="240" ry="220" fill="var(--mist)"/></g>' +
+      '<path d="' + M.outline + '" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>' +
+      '<g filter="url(#tmz)" opacity=".42">' +
+      z.map(function (c) {
+        return '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '" fill="var(--accent2)"/>';
+      }).join('') + '</g>' +
+      '<path d="' + M.outline + '" fill="none" stroke="var(--line2,var(--line))" stroke-width="2.5"/>' +
+      '</svg>';
+    return '<div class="card"><div class="spread">' +
+      '<div><span class="badge itihaas">itihaas</span>' +
+      '<h1 style="margin:6px 0 0">' + esc(e.title) + '</h1>' +
+      '<div class="mono">' + esc(e.when) + '</div></div>' +
+      '<button class="btn ghost" data-act="era" data-id="' + e.id + '">Open this age \u2192</button></div>' +
+      '<p style="margin:10px 0 0">' + esc(e.hook) + '</p></div>' +
+      '<div class="tmwrap">' +
+        '<div class="card tmap">' + svg +
+          '<p class="tiny muted" style="margin:8px 0 0">A soft glow, not a border \u2014 where this age\u2019s ' +
+          'story burned brightest; empires faded at their edges. The faint land beyond today\u2019s outline is ' +
+          'the wider subcontinent \u2014 the story has never stopped at a modern border.</p></div>' +
+        '<div class="card tmoments"><h3 style="margin:0 0 4px">The key moments</h3>' +
+          (e.moments || []).map(function (m) {
+            return '<div class="tmoment"><i>' + esc(m.when) + '</i><span>' + esc(m.what) + '</span></div>';
+          }).join('') + '</div>' +
+      '</div>' +
+      '<div class="card"><p style="margin:0 0 8px">' + esc(e.kid) + '</p>' +
+      (figs.length ? '<div class="row" style="align-items:center">' +
+        figs.map(function (f) { return art(f.id, 46); }).join('') +
+        '<span class="tiny muted">the people of this age \u2014 open the age to meet them</span></div>' : '') +
+      '</div>' +
+      '<button class="tsab" data-act="game" data-id="sabhyata">' +
+      '<b>\ud83c\udfdb Sabhyata</b><span>The whole river of time, playable \u2014 wake the land one lamp at a time</span>' +
+      '<em>Play \u2192</em></button>';
+  }
+
+
   function stateName(c) {
     var G = window.IND_GEO;
     /* States that have data but no map geometry yet — Telangana and Ladakh are known,
@@ -1072,6 +1169,11 @@
   V.map = function () {
     var M = window.IND_MAP, G = window.IND_GEO;
     if (!M) return '<div class="card">Map data missing.</div>';
+    /* the river of time rides above the map; any stop before Aaj re-lights
+       the land as that age saw it, and Aaj is the living map below, untouched.
+       (tstrip, not strip: this view already owns a 'strip' for the day-fact.) */
+    var tstrip = timeStrip();
+    if (timeStop !== 'aaj') return tstrip + timeLens(timeStop);
     var codes = Object.keys(M.paths);
     var lit = Object.keys(S.lit).length, total = codes.length;
     var bb = M.bbox || {};
@@ -1210,7 +1312,7 @@
        heading used to be a two-line block with its own margin -- about 70px above the
        map, on a screen where the map is fighting for its height. It says the same things
        on one line now, and the map grew by that much. */
-    return '<div class="card mapcard">' +
+    return tstrip + '<div class="card mapcard">' +
       '<div class="spread" style="margin-bottom:6px;align-items:baseline">' +
         '<h2 style="margin:0;font-size:20px">India</h2>' +
         '<span class="tiny muted" style="flex:1;margin-left:10px">' + lit + ' of ' + total +
@@ -1853,7 +1955,7 @@
   V.dharma = function () {
     var D = window.IND_DHARMA;
     if (!D) return '<div class="card"><h1>Dharma</h1><p>Not loaded.</p></div>';
-    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Neeti</button>' +
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Moral Science</button>' +
       '<div class="card"><h1>Dharma</h1><p>' + D.intro + '</p></div>' +
       '<div class="grid g2">' + D.faiths.map(function (f) {
         return '<button class="tile" data-act="faith" data-id="' + f.id + '">' +
@@ -1971,7 +2073,7 @@
     var now = utsavNow(), month = MONTHS[new Date().getMonth()];
     var rest = U.festivals.filter(function (f) { return now.indexOf(f) < 0; });
 
-    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Neeti</button>' +
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Moral Science</button>' +
       '<div class="card"><h1>Utsav</h1><p>' + esc(U.intro) + '</p></div>' +
       (now.length
         ? '<div class="card"><h2 style="margin-top:0">This month</h2>' +
@@ -2718,7 +2820,7 @@
 
   V.neeti = function () {
     var K = window.IND_NEETI;
-    if (!K) return '<div class="card"><h1>Neeti</h1><p>Not loaded.</p></div>';
+    if (!K) return '<div class="card"><h1>Moral Science</h1><p>Not loaded.</p></div>';
     var beads = (S.mala || []).length;
     /* NEETI IS THE WHOLE PILLAR NOW — values, faiths, festivals, verses — because they are
        one subject seen from four sides. A value is what a story leaves behind; the faiths
@@ -2727,7 +2829,8 @@
        remembered word for word. Splitting that across two tabs made each half look like a
        module, and this app does not sell modules. */
     var fest = (typeof utsavNow === 'function') ? utsavNow() : [];
-    return '<div class="card"><h1>Neeti</h1><p>' + esc(K.intro) + '</p>' +
+    return '<div class="card"><h1>Moral Science</h1>' +
+      '<div class="mono" style="margin-bottom:8px">neeti \u00b7 \u0928\u0940\u0924\u093f \u2014 the art of living well</div><p>' + esc(K.intro) + '</p>' +
       '<p class="tiny muted">No levels here, and nothing to finish. You get a bead when you ' +
       '<b>do</b> one of these, not when you read about it.</p></div>' +
       (beads ? V.malaStrip() : '') +
@@ -2810,7 +2913,7 @@
     var done = (S.mala || []).filter(function (b) { return b.v === v.id; });
     var big = (S.age || 8) >= 9;
 
-    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Neeti</button>' +
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Moral Science</button>' +
       '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(v.avatar, 92) +
       '<div style="flex:1"><span class="deva" style="font-size:34px;font-weight:700;color:' + v.colour + '">' + esc(v.term) + '</span>' +
       '<div class="mono" style="text-transform:none">' + esc(v.roman) + '</div>' +
@@ -4648,7 +4751,7 @@
       (t && t.kinNote ? '<p class="tiny muted" style="margin-top:10px">' + esc(t.kinNote) +
         ' Kinship words differ family to family — ask yours.</p>' : '') + '</div>' +
       '<div class="card flat tiny"><b>What never changes.</b> Itihaas, Neeti and Bhasha keep ' +
-      'their Sanskrit names — those belong to everyone. And no language hides anything: every ' +
+      'their Sanskrit names inside the app — those belong to everyone. And no language hides anything: every ' +
       'story, every state and every pack stays open to every child. Languages don’t stop at ' +
       'state lines either — the states above are where yours is most at home, not a fence.</div>';
   };
@@ -4664,9 +4767,13 @@
      Tamil child taps Paati-Thaatha, a Bengali child Dida-Dadu. The label is
      resolved in chrome() rather than baked in here, because the tongue can be
      changed at any time and this array is built once at load. */
+  /* Six doors, spread across the bar: Home · Nani-Nana · India · Bhasha ·
+     Moral Science · Play. Itihaas is not a door any more — the river of time
+     lives INSIDE India (the timeline atop the map); V.itihaas and V.era stay
+     as pages the timeline opens. */
   var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['map', 'India', 'map'],
-              ['itihaas', 'Itihaas', 'clock'], ['neeti', 'Neeti', 'star'], ['bhasha', 'Bhasha', 'script'],
-              ['khel', 'Khel', 'game']];
+              ['bhasha', 'Bhasha', 'script'], ['neeti', 'Moral Science', 'star'],
+              ['khel', 'Play', 'game']];
 
   /* ------------------------------------------------------------- THE DECK */
   /* Tapping your companion opens the whole deck as a popup — the Bee's move.
@@ -5062,8 +5169,8 @@
       var sh2 = document.createElement('div');
       sh2.id = 'navmoresheet';
       sh2.innerHTML = '<div class="nm-in" role="menu">' +
-        [['map', 'India', 'map'], ['itihaas', 'Itihaas', 'clock'],
-         ['neeti', 'Neeti', 'star'], ['me', 'You & Grown-ups', 'parent']]
+        [['map', 'India', 'map'], ['neeti', 'Moral Science', 'star'],
+         ['me', 'You & Grown-ups', 'parent']]
           .map(function (t2) {
             return '<button class="nm-row" data-act="go" data-v="' + t2[0] + '">' +
               icon(t2[2], 20) + '<span>' + t2[1] + '</span></button>';
@@ -5166,6 +5273,7 @@
       return;
     }
     if (a === 'era')    return go('era', t.getAttribute('data-id'));
+    if (a === 'tstop')  { timeStop = t.getAttribute('data-id') || 'aaj'; go('map'); return; }
     if (a === 'rishquiz') {
       if (t.getAttribute('data-reset') || rish.i >= window.IND_RISHTEY.tree.length) rish = { i: 0, picked: null, right: 0 };
       return go('rishquiz');

@@ -770,7 +770,9 @@
         var nr = nav.getBoundingClientRect();
         if (nr.height && nr.top > vh * 0.55 && nr.top < vh) reserve += vh - nr.top;
       }
-      var size = Math.floor(Math.max(220, Math.min(availW, vh - docTop - below - reserve, 560)));
+      /* the board is the game: let it take the whole card and most of the
+         viewport (the 560 cap made a desktop board look like a coaster) */
+      var size = Math.floor(Math.max(220, Math.min(availW, vh - docTop - below - reserve, 900)));
       var d = W.devicePixelRatio || 1;
       if (size === cssSize && d === dpr && board) return;
       cssSize = size; dpr = d;
@@ -1196,8 +1198,14 @@
       if (st.phase !== 'aim' || st.turn !== 'you') return;
       var p = toBoard(e);
       var dx = p.x - st.sx, dy = p.y - YOU_Y;
-      if (dx * dx + dy * dy < (RS * 2.4) * (RS * 2.4)) {
-        drag = { mode: 'slide' };                 /* the striker itself: slide it */
+      if (dx * dx + dy * dy < (RS * 3) * (RS * 3)) {
+        /* grab the striker itself: it slides along the baseline — and the
+           moment the pull comes BACK past the line, the grab becomes the
+           sling, anchored on the striker. One thumb, both moves — which is
+           what every hand that has played a phone carrom expects, and what
+           "cannot control the striker" was: dragging back from it used to
+           only slide it sideways. */
+        drag = { mode: 'stick' };
       } else {
         drag = { mode: 'sling', x0: p.x, y0: p.y };  /* anywhere else: pull back to aim */
       }
@@ -1207,7 +1215,11 @@
     sc.on(canvas, 'pointermove', function (e) {
       if (!drag || st.phase !== 'aim') return;
       var p = toBoard(e);
-      if (drag.mode === 'slide') { st.sx = clamp(p.x, SXMIN, SXMAX); return; }
+      if (drag.mode === 'stick') {
+        if (p.y - YOU_Y > RS * 2.6) {
+          drag = { mode: 'sling', x0: st.sx, y0: YOU_Y };   /* pulled back: now a sling */
+        } else { st.sx = clamp(p.x, SXMIN, SXMAX); return; }
+      }
       /* sling: the flick goes opposite the pull, scaled by how far you pull */
       var dx = drag.x0 - p.x, dy = drag.y0 - p.y;
       var len = Math.sqrt(dx * dx + dy * dy);

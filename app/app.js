@@ -1329,7 +1329,7 @@
       '<button class="btn ghost" data-act="era" data-id="' + e.id + '">Open \u2192</button></div>' +
       '<p class="tm-hook">' + esc(e.hook) + ' \u00b7 <i>tap a city for its tellings</i></p></div>' +
       '<div class="tmwrap">' +
-        '<div class="card tmap">' + svg + cal +
+        '<div class="card tmap">' + svg + (timeSite ? '' : cal) +
           '<p class="tiny muted" style="margin:8px 0 0">A soft glow, not a border \u2014 where this age\u2019s ' +
           'story burned brightest; empires faded at their edges. The faint land beyond today\u2019s outline is ' +
           'the wider subcontinent \u2014 the story has never stopped at a modern border.</p></div>' +
@@ -1338,6 +1338,7 @@
             return '<div class="tmoment"><i>' + esc(m.when) + '</i><span>' + esc(m.what) + '</span></div>';
           }).join('') + '</div>' +
       '</div>' +
+      (timeSite ? cal : '') +
       '<div class="card"><p style="margin:0 0 8px">' + esc(e.kid) + '</p>' +
       (figs.length ? '<div class="row" style="align-items:center">' +
         figs.map(function (f) { return art(f.id, 46); }).join('') +
@@ -5529,7 +5530,7 @@
     if (a === 'tsite')  {
       var tsv = t.getAttribute('data-id');
       timeSite = (timeSite === tsv || !tsv) ? null : tsv;
-      return render();
+      return render();   /* the card floats fixed over the app — no scroll dance */
     }
     if (a === 'rishquiz') {
       if (t.getAttribute('data-reset') || rish.i >= window.IND_RISHTEY.tree.length) rish = { i: 0, picked: null, right: 0 };
@@ -5957,6 +5958,11 @@
   }, { passive: true });
 
   document.addEventListener('keydown', function (e) {
+    /* Esc closes the city telling card over the map — every dialog needs a
+       keyboard way out */
+    if (e.key === 'Escape' && timeSite && view.name === 'map') {
+      timeSite = null; render(); return;
+    }
     /* Ordered-build keyboard controls (every drill needs keys as well as
        touch): ← → walk the unused tiles with a visible ring, Enter places
        the ringed tile, Backspace takes the last one back. Works cold — no

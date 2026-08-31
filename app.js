@@ -1037,6 +1037,17 @@
      anchors in the same 1000x1100 frame; radii are deliberately generous,
      because vagueness here is honesty. */
   var timeStop = 'aaj';
+  /* a real photograph where we have one: free-licensed images pulled from
+     Wikimedia Commons by tools/fetch-city-photos.py, with the license and
+     photographer kept in the manifest and credited under the picture (a
+     photo credit is the license's own condition, not decor) */
+  function cityPhoto(sid) {
+    var ph = (window.IND_CITY_PHOTOS || {})[sid];
+    if (!ph) return '';
+    return '<figure class="tm-photo"><img src="art/itihaas/ph/' + ph.file + '" alt="" loading="lazy">' +
+      '<figcaption class="tiny muted">' + esc(ph.credit) + '</figcaption></figure>';
+  }
+  window.IND_CITY_PHOTO_HTML = cityPhoto;
   var timeSite = null;   /* the tapped place on an era map */
   /* which Sabhyata sites stand on each age's map (same 1000x1100 frame), and
      which Sabhyata era index to use so a city wears its name OF THAT AGE —
@@ -1069,20 +1080,28 @@
     harappa: [
       { id: 'x-harappa', x: 95, y: 250, name: 'Harappa',
         fact: 'The city on the old Ravi that gave the whole civilization its name — excavated from 1921 under Daya Ram Sahni, the first of the great Indus cities to be dug.',
-        sources: ['Possehl, The Indus Civilization: A Contemporary Perspective (2002)'] },
+        more: ['In the 1850s railway builders crushed thousands of its ancient bricks for track ballast — walls that had stood four thousand years went under the Lahore–Multan line.',
+               'Its little carved seals carry a script no one alive can read — the writing of the first cities is still a locked door.'],
+        sources: ['Possehl, The Indus Civilization: A Contemporary Perspective (2002)', 'Cunningham’s 1872 ASI report (the ballast loss); the undeciphered Indus script'] },
       { id: 'x-mohenjo', x: -35, y: 440, name: 'Mohenjo-daro',
         fact: 'The largest city of the Indus world, on the lower Indus in Sindh — home of the Great Bath, dug from 1922 and a UNESCO World Heritage Site since 1980.',
-        sources: ['UNESCO World Heritage listing: Archaeological Ruins at Moenjodaro (1980)'] }
+        more: ['Its streets run in a neat grid, with brick-covered drains beneath them — careful town planning, four and a half thousand years ago.',
+               'The little bronze “Dancing Girl”, hand on hip, was found here — one of the oldest cast-bronze figures anywhere, and still full of attitude.'],
+        sources: ['UNESCO World Heritage listing: Archaeological Ruins at Moenjodaro (1980)', 'Marshall, Mohenjo-daro and the Indus Civilization (1931); the Dancing Girl (National Museum, New Delhi)'] }
     ],
     'buddha-age': [
       { id: 'x-taxila', x: 60, y: 165, name: 'Takshashila',
         fact: 'The great crossroads city of Gandhara on the Uttarapatha road, remembered as a centre of learning — its mounds, dug by John Marshall over two decades, are a UNESCO World Heritage Site.',
-        sources: ['Marshall, Taxila (1951); UNESCO World Heritage listing: Taxila (1980)'] }
+        more: ['The Jataka tales are full of princes and students sent off to Takshashila to study — it is the boarding school of the old stories.',
+               'Tradition also places Panini here — the grammarian whose rulebook of Sanskrit is still studied with awe.'],
+        sources: ['Marshall, Taxila (1951); UNESCO World Heritage listing: Taxila (1980)', 'Jataka tales (Takkasila as the seat of learning); the Panini tradition (Katha frame)'] }
     ],
     'marathas-sikhs': [
       { id: 'x-lahore', x: 165, y: 228, name: 'Lahore',
         fact: 'Maharaja Ranjit Singh took Lahore in 1799 and made it the capital of the Sikh Empire — the court that held the Punjab together for half a century.',
-        sources: ['Khushwant Singh, A History of the Sikhs, Vol. 1 (2004)'] }
+        more: ['For a time the Koh-i-noor diamond sat in Ranjit Singh’s treasury at Lahore, worn on his arm on the greatest days.',
+               'The Mughals loved this city too — Lahore’s great fort and the Shalimar Gardens are a World Heritage Site today.'],
+        sources: ['Khushwant Singh, A History of the Sikhs, Vol. 1 (2004)', 'UNESCO World Heritage listing: Fort and Shalamar Gardens in Lahore (1981)'] }
     ]
   };
   TIME_XSITES.maurya = TIME_XSITES['buddha-age'];
@@ -1286,9 +1305,13 @@
       var cs = cx2 || siteOf(timeSite);
       if (cs) cal = '<div class="tm-callout"><div class="spread"><b>' + esc(cx2 ? cs.name : nameInAge(cs)) + '</b>' +
         '<button class="pill" data-act="tsite" data-id="' + timeSite + '">close</button></div>' +
+        cityPhoto(timeSite) +
         '<p style="margin:6px 0 4px">' + esc(cs.fact) + '</p>' +
-        (cx2 ? '<p class="tiny" style="margin:0 0 4px">Beyond today\u2019s outline \u2014 this city is in Pakistan now; the story has never stopped at a modern border.</p>' : '') +
-        ((cs.sources || [])[0] ? '<span class="tiny muted">' + esc(cs.sources[0]) + '</span>' : '') + '</div>';
+        (cs.more || []).map(function (mf) {
+          return '<p style="margin:6px 0 4px">' + esc(mf) + '</p>';
+        }).join('') +
+        (cx2 ? '<p class="tiny muted" style="margin:4px 0 0">Beyond today\u2019s outline \u2014 this city is in Pakistan now; the story has never stopped at a modern border.</p>' : '') +
+        '</div>';
     }
     return '<div class="card"><div class="spread">' +
       '<div><span class="badge itihaas">itihaas</span>' +

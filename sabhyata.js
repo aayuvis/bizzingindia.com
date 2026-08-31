@@ -1441,8 +1441,9 @@
     /* the riddle's options are shuffled by a per-city seed so the right answer's
        POSITION never leaks; the right answer's TEXT the child earned from the
        fact card when the city woke. */
-    function riddleOptions(s) {
-      var o = s.ask.o.slice(), seed = s.name.length * 7 + s.x;
+    function askList(s) { return [s.ask].concat(s.asks || []); }
+    function riddleOptions(s, qi) {
+      var o = askList(s)[qi || 0].o.slice(), seed = s.name.length * 7 + s.x + (qi || 0) * 131;
       for (var i = o.length - 1; i > 0; i--) {
         var j = Math.floor((seed = (seed * 9301 + 49297) % 233280) / 233280 * (i + 1));
         var t = o[i]; o[i] = o[j]; o[j] = t;
@@ -1803,8 +1804,8 @@
         var cd = Math.max(0, (G.quizAt[id] || -999) + T.quizCd - G.t);
         h += '<div class="sab-quest" id="sab-sec-guru"><div class="who">the gurukul</div>' +
           (quiz && quiz.at === id
-            ? '<p>' + (quiz.of !== id ? 'About <b>' + esc(byId[quiz.of].name) + '</b>: ' : '') + esc(byId[quiz.of].ask.q) + '</p>' +
-              riddleOptions(byId[quiz.of]).map(function (o) {
+            ? '<p>' + (quiz.of !== id ? 'About <b>' + esc(byId[quiz.of].name) + '</b>: ' : '') + esc(askList(byId[quiz.of])[quiz.qi || 0].q) + '</p>' +
+              riddleOptions(byId[quiz.of], quiz.qi).map(function (o) {
                 return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" data-sab-act="quiz" data-o="' + esc(o) + '">' + esc(o) + '</button>';
               }).join('') +
               (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — think of the city\u2019s own telling. Another go.</p>' : '')
@@ -1835,7 +1836,13 @@
         }
         h += '</div>';
       }
-      if (q.seen) h += '<div class="sab-cfact">' + esc(s.fact) + '</div>';
+      if (q.seen) {
+        h += (window.IND_CITY_PHOTO_HTML ? window.IND_CITY_PHOTO_HTML(id) : '') +
+          '<div class="sab-cfact">' + esc(s.fact) + '</div>';
+        (s.more || []).forEach(function (mf) {
+          h += '<div class="sab-cfact">' + esc(mf) + '</div>';
+        });
+      }
       h += '</div>';
       return h;
     }
@@ -2616,17 +2623,20 @@
         }
         if (a === 'quizstart' && city) {
           flashSec(actEl.getAttribute('data-t'));
-          var pool = G.tech.script
-            ? SITES.filter(function (x) { return G.sites[x.id].seen && x.ask; })
-            : SITES.filter(function (x) { return x.id === city && G.sites[x.id].seen && x.ask; });
+          var pool = [];
+          SITES.forEach(function (x) {
+            if (!G.sites[x.id].seen || !x.ask) return;
+            if (!G.tech.script && x.id !== city) return;
+            for (var qi2 = 0; qi2 < askList(x).length; qi2++) pool.push({ id: x.id, qi: qi2 });
+          });
           if (!pool.length) return;
           var pick2 = pool[(G.quizN + G.t) % pool.length];
-          quiz = { at: city, of: pick2.id }; riddleWrong = false; G.quizN++;
+          quiz = { at: city, of: pick2.id, qi: pick2.qi }; riddleWrong = false; G.quizN++;
           paintCity(); return;
         }
         if (a === 'quiz' && city && quiz) {
           var po = actEl.getAttribute('data-o'), qs = byId[quiz.of];
-          if (po === qs.ask.o[0]) {
+          if (po === askList(qs)[quiz.qi || 0].o[0]) {
             var payq = quiz.of === city ? T.quizPay : T.quizFarPay;
             if (G.tech.press) payq *= 2;   /* a thousand copies by morning */
             G.res.katha += payq; G.score += 10; G.quizAt[city] = G.t; touch(city);

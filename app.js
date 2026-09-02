@@ -1157,24 +1157,138 @@
   var mapMode = 'rajya';       /* 'rajya' states · 'bhugol' the land itself */
   var bhugolType = 'all';      /* legend filter */
   var bhugolFeat = null;       /* the open feature card */
-  function bhugolView() {
-    var B = window.IND_BHUGOL || { types: {}, features: [] };
-    var M2 = window.IND_MAP;
-    var SB2 = window.IND_SABHYATA || {};
-    var feats = B.features.filter(function (ft) {
-      return bhugolType === 'all' || ft.t === bhugolType;
-    });
-    /* legend chips, with live counts — tapping filters */
+  var bhugolState = null;      /* the state whose full-screen physical map is open */
+  var BG_STATE_ALIAS = { LA: 'LA', TG: 'TG', DD: 'DD' };
+  /* a feature's picture: a real, credited photograph when the Commons manifest
+     has one; the house painting otherwise (tagged as a painting); nothing else */
+  function bhugolPic(id) {
+    var ph = (window.IND_BHUGOL_PHOTOS || {})[id];
+    if (ph) return { src: 'art/bhugol/ph/' + ph.file, credit: ph.credit, painted: false };
+    if ((window.IND_BHUGOL_ART || []).indexOf(id) >= 0) return { src: 'art/bhugol/' + id + '.jpg', credit: '', painted: true };
+    return null;
+  }
+  function bhugolLegend(feats, all) {
+    var B = window.IND_BHUGOL || { types: {} };
     var counts = {};
-    B.features.forEach(function (ft) { counts[ft.t] = (counts[ft.t] || 0) + 1; });
-    var legend = '<button class="bg-chip' + (bhugolType === 'all' ? ' on' : '') +
-      '" data-act="btype" data-t="all">All \u00b7 ' + B.features.length + '</button>' +
-      Object.keys(B.types).map(function (tk) {
+    all.forEach(function (ft) { counts[ft.t] = (counts[ft.t] || 0) + 1; });
+    return '<div class="bg-legend"><button class="bg-chip' + (bhugolType === 'all' ? ' on' : '') +
+      '" data-act="btype" data-t="all">All · ' + all.length + '</button>' +
+      Object.keys(B.types).filter(function (tk) { return counts[tk]; }).map(function (tk) {
         var tv = B.types[tk];
         return '<button class="bg-chip' + (bhugolType === tk ? ' on' : '') + '" data-act="btype" data-t="' + tk +
-          '" style="--tc:' + tv.c + '"><i>' + tv.g + '</i>' + esc(tv.n) + ' \u00b7 ' + (counts[tk] || 0) + '</button>';
-      }).join('');
-    /* the big rivers as blue threads (same geometry the era maps use) */
+          '" style="--tc:' + tv.c + '"><i>' + tv.g + '</i>' + esc(tv.n) + ' · ' + counts[tk] + '</button>';
+      }).join('') + '</div>';
+  }
+  function bhugolPopup() {
+    var B = window.IND_BHUGOL || { types: {}, features: [] };
+    if (!bhugolFeat) return '';
+    var cf = null;
+    B.features.forEach(function (ft) { if (ft.id === bhugolFeat) cf = ft; });
+    if (!cf) return '';
+    var tv2 = B.types[cf.t] || {}, pic = bhugolPic(cf.id);
+    return '<button class="tm-scrim" data-act="bfeat" data-id="' + cf.id + '" aria-label="close"></button>' +
+      '<div class="tm-pop' + (pic ? '' : ' snug') + '" role="dialog" aria-label="' + esc(cf.n) + '">' +
+      (pic ? '<figure class="tm-photo' + (pic.painted ? ' art' : '') + '"><img src="' + pic.src + '" alt="" loading="lazy">' +
+        (pic.credit ? '<figcaption class="tiny muted">' + esc(pic.credit) + '</figcaption>'
+                    : '<figcaption class="tiny muted">a painting, not a photograph — a real picture arrives with the photo pipeline</figcaption>') +
+        '</figure>' : '') +
+      '<div class="bg-band" style="background:' + (tv2.c || '#888') + '"><i>' + (tv2.g || '') + '</i>' + esc(tv2.n || cf.t) + '</div>' +
+      '<div class="spread tm-prow"><b class="tm-pname">' + esc(cf.n) + '</b>' +
+        '<button class="pill" data-act="bfeat" data-id="' + cf.id + '">close</button></div>' +
+      '<p class="tiny muted" style="margin:2px 0 0">' + esc(stateName(cf.st)) + '</p>' +
+      '<p class="tm-fact">' + esc(cf.f) + '</p></div>';
+  }
+  /* ---- India level: the states, in a physical palette, each carrying its count ---- */
+  function bhugolIndia() {
+    var B = window.IND_BHUGOL || { types: {}, features: [] };
+    var M2 = window.IND_MAP;
+    var counts = {};
+    B.features.forEach(function (ft) { counts[ft.st] = (counts[ft.st] || 0) + 1; });
+    var codes = Object.keys(M2.paths), badges_extra = '';
+    var washes = '<g clip-path="url(#bgclip)"><g filter="url(#bgw)">' +
+        '<ellipse cx="470" cy="180" rx="460" ry="120" fill="#f3f2fa"/>' +
+        '<ellipse cx="300" cy="255" rx="330" ry="70" fill="#d9d4ec" opacity=".8"/>' +
+        '<ellipse cx="190" cy="430" rx="150" ry="120" fill="#ecd9a8"/>' +
+        '<ellipse cx="480" cy="440" rx="260" ry="110" fill="#dcecc8"/>' +
+        '<ellipse cx="660" cy="520" rx="180" ry="90" fill="#d4eac4"/>' +
+        '<ellipse cx="360" cy="740" rx="220" ry="180" fill="#e6d9b4"/>' +
+        '<ellipse cx="250" cy="800" rx="70" ry="200" fill="#c8e2b8"/>' +
+        '<ellipse cx="850" cy="330" rx="140" ry="110" fill="#cfe6c2"/>' +
+        '<ellipse cx="330" cy="990" rx="120" ry="110" fill="#d2e8c0"/></g></g>';
+    var states = codes.map(function (c) {
+      return '<path class="bg-state" d="' + M2.paths[c] + '" data-act="bstate" data-id="' + c +
+        '" role="button" tabindex="0" aria-label="' + esc(stateName(c)) + ' — ' + (counts[c] || 0) +
+        ' places; open its map"><title>' + esc(stateName(c)) + '</title></path>';
+    }).join('');
+    var byState = {};
+    B.features.forEach(function (ft) { (byState[ft.st] = byState[ft.st] || []).push(ft); });
+    var badgeCodes = codes.slice();
+    Object.keys(byState).forEach(function (c) { if (badgeCodes.indexOf(c) < 0) badgeCodes.push(c); });
+    var badges = badgeCodes.map(function (c) {
+      var bb = M2.bbox[c]; if (!counts[c]) return '';
+      var cx, cy;
+      if (bb) { cx = bb[0] + bb[2] / 2; cy = bb[1] + bb[3] / 2; }
+      else {
+        cx = 0; cy = 0;
+        byState[c].forEach(function (ft) { cx += ft.x; cy += ft.y; });
+        cx /= byState[c].length; cy /= byState[c].length;
+      }
+      if (!bb) badges_extra += '<circle class="bg-sea-isle" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) +
+        '" r="28" data-act="bstate" data-id="' + c + '" role="button" tabindex="0" aria-label="' + esc(stateName(c)) + ' — open its map"/>';
+      return '<g class="bg-badge" data-act="bstate" data-id="' + c + '"><circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="15"/>' +
+        '<text x="' + cx.toFixed(1) + '" y="' + (cy + 4.5).toFixed(1) + '" text-anchor="middle">' + counts[c] + '</text></g>';
+    }).join('');
+    var svg2 = '<svg class="tmsvg bgsvg" viewBox="-30 30 1060 1120" role="group" aria-label="The physical land of India, by state">' +
+      '<defs><clipPath id="bgclip"><path d="' + M2.outline + '"/></clipPath>' +
+      '<filter id="bgw" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter></defs>' +
+      '<path d="' + M2.outline + '" fill="#e8ecd8" stroke="var(--line2,var(--line))" stroke-width="2.5"/>' +
+      washes + states + badges_extra + badges + '</svg>';
+    return '<div class="card mapcard bgcard">' + svg2 +
+      '<p class="tiny muted" style="margin:8px 0 0">The land itself — washes are landforms, never lines. ' +
+      '<b>Tap a state</b> to open its own geographical map: ' + B.features.length + ' real places, with pictures.</p></div>';
+  }
+  /* ---- State level: a full-screen geographical map of one state ---- */
+  function bhugolStateView(code) {
+    var B = window.IND_BHUGOL || { types: {}, features: [] };
+    var M2 = window.IND_MAP, SB2 = window.IND_SABHYATA || {};
+    var all = B.features.filter(function (ft) { return ft.st === code; });
+    var bb = M2.bbox[code], hasShape = !!(bb && M2.paths[code]);
+    if (!hasShape) {
+      if (!all.length) { bhugolState = null; return bhugolIndia(); }
+      var xs = all.map(function (ft) { return ft.x; }), ys = all.map(function (ft) { return ft.y; });
+      var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+      bb = [x0, y0, Math.max(40, x1 - x0), Math.max(40, y1 - y0)];
+    }
+    var feats = all.filter(function (ft) { return bhugolType === 'all' || ft.t === bhugolType; });
+    var pad = Math.max(bb[2], bb[3]) * 0.14;
+    var vx = bb[0] - pad, vy = bb[1] - pad, vw = bb[2] + pad * 2, vh = bb[3] + pad * 2;
+    var span = Math.max(vw, vh), u = span / 100;             /* one "unit" = 1% of the view */
+    var R = u * 3.6, FS = (u * 2.6).toFixed(1);
+    var others = Object.keys(M2.paths).filter(function (c) { return c !== code; }).map(function (c) {
+      return '<path class="bg-other" d="' + M2.paths[c] + '"/>';
+    }).join('');
+    var nbrs = Object.keys(M2.paths).filter(function (c) {
+      var ob = M2.bbox[c]; if (c === code || !ob) return false;
+      /* the scattered UTs (Puducherry's four enclaves, Daman & Diu, the
+         islands) have bounding boxes that mean nothing — no name for them */
+      if ('PY DD DN LD AN CH'.indexOf(c) >= 0) return false;
+      var cx = ob[0] + ob[2] / 2, cy = ob[1] + ob[3] / 2;
+      return cx > vx && cx < vx + vw && cy > vy && cy < vy + vh && Math.min(ob[2], ob[3]) > u * 6;
+    }).map(function (c) {
+      var ob = M2.bbox[c];
+      return '<text class="bg-nbr" x="' + (ob[0] + ob[2] / 2).toFixed(1) + '" y="' + (ob[1] + ob[3] / 2).toFixed(1) +
+        '" text-anchor="middle" style="font-size:' + (u * 2.8).toFixed(1) + 'px">' + esc(stateName(c)) + '</text>';
+    }).join('');
+    /* one frame unit is about 3.3 km on the ground (34.1 units to a degree of
+       latitude), so a 50 km bar is 15.3 units — honest scale on every state */
+    var KM50 = 50 / 3.26, sx0 = vx + u * 4, sy0 = vy + vh - u * 5;
+    var furniture = '<g class="bg-scale"><line x1="' + sx0.toFixed(1) + '" y1="' + sy0.toFixed(1) + '" x2="' + (sx0 + KM50).toFixed(1) + '" y2="' + sy0.toFixed(1) + '" style="stroke-width:' + (u * 0.5).toFixed(2) + '"/>' +
+      '<line x1="' + sx0.toFixed(1) + '" y1="' + (sy0 - u).toFixed(1) + '" x2="' + sx0.toFixed(1) + '" y2="' + (sy0 + u).toFixed(1) + '" style="stroke-width:' + (u * 0.5).toFixed(2) + '"/>' +
+      '<line x1="' + (sx0 + KM50).toFixed(1) + '" y1="' + (sy0 - u).toFixed(1) + '" x2="' + (sx0 + KM50).toFixed(1) + '" y2="' + (sy0 + u).toFixed(1) + '" style="stroke-width:' + (u * 0.5).toFixed(2) + '"/>' +
+      '<text x="' + (sx0 + KM50 / 2).toFixed(1) + '" y="' + (sy0 - u * 1.6).toFixed(1) + '" text-anchor="middle" style="font-size:' + (u * 2.2).toFixed(1) + 'px">50 km</text></g>' +
+      '<g class="bg-north" transform="translate(' + (vx + vw - u * 6).toFixed(1) + ' ' + (vy + u * 8).toFixed(1) + ')">' +
+      '<path d="M0 ' + (-u * 4).toFixed(1) + ' L' + (u * 1.5).toFixed(1) + ' ' + (u * 2).toFixed(1) + ' L0 ' + (u * 0.8).toFixed(1) + ' L' + (-u * 1.5).toFixed(1) + ' ' + (u * 2).toFixed(1) + 'Z"/>' +
+      '<text y="' + (-u * 5.2).toFixed(1) + '" text-anchor="middle" style="font-size:' + (u * 2.6).toFixed(1) + 'px">N</text></g>';
     var rivers = (SB2.rivers || []).map(function (rv) {
       var d2 = 'M' + rv.p[0][0] + ' ' + rv.p[0][1];
       for (var ri = 1; ri < rv.p.length - 1; ri++) {
@@ -1182,57 +1296,112 @@
         d2 += ' Q' + rv.p[ri][0] + ' ' + rv.p[ri][1] + ' ' + mx2 + ' ' + my2;
       }
       var lp = rv.p[rv.p.length - 1];
-      return '<path class="bg-river" d="' + d2 + ' L' + lp[0] + ' ' + lp[1] + '"><title>' + esc(rv.n) + '</title></path>';
+      return '<path class="bg-river" style="stroke-width:' + (u * 0.7).toFixed(2) + '" d="' + d2 + ' L' + lp[0] + ' ' + lp[1] + '"><title>' + esc(rv.n) + '</title></path>';
     }).join('');
-    var marks = feats.map(function (ft) {
-      var tv = B.types[ft.t] || {};
-      return '<g class="bg-mark' + (bhugolFeat === ft.id ? ' on' : '') + '" data-act="bfeat" data-id="' + ft.id +
-        '" role="button" tabindex="0" aria-label="' + esc(ft.n) + ' \u2014 ' + esc(tv.n || ft.t) + '; tap for its telling">' +
-        '<circle cx="' + ft.x + '" cy="' + ft.y + '" r="16" fill="transparent"/>' +
-        '<circle class="bg-dot" cx="' + ft.x + '" cy="' + ft.y + '" r="9" fill="' + (tv.c || '#888') + '"/>' +
-        '<text class="bg-g" x="' + ft.x + '" y="' + (ft.y + 4.2) + '" text-anchor="middle">' + (tv.g || '\u2022') + '</text>' +
-        '</g>';
+    /* terrain marks: little landform symbols laid around each feature by its
+       kind — the geography drawn on, not just dotted */
+    var terrain = feats.map(function (ft) {
+      var k = ft.t, x = ft.x, y = ft.y, o = '';
+      var tri = function (dx, dy, s) {
+        return '<path class="bg-mtn" d="M' + (x + dx - s) + ' ' + (y + dy) + ' l' + s + ' ' + (-s * 1.5) + ' l' + s + ' ' + (s * 1.5) + 'z"/>';
+      };
+      if (k === 'peak' || k === 'range' || k === 'pass' || k === 'glacier') {
+        o += tri(-u * 4.2, u * 1.2, u * 1.6) + tri(u * 4.4, u * 1.6, u * 1.9) + tri(0, -u * 4.6, u * 1.3);
+      } else if (k === 'desert') {
+        o += '<path class="bg-dune" d="M' + (x - u * 5) + ' ' + (y + u * 3.2) + ' q' + (u * 2.5) + ' -' + (u * 2) + ' ' + (u * 5) + ' 0 q' + (u * 2.5) + ' -' + (u * 2) + ' ' + (u * 5) + ' 0"/>';
+      } else if (k === 'lake' || k === 'wetland' || k === 'coast' || k === 'island') {
+        o += '<path class="bg-wave" d="M' + (x - u * 4) + ' ' + (y + u * 4) + ' q' + (u * 1.3) + ' -' + (u * 1.2) + ' ' + (u * 2.6) + ' 0 t' + (u * 2.6) + ' 0 t' + (u * 2.6) + ' 0"/>';
+      } else if (k === 'park') {
+        o += '<circle class="bg-tree" cx="' + (x - u * 4.4) + '" cy="' + (y + u * 2.8) + '" r="' + (u * 1.1) + '"/>' +
+             '<circle class="bg-tree" cx="' + (x + u * 4.6) + '" cy="' + (y - u * 3.4) + '" r="' + (u * 0.9) + '"/>';
+      }
+      return o;
     }).join('');
-    /* landform washes, clipped to the one true outline: the high white north,
-       the Thar's sand, the Deccan's ochre, the plains' green, the coasts'
-       palms of teal. Elevation and soil — never a boundary. */
-    var svg2 = '<svg class="tmsvg bgsvg" viewBox="-30 30 1060 1120" role="group" aria-label="The physical land of India">' +
-      '<defs><clipPath id="bgclip"><path d="' + M2.outline + '"/></clipPath>' +
-      '<filter id="bgw" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter></defs>' +
-      '<path d="' + M2.outline + '" fill="#e8ecd8" stroke="var(--line2,var(--line))" stroke-width="2.5"/>' +
-      '<g clip-path="url(#bgclip)"><g filter="url(#bgw)">' +
-        '<ellipse cx="470" cy="180" rx="460" ry="120" fill="#f3f2fa"/>' +      /* Himalayan snows */
-        '<ellipse cx="300" cy="255" rx="330" ry="70" fill="#d9d4ec" opacity=".8"/>' +
-        '<ellipse cx="190" cy="430" rx="150" ry="120" fill="#ecd9a8"/>' +      /* the Thar */
-        '<ellipse cx="480" cy="440" rx="260" ry="110" fill="#dcecc8"/>' +      /* the plains */
-        '<ellipse cx="660" cy="520" rx="180" ry="90" fill="#d4eac4"/>' +
-        '<ellipse cx="360" cy="740" rx="220" ry="180" fill="#e6d9b4"/>' +      /* the Deccan */
-        '<ellipse cx="250" cy="800" rx="70" ry="200" fill="#c8e2b8"/>' +       /* Western Ghats green */
-        '<ellipse cx="850" cy="330" rx="140" ry="110" fill="#cfe6c2"/>' +      /* the green northeast */
-        '<ellipse cx="330" cy="990" rx="120" ry="110" fill="#d2e8c0"/>' +
-      '</g></g>' +
-      rivers + marks + '</svg>';
-    var pop = '';
-    if (bhugolFeat) {
-      var cf = null;
-      B.features.forEach(function (ft) { if (ft.id === bhugolFeat) cf = ft; });
-      if (cf) {
-        var tv2 = B.types[cf.t] || {};
-        pop = '<button class="tm-scrim" data-act="bfeat" data-id="' + cf.id + '" aria-label="close"></button>' +
-          '<div class="tm-pop snug" role="dialog" aria-label="' + esc(cf.n) + '">' +
-          '<div class="bg-band" style="background:' + (tv2.c || '#888') + '"><i>' + (tv2.g || '') + '</i>' + esc(tv2.n || cf.t) + '</div>' +
-          '<div class="spread tm-prow"><b class="tm-pname">' + esc(cf.n) + '</b>' +
-            '<button class="pill" data-act="bfeat" data-id="' + cf.id + '">close</button></div>' +
-          '<p class="tiny muted" style="margin:2px 0 0">' + esc(stateName(cf.st)) + '</p>' +
-          '<p class="tm-fact">' + esc(cf.f) + '</p></div>';
+    /* display positions: a few relaxation passes push clustered pins apart
+       so every bubble stays a bubble (the true point keeps its telling) */
+    var P = feats.map(function (ft) { return { x: ft.x, y: ft.y }; });
+    var minD = R * 2.15, it, i2, j2;
+    for (it = 0; it < 24; it++) {
+      for (i2 = 0; i2 < P.length; i2++) for (j2 = i2 + 1; j2 < P.length; j2++) {
+        var ddx = P[j2].x - P[i2].x, ddy = P[j2].y - P[i2].y, dd = Math.sqrt(ddx * ddx + ddy * ddy) || 0.01;
+        if (dd < minD) {
+          var push = (minD - dd) / 2, ux = ddx / dd, uy = ddy / dd;
+          P[i2].x -= ux * push; P[i2].y -= uy * push; P[j2].x += ux * push; P[j2].y += uy * push;
+        }
       }
     }
-    return '<div class="card mapcard bgcard">' + svg2 +
-      '<div class="bg-legend">' + legend + '</div>' +
-      '<p class="tiny muted" style="margin:8px 0 0">The land itself \u2014 washes are landforms, never lines; ' +
-      'every dot is a real place with its own telling. Tap one.</p></div>' + pop;
+    /* labels: below by default; above, right or left when below would collide */
+    var boxes = P.map(function (pt) { return { x: pt.x - R, y: pt.y - R, w: R * 2, h: R * 2 }; });
+    var hit = function (bx) {
+      for (var k = 0; k < boxes.length; k++) {
+        var o = boxes[k];
+        if (bx.x < o.x + o.w && bx.x + bx.w > o.x && bx.y < o.y + o.h && bx.y + bx.h > o.y) return true;
+      }
+      return false;
+    };
+    var fsN = u * 2.4, LBL = feats.map(function (ft, k) {
+      var w = ft.n.length * fsN * 0.56, h = fsN * 1.2, pt = P[k];
+      var tries = [
+        { x: pt.x - w / 2, y: pt.y + R + u * 0.8, ax: pt.x, ay: pt.y + R + u * 0.8 + fsN, anchor: 'middle' },
+        { x: pt.x - w / 2, y: pt.y - R - u * 0.8 - h, ax: pt.x, ay: pt.y - R - u * 1.1, anchor: 'middle' },
+        { x: pt.x + R + u * 0.8, y: pt.y - h / 2, ax: pt.x + R + u * 1.0, ay: pt.y + fsN * 0.38, anchor: 'start' },
+        { x: pt.x - R - u * 0.8 - w, y: pt.y - h / 2, ax: pt.x - R - u * 1.0, ay: pt.y + fsN * 0.38, anchor: 'end' }
+      ];
+      var pick = tries[0];
+      for (var q = 0; q < tries.length; q++) { var bx = { x: tries[q].x, y: tries[q].y, w: w, h: h }; if (!hit(bx)) { pick = tries[q]; break; } }
+      boxes.push({ x: pick.x, y: pick.y, w: w, h: h });
+      return pick;
+    });
+    var pins = feats.map(function (ft, k) {
+      var tv = B.types[ft.t] || {}, pic = bhugolPic(ft.id), pt = P[k], lb = LBL[k];
+      var on = bhugolFeat === ft.id;
+      var g = '<g class="bg-pin' + (on ? ' on' : '') + '" data-act="bfeat" data-id="' + ft.id +
+        '" role="button" tabindex="0" aria-label="' + esc(ft.n) + ' — ' + esc(tv.n || ft.t) + '; tap for its telling">';
+      var px = pt.x.toFixed(1), py = pt.y.toFixed(1);
+      if (Math.abs(pt.x - ft.x) + Math.abs(pt.y - ft.y) > u * 0.6) {
+        g += '<line class="bg-lead" x1="' + ft.x + '" y1="' + ft.y + '" x2="' + px + '" y2="' + py + '" style="stroke-width:' + (u * 0.3).toFixed(2) + '"/>' +
+          '<circle class="bg-true" cx="' + ft.x + '" cy="' + ft.y + '" r="' + (u * 0.6).toFixed(1) + '"/>';
+      }
+      if (pic) {
+        g += '<clipPath id="cp-' + ft.id + '"><circle cx="' + px + '" cy="' + py + '" r="' + R.toFixed(1) + '"/></clipPath>' +
+          '<image href="' + pic.src + '" x="' + (pt.x - R * 1.78).toFixed(1) + '" y="' + (pt.y - R).toFixed(1) +
+          '" width="' + (R * 3.56).toFixed(1) + '" height="' + (R * 2).toFixed(1) + '" clip-path="url(#cp-' + ft.id + ')" preserveAspectRatio="xMidYMid slice"/>' +
+          '<circle class="bg-ring" cx="' + px + '" cy="' + py + '" r="' + R.toFixed(1) + '" style="stroke:' + (tv.c || '#888') + ';stroke-width:' + (u * 0.55).toFixed(2) + '"/>';
+      } else {
+        g += '<circle class="bg-dot" cx="' + px + '" cy="' + py + '" r="' + (R * 0.62).toFixed(1) + '" fill="' + (tv.c || '#888') + '" style="stroke-width:' + (u * 0.4).toFixed(2) + '"/>' +
+          '<text class="bg-g" x="' + px + '" y="' + (pt.y + u * 0.9).toFixed(1) + '" text-anchor="middle" style="font-size:' + (u * 2.4).toFixed(1) + 'px">' + (tv.g || '') + '</text>';
+      }
+      g += '<text class="bg-lbl" x="' + lb.ax.toFixed(1) + '" y="' + lb.ay.toFixed(1) + '" text-anchor="' + lb.anchor + '" style="font-size:' + fsN.toFixed(1) + 'px">' + esc(ft.n) + '</text></g>';
+      return g;
+    }).join('');
+    var svg2 = '<svg class="bgstate" viewBox="' + vx.toFixed(1) + ' ' + vy.toFixed(1) + ' ' + vw.toFixed(1) + ' ' + vh.toFixed(1) +
+      '" role="group" aria-label="The physical map of ' + esc(stateName(code)) + '">' +
+      '<defs><clipPath id="bgsclip"><path d="' + (hasShape ? M2.paths[code] : '') + '"/></clipPath>' +
+      '<linearGradient id="bgland" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef1de"/><stop offset="1" stop-color="#e2e9c8"/></linearGradient></defs>' +
+      others +
+      (hasShape ? '<path class="bg-self" d="' + M2.paths[code] + '" fill="url(#bgland)" style="stroke-width:' + (u * 0.5).toFixed(2) + '"/>'
+                : '<rect x="' + vx.toFixed(1) + '" y="' + vy.toFixed(1) + '" width="' + vw.toFixed(1) + '" height="' + vh.toFixed(1) + '" fill="#dbeaf2"/>' +
+                  all.map(function (ft) { return '<ellipse class="bg-isle" cx="' + ft.x + '" cy="' + ft.y + '" rx="' + (u * 5).toFixed(1) + '" ry="' + (u * 3.2).toFixed(1) + '"/>'; }).join('')) +
+      nbrs + '<g clip-path="url(#bgsclip)">' + rivers + '</g>' +
+      terrain + pins + furniture + '</svg>';
+    var cards = feats.map(function (ft) {
+      var tv = B.types[ft.t] || {}, pic = bhugolPic(ft.id);
+      return '<button class="bg-card" data-act="bfeat" data-id="' + ft.id + '">' +
+        (pic ? '<img src="' + pic.src + '" alt="" loading="lazy">' : '<div class="bg-noimg" style="background:' + (tv.c || '#888') + '">' + (tv.g || '') + '</div>') +
+        '<span class="bg-cband" style="background:' + (tv.c || '#888') + '">' + (tv.g || '') + ' ' + esc(tv.n || ft.t) + '</span>' +
+        '<b>' + esc(ft.n) + '</b><span class="bg-cfact">' + esc(ft.f) + '</span></button>';
+    }).join('');
+    return '<div class="bg-full" role="region" aria-label="' + esc(stateName(code)) + ' — physical map">' +
+      '<div class="bg-fhead"><button class="btn ghost" data-act="bstate" data-id="">← India</button>' +
+        '<div class="bg-ftitle"><b>' + esc(stateName(code)) + '</b><span class="tiny muted">' + all.length + ' places · the land, drawn</span></div></div>' +
+      '<div class="bg-fbody">' + svg2 + bhugolLegend(feats, all) +
+        '<div class="bg-cards">' + cards + '</div>' +
+        '<p class="tiny muted" style="margin:10px 0 0">Landforms and rivers, never lines of politics. Pictures are credited photographs where we have them, and honest paintings where we do not yet.</p>' +
+      '</div></div>';
   }
-  var timeZone = null;   /* the tapped zone of influence on an era map */
+  function bhugolView() {
+    return (bhugolState ? bhugolStateView(bhugolState) : bhugolIndia()) + bhugolPopup();
+  }
   function timeStrip() {
     /* ONE LINE OF TIME, 3300 BCE to today, never wider than the page. Every
        age is a bubble placed proportionally on the line (with just enough
@@ -5618,13 +5787,19 @@
     }
     if (a === 'mapmode') {
       mapMode = t.getAttribute('data-m') || 'rajya';
-      bhugolFeat = null;
+      bhugolFeat = null; bhugolState = null;
       return render();
     }
     if (a === 'btype') {
       var btv = t.getAttribute('data-t') || 'all';
       bhugolType = (bhugolType === btv) ? 'all' : btv;
       bhugolFeat = null;
+      return render();
+    }
+    if (a === 'bstate') {
+      bhugolState = t.getAttribute('data-id') || null;
+      bhugolFeat = null; bhugolType = 'all';
+      window.scrollTo(0, 0);
       return render();
     }
     if (a === 'bfeat') {
@@ -6065,8 +6240,10 @@
   document.addEventListener('keydown', function (e) {
     /* Esc closes the city telling card over the map — every dialog needs a
        keyboard way out */
-    if (e.key === 'Escape' && (timeSite || bhugolFeat) && view.name === 'map') {
-      timeSite = null; bhugolFeat = null; render(); return;
+    if (e.key === 'Escape' && (timeSite || bhugolFeat || bhugolState) && view.name === 'map') {
+      if (timeSite || bhugolFeat) { timeSite = null; bhugolFeat = null; }
+      else bhugolState = null;
+      render(); return;
     }
     /* Ordered-build keyboard controls (every drill needs keys as well as
        touch): ← → walk the unused tiles with a visible ring, Enter places

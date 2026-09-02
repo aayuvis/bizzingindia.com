@@ -484,9 +484,9 @@ window.IND_BHUGOL = {
   {"id": "minicoy-ld", "n": "Minicoy", "st": "LD", "t": "island", "x": 191.8, "y": 1039.9, "f": "The southern outlier with its 1885 lighthouse — closer in language and boats to the Maldives’ world."},
   {"id": "pitti-bird-sanctuary-ld", "n": "Pitti Bird Sanctuary", "st": "LD", "t": "wetland", "x": 177.5, "y": 953.0, "f": "A bare sand islet where terns nest by the thousand — protected as their nursery."},
   {"id": "kavaratti-lagoon-ld", "n": "Kavaratti Lagoon", "st": "LD", "t": "coast", "x": 178.8, "y": 962.2, "f": "The capital’s home lagoon — glass-boat gardens of coral and clams."},
-  {"id": "daman-ganga-dn", "n": "Daman Ganga", "st": "DN", "t": "river", "x": 187.0, "y": 626.6, "f": "The little river that reaches the sea between two old Portuguese towns."},
+  {"id": "daman-ganga-dd", "n": "Daman Ganga", "st": "DD", "t": "river", "x": 187.0, "y": 626.6, "f": "The little river that reaches the sea between two old Portuguese towns."},
   {"id": "satmaliya-sanctuary-dn", "n": "Satmaliya Sanctuary", "st": "DN", "t": "park", "x": 190.8, "y": 633.4, "f": "Silvassa’s deer park forest — chital and sambar in teak country."},
-  {"id": "naida-caves-dn", "n": "Naida Caves", "st": "DN", "t": "cave", "x": 124.2, "y": 615.7, "f": "Quarry-carved chambers on Diu — sunlight shafts through square skylights in the rock."},
-  {"id": "jampore-beach-dn", "n": "Jampore Beach", "st": "DN", "t": "coast", "x": 184.5, "y": 627.6, "f": "Daman’s calm casuarina beach — shallow tides that walk far out."},
+  {"id": "naida-caves-dd", "n": "Naida Caves", "st": "DD", "t": "cave", "x": 124.2, "y": 615.7, "f": "Quarry-carved chambers on Diu — sunlight shafts through square skylights in the rock."},
+  {"id": "jampore-beach-dd", "n": "Jampore Beach", "st": "DD", "t": "coast", "x": 184.5, "y": 627.6, "f": "Daman’s calm casuarina beach — shallow tides that walk far out."},
   ]
 };

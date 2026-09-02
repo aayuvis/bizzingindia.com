@@ -1345,7 +1345,12 @@
         { x: pt.x - w / 2, y: pt.y + R + u * 0.8, ax: pt.x, ay: pt.y + R + u * 0.8 + fsN, anchor: 'middle' },
         { x: pt.x - w / 2, y: pt.y - R - u * 0.8 - h, ax: pt.x, ay: pt.y - R - u * 1.1, anchor: 'middle' },
         { x: pt.x + R + u * 0.8, y: pt.y - h / 2, ax: pt.x + R + u * 1.0, ay: pt.y + fsN * 0.38, anchor: 'start' },
-        { x: pt.x - R - u * 0.8 - w, y: pt.y - h / 2, ax: pt.x - R - u * 1.0, ay: pt.y + fsN * 0.38, anchor: 'end' }
+        { x: pt.x - R - u * 0.8 - w, y: pt.y - h / 2, ax: pt.x - R - u * 1.0, ay: pt.y + fsN * 0.38, anchor: 'end' },
+        /* the diagonals, when every straight side is taken */
+        { x: pt.x + R * 0.7, y: pt.y + R * 0.7, ax: pt.x + R * 0.8, ay: pt.y + R * 0.7 + fsN, anchor: 'start' },
+        { x: pt.x - R * 0.7 - w, y: pt.y + R * 0.7, ax: pt.x - R * 0.8, ay: pt.y + R * 0.7 + fsN, anchor: 'end' },
+        { x: pt.x + R * 0.7, y: pt.y - R * 0.7 - h, ax: pt.x + R * 0.8, ay: pt.y - R * 0.9, anchor: 'start' },
+        { x: pt.x - R * 0.7 - w, y: pt.y - R * 0.7 - h, ax: pt.x - R * 0.8, ay: pt.y - R * 0.9, anchor: 'end' }
       ];
       var pick = tries[0];
       for (var q = 0; q < tries.length; q++) { var bx = { x: tries[q].x, y: tries[q].y, w: w, h: h }; if (!hit(bx)) { pick = tries[q]; break; } }

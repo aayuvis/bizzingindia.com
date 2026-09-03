@@ -314,8 +314,8 @@
     '.sab-praja{position:absolute;inset:0;pointer-events:none}',
     /* A WALKER PINNED TO A ROAD. The keyframes carry left/top along the
        plate's own traced street, so the sprite's feet land on the road. */
-    '.sab-walker.onroad,.sab-stand.onroad{bottom:auto;transform:translate(-50%,-100%)}',
-    '.sab-walker.onroad{left:auto}',
+    '.sab-walker.onroad,.sab-stand.onroad,.sab-cross.onroad{bottom:auto;transform:translate(-50%,-100%)}',
+    '.sab-walker.onroad,.sab-cross.onroad{left:auto}',
     /* the green places breathe under the paint — a soft leaf wash, never a
        shape a child must read, just the land looking alive */
     '.sab-greens{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;' +
@@ -1814,8 +1814,26 @@
           breath = '<span class="sab-smoke" style="left:26%;top:34%;animation-delay:-' + (nowS % 6.5).toFixed(1) + 's"></span>' +
             '<span class="sab-smoke" style="left:57%;top:28%;animation-delay:-' + ((nowS + 2.3) % 6.5).toFixed(1) + 's"></span>' +
             '<span class="sab-smoke" style="left:74%;top:38%;animation-delay:-' + ((nowS + 4.1) % 6.5).toFixed(1) + 's"></span>' +
-            (spOf('cart') ? '<img class="sab-cross" src="' + spOf('cart') + '" alt="" style="animation-delay:-' +
-              ((nowS + 9) % 38).toFixed(1) + 's">' : '');
+            (spOf('cart') ? (function () {
+              /* THE CART KEEPS TO THE CART ROAD. It used to slide dead
+                 straight across the picture at a fixed height, over walls,
+                 water and rooftops alike; now it rolls the plate's widest
+                 traced street — which on every plate is the one the painter
+                 drew for carts. */
+              if (atlas) {
+                var wide = 0, ws = -1;
+                atlas.roads.forEach(function (rd, ri2) {
+                  var xs = rd.map(function (pt) { return pt[0]; });
+                  var span = Math.max.apply(null, xs) - Math.min.apply(null, xs);
+                  if (span > ws) { ws = span; wide = ri2; }
+                });
+                return '<img class="sab-cross onroad" src="' + spOf('cart') + '" alt="" style="' +
+                  'animation-name:sabrd-' + id + '-' + wide + ';animation-duration:64s;' +
+                  'animation-delay:-' + ((nowS + 9) % 64).toFixed(1) + 's">';
+              }
+              return '<img class="sab-cross" src="' + spOf('cart') + '" alt="" style="animation-delay:-' +
+                ((nowS + 9) % 38).toFixed(1) + 's">';
+            })() : '');
         }
         /* THE BUILD PLOTS. The buildings were rows of text under the painting;
            now the painting is the build board — Civ's own move. An unbuilt
@@ -1824,12 +1842,20 @@
            the full explanations). A built one stands on the scene for good,
            and rises once, the first time this sitting sees it. */
         bldSeenInit();
-        /* seven plots now: the granary, the workshop, the school, the bazaar,
-           the stepwell — and the rampart and the fort that keep them all */
+        /* THE BUILDINGS STAND WHERE THEY BELONG. A row of plots along the
+           bottom edge put the granary on the street; the atlas now carries a
+           site for each one, read off the painting — the granary in the
+           middle of the largest field, the stepwell by the water, the bazaar
+           on the longest street, the rampart at the town's outer edge, the
+           fort inside the gate. Plates without an atlas keep the old row. */
         var plots = '', PLOT_X = [0.5, 14.4, 28.3, 42.2, 56.1, 70, 84];
+        var spots = (atlas && atlas.spots) || null;
         Object.keys(BLD).filter(function (b2) { return BLD[b2].era <= G.era; })
           .slice(0, 7).forEach(function (bid, pi) {
             var bd = BLD[bid], bsp = spOf(bid), left = PLOT_X[pi];
+            var at = spots && spots[bid];
+            var pos = at ? 'left:' + at[0] + '%;top:' + at[1] + '%;bottom:auto;transform:translate(-50%,-100%)'
+                         : 'left:' + left + '%';
             var art2 = bsp ? '<img' + (q.bld[bid] ? '' : ' class="ghost"') + ' src="' + bsp + '" alt="">'
                            : '<span style="font-size:26px">' + bd.icon + '</span>';
             if (q.bld[bid]) {
@@ -1840,19 +1866,19 @@
               if (bid === 'gurukul') {
                 var ready = (G.quizAt[id] || -999) + T.quizCd - G.t <= 0;
                 plots += '<button class="sab-plot built teach' + (rise && !REDUCED ? ' rise' : '') +
-                  '" style="left:' + left + '%" data-sab-act="' + (ready ? 'quizstart' : 'cjump') + '"' +
+                  '" style="' + pos + '" data-sab-act="' + (ready ? 'quizstart' : 'cjump') + '"' +
                   (ready ? '' : ' data-t="sab-sec-guru"') +
                   ' aria-label="The gurukul — ' + (ready ? 'the teacher will take a question' : 'the teacher rests') + '">' +
                   art2 + (ready && !REDUCED ? '<b class="pbell">🔔</b>' : '') +
                   '<i>' + esc(bd.name) + '</i></button>';
               } else {
                 plots += '<div class="sab-plot built' + (rise && !REDUCED ? ' rise' : '') +
-                  '" style="left:' + left + '%" title="' + esc(bd.what) + '">' + art2 +
+                  '" style="' + pos + '" title="' + esc(bd.what) + '">' + art2 +
                   '<i>' + esc(bd.name) + '</i></div>';
               }
             } else {
               var c2 = costOf(bd.cost, 'building');
-              plots += '<button class="sab-plot" style="left:' + left + '%" data-sab-act="build" data-b="' + bid + '"' +
+              plots += '<button class="sab-plot" style="' + pos + '" data-sab-act="build" data-b="' + bid + '"' +
                 (canPay(c2) ? '' : ' disabled') +
                 ' aria-label="Build the ' + esc(bd.name) + ' — ' + esc(bd.what) + '">' + art2 +
                 '<i>' + esc(bd.name) + '</i><em>' + costStr(c2) + '</em></button>';

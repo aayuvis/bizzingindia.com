@@ -85,9 +85,33 @@
     quizCd:     25,                 /* seconds between questions per city */
 
     eat:        0.25,               /* anna per citizen per turn — the balance */
-    raidEvery:  45,                 /* seconds between raids, somewhere */
-    raidBase:   6,                  /* what an unwatched raid carries off, +4 per era */
-    raidGuard:  2,                  /* rakshaks needed to fend a raid off entirely */
+    /* RAKSHA — the defence of the realm, the game's new spine.
+       Fewer raids, each one an event: dust on the horizon first, then the
+       blow. What arrives has a STRENGTH; what meets it is the watch on the
+       gate, the rampart, the fort, and whatever the neighbours can send down
+       a road in time. Lose and the city is hurt in ways you can see. */
+    raidEvery:  30,                 /* ticks between one threat and the next */
+    warnTicks:  7,                  /* dust on the horizon before the blow */
+    warnTower:  13,                 /* with a watchtower wonder, twice the warning */
+    raidBase:   6,                  /* coins carried off at strength 1, before era */
+    wallGuard:  2,                  /* a prakara is worth this many rakshaks */
+    fortGuard:  4,                  /* a durg is worth this many */
+    helpRange:  260,                /* map units a neighbour's rakshaks can march */
+    keyWeight:  3,                  /* capital, seats and ports are hit this much more */
+    sackSleep:  3,                  /* sackings a city can take before it sleeps */
+    /* NOTHING GREAT IS INSTANT. Research and monuments now take time — the
+       one change that turns paying into planning. Both run on their own
+       clock, which keeps ticking while you stand in a city or the Vidya
+       panel, so a build you started is a build you can watch. */
+    techTicks:  8,                  /* base ticks to learn a thing (+2 an era) */
+    techEra:    2,
+    techSchool: 0.22,               /* each gurukul shortens it, to a floor */
+    techFloor:  0.34,
+    monTicks:   12,                 /* base ticks to raise a monument (+2 an era) */
+    monEra:     2,
+    monHand:    0.07,               /* each karigar in the city speeds the work */
+    monFloor:   0.5,
+    monStages:  3,                  /* foundation, walls, the top stone */
     heroAt:     3,                  /* city level where a great one may rise */
     exploreCost: 20,                /* anna — provisions for the road */
     exploreSpeed: 55,               /* map-units an explorer walks each turn */
@@ -288,11 +312,51 @@
     '.sab-scene{position:relative;overflow:hidden;border-radius:var(--radius-lg);border:1px solid var(--line);margin:10px 0 2px}',
     '.sab-scene .sab-hero{margin:0;border:0;border-radius:0}',
     '.sab-praja{position:absolute;inset:0;pointer-events:none}',
+    /* A WALKER PINNED TO A ROAD. The keyframes carry left/top along the
+       plate's own traced street, so the sprite's feet land on the road. */
+    '.sab-walker.onroad,.sab-stand.onroad{bottom:auto;transform:translate(-50%,-100%)}',
+    '.sab-walker.onroad{left:auto}',
+    /* the green places breathe under the paint — a soft leaf wash, never a
+       shape a child must read, just the land looking alive */
+    '.sab-greens{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;' +
+      'mix-blend-mode:soft-light}',
+    '.sab-greens polygon{fill:#3f9c5c;opacity:.26;animation:sabgreen 7s ease-in-out infinite alternate}',
+    '@keyframes sabgreen{from{opacity:.18}to{opacity:.34}}',
     '.sab-walker{position:absolute;left:-14%;bottom:2%;height:12%;width:auto;' +
       'filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));' +
       'animation:sabwalk 18s linear infinite,sabwbob .7s ease-in-out infinite alternate}',
     '@keyframes sabwalk{from{left:-14%}to{left:104%}}',
     '@keyframes sabwbob{from{transform:translateY(0)}to{transform:translateY(-1.5%)}}',
+    /* the bamboo climbs: stage one is a frame, stage three is nearly a
+       monument, and the bar beneath fills as the masons work */
+    /* the alarm: red while the gate is short, green the moment it is enough */
+    /* the bar's own alarm: red while the gate is short, green when it holds */
+    '.sab-raksha{display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:0;cursor:pointer;' +
+      'padding:5px 12px;border-radius:12px;background:#96201288;color:#fff;text-align:left;' +
+      'background:rgba(150,32,18,.94);animation:sabpulse 1.6s ease-in-out infinite}',
+    '.sab-raksha.ready{background:rgba(24,110,66,.94);animation:none}',
+    '.sab-raksha b{font:800 12.5px/1.15 var(--body);white-space:nowrap}',
+    '.sab-raksha span{font:700 10px/1.15 var(--body);opacity:.92;white-space:nowrap}',
+    '@keyframes sabpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,60,30,.55)}50%{box-shadow:0 0 0 7px rgba(200,60,30,0)}}',
+    '.sab-alarm{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:7;pointer-events:none;' +
+      'display:grid;justify-items:center;gap:1px;padding:6px 14px;border-radius:12px;text-align:center;' +
+      'background:rgba(150,32,18,.93);color:#fff;box-shadow:0 4px 14px rgba(40,10,4,.4);max-width:88%}',
+    '.sab-alarm.ready{background:rgba(24,110,66,.93)}',
+    '.sab-alarm b{font:800 13px/1.2 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}',
+    '.sab-alarm span{font:700 10.5px/1.2 var(--body);opacity:.9}',
+    '.sab-scafbtn.building{cursor:pointer}',
+    '.sab-scafbtn.building img{transition:transform .8s ease,opacity .8s ease;transform-origin:50% 100%}',
+    '.sab-scafbtn.st1 img{transform:scaleY(.62);opacity:.82}',
+    '.sab-scafbtn.st2 img{transform:scaleY(.82);opacity:.92}',
+    '.sab-scafbtn.st3 img{transform:scaleY(1)}',
+    '.sab-scafbtn.building em{background:linear-gradient(90deg,var(--accent2) var(--pc,0%),' +
+      'rgba(255,255,255,.85) var(--pc,0%));color:var(--text);font-weight:800}',
+    '.sab-work.atwork{outline:2px solid var(--accent2);outline-offset:-2px}',
+    '.sab-projbar{display:block;margin-top:5px;height:9px;border-radius:99px;background:var(--line);' +
+      'position:relative;overflow:hidden;max-width:190px}',
+    '.sab-projbar i{position:absolute;inset:0;width:var(--pc,0%);background:var(--accent2);' +
+      'border-radius:99px;transition:width .6s linear}',
+    '.sab-projbar b{position:absolute;right:-30px;top:-3px;font:800 10.5px var(--body);color:var(--accent)}',
     '.sab-scaffold{position:absolute;left:50%;bottom:16%;height:52%;width:auto;transform:translateX(-50%);' +
       'pointer-events:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}',
     /* THE BUILD PLOTS — Civ\'s own move, made native: tap a plot on the city
@@ -300,7 +364,7 @@
        ghost outlines with the cost; built ones stand in colour with a name
        chip. Real buttons in DOM order — keyboard and touch both, >=44px. */
     '.sab-plots{position:absolute;inset:0;pointer-events:none}',
-    '.sab-plot{pointer-events:auto;position:absolute;bottom:2%;width:18%;min-width:56px;min-height:44px;' +
+    '.sab-plot{pointer-events:auto;position:absolute;bottom:2%;width:15%;min-width:48px;min-height:44px;' +
       'display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;' +
       'padding:3px 2px;border:0;background:none;cursor:pointer;font:700 10px/1.15 var(--body,system-ui);color:#fff}',
     '.sab-plot img{width:88%;height:auto;max-height:54px;object-fit:contain;' +
@@ -439,7 +503,8 @@
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
       '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,.sab-trespot .glint,' +
-      '.sab-smoke,.sab-cross,.sab-plot .pbell,.sab-yatri.walking img,.sab-stand{animation:none}' +
+      '.sab-smoke,.sab-cross,.sab-plot .pbell,.sab-yatri.walking img,.sab-stand,' +
+      '.sab-greens polygon,.sab-raksha{animation:none}' +
       '.sab-trespot .glint{opacity:.55}.sab-cam{transition:none}.sab-tray{animation:none}}'   /* still findable when nothing may move */
   ].join('\n');
 
@@ -483,7 +548,7 @@
       return { era: 0, res: { anna: T.startRes.anna, kala: T.startRes.kala, katha: T.startRes.katha },
                sites: st, routes: [], t: 0, utsav: 0, ev: null, score: 0, won: false,
                quests: {}, qdone: 0, lastq: 0,
-               tech: {}, capital: null, disp: null, lastd: 0, quizAt: {}, quizN: 0,
+               tech: {}, proj: null, rt: 0, warn: null, wonders: {}, capital: null, disp: null, lastd: 0, quizAt: {}, quizN: 0,
                kingdoms: {}, lastraid: 0, explorers: [],
                darshan: {}, sutra: {}, tre: {}, lastakal: 0, lastdarshan: 0, calmUntil: 0 };
     }
@@ -618,6 +683,107 @@
     /* per-city anchor tuning against the plates: where the contract and the
        painting disagree (a monument that landed off-centre, a moor that wants
        the other bank), the override wins. Styles are inline CSS fragments. */
+    /* ==================================================================
+       THE PLATE ATLAS — data-plates.js traced off every painting.
+
+       Before this, the praja were scattered at random percentages and strolled
+       in straight lines across roofs, water and fields alike. Now every plate
+       carries its own vector map: the roads are the only ground anyone walks,
+       the greens breathe where the painter put greenery, and the monument
+       rises on its painted spot. A plate with no atlas keeps the old free
+       walk, so a new painting is never broken.
+       ================================================================== */
+    function plateOf(id) {
+      var A = W.IND_PLATES || {};
+      var a = A[id];
+      return (a && a.roads && a.roads.length) ? a : null;
+    }
+    var SNAP = 2.4;      /* road points this close are the same junction */
+    var graphCache = {};
+    function roadGraph(id) {
+      if (graphCache[id]) return graphCache[id];
+      var a = plateOf(id); if (!a) return null;
+      var nodes = [], adj = [];
+      function nodeAt(x, y) {
+        for (var i = 0; i < nodes.length; i++) {
+          if (Math.abs(nodes[i][0] - x) < SNAP && Math.abs(nodes[i][1] - y) < SNAP) return i;
+        }
+        nodes.push([x, y]); adj.push([]); return nodes.length - 1;
+      }
+      a.roads.forEach(function (rd) {
+        var prev = -1;
+        rd.forEach(function (pt) {
+          var i = nodeAt(pt[0], pt[1]);
+          if (prev >= 0 && prev !== i) {
+            var w = Math.hypot(nodes[i][0] - nodes[prev][0], nodes[i][1] - nodes[prev][1]);
+            adj[prev].push({ to: i, w: w }); adj[i].push({ to: prev, w: w });
+          }
+          prev = i;
+        });
+      });
+      return (graphCache[id] = { nodes: nodes, adj: adj });
+    }
+    function nearestNode(g, x, y) {
+      var best = -1, bd = 1e9;
+      for (var i = 0; i < g.nodes.length; i++) {
+        var d = Math.hypot(g.nodes[i][0] - x, g.nodes[i][1] - y);
+        if (d < bd) { bd = d; best = i; }
+      }
+      return { i: best, d: bd };
+    }
+    /* Dijkstra over the little road graph — a few dozen nodes, so it is
+       instant and the walk always follows a street that exists */
+    function roadPath(g, a, b) {
+      if (a === b) return [a];
+      var N = g.nodes.length, dist = [], prev = [], seen = [], i;
+      for (i = 0; i < N; i++) { dist.push(1e9); prev.push(-1); seen.push(false); }
+      dist[a] = 0;
+      for (var k = 0; k < N; k++) {
+        var u = -1, bd = 1e9;
+        for (i = 0; i < N; i++) if (!seen[i] && dist[i] < bd) { bd = dist[i]; u = i; }
+        if (u < 0 || u === b) break;
+        seen[u] = true;
+        for (i = 0; i < g.adj[u].length; i++) {
+          var e = g.adj[u][i];
+          if (dist[u] + e.w < dist[e.to]) { dist[e.to] = dist[u] + e.w; prev[e.to] = u; }
+        }
+      }
+      if (dist[b] >= 1e9) return null;
+      var out = [], c = b;
+      while (c >= 0) { out.unshift(c); c = prev[c]; }
+      return out;
+    }
+    /* one @keyframes per road, so a walker paces a real street in pure CSS —
+       no per-frame JS, and a repaint never resets anybody mid-stride */
+    function roadKeyframes(id) {
+      var a = plateOf(id); if (!a) return '';
+      return a.roads.map(function (rd, ri) {
+        var L = 0, d = [0], i;
+        for (i = 1; i < rd.length; i++) {
+          L += Math.hypot(rd[i][0] - rd[i - 1][0], rd[i][1] - rd[i - 1][1]); d.push(L);
+        }
+        if (!L) return '';
+        var fwd = rd.map(function (pt, i2) {
+          return (d[i2] / L * 50).toFixed(2) + '%{left:' + pt[0] + '%;top:' + pt[1] + '%}';
+        }).join('');
+        var back = rd.slice().reverse().map(function (pt, i2) {
+          var dd = L - d[rd.length - 1 - i2];
+          return (50 + dd / L * 50).toFixed(2) + '%{left:' + pt[0] + '%;top:' + pt[1] + '%}';
+        }).join('');
+        return '@keyframes sabrd-' + id + '-' + ri + '{' + fwd + back + '}';
+      }).join('');
+    }
+    /* the green places breathe: a soft leaf-coloured wash over the polygons
+       the painter filled with garden, grove, field and orchard */
+    function greenLayer(id) {
+      var a = (W.IND_PLATES || {})[id];
+      if (!a || !a.greens || !a.greens.length) return '';
+      return '<svg class="sab-greens" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+        a.greens.map(function (poly, i) {
+          return '<polygon points="' + poly.map(function (pt) { return pt[0] + ',' + pt[1]; }).join(' ') +
+            '" style="animation-delay:-' + (i * 1.7).toFixed(1) + 's"/>';
+        }).join('') + '</svg>';
+    }
     var DIO_TUNE = {
       /* Ajanta's "monument" is the cave crescent in the upper half of its
          plate; the bamboo stands against the cliff, not in the gorge */
@@ -769,6 +935,9 @@
       if (G.tech.charkha && x.kind === 'shilpa') out.kala += 1;
       if (G.tech.ship && conn && PORTS.indexOf(x.id) >= 0) { out.anna += 1; out.kala += 1; out.katha += 1; }
       if (G.tech.harit && x.kind === 'kheti') out.anna += 2;
+      /* what the land itself gives, once a scout has found it */
+      var wg = wonderYield(x.id);
+      out.anna += wg.anna; out.kala += wg.kala; out.katha += wg.katha;
       if (q.mon) out.katha += 2;
       if (G.capital === x.id) { out.anna += 1; out.kala += 1; out.katha += 1; }
       /* an akal (drought) halves the fields until the rains return */
@@ -1101,6 +1270,7 @@
         '<div class="sab-bar">' +
           '<div class="sab-era"><span id="sab-eradate"></span><b id="sab-eraname"></b></div>' +
           '<div class="sab-res" id="sab-res" aria-live="off"></div>' +
+          '<button class="sab-raksha" id="sab-raksha" hidden></button>' +
           '<span class="sab-gap"></span>' +
           '<div class="sab-globals">' +
             '<button class="sab-act txt go" id="sab-adv" hidden></button>' +
@@ -1130,6 +1300,25 @@
     /* ---- patch painters ---- */
     function paintHud() {
       var e = ERAS[G.era];
+      /* THE ALARM LIVES IN THE BAR. The feed is one line and the world keeps
+         talking; a threat on its way must stay on screen until it lands, and
+         tapping it takes you straight to the city that needs hands. */
+      var rk = D.getElementById('sab-raksha');
+      if (rk) {
+        if (G.warn && byId[G.warn.id]) {
+          var rr = null; (DATA.raids || []).forEach(function (r4) { if (r4.id === G.warn.raid) rr = r4; });
+          var dd2 = defenceOf(G.warn.id);
+          var nd2 = (rr ? rr.str : 5) + Math.floor(G.era / 3) + (keyCity(G.warn.id) ? 2 : 0);
+          rk.hidden = false;
+          rk.className = 'sab-raksha' + (dd2.total >= nd2 ? ' ready' : '');
+          rk.innerHTML = '<b>\u26a0 ' + esc(nameOf(byId[G.warn.id])) + '</b><span>' +
+            esc(rr ? rr.warn : 'something comes') + ' \u00b7 ' + Math.max(0, G.warn.at - G.t) +
+            ' turns \u00b7 gate ' + dd2.total + '/' + nd2 + '</span>';
+          rk.setAttribute('data-sab-act', 'gowarn');
+          rk.setAttribute('aria-label', (rr ? rr.warn : 'A threat') + ' at ' +
+            nameOf(byId[G.warn.id]) + ' — the gate holds ' + dd2.total + ' of ' + nd2 + '; open the city');
+        } else { rk.hidden = true; rk.removeAttribute('data-sab-act'); }
+      }
       D.getElementById('sab-eraname').textContent = e.name;
       D.getElementById('sab-eradate').textContent = 'Era ' + (G.era + 1) + ' · ' + e.dates;
       /* the age grades the light on the land — one filter on the whole wash */
@@ -1283,16 +1472,15 @@
       }
       g.innerHTML = out;
     }
+    /* THE RIVERS RUN QUIET (the founder's call). Boats shuttling every river
+       under the fog pulled the eye off the land and taught nothing; the water
+       keeps its shimmer and nothing sails it. The carts still roll the roads,
+       because a cart on a route IS the meaning of a route — and a port city
+       still keeps its one moored boat, standing still, as the mark of a port. */
     function ensureBoats() {
-      var g = D.getElementById('sab-boats'); if (!g) return;
-      var sp = spOf('boat'), rivers = DATA.rivers || [];
-      if (!sp || REDUCED) { g.innerHTML = ''; boatsN = 0; return; }
-      if (boatsN === rivers.length) return;
-      boatsN = rivers.length;
-      g.innerHTML = rivers.map(function (rv, i) {
-        return '<g class="sab-boat" data-r="sabrv-' + esc(rv.n).replace(/\s+/g, '-') + '" data-i="' + i + '">' +
-          '<image href="' + sp + '" x="-18" y="-26" width="36" height="28" preserveAspectRatio="xMidYMax meet"/></g>';
-      }).join('');
+      var g = D.getElementById('sab-boats');
+      if (g && g.innerHTML) { g.innerHTML = ''; }
+      boatsN = 0;
     }
     function moveAlong(el, path, ts, period, phase) {
       var L = path.getTotalLength(); if (!L) return;
@@ -1313,11 +1501,6 @@
       for (i = 0; i < carts.length; i++) {
         el = carts[i]; path = D.getElementById('sabr-' + el.getAttribute('data-i'));
         if (path) moveAlong(el, path, ts, 24000 + (i % 5) * 3400, i * 4700);
-      }
-      var boats = D.querySelectorAll('#sab-boats .sab-boat');
-      for (i = 0; i < boats.length; i++) {
-        el = boats[i]; path = D.getElementById(el.getAttribute('data-r'));
-        if (path) moveAlong(el, path, ts, 46000 + (i % 4) * 6200, i * 9100);
       }
     }
     /* event sparks at a point on the board — fire and forget, self-removing */
@@ -1471,27 +1654,50 @@
          same game, now watchable. Walk phases are clocked off real time so
          the 3s repaints never reset anyone mid-stride. */
       var heroArt = dioOf(id) || artOf(id);
+      var atlas = plateOf(id);
       var tune = (dioOf(id) && DIO_TUNE[id]) || {};
       if (heroArt) {
         var walkers = '', wi = 0, nowS = Date.now() / 1000;
         if (!q.zzz) {
-          /* the town no longer buzzes: most praja STAND about their work,
-             swaying gently in place; one in three strolls, slowly. Reduced
-             motion keeps the standers (still) and sends the strollers home. */
+          /* THE PRAJA KEEP TO THE STREETS. Every walker is pinned to one of
+             the plate's own traced roads and paces it end to end; the rest
+             stand at spots that lie ON a road or in the plaza. Nobody crosses
+             a roof, a field or the water any more. */
+          var stops = [];
+          if (atlas) {
+            atlas.roads.forEach(function (rd) {
+              for (var si = 0; si < rd.length; si += 2) stops.push(rd[si]);
+            });
+            if (atlas.plaza) { stops.push(atlas.plaza); stops.push(atlas.plaza); }
+          }
           ['kisan', 'karigar', 'kathakar', 'rakshak'].forEach(function (jid) {
             var spw = spOf(jid); if (!spw) return;
             for (var k = 0; k < Math.min(j[jid], 5) && wi < 12; k++) {
               wi++;
-              if (!REDUCED && wi % 3 === 0) {
-                var dur = 48 + ((wi * 9) % 28);
-                walkers += '<img class="sab-walker" src="' + spw + '" alt="" style="' +
+              var ht = 9 + (wi % 4) * 2;
+              if (!REDUCED && wi % 3 === 0 && atlas) {
+                var ri = wi % atlas.roads.length;
+                var dur = 54 + ((wi * 11) % 34);
+                walkers += '<img class="sab-walker onroad" src="' + spw + '" alt="" style="' +
+                  'animation-name:sabrd-' + id + '-' + ri + ',sabwbob;' +
                   'animation-duration:' + dur + 's,1.4s;' +
                   'animation-delay:-' + ((nowS + wi * 3.7) % dur).toFixed(2) + 's,0s;' +
-                  'bottom:' + (1.5 + (wi % 5) * 2.2) + '%;height:' + (9 + (wi % 4) * 2) + '%">';
+                  'height:' + ht + '%">';
+              } else if (!REDUCED && wi % 3 === 0) {
+                var dur2 = 48 + ((wi * 9) % 28);
+                walkers += '<img class="sab-walker" src="' + spw + '" alt="" style="' +
+                  'animation-duration:' + dur2 + 's,1.4s;' +
+                  'animation-delay:-' + ((nowS + wi * 3.7) % dur2).toFixed(2) + 's,0s;' +
+                  'bottom:' + (1.5 + (wi % 5) * 2.2) + '%;height:' + ht + '%">';
+              } else if (stops.length) {
+                var sp2 = stops[(wi * 7) % stops.length];
+                walkers += '<img class="sab-stand onroad" src="' + spw + '" alt="" style="' +
+                  'left:' + sp2[0] + '%;top:' + sp2[1] + '%;height:' + ht + '%;' +
+                  'animation-delay:-' + ((nowS + wi) % 5).toFixed(1) + 's">';
               } else {
                 walkers += '<img class="sab-stand" src="' + spw + '" alt="" style="' +
                   'left:' + (7 + ((wi * 17) % 80)) + '%;' +
-                  'bottom:' + (2 + (wi % 5) * 2.4) + '%;height:' + (9 + (wi % 4) * 2) + '%;' +
+                  'bottom:' + (2 + (wi % 5) * 2.4) + '%;height:' + ht + '%;' +
                   'animation-delay:-' + ((nowS + wi) % 5).toFixed(1) + 's">';
               }
             }
@@ -1509,21 +1715,49 @@
         var scaf = '';
         if (!q.mon && spOf('scaffold')) {
           var mc0 = costOf(T.monCost[s.era], 'monument');
-          var scafStyle = tune.scaf ? ' style="' + tune.scaf + '"' : '';
-          if (q.lv >= 3) {
+          /* the atlas knows where the monument belongs on this painting */
+          var scafCSS = tune.scaf ? tune.scaf
+            : (atlas ? 'left:' + atlas.mon[0] + '%;top:' + atlas.mon[1] +
+                '%;bottom:auto;transform:translate(-50%,-62%)' : '');
+          var scafStyle = scafCSS ? ' style="' + scafCSS + '"' : '';
+          if (q.monB) {
+            /* THE WORK IN HAND. The bamboo climbs in three visible stages and
+               the bar under it fills — a monument is a season's labour now,
+               and a raid at the wrong moment costs you a stage. */
+            var stg = monStage(id);
+            scaf = '<button class="sab-scafbtn building st' + stg + '"' +
+              ' style="' + scafCSS + ';--pc:' + (monPct(id) * 100).toFixed(1) + '%"' +
+              ' data-sab-act="cjump" data-t="sab-sec-works"' +
+              ' aria-label="' + esc(s.works[2]) + ' — rising, stage ' + stg + ' of ' + T.monStages + '">' +
+              '<img src="' + spOf('scaffold') + '" alt=""><em>raising \u00b7 stage ' + stg +
+              ' of ' + T.monStages + '</em></button>';
+          } else if (q.lv >= 3) {
             scaf = '<button class="sab-scafbtn' + (canPay(mc0) ? ' can' : '') + '"' + scafStyle + ' data-sab-act="mon"' +
               (canPay(mc0) ? '' : ' disabled') +
-              ' aria-label="Raise the monument — ' + esc(s.works[2]) + ' (' + costStr(mc0) + ')">' +
+              ' aria-label="Begin the monument — ' + esc(s.works[2]) + ' (' + costStr(mc0) + ')">' +
               '<img src="' + spOf('scaffold') + '" alt=""><em>' +
-              (canPay(mc0) ? 'Raise it! ' : '') + costStr(mc0) + '</em></button>';
+              (canPay(mc0) ? 'Begin it! ' : '') + costStr(mc0) + '</em></button>';
           } else {
             scaf = '<button class="sab-scafbtn"' + scafStyle + ' data-sab-act="cjump" data-t="sab-sec-works"' +
               ' aria-label="' + esc(s.works[2]) + ' — a level-3 city may raise it">' +
               '<img src="' + spOf('scaffold') + '" alt=""><em>grows at level 3</em></button>';
           }
         }
+        /* DUST ON THE HORIZON. When something is coming for this city the
+           plate says so, names it, and counts the watch it has against the
+           watch it needs — twenty seconds to put hands on the gate. */
+        var alarm = '';
+        if (G.warn && G.warn.id === id) {
+          var wr = null; (DATA.raids || []).forEach(function (r3) { if (r3.id === G.warn.raid) wr = r3; });
+          var dfn = defenceOf(id);
+          var need = (wr ? wr.str : 5) + Math.floor(G.era / 3) + (keyCity(id) ? 2 : 0);
+          alarm = '<div class="sab-alarm' + (dfn.total >= need ? ' ready' : '') + '" role="status">' +
+            '<b>\u26a0 ' + esc(wr ? wr.warn : 'Something is coming') + '</b>' +
+            '<span>' + Math.max(0, G.warn.at - G.t) + ' turns \u00b7 the gate holds ' + dfn.total +
+            ' of ' + need + (dfn.help ? ' (' + dfn.help + ' marching in)' : '') + '</span></div>';
+        }
         /* the city banner, the four stations, and the calls of the moment */
-        var plate = '<div class="sab-nameplate"><b>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</b>' +
+        var plate = alarm + '<div class="sab-nameplate"><b>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</b>' +
           '<span>lv ' + q.lv + ' · ' + pop + ' praja · eat ' + (pop * T.eat) + ' 🌾' +
           (y ? ' · ' + ['anna', 'kala', 'katha'].filter(function (k2) { return y[k2]; })
             .map(function (k2) { return '+' + y[k2] + ' ' + ICON[k2]; }).join(' ') : '') + '</span></div>';
@@ -1590,9 +1824,11 @@
            the full explanations). A built one stands on the scene for good,
            and rises once, the first time this sitting sees it. */
         bldSeenInit();
-        var plots = '', PLOT_X = [1, 20, 39.5, 61, 80];
+        /* seven plots now: the granary, the workshop, the school, the bazaar,
+           the stepwell — and the rampart and the fort that keep them all */
+        var plots = '', PLOT_X = [0.5, 14.4, 28.3, 42.2, 56.1, 70, 84];
         Object.keys(BLD).filter(function (b2) { return BLD[b2].era <= G.era; })
-          .slice(0, 5).forEach(function (bid, pi) {
+          .slice(0, 7).forEach(function (bid, pi) {
             var bd = BLD[bid], bsp = spOf(bid), left = PLOT_X[pi];
             var art2 = bsp ? '<img' + (q.bld[bid] ? '' : ' class="ghost"') + ' src="' + bsp + '" alt="">'
                            : '<span style="font-size:26px">' + bd.icon + '</span>';
@@ -1648,8 +1884,10 @@
         var yatri = ySrc2 ? '<div class="sab-yatri" id="sab-yatri" style="left:' + av.x +
           '%;top:' + av.y + '%"><img src="' + ySrc2 + '" alt=""></div>' : '';
         h += '<div class="sab-scene">' +
+          (atlas ? '<style>' + roadKeyframes(id) + '</style>' : '') +
           '<div class="sab-cam" id="sab-cam" style="transform:' + camStr() + '">' +
           '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">' +
+          greenLayer(id) +
           '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
           scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri +
           '</div>' +
@@ -1916,32 +2154,62 @@
       var tz = (DATA.treasures || {})[city];
       if (tz && !G.tre[city] && Math.hypot(tz.x - av.x, tz.y - av.y) < 9) findKhazana();
     }
+    /* THE YATRI WALKS THE STREETS. A tap is a destination, not a teleport:
+       the nearest road node to where you stand is joined to the nearest node
+       to where you tapped, Dijkstra finds the way between them, and the walk
+       follows that street. The last few steps may leave the road — you step
+       off the path to reach a doorway or dig a khazana — but never more than
+       a short hop. A plate with no atlas keeps the old straight line. */
+    var walkQ = null;
+    function walkStep() {
+      var el = D.getElementById('sab-yatri');
+      if (!el || !walkQ || !walkQ.length) {
+        walkQ = null; walkTimer = null;
+        if (el) el.classList.remove('walking');
+        arrive(); return;
+      }
+      var pt = walkQ.shift();
+      var dx = pt[0] - av.x, dist = Math.hypot(dx, pt[1] - av.y);
+      if (dx) el.classList.toggle('flip', dx < 0);
+      av.x = pt[0]; av.y = pt[1];
+      var dur = Math.max(0.18, dist / 26);
+      el.style.transition = 'left ' + dur + 's linear,top ' + dur + 's linear';
+      el.classList.add('walking');
+      el.style.left = av.x + '%'; el.style.top = av.y + '%';
+      camFollow();
+      walkTimer = setTimeout(walkStep, dur * 1000 + 30);
+    }
     function walkTo(px, py) {
       var el = D.getElementById('sab-yatri');
       if (!el || !city) return;
-      /* the walkable ground: the street band of the plate, never the sky */
-      px = Math.max(3, Math.min(97, px)); py = Math.max(30, Math.min(94, py));
-      var dx = px - av.x, dist = Math.hypot(px - av.x, py - av.y);
+      px = Math.max(3, Math.min(97, px)); py = Math.max(8, Math.min(96, py));
       if (walkTimer) { clearTimeout(walkTimer); walkTimer = null; }
-      if (dx) el.classList.toggle('flip', dx < 0);
-      av.x = px; av.y = py;
-      if (dist < 1) { arrive(); return; }
-      if (REDUCED) {   /* no motion: they simply stand where you asked */
+      walkQ = null;
+      var route = [], g = roadGraph(city);
+      if (g && g.nodes.length) {
+        var from = nearestNode(g, av.x, av.y), to = nearestNode(g, px, py);
+        var path = roadPath(g, from.i, to.i);
+        if (path) {
+          for (var i = 0; i < path.length; i++) route.push(g.nodes[path[i]].slice());
+          /* the last hop off the street, kept short so nobody wanders */
+          if (to.d > 1.5) {
+            var last = route[route.length - 1];
+            var hop = Math.min(to.d, 10) / to.d;
+            route.push([last[0] + (px - last[0]) * hop, last[1] + (py - last[1]) * hop]);
+          }
+        }
+      }
+      if (!route.length) route = [[px, py]];
+      if (REDUCED) {   /* no motion: they simply stand at the end of the road */
+        var end = route[route.length - 1];
         el.style.transition = 'none';
-        el.style.left = px + '%'; el.style.top = py + '%';
+        if (end[0] !== av.x) el.classList.toggle('flip', end[0] < av.x);
+        av.x = end[0]; av.y = end[1];
+        el.style.left = av.x + '%'; el.style.top = av.y + '%';
         camFollow(); arrive(); return;
       }
-      var dur = Math.max(0.4, dist / 26);
-      el.style.transition = 'left ' + dur + 's linear,top ' + dur + 's linear';
-      el.classList.add('walking');
-      el.style.left = px + '%'; el.style.top = py + '%';
-      camFollow();
-      walkTimer = setTimeout(function () {
-        walkTimer = null;
-        var el2 = D.getElementById('sab-yatri');
-        if (el2) el2.classList.remove('walking');
-        arrive();
-      }, dur * 1000 + 60);
+      walkQ = route;
+      walkStep();
     }
     function findKhazana() {
       if (!city || G.tre[city]) return;
@@ -1967,12 +2235,16 @@
         if (t.era > G.era) return '';
         var have = !!G.tech[t.id], c = costOf(t.cost, 'tech');
         var va = artOf('vidya-' + t.id);
-        return '<div class="sab-work' + (have ? ' built' : ' now') + '">' +
+        var busy = G.proj && G.proj.id === t.id;
+        return '<div class="sab-work' + (have ? ' built' : busy ? ' now atwork' : ' now') + '">' +
           (va ? '<img class="sab-vthumb" src="' + va + '" alt=""' + (have ? '' : ' style="filter:grayscale(.8)"') + '>' : '<i>' + (have ? '✓' : '?') + '</i>') +
-          '<span><b>' + esc(t.name) + '</b> · <span class="tiny" style="color:var(--muted)">' + esc(t.what) + '</span></span>' +
+          '<span><b>' + esc(t.name) + '</b> · <span class="tiny" style="color:var(--muted)">' + esc(t.what) + '</span>' +
+          (busy ? '<span class="sab-projbar" style="--pc:' + (projPct() * 100).toFixed(1) + '%">' +
+            '<i></i><b>' + Math.round(projPct() * 100) + '%</b></span>' : '') + '</span>' +
           '<span style="flex:1"></span>' +
-          (have ? '' : '<button class="sab-btn" data-sab-act="tech" data-t="' + t.id + '"' +
-            (canPay(c) ? '' : ' disabled') + '>' + costStr(c) + '</button>') +
+          (have ? '' : busy ? '<span class="tiny" style="color:var(--accent);font-weight:800">at work</span>'
+            : '<button class="sab-btn" data-sab-act="tech" data-t="' + t.id + '"' +
+            (canPay(c) && !G.proj ? '' : ' disabled') + '>' + costStr(c) + '</button>') +
           '</div>';
       }).join('');
       /* SUTRAS — the threads through the ages, drawn as malas filling bead by
@@ -2212,7 +2484,315 @@
     /* ================================================================
        THE TICK — one second of the world
        ================================================================ */
+    /* ==================================================================
+       RAKSHA — the warning, the blow, and what stands in its way.
+
+       House rule, unchanged and load-bearing: nothing here has a face. A
+       threat is a banner on the horizon, a line of dust, a rising river.
+       What the player sees is the NAME of a real pressure of the age and
+       twenty seconds to do something about it.
+       ================================================================== */
+    function keyCity(id) {
+      if (G.capital === id) return true;
+      if (G.kingdoms && G.kingdoms[id]) return true;
+      return PORTS.indexOf(id) >= 0;
+    }
+    /* every watcher this city can call on when the dust rises */
+    function defenceOf(id) {
+      var q2 = G.sites[id]; if (!q2) return { own: 0, wall: 0, help: 0, total: 0, from: [] };
+      var own = jobsOf(id).rakshak;
+      var wall = (q2.bld.prakara ? T.wallGuard : 0) + (q2.bld.durg ? T.fortGuard : 0);
+      /* the neighbours march: half the idle watch of every city joined to this
+         one by a road short enough to cross in time. Roads are defence. */
+      var help = 0, from = [], me = byId[id];
+      (G.routes || []).forEach(function (r2) {
+        var other = r2[0] === id ? r2[1] : (r2[1] === id ? r2[0] : null);
+        if (!other || !G.sites[other] || G.sites[other].zzz) return;
+        var o = byId[other];
+        if (Math.hypot(o.x - me.x, o.y - me.y) > T.helpRange) return;
+        var sent = Math.floor(jobsOf(other).rakshak / 2);
+        if (sent > 0) { help += sent; from.push(nameOf(o)); }
+      });
+      return { own: own, wall: wall, help: help, total: own + wall + help, from: from };
+    }
+    function threatPool() {
+      return (DATA.raids || []).filter(function (r2) {
+        return r2.era[0] <= G.era && G.era <= r2.era[1];
+      });
+    }
+    /* DUST ON THE HORIZON. The city is named, the banner is named, and the
+       clock starts — this is the twenty seconds the whole defence game
+       lives inside. */
+    function raiseWarning() {
+      var towns = SITES.filter(function (x) { return inEra(x) && awake(x.id) && !isHer(x.id); });
+      if (!towns.length) return;
+      /* the great cities are the prize: weight them and they come under
+         pressure the way real capitals and ports did */
+      var bag = [];
+      towns.forEach(function (x) {
+        var w = keyCity(x.id) ? T.keyWeight : 1;
+        for (var i = 0; i < w; i++) bag.push(x);
+      });
+      var tgt = bag[(G.t * 17 + bag.length) % bag.length];
+      var pool = threatPool(); if (!pool.length) return;
+      var raid = pool[(G.t * 5) % pool.length];
+      /* a park wonder keeps the beasts off; a watchtower doubles the warning */
+      if (raid.kind === 'beast' && wonderGuard(tgt.id, 'beast')) return;
+      var lead = wonderGuard(tgt.id, 'watch') ? T.warnTower : T.warnTicks;
+      G.warn = { id: tgt.id, raid: raid.id, at: G.t + lead, lead: lead };
+      G.lastraid = G.t;
+      fxAt(tgt.x, tgt.y, 'mist');
+      say('\u26a0 ' + raid.warn + ' \u2014 ' + nameOf(tgt) + ' has a little time. ' +
+          'Put rakshaks on the gate, or raise a wall.', 'mist');
+      paintAll();
+    }
+    /* THE BLOW. Held, and the city has a story worth telling; not held, and
+       it is hurt in ways a child can see on the plate. */
+    function strikeNow() {
+      var w = G.warn; G.warn = null;
+      if (!w) return;
+      var tgt = byId[w.id], q2 = G.sites[w.id];
+      if (!tgt || !q2 || q2.zzz || isHer(w.id)) { paintAll(); return; }
+      var raid = null; (DATA.raids || []).forEach(function (r2) { if (r2.id === w.raid) raid = r2; });
+      if (!raid) { paintAll(); return; }
+      var d = defenceOf(w.id);
+      var str = raid.str + Math.floor(G.era / 3) + (keyCity(w.id) ? 2 : 0);
+      if (d.total >= str) {
+        var pay2 = 10 + str * 2;
+        G.res.katha += pay2; G.score += 15;
+        q2.held = (q2.held || 0) + 1;
+        fxAt(tgt.x, tgt.y, 'utsav');
+        say(raid.what + ' at ' + nameOf(tgt) + ' \u2014 but ' + raid.fended +
+            (d.help ? ', and ' + d.from.join(' and ') + ' sent watchers down the road' : '') +
+            '. The story is worth ' + pay2 + ' \ud83d\udcdc.', 'warm');
+        paintAll(); if (city === w.id) paintCity();
+        return;
+      }
+      /* it is through the gate */
+      var short = str - d.total;
+      var hurt = [];
+      fxAt(tgt.x, tgt.y, 'mist');
+      if (raid.hits === 'fade') { if (q2.fade < 0) q2.fade = 0; hurt.push('the lamps gutter'); }
+      else {
+        /* the loot is felt at any wealth: a flat bite for a young realm and a
+           share of the store for a fat one, so a sacking always costs a season */
+        var flat = (T.raidBase + G.era * 3) * short / 2;
+        var share = G.res[raid.hits] * 0.07 * short;
+        var loss = Math.min(G.res[raid.hits] * 0.45, Math.max(3, flat + share)) | 0;
+        if (keyCity(w.id)) loss = Math.min(G.res[raid.hits] * 0.6, loss * 2) | 0;
+        G.res[raid.hits] = Math.max(0, G.res[raid.hits] - loss);
+        hurt.push(loss + ' ' + ICON[raid.hits] + ' carried off');
+      }
+      /* a building is thrown down — the fort is the last thing to go */
+      var order = ['bazaar', 'workshop', 'gurukul', 'granary', 'stepwell', 'prakara', 'durg'];
+      for (var bi = 0; bi < order.length; bi++) {
+        if (q2.bld[order[bi]]) {
+          delete q2.bld[order[bi]];
+          if (bldSeen) delete bldSeen[w.id + ':' + order[bi]];
+          hurt.push('the ' + DATA.buildings[order[bi]].name.toLowerCase() + ' is thrown down');
+          break;
+        }
+      }
+      /* and a monument still rising loses a stage — unless a fort shelters it */
+      if (q2.monB && !q2.bld.durg) {
+        var back = Math.round(q2.monB.dur / T.monStages);
+        q2.monB.at = Math.min(G.rt, q2.monB.at + back);
+        hurt.push('the scaffolding comes down a stage');
+      }
+      q2.neg = Math.max(q2.neg, negLimit(w.id));
+      q2.sack = (q2.sack || 0) + 1;
+      if (q2.sack >= T.sackSleep) {
+        q2.zzz = true; q2.sack = 0; q2.jobs = null;
+        say(raid.what + ' at ' + nameOf(tgt) + ' \u2014 ' + hurt.join(', ') +
+            '. Sacked three times over, the city has gone quiet. Wake it again when you can.', 'mist');
+      } else {
+        say(raid.what + ' at ' + nameOf(tgt) + ' \u2014 ' + hurt.join(', ') +
+            '. It needed ' + str + ' on the gate and had ' + d.total +
+            '. Rakshaks, a prakara, a road from a neighbour \u2014 any of them would have held it.', 'mist');
+      }
+      paintAll(); if (city === w.id) paintCity();
+    }
+    /* ==================================================================
+       THE WONDERS OF THE LAND — Bhugol, walked into the game.
+
+       A hundred and twenty two of the four hundred real places on the
+       physical map are marked as wonders. They lie hidden on the Sabhyata
+       board until a scout walks near one; then it opens its own picture card,
+       joins the realm, and gives the nearest city a standing gift for the
+       rest of the game. A waterfall turns a wheel; a park keeps the beasts
+       off; a lake means the drought never bites; a peak is a watchtower that
+       sees the dust two turns early. Nothing is invented: every gift is the
+       thing that place actually does for the country around it.
+       ================================================================== */
+    var WONDER_GIFT = { anna: 'anna', kala: 'kala', katha: 'katha', akal: 'akal', watch: 'watch',
+                        beast: 'beast' };
+    var WONDER_SAY = {
+      anna: '+2 \ud83c\udf3e to the nearest city, every turn',
+      kala: '+2 \ud83d\udee0\ufe0f to the nearest city, every turn',
+      katha: '+2 \ud83d\udcdc to the nearest city, every turn',
+      akal: 'the nearest city never thirsts again',
+      watch: 'a watchtower \u2014 the dust is seen twice as early'
+    };
+    var WONDER_FIND = 90;      /* map units a scout's eye carries */
+    function wonderList() {
+      var B = W.IND_BHUGOL;
+      if (!B) return [];
+      if (!wonderList._c) wonderList._c = B.features.filter(function (f) { return f.w; });
+      return wonderList._c;
+    }
+    function wonderById(wid) {
+      var l = wonderList();
+      for (var i = 0; i < l.length; i++) if (l[i].id === wid) return l[i];
+      return null;
+    }
+    /* a park found is a park that keeps the beasts out of the wheat */
+    function giftKind(f) { return f.w === 'anna' && f.t === 'park' ? 'beast' : f.w; }
+    function nearestCity(f) {
+      var best = null, bd = 1e9;
+      SITES.forEach(function (s2) {
+        if (!inEra(s2) || !awake(s2.id)) return;
+        var d = Math.hypot(s2.x - f.x, s2.y - f.y);
+        if (d < bd) { bd = d; best = s2; }
+      });
+      return best;
+    }
+    /* the standing gift a city collects from every wonder near it */
+    function wonderYield(id) {
+      var out = { anna: 0, kala: 0, katha: 0 };
+      var me = byId[id]; if (!me) return out;
+      Object.keys(G.wonders || {}).forEach(function (wid) {
+        var f = wonderById(wid); if (!f) return;
+        if (Math.hypot(f.x - me.x, f.y - me.y) > 150) return;
+        var k = f.w;
+        if (k === 'anna' || k === 'kala' || k === 'katha') out[k] += 2;
+      });
+      return out;
+    }
+    function wonderDry(id) {   /* a lake or a wetland: this city never thirsts */
+      var me = byId[id]; if (!me) return false;
+      var hit = false;
+      Object.keys(G.wonders || {}).forEach(function (wid) {
+        var f = wonderById(wid); if (!f) return;
+        if (f.w === 'akal' && Math.hypot(f.x - me.x, f.y - me.y) <= 150) hit = true;
+      });
+      return hit;
+    }
+    /* every step a scout takes, it looks around */
+    function scoutLook(ex) {
+      var found = null;
+      wonderList().some(function (f) {
+        if (G.wonders[f.id]) return false;
+        if ((f.we || 0) > G.era) return false;              /* not known in this age yet */
+        if (Math.hypot(f.x - ex.x, f.y - ex.y) > WONDER_FIND) return false;
+        found = f; return true;
+      });
+      if (!found) return null;
+      G.wonders[found.id] = G.t;
+      G.res.katha += 20; G.score += 25;
+      var near = nearestCity(found);
+      var pic = (W.IND_BHUGOL_PHOTOS || {})[found.id];
+      var art2 = pic ? 'art/bhugol/ph/' + pic.file
+        : ((W.IND_BHUGOL_ART || []).indexOf(found.id) >= 0 ? 'art/bhugol/' + found.id + '.jpg' : null);
+      var kind = giftKind(found);
+      showOverlay('<div class="mono" style="color:var(--accent2)">\u2726 a wonder of the land</div>' +
+        '<h3>' + esc(found.n) + '</h3>' +
+        (art2 ? '<img class="sab-cardart" src="' + art2 + '" alt="">' : '') +
+        '<p>' + esc(found.f) + '</p>' +
+        '<p class="tiny" style="color:var(--accent);font-weight:700">+20 \ud83d\udcdc \u2014 and ' +
+        (kind === 'beast' ? 'no beast troubles ' + (near ? esc(nameOf(near)) : 'the towns near it') + ' again'
+                          : (WONDER_SAY[kind] || 'a gift for the land')) + '</p>' +
+        '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Wonderful</button></div>');
+      say('Your scout has found ' + found.n + '!', 'warm');
+      return found;
+    }
+
+    /* a wonder's standing gift, once the scouts have found it (Bhugol) */
+    function wonderGuard(id, kind) {
+      var W2 = G.wonders || {};
+      var me = byId[id]; if (!me) return false;
+      var hit = false;
+      Object.keys(W2).forEach(function (wid) {
+        var f = wonderById(wid); if (!f) return;
+        if (WONDER_GIFT[f.t] !== kind) return;
+        if (Math.hypot(f.x - me.x, f.y - me.y) <= 150) hit = true;
+      });
+      return hit;
+    }
+
+    /* ---- the works in hand: what is being learned, what is being raised ---- */
+    function schools() {
+      var k = 0;
+      SITES.forEach(function (s2) { var q2 = G.sites[s2.id]; if (q2 && q2.bld && q2.bld.gurukul) k++; });
+      return k;
+    }
+    function techDur() {
+      var base = T.techTicks + T.techEra * G.era;
+      var cut = Math.max(T.techFloor, 1 - schools() * T.techSchool);
+      return Math.max(4, Math.round(base * cut));
+    }
+    function monDur(id) {
+      var s2 = byId[id];
+      var base = T.monTicks + T.monEra * s2.era;
+      var cut = Math.max(T.monFloor, 1 - jobsOf(id).karigar * T.monHand);
+      return Math.max(6, Math.round(base * cut));
+    }
+    function projPct() {
+      if (!G.proj) return 0;
+      return Math.max(0, Math.min(1, (G.rt - G.proj.at) / G.proj.dur));
+    }
+    function monPct(id) {
+      var q2 = G.sites[id];
+      if (!q2 || !q2.monB) return 0;
+      return Math.max(0, Math.min(1, (G.rt - q2.monB.at) / q2.monB.dur));
+    }
+    function monStage(id) { return Math.min(T.monStages, Math.floor(monPct(id) * T.monStages) + 1); }
+    /* one beat of the workshops and the school, whatever screen is open */
+    function progressWorks() {
+      G.rt++;
+      if (G.proj && projPct() >= 1) {
+        var td = null; TECHS.forEach(function (t2) { if (t2.id === G.proj.id) td = t2; });
+        G.tech[G.proj.id] = true; G.proj = null; G.score += 30;
+        if (td) say(td.name + ' — learned at last! ' + td.what, 'warm');
+        if (techOpen) paintTech();
+        paintAll();
+      }
+      var done = null;
+      SITES.forEach(function (s2) {
+        var q2 = G.sites[s2.id];
+        if (q2 && q2.monB && !q2.mon && monPct(s2.id) >= 1) { q2.mon = true; q2.monB = null; done = s2; }
+      });
+      if (done) {
+        touch(done.id); G.score += 60; G.res.katha += 10;
+        grant(15, 'a monument raised');
+        say(done.works[2].charAt(0).toUpperCase() + done.works[2].slice(1) + ' — ' + nameOf(done) +
+            ' has raised its monument. Stone remembers.', 'warm');
+        if (city === done.id) paintCity();
+        paintAll();
+      } else if (city && G.sites[city] && G.sites[city].monB) {
+        paintBuildBar();
+      } else if (G.proj && techOpen) {
+        paintProjBar();
+      }
+    }
+    /* cheap in-place refreshes so a full repaint never fights the animation */
+    function paintBuildBar() {
+      var el = D.querySelector('.sab-scafbtn'); if (!el || !city) return;
+      var pc = monPct(city), st2 = monStage(city);
+      el.className = 'sab-scafbtn building st' + st2;
+      var em = el.querySelector('em');
+      if (em) em.textContent = 'raising \u00b7 stage ' + st2 + ' of ' + T.monStages;
+      el.style.setProperty('--pc', (pc * 100).toFixed(1) + '%');
+    }
+    function paintProjBar() {
+      var el = D.querySelector('.sab-projbar'); if (!el) return;
+      el.style.setProperty('--pc', (projPct() * 100).toFixed(1) + '%');
+      var lab = el.querySelector('b');
+      if (lab) lab.textContent = Math.round(projPct() * 100) + '%';
+    }
     function tick() {
+      /* the works advance wherever the player is standing — pause is pause,
+         but a city screen no longer freezes the masons and the school */
+      if (!(pause || G.won || dead)) progressWorks();
       if (pause || overlay || city || techOpen || G.won || dead) return;   /* inside a city or the vidya panel, time waits */
       G.t++;
       if (G.utsav > 0) G.utsav--;
@@ -2241,7 +2821,7 @@
          around their lamp; arriving, the place is FOUND — visible, asleep, ready
          for a road. Discovery is its own reward: the finding pays katha. */
       if (G.explorers.length) {
-        var arrived = [];
+        var arrived = [], found2 = null;
         G.explorers.forEach(function (ex) {
           var t2 = byId[ex.target];
           if (!t2 || found(ex.target)) { ex.done = true; return; }
@@ -2249,6 +2829,7 @@
           var spd = T.exploreSpeed * (G.tech.satellite ? 2 : 1);   /* an eye in the sky finds the way */
           if (d <= spd) { ex.x = t2.x; ex.y = t2.y; ex.done = true; arrived.push(ex.target); }
           else { ex.x += dx / d * spd; ex.y += dy / d * spd; }
+          if (!found2) found2 = scoutLook(ex);      /* one wonder a turn, at most */
         });
         G.explorers = G.explorers.filter(function (ex) { return !ex.done; });
         arrived.forEach(function (id) {
@@ -2269,31 +2850,9 @@
          human raider is somebody's ancestor, and this game does not do enemies with
          faces. Rakshaks fend a raid off completely, and the fending is always
          gentle — drums, torches, lanterns, mended fences. */
-      if (G.t - G.lastraid >= T.raidEvery && !(G.calmUntil > G.t)) {   /* ahimsa holds */
-        var towns = SITES.filter(function (x) { return inEra(x) && awake(x.id) && !isHer(x.id); });
-        if (towns.length) {
-          var tgt = towns[(G.t * 17) % towns.length];
-          var pool = DATA.raids.filter(function (r) { return r.minEra <= G.era; });
-          var raid = pool[(G.t * 5) % pool.length];
-          var guards = jobsOf(tgt.id).rakshak;
-          G.lastraid = G.t;
-          if (guards >= T.raidGuard || G.sites[tgt.id].mon) {
-            G.res.katha += 10; G.score += 10;
-            fxAt(tgt.x, tgt.y, 'utsav');   /* the fending is a small celebration */
-            say(raid.what + ' at ' + tgt.name + ' — but ' + raid.fended + '. The story is worth 10 \ud83d\udcdc.', 'warm');
-          } else if (raid.hits === 'fade') {
-            var qf = G.sites[tgt.id]; if (qf.fade < 0) qf.fade = 0;
-            fxAt(tgt.x, tgt.y, 'mist');
-            say(raid.what + ' at ' + tgt.name + ' — with no rakshaks on watch, the lamps gutter. Reach it!', 'mist');
-          } else {
-            var loss = T.raidBase + G.era * 4 - guards * 3;
-            fxAt(tgt.x, tgt.y, 'mist');
-            G.res[raid.hits] = Math.max(0, G.res[raid.hits] - Math.max(0, loss));
-            var qt = G.sites[tgt.id]; qt.neg = Math.max(qt.neg, negLimit(tgt.id));
-            say(raid.what + ' at ' + tgt.name + ' — ' + Math.max(0, loss) + ' ' + ICON[raid.hits] +
-                ' carried off. A rakshak or two on watch would have turned them.', 'mist');
-          }
-        }
+      if (G.warn && G.t >= G.warn.at) { strikeNow(); }
+      else if (!G.warn && G.t - G.lastraid >= T.raidEvery && !(G.calmUntil > G.t)) {   /* ahimsa holds */
+        raiseWarning();
       }
 
       /* AKAL — the rains fail somewhere. Impersonal like everything else that
@@ -2303,7 +2862,7 @@
         var dryable = SITES.filter(function (x) {
           var qx = G.sites[x.id];
           return inEra(x) && awake(x.id) && !isHer(x.id) && x.kind === 'kheti' &&
-            !qx.bld.stepwell && !(qx.dry > 0);
+            !qx.bld.stepwell && !wonderDry(x.id) && !(qx.dry > 0);
         });
         if (dryable.length) {
           var dt = dryable[(G.t * 13) % dryable.length];
@@ -2600,16 +3159,24 @@
           say(bd.name + ' raised in ' + byId[city].name + '.', 'warm');
           paintCity(); paintAll(); return;
         }
+        if (a === 'gowarn') {
+          if (!G.warn || !byId[G.warn.id]) return;
+          sel = G.warn.id; targeting = false;
+          act('city'); return;
+        }
         if (a === 'mon' && city) {
           flashSec(actEl.getAttribute('data-t'));
           var qm = G.sites[city], sm = byId[city];
           if (qm.mon || qm.lv < 3) return;
           var mc = costOf(T.monCost[sm.era], 'monument');
           if (!canPay(mc)) return;
-          pay(mc); qm.mon = true; touch(city); G.score += 60; G.res.katha += 10;
-          grant(15, 'a monument raised');
-          say(sm.works[2].charAt(0).toUpperCase() + sm.works[2].slice(1) + ' — ' + sm.name +
-              ' has raised its monument. Stone remembers.', 'warm');
+          if (qm.monB) return;
+          pay(mc);
+          qm.monB = { at: G.rt, dur: monDur(city) };
+          var hands = jobsOf(city).karigar;
+          say('The foundation is laid at ' + sm.name + '. ' +
+            (hands ? hands + ' karigar' + (hands > 1 ? 's' : '') + ' on the work — put more hands here and it rises faster.'
+                   : 'No karigars here yet — assign some and the work speeds up.'), 'warm');
           paintCity(); paintAll(); return;
         }
         if (a === 'cap' && city) {
@@ -2668,8 +3235,13 @@
           if (!td || G.tech[tid] || td.era > G.era) return;
           var tc = costOf(td.cost, 'tech');
           if (!canPay(tc)) return;
-          pay(tc); G.tech[tid] = true; G.score += 30;
-          say(td.name + '! ' + td.what, 'warm');
+          if (G.proj) { say('The school is already at work on ' +
+            (function () { var o = ''; TECHS.forEach(function (t2) { if (t2.id === G.proj.id) o = t2.name; }); return o; })() +
+            '. One thing at a time.', 'warm'); return; }
+          pay(tc);
+          G.proj = { id: tid, at: G.rt, dur: techDur() };
+          say(td.name + ' — the school begins. ' + (schools() ? schools() + ' gurukul' + (schools() > 1 ? 's' : '') +
+            ' at work; it' : 'It') + ' will take a while.', 'warm');
           paintTech(); paintAll(); return;
         }
         if (a === 'techclose') { techOpen = false; paintTech(); paintAll(); return; }
@@ -2780,6 +3352,8 @@
     G.quests = G.quests || {}; G.qdone = G.qdone || 0; G.lastq = G.lastq || 0;
     G.tech = G.tech || {}; G.capital = G.capital || null; G.disp = G.disp || null;
     G.lastd = G.lastd || 0; G.quizAt = G.quizAt || {}; G.quizN = G.quizN || 0;
+    G.rt = G.rt || 0; if (G.proj === undefined) G.proj = null;
+    if (G.warn === undefined) G.warn = null; G.wonders = G.wonders || {};
     G.kingdoms = G.kingdoms || {}; G.lastraid = G.lastraid || 0; G.explorers = G.explorers || [];
     /* the later ages' fields, absent on older saves — and the later ages'
        CITIES, which an old save has never heard of: they arrive asleep under
@@ -2837,6 +3411,14 @@
        keyboard only works after a click is a game with no keyboard (house rule). The
        teardown removes it, and `dead` guards the gap. */
     D.addEventListener('keydown', onKey, true);
+    /* a debug window, not an API — the same idiom the carrom board uses, so a
+       headless check can read the real clock instead of guessing at pixels */
+    W.__SABG = function () { return G; };
+    W.__SAB = function () {
+      return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
+               overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,
+               era: G.era, proj: G.proj };
+    };
     timer = setInterval(tick, TICK_MS);
     if (!REDUCED) lifeRAF = requestAnimationFrame(lifeStep);
 

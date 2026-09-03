@@ -111,7 +111,14 @@ window.IND_SABHYATA = {
     bazaar:   { name: 'Bazaar',   icon: '⚖️', era: 1, cost: { kala: 35 },
                 what: '+1 of everything while the city is on a route.' },
     stepwell: { name: 'Stepwell', icon: '💧', era: 2, cost: { kala: 30, anna: 15 },
-                what: 'The city weathers neglect three times longer.' }
+                what: 'The city weathers neglect three times longer.' },
+    /* DEFENCE IS A BUILDING NOW. A wall is worth two watchers on the gate and
+       a fort worth four, and the fort also shelters a monument still rising —
+       which is why the great cities of every age put one up first. */
+    prakara:  { name: 'Prakara', icon: '🧱', era: 1, cost: { kala: 40, anna: 20 },
+                what: 'A rampart: worth two more rakshaks when something comes.' },
+    durg:     { name: 'Durg',    icon: '🏰', era: 3, cost: { kala: 60, anna: 30 },
+                what: 'A fort: worth four more rakshaks, and it shelters a monument being raised.' }
   },
 
   /* Techs: two choices an era, and the coins rarely stretch to both at once —
@@ -186,17 +193,122 @@ window.IND_SABHYATA = {
 
   /* RAIDS — the wilds test the granaries, never people. Real, era-honest hazards a
      child can meet without fear; each names what the rakshaks actually do. */
+  /* WHAT COMES TO THE GATE, AGE BY AGE.
+
+     The house rule holds and is the reason this table exists at all: a raid is
+     dust on the horizon and a banner, never a painted people. No face, no
+     costume, no enemy a child could point at in a classroom. Faith is never
+     the threat. Where a force is named it is named as history names it — the
+     Hunas, the Mongol raids, Timur's army, Nadir Shah's — and the naming is
+     the teaching: these things happened to cities that then rebuilt.
+
+     Two ages carry the editorial policy's colonial-violence flag (docs/05 §6).
+     Until a named human reviewer signs their human threats off, those ages
+     face only what nobody argues about: fire, storm, famine and sickness.
+
+       era   which age it belongs to        str  how hard it presses
+       hits  which store it empties         warn the banner it flies
+
+     Sources are the standard record: Skandagupta's Bhitari pillar inscription
+     for the Huna wars; Barani and Amir Khusrau for the Mongol raids on Delhi;
+     the Timur campaign of 1398; Nadir Shah's of 1739; Sangam and Chola-era
+     accounts of coastal raiding; famine and epidemic commission reports for
+     the nineteenth century. */
   raids: [
-    { id: 'boar',    minEra: 0, hits: 'anna', what: 'Wild boar are in the wheat at night',
+    /* — the ages of nature and neighbours — */
+    { id: 'boar',    era: [0, 2], hits: 'anna', str: 2, kind: 'beast',
+      what: 'Wild boar are in the wheat at night', warn: 'Something is moving in the fields',
       fended: 'the rakshaks drum and wave torches till the boar trot back to the forest' },
-    { id: 'elephant',minEra: 0, hits: 'anna', what: 'A wild elephant herd has found the grain stores',
+    { id: 'elephant',era: [0, 4], hits: 'anna', str: 3, kind: 'beast',
+      what: 'A wild elephant herd has found the grain stores', warn: 'The forest edge is crashing',
       fended: 'the rakshaks guide the herd away with lanterns, drums and a clear path out' },
-    { id: 'locust',  minEra: 1, hits: 'anna', what: 'A locust cloud is settling on the fields',
+    { id: 'dryriver',era: [0, 1], hits: 'anna', str: 3, kind: 'nature',
+      what: 'The river is running thin and the fields are cracking',
+      warn: 'The water is falling at the ghats',
+      fended: 'the reservoirs and the stepwell hold, and the town drinks through it' },
+    { id: 'flood',   era: [0, 3], hits: 'kala', str: 3, kind: 'nature',
+      what: 'The river has come over its banks into the lanes',
+      warn: 'The river is rising fast',
+      fended: 'the rakshaks raise the bunds and carry the stores to high ground in time' },
+    { id: 'locust',  era: [1, 5], hits: 'anna', str: 3, kind: 'beast',
+      what: 'A locust cloud is settling on the fields', warn: 'A brown cloud is coming over the fields',
       fended: 'everyone under the rakshaks\u2019 lead beats pans and smokes the swarm onward' },
-    { id: 'storm',   minEra: 2, hits: 'kala', what: 'A storm off the sea is battering the workshops',
-      fended: 'the rakshaks had lashed the roofs and hauled the boats high already' },
-    { id: 'mist',    minEra: 0, hits: 'fade', what: 'Vismriti itself pushes at the lamps',
-      fended: 'the rakshaks walk the lanes all night relighting every lamp that gutters' }
+    { id: 'warband', era: [1, 2], hits: 'kala', str: 5, kind: 'human',
+      what: 'A rival janapada\u2019s war-band is at the boundary stone',
+      warn: 'Dust on the boundary road — a neighbouring janapada rides',
+      fended: 'the rakshaks hold the gate and the elders talk them back across the boundary' },
+    { id: 'rivalking',era: [2, 4], hits: 'kala', str: 6, kind: 'human',
+      what: 'A rival kingdom\u2019s army is camped a day away',
+      warn: 'A rival kingdom\u2019s standards are a day away',
+      fended: 'the walls are manned, the granary is deep, and the camp strikes its tents' },
+    { id: 'frontier',era: [2, 2], hits: 'kala', str: 6, kind: 'human',
+      what: 'Armies from the northwest frontier are on the royal road',
+      warn: 'Word from the northwest: an army is on the royal road',
+      fended: 'the frontier is held and the envoys are sent home with gifts instead' },
+    { id: 'huna',    era: [3, 3], hits: 'kala', str: 8, kind: 'human',
+      what: 'The Hunas ride from the northwest', warn: 'Riders from the northwest — the Hunas',
+      fended: 'the gates hold and the riders turn away, as Skandagupta\u2019s pillar remembers it' },
+    { id: 'searaid', era: [4, 6], hits: 'kala', str: 6, kind: 'human',
+      what: 'Raiders have come off the sea into the harbour',
+      warn: 'Strange sails on the horizon',
+      fended: 'the harbour chain goes up and the fishing fleet warns the town in time' },
+    { id: 'mongol',  era: [5, 5], hits: 'kala', str: 9, kind: 'human',
+      what: 'Mongol raiders are across the river', warn: 'The Mongol raiders are across the river',
+      fended: 'the city gates hold through the season and the raiders ride back north' },
+    { id: 'timur',   era: [5, 5], hits: 'katha', str: 11, kind: 'human',
+      what: 'Timur\u2019s army is at the gates', warn: 'Timur\u2019s army is three days away',
+      fended: 'the walls hold, the libraries are carried to the fort, and the city survives its worst year' },
+    { id: 'deccan',  era: [6, 6], hits: 'kala', str: 8, kind: 'human',
+      what: 'The Deccan kingdoms have made an alliance against this city',
+      warn: 'The Deccan kingdoms are gathering',
+      fended: 'the bazaars close, the fort holds, and the alliance falls out among itself' },
+    { id: 'nadir',   era: [7, 7], hits: 'katha', str: 10, kind: 'human',
+      what: 'Nadir Shah\u2019s army has entered the capital',
+      warn: 'An army out of the northwest is a week from the capital',
+      fended: 'the treasury is emptied into the fort and the city keeps its people' },
+    { id: 'revolt',  era: [7, 7], hits: 'kala', str: 6, kind: 'human',
+      what: 'The provinces at the edge have stopped sending revenue',
+      warn: 'The edge provinces are restless',
+      fended: 'the governors are heard out and the roads stay open' },
+    /* — the two flagged ages: nothing human until a reviewer signs it off — */
+    { id: 'fire',    era: [8, 9], hits: 'kala', str: 6, kind: 'nature',
+      what: 'Fire has taken hold in the warehouses by the water',
+      warn: 'Smoke over the warehouse quarter',
+      fended: 'the rakshaks form the bucket line and the fire is out before the roofs go' },
+    { id: 'cyclone', era: [8, 11], hits: 'kala', str: 7, kind: 'nature',
+      what: 'A cyclone is coming up the coast', warn: 'The sea is wrong — a cyclone is coming',
+      fended: 'the boats are hauled up, the roofs lashed, and everyone is inside before it lands' },
+    { id: 'famine',  era: [9, 9], hits: 'anna', str: 8, kind: 'nature',
+      what: 'The rains failed and the grain is not coming',
+      warn: 'The rains have failed a second year',
+      fended: 'the granaries were deep enough, and the trains bring grain in time' },
+    { id: 'plague',  era: [9, 9], hits: 'katha', str: 7, kind: 'nature',
+      what: 'A sickness is travelling the new railway lines',
+      warn: 'Word of sickness down the line',
+      fended: 'the town keeps its wells clean and its sick cared for, and it passes' },
+    /* — the mist, the one antagonist this game allows itself — */
+    { id: 'mist',    era: [0, 10], hits: 'fade', str: 5, kind: 'mist',
+      what: 'Vismriti itself pushes at the lamps', warn: 'The grey is thickening at the edges',
+      fended: 'the rakshaks walk the lanes all night relighting every lamp that gutters' },
+    { id: 'forget',  era: [10, 12], hits: 'katha', str: 6, kind: 'mist',
+      what: 'Nobody under thirty knows what this place is for',
+      warn: 'The old stories are going quiet here',
+      fended: 'the kathakars hold a telling in the square and the whole quarter comes' },
+    /* — the ages of the Republic — */
+    { id: 'drought', era: [11, 12], hits: 'anna', str: 7, kind: 'nature',
+      what: 'A hard drought is on the district', warn: 'Three months and no rain',
+      fended: 'the tanks and the canals hold, and the harvest comes in anyway' },
+    { id: 'floodmod',era: [11, 12], hits: 'anna', str: 7, kind: 'nature',
+      what: 'The river is over the embankment again', warn: 'The river is rising above the mark',
+      fended: 'the embankment holds and the relief camps are ready before the water comes' },
+    { id: 'heat',    era: [12, 12], hits: 'anna', str: 7, kind: 'nature',
+      what: 'The heat has not broken for weeks and the tanks are low',
+      warn: 'The heat is not breaking',
+      fended: 'the green belt and the old tanks keep the city cool enough to work' },
+    { id: 'smog',    era: [12, 12], hits: 'katha', str: 6, kind: 'nature',
+      what: 'The air has turned grey and nobody goes out',
+      warn: 'The air is turning grey',
+      fended: 'the parks and the wetlands breathe for the city and the air clears' }
   ],
 
   /* HEROES — one may rise in a level-3 city, and they are ROLES, never named rulers

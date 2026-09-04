@@ -310,6 +310,24 @@
     /* the city painting becomes a stage: praja walk it, birds cross it,
        the unbuilt monument stands in bamboo */
     '.sab-scene{position:relative;overflow:hidden;border-radius:var(--radius-lg);border:1px solid var(--line);margin:10px 0 2px}',
+    /* the kit board is a fixed-size diamond scaled to the scene, so every
+       percent the game already speaks in still means the same place */
+    '.sab-kitbar{position:absolute;right:8px;top:8px;z-index:6;display:flex;gap:6px}',
+    '.sab-kitbar button{border:1px solid rgba(255,255,255,.35);background:rgba(24,16,34,.72);',
+    '  color:#f6efe1;font:700 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;',
+    '  padding:7px 9px;border-radius:8px;cursor:pointer;backdrop-filter:blur(4px)}',
+    '.sab-kitbar button:hover{border-color:var(--accent2)}',
+    '.sab-kitboard{position:relative;width:100%;display:block;overflow:hidden;',
+    '  background:radial-gradient(ellipse 72% 58% at 50% 58%,#e8dcc4 0%,#d8c9ab 78%)}',
+    '.sab-kitinner{position:absolute;left:0;top:0;transform-origin:0 0}',
+    /* the plate's crop rules are for a painting; the board sets its own height
+       from the grid, and a max-height cuts the south half of the city off */
+    '.sab-scene.iskit .sab-hero{aspect-ratio:auto;max-height:none}',
+    '.sab-scene.iskit{background:#e6dbc2}',
+    '.kit-f{position:absolute;display:block;pointer-events:none;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}',
+    '.kit-g{position:absolute;transform:translate(-50%,-100%);pointer-events:none}',
+    '.kit-p{position:absolute;transform:translate(-50%,-100%);pointer-events:none}',
+    '.kit-shadow{position:absolute;transform:translate(-50%,-50%);border-radius:50%;background:rgba(20,12,26,.26);pointer-events:none;filter:blur(1.5px)}',
     '.sab-scene .sab-hero{margin:0;border:0;border-radius:0}',
     '.sab-praja{position:absolute;inset:0;pointer-events:none}',
     /* A WALKER PINNED TO A ROAD. The keyframes carry left/top along the
@@ -676,6 +694,32 @@
        monument at the centre by compositional contract. The city scene prefers
        the plate; the eye-level painting stays as the fallback and as the card
        art on wake overlays. */
+    /* THE TEST RENDERER. With the kit switched on, a city is not a painting
+       with sprites pinned to it — it is built, cell by cell, out of the parts
+       in tools/city-kit.json. Everything the game already knows stays true:
+       the building sites, the monument and the yatri are traced in plate
+       percent, and kitPt puts each one on the very cell the ground under it
+       was built from, so nothing drifts. Off by default; ?kit=1 turns it on
+       and the painted plate comes straight back when it is off. */
+    function kitOn(id) {
+      return !!(W.IND_KIT_MODE && W.IND_KIT && W.IND_KIT_CITIES &&
+                W.IND_KIT_CITIES[id] && W.IND_KIT.def('hs-hut-round'));
+    }
+
+    function kitPt(id, at) {
+      if (!at || !kitOn(id)) return at;
+      return W.IND_KIT.mapPct(id, at[0], at[1], G.kitRot || 0, KIT_HEAD);
+    }
+
+    var KIT_HEAD = 5;   /* sky above the tallest piece, in height units */
+
+    function kitBoard(id) {
+      var r = W.IND_KIT.city(id, { rot: G.kitRot || 0, scale: 1, headroom: KIT_HEAD, pad: 0 });
+      return '<div class="sab-hero sab-kitboard" style="aspect-ratio:' +
+        (r.w / r.h).toFixed(4) + '"><div class="sab-kitinner" style="width:' + r.w +
+        'px;height:' + r.h + 'px">' + r.html + '</div></div>';
+    }
+
     function dioOf(id) {
       var m = W.IND_SABHYATA_DIO || [];
       return m.indexOf(id) >= 0 ? 'art/sabhyata/dio/' + id + '.jpg' : null;
@@ -1655,10 +1699,15 @@
          the 3s repaints never reset anyone mid-stride. */
       var heroArt = dioOf(id) || artOf(id);
       var atlas = plateOf(id);
+      var KITC = kitOn(id);
+      if (KITC) heroArt = heroArt || 'kit';
       var tune = (dioOf(id) && DIO_TUNE[id]) || {};
       if (heroArt) {
         var walkers = '', wi = 0, nowS = Date.now() / 1000;
-        if (!q.zzz) {
+        /* the kit board already stands its own praja on its own roads, drawn
+           at the board's scale; pinning raster sprites over them would be two
+           crowds in two sizes on one street */
+        if (!q.zzz && !KITC) {
           /* THE PRAJA KEEP TO THE STREETS. Every walker is pinned to one of
              the plate's own traced roads and paces it end to end; the rest
              stand at spots that lie ON a road or in the plaza. Nobody crosses
@@ -1716,9 +1765,11 @@
         if (!q.mon && spOf('scaffold')) {
           var mc0 = costOf(T.monCost[s.era], 'monument');
           /* the atlas knows where the monument belongs on this painting */
-          var scafCSS = tune.scaf ? tune.scaf
-            : (atlas ? 'left:' + atlas.mon[0] + '%;top:' + atlas.mon[1] +
-                '%;bottom:auto;transform:translate(-50%,-62%)' : '');
+          var mpt = atlas ? kitPt(id, atlas.mon) : null;
+          var scafCSS = (tune.scaf && !KITC) ? tune.scaf
+            : (mpt ? 'left:' + mpt[0].toFixed(2) + '%;top:' + mpt[1].toFixed(2) +
+                '%;bottom:auto;transform:translate(-50%,' + (KITC ? '-84%' : '-62%') + ')' +
+                (KITC ? ';height:20%' : '') : '');
           var scafStyle = scafCSS ? ' style="' + scafCSS + '"' : '';
           if (q.monB) {
             /* THE WORK IN HAND. The bamboo climbs in three visible stages and
@@ -1757,7 +1808,18 @@
             ' of ' + need + (dfn.help ? ' (' + dfn.help + ' marching in)' : '') + '</span></div>';
         }
         /* the city banner, the four stations, and the calls of the moment */
-        var plate = alarm + '<div class="sab-nameplate"><b>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</b>' +
+        /* the test switch: flip the renderer without leaving the city, and
+           turn the board, so the painted plate and the built one can be
+           judged against each other on the same turn */
+        var kitbar = '';
+        if (W.IND_KIT && W.IND_KIT_CITIES && W.IND_KIT_CITIES[id]) {
+          kitbar = '<div class="sab-kitbar">' +
+            '<button data-sab-act="kittoggle" aria-label="Switch between the painted plate and the built board">' +
+            (KITC ? '\u25c9 built' : '\u25cb painted') + '</button>' +
+            (KITC ? '<button data-sab-act="kitturn" aria-label="Turn the board a quarter">\u27f3 turn</button>' : '') +
+            '</div>';
+        }
+        var plate = alarm + kitbar + '<div class="sab-nameplate"><b>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</b>' +
           '<span>lv ' + q.lv + ' · ' + pop + ' praja · eat ' + (pop * T.eat) + ' 🌾' +
           (y ? ' · ' + ['anna', 'kala', 'katha'].filter(function (k2) { return y[k2]; })
             .map(function (k2) { return '+' + y[k2] + ' ' + ICON[k2]; }).join(' ') : '') + '</span></div>';
@@ -1853,7 +1915,7 @@
         Object.keys(BLD).filter(function (b2) { return BLD[b2].era <= G.era; })
           .slice(0, 7).forEach(function (bid, pi) {
             var bd = BLD[bid], bsp = spOf(bid), left = PLOT_X[pi];
-            var at = spots && spots[bid];
+            var at = kitPt(id, spots && spots[bid]);
             var pos = at ? 'left:' + at[0] + '%;top:' + at[1] + '%;bottom:auto;transform:translate(-50%,-100%)'
                          : 'left:' + left + '%';
             var art2 = bsp ? '<img' + (q.bld[bid] ? '' : ' class="ghost"') + ' src="' + bsp + '" alt="">'
@@ -1909,11 +1971,16 @@
         var ySrc2 = (yb2 && yb2.tier === 'tales' && yb2.src) || spOf('explorer');
         var yatri = ySrc2 ? '<div class="sab-yatri" id="sab-yatri" style="left:' + av.x +
           '%;top:' + av.y + '%"><img src="' + ySrc2 + '" alt=""></div>' : '';
-        h += '<div class="sab-scene">' +
-          (atlas ? '<style>' + roadKeyframes(id) + '</style>' : '') +
+        var yav = kitPt(id, [av.x, av.y]);
+        if (KITC) yatri = ySrc2 ? '<div class="sab-yatri" id="sab-yatri" style="left:' +
+          yav[0].toFixed(2) + '%;top:' + yav[1].toFixed(2) + '%"><img src="' + ySrc2 +
+          '" alt=""></div>' : '';
+        h += '<div class="sab-scene' + (KITC ? ' iskit' : '') + '">' +
+          (atlas && !KITC ? '<style>' + roadKeyframes(id) + '</style>' : '') +
           '<div class="sab-cam" id="sab-cam" style="transform:' + camStr() + '">' +
-          '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">' +
-          greenLayer(id) +
+          (KITC ? kitBoard(id)
+                : '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">') +
+          (KITC ? '' : greenLayer(id)) +
           '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
           scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri +
           '</div>' +
@@ -2164,6 +2231,10 @@
        ================================================================ */
     var CAM_S = 1.22;
     function camStr() {
+      /* the painted plate is a wide picture and wants a camera pushed into it;
+         the built board IS the city, edge to edge, and cropping it throws away
+         the half you were about to look at */
+      if (W.IND_KIT_MODE) return 'scale(1) translate(0,0)';
       var fit = function (p, o) {
         var t = (0.5 - o) / CAM_S + o - p / 100;
         var lo = o + (1 - o) / CAM_S - 1, hi = o - o / CAM_S;
@@ -3183,6 +3254,18 @@
           if (!canPay(bc)) return;
           pay(bc); qy.bld[bid] = true; touch(city); G.score += 15;
           say(bd.name + ' raised in ' + byId[city].name + '.', 'warm');
+          paintCity(); paintAll(); return;
+        }
+        /* the renderer switch. It lives on the game object so a reload keeps
+           whichever board the child was looking at, and it repaints in place
+           rather than reopening the city. */
+        if (a === 'kittoggle') {
+          W.IND_KIT_MODE = !W.IND_KIT_MODE;
+          try { localStorage.setItem('ind.kit', W.IND_KIT_MODE ? '1' : '0'); } catch (e2) {}
+          paintCity(); paintAll(); return;
+        }
+        if (a === 'kitturn') {
+          G.kitRot = ((G.kitRot || 0) + 1) % 4;
           paintCity(); paintAll(); return;
         }
         if (a === 'gowarn') {

@@ -89,14 +89,14 @@ def snap(im):
 
 
 TRACE = dict(colormode="color", hierarchical="stacked", mode="spline",
-             filter_speckle=14, color_precision=5, layer_difference=32,
-             corner_threshold=80, length_threshold=4.0, max_iterations=10,
-             splice_threshold=60, path_precision=1)
+             filter_speckle=11, color_precision=6, layer_difference=26,
+             corner_threshold=70, length_threshold=4.0, max_iterations=10,
+             splice_threshold=50, path_precision=2)
 
 # The single biggest lever on file size is what you hand the tracer. A piece
 # 3x2 on the board is drawn 160 px wide; tracing its 480 px master gives three
 # times the paths for detail nobody will ever see. Trace at 1.6x board scale.
-TRACE_SCALE, TRACE_MIN = 1.6, 128
+TRACE_SCALE, TRACE_MIN = 1.9, 150
 
 
 def trace_width(pid, w):

@@ -27,7 +27,16 @@
     /* Two diamonds that share an edge antialias to a visible hairline, and a
      * whole board of them reads as graph paper. Draw each a whisker larger so
      * the edges overlap instead of meeting. */
-    BLEED: 1.035
+    BLEED: 1.035,
+    /* A person is not as wide as a house plot. The footprint says which cell
+     * they stand in; this says how much of it they fill. Getting this wrong
+     * is what made the first board's vendors tower over the roofs. */
+    FILL: { fg: 0.52, an: 0.58, pr: 0.68, tr: 0.86, cr: 1, gnd: 1, wa: 1, rd: 1 }
+  };
+
+  K.fill = function (id) {
+    var k = K.FILL[String(id).split('-')[0]];
+    return k == null ? 1 : k;
   };
 
   K.tokens = {
@@ -132,6 +141,26 @@
    * it connects to. Turning the board turns the connections with it — the
    * mask's four bits rotate exactly as the cells do. */
   K.srcTile = function (id, v) { return 'art/kit/' + id + '/v' + (v % 3) + '.svg'; };
+
+  /* The ground is not tiles. It is one painted field per terrain, and each
+   * cell shows the part of that field it happens to sit over — so two cells
+   * of the same terrain are continuous, and no amount of staring finds a
+   * repeat. Procedural tiles were the single worst thing on the first board. */
+  K.hasField = function (id) {
+    return !!(W.IND_KIT_GROUND && W.IND_KIT_GROUND.indexOf(id) >= 0);
+  };
+
+  K.fieldCell = function (id, x, y, s, z) {
+    var F = (W.IND_KIT_GROUND_SIZE || 1024) * s * 0.5,
+        w = K.W * 2 * s * K.BLEED, h = K.H * 2 * s * K.BLEED,
+        l = x - w / 2, t = y - h;
+    function m(v) { v = v % F; return v < 0 ? v + F : v; }
+    return '<i class="kit-f" style="left:' + l.toFixed(1) + 'px;top:' + t.toFixed(1) +
+      'px;width:' + w.toFixed(1) + 'px;height:' + h.toFixed(1) +
+      'px;background-image:url(art/kit/_ground/' + id + '.jpg);background-size:' +
+      F.toFixed(1) + 'px ' + F.toFixed(1) + 'px;background-position:' +
+      (-m(l)).toFixed(1) + 'px ' + (-m(t)).toFixed(1) + 'px;z-index:' + z + '"></i>';
+  };
   K.srcNet = function (id, m) { return 'art/kit/' + id + '/m' + (m & 15) + '.svg'; };
 
   K.rotMask = function (m, r) {
@@ -202,6 +231,40 @@
              h: Math.ceil((maxY - minY) * s + pad * 2) };
   };
 
+  /* Where a plate-percent lands on the kit board, as a percent of the board.
+   * This is the same mapping tools/plate-to-grid.py used to rasterise the
+   * plates, kept in one place on purpose: the game's building sites, its
+   * scaffold and its yatri are all traced in plate percent, and they have to
+   * arrive on exactly the cell the ground was built from. Two copies of this
+   * arithmetic would be two cities. */
+  K.GRID = { gw: 26, gh: 18, sx: 0.86, sy: 0.94, sy0: 0.03 };
+
+  K.cellOf = function (px, py) {
+    var G = K.GRID, u = (px - 50) / 50, v = (py - 50) / 50,
+        d = (G.gw - G.gh) / 2 + u * (G.gw + G.gh) / 2 * G.sx,
+        sV = (v * 0.5 + 0.5) * (G.gw + G.gh) * G.sy + (G.gw + G.gh) * G.sy0;
+    return { x: Math.max(0, Math.min(G.gw - 1, Math.round((sV + d) / 2))),
+             y: Math.max(0, Math.min(G.gh - 1, Math.round((sV - d) / 2))) };
+  };
+
+  /* board box in board units, for a given rotation and headroom */
+  K.boardBox = function (gw, gh, headroom) {
+    return { w: (gw + gh) * K.W,
+             h: (gw + gh) * K.H + (headroom == null ? 8 : headroom) * K.RISE };
+  };
+
+  K.mapPct = function (cid, px, py, rot, headroom) {
+    var C = (W.IND_KIT_CITIES || {})[cid];
+    if (!C) return [px, py];
+    var gw = C.gw, gh = C.gh, hr = headroom == null ? 8 : headroom,
+        cell = K.cellOf(px, py),
+        c = K.turn(cell.x, cell.y, 1, 1, rot || 0, gw, gh),
+        a = K.anchor(c.x, c.y, 1, 1),
+        box = K.boardBox(gw, gh, hr),
+        ox = (rot % 2 ? gw : gh) * K.W, oy = hr * K.RISE;
+    return [(a.x + ox) / box.w * 100, (a.y + oy) / box.h * 100];
+  };
+
   /* A whole city: the ground sheet, then the road network, then everything
    * that stands on them. Three layers, one painter's order, one anchor rule. */
   K.city = function (cid, opts) {
@@ -209,7 +272,7 @@
     var C = (W.IND_KIT_CITIES || {})[cid];
     if (!C) return { html: '<p class="kit-none">no grid for ' + cid + '</p>', w: 0, h: 0 };
     var rot = ((opts.rot || 0) % 4 + 4) % 4, s = opts.scale || 1,
-        gw = C.gw, gh = C.gh, pad = opts.pad == null ? 40 : opts.pad,
+        gw = C.gw, gh = C.gh, pad = opts.pad == null ? 0 : opts.pad,
         road = C.road, out = [], x, y;
 
     /* extent: the whole board's diamond, not just what happens to stand on it */
@@ -228,17 +291,28 @@
         var pid = C.legend[C.ground[y][x]];
         if (!pid) continue;
         var c = K.turn(x, y, 1, 1, rot, gw, gh), p = at(c.x, c.y, 1, 1);
-        out.push('<img class="kit-g" alt="" src="' + K.srcTile(pid, K.jit(x, y) % 3) +
-          '" style="left:' + p.x.toFixed(1) + 'px;top:' + p.y.toFixed(1) +
-          'px;width:' + (64 * s * K.BLEED).toFixed(2) + 'px;z-index:' + (c.x + c.y) + '">');
+        if (K.hasField(pid)) {
+          out.push(K.fieldCell(pid, p.x, p.y, s, c.x + c.y));
+        } else {
+          out.push('<img class="kit-g" alt="" src="' + K.srcTile(pid, K.jit(x, y) % 3) +
+            '" style="left:' + p.x.toFixed(1) + 'px;top:' + p.y.toFixed(1) +
+            'px;width:' + (64 * s * K.BLEED).toFixed(2) + 'px;z-index:' + (c.x + c.y) + '">');
+        }
       }
     }
     /* --- the road network, one layer above the sheet ------------------- */
+    (C.shore || []).forEach(function (n) {
+      var c = K.turn(n[0], n[1], 1, 1, rot, gw, gh), p = at(c.x, c.y, 1, 1);
+      out.push('<img class="kit-g" alt="" src="art/kit/_shore/m' +
+        K.rotMask(n[2], rot) + '.svg" style="left:' + p.x.toFixed(1) + 'px;top:' +
+        p.y.toFixed(1) + 'px;width:' + (64 * s * K.BLEED).toFixed(2) +
+        'px;z-index:' + (c.x + c.y + 1) + '">');
+    });
     C.net.forEach(function (n) {
       var c = K.turn(n[0], n[1], 1, 1, rot, gw, gh), p = at(c.x, c.y, 1, 1);
       out.push('<img class="kit-g" alt="" src="' + K.srcNet(road, K.rotMask(n[2], rot)) +
         '" style="left:' + p.x.toFixed(1) + 'px;top:' + p.y.toFixed(1) +
-        'px;width:' + (64 * s * K.BLEED).toFixed(2) + 'px;z-index:' + (c.x + c.y + 1) + '">');
+        'px;width:' + (64 * s * K.BLEED).toFixed(2) + 'px;z-index:' + (c.x + c.y + 2) + '">');
     });
     /* --- everything that stands up ------------------------------------- */
     var items = [];
@@ -253,11 +327,13 @@
     items.forEach(function (o) {
       var p = at(o.c.x, o.c.y, o.c.L, o.c.B),
           src = K.src(o.def.id, K.face(o.it.f, rot, 4)),
-          w = K.box(o.c.L, o.c.B, o.H).w * s,
+          k = K.fill(o.def.id),
+          w = K.box(o.c.L, o.c.B, o.H).w * s * k,
           zi = 1000 + Math.round(o.z * 4);
       out.push('<div class="kit-shadow" style="left:' + p.x.toFixed(1) + 'px;top:' +
-        p.y.toFixed(1) + 'px;width:' + ((o.c.L + o.c.B) * K.W * s).toFixed(1) +
-        'px;height:' + ((o.c.L + o.c.B) * K.H * s).toFixed(1) + 'px;z-index:' + (zi - 1) + '"></div>');
+        p.y.toFixed(1) + 'px;width:' + ((o.c.L + o.c.B) * K.W * s * k * 0.82).toFixed(1) +
+        'px;height:' + ((o.c.L + o.c.B) * K.H * s * k * 0.82).toFixed(1) +
+        'px;z-index:' + (zi - 1) + '"></div>');
       if (!src) return;
       out.push('<img class="kit-p" alt="" src="' + src + '" data-kit="' + o.def.id +
         '" title="' + o.def.name + '" style="left:' + p.x.toFixed(1) + 'px;top:' +
@@ -277,8 +353,43 @@
     '  border-radius:50%;background:rgba(36,26,20,.17);pointer-events:none}',
     '.kit-miss{position:absolute;transform:translate(-50%,-100%);',
     '  border:1px dashed rgba(207,74,52,.7);background:rgba(207,74,52,.08)}',
-    '.kit-g{position:absolute;transform:translate(-50%,-100%);pointer-events:none}'
+    '.kit-g{position:absolute;transform:translate(-50%,-100%);pointer-events:none}',
+    '.kit-f{position:absolute;display:block;pointer-events:none;',
+    '  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}'
   ].join('\n');
+
+  /* The board is built at true board pixels and then scaled to whatever box
+   * it has been given, so one arithmetic serves a phone and a desktop. */
+  K.fit = function (root) {
+    var els = (root || document).querySelectorAll('.sab-kitinner');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i], box = el.parentNode;
+      var bw = box.clientWidth || box.offsetWidth;
+      if (!bw) continue;
+      var w = parseFloat(el.style.width) || 1;
+      var k = bw / w;
+      el.style.transform = 'scale(' + k.toFixed(5) + ')';
+      box.style.height = (parseFloat(el.style.height) * k).toFixed(1) + 'px';
+    }
+  };
+
+  K.autofit = function () {
+    if (K._af) return;
+    K._af = 1;
+    var run = function () { K.fit(document); };
+    if (W.ResizeObserver) {
+      var ro = new ResizeObserver(run);
+      if (document.body) ro.observe(document.body);
+    }
+    W.addEventListener('resize', run);
+    new MutationObserver(run).observe(document.documentElement,
+      { childList: true, subtree: true });
+    run();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { K.autofit(); });
+  } else { K.autofit(); }
 
   W.IND_KIT = K;
 })(window);

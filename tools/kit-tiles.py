@@ -86,14 +86,18 @@ TILES = {
 
 # networks: connection-mask pieces. (surface, edge, width, style)
 NETS = {
-    "rd-mud":    (mix(T["earth"], T["cream"], .42), T["earth"], 15, "rut"),
-    "rd-brick":  (mix(T["vermilion"], T["stone"], .55), T["earth"], 15, "brick"),
-    "rd-track":  (mix(T["earth"], T["cream"], .50), T["leaf"], 8, "rut"),
-    "rd-stone":  (T["stone"], dark(T["stone"], .30), 16, "slab"),
-    "rd-drain":  (mix(T["stone"], T["cream"], .30), T["earth"], 7, "slab"),
-    "wa-river":  (mix(T["water"], T["turq"], .22), T["indigo"], 22, "flow"),
-    "wa-canal":  (mix(T["water"], T["turq"], .35), T["leaf"], 9, "flow"),
-    "wa-moat":   (mix(T["water"], T["indigo"], .30), T["stone"], 18, "flow"),
+    # Width is the whole trick. A band narrower than the cell leaves ground
+    # showing at every join and the street reads as a chain of lozenges; wide
+    # enough to overlap its neighbour and it reads as one road.
+    "rd-mud":    (mix(T["earth"], T["cream"], .44), dark(T["earth"], .26), 36, "rut"),
+    "rd-brick":  (mix(mix(T["vermilion"], T["earth"], .60), T["cream"], .40),
+                  dark(T["earth"], .24), 36, "brick"),
+    "rd-track":  (mix(T["earth"], T["cream"], .50), dark(T["earth"], .22), 20, "rut"),
+    "rd-stone":  (mix(T["stone"], T["cream"], .28), dark(T["stone"], .32), 36, "slab"),
+    "rd-drain":  (mix(T["stone"], T["cream"], .30), T["earth"], 9, "slab"),
+    "wa-river":  (mix(T["water"], T["turq"], .22), T["indigo"], 26, "flow"),
+    "wa-canal":  (mix(T["water"], T["turq"], .35), T["leaf"], 12, "flow"),
+    "wa-moat":   (mix(T["water"], T["indigo"], .30), T["stone"], 22, "flow"),
 }
 
 # A network piece carries NO ground of its own. It is laid over whatever the
@@ -248,14 +252,17 @@ def net_svg(pid, mask, v):
     live = [i for i in range(4) if mask & (1 << i)]
     for i in live:
         f, e = band(C, EDGE[i], w, surf, edge)
-        fills.append(f); edges.append(e)
+        fills.append(f)
     if not live:                                   # a lone patch, no neighbours
         fills.append('<ellipse cx="32" cy="16" rx="%.1f" ry="%.1f" fill="%s"/>'
                      % (w * .8, w * .4, surf))
     out += fills
-    out.append('<ellipse cx="32" cy="16" rx="%.1f" ry="%.1f" fill="%s"/>'
-               % (w * .62, w * .31, surf))
+    # a small joint patch only — the old big ellipse made each cell a lozenge
+    if len(live) > 1:
+        out.append('<ellipse cx="32" cy="16" rx="%.1f" ry="%.1f" fill="%s"/>'
+                   % (w * .40, w * .20, surf))
     out += edges
+    # a kerb: the one line that makes a band read as a street and not a smear
     if style == "rut":
         for k in (-1, 1):
             for i in live:
@@ -291,6 +298,46 @@ NET_SHEET_STYLE = {"rd-mud": "speck", "rd-brick": "brick_sheet", "rd-track": "tu
 def surf_of(pid):  return NETS[pid][0]
 def edge_of(pid):  return NETS[pid][1]
 def style_of(pid): return NET_SHEET_STYLE.get(pid, "speck")
+
+
+SHORE_DIR = os.path.join(ART, "_shore")
+# diamond edges, in the same neighbour order as EDGE: +x, +y, -x, -y
+SIDE = [((32, 32), (64, 16)), ((0, 16), (32, 32)),
+        ((32, 0), (0, 16)), ((64, 16), (32, 0))]
+
+
+def shore_svg(mask, depth=9.0):
+    """A wet rim on every edge of a water cell that faces land, so the water
+    meets the shore instead of ending in a staircase of diamonds."""
+    uid = "s%d" % mask
+    out = [head(), clip(uid)]
+    for i in range(4):
+        if not (mask & (1 << i)):
+            continue
+        (x1, y1), (x2, y2) = SIDE[i]
+        mx, my = (x1 + x2) / 2.0, (y1 + y2) / 2.0
+        dx, dy = (32 - mx), (16 - my)
+        ln = math.hypot(dx, dy) or 1
+        ux, uy = dx / ln, dy / ln
+        p = ("M%.1f %.1f L%.1f %.1f L%.1f %.1f L%.1f %.1f Z"
+             % (x1, y1, x2, y2,
+                x2 + ux * depth, y2 + uy * depth,
+                x1 + ux * depth, y1 + uy * depth))
+        out.append('<path d="%s" fill="%s" opacity=".95"/>'
+                   % (p, mix(T["cream"], T["gold"], .30)))
+        p2 = ("M%.1f %.1f L%.1f %.1f L%.1f %.1f L%.1f %.1f Z"
+              % (x1 + ux * depth * .55, y1 + uy * depth * .55,
+                 x2 + ux * depth * .55, y2 + uy * depth * .55,
+                 x2 + ux * depth, y2 + uy * depth,
+                 x1 + ux * depth, y1 + uy * depth))
+        out.append('<path d="%s" fill="%s" opacity=".55"/>'
+                   % (p2, mix(T["earth"], T["cream"], .45)))
+        out.append('<path d="M%.1f %.1f L%.1f %.1f" stroke="%s" stroke-width="1.1" '
+                   'fill="none" opacity=".7"/>'
+                   % (x1 + ux * depth, y1 + uy * depth,
+                      x2 + ux * depth, y2 + uy * depth, T["white"]))
+    out.append("</g></svg>\n")
+    return "".join(out)
 
 
 def main():
@@ -332,6 +379,12 @@ def main():
             with io.open(os.path.join(d, "%d.svg" % i), "w", encoding="utf-8") as f:
                 f.write(net_svg(pid, 5, 0))       # a straight run, for previews
         man[pid] = {"kind": "net", "masks": 16, "v": 3, "wh": [W, H]}
+    os.makedirs(SHORE_DIR, exist_ok=True)
+    for mask in range(16):
+        with io.open(os.path.join(SHORE_DIR, "m%d.svg" % mask), "w",
+                     encoding="utf-8") as f:
+            f.write(shore_svg(mask))
+        n += 1
     with io.open(MANIFEST, "w", encoding="utf-8") as f:
         f.write("/* generated by tools/kit-tiles.py — do not edit.\n"
                 "   tile: v0..v2 jitters. net: m0..m15, bits +x +y -x -y. */\n")

@@ -21,7 +21,9 @@ import argparse, io, json, math, os, random, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP = os.path.join(ROOT, "app")
 OUT = os.path.join(APP, "data-kit-cities.js")
-GW, GH = 34, 22
+# A city is dense. The first board was 34x22 with 48 pieces on it and read as
+# a car park with huts. Smaller board, far more on it.
+GW, GH = 26, 18
 
 # per city: base ground, green cover, water piece, road piece, house set, trees
 CITY = {
@@ -63,8 +65,14 @@ MON = {"dholavira": "wa-reservoir", "lothal": "wa-basin", "rakhigarhi": "bd-gran
 
 # a little life, placed on roads and greens
 FOLK = ["fg-kisan", "fg-karigar", "fg-kathakar", "fg-rakshak", "fg-vendor",
-        "fg-child", "fg-pilgrim", "fg-mason"]
-BEASTS = ["an-ox", "an-goat", "an-dog", "an-cow"]
+        "fg-child", "fg-pilgrim", "fg-mason", "fg-porter", "fg-guard",
+        "fg-boatman", "fg-weaver", "fg-teacher"]
+BEASTS = ["an-ox", "an-goat", "an-dog", "an-cow", "an-buffalo", "an-monkey"]
+# the small stuff that turns a model village into a place people live in
+DRESS = ["pr-pots", "pr-baskets", "pr-fire", "pr-cloth-line", "pr-awning",
+         "pr-sacks", "pr-plough", "pr-bench", "pr-wheel", "pr-loom",
+         "cr-haystack", "wa-well", "bd-kiln", "pr-lamp-post"]
+CARTS = ["vh-cart-bullock", "vh-handcart"]
 
 
 def plates():
@@ -152,32 +160,57 @@ def build(cid, plate):
     # --- houses along the roads, which is where houses actually stand ------
     road_cells = [(x, y) for y in range(GH) for x in range(GW) if roads[y][x]]
     rnd.shuffle(road_cells)
-    n = 0
-    for (x, y) in road_cells:
-        if n >= 26:
-            break
-        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1)):
-            sx, sy = x + dx, y + dy
-            if not (0 <= sx < GW - 1 and 0 <= sy < GH - 1):
-                continue
-            if any((sx + a, sy + b) in taken for a in (0, 1) for b in (0, 1)):
-                continue
-            if roads[sy][sx]:
-                continue
-            put(rnd.choice(houses), sx, sy, rnd.randrange(4), 2)
-            n += 1
-            break
+    wet = set((x, y) for y in range(GH) for x in range(GW)
+              if ground[y][x] == water)
 
-    # --- trees on the green, animals and folk on the road -----------------
+    def free(sx, sy, span=2):
+        if not (0 <= sx <= GW - span and 0 <= sy <= GH - span):
+            return False
+        for a in range(span):
+            for b in range(span):
+                c = (sx + a, sy + b)
+                if c in taken or c in wet or roads[c[1]][c[0]]:
+                    return False
+        return True
+
+    n = 0
+    for (x, y) in road_cells:                 # first ring: fronting a street
+        if n >= 44:
+            break
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1),
+                       (1, 1), (-1, -1), (1, -1), (-1, 1)):
+            if free(x + dx, y + dy):
+                put(rnd.choice(houses), x + dx, y + dy, rnd.randrange(4), 2)
+                n += 1
+                break
+    for (x, y) in road_cells:                 # second ring: the lane behind
+        if n >= 62:
+            break
+        for dx, dy in ((2, 0), (-2, 0), (0, 2), (0, -2), (2, 2), (-2, -2)):
+            if free(x + dx, y + dy):
+                put(rnd.choice(houses), x + dx, y + dy, rnd.randrange(4), 2)
+                n += 1
+                break
+
+    # --- trees on the green, animals and folk and clutter on the streets ---
     green_cells = [(x, y) for y in range(GH) for x in range(GW)
-                   if ground[y][x] == green and (x, y) not in taken]
+                   if ground[y][x] == green and (x, y) not in taken and (x, y) not in wet]
     rnd.shuffle(green_cells)
-    for (x, y) in green_cells[:14]:
+    for (x, y) in green_cells[:26]:
         put(rnd.choice(trees), x, y, rnd.randrange(4))
-    for (x, y) in road_cells[:9]:
+    open_cells = [(x, y) for y in range(GH) for x in range(GW)
+                  if (x, y) not in taken and (x, y) not in wet and not roads[y][x]]
+    rnd.shuffle(open_cells)
+    for (x, y) in open_cells[:22]:            # yards: pots, fires, drying cloth
+        put(rnd.choice(DRESS), x, y, rnd.randrange(4))
+    for (x, y) in green_cells[26:34]:
+        put(rnd.choice(trees), x, y, rnd.randrange(4))
+    for (x, y) in road_cells[:20]:            # people go on the road, only
         objs.append({"p": rnd.choice(FOLK), "x": x, "y": y, "f": rnd.randrange(4)})
-    for (x, y) in road_cells[9:13]:
+    for (x, y) in road_cells[20:29]:
         objs.append({"p": rnd.choice(BEASTS), "x": x, "y": y, "f": rnd.randrange(4)})
+    for (x, y) in road_cells[29:33]:
+        objs.append({"p": rnd.choice(CARTS), "x": x, "y": y, "f": rnd.randrange(4)})
 
     # --- road masks: a piece connects to whichever neighbours are road ----
     net = []
@@ -201,7 +234,21 @@ def build(cid, plate):
                 legend[pid] = "abcdefghijklmnop"[len(legend)]
             line += legend[pid]
         chars.append(line)
-    return {"gw": GW, "gh": GH, "road": road,
+    # --- the shore: which edges of a water cell face dry land -------------
+    shore = []
+    for y in range(GH):
+        for x in range(GW):
+            if ground[y][x] != water:
+                continue
+            m = 0
+            if x + 1 >= GW or ground[y][x + 1] != water: m |= 1
+            if y + 1 >= GH or ground[y + 1][x] != water: m |= 2
+            if x - 1 < 0 or ground[y][x - 1] != water: m |= 4
+            if y - 1 < 0 or ground[y - 1][x] != water: m |= 8
+            if m:
+                shore.append([x, y, m])
+
+    return {"gw": GW, "gh": GH, "road": road, "shore": shore,
             "legend": {v: k for k, v in legend.items()},
             "ground": chars, "net": net, "objs": objs}
 
@@ -219,7 +266,8 @@ def main():
             print("  no plate for", cid); continue
         out[cid] = build(cid, pl[cid])
         c = out[cid]
-        print("  %-13s %3d road cells, %3d objects" % (cid, len(c["net"]), len(c["objs"])))
+        print("  %-13s %3d road, %3d shore, %3d pieces"
+              % (cid, len(c["net"]), len(c["shore"]), len(c["objs"])))
     with io.open(OUT, "w", encoding="utf-8") as f:
         f.write("/* generated by tools/plate-to-grid.py from data-plates.js —\n"
                 "   the traced dioramas rasterised onto the 2:1 kit board.\n"

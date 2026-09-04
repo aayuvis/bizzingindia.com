@@ -92,6 +92,18 @@
 <script src="sabhyata-sprites-manifest.js"></script>
 <script src="sabhyata-dio-manifest.js"></script>
 <script src="data-sabhyata.js"></script>
+<!-- City Kit (test): the composed-SVG city renderer. Loaded always, used only
+     when ?kit=1 is on the URL, so the painted plates are the default until
+     the kit is judged better than them. -->
+<script>window.IND_KIT_MODE = /[?&]kit=1/.test(location.search) ||
+  (function () { try { return localStorage.getItem('ind.kit') === '1'; } catch (e) { return false; } })();</script>
+<script src="city-kit-data.js"></script>
+<script src="kit-art-manifest.js"></script>
+<script src="kit-svg-manifest.js"></script>
+<script src="kit-tile-manifest.js"></script>
+<script src="kit-ground-manifest.js"></script>
+<script src="data-kit-cities.js"></script>
+<script src="kit.js"></script>
 <script src="sabhyata.js"></script>
 
 <!-- shell -->

@@ -158,8 +158,14 @@
     return '<i class="kit-f' + (sown ? ' sown' : '') + '" style="left:' + l.toFixed(1) +
       'px;top:' + t.toFixed(1) +
       'px;width:' + w.toFixed(1) + 'px;height:' + h.toFixed(1) +
-      'px;background-image:url(art/kit/_ground/' + id + '.jpg);background-size:' +
-      F.toFixed(1) + 'px ' + F.toFixed(1) + 'px;background-position:' +
+      /* A sown plot gets a bund painted INTO its background. box-shadow was
+         the obvious way and it does not work: clip-path clips the shadow with
+         the box, so the ring simply never appeared. */
+      'px;background-image:' + (sown
+        ? 'radial-gradient(ellipse 62% 62% at 50% 50%,rgba(0,0,0,0) 52%,rgba(74,48,22,.55) 100%),'
+        : '') + 'url(art/kit/_ground/' + id + '.jpg);background-size:' +
+      (sown ? '100% 100%,' : '') + F.toFixed(1) + 'px ' + F.toFixed(1) +
+      'px;background-position:' + (sown ? '0 0,' : '') +
       (-m(l)).toFixed(1) + 'px ' + (-m(t)).toFixed(1) + 'px;z-index:' + z + '"></i>';
   };
   K.srcNet = function (id, m) { return 'art/kit/' + id + '/m' + (m & 15) + '.svg'; };
@@ -436,9 +442,7 @@
     '.kit-g{position:absolute;transform:translate(-50%,-100%);pointer-events:none}',
     '.kit-f{position:absolute;display:block;pointer-events:none;',
     '  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}',
-    /* a sown plot is a thing somebody made: it gets a bund round it, so a
-       bought field reads as a field and not as a patch of colour */
-    '.kit-f.sown{box-shadow:inset 0 0 0 2px rgba(90,62,34,.55),inset 0 0 12px rgba(120,84,40,.35)}',
+    '.kit-f.sown{filter:saturate(1.06) brightness(.97)}',
     '.kit-far{position:absolute;display:block;pointer-events:none;background:rgba(22,14,30,.42);',
     '  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}',
     '.kit-ghost{opacity:.72;filter:drop-shadow(0 0 6px rgba(233,161,59,.9))}',

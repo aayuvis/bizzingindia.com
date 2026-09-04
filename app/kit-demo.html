@@ -1,0 +1,102 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>City Kit — composed cities</title>
+<style>
+:root{--bg:#15101f;--sur:#201631;--line:#33254a;--ink:#f6efe1;--mut:#a2937c;--acc:#e9a13b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;gap:14px;
+ align-items:center;flex-wrap:wrap;position:sticky;top:0;background:rgba(21,16,31,.95);
+ backdrop-filter:blur(8px);z-index:50}
+h1{font:700 19px/1.1 Georgia,serif;margin:0}
+select,button{background:var(--sur);color:var(--ink);border:1px solid var(--line);
+ padding:8px 12px;border-radius:3px;font:inherit;cursor:pointer}
+button:hover,select:hover{border-color:var(--acc)}
+button:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.mono{font:12px ui-monospace,monospace;color:var(--mut);letter-spacing:.08em}
+.scroll{overflow:auto;padding:20px}
+.kit-stage{position:relative;margin:0 auto;
+ background:radial-gradient(ellipse 70% 55% at 50% 55%,#2a1d3f 0%,#15101f 78%)}
+.kit-p{position:absolute;transform:translate(-50%,-100%);pointer-events:auto}
+.kit-g{position:absolute;transform:translate(-50%,-100%);pointer-events:none}
+.kit-shadow{position:absolute;transform:translate(-50%,-50%);border-radius:50%;
+ background:rgba(20,12,26,.30);pointer-events:none;filter:blur(1.5px)}
+.kit-p:hover{filter:brightness(1.12) drop-shadow(0 0 6px rgba(233,161,59,.8))}
+#tip{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:var(--sur);
+ border:1px solid var(--line);padding:7px 14px;border-radius:3px;font-size:13px;
+ color:var(--mut);pointer-events:none}
+#tip b{color:var(--ink)}
+</style></head><body>
+<header>
+  <h1>City Kit</h1>
+  <select id="city"></select>
+  <button id="turn">Turn the board ⟳</button>
+  <select id="zoom">
+    <option value="fit" selected>fit</option>
+    <option value="0.6">60%</option><option value="0.8">80%</option>
+    <option value="1">100%</option><option value="1.4">140%</option>
+  </select>
+  <span class="mono" id="stat"></span>
+</header>
+<div class="scroll"><div class="kit-stage" id="stage"></div></div>
+<div id="tip">hover a piece to name it</div>
+
+<script src="city-kit-data.js"></script>
+<script src="kit-svg-manifest.js"></script>
+<script src="kit-art-manifest.js"></script>
+<script src="kit-tile-manifest.js"></script>
+<script src="data-kit-cities.js"></script>
+<script src="kit.js"></script>
+<script>
+var K = window.IND_KIT, rot = 0, cid = 'dholavira', scale = 'fit';
+var CITIES = Object.keys(window.IND_KIT_CITIES || {});
+var NAMES = { dholavira:'Dholavira · era 0', lothal:'Lothal · era 0',
+  rakhigarhi:'Rakhigarhi · era 0', kalibangan:'Kalibangan · era 0',
+  hastinapura:'Hastinapura · era 1', kashi:'Kashi · era 1',
+  ujjain:'Ujjain · era 1', vaishali:'Vaishali · era 1' };
+var sel = document.getElementById('city');
+sel.innerHTML = CITIES.map(function (c) {
+  return '<option value="' + c + '">' + (NAMES[c] || c) + '</option>'; }).join('');
+sel.value = cid;
+
+function fit() {
+  /* the board is a fixed diamond; fit it to the window rather than making the
+     child hunt for it with two scrollbars */
+  var C = window.IND_KIT_CITIES[cid];
+  var w = (C.gw + C.gh) * 32 + 80, h = (C.gw + C.gh) * 16 + 8 * 32 + 80;
+  var box = document.querySelector('.scroll');
+  return Math.min(box.clientWidth / w, (window.innerHeight - 110) / h);
+}
+
+function draw() {
+  var st = document.getElementById('stage');
+  var s = scale === 'fit' ? fit() : scale;
+  var r = K.city(cid, { rot: rot, scale: s, headroom: 8 });
+  st.style.width = r.w + 'px'; st.style.height = r.h + 'px';
+  st.innerHTML = r.html;
+  var C = window.IND_KIT_CITIES[cid];
+  document.getElementById('stat').textContent =
+    C.gw + '×' + C.gh + ' cells · ' + C.net.length + ' road · ' +
+    C.objs.length + ' pieces · facing ' + ['SE','SW','NW','NE'][rot] +
+    ' · ' + Math.round(s * 100) + '%';
+}
+sel.onchange = function () { cid = sel.value; draw(); };
+document.getElementById('turn').onclick = function () { rot = (rot + 1) % 4; draw(); };
+document.getElementById('zoom').onchange = function (e) {
+  scale = e.target.value === 'fit' ? 'fit' : parseFloat(e.target.value); draw(); };
+window.addEventListener('resize', function () { if (scale === 'fit') draw(); });
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowRight') { rot = (rot + 1) % 4; draw(); }
+  if (e.key === 'ArrowLeft') { rot = (rot + 3) % 4; draw(); }
+});
+document.getElementById('stage').addEventListener('mouseover', function (e) {
+  var id = e.target.getAttribute && e.target.getAttribute('data-kit');
+  if (id) {
+    var d = K.def(id);
+    document.getElementById('tip').innerHTML =
+      '<b>' + d.name + '</b> · ' + id + ' · ' + d.d.join(' × ') + ' units';
+  }
+});
+draw();
+</script></body></html>

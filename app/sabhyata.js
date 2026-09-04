@@ -312,7 +312,40 @@
     '.sab-scene{position:relative;overflow:hidden;border-radius:var(--radius-lg);border:1px solid var(--line);margin:10px 0 2px}',
     /* the kit board is a fixed-size diamond scaled to the scene, so every
        percent the game already speaks in still means the same place */
-    '.sab-kitbar{position:absolute;right:8px;top:8px;z-index:6;display:flex;gap:6px}',
+    '.sab-kitbar{position:absolute;right:8px;top:8px;z-index:6;display:flex;gap:6px;align-items:center}',
+    '.sab-kitbar .z{font:700 11px/1 var(--body);color:#f6efe1;background:rgba(24,16,34,.72);',
+    '  padding:7px 6px;border-radius:8px;min-width:38px;text-align:center;font-variant-numeric:tabular-nums}',
+    /* the shop: one row per thing, and every row says its price and its point */
+    '.sab-shopwrap{margin:12px 0 2px}',
+    '.sab-shophead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 8px}',
+    '.sab-shophead b{font:800 17px/1.15 var(--display,Georgia,serif)}',
+    '.sab-shophead span{font-size:12.5px;color:var(--muted)}',
+    '.sab-holding{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;',
+    '  padding:8px 12px;border-radius:12px;background:var(--card2,var(--card));',
+    '  border:1px dashed var(--accent);font-size:13.5px}',
+    '.sab-shopg{margin:0 0 14px}',
+    '.sab-shopg h4{margin:0 0 7px;font:800 13px/1.2 var(--body);letter-spacing:.04em}',
+    '.sab-shopg h4 i{font-style:normal;font-weight:400;color:var(--muted);font-size:12px}',
+    '.sab-shopg{display:block}',
+    '.sab-shopg > div{display:grid}',
+    '.sab-shop{display:grid;grid-template-columns:44px 1fr auto;gap:4px 10px;align-items:center;',
+    '  width:100%;text-align:left;margin:0 0 6px;padding:8px 11px;border:1px solid var(--line);',
+    '  border-radius:13px;background:var(--card2,var(--card));cursor:pointer;font:inherit}',
+    '.sab-shop img{grid-row:1/4;width:44px;height:44px;object-fit:contain;object-position:50% 100%}',
+    '.sab-shop b{font:800 14px/1.2 var(--body)}',
+    '.sab-shop b em{font-style:normal;color:var(--muted);font-weight:700}',
+    '.sab-shop .c{grid-column:3;grid-row:1;font:700 12.5px/1 var(--body);color:var(--accent3);white-space:nowrap}',
+    '.sab-shop .g{grid-column:3;grid-row:2;font:700 12px/1 var(--body);color:var(--good);white-space:nowrap}',
+    '.sab-shop i{grid-column:2/4;font-style:normal;font-size:12.5px;color:var(--muted);line-height:1.4}',
+    '.sab-shop u{grid-column:2/4;text-decoration:none;font-size:12px;color:var(--bad);font-weight:700}',
+    '.sab-shop:hover{border-color:var(--accent)}',
+    '.sab-shop.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}',
+    '.sab-shop.cant{opacity:.62}',
+    '.sab-shop:disabled{cursor:default;opacity:.45}',
+    '.sab-shop:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    /* zoomed past fit, the board is bigger than its window and the window scrolls */
+    '.sab-scene.iskit{overflow:auto;-webkit-overflow-scrolling:touch}',
+    '.sab-scene.iskit .sab-cam{transform:none!important}',
     '.sab-kitbar button{border:1px solid rgba(255,255,255,.35);background:rgba(24,16,34,.72);',
     '  color:#f6efe1;font:700 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;',
     '  padding:7px 9px;border-radius:8px;cursor:pointer;backdrop-filter:blur(4px)}',
@@ -706,6 +739,118 @@
                 W.IND_KIT_CITIES[id] && W.IND_KIT.def('hs-hut-round'));
     }
 
+    /* ============================================================
+       THE CITY IS BUILT, NOT FOUND.
+       The land is free — its ground, its water, its streets, its trees. Every
+       building on it was bought by a child and put somewhere on purpose, and
+       every one of them gives the city something back every turn. What is on
+       offer is the city's own: its age, how far it has grown, what it is FOR,
+       and in a few cases the one thing only that city ever had.
+       ============================================================ */
+    var BUILD = W.IND_KIT_BUILD || { items: [], groups: [], reach: {} };
+    var BY_PART = {};
+    (BUILD.items || []).forEach(function (it) { BY_PART[it.p] = it; });
+
+    function kitOf(id) {                    /* what this city has built */
+      var q = G.sites[id];
+      if (!q.kit) q.kit = [];
+      if (!q.tiles) q.tiles = {};
+      return q;
+    }
+
+    function reachOf(id) {
+      var q = G.sites[id];
+      return (BUILD.reach && BUILD.reach[q.lv]) || 5;
+    }
+
+    /* Everything a child may be shown for THIS city, right now. Four gates,
+       and the last one is the reason Dholavira's reservoirs are not on
+       Vaishali's menu. */
+    function offered(id) {
+      var q = G.sites[id], x = byId[id];
+      return (BUILD.items || []).filter(function (it) {
+        if (x.era < it.era[0] || x.era > it.era[1]) return false;
+        if (G.era < it.era[0]) return false;
+        if (q.lv < it.lv) return false;
+        if (it.kind !== '*' && it.kind !== x.kind) return false;
+        if (it.only && it.only.indexOf(id) < 0) return false;
+        return true;
+      });
+    }
+
+    function builtCount(id, p) {
+      var q = kitOf(id), n = 0;
+      q.kit.forEach(function (b) { if (b.p === p) n++; });
+      return n;
+    }
+
+    /* Can this piece stand on this cell? Six ways to say no, and the caller
+       shows the child whichever one applies rather than a dead tap. */
+    function canPlace(id, it, cx, cy) {
+      var K2 = W.IND_KIT, q = kitOf(id), def = K2 && K2.def(it.p);
+      if (!def) return 'no such piece';
+      if (K2.reach(id, cx, cy) > reachOf(id)) return 'too far out — the city has not grown that way yet';
+      var L = def.d[0] || 1, B = def.d[1] || 1, a, b2;
+      for (a = 0; a < L; a++) {
+        for (b2 = 0; b2 < B; b2++) {
+          var t = K2.terrain(id, cx + a, cy + b2);
+          if (!t) return 'off the edge of the land';
+          if (it.on === 'road' && t !== 'road') return 'this one belongs on the street';
+          if (it.on !== 'road' && t === 'road') return 'not across the street';
+          if (t === 'water') return 'that is water';
+          if (it.on === 'shore' && K2.terrain(id, cx, cy) !== 'shore')
+            return 'it must touch the water';
+          if (occupied(id, cx + a, cy + b2)) return 'something already stands there';
+        }
+      }
+      if (it.only && builtCount(id, it.p) >= 1) return 'a city has only one of these';
+      if (!canPay(costOf(it.cost, 'building'))) return 'not enough yet';
+      return null;
+    }
+
+    function occupied(id, cx, cy) {
+      var q = kitOf(id), K2 = W.IND_KIT, hit = false;
+      var all = q.kit.concat(((W.IND_KIT_CITIES || {})[id] || {}).wild || []);
+      all.forEach(function (b) {
+        if (hit) return;
+        var d = K2.def(b.p); if (!d) return;
+        var L = d.d[0] || 1, B = d.d[1] || 1;
+        if (cx >= b.x && cx < b.x + L && cy >= b.y && cy < b.y + B) hit = true;
+      });
+      return hit;
+    }
+
+    /* what the built city adds, every turn, forever */
+    function kitYield(id) {
+      var q = kitOf(id), out = { anna: 0, kala: 0, katha: 0 };
+      q.kit.forEach(function (b) {
+        var it = BY_PART[b.p]; if (!it || !it.give) return;
+        ['anna', 'kala', 'katha'].forEach(function (k) {
+          if (it.give[k]) out[k] += it.give[k];
+        });
+      });
+      return out;
+    }
+
+    function kitPop(id) {
+      var q = kitOf(id), n = 0;
+      q.kit.forEach(function (b) {
+        var it = BY_PART[b.p]; if (it && it.pop) n += it.pop;
+      });
+      return n;
+    }
+
+    function kitWatch(id) {
+      var q = kitOf(id), n = 0;
+      q.kit.forEach(function (b) {
+        var it = BY_PART[b.p]; if (it && it.watch) n += it.watch;
+      });
+      return n;
+    }
+
+    /* the piece the child is holding, and where it would land */
+    var hold = null;    /* { p, cell:{x,y}, f } */
+
     function kitPt(id, at) {
       if (!at || !kitOn(id)) return at;
       return W.IND_KIT.mapPct(id, at[0], at[1], G.kitRot || 0, KIT_HEAD);
@@ -714,10 +859,62 @@
     var KIT_HEAD = 5;   /* sky above the tallest piece, in height units */
 
     function kitBoard(id) {
-      var r = W.IND_KIT.city(id, { rot: G.kitRot || 0, scale: 1, headroom: KIT_HEAD, pad: 0 });
-      return '<div class="sab-hero sab-kitboard" style="aspect-ratio:' +
-        (r.w / r.h).toFixed(4) + '"><div class="sab-kitinner" style="width:' + r.w +
-        'px;height:' + r.h + 'px">' + r.html + '</div></div>';
+      var q = kitOf(id);
+      var ghost = null;
+      if (hold && hold.cell) {
+        ghost = { p: hold.p, x: hold.cell.x, y: hold.cell.y, f: hold.f || 0,
+                  ok: !canPlace(id, BY_PART[hold.p], hold.cell.x, hold.cell.y) };
+      }
+      var r = W.IND_KIT.city(id, {
+        rot: G.kitRot || 0, scale: 1, headroom: KIT_HEAD, pad: 0,
+        built: q.kit, tiles: q.tiles, reach: reachOf(id), ghost: ghost
+      });
+      return '<div class="sab-hero sab-kitboard"><div class="sab-kitinner" id="sab-kitinner"' +
+        ' data-z="' + (G.kitZ || 1) + '" style="width:' + r.w + 'px;height:' + r.h +
+        'px">' + r.html + '</div></div>';
+    }
+
+    /* THE SHOP. Only what this city, at this level, in this age, may have —
+       and each row says plainly what it costs and what it gives back. */
+    function kitShop(id) {
+      var q = kitOf(id), x = byId[id], list = offered(id);
+      if (!list.length) return '';
+      var byG = {};
+      list.forEach(function (it) { (byG[it.g] = byG[it.g] || []).push(it); });
+      var body = (BUILD.groups || []).map(function (g) {
+        var rows = byG[g[0]]; if (!rows || !rows.length) return '';
+        return '<div class="sab-shopg"><h4>' + esc(g[1]) + ' <i>' + esc(g[2]) + '</i></h4>' +
+          rows.map(function (it) {
+            var why = null, def = W.IND_KIT.def(it.p);
+            if (it.only && builtCount(id, it.p) >= 1) why = 'already built';
+            else if (!canPay(costOf(it.cost, 'building'))) why = 'not enough yet';
+            var give = ['anna', 'kala', 'katha'].filter(function (k) { return it.give && it.give[k]; })
+              .map(function (k) { return '+' + it.give[k] + ' ' + ICON[k]; }).join(' ');
+            if (it.pop) give += (give ? ' · ' : '') + '+' + it.pop + ' praja';
+            var n = builtCount(id, it.p);
+            return '<button class="sab-shop' + (hold && hold.p === it.p ? ' on' : '') +
+              (why ? ' cant' : '') + '" data-sab-act="kitpick" data-p="' + it.p + '"' +
+              (why === 'already built' ? ' disabled' : '') +
+              ' aria-label="' + esc(def ? def.name : it.p) + ' — ' + esc(it.what) +
+              ' Costs ' + esc(costStr(costOf(it.cost, 'building'))) + '.">' +
+              '<img src="' + (W.IND_KIT.src(it.p, 0) || '') + '" alt="">' +
+              '<b>' + esc(def ? def.name : it.p) + (n ? ' <em>×' + n + '</em>' : '') + '</b>' +
+              '<span class="c">' + esc(costStr(costOf(it.cost, 'building'))) + '</span>' +
+              (give ? '<span class="g">' + give + '</span>' : '') +
+              '<i>' + esc(it.what) + '</i>' +
+              (why ? '<u>' + why + '</u>' : '') + '</button>';
+          }).join('') + '</div>';
+      }).join('');
+      var held = hold ? W.IND_KIT.def(hold.p) : null;
+      return '<div class="sab-shopwrap" id="sab-sec-build">' +
+        '<div class="sab-shophead"><b>Build ' + esc(nameOf(x)) + '</b>' +
+        '<span>the land is free \u00b7 everything on it is yours to put there \u00b7 ' +
+        'reach ' + reachOf(id) + ' at level ' + q.lv + '</span></div>' +
+        (held ? '<div class="sab-holding" role="status">Holding <b>' + esc(held.name) +
+          '</b> — tap the land to set it down. ' +
+          '<button class="sab-btn" data-sab-act="kitturnp">Turn it</button> ' +
+          '<button class="sab-btn" data-sab-act="kitdrop">Put it back</button></div>' : '') +
+        body + '</div>';
     }
 
     function dioOf(id) {
@@ -912,7 +1109,10 @@
     var JOB_OF_KIND = { kheti: 'kisan', shilpa: 'karigar', vidya: 'kathakar' };
     function popOf(id) {
       var q = G.sites[id];
-      return 2 + q.lv * 2 + (q.bld.granary ? 1 : 0);
+      /* every home built is one more pair of hands — the reason a child
+         builds huts before they build anything clever */
+      return 2 + q.lv * 2 + (q.bld.granary ? 1 : 0) +
+             (W.IND_KIT_MODE ? kitPop(id) : 0);
     }
     /* default split, and the top-up rule when the town grows: new hands farm first —
        which is also the deadlock guarantee: kisan exist from the first minute */
@@ -966,6 +1166,12 @@
       if (conn) ['anna', 'kala', 'katha'].forEach(function (k) { if (out[k]) out[k] += 1; });
       if (q.hero && !q.hero.gone) out[YIELD[x.kind]] += 2;
       if (inKingdomOf(x.id)) { out.anna += 1; out.kala += 1; out.katha += 1; }
+      /* what was BUILT on the board pays out too — a wheat field is not
+         scenery, it is one more 🌾 every turn for as long as it is sown */
+      if (W.IND_KIT_MODE) {
+        var ky = kitYield(x.id);
+        out.anna += ky.anna; out.kala += ky.kala; out.katha += ky.katha;
+      }
       if (q.bld.granary) out.anna += 1;
       if (q.bld.workshop) out.kala += 1;
       if (q.bld.gurukul) out.katha += 1;
@@ -1816,7 +2022,10 @@
           kitbar = '<div class="sab-kitbar">' +
             '<button data-sab-act="kittoggle" aria-label="Switch between the painted plate and the built board">' +
             (KITC ? '\u25c9 built' : '\u25cb painted') + '</button>' +
-            (KITC ? '<button data-sab-act="kitturn" aria-label="Turn the board a quarter">\u27f3 turn</button>' : '') +
+            (KITC ? '<button data-sab-act="kitturn" aria-label="Turn the board a quarter">\u27f3 turn</button>' +
+              '<button data-sab-act="kitzoom" data-d="-1" aria-label="Zoom out">\u2212</button>' +
+              '<span class="z">' + Math.round((G.kitZ || 1) * 100) + '%</span>' +
+              '<button data-sab-act="kitzoom" data-d="1" aria-label="Zoom in">+</button>' : '') +
             '</div>';
         }
         var plate = alarm + kitbar + '<div class="sab-nameplate"><b>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</b>' +
@@ -1984,7 +2193,7 @@
           '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
           scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri +
           '</div>' +
-          plate + stations + badges + '</div>' + treHint +
+          plate + stations + badges + '</div>' + (KITC ? kitShop(id) : '') + treHint +
           (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
             'the scaffolding comes down, and the colours come back.</div>');
       }
@@ -3172,8 +3381,55 @@
         if (g) g.focus({ preventScroll: true });
       }
     }
+    /* A tap on the board is a placement, not a walk. The board's own scale
+       lives on the element, so the sum works at every zoom and every turn. */
+    function kitTap(e) {
+      if (!city || !hold || !kitOn(city)) return false;
+      var inr = D.getElementById('sab-kitinner');
+      if (!inr || !inr.contains(e.target)) return false;
+      var r = inr.getBoundingClientRect();
+      var k = parseFloat(inr.getAttribute('data-k')) || 1;
+      var cell = W.IND_KIT.cellAtPx(city, (e.clientX - r.left) / k,
+                                    (e.clientY - r.top) / k,
+                                    G.kitRot || 0, 1, KIT_HEAD);
+      if (!cell) return true;
+      var it = BY_PART[hold.p];
+      var why = canPlace(city, it, cell.x, cell.y);
+      if (why) { say('Not there — ' + why + '.', ''); paintCity(); return true; }
+      pay(costOf(it.cost, 'building'));
+      var q2 = kitOf(city);
+      if (it.tile) {                     /* a field IS the ground it replaces */
+        q2.tiles[cell.x + ',' + cell.y] = it.p;
+      }
+      q2.kit.push({ p: it.p, x: cell.x, y: cell.y, f: hold.f || 0 });
+      if (it.bld) q2.bld[it.bld] = true;   /* the seven keep their old powers */
+      G.score += 6;
+      touch(city);
+      say((W.IND_KIT.def(it.p) || {}).name + ' stands in ' + nameOf(byId[city]) + '.', 'warm');
+      if (!canPay(costOf(it.cost, 'building'))) hold = null;   /* out of coin: hands empty */
+      paintCity(); paintAll();
+      return true;
+    }
+
+    /* the held piece follows the finger, so a child sees where it will land */
+    function kitHover(e) {
+      if (!city || !hold || !kitOn(city)) return;
+      var inr = D.getElementById('sab-kitinner');
+      if (!inr || !inr.contains(e.target)) return;
+      var r = inr.getBoundingClientRect();
+      var k = parseFloat(inr.getAttribute('data-k')) || 1;
+      var cell = W.IND_KIT.cellAtPx(city, (e.clientX - r.left) / k,
+                                    (e.clientY - r.top) / k,
+                                    G.kitRot || 0, 1, KIT_HEAD);
+      if (!cell) return;
+      if (hold.cell && hold.cell.x === cell.x && hold.cell.y === cell.y) return;
+      hold.cell = cell;
+      paintCity();
+    }
+
     function onClick(e) {
       if (swallowClick) { swallowClick = false; return; }   /* that was a drag, not a tap */
+      if (kitTap(e)) return;
       var actEl = e.target.closest ? e.target.closest('[data-sab-act]') : null;
       if (actEl) {
         var a = actEl.getAttribute('data-sab-act');
@@ -3268,6 +3524,26 @@
           G.kitRot = ((G.kitRot || 0) + 1) % 4;
           paintCity(); paintAll(); return;
         }
+        /* zoom is the board's own, not the yatri camera's: a city you can
+           build in is a city you must be able to lean into */
+        if (a === 'kitzoom') {
+          var ZS = [0.6, 0.85, 1, 1.4, 2, 2.8];
+          var zi2 = ZS.indexOf(G.kitZ || 1); if (zi2 < 0) zi2 = 2;
+          zi2 = Math.max(0, Math.min(ZS.length - 1,
+                zi2 + (+actEl.getAttribute('data-d') || 1)));
+          G.kitZ = ZS[zi2];
+          paintCity();
+          W.IND_KIT.lookSoon(city, G.kitRot || 0, KIT_HEAD,
+                             hold && hold.cell ? [hold.cell.x, hold.cell.y] : null);
+          return;
+        }
+        if (a === 'kitpick') {
+          var pid2 = actEl.getAttribute('data-p');
+          hold = (hold && hold.p === pid2) ? null : { p: pid2, cell: null, f: 0 };
+          paintCity(); return;
+        }
+        if (a === 'kitdrop') { hold = null; paintCity(); return; }
+        if (a === 'kitturnp') { if (hold) hold.f = ((hold.f || 0) + 1) % 4; paintCity(); return; }
         if (a === 'gowarn') {
           if (!G.warn || !byId[G.warn.id]) return;
           sel = G.warn.id; targeting = false;
@@ -3396,6 +3672,40 @@
       if (city) {
         if (e.key === 'Escape') { eat(); city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
         /* the arrows walk the yatri — the keyboard walks too (house rule) */
+        /* HOLDING A PIECE, THE ARROWS MOVE IT. Every game here works by
+           finger AND by key, and a builder that only takes taps is half a
+           builder. Enter sets it down, Esc puts it back, R turns it. */
+        if (hold && kitOn(city)) {
+          var C2 = (W.IND_KIT_CITIES || {})[city];
+          if (!hold.cell) hold.cell = { x: C2.centre[0], y: C2.centre[1] };
+          var mv = { ArrowLeft: [-1, 0], ArrowRight: [1, 0],
+                     ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+          if (mv) {
+            eat();
+            hold.cell.x = Math.max(0, Math.min(C2.gw - 1, hold.cell.x + mv[0]));
+            hold.cell.y = Math.max(0, Math.min(C2.gh - 1, hold.cell.y + mv[1]));
+            paintCity();
+            W.IND_KIT.lookSoon(city, G.kitRot || 0, KIT_HEAD, [hold.cell.x, hold.cell.y]);
+            return;
+          }
+          if (e.key === 'Enter' || e.key === ' ') {
+            eat();
+            var inr2 = D.getElementById('sab-kitinner');
+            if (inr2) {
+              var rr = inr2.getBoundingClientRect(),
+                  kk = parseFloat(inr2.getAttribute('data-k')) || 1,
+                  cc = W.IND_KIT.turn(hold.cell.x, hold.cell.y, 1, 1,
+                                      G.kitRot || 0, C2.gw, C2.gh),
+                  an = W.IND_KIT.anchor(cc.x, cc.y, 1, 1),
+                  ox2 = ((G.kitRot || 0) % 2 ? C2.gw : C2.gh) * W.IND_KIT.W;
+              kitTap({ target: inr2, clientX: rr.left + (an.x + ox2) * kk,
+                       clientY: rr.top + (an.y + KIT_HEAD * W.IND_KIT.RISE - 16) * kk });
+            }
+            return;
+          }
+          if (e.key === 'r' || e.key === 'R') { eat(); hold.f = ((hold.f || 0) + 1) % 4; paintCity(); return; }
+          if (e.key === 'Escape') { eat(); hold = null; paintCity(); return; }
+        }
         if (e.key === 'ArrowLeft')  { eat(); walkTo(av.x - 12, av.y); return; }
         if (e.key === 'ArrowRight') { eat(); walkTo(av.x + 12, av.y); return; }
         if (e.key === 'ArrowUp')    { eat(); walkTo(av.x, av.y - 10); return; }
@@ -3514,6 +3824,7 @@
     host.addEventListener('mousedown', onMouseDown);
     host.addEventListener('click', onClick);
     D.addEventListener('pointermove', onPointerMove);
+    host.addEventListener('pointermove', kitHover);
     D.addEventListener('pointerup', onPointerUp);
     D.addEventListener('pointercancel', onPointerUp);
     /* keys live on the document: focus often rests on the page body, and a game whose

@@ -21,8 +21,10 @@ import argparse, io, json, math, os, random, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP = os.path.join(ROOT, "app")
 OUT = os.path.join(APP, "data-kit-cities.js")
-# A city is dense. The first board was 34x22 with 48 pieces on it and read as
-# a car park with huts. Smaller board, far more on it.
+# The board is the LAND, not the city. What this file lays down is only what
+# the land gives you for nothing — its ground, its water, its streets and the
+# trees already growing on it. Every building on top is bought and placed by
+# the child, so a city starts as a place and becomes a city.
 GW, GH = 26, 18
 
 # per city: base ground, green cover, water piece, road piece, house set, trees
@@ -140,77 +142,70 @@ def build(cid, plate):
                 roads[c[1]][c[0]] = 1
                 taken.add(c)
 
-    objs = []
+    objs = []            # what the land already has: nothing you built
+    wild = []            # free scenery — trees on the green, rock on the rock
 
     def put(pid, gx, gy, f=0, span=1):
         for dx in range(span):
             for dy in range(span):
                 taken.add((gx + dx, gy + dy))
-        objs.append({"p": pid, "x": gx, "y": gy, "f": f})
+        wild.append({"p": pid, "x": gx, "y": gy, "f": f})
 
-    # --- the monument, the gate, the plaza --------------------------------
-    if plate.get("mon"):
-        c = to_cell(*plate["mon"]); put(MON[cid], c[0], c[1], rnd.randrange(4), 2)
-    if plate.get("gate"):
-        c = to_cell(*plate["gate"]); put("wl-gate", c[0], c[1], rnd.randrange(4), 2)
-    for name, xy in (plate.get("spots") or {}).items():
-        if name in SPOT:
-            c = to_cell(*xy); put(SPOT[name], c[0], c[1], rnd.randrange(4), 2)
-
-    # --- houses along the roads, which is where houses actually stand ------
-    road_cells = [(x, y) for y in range(GH) for x in range(GW) if roads[y][x]]
-    rnd.shuffle(road_cells)
+    # --- trees where trees grow, and nowhere else ------------------------
     wet = set((x, y) for y in range(GH) for x in range(GW)
               if ground[y][x] == water)
-
-    def free(sx, sy, span=2):
-        if not (0 <= sx <= GW - span and 0 <= sy <= GH - span):
-            return False
-        for a in range(span):
-            for b in range(span):
-                c = (sx + a, sy + b)
-                if c in taken or c in wet or roads[c[1]][c[0]]:
-                    return False
-        return True
-
-    n = 0
-    for (x, y) in road_cells:                 # first ring: fronting a street
-        if n >= 44:
-            break
-        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1),
-                       (1, 1), (-1, -1), (1, -1), (-1, 1)):
-            if free(x + dx, y + dy):
-                put(rnd.choice(houses), x + dx, y + dy, rnd.randrange(4), 2)
-                n += 1
-                break
-    for (x, y) in road_cells:                 # second ring: the lane behind
-        if n >= 62:
-            break
-        for dx, dy in ((2, 0), (-2, 0), (0, 2), (0, -2), (2, 2), (-2, -2)):
-            if free(x + dx, y + dy):
-                put(rnd.choice(houses), x + dx, y + dy, rnd.randrange(4), 2)
-                n += 1
-                break
-
-    # --- trees on the green, animals and folk and clutter on the streets ---
     green_cells = [(x, y) for y in range(GH) for x in range(GW)
-                   if ground[y][x] == green and (x, y) not in taken and (x, y) not in wet]
+                   if ground[y][x] == green and (x, y) not in wet
+                   and not roads[y][x]]
     rnd.shuffle(green_cells)
-    for (x, y) in green_cells[:26]:
+    for (x, y) in green_cells[:18]:
         put(rnd.choice(trees), x, y, rnd.randrange(4))
-    open_cells = [(x, y) for y in range(GH) for x in range(GW)
-                  if (x, y) not in taken and (x, y) not in wet and not roads[y][x]]
-    rnd.shuffle(open_cells)
-    for (x, y) in open_cells[:22]:            # yards: pots, fires, drying cloth
-        put(rnd.choice(DRESS), x, y, rnd.randrange(4))
-    for (x, y) in green_cells[26:34]:
-        put(rnd.choice(trees), x, y, rnd.randrange(4))
-    for (x, y) in road_cells[:20]:            # people go on the road, only
-        objs.append({"p": rnd.choice(FOLK), "x": x, "y": y, "f": rnd.randrange(4)})
-    for (x, y) in road_cells[20:29]:
-        objs.append({"p": rnd.choice(BEASTS), "x": x, "y": y, "f": rnd.randrange(4)})
-    for (x, y) in road_cells[29:33]:
-        objs.append({"p": rnd.choice(CARTS), "x": x, "y": y, "f": rnd.randrange(4)})
+
+    # --- the heart the buildable land grows out from ----------------------
+    # NOT the monument. Dholavira's monument is a reservoir and Lothal's is a
+    # dock: put the heart on the monument and a new city has nowhere to build
+    # anything at all. The heart is the buildable cell with the most free land
+    # around it, nudged toward the monument so a city still grows where its
+    # great work is.
+    mon = to_cell(*plate["mon"]) if plate.get("mon") else (GW // 2, GH // 2)
+    gate = to_cell(*plate["gate"]) if plate.get("gate") else None
+
+    def free_at(x, y):
+        return (0 <= x < GW and 0 <= y < GH and (x, y) not in wet
+                and not roads[y][x] and (x, y) not in taken)
+
+    def room(x, y, r=6):
+        n = 0
+        for dy in range(-r, r + 1):
+            for dx in range(-r, r + 1):
+                if abs(dx) + abs(dy) <= r and free_at(x + dx, y + dy):
+                    n += 1
+        return n
+
+    best, bestScore = mon, -1
+    for y in range(GH):
+        for x in range(GW):
+            if not free_at(x, y):
+                continue
+            d = abs(x - mon[0]) + abs(y - mon[1])
+            score = room(x, y) - d * 1.5      # room first, nearness second
+            if score > bestScore:
+                best, bestScore = (x, y), score
+    centre = best
+
+    # --- the shore: which edges of a water cell face dry land -------------
+    shore = []
+    for y in range(GH):
+        for x in range(GW):
+            if ground[y][x] != water:
+                continue
+            m = 0
+            if x + 1 >= GW or ground[y][x + 1] != water: m |= 1
+            if y + 1 >= GH or ground[y + 1][x] != water: m |= 2
+            if x - 1 < 0 or ground[y][x - 1] != water: m |= 4
+            if y - 1 < 0 or ground[y - 1][x] != water: m |= 8
+            if m:
+                shore.append([x, y, m])
 
     # --- road masks: a piece connects to whichever neighbours are road ----
     net = []
@@ -234,21 +229,10 @@ def build(cid, plate):
                 legend[pid] = "abcdefghijklmnop"[len(legend)]
             line += legend[pid]
         chars.append(line)
-    # --- the shore: which edges of a water cell face dry land -------------
-    shore = []
-    for y in range(GH):
-        for x in range(GW):
-            if ground[y][x] != water:
-                continue
-            m = 0
-            if x + 1 >= GW or ground[y][x + 1] != water: m |= 1
-            if y + 1 >= GH or ground[y + 1][x] != water: m |= 2
-            if x - 1 < 0 or ground[y][x - 1] != water: m |= 4
-            if y - 1 < 0 or ground[y - 1][x] != water: m |= 8
-            if m:
-                shore.append([x, y, m])
 
     return {"gw": GW, "gh": GH, "road": road, "shore": shore,
+            "centre": list(centre), "gate": (list(gate) if gate else None),
+            "wild": wild,
             "legend": {v: k for k, v in legend.items()},
             "ground": chars, "net": net, "objs": objs}
 
@@ -266,8 +250,24 @@ def main():
             print("  no plate for", cid); continue
         out[cid] = build(cid, pl[cid])
         c = out[cid]
-        print("  %-13s %3d road, %3d shore, %3d pieces"
-              % (cid, len(c["net"]), len(c["shore"]), len(c["objs"])))
+        # prove the city is buildable before anyone opens it
+        cx, cy = c["centre"]
+        wet2 = set()
+        for yy in range(c["gh"]):
+            for xx in range(c["gw"]):
+                if c["legend"][c["ground"][yy][xx]].startswith("wa-"):
+                    wet2.add((xx, yy))
+        rd = set((n[0], n[1]) for n in c["net"])
+        occ = set()
+        for o in c["wild"]:
+            occ.add((o["x"], o["y"]))
+        n1 = sum(1 for yy in range(c["gh"]) for xx in range(c["gw"])
+                 if abs(xx - cx) + abs(yy - cy) <= 7
+                 and (xx, yy) not in wet2 and (xx, yy) not in rd and (xx, yy) not in occ)
+        flag = "" if n1 >= 20 else "   <-- TOO TIGHT"
+        print("  %-13s %3d road, %3d shore, %3d wild, heart %-8s %3d free at lv1%s"
+              % (cid, len(c["net"]), len(c["shore"]), len(c["wild"]),
+                 str(c["centre"]), n1, flag))
     with io.open(OUT, "w", encoding="utf-8") as f:
         f.write("/* generated by tools/plate-to-grid.py from data-plates.js —\n"
                 "   the traced dioramas rasterised onto the 2:1 kit board.\n"

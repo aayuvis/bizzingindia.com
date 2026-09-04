@@ -150,12 +150,13 @@
     return !!(W.IND_KIT_GROUND && W.IND_KIT_GROUND.indexOf(id) >= 0);
   };
 
-  K.fieldCell = function (id, x, y, s, z) {
+  K.fieldCell = function (id, x, y, s, z, sown) {
     var F = (W.IND_KIT_GROUND_SIZE || 1024) * s * 0.5,
         w = K.W * 2 * s * K.BLEED, h = K.H * 2 * s * K.BLEED,
         l = x - w / 2, t = y - h;
     function m(v) { v = v % F; return v < 0 ? v + F : v; }
-    return '<i class="kit-f" style="left:' + l.toFixed(1) + 'px;top:' + t.toFixed(1) +
+    return '<i class="kit-f' + (sown ? ' sown' : '') + '" style="left:' + l.toFixed(1) +
+      'px;top:' + t.toFixed(1) +
       'px;width:' + w.toFixed(1) + 'px;height:' + h.toFixed(1) +
       'px;background-image:url(art/kit/_ground/' + id + '.jpg);background-size:' +
       F.toFixed(1) + 'px ' + F.toFixed(1) + 'px;background-position:' +
@@ -265,6 +266,56 @@
     return [(a.x + ox) / box.w * 100, (a.y + oy) / box.h * 100];
   };
 
+  /* A tap lands on a cell, not on a piece. This is K.anchor run backwards:
+   * the centre of cell (gx,gy) sits at ((gx-gy)*W + ox, (gx+gy+1)*H + oy), so
+   * invert that pair and round. Without it a child can look at the board but
+   * not build on it. */
+  K.cellAtPx = function (cid, px, py, rot, scale, headroom) {
+    var C = (W.IND_KIT_CITIES || {})[cid];
+    if (!C) return null;
+    var s = scale || 1, hr = headroom == null ? 5 : headroom,
+        gw = C.gw, gh = C.gh,
+        ox = (rot % 2 ? gw : gh) * K.W, oy = hr * K.RISE,
+        u = (px / s - ox) / K.W, w = (py / s - oy) / K.H - 1,
+        cx = Math.round((u + w) / 2), cy = Math.round((w - u) / 2);
+    /* the cell is in TURNED space; turn it back so the caller gets the cell
+       the data is stored under, whatever way the board is facing */
+    var back = K.turn(cx, cy, 1, 1, (4 - (rot % 4)) % 4,
+                      (rot % 2 ? gh : gw), (rot % 2 ? gw : gh));
+    if (back.x < 0 || back.y < 0 || back.x >= gw || back.y >= gh) return null;
+    return { x: back.x, y: back.y };
+  };
+
+  /* Diamond distance from the city's heart — how a city grows OUT. */
+  K.reach = function (cid, x, y) {
+    var C = (W.IND_KIT_CITIES || {})[cid];
+    if (!C || !C.centre) return 0;
+    return Math.abs(x - C.centre[0]) + Math.abs(y - C.centre[1]);
+  };
+
+  /* What a cell IS, before anything is built on it: 'water', 'road',
+   * 'shore' (dry, but touching water), or 'land'. The build rules speak in
+   * exactly these words. */
+  K.terrain = function (cid, x, y) {
+    var C = (W.IND_KIT_CITIES || {})[cid];
+    if (!C || x < 0 || y < 0 || x >= C.gw || y >= C.gh) return null;
+    var pid = C.legend[C.ground[y].charAt(x)] || '';
+    if (pid.indexOf('wa-') === 0) return 'water';
+    if (!C._road) {
+      C._road = {};
+      C.net.forEach(function (n) { C._road[n[0] + ',' + n[1]] = 1; });
+      C._shore = {};
+      (C.shore || []).forEach(function (n) {
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) {
+          C._shore[(n[0] + d[0]) + ',' + (n[1] + d[1])] = 1;
+        });
+      });
+    }
+    if (C._road[x + ',' + y]) return 'road';
+    if (C._shore[x + ',' + y]) return 'shore';
+    return 'land';
+  };
+
   /* A whole city: the ground sheet, then the road network, then everything
    * that stands on them. Three layers, one painter's order, one anchor rule. */
   K.city = function (cid, opts) {
@@ -288,11 +339,13 @@
     /* --- the ground sheet --------------------------------------------- */
     for (y = 0; y < gh; y++) {
       for (x = 0; x < gw; x++) {
-        var pid = C.legend[C.ground[y][x]];
+        var pid = C.legend[C.ground[y].charAt(x)];
+        if (opts.tiles && opts.tiles[x + ',' + y]) pid = opts.tiles[x + ',' + y];
         if (!pid) continue;
         var c = K.turn(x, y, 1, 1, rot, gw, gh), p = at(c.x, c.y, 1, 1);
+        var sown = !!(opts.tiles && opts.tiles[x + ',' + y]);
         if (K.hasField(pid)) {
-          out.push(K.fieldCell(pid, p.x, p.y, s, c.x + c.y));
+          out.push(K.fieldCell(pid, p.x, p.y, s, c.x + c.y, sown));
         } else {
           out.push('<img class="kit-g" alt="" src="' + K.srcTile(pid, K.jit(x, y) % 3) +
             '" style="left:' + p.x.toFixed(1) + 'px;top:' + p.y.toFixed(1) +
@@ -314,15 +367,41 @@
         '" style="left:' + p.x.toFixed(1) + 'px;top:' + p.y.toFixed(1) +
         'px;width:' + (64 * s * K.BLEED).toFixed(2) + 'px;z-index:' + (c.x + c.y + 2) + '">');
     });
+    /* --- the reach ring: land the city may build on, and land it may not.
+       Outside it the ground is dimmed, so how far the city has grown is a
+       thing you SEE rather than a number in a menu. --- */
+    if (opts.reach != null && C.centre) {
+      for (y = 0; y < gh; y++) {
+        for (x = 0; x < gw; x++) {
+          if (K.reach(cid, x, y) <= opts.reach) continue;
+          var cw = K.turn(x, y, 1, 1, rot, gw, gh), pw = at(cw.x, cw.y, 1, 1);
+          out.push('<i class="kit-far" style="left:' + (pw.x - K.W * s).toFixed(1) +
+            'px;top:' + (pw.y - K.H * 2 * s).toFixed(1) + 'px;width:' +
+            (K.W * 2 * s * K.BLEED).toFixed(1) + 'px;height:' +
+            (K.H * 2 * s * K.BLEED).toFixed(1) + 'px;z-index:' + (cw.x + cw.y + 3) + '"></i>');
+        }
+      }
+    }
+
     /* --- everything that stands up ------------------------------------- */
     var items = [];
-    C.objs.forEach(function (it) {
+    (C.wild || []).concat(opts.built || []).forEach(function (it) {
       var def = K.def(it.p);
       if (!def) return;
       var L = def.d[0] || 1, B = def.d[1] || 1, H = def.d[2] || 0;
       var c = K.turn(it.x, it.y, L, B, rot, gw, gh);
       items.push({ it: it, def: def, c: c, H: H, z: K.depth(c, H) });
     });
+    /* the ghost the child is holding, drawn on the board it will land on */
+    if (opts.ghost && opts.ghost.p) {
+      var gd = K.def(opts.ghost.p);
+      if (gd) {
+        var gc = K.turn(opts.ghost.x, opts.ghost.y, gd.d[0] || 1, gd.d[1] || 1, rot, gw, gh);
+        items.push({ it: { p: opts.ghost.p, f: opts.ghost.f || 0, ghost: 1,
+                           ok: opts.ghost.ok }, def: gd, c: gc,
+                     H: gd.d[2] || 0, z: K.depth(gc, gd.d[2] || 0) + 0.5 });
+      }
+    }
     items.sort(function (a, b) { return a.z - b.z; });
     items.forEach(function (o) {
       var p = at(o.c.x, o.c.y, o.c.L, o.c.B),
@@ -335,7 +414,8 @@
         'px;height:' + ((o.c.L + o.c.B) * K.H * s * k * 0.82).toFixed(1) +
         'px;z-index:' + (zi - 1) + '"></div>');
       if (!src) return;
-      out.push('<img class="kit-p" alt="" src="' + src + '" data-kit="' + o.def.id +
+      out.push('<img class="kit-p' + (o.it.ghost ? ' kit-ghost' + (o.it.ok ? ' ok' : ' no') : '') +
+        '" alt="" src="' + src + '" data-kit="' + o.def.id +
         '" title="' + o.def.name + '" style="left:' + p.x.toFixed(1) + 'px;top:' +
         p.y.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;z-index:' + zi + '">');
     });
@@ -355,7 +435,14 @@
     '  border:1px dashed rgba(207,74,52,.7);background:rgba(207,74,52,.08)}',
     '.kit-g{position:absolute;transform:translate(-50%,-100%);pointer-events:none}',
     '.kit-f{position:absolute;display:block;pointer-events:none;',
-    '  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}'
+    '  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}',
+    /* a sown plot is a thing somebody made: it gets a bund round it, so a
+       bought field reads as a field and not as a patch of colour */
+    '.kit-f.sown{box-shadow:inset 0 0 0 2px rgba(90,62,34,.55),inset 0 0 12px rgba(120,84,40,.35)}',
+    '.kit-far{position:absolute;display:block;pointer-events:none;background:rgba(22,14,30,.42);',
+    '  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}',
+    '.kit-ghost{opacity:.72;filter:drop-shadow(0 0 6px rgba(233,161,59,.9))}',
+    '.kit-ghost.no{filter:grayscale(1) drop-shadow(0 0 6px rgba(207,74,52,.95));opacity:.5}'
   ].join('\n');
 
   /* The board is built at true board pixels and then scaled to whatever box
@@ -364,13 +451,62 @@
     var els = (root || document).querySelectorAll('.sab-kitinner');
     for (var i = 0; i < els.length; i++) {
       var el = els[i], box = el.parentNode;
-      var bw = box.clientWidth || box.offsetWidth;
+      /* Measure the box's PARENT, never the box. fit() sets the box's own
+         width, so measuring the box feeds its last answer back into the next
+         one and the scale runs away — it reached 15170x before this line. */
+      var host = box.parentNode || box;
+      var bw = host.clientWidth || host.offsetWidth;
       if (!bw) continue;
       var w = parseFloat(el.style.width) || 1;
-      var k = bw / w;
+      /* fit to the box, then multiply by however far the child has zoomed in.
+         Past 1 the board is bigger than its window and the window scrolls —
+         which is how a city becomes something you move around inside. */
+      var z = parseFloat(el.getAttribute('data-z')) || 1;
+      var k = (bw / w) * z;
+      if (!(k > 0.02 && k < 12)) continue;      /* a scale that absurd is a bug */
       el.style.transform = 'scale(' + k.toFixed(5) + ')';
+      el.setAttribute('data-k', k.toFixed(5));
       box.style.height = (parseFloat(el.style.height) * k).toFixed(1) + 'px';
+      box.style.width = (w * k).toFixed(1) + 'px';
     }
+  };
+
+  /* Zoomed in, the window shows whatever corner the scroll happens to sit on,
+   * and a board's north corner is empty ground. Put the city's heart in the
+   * middle of the window instead — or the cell the child is holding a piece
+   * over, which is the thing they are actually looking at. */
+  K.lookAt = function (cid, rot, headroom, cell) {
+    var C = (W.IND_KIT_CITIES || {})[cid];
+    var inr = document.getElementById('sab-kitinner');
+    if (!C || !inr) return;
+    /* Nearest ancestor that actually SCROLLS. Content overflowing is not the
+       same as scrolling: .sab-cam overflows and ignores scrollLeft, while its
+       parent is the one with overflow:auto. Ask the computed style. */
+    var box = inr.parentNode;
+    while (box && box !== document.body && box !== document.documentElement) {
+      var ov = W.getComputedStyle ? W.getComputedStyle(box) : null;
+      if (ov && /auto|scroll/.test(ov.overflowX + ' ' + ov.overflowY) &&
+          (box.scrollWidth > box.clientWidth + 2 ||
+           box.scrollHeight > box.clientHeight + 2)) break;
+      box = box.parentNode;
+    }
+    if (!box || box === document.body || box === document.documentElement) return;
+    var k = parseFloat(inr.getAttribute('data-k')) || 1,
+        hr = headroom == null ? 5 : headroom,
+        at = cell || C.centre || [C.gw / 2 | 0, C.gh / 2 | 0],
+        c = K.turn(at[0], at[1], 1, 1, rot || 0, C.gw, C.gh),
+        a = K.anchor(c.x, c.y, 1, 1),
+        ox = ((rot || 0) % 2 ? C.gw : C.gh) * K.W;
+    box.scrollLeft = Math.max(0, (a.x + ox) * k - box.clientWidth / 2);
+    box.scrollTop = Math.max(0, (a.y + hr * K.RISE) * k - box.clientHeight / 2);
+  };
+
+  /* the city repaint replaces the scene, which resets its scroll to zero, so the
+     look has to happen after the browser has actually laid the new one out */
+  K.lookSoon = function (cid, rot, headroom, cell) {
+    var go = function () { K.fit(document); K.lookAt(cid, rot, headroom, cell); };
+    if (W.requestAnimationFrame) W.requestAnimationFrame(function () { go(); go(); });
+    else go();
   };
 
   K.autofit = function () {

@@ -316,35 +316,54 @@
     '.sab-kitbar .z{font:700 11px/1 var(--body);color:#f6efe1;background:rgba(24,16,34,.72);',
     '  padding:7px 6px;border-radius:8px;min-width:38px;text-align:center;font-variant-numeric:tabular-nums}',
     /* the shop: one row per thing, and every row says its price and its point */
-    '.sab-shopwrap{margin:12px 0 2px}',
-    '.sab-shophead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 8px}',
-    '.sab-shophead b{font:800 17px/1.15 var(--display,Georgia,serif)}',
-    '.sab-shophead span{font-size:12.5px;color:var(--muted)}',
-    '.sab-holding{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;',
-    '  padding:8px 12px;border-radius:12px;background:var(--card2,var(--card));',
-    '  border:1px dashed var(--accent);font-size:13.5px}',
-    '.sab-shopg{margin:0 0 14px}',
-    '.sab-shopg h4{margin:0 0 7px;font:800 13px/1.2 var(--body);letter-spacing:.04em}',
-    '.sab-shopg h4 i{font-style:normal;font-weight:400;color:var(--muted);font-size:12px}',
-    '.sab-shopg{display:block}',
-    '.sab-shopg > div{display:grid}',
-    '.sab-shop{display:grid;grid-template-columns:44px 1fr auto;gap:4px 10px;align-items:center;',
-    '  width:100%;text-align:left;margin:0 0 6px;padding:8px 11px;border:1px solid var(--line);',
-    '  border-radius:13px;background:var(--card2,var(--card));cursor:pointer;font:inherit}',
-    '.sab-shop img{grid-row:1/4;width:44px;height:44px;object-fit:contain;object-position:50% 100%}',
-    '.sab-shop b{font:800 14px/1.2 var(--body)}',
-    '.sab-shop b em{font-style:normal;color:var(--muted);font-weight:700}',
-    '.sab-shop .c{grid-column:3;grid-row:1;font:700 12.5px/1 var(--body);color:var(--accent3);white-space:nowrap}',
-    '.sab-shop .g{grid-column:3;grid-row:2;font:700 12px/1 var(--body);color:var(--good);white-space:nowrap}',
-    '.sab-shop i{grid-column:2/4;font-style:normal;font-size:12.5px;color:var(--muted);line-height:1.4}',
-    '.sab-shop u{grid-column:2/4;text-decoration:none;font-size:12px;color:var(--bad);font-weight:700}',
-    '.sab-shop:hover{border-color:var(--accent)}',
-    '.sab-shop.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}',
-    '.sab-shop.cant{opacity:.62}',
-    '.sab-shop:disabled{cursor:default;opacity:.45}',
-    '.sab-shop:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
-    /* zoomed past fit, the board is bigger than its window and the window scrolls */
-    '.sab-scene.iskit{overflow:auto;-webkit-overflow-scrolling:touch}',
+    /* the handle sits on the board; the shelf slides over its bottom third */
+    '.sab-dhandle{position:absolute;left:8px;bottom:8px;z-index:8;display:flex;align-items:center;',
+    '  gap:7px;border:1px solid rgba(255,255,255,.35);background:rgba(24,16,34,.82);color:#f6efe1;',
+    '  font:800 12.5px/1 var(--body);padding:9px 13px 9px 10px;border-radius:11px;cursor:pointer;',
+    '  backdrop-filter:blur(5px);max-width:62%}',
+    '.sab-dhandle img{width:26px;height:26px;object-fit:contain;object-position:50% 100%}',
+    '.sab-dhandle em{font-style:normal;font-size:15px;line-height:1}',
+    '.sab-dhandle b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.sab-dhandle:hover{border-color:var(--accent2)}',
+    '.sab-dhandle:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    '.sab-drawer{position:absolute;left:0;right:0;bottom:0;z-index:9;max-height:58%;',
+    '  display:flex;flex-direction:column;background:rgba(20,13,28,.94);backdrop-filter:blur(9px);',
+    '  border-top:1px solid rgba(255,255,255,.16);border-radius:16px 16px 0 0;color:#f6efe1}',
+    '.sab-dhead{display:flex;align-items:center;gap:6px;padding:8px 8px 4px}',
+    '.sab-dtabs{display:flex;gap:5px;overflow-x:auto;flex:1;scrollbar-width:none}',
+    '.sab-dtabs::-webkit-scrollbar{display:none}',
+    '.sab-dtab{flex:0 0 auto;border:1px solid rgba(255,255,255,.2);background:none;color:#d9cdb8;',
+    '  font:700 11.5px/1 var(--body);padding:7px 9px;border-radius:9px;cursor:pointer;white-space:nowrap}',
+    '.sab-dtab i{font-style:normal;opacity:.6;margin-left:5px}',
+    '.sab-dtab.on{background:var(--accent);border-color:var(--accent);color:#2a1a10}',
+    '.sab-dtab:focus-visible,.sab-dclose:focus-visible,.sab-tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    '.sab-dclose{flex:0 0 auto;border:0;background:none;color:#d9cdb8;font-size:17px;cursor:pointer;padding:4px 8px}',
+    '.sab-dhint{padding:0 12px 6px;font-size:11.5px;color:#a2937c}',
+    '.sab-dhold{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:0 12px 7px;font-size:12.5px}',
+    '.sab-dhold .sab-btn{padding:5px 10px;font-size:11.5px}',
+    '.sab-dtiles{display:flex;gap:8px;overflow-x:auto;padding:2px 10px 12px;',
+    '  scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}',
+    '.sab-tile{flex:0 0 92px;scroll-snap-align:start;display:grid;gap:2px;justify-items:center;',
+    '  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#f6efe1;',
+    '  border-radius:12px;padding:7px 5px 8px;cursor:pointer;font:inherit;text-align:center}',
+    '.sab-tile .art{position:relative;width:52px;height:44px;display:flex;align-items:flex-end;justify-content:center}',
+    '.sab-tile .art img{max-width:52px;max-height:44px;object-fit:contain}',
+    '.sab-tile .art u{position:absolute;right:-2px;top:-2px;text-decoration:none;font:800 10px/1 var(--body);',
+    '  background:var(--accent);color:#2a1a10;border-radius:7px;padding:2px 4px}',
+    '.sab-tile b{font:800 10.5px/1.2 var(--body);max-width:86px;overflow:hidden;',
+    '  text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}',
+    '.sab-tile .c{font:700 10.5px/1 var(--body);color:var(--accent2);white-space:nowrap}',
+    '.sab-tile .g{font:700 10px/1 var(--body);color:#7fd6a8;white-space:nowrap}',
+    '.sab-tile.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}',
+    '.sab-tile.poor{opacity:.5}',
+    '.sab-tile:disabled{opacity:.35;cursor:default}',
+    '@media (max-width:560px){.sab-tile{flex:0 0 80px}.sab-drawer{max-height:64%}}',
+    /* The built board gets a WINDOW, not the whole page. Bounded height means
+       the board scrolls inside it, the build handle at its bottom edge is
+       always reachable, and the city never pushes everything else off screen. */
+    '.sab-scene.iskit{overflow:auto;-webkit-overflow-scrolling:touch;',
+    '  height:min(66vh,620px);min-height:340px;position:relative}',
+    '@media (max-width:560px){.sab-scene.iskit{height:min(58vh,460px)}}',
     '.sab-scene.iskit .sab-cam{transform:none!important}',
     '.sab-kitbar button{border:1px solid rgba(255,255,255,.35);background:rgba(24,16,34,.72);',
     '  color:#f6efe1;font:700 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;',
@@ -874,47 +893,69 @@
         'px">' + r.html + '</div></div>';
     }
 
-    /* THE SHOP. Only what this city, at this level, in this age, may have —
-       and each row says plainly what it costs and what it gives back. */
-    function kitShop(id) {
+    /* THE SHOP IS A DRAWER, not a page. Forty-three rows down the page pushed
+       the city off the screen, and you cannot place a thing you cannot see.
+       So: a handle on the board, and when it is pulled, one shelf of icon
+       tiles across the bottom — art, name, price, what it gives. The board
+       stays visible above it, because the board is the point. */
+    function kitDrawer(id) {
       var q = kitOf(id), x = byId[id], list = offered(id);
       if (!list.length) return '';
+      var open = !!G.kitOpen;
       var byG = {};
       list.forEach(function (it) { (byG[it.g] = byG[it.g] || []).push(it); });
-      var body = (BUILD.groups || []).map(function (g) {
-        var rows = byG[g[0]]; if (!rows || !rows.length) return '';
-        return '<div class="sab-shopg"><h4>' + esc(g[1]) + ' <i>' + esc(g[2]) + '</i></h4>' +
-          rows.map(function (it) {
-            var why = null, def = W.IND_KIT.def(it.p);
-            if (it.only && builtCount(id, it.p) >= 1) why = 'already built';
-            else if (!canPay(costOf(it.cost, 'building'))) why = 'not enough yet';
-            var give = ['anna', 'kala', 'katha'].filter(function (k) { return it.give && it.give[k]; })
-              .map(function (k) { return '+' + it.give[k] + ' ' + ICON[k]; }).join(' ');
-            if (it.pop) give += (give ? ' · ' : '') + '+' + it.pop + ' praja';
-            var n = builtCount(id, it.p);
-            return '<button class="sab-shop' + (hold && hold.p === it.p ? ' on' : '') +
-              (why ? ' cant' : '') + '" data-sab-act="kitpick" data-p="' + it.p + '"' +
-              (why === 'already built' ? ' disabled' : '') +
-              ' aria-label="' + esc(def ? def.name : it.p) + ' — ' + esc(it.what) +
-              ' Costs ' + esc(costStr(costOf(it.cost, 'building'))) + '.">' +
-              '<img src="' + (W.IND_KIT.src(it.p, 0) || '') + '" alt="">' +
-              '<b>' + esc(def ? def.name : it.p) + (n ? ' <em>×' + n + '</em>' : '') + '</b>' +
-              '<span class="c">' + esc(costStr(costOf(it.cost, 'building'))) + '</span>' +
-              (give ? '<span class="g">' + give + '</span>' : '') +
-              '<i>' + esc(it.what) + '</i>' +
-              (why ? '<u>' + why + '</u>' : '') + '</button>';
-          }).join('') + '</div>';
-      }).join('');
+      var groups = (BUILD.groups || []).filter(function (g) { return byG[g[0]]; });
+      if (!groups.length) return '';
+      var tab = (G.kitTab && byG[G.kitTab]) ? G.kitTab : groups[0][0];
       var held = hold ? W.IND_KIT.def(hold.p) : null;
-      return '<div class="sab-shopwrap" id="sab-sec-build">' +
-        '<div class="sab-shophead"><b>Build ' + esc(nameOf(x)) + '</b>' +
-        '<span>the land is free \u00b7 everything on it is yours to put there \u00b7 ' +
-        'reach ' + reachOf(id) + ' at level ' + q.lv + '</span></div>' +
-        (held ? '<div class="sab-holding" role="status">Holding <b>' + esc(held.name) +
-          '</b> — tap the land to set it down. ' +
-          '<button class="sab-btn" data-sab-act="kitturnp">Turn it</button> ' +
-          '<button class="sab-btn" data-sab-act="kitdrop">Put it back</button></div>' : '') +
-        body + '</div>';
+
+      var handle = '<button class="sab-dhandle' + (open ? ' open' : '') +
+        '" data-sab-act="kitopen" aria-expanded="' + open + '"' +
+        ' aria-label="' + (open ? 'Close the build shelf' : 'Open the build shelf \u2014 ' +
+          list.length + ' things this city may build') + '">' +
+        (held ? '<img src="' + (W.IND_KIT.src(hold.p, 0) || '') + '" alt="">' : '<em>\u271a</em>') +
+        '<b>' + (held ? esc(held.name) : 'Build') + '</b></button>';
+      if (!open) return handle;
+
+      var tabs = groups.map(function (g) {
+        return '<button class="sab-dtab' + (g[0] === tab ? ' on' : '') +
+          '" data-sab-act="kittab" data-g="' + g[0] + '"' +
+          ' aria-label="' + esc(g[1]) + ' \u2014 ' + esc(g[2]) + '">' + esc(g[1]) +
+          '<i>' + byG[g[0]].length + '</i></button>';
+      }).join('');
+
+      var tiles = byG[tab].map(function (it) {
+        var def = W.IND_KIT.def(it.p), n = builtCount(id, it.p);
+        var done = it.only && n >= 1;
+        var poor = !done && !canPay(costOf(it.cost, 'building'));
+        var give = ['anna', 'kala', 'katha'].filter(function (k) { return it.give && it.give[k]; })
+          .map(function (k) { return '+' + it.give[k] + ICON[k]; }).join(' ');
+        if (it.pop) give += (give ? ' ' : '') + '+' + it.pop + '\ud83d\udc64';
+        return '<button class="sab-tile' + (hold && hold.p === it.p ? ' on' : '') +
+          (poor ? ' poor' : '') + '" data-sab-act="kitpick" data-p="' + it.p + '"' +
+          (done ? ' disabled' : '') +
+          ' aria-label="' + esc(def ? def.name : it.p) + '. ' + esc(it.what) +
+          ' Costs ' + esc(costStr(costOf(it.cost, 'building'))) +
+          (done ? '. Already built.' : poor ? '. Not enough yet.' : '') + '">' +
+          '<span class="art"><img src="' + (W.IND_KIT.src(it.p, 0) || '') + '" alt="">' +
+          (n ? '<u>' + n + '</u>' : '') + '</span>' +
+          '<b>' + esc(def ? def.name : it.p) + '</b>' +
+          '<span class="c">' + esc(costStr(costOf(it.cost, 'building'))) + '</span>' +
+          (give ? '<span class="g">' + give + '</span>' : '') + '</button>';
+      }).join('');
+
+      return handle +
+        '<div class="sab-drawer" id="sab-sec-build" role="group" aria-label="Build">' +
+          '<div class="sab-dhead"><div class="sab-dtabs">' + tabs + '</div>' +
+          '<button class="sab-dclose" data-sab-act="kitopen" aria-label="Close the build shelf">\u2715</button></div>' +
+          (held ? '<div class="sab-dhold" role="status">Holding <b>' + esc(held.name) +
+            '</b> \u00b7 tap the land to set it down' +
+            '<button class="sab-btn" data-sab-act="kitturnp">Turn</button>' +
+            '<button class="sab-btn" data-sab-act="kitdrop">Put back</button></div>'
+            : '<div class="sab-dhint">the land is free \u00b7 reach ' + reachOf(id) +
+              ' at level ' + q.lv + '</div>') +
+          '<div class="sab-dtiles">' + tiles + '</div>' +
+        '</div>';
     }
 
     function dioOf(id) {
@@ -2193,7 +2234,7 @@
           '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
           scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri +
           '</div>' +
-          plate + stations + badges + '</div>' + (KITC ? kitShop(id) : '') + treHint +
+          plate + stations + badges + (KITC ? kitDrawer(id) : '') + '</div>' + treHint +
           (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
             'the scaffolding comes down, and the colours come back.</div>');
       }
@@ -3540,9 +3581,12 @@
         if (a === 'kitpick') {
           var pid2 = actEl.getAttribute('data-p');
           hold = (hold && hold.p === pid2) ? null : { p: pid2, cell: null, f: 0 };
+          if (hold) G.kitOpen = false;   /* hands full: out of the way of the land */
           paintCity(); return;
         }
         if (a === 'kitdrop') { hold = null; paintCity(); return; }
+        if (a === 'kitopen') { G.kitOpen = !G.kitOpen; paintCity(); return; }
+        if (a === 'kittab') { G.kitTab = actEl.getAttribute('data-g'); paintCity(); return; }
         if (a === 'kitturnp') { if (hold) hold.f = ((hold.f || 0) + 1) % 4; paintCity(); return; }
         if (a === 'gowarn') {
           if (!G.warn || !byId[G.warn.id]) return;

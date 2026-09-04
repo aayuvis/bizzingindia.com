@@ -2,8 +2,48 @@
 const { chromium } = require('playwright');
 let fails = 0;
 const check = (n, ok, x) => { console.log((ok?'PASS':'FAIL')+'  '+n+(x!==undefined?'  ['+x+']':'')); if(!ok) fails++; };
+const openShelf = async (p) => { if (!(await p.$('.sab-drawer'))) { await p.evaluate(() => { const h=document.querySelector('.sab-dhandle'); if(h) h.dispatchEvent(new MouseEvent('click',{bubbles:true})); }); await p.waitForTimeout(260); } };
 const tap = (p, sel) => p.evaluate(sel => { const el=document.querySelector(sel); if(!el) return false;
   for (const t of ['pointerdown','mousedown','pointerup','mouseup','click']) el.dispatchEvent(new MouseEvent(t,{bubbles:true,cancelable:true})); return true; }, sel);
+/* the shelf is tabbed: open it, go to the group the thing lives in, take it */
+const pick = async (p, pid) => {
+  await p.evaluate(async (pid) => {
+    const click = el => el && el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+    if (!document.querySelector('.sab-drawer')) click(document.querySelector('.sab-dhandle'));
+  }, pid);
+  await p.waitForTimeout(240);
+  const g = await p.evaluate(pid => {
+    const it = window.IND_KIT_BUILD.items.find(i => i.p === pid); return it ? it.g : null; }, pid);
+  await p.evaluate(g => {
+    const t = document.querySelector('.sab-dtab[data-g="' + g + '"]');
+    if (t) t.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+  }, g);
+  await p.waitForTimeout(240);
+  return await p.evaluate(pid => {
+    const t = document.querySelector('.sab-tile[data-p="' + pid + '"]');
+    if (!t) return false;
+    t.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+    return true;
+  }, pid);
+};
+/* everything the shelf would show, across every tab. Each tab click repaints
+   the city, so the node list has to be re-read every time rather than walked. */
+const allOffered = async (p) => {
+  const tabs = await p.evaluate(() =>
+    [...document.querySelectorAll('.sab-dtab')].map(t => t.getAttribute('data-g')));
+  const out = [];
+  for (const g of tabs) {
+    await p.evaluate(g => {
+      const t = document.querySelector('.sab-dtab[data-g="' + g + '"]');
+      if (t) t.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    }, g);
+    await p.waitForTimeout(160);
+    const got = await p.evaluate(() =>
+      [...document.querySelectorAll('.sab-tile')].map(x => x.getAttribute('data-p')));
+    out.push(...got);
+  }
+  return out;
+};
 const peek = p => p.evaluate(() => window.__SAB ? window.__SAB() : null);
 const G = p => p.evaluate(() => window.__SABG ? window.__SABG() : null);
 
@@ -47,17 +87,19 @@ async function place(p, cx, cy) {
   const st0 = await p.evaluate(() => ({
     built: (window.__SABG().sites.dholavira.kit||[]).length,
     pieces: document.querySelectorAll('.sab-kitboard .kit-p').length,
-    shop: document.querySelectorAll('.sab-shop').length,
+    shop: document.querySelectorAll('.sab-dhandle').length,
     far: document.querySelectorAll('.kit-far').length
   }));
   check('a new city has nothing built on it', st0.built === 0, st0.built);
   check('but the land is not bare — trees are already there', st0.pieces > 0, st0.pieces);
-  check('the shop offers this city something', st0.shop > 0, st0.shop);
+  check('the board carries a build handle, not a page of rows', st0.shop === 1, st0.shop);
   check('land beyond the reach is dimmed', st0.far > 0, st0.far);
 
   /* ---- 2 · pick, hold, place ---- */
-  await tap(p, '.sab-shop[data-p="cr-wheat"]'); await p.waitForTimeout(500);
-  check('picking a thing puts it in her hands', !!(await p.$('.sab-holding')));
+  await pick(p, 'cr-wheat'); await p.waitForTimeout(500);
+  check('picking a thing puts it in her hands', await p.evaluate(() => {
+    const h = document.querySelector('.sab-dhandle b'); return !!h && h.textContent !== 'Build'; }));
+  check('and the shelf gets out of the way of the land', !(await p.$('.sab-drawer')));
   const before = await p.evaluate(() => window.__SABG().res.anna);
   /* find the free land cells this city may actually build on */
   const land = await p.evaluate(() => {
@@ -81,14 +123,14 @@ async function place(p, cx, cy) {
   /* ---- 3 · it pays out, every turn ---- */
   const y = await p.evaluate(() => {
     const D=window.IND_SABHYATA; return window.__SABG().sites.dholavira.kit.length; });
-  await tap(p, '.sab-shop[data-p="hs-hut-round"]'); await p.waitForTimeout(400);
+  await pick(p, 'hs-hut-round'); await p.waitForTimeout(400);
   const pop0 = await p.evaluate(() => { const m=document.querySelector('.sab-nameplate span'); return m?m.textContent:''; });
   await place(p, land[3][0], land[3][1]); await p.waitForTimeout(700);
   const pop1 = await p.evaluate(() => { const m=document.querySelector('.sab-nameplate span'); return m?m.textContent:''; });
   check('a home adds a praja to the city', pop0 !== pop1, pop1.slice(0,26));
 
   /* ---- 4 · the rules bite ---- */
-  await tap(p, '.sab-shop[data-p="hs-hut-round"]'); await p.waitForTimeout(300);
+  await pick(p, 'hs-hut-round'); await p.waitForTimeout(300);
   await place(p, land[3][0], land[3][1]); await p.waitForTimeout(500);
   const k2 = await p.evaluate(() => window.__SABG().sites.dholavira.kit.length);
   check('nothing may stand on top of something else', k2 === 2, k2);
@@ -97,7 +139,7 @@ async function place(p, cx, cy) {
   check('and nothing may be built beyond the reach', k3 === 2, k3);
 
   /* ---- 5 · keyboard builds too (house rule) ---- */
-  await tap(p, '.sab-shop[data-p="cr-wheat"]'); await p.waitForTimeout(300);
+  await pick(p, 'cr-wheat'); await p.waitForTimeout(300);
   await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowDown');
   await p.waitForTimeout(300);
   await p.keyboard.press('Enter'); await p.waitForTimeout(700);
@@ -118,15 +160,22 @@ async function place(p, cx, cy) {
         'scroll ' + look.l + ',' + look.t);
 
   /* ---- 7 · the menu is the city's own, and grows with it ---- */
-  const at1 = await p.evaluate(() => [...document.querySelectorAll('.sab-shop')].map(e=>e.getAttribute('data-p')));
+  await p.evaluate(() => { const h=document.querySelector('.sab-dhandle'); if(h) h.dispatchEvent(new MouseEvent('click',{bubbles:true})); });
+  await p.waitForTimeout(300);
+  const at1 = await allOffered(p);
   check('a level-1 city is not shown level-2 things', at1.indexOf('wa-reservoir') < 0, at1.length + ' items at lv1');
   await p.evaluate(() => { window.__SABG().sites.dholavira.lv = 2; });
   await tap(p, '[data-sab-act="kitturn"]'); await p.waitForTimeout(900);
-  const at2 = await p.evaluate(() => [...document.querySelectorAll('.sab-shop')].map(e=>e.getAttribute('data-p')));
+  await p.evaluate(() => { if(!document.querySelector('.sab-drawer')){const h=document.querySelector('.sab-dhandle'); if(h) h.dispatchEvent(new MouseEvent('click',{bubbles:true}));} });
+  await p.waitForTimeout(300);
+  const at2 = await allOffered(p);
   check('grown to level 2, Dholavira is offered its own reservoirs',
         at2.indexOf('wa-reservoir') >= 0, at2.length + ' items at lv2');
-  check('and the reach grew with it', await p.evaluate(() =>
-        /reach 10/.test(document.querySelector('.sab-shophead span').textContent)));
+  await p.evaluate(() => { const d=document.querySelector('[data-sab-act="kitdrop"]');
+    if (d) d.dispatchEvent(new MouseEvent('click',{bubbles:true})); });
+  await p.waitForTimeout(300);
+  check('and the reach grew with it', await p.evaluate(() => {
+    const h = document.querySelector('.sab-dhint'); return !!h && /reach 10/.test(h.textContent); }));
   /* a great work belongs to one city only */
   const elsewhere = await p.evaluate(() => {
     const D=window.IND_KIT_BUILD.items.find(i=>i.p==='wa-reservoir');

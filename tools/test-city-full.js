@@ -141,6 +141,40 @@ const view = p => p.evaluate(() => {
           !!vw2 && Math.abs(vw2.l - vw.l) < 4 && Math.abs(vw2.t - vw.t) < 4,
           vw ? vw.l + ',' + vw.t + ' -> ' + vw2.l + ',' + vw2.t : '');
 
+    /* THREE WAYS A ROW CAN BE PRESSED, and it has to answer all three.
+       It was reported dead on a real device while every engine here said it
+       was pressed and answered, so the click was going missing somewhere I
+       could not see. The rows take pointerdown/up themselves now — this
+       checks that path with NO click at all, checks a click on its own still
+       works, and checks a tap landing on the SVG icon rather than the text,
+       which used to fall through a closest() guard that SVG elements do not
+       satisfy in every engine. */
+    const onlyPointers = async sel => {
+      await p.evaluate(sel => {
+        const el = document.querySelector(sel), r = el.getBoundingClientRect();
+        const o = { bubbles: true, cancelable: true, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 };
+        el.dispatchEvent(new PointerEvent('pointerdown', o));
+        el.dispatchEvent(new PointerEvent('pointerup', o));   /* and NO click */
+      }, sel);
+      await p.waitForTimeout(500);
+    };
+    await p.evaluate(() => { const h = document.getElementById('sab-ovhost'); if (h) h.innerHTML = ''; });
+    await onlyPointers('.sab-callrow[data-c="about"]');
+    check('a row opens on pointers alone, with no click at all', !!(await card(p)),
+          (await card(p) || 'nothing opened').slice(0, 40));
+    await shut(p);
+    await p.evaluate(() => document.querySelector('.sab-bell').click());
+    await p.waitForTimeout(350);
+    /* a tap that lands on the icon, not the words */
+    await p.evaluate(() => { const h = document.getElementById('sab-ovhost'); if (h) h.innerHTML = ''; });
+    await onlyPointers('.sab-callrow[data-c="works"] .ic svg');
+    check('and when the finger lands on the icon rather than the words',
+          !!(await card(p)), (await card(p) || 'nothing opened').slice(0, 40));
+    await shut(p);
+    await p.evaluate(() => document.querySelector('.sab-bell').click());
+    await p.waitForTimeout(350);
+
+    await p.evaluate(() => { const h = document.getElementById('sab-ovhost'); if (h) h.innerHTML = ''; });
     await p.evaluate(() => document.querySelector('.sab-callrow[data-c="about"]').click());
     await p.waitForTimeout(500);
     const c1 = await card(p);

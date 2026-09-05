@@ -5,11 +5,17 @@ const VIEWS = [
   { n: 'tablet',  w: 820,  h: 1180, touch: true },
   { n: 'desktop', w: 1440, h: 900,  touch: false },
 ];
+/* two real taps a real gap apart, re-finding the node in between: selecting a
+   city repaints the map, so the second tap lands on a new node, and the game
+   counts the pair itself rather than trusting the browser's dblclick */
 const openCity = async (p, sid) => {
-  await p.evaluate(sid => { const g=document.getElementById('sab-'+sid);
-    for (const t of ['pointerdown','mousedown','pointerup','mouseup','click'])
-      g.dispatchEvent(new MouseEvent(t,{bubbles:true,cancelable:true}));
-    g.dispatchEvent(new MouseEvent('dblclick',{bubbles:true,cancelable:true})); }, sid);
+  await p.evaluate(sid => {
+    const hit = () => { const g=document.getElementById('sab-'+sid); if (!g) return;
+      for (const t of ['pointerdown','mousedown','pointerup','mouseup','click'])
+        g.dispatchEvent(new MouseEvent(t,{bubbles:true,cancelable:true})); };
+    hit();
+    return new Promise(res => setTimeout(() => { hit(); res(); }, 120));
+  }, sid);
   await p.waitForTimeout(1500);
 };
 async function boot(b, v) {
@@ -73,26 +79,35 @@ const probe = p => p.evaluate(() => {
   out.board = (() => { const v=document.querySelector('.sab-view'); if(!v) return null;
     return { cw: v.clientWidth, sw: v.scrollWidth, ch: v.clientHeight, sh: v.scrollHeight }; })();
   out.zoom = window.__SABG().kitZ || 1;
+  /* THE QUIET LIE. With no city open there is no HUD to spill, no tap target
+     to be too small and no board to overflow, so every check passes and the
+     audit prints a clean sheet having looked at nothing. It happened: the way
+     the audit entered a city stopped working and the run still read green.
+     Not finding the city is now the loudest failure it can report. */
+  if (!sr) out.issues.unshift('NO CITY OPEN — this run measured nothing');
   return out;
 });
 (async () => {
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  let bad = 0;
   for (const v of VIEWS) {
     const { p, errs } = await boot(b, v);
     console.log('\n=== ' + v.n + ' ' + v.w + 'x' + v.h + ' ===');
     let r = await probe(p);
     console.log(' shut  scene', JSON.stringify(r.scene), 'board', JSON.stringify(r.board), 'zoom', r.zoom);
-    r.issues.forEach(i => console.log('   ! ' + i));
+    r.issues.forEach(i => { console.log('   ! ' + i); bad++; });
     await p.screenshot({ path: 'aud-' + v.n + '-shut.png' });
     /* open the shelf */
     await p.evaluate(() => { const h=document.querySelector('.sab-dhandle'); if(h) h.click(); });
     await p.waitForTimeout(500);
     r = await probe(p);
     console.log(' open');
-    r.issues.forEach(i => console.log('   ! ' + i));
+    r.issues.forEach(i => { console.log('   ! ' + i); bad++; });
     await p.screenshot({ path: 'aud-' + v.n + '-open.png' });
-    if (errs.length) console.log('   JS ' + errs.slice(0,3).join(' | '));
+    if (errs.length) { console.log('   JS ' + errs.slice(0,3).join(' | ')); bad += errs.length; }
     await p.close();
   }
   await b.close();
+  console.log(bad ? '\n' + bad + ' ISSUES' : '\nALL GREEN');
+  process.exit(bad ? 1 : 0);
 })().catch(e => { console.error('SUITE', e.message); process.exit(1); });

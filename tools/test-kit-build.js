@@ -47,12 +47,21 @@ const allOffered = async (p) => {
 const peek = p => p.evaluate(() => window.__SAB ? window.__SAB() : null);
 const G = p => p.evaluate(() => window.__SABG ? window.__SABG() : null);
 
+/* Two real taps, a real gap apart, re-finding the node in between — which is
+   the whole point: selecting a city repaints the map, so the second tap lands
+   on a NEW node. The game counts the two itself for exactly that reason, and a
+   bare synthetic 'dblclick' event (which no browser emits on its own) would
+   test a path a child never walks. */
 async function openCity(p, sid) {
   await p.evaluate(sid => {
-    const g = document.getElementById('sab-' + sid);
-    for (const t of ['pointerdown','mousedown','pointerup','mouseup','click'])
-      g.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true }));
-    g.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+    const hit = () => {
+      const g = document.getElementById('sab-' + sid);
+      if (!g) return;
+      for (const t of ['pointerdown','mousedown','pointerup','mouseup','click'])
+        g.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true }));
+    };
+    hit();
+    return new Promise(res => setTimeout(() => { hit(); res(); }, 120));
   }, sid);
   await p.waitForTimeout(1500);
 }

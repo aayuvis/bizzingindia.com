@@ -339,6 +339,17 @@
     '.sab-dtab:focus-visible,.sab-dclose:focus-visible,.sab-tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
     '.sab-dclose{flex:0 0 auto;border:0;background:none;color:#d9cdb8;font-size:17px;cursor:pointer;padding:4px 8px}',
     '.sab-dhint{padding:0 12px 6px;font-size:11.5px;color:#a2937c}',
+    '.sab-drow{padding:0 12px 8px}',
+    /* Grow lives with the city it grows, not on the realm map beside Route */
+    '.sab-grow{position:absolute;right:8px;bottom:8px;z-index:8;display:flex;align-items:center;',
+    '  gap:8px;border:1px solid rgba(255,255,255,.3);background:rgba(24,16,34,.82);color:#f6efe1;',
+    '  font:800 12.5px/1 var(--body);padding:9px 12px;border-radius:11px;cursor:pointer;',
+    '  backdrop-filter:blur(5px)}',
+    '.sab-grow em{font-style:normal;font-weight:700;color:var(--accent2)}',
+    '.sab-grow.can{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}',
+    '.sab-grow:disabled{opacity:.5;cursor:default}',
+    '.sab-grow:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    '.sab-drawer .sab-grow{position:static;width:100%;justify-content:center}',
     '.sab-dhold{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:0 12px 7px;font-size:12.5px}',
     '.sab-dhold .sab-btn{padding:5px 10px;font-size:11.5px}',
     '.sab-dtiles{display:flex;gap:8px;overflow-x:auto;padding:2px 10px 12px;',
@@ -364,9 +375,13 @@
     /* The built board gets a WINDOW, not the whole page. Bounded height means
        the board scrolls inside it, the build handle at its bottom edge is
        always reachable, and the city never pushes everything else off screen. */
-    '.sab-scene.iskit{overflow:auto;-webkit-overflow-scrolling:touch;',
-    '  height:min(66vh,620px);min-height:340px;position:relative}',
-    '@media (max-width:560px){.sab-scene.iskit{height:min(58vh,460px)}}',
+    '.sab-scene.iskit{overflow:hidden;position:relative;',
+    '  height:min(66vh,620px);min-height:340px;touch-action:none}',
+    '@media (max-width:560px){.sab-scene.iskit{height:min(60vh,480px)}}',
+    '.sab-view{position:absolute;inset:0;overflow:auto;-webkit-overflow-scrolling:touch;',
+    '  cursor:grab;scrollbar-width:thin}',
+    '.sab-view.grabbing{cursor:grabbing}',
+    '.sab-view.placing{cursor:crosshair}',
     '.sab-scene.iskit .sab-cam{transform:none!important}',
     '.sab-kitbar button{border:1px solid rgba(255,255,255,.35);background:rgba(24,16,34,.72);',
     '  color:#f6efe1;font:700 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;',
@@ -915,13 +930,27 @@
       var tab = (G.kitTab && byG[G.kitTab]) ? G.kitTab : groups[0][0];
       var held = hold ? W.IND_KIT.def(hold.p) : null;
 
+      /* GROWING IS A CITY THING. It used to sit on the map beside Route and
+         Utsav, which are realm things; a level is the city's own reach and
+         its own menu, so it is decided while looking at the city. */
+      var grow = '';
+      if (q.lv < T.maxLevel && !q.zzz && !q.her) {
+        var gc = costOf({ anna: T.growCost[q.lv] }, 'grow');
+        grow = '<button class="sab-grow' + (canPay(gc) ? ' can' : '') +
+          '" data-sab-act="grow"' + (canPay(gc) ? '' : ' disabled') +
+          ' aria-label="Grow ' + esc(nameOf(x)) + ' to level ' + (q.lv + 1) +
+          ' — the land it may build on widens, and more is offered. Costs ' +
+          esc(costStr(gc)) + '">\u2b06 Grow to level ' + (q.lv + 1) +
+          '<em>' + esc(costStr(gc)) + '</em></button>';
+      }
+
       var handle = '<button class="sab-dhandle' + (open ? ' open' : '') +
         '" data-sab-act="kitopen" aria-expanded="' + open + '"' +
         ' aria-label="' + (open ? 'Close the build shelf' : 'Open the build shelf \u2014 ' +
           list.length + ' things this city may build') + '">' +
         (held ? '<img src="' + (W.IND_KIT.src(hold.p, 0) || '') + '" alt="">' : '<em>\u271a</em>') +
         '<b>' + (held ? esc(held.name) : 'Build') + '</b></button>';
-      if (!open) return handle;
+      if (!open) return handle + grow;
 
       var tabs = groups.map(function (g) {
         return '<button class="sab-dtab' + (g[0] === tab ? ' on' : '') +
@@ -964,6 +993,7 @@
             '<button class="sab-btn" data-sab-act="kitdrop">Put back</button></div>'
             : '<div class="sab-dhint">the land is free \u00b7 reach ' + reachOf(id) +
               ' at level ' + q.lv + '</div>') +
+          (grow ? '<div class="sab-drow">' + grow + '</div>' : '') +
           '<div class="sab-dtiles">' + tiles + '</div>' +
         '</div>';
     }
@@ -1886,14 +1916,18 @@
         b.push(tile('wake', 'sun', 'Wake', connected(sel) ? T.wakeCost + ' \ud83d\udcdc' : 'needs a road',
           { go: true, disabled: !connected(sel) }));
       } else {
-        if (q.lv < T.maxLevel) b.push(tile('grow', 'tree', 'Grow', T.growCost[q.lv] + ' \ud83c\udf3e'));
         b.push(tile('route', 'road', 'Route', costStr(costOf({ kala: T.routeCost }, 'route'))));
         b.push(tile('utsav', 'lamp', 'Utsav',
           G.utsav > 0 ? G.utsav + 's' : utsavCost().anna + ' \ud83c\udf3e + ' + utsavCost().kala + ' \ud83d\udee0\ufe0f',
           { disabled: G.utsav > 0 }));
+        /* No Enter-city button: the city itself is the button. Double-click
+           it, or press Enter with it selected. A tile that says "enter the
+           thing you just tapped" is a tile that should not exist. */
         var waiting = cityJobsWaiting(sel).length;
-        b.push(tile('city', 'temple', 'Enter city', waiting ? 'a scroll waits!' : '',
-          { go: true, badge: waiting || '', hot: inDispute(sel) }));
+        if (waiting || inDispute(sel))
+          b.push(tile('city', 'temple', waiting ? 'A scroll waits' : 'A quarrel',
+            'open ' + esc(nameOf(byId[sel])),
+            { go: true, badge: waiting || '\u26a1', hot: inDispute(sel) }));
         if (hiddenSites().length)
           b.push(tile('explore', 'run', 'Explorer', T.exploreCost + ' \ud83c\udf3e'));
       }
@@ -2242,15 +2276,21 @@
         if (KITC) yatri = ySrc2 ? '<div class="sab-yatri" id="sab-yatri" style="left:' +
           yav[0].toFixed(2) + '%;top:' + yav[1].toFixed(2) + '%"><img src="' + ySrc2 +
           '" alt=""></div>' : '';
+        /* THE BOARD SCROLLS; THE HUD DOES NOT. With everything in one
+           scrolling box the city's own nameplate drifted up the screen and
+           hung in the middle of it. The board now lives in its own scroller
+           and the nameplate, the stations, the shelf and the zoom sit on top
+           of it, pinned to the frame. */
         h += '<div class="sab-scene' + (KITC ? ' iskit' : '') + '">' +
           (atlas && !KITC ? '<style>' + roadKeyframes(id) + '</style>' : '') +
+          (KITC ? '<div class="sab-view" id="sab-view">' : '') +
           '<div class="sab-cam" id="sab-cam" style="transform:' + camStr() + '">' +
           (KITC ? kitBoard(id)
                 : '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">') +
           (KITC ? '' : greenLayer(id)) +
           '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
           scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri +
-          '</div>' +
+          '</div>' + (KITC ? '</div>' : '') +
           plate + stations + badges + (KITC ? kitDrawer(id) : '') + '</div>' + treHint +
           (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
             'the scaffolding comes down, and the colours come back.</div>');
@@ -2712,7 +2752,9 @@
         if (G.res.anna < cost) return say('Not enough anna yet — the fields are still filling.', '');
         G.res.anna -= cost; q.lv++; G.score += 10; touch(sel);
         fxAt(s.x, s.y, 'grow');
-        say(s.name + ' grows. The lamps burn a little brighter.', 'warm');
+        say(s.name + ' grows \u2014 the land it may build on widens, and the '
+            + 'shelf has more on it.', 'warm');
+        if (city === sel) paintCity();
       }
       if (name === 'route') {
         if (!canPay(costOf({ kala: T.routeCost }, 'route'))) return say('Routes take kala — grow a craft town, or wait for the workshops.', '');
@@ -3439,6 +3481,82 @@
         if (g) g.focus({ preventScroll: true });
       }
     }
+    /* PAN AND ZOOM. A city you build in is a city you move around inside, and
+       scrollbars are not how anyone does that. Drag the board to pan; wheel or
+       pinch to zoom about the pointer; +/- and double-click as well, because
+       every game here works by finger AND by key. */
+    var ZOOMS = [0.6, 0.85, 1, 1.4, 2, 2.8];
+
+    function kitView() { return D.getElementById('sab-view'); }
+
+    function kitZoomTo(z, ax, ay) {
+      var v = kitView(); if (!v) return;
+      var old = G.kitZ || 1;
+      z = Math.max(ZOOMS[0], Math.min(ZOOMS[ZOOMS.length - 1], z));
+      if (Math.abs(z - old) < 0.001) return;
+      /* keep the point under the pointer under the pointer */
+      var r = v.getBoundingClientRect();
+      var px = (ax == null ? r.width / 2 : ax - r.left) + v.scrollLeft;
+      var py = (ay == null ? r.height / 2 : ay - r.top) + v.scrollTop;
+      G.kitZ = z;
+      paintCity();
+      var v2 = kitView(); if (!v2) return;
+      W.IND_KIT.fit(D);
+      var k = z / old;
+      v2.scrollLeft = px * k - (ax == null ? r.width / 2 : ax - r.left);
+      v2.scrollTop = py * k - (ay == null ? r.height / 2 : ay - r.top);
+    }
+
+    function kitStep(d, ax, ay) {
+      var i = ZOOMS.indexOf(G.kitZ || 1); if (i < 0) i = 2;
+      kitZoomTo(ZOOMS[Math.max(0, Math.min(ZOOMS.length - 1, i + d))], ax, ay);
+    }
+
+    var drag = null, pinch = null;
+
+    function kitPointerDown(e) {
+      var v = kitView();
+      if (!v || !city || !kitOn(city) || hold) return;
+      if (e.target.closest && e.target.closest('[data-sab-act]')) return;
+      if (!v.contains(e.target)) return;
+      drag = { x: e.clientX, y: e.clientY, sl: v.scrollLeft, st: v.scrollTop, moved: 0 };
+      v.classList.add('grabbing');
+    }
+    function kitPointerMove(e) {
+      if (!drag) return;
+      var v = kitView(); if (!v) { drag = null; return; }
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      drag.moved = Math.max(drag.moved, Math.abs(dx) + Math.abs(dy));
+      v.scrollLeft = drag.sl - dx;
+      v.scrollTop = drag.st - dy;
+      if (drag.moved > 6) swallowClick = true;   /* a drag is not a tap */
+    }
+    function kitPointerUp() {
+      var v = kitView();
+      if (v) v.classList.remove('grabbing');
+      drag = null;
+    }
+    function kitWheel(e) {
+      var v = kitView();
+      if (!v || !city || !kitOn(city) || !v.contains(e.target)) return;
+      e.preventDefault();
+      kitStep(e.deltaY < 0 ? 1 : -1, e.clientX, e.clientY);
+    }
+    function kitTouch(e) {
+      var v = kitView();
+      if (!v || !city || !kitOn(city)) return;
+      if (e.touches && e.touches.length === 2) {
+        var a = e.touches[0], b2 = e.touches[1];
+        var d = Math.hypot(a.clientX - b2.clientX, a.clientY - b2.clientY);
+        var mx = (a.clientX + b2.clientX) / 2, my = (a.clientY + b2.clientY) / 2;
+        if (!pinch) { pinch = { d: d, z: G.kitZ || 1 }; }
+        else if (d > 0) {
+          e.preventDefault();
+          kitZoomTo(pinch.z * (d / pinch.d), mx, my);
+        }
+      } else { pinch = null; }
+    }
+
     /* A tap on the board is a placement, not a walk. The board's own scale
        lives on the element, so the sum works at every zoom and every turn. */
     function kitTap(e) {
@@ -3584,17 +3702,7 @@
         }
         /* zoom is the board's own, not the yatri camera's: a city you can
            build in is a city you must be able to lean into */
-        if (a === 'kitzoom') {
-          var ZS = [0.6, 0.85, 1, 1.4, 2, 2.8];
-          var zi2 = ZS.indexOf(G.kitZ || 1); if (zi2 < 0) zi2 = 2;
-          zi2 = Math.max(0, Math.min(ZS.length - 1,
-                zi2 + (+actEl.getAttribute('data-d') || 1)));
-          G.kitZ = ZS[zi2];
-          paintCity();
-          W.IND_KIT.lookSoon(city, G.kitRot || 0, KIT_HEAD,
-                             hold && hold.cell ? [hold.cell.x, hold.cell.y] : null);
-          return;
-        }
+        if (a === 'kitzoom') { kitStep(+actEl.getAttribute('data-d') || 1); return; }
         if (a === 'kitpick') {
           var pid2 = actEl.getAttribute('data-p');
           hold = (hold && hold.p === pid2) ? null : { p: pid2, cell: null, f: 0 };
@@ -3731,6 +3839,10 @@
       if (dead) return;
       var eat = function () { e.preventDefault(); e.stopPropagation(); };
       if (city) {
+        /* Escape unwinds one thing at a time, innermost first: put the held
+           piece back, then close the city. Closing the city while a child is
+           holding a hut is not what Escape means. */
+        if (e.key === 'Escape' && hold) { eat(); hold = null; paintCity(); return; }
         if (e.key === 'Escape') { eat(); city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
         /* the arrows walk the yatri — the keyboard walks too (house rule) */
         /* HOLDING A PIECE, THE ARROWS MOVE IT. Every game here works by
@@ -3886,6 +3998,32 @@
     host.addEventListener('click', onClick);
     D.addEventListener('pointermove', onPointerMove);
     host.addEventListener('pointermove', kitHover);
+    host.addEventListener('pointerdown', kitPointerDown);
+    D.addEventListener('pointermove', kitPointerMove);
+    D.addEventListener('pointerup', kitPointerUp);
+    D.addEventListener('pointercancel', kitPointerUp);
+    host.addEventListener('wheel', kitWheel, { passive: false });
+    host.addEventListener('touchmove', kitTouch, { passive: false });
+    host.addEventListener('touchend', function () { pinch = null; });
+    /* double-tap the board zooms in, the way every map does */
+    host.addEventListener('dblclick', function (e) {
+      var v = kitView();
+      if (v && city && kitOn(city) && v.contains(e.target) && !hold) {
+        e.preventDefault(); kitStep(1, e.clientX, e.clientY);
+      }
+    });
+    /* DOUBLE-CLICK A CITY TO GO IN. One click still selects it and shows what
+       it is; two takes you inside, which is what a child does anyway. */
+    host.addEventListener('dblclick', function (e) {
+      if (city) return;
+      var id2 = siteAt(e.target);
+      if (!id2) return;
+      e.preventDefault();
+      var q2 = G.sites[id2];
+      if (!q2 || q2.zzz || q2.fade >= 0) return;
+      sel = id2; kbd = id2;
+      act('city');
+    });
     D.addEventListener('pointerup', onPointerUp);
     D.addEventListener('pointercancel', onPointerUp);
     /* keys live on the document: focus often rests on the page body, and a game whose

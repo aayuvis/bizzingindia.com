@@ -465,11 +465,14 @@
     '.sab-bell.hot{border-color:var(--accent);box-shadow:0 0 0 2px rgba(230,160,60,.35)}',
     '.sab-bell u{text-decoration:none;position:absolute;right:-5px;top:-5px;background:var(--accent);',
     '  color:#2a1a10;border-radius:7px;padding:1px 4px;font:800 9px/1.3 var(--body)}',
-    '.sab-calllist{position:absolute;left:8px;top:94px;z-index:9;width:min(278px,72vw);',
-    '  max-height:calc(100% - 108px);overflow:auto;',
+    /* NO BACKDROP FILTER, NO SCROLL BOX. Both were decoration, and both are
+       ways an overlay can stop taking taps on an engine I cannot test here —
+       a blurred backdrop inside a position:fixed ancestor has a long history
+       of eating pointer events in WebKit. The background is nearly opaque
+       anyway, and six rows fit the shortest screen without scrolling. */
+    '.sab-calllist{position:absolute;left:8px;top:94px;z-index:12;width:min(278px,72vw);',
     '  display:flex;flex-direction:column;gap:4px;padding:7px;border-radius:13px;',
-    '  border:1px solid rgba(255,255,255,.25);background:rgba(24,16,34,.9);',
-    '  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}',
+    '  border:1px solid rgba(255,255,255,.28);background:#241429}',
     '.sab-callhead{font:800 9.5px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;',
     '  color:var(--accent2);padding:3px 6px 5px}',
     /* A ROW IS A DOOR AND HAS TO LOOK LIKE ONE: an icon, what pressing it
@@ -1495,6 +1498,16 @@
       return callAbout(id);
     }
     var openCall = null;   /* the call on screen, so acting on it redraws it */
+    /* A ROW ANSWERS THE TAP ITSELF.
+       Everything else in this game is driven by one delegated click on the
+       host, and everywhere else that is fine. These rows are reported dead on
+       a real device while every headless engine I have here says they are
+       pressed and answered — so the click is going missing somewhere I cannot
+       see. Rather than keep guessing at which engine and which property, the
+       rows take pointerdown and pointerup themselves: press on the row, lift
+       on the same row, and it opens. The click that may or may not follow is
+       ignored, so it can never open twice. */
+    var callDown = null, callTapAt = 0;
     /* Anything that answers a call — a riddle option, a peace offer, a quiz —
        has to leave the card showing the ANSWER rather than the question it
        just replaced. Called by those actions once the state has moved. */
@@ -4341,10 +4354,39 @@
       paintCity();
     }
 
+    /* the nearest thing with an action on it, SVG icons included */
+    function actAt(el) {
+      while (el && el !== host) {
+        if (el.getAttribute && el.getAttribute('data-sab-act')) return el;
+        el = el.parentNode;
+      }
+      return null;
+    }
+    function callRowAt(el) {
+      var a = actAt(el);
+      return a && a.getAttribute('data-sab-act') === 'call' ? a : null;
+    }
+    function onCallDown(e) { callDown = city ? callRowAt(e.target) : null; }
+    function onCallUp(e) {
+      var row = callDown; callDown = null;
+      if (!row || !city) return;
+      if (callRowAt(e.target) !== row) return;    /* lifted somewhere else */
+      callTapAt = Date.now();
+      G.callsOpen = false;
+      showCall(city, row.getAttribute('data-c'));
+      paintCity();
+    }
+
     function onClick(e) {
       if (swallowClick) { swallowClick = false; return; }   /* that was a drag, not a tap */
       if (kitTap(e)) return;
-      var actEl = e.target.closest ? e.target.closest('[data-sab-act]') : null;
+      /* WALK IT, DO NOT ASK closest().
+         Element.closest does not exist on SVG elements in some engines, and
+         half the controls in this game have an SVG icon inside them — so a tap
+         that landed on the icon rather than the padding fell straight through
+         the `e.target.closest ? ... : null` guard and did nothing at all. A
+         parentNode walk works on every node there is. */
+      var actEl = actAt(e.target);
       if (actEl) {
         var a = actEl.getAttribute('data-sab-act');
         if (a === 'zin')  { zoomTo(zlevel - 1, sel && byId[sel] ? byId[sel] : null); return; }
@@ -4446,6 +4488,9 @@
         if (a === 'kitzoom') { kitStep(+actEl.getAttribute('data-d') || 1); return; }
         if (a === 'calls' && city) { G.callsOpen = !G.callsOpen; paintCity(); return; }
         if (a === 'call' && city) {
+          /* the row already answered on pointerup; this is the click that
+             followed it, and opening the same card twice would close it */
+          if (Date.now() - callTapAt < 900) return;
           G.callsOpen = false;
           showCall(city, actEl.getAttribute('data-c'));
           paintCity(); return;
@@ -4786,6 +4831,8 @@
     });
     host.addEventListener('pointermove', kitHover);
     host.addEventListener('pointerdown', kitPointerDown);
+    host.addEventListener('pointerdown', onCallDown);
+    host.addEventListener('pointerup', onCallUp);
     D.addEventListener('pointermove', kitPointerMove);
     D.addEventListener('pointerup', kitPointerUp);
     D.addEventListener('pointercancel', kitPointerUp);

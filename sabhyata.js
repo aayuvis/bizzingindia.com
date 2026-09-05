@@ -465,18 +465,32 @@
     '.sab-bell.hot{border-color:var(--accent);box-shadow:0 0 0 2px rgba(230,160,60,.35)}',
     '.sab-bell u{text-decoration:none;position:absolute;right:-5px;top:-5px;background:var(--accent);',
     '  color:#2a1a10;border-radius:7px;padding:1px 4px;font:800 9px/1.3 var(--body)}',
-    '.sab-calllist{position:absolute;left:8px;top:94px;z-index:9;width:min(250px,62vw);',
-    '  display:flex;flex-direction:column;gap:4px;padding:6px;border-radius:12px;',
-    '  border:1px solid rgba(255,255,255,.25);background:rgba(24,16,34,.86);',
+    '.sab-calllist{position:absolute;left:8px;top:94px;z-index:9;width:min(278px,72vw);',
+    '  max-height:calc(100% - 108px);overflow:auto;',
+    '  display:flex;flex-direction:column;gap:4px;padding:7px;border-radius:13px;',
+    '  border:1px solid rgba(255,255,255,.25);background:rgba(24,16,34,.9);',
     '  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}',
-    '.sab-callrow{display:flex;align-items:center;gap:7px;min-height:36px;padding:0 8px;',
-    '  border-radius:9px;cursor:pointer;text-align:left;color:#f6efe1;font:inherit;',
-    '  border:1px solid transparent;background:rgba(255,255,255,.06)}',
-    '.sab-callrow:hover{border-color:var(--accent2)}',
+    '.sab-callhead{font:800 9.5px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;',
+    '  color:var(--accent2);padding:3px 6px 5px}',
+    /* A ROW IS A DOOR AND HAS TO LOOK LIKE ONE: an icon, what pressing it
+       does, a line saying why, and a chevron. The first version was a bare
+       phrase on a dark strip, which reads as a caption — something to be told,
+       not something to press. */
+    '.sab-callrow{display:flex;align-items:center;gap:9px;min-height:46px;padding:5px 9px;',
+    '  border-radius:10px;cursor:pointer;text-align:left;color:#f6efe1;font:inherit;',
+    '  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07)}',
+    '.sab-callrow:hover{border-color:var(--accent2);background:rgba(255,255,255,.12)}',
+    '.sab-callrow:active{transform:translateY(1px)}',
     '.sab-callrow:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
-    '.sab-callrow b{flex:1 1 auto;font:700 11.5px/1.25 var(--body);min-width:0}',
-    '.sab-callrow em{font-style:normal;color:var(--accent);font-size:15px}',
-    '.sab-callrow.hot{background:rgba(230,160,60,.16)}',
+    '.sab-callrow .ic{flex:0 0 auto;display:flex;opacity:.9}',
+    '.sab-callrow .tx{flex:1 1 auto;min-width:0}',
+    '.sab-callrow b{display:block;font:700 12.5px/1.25 var(--body);',
+    '  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.sab-callrow i{display:block;font:400 10px/1.3 var(--body);font-style:normal;opacity:.68;',
+    '  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.sab-callrow em{flex:0 0 auto;font-style:normal;color:var(--accent);font-size:11px}',
+    '.sab-callrow .go{flex:0 0 auto;font:700 17px/1 var(--body);opacity:.5}',
+    '.sab-callrow.hot{background:rgba(230,160,60,.18);border-color:rgba(230,160,60,.5)}',
     '.sab-scene.iskit{overflow:hidden;position:relative;',
     '  height:min(66vh,620px);min-height:340px;touch-action:none}',
     '@media (max-width:560px){.sab-scene.iskit{height:min(60vh,480px)}}',
@@ -1442,19 +1456,34 @@
           (q2.mon ? '' : '<p class="tiny" style="color:var(--muted)">The city as it could be — raise the monument, ' +
             'the scaffolding comes down, and the colours come back.</p>') };
     }
-    /* Which of them are waiting, cheaply — the bell only needs to count. */
+    /* Which of them are waiting, cheaply — the bell only needs to count.
+
+       SAY WHAT THE ROW DOES, in the words a child would use. The first go at
+       this named each one the way the game's own voice names it — "the master
+       builder asks", "what this city is for", "its telling" — and a list of
+       three of those is a riddle, not a menu: nothing tells you what happens
+       if you press one. A row is a door; label it with the room. */
     function callList(id) {
-      var q2 = G.sites[id], s2 = byId[id], out = [];
-      if (G.quests[id]) out.push({ k: 'quest', t: esc(FOLK[s2.kind]) + ' asks', i: 'scroll', hot: true });
-      if (inDispute(id)) out.push({ k: 'quarrel', t: 'a quarrel', i: 'lotus', hot: true });
+      var q2 = G.sites[id], s2 = byId[id], nm2 = esc(nameOf(s2)), out = [];
+      if (G.quests[id])
+        out.push({ k: 'quest', t: 'Answer a question', s: 'from ' + esc(FOLK[s2.kind]),
+                   i: 'scroll', hot: true });
+      if (inDispute(id))
+        out.push({ k: 'quarrel', t: 'Settle a quarrel', s: 'the road is shut until you do',
+                   i: 'peace', hot: true });
       if (q2.hero && !q2.hero.gone && !q2.hero.used)
-        out.push({ k: 'hero', t: esc(DATA.heroes[s2.kind].name), i: 'peacock', hot: true });
-      if (q2.bld.gurukul)
-        out.push({ k: 'guru', t: 'the gurukul', i: 'scroll',
-                   hot: !!(quiz && quiz.at === id) ||
-                        (G.quizAt[id] || -999) + T.quizCd - G.t <= 0 });
-      out.push({ k: 'works', t: 'what this city is for', i: 'temple', hot: false });
-      out.push({ k: 'about', t: 'its telling', i: 'lamp', hot: false });
+        out.push({ k: 'hero', t: 'Meet ' + esc(DATA.heroes[s2.kind].name),
+                   s: esc(DATA.heroes[s2.kind].gift), i: 'crown', hot: true });
+      if (q2.bld.gurukul) {
+        var cd2 = (G.quizAt[id] || -999) + T.quizCd - G.t;
+        out.push({ k: 'guru', t: 'Ask the teacher',
+                   s: cd2 > 0 ? 'resting for ' + cd2 + 's' : 'earn \ud83d\udcdc by answering',
+                   i: 'scroll', hot: !!(quiz && quiz.at === id) || cd2 <= 0 });
+      }
+      out.push({ k: 'works', t: 'What ' + nm2 + ' is famous for',
+                 s: 'its three great works', i: 'hammer', hot: false });
+      out.push({ k: 'about', t: 'About ' + nm2,
+                 s: 'what really happened here', i: 'road', hot: false });
       return out;
     }
     function callCard(id, k) {
@@ -1491,13 +1520,17 @@
       return '<button class="sab-bell' + (hot ? ' hot' : '') + '" data-sab-act="calls"' +
         ' aria-expanded="' + open2 + '" aria-label="' +
         (hot ? hot + ' thing' + (hot > 1 ? 's' : '') + ' in this city are waiting on you'
-             : 'Nothing is waiting — the city’s tellings and its works are in here') +
-        '">≡' + (hot ? '<u>' + hot + '</u>' : '') + '</button>' +
-        (open2 ? '<div class="sab-calllist" role="group" aria-label="This city">' +
+             : 'Things to do in this city') +
+        '">\u2630' + (hot ? '<u>' + hot + '</u>' : '') + '</button>' +
+        (open2 ? '<div class="sab-calllist" role="group" aria-label="Things to do in ' +
+          esc(nameOf(byId[id])) + '">' +
+          '<div class="sab-callhead">Things to do here</div>' +
           list.map(function (c) {
             return '<button class="sab-callrow' + (c.hot ? ' hot' : '') +
               '" data-sab-act="call" data-c="' + c.k + '">' +
-              motif(c.i, 18) + '<b>' + c.t + '</b>' + (c.hot ? '<em>•</em>' : '') + '</button>';
+              '<span class="ic">' + ic(c.i, 18) + '</span>' +
+              '<span class="tx"><b>' + c.t + '</b><i>' + c.s + '</i></span>' +
+              (c.hot ? '<em>\u25cf</em>' : '') + '<span class="go">\u203a</span></button>';
           }).join('') + '</div>' : '');
     }
 

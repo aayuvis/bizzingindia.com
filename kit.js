@@ -92,13 +92,24 @@
 
   /* ------------------------------------------------------------ shadow --- */
 
-  /* Where a piece's shadow goes. The anchor is the SOUTH VERTEX of the
-   * footprint — the near corner, where the art's bottom edge sits — but a
-   * shadow pools under the whole footprint, whose centre is half a diamond
-   * up and, for a non-square footprint, off to one side. Put the shadow on
-   * the anchor and every building on the board floats above its own shadow. */
-  K.shadowAt = function (ax, ay, L, B) {
-    return { x: ax + (L - B) * K.W / 2, y: ay - (L + B) * K.H / 2 };
+  /* Where a piece's shadow goes.
+   *
+   * Twice this was derived from the FOOTPRINT — the cell the piece occupies —
+   * and twice it looked wrong, because the footprint is a game fact and the
+   * drawing is not obliged to fill it. A model draws a building at whatever
+   * size it likes inside the frame; the frame gets scaled so its bounding box
+   * spans the cell, but that box includes the roof overhang and the sky above
+   * it, so the BASE the building actually stands on ends up smaller than its
+   * cell and sits somewhere inside it. A footprint-sized shadow then sticks
+   * out past the walls on the low side, and that crescent of loose shadow is
+   * what reads as a building hovering.
+   *
+   * So the shadow is taken from the ARTWORK instead: a tight pool right under
+   * where the drawing ends, sized to the drawing's own width. It cannot be
+   * half a cell out, whatever the model decided to draw. */
+  K.shadowFor = function (ax, ay, artW) {
+    var w = artW * 0.52;
+    return { x: ax, y: ay - w * 0.14, w: w, h: w * 0.42 };
   };
 
   /* The art is placed by its horizontal CENTRE, but the anchor is the south
@@ -243,10 +254,10 @@
           bx = K.box(o.c.L, o.c.B, o.H),
           w = bx.w * s;
       var nud = K.artNudge(o.c.L, o.c.B) * s;
-      var sc = K.shadowAt(x, y, o.c.L * s, o.c.B * s);
+      var sc = K.shadowFor(x + nud, y, w);
       var sh = '<div class="kit-shadow" style="left:' + sc.x.toFixed(1) + 'px;top:' +
-        sc.y.toFixed(1) + 'px;width:' + ((o.c.L + o.c.B) * K.W * s).toFixed(1) +
-        'px;height:' + ((o.c.L + o.c.B) * K.H * s).toFixed(1) + 'px"></div>';
+        sc.y.toFixed(1) + 'px;width:' + sc.w.toFixed(1) +
+        'px;height:' + sc.h.toFixed(1) + 'px"></div>';
       if (!src) {
         return sh + '<div class="kit-miss" title="' + o.def.id + '" style="left:' +
           x.toFixed(1) + 'px;top:' + y.toFixed(1) + 'px;width:' + w.toFixed(1) +
@@ -448,11 +459,10 @@
           w = K.box(o.c.L, o.c.B, o.H).w * s * k,
           zi = 1000 + Math.round(o.z * 4);
       var nudge = K.artNudge(o.c.L, o.c.B) * s;
-      var sh = K.shadowAt(p.x, p.y, o.c.L * s, o.c.B * s);
+      var sh = K.shadowFor(p.x + nudge, p.y, w);
       out.push('<div class="kit-shadow" style="left:' + sh.x.toFixed(1) + 'px;top:' +
-        sh.y.toFixed(1) + 'px;width:' + ((o.c.L + o.c.B) * K.W * s * k * 0.88).toFixed(1) +
-        'px;height:' + ((o.c.L + o.c.B) * K.H * s * k * 0.88).toFixed(1) +
-        'px;z-index:' + (zi - 1) + '"></div>');
+        sh.y.toFixed(1) + 'px;width:' + sh.w.toFixed(1) +
+        'px;height:' + sh.h.toFixed(1) + 'px;z-index:' + (zi - 1) + '"></div>');
       if (!src) return;
       out.push('<img class="kit-p' + (o.it.ghost ? ' kit-ghost' + (o.it.ok ? ' ok' : ' no') : '') +
         '" alt="" src="' + src + '" data-kit="' + o.def.id +

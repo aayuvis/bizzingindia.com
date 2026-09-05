@@ -921,7 +921,11 @@
        was built from, so nothing drifts. Off by default; ?kit=1 turns it on
        and the painted plate comes straight back when it is off. */
     function kitOn(id) {
-      return !!(W.IND_KIT_MODE && W.IND_KIT && W.IND_KIT_CITIES &&
+      /* THE DATA DECIDES, AND ONLY THE DATA. A city has a built board if a
+         board was drawn for it; there is no mode to be in and nothing to
+         remember. Twenty-three cities keep their paintings because no kit has
+         been made for them yet, which is a gap in the art and not a setting. */
+      return !!(W.IND_KIT && W.IND_KIT_CITIES &&
                 W.IND_KIT_CITIES[id] && W.IND_KIT.def('hs-hut-round'));
     }
 
@@ -2603,20 +2607,17 @@
             '<span>' + Math.max(0, G.warn.at - G.t) + ' turns \u00b7 the gate holds ' + dfn.total +
             ' of ' + need + (dfn.help ? ' (' + dfn.help + ' marching in)' : '') + '</span></div>';
         }
-        /* the city banner, the four stations, and the calls of the moment */
-        /* the test switch: flip the renderer without leaving the city, and
-           turn the board, so the painted plate and the built one can be
-           judged against each other on the same turn */
+        /* Turn the board a quarter, and step the zoom. The built/painted
+           switch used to sit at the front of this row; it is gone with the
+           mode it flipped. */
         var kitbar = '';
-        if (W.IND_KIT && W.IND_KIT_CITIES && W.IND_KIT_CITIES[id]) {
+        if (KITC) {
           kitbar = '<div class="sab-kitbar">' +
-            '<button data-sab-act="kittoggle" aria-label="Switch between the painted plate and the built board">' +
-            '<i>' + (KITC ? '\u25c9' : '\u25cb') + '</i><u>' + (KITC ? 'built' : 'painted') + '</u></button>' +
-            (KITC ? '<button data-sab-act="kitturn" aria-label="Turn the board a quarter">' +
-              '<i>\u27f3</i><u>turn</u></button>' +
-              '<button data-sab-act="kitzoom" data-d="-1" aria-label="Zoom out">\u2212</button>' +
-              '<span class="z">' + Math.round((G.kitZ || 1) * 100) + '%</span>' +
-              '<button data-sab-act="kitzoom" data-d="1" aria-label="Zoom in">+</button>' : '') +
+            '<button data-sab-act="kitturn" aria-label="Turn the board a quarter">' +
+            '<i>\u27f3</i><u>turn</u></button>' +
+            '<button data-sab-act="kitzoom" data-d="-1" aria-label="Zoom out">\u2212</button>' +
+            '<span class="z">' + Math.round((G.kitZ || 1) * 100) + '%</span>' +
+            '<button data-sab-act="kitzoom" data-d="1" aria-label="Zoom in">+</button>' +
             '</div>';
         }
         /* The banner said the city's name AND its whole ledger. Given a
@@ -4401,14 +4402,6 @@
           if (!canPay(bc)) return;
           pay(bc); qy.bld[bid] = true; touch(city); G.score += 15;
           say(bd.name + ' raised in ' + byId[city].name + '.', 'warm');
-          paintCity(); paintAll(); return;
-        }
-        /* the renderer switch. It lives on the game object so a reload keeps
-           whichever board the child was looking at, and it repaints in place
-           rather than reopening the city. */
-        if (a === 'kittoggle') {
-          W.IND_KIT_MODE = !W.IND_KIT_MODE;
-          try { localStorage.setItem('ind.kit', W.IND_KIT_MODE ? '1' : '0'); } catch (e2) {}
           paintCity(); paintAll(); return;
         }
         if (a === 'kitturn') {

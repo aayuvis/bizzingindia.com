@@ -25,7 +25,7 @@ var MEDIA_CACHE = 'ind-media-v1';
    registers it as sw.js?v=<build>, which is a different script URL each time;
    this line is the belt to that pair of braces, and tools/stamp.sh rewrites
    it. It has to come FIRST, because the imports below hang off it. */
-var SW_BUILD = '202609051534';
+var SW_BUILD = '202609051712';
 
 /* AND THE IMPORTS ARE STAMPED TOO. importScripts goes through the HTTP cache
    like anything else, so a fresh worker asking for a bare 'build.js' was

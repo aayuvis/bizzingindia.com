@@ -87,7 +87,64 @@ CAT_SHIM = {"fg": LONE % "person", "an": LONE % "animal"}
 
 # Where the catalogue's line describes a role rather than a picture, or where
 # the first sweep drew the wrong thing, the picture is spelled out here.
+# ---------------------------------------------------------------------------
+# HARAPPAN ARCHITECTURE, drawn from what excavation actually shows rather than
+# from the generic "ancient Indian village" a model reaches for by default.
+# The first pass gave era 0 conical thatch, curved tile roofs and painted
+# floral bands with peacocks — an idiom a thousand years and a thousand miles
+# away from the Indus cities. What the evidence gives instead:
+#
+#   * brick, standardised at a 4:2:1 ratio, laid in courses; baked brick where
+#     water touches it, unbaked mud brick for most of a town, and dressed
+#     stone at Dholavira, which had stone and no river clay
+#   * FLAT roofs of wooden beams under reed matting and packed mud, with a low
+#     parapet — never thatch, never tile, never a curve
+#   * doors on the side lane rather than the street front, and few or no
+#     windows outward: the courtyard is where light and air come from
+#   * a stair to the roof, which is a room in its own right
+#   * a bathing floor draining under the wall into a covered street drain
+#   * wells of wedge-shaped brick cut for the curve, rope-worn at the rim
+#   * no columns, no arches, no domes, no carved ornament, no painted bands,
+#     and no temple: none has been identified
+# Sources are listed in docs/19-harappan-architecture.md.
+NO_LATER = ("Absolutely NO thatch, NO conical or curved or tiled roof, NO "
+            "carved brackets, NO painted floral or peacock border bands, NO "
+            "columns, NO arches, NO domes, NO temple spire, NO ornament of "
+            "any kind. Every roof here is FLAT. ")
+
+HARAPPAN = ("An Indus city building of about 2500 BCE: brick laid in neat "
+            "courses of standardised bricks twice as long as they are wide "
+            "and twice as wide as they are thick, plain mud-plastered wall "
+            "faces, a FLAT roof of wooden beams carrying reed matting and "
+            "packed mud with a low parapet round it. " + NO_LATER)
+
 OVERRIDE = {
+ "hs-har-court": HARAPPAN + "A courtyard house: rooms on all four sides of a small open central court, the plank door set on the SIDE lane rather than the street front, an outside staircase climbing to the flat roof, and a paved bathing floor in one corner with a channel running out under the wall. Pots and a reed mat on the roof.",
+ "hs-har-room": HARAPPAN + "One small square house of plastered brick with a low parapet round its flat roof, a single low plank door, and no windows at all on the outside — only two small high vents. A water pot beside the door.",
+ "hs-har-two": HARAPPAN + "A narrow two-storey brick house, the staircase built on the OUTSIDE of the wall climbing to a flat roof with a low parapet, pots and a rope cot on the roof, two small high vents and one plank door.",
+ "hs-har-mud": HARAPPAN + "A small house of UNBAKED mud brick under thick mud plaster, its flat roof edged with a low mud parapet, a bundle of reeds and a broom leaning by the plank door. Plainer and browner than a baked-brick house.",
+ "hs-har-stone": HARAPPAN + "A small house built in two clearly different "
+   "materials: the whole LOWER HALF is large dressed STONE blocks, pale grey "
+   "and fitted close with visible joints between them, and only the upper half "
+   "is smaller brown mud brick, with a flat roof over that. The change from "
+   "stone to brick must be obvious at a glance.",
+ "bd-har-hall": HARAPPAN + "A massive raised platform built as a grid of separate rectangular brick blocks with open air channels running between them, carrying a plain timber hall with a flat roof above. No decoration whatsoever, no doors visible on the platform itself, a ramp at one end.",
+ "bd-har-store": HARAPPAN + "A raised store: square blocks of mud brick standing clear of the ground with gaps between them, plain timber decking over, bales and sealed jars stacked on top under a flat reed-and-mud roof on posts.",
+ "wa-har-well": (NO_LATER + "THIS IS NOT A BUILDING and it has no roof, no "
+   "walls and no rooms. Draw a single round WELL-HEAD alone on bare ground: a "
+   "low circular ring of brickwork about knee to waist high, built of "
+   "wedge-shaped bricks cut to the curve so each course rings it exactly, open "
+   "at the top so the dark water shows far down inside, the rim worn into deep "
+   "grooves where ropes have run for generations. A coiled rope and a plain "
+   "clay pot on the ground beside it. Nothing above it at all — open sky."),
+ "bd-har-bead": HARAPPAN + "An open bead-maker's floor of brick: a low brick working platform, stone drills and a bow-drill on it, a small round brick furnace with a little smoke, and long orange carnelian beads laid out drying on a cloth.",
+ "wl-har-wall": (NO_LATER + "THIS IS NOT A BUILDING and it has no rooms, no "
+   "doors and no windows. Draw one straight SECTION of a thick city wall, cut "
+   "off square at both ends as though sawn out of a much longer wall: mud brick "
+   "faced with baked brick in visible courses, BATTERED so the face leans "
+   "distinctly backward as it rises, the top flat and wide enough to walk "
+   "along. Bare ground under it."),
+
  "fg-annadata": "A radiant elder farmer standing tall and proud, a great sheaf of golden wheat cradled in one arm, an overflowing basket of grain in the other hand, a marigold garland at the neck, white dhoti and shawl.",
  "fg-sthapati": "A master builder standing, a rolled palm-leaf plan under one arm, a plumb-line and a chisel held in the other hand, a tool sash at the waist, a folded turban.",
  "fg-acharya": "A white-bearded teacher standing, a bundle of palm-leaf manuscripts under one arm, a small lit brass oil lamp raised in the other hand, a white shawl over one shoulder.",
@@ -167,11 +224,22 @@ def dims(p):
             "metres — draw it in those proportions. " % (f(L), f(B), f(H)))
 
 
+# The house style asks for "painted borders of leaf and flower and bird motifs
+# where a real building would carry them" — which is right for most of this kit
+# and is precisely what put peacocks on a Harappan granary. An Indus building
+# carried none, so these pieces get the same hand with that clause removed.
+BARE_STYLE = STYLE.replace(
+    "painted borders of leaf and flower and bird motifs "
+    "where a real building would carry them, ",
+    "no painted motifs or borders of any kind on the building itself, ")
+
+
 def build_prompt(p):
     pid, name, cat, d, era, desc, used = p
     subject = OVERRIDE.get(pid) or (name + " — " + desc)
     shim = CAT_SHIM.get(pid.split("-")[0], "")
-    return STYLE + SHEET + shim + subject + " " + dims(p)
+    style = BARE_STYLE if "-har-" in pid else STYLE
+    return style + SHEET + shim + subject + " " + dims(p)
 
 
 # ---------------------------------------------------------------- the model

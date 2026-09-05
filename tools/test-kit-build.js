@@ -123,14 +123,33 @@ async function place(p, cx, cy) {
   /* ---- 3 · it pays out, every turn ---- */
   const y = await p.evaluate(() => {
     const D=window.IND_SABHYATA; return window.__SABG().sites.dholavira.kit.length; });
-  await pick(p, 'hs-hut-round'); await p.waitForTimeout(400);
+  await pick(p, 'hs-har-room'); await p.waitForTimeout(400);
   const pop0 = await p.evaluate(() => { const m=document.querySelector('.sab-nameplate span'); return m?m.textContent:''; });
   await place(p, land[3][0], land[3][1]); await p.waitForTimeout(700);
   const pop1 = await p.evaluate(() => { const m=document.querySelector('.sab-nameplate span'); return m?m.textContent:''; });
   check('a home adds a praja to the city', pop0 !== pop1, pop1.slice(0,26));
 
+  /* ---- the age builds in its own idiom ---- */
+  await p.evaluate(() => { const d=document.querySelector('[data-sab-act="kitdrop"]');
+    if (d) d.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+    if (!document.querySelector('.sab-drawer')) {
+      const h=document.querySelector('.sab-dhandle'); if(h) h.dispatchEvent(new MouseEvent('click',{bubbles:true})); } });
+  await p.waitForTimeout(350);
+  const era0 = await allOffered(p);
+  const later = ['hs-hut-round','bd-granary','wa-well','bd-shrine-small','bd-workshop','wl-mud'];
+  check('era 0 is offered nothing from a later age',
+        !later.some(x => era0.indexOf(x) >= 0),
+        later.filter(x => era0.indexOf(x) >= 0).join(' ') || 'clean');
+  check('and is offered the Indus set instead',
+        ['hs-har-room','hs-har-mud','wa-har-well','wl-har-wall','bd-har-bead','bd-har-store']
+          .every(x => era0.indexOf(x) >= 0), era0.filter(x=>x.indexOf('-har-')>0).join(' '));
+  check('Dholavira alone builds on dressed stone', era0.indexOf('hs-har-stone') >= 0);
+  const ghosts = await p.evaluate(() =>
+    [...document.querySelectorAll('.sab-plot')].filter(e => !e.classList.contains('built')).length);
+  check('and the old plot row no longer offers a later age on the board', ghosts === 0, ghosts + ' ghost plots');
+
   /* ---- 4 · the rules bite ---- */
-  await pick(p, 'hs-hut-round'); await p.waitForTimeout(300);
+  await pick(p, 'hs-har-room'); await p.waitForTimeout(300);
   await place(p, land[3][0], land[3][1]); await p.waitForTimeout(500);
   const k2 = await p.evaluate(() => window.__SABG().sites.dholavira.kit.length);
   check('nothing may stand on top of something else', k2 === 2, k2);

@@ -2172,8 +2172,15 @@
            fort inside the gate. Plates without an atlas keep the old row. */
         var plots = '', PLOT_X = [0.5, 14.4, 28.3, 42.2, 56.1, 70, 84];
         var spots = (atlas && atlas.spots) || null;
-        Object.keys(BLD).filter(function (b2) { return BLD[b2].era <= G.era; })
-          .slice(0, 7).forEach(function (bid, pi) {
+        Object.keys(BLD).filter(function (b2) {
+          if (BLD[b2].era > G.era) return false;
+          /* With the shelf on the board, an unbuilt plot is a second shop
+             that does not know the era rules: it was still offering era-0
+             Dholavira a thatched granary. What is BUILT keeps its plot,
+             because that plot is the door you tap to use it. */
+          if (KITC && !q.bld[b2]) return false;
+          return true;
+        }).slice(0, 7).forEach(function (bid, pi) {
             var bd = BLD[bid], bsp = spOf(bid), left = PLOT_X[pi];
             var at = kitPt(id, spots && spots[bid]);
             var pos = at ? 'left:' + at[0] + '%;top:' + at[1] + '%;bottom:auto;transform:translate(-50%,-100%)'

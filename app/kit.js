@@ -92,6 +92,21 @@
 
   /* ------------------------------------------------------------ shadow --- */
 
+  /* Where a piece's shadow goes. The anchor is the SOUTH VERTEX of the
+   * footprint — the near corner, where the art's bottom edge sits — but a
+   * shadow pools under the whole footprint, whose centre is half a diamond
+   * up and, for a non-square footprint, off to one side. Put the shadow on
+   * the anchor and every building on the board floats above its own shadow. */
+  K.shadowAt = function (ax, ay, L, B) {
+    return { x: ax + (L - B) * K.W / 2, y: ay - (L + B) * K.H / 2 };
+  };
+
+  /* The art is placed by its horizontal CENTRE, but the anchor is the south
+   * vertex, and for a footprint that is not square those are not the same
+   * point: the box spans -B*W to +L*W about the vertex, so its centre sits
+   * (L-B)*W/2 to one side. Square pieces were fine and every 2x1 was off. */
+  K.artNudge = function (L, B) { return (L - B) * K.W / 2; };
+
   /* Contact shadows are generated from the footprint, never drawn into the
    * art — that is why the model sheets are told to float on white. One rule
    * for the whole board means the light never disagrees with itself. */
@@ -227,8 +242,10 @@
           src = K.src(o.def.id, face),
           bx = K.box(o.c.L, o.c.B, o.H),
           w = bx.w * s;
-      var sh = '<div class="kit-shadow" style="left:' + x.toFixed(1) + 'px;top:' +
-        y.toFixed(1) + 'px;width:' + ((o.c.L + o.c.B) * K.W * s).toFixed(1) +
+      var nud = K.artNudge(o.c.L, o.c.B) * s;
+      var sc = K.shadowAt(x, y, o.c.L * s, o.c.B * s);
+      var sh = '<div class="kit-shadow" style="left:' + sc.x.toFixed(1) + 'px;top:' +
+        sc.y.toFixed(1) + 'px;width:' + ((o.c.L + o.c.B) * K.W * s).toFixed(1) +
         'px;height:' + ((o.c.L + o.c.B) * K.H * s).toFixed(1) + 'px"></div>';
       if (!src) {
         return sh + '<div class="kit-miss" title="' + o.def.id + '" style="left:' +
@@ -236,7 +253,7 @@
           'px;height:' + (bx.h * s).toFixed(1) + 'px"></div>';
       }
       return sh + '<img class="kit-p" alt="" src="' + src + '" data-kit="' + o.def.id +
-        '" style="left:' + x.toFixed(1) + 'px;top:' + y.toFixed(1) +
+        '" style="left:' + (x + nud).toFixed(1) + 'px;top:' + y.toFixed(1) +
         'px;width:' + w.toFixed(1) + 'px">';
     }).join('');
 
@@ -430,14 +447,16 @@
           k = K.fill(o.def.id),
           w = K.box(o.c.L, o.c.B, o.H).w * s * k,
           zi = 1000 + Math.round(o.z * 4);
-      out.push('<div class="kit-shadow" style="left:' + p.x.toFixed(1) + 'px;top:' +
-        p.y.toFixed(1) + 'px;width:' + ((o.c.L + o.c.B) * K.W * s * k * 0.82).toFixed(1) +
-        'px;height:' + ((o.c.L + o.c.B) * K.H * s * k * 0.82).toFixed(1) +
+      var nudge = K.artNudge(o.c.L, o.c.B) * s;
+      var sh = K.shadowAt(p.x, p.y, o.c.L * s, o.c.B * s);
+      out.push('<div class="kit-shadow" style="left:' + sh.x.toFixed(1) + 'px;top:' +
+        sh.y.toFixed(1) + 'px;width:' + ((o.c.L + o.c.B) * K.W * s * k * 0.88).toFixed(1) +
+        'px;height:' + ((o.c.L + o.c.B) * K.H * s * k * 0.88).toFixed(1) +
         'px;z-index:' + (zi - 1) + '"></div>');
       if (!src) return;
       out.push('<img class="kit-p' + (o.it.ghost ? ' kit-ghost' + (o.it.ok ? ' ok' : ' no') : '') +
         '" alt="" src="' + src + '" data-kit="' + o.def.id +
-        '" title="' + o.def.name + '" style="left:' + p.x.toFixed(1) + 'px;top:' +
+        '" title="' + o.def.name + '" style="left:' + (p.x + nudge).toFixed(1) + 'px;top:' +
         p.y.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;z-index:' + zi + '">');
     });
 

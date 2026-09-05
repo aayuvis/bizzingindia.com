@@ -196,6 +196,25 @@ async function place(p, cx, cy) {
   check('Dholavira sows bajra, not wheat', sown >= 1, sown + ' millet fields');
   const painted = await p.evaluate(() => (window.IND_KIT_GROUND||[]).filter(g=>g.indexOf('cr-')===0).length);
   check('every crop has a painted field to stand on', painted >= 8, painted + ' crop fields');
+
+  /* ---- 9 · nothing floats: a piece stands on its own shadow ---- */
+  const feet = await p.evaluate(() => {
+    const K = window.IND_KIT, out = [];
+    /* the shadow pools under the whole footprint, whose centre is half a
+       diamond above the south vertex the art is anchored on */
+    [[1,1],[2,2],[2,1],[1,3],[3,2]].forEach(([L,B]) => {
+      const s = K.shadowAt(0, 0, L, B);
+      out.push({ L, B, dx: s.x, dy: s.y, nudge: K.artNudge(L, B) });
+    });
+    return out;
+  });
+  check('a square piece sits half a diamond above its anchor',
+        feet[0].dy === -16 && feet[1].dy === -32 && feet[0].dx === 0 && feet[1].dx === 0);
+  check('and a long one is nudged onto its own vertex, not its bounding box',
+        feet[2].nudge === 16 && feet[3].nudge === -32 && feet[4].nudge === 16,
+        feet.map(f => f.L + 'x' + f.B + ':' + f.nudge).join(' '));
+  check('the shadow follows the same rule the art does',
+        feet.every(f => f.dx === f.nudge));
   await p.screenshot({ path: 'build-1.png' });
   console.log('errors:', errs.slice(0,4).join(' | ') || 'none');
   await b.close();

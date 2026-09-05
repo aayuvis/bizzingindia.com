@@ -326,20 +326,23 @@
     '.sab-dhandle b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
     '.sab-dhandle:hover{border-color:var(--accent2)}',
     '.sab-dhandle:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
-    '.sab-drawer{position:absolute;left:0;right:0;bottom:0;z-index:9;max-height:58%;',
-    '  display:flex;flex-direction:column;background:rgba(20,13,28,.94);backdrop-filter:blur(9px);',
-    '  border-top:1px solid rgba(255,255,255,.16);border-radius:16px 16px 0 0;color:#f6efe1}',
-    '.sab-dhead{display:flex;align-items:center;gap:6px;padding:8px 8px 4px}',
+    /* A shelf that covers the city is a shelf you cannot build on. It is now
+       a band you can see the board through, and only as tall as its tiles. */
+    '.sab-drawer{position:absolute;left:0;right:0;bottom:0;z-index:9;',
+    '  display:flex;flex-direction:column;background:rgba(18,12,26,.62);',
+    '  backdrop-filter:blur(7px) saturate(1.1);',
+    '  border-top:1px solid rgba(255,255,255,.14);border-radius:13px 13px 0 0;color:#f6efe1}',
+    '.sab-dhead{display:flex;align-items:center;gap:5px;padding:5px 6px 3px}',
     '.sab-dtabs{display:flex;gap:5px;overflow-x:auto;flex:1;scrollbar-width:none}',
     '.sab-dtabs::-webkit-scrollbar{display:none}',
-    '.sab-dtab{flex:0 0 auto;border:1px solid rgba(255,255,255,.2);background:none;color:#d9cdb8;',
-    '  font:700 11.5px/1 var(--body);padding:7px 9px;border-radius:9px;cursor:pointer;white-space:nowrap}',
+    '.sab-dtab{flex:0 0 auto;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.22);',
+    '  color:#e4d9c4;font:700 10.5px/1 var(--body);padding:5px 7px;border-radius:7px;',
+    '  cursor:pointer;white-space:nowrap}',
     '.sab-dtab i{font-style:normal;opacity:.6;margin-left:5px}',
     '.sab-dtab.on{background:var(--accent);border-color:var(--accent);color:#2a1a10}',
     '.sab-dtab:focus-visible,.sab-dclose:focus-visible,.sab-tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
-    '.sab-dclose{flex:0 0 auto;border:0;background:none;color:#d9cdb8;font-size:17px;cursor:pointer;padding:4px 8px}',
-    '.sab-dhint{padding:0 12px 6px;font-size:11.5px;color:#a2937c}',
-    '.sab-drow{padding:0 12px 8px}',
+    '.sab-dclose{flex:0 0 auto;border:0;background:none;color:#d9cdb8;font-size:15px;cursor:pointer;padding:2px 6px}',
+    '.sab-dhint{flex:0 0 auto;font:700 10px/1 var(--body);color:#a2937c;white-space:nowrap}',
     /* Grow lives with the city it grows, not on the realm map beside Route */
     '.sab-grow{position:absolute;right:8px;bottom:8px;z-index:8;display:flex;align-items:center;',
     '  gap:8px;border:1px solid rgba(255,255,255,.3);background:rgba(24,16,34,.82);color:#f6efe1;',
@@ -349,29 +352,30 @@
     '.sab-grow.can{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}',
     '.sab-grow:disabled{opacity:.5;cursor:default}',
     '.sab-grow:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
-    '.sab-drawer .sab-grow{position:static;width:100%;justify-content:center}',
-    '.sab-dhold{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:0 12px 7px;font-size:12.5px}',
-    '.sab-dhold .sab-btn{padding:5px 10px;font-size:11.5px}',
-    '.sab-dtiles{display:flex;gap:8px;overflow-x:auto;padding:2px 10px 12px;',
+    '.sab-drawer .sab-grow{position:static;flex:0 0 auto;padding:5px 8px;font-size:10.5px;',
+    '  border-radius:7px;gap:6px;background:rgba(0,0,0,.28)}',
+    '.sab-dhold{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 8px 5px;font-size:11.5px}',
+    '.sab-dhold .sab-btn{padding:4px 8px;font-size:10.5px}',
+    '.sab-dtiles{display:flex;gap:6px;overflow-x:auto;padding:1px 7px 7px;',
     '  scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}',
-    '.sab-tile{flex:0 0 92px;scroll-snap-align:start;display:grid;gap:2px;justify-items:center;',
-    '  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#f6efe1;',
-    '  border-radius:12px;padding:7px 5px 8px;cursor:pointer;font:inherit;text-align:center}',
-    '.sab-tile .art{position:relative;width:52px;height:44px;display:flex;align-items:flex-end;justify-content:center}',
-    '.sab-tile .art img{max-width:52px;max-height:44px;object-fit:contain}',
+    '.sab-tile{flex:0 0 74px;scroll-snap-align:start;display:grid;gap:1px;justify-items:center;',
+    '  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f6efe1;',
+    '  border-radius:9px;padding:5px 3px 5px;cursor:pointer;font:inherit;text-align:center}',
+    '.sab-tile .art{position:relative;width:42px;height:34px;display:flex;align-items:flex-end;justify-content:center}',
+    '.sab-tile .art img{max-width:42px;max-height:34px;object-fit:contain}',
     '.sab-tile .art.crop{border-radius:8px;overflow:hidden;height:44px;width:52px}',
     '.sab-tile .art.crop img{width:52px;height:44px;max-width:none;max-height:none;',
     '  object-fit:cover;object-position:50% 50%}',
-    '.sab-tile .art u{position:absolute;right:-2px;top:-2px;text-decoration:none;font:800 10px/1 var(--body);',
-    '  background:var(--accent);color:#2a1a10;border-radius:7px;padding:2px 4px}',
-    '.sab-tile b{font:800 10.5px/1.2 var(--body);max-width:86px;overflow:hidden;',
+    '.sab-tile .art u{position:absolute;right:-3px;top:-3px;text-decoration:none;font:800 9px/1 var(--body);',
+    '  background:var(--accent);color:#2a1a10;border-radius:6px;padding:1px 3px}',
+    '.sab-tile b{font:800 9.5px/1.15 var(--body);max-width:70px;overflow:hidden;',
     '  text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}',
-    '.sab-tile .c{font:700 10.5px/1 var(--body);color:var(--accent2);white-space:nowrap}',
-    '.sab-tile .g{font:700 10px/1 var(--body);color:#7fd6a8;white-space:nowrap}',
+    '.sab-tile .c{font:700 9.5px/1 var(--body);color:var(--accent2);white-space:nowrap}',
+    '.sab-tile .g{font:700 9px/1 var(--body);color:#7fd6a8;white-space:nowrap}',
     '.sab-tile.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}',
     '.sab-tile.poor{opacity:.5}',
     '.sab-tile:disabled{opacity:.35;cursor:default}',
-    '@media (max-width:560px){.sab-tile{flex:0 0 80px}.sab-drawer{max-height:64%}}',
+    '@media (max-width:560px){.sab-tile{flex:0 0 68px}}',
     /* The built board gets a WINDOW, not the whole page. Bounded height means
        the board scrolls inside it, the build handle at its bottom edge is
        always reachable, and the city never pushes everything else off screen. */
@@ -986,14 +990,13 @@
       return handle +
         '<div class="sab-drawer" id="sab-sec-build" role="group" aria-label="Build">' +
           '<div class="sab-dhead"><div class="sab-dtabs">' + tabs + '</div>' +
+          '<span class="sab-dhint" title="How far from the city\u2019s heart it may build">lv ' +
+          q.lv + ' \u00b7 reach ' + reachOf(id) + '</span>' + grow +
           '<button class="sab-dclose" data-sab-act="kitopen" aria-label="Close the build shelf">\u2715</button></div>' +
           (held ? '<div class="sab-dhold" role="status">Holding <b>' + esc(held.name) +
-            '</b> \u00b7 tap the land to set it down' +
+            '</b> \u00b7 tap the land' +
             '<button class="sab-btn" data-sab-act="kitturnp">Turn</button>' +
-            '<button class="sab-btn" data-sab-act="kitdrop">Put back</button></div>'
-            : '<div class="sab-dhint">the land is free \u00b7 reach ' + reachOf(id) +
-              ' at level ' + q.lv + '</div>') +
-          (grow ? '<div class="sab-drow">' + grow + '</div>' : '') +
+            '<button class="sab-btn" data-sab-act="kitdrop">Put back</button></div>' : '') +
           '<div class="sab-dtiles">' + tiles + '</div>' +
         '</div>';
     }

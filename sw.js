@@ -20,10 +20,24 @@
 
 var MEDIA_CACHE = 'ind-media-v1';
 
-importScripts('build.js');                    /* defines self.IND_BUILD */
+/* THE WORKER'S OWN BYTES MUST CHANGE EVERY BUILD. A browser installs a new
+   worker only when this SCRIPT differs, and nothing in it used to. The page
+   registers it as sw.js?v=<build>, which is a different script URL each time;
+   this line is the belt to that pair of braces, and tools/stamp.sh rewrites
+   it. It has to come FIRST, because the imports below hang off it. */
+var SW_BUILD = '202609051534';
+
+/* AND THE IMPORTS ARE STAMPED TOO. importScripts goes through the HTTP cache
+   like anything else, so a fresh worker asking for a bare 'build.js' was
+   handed the PREVIOUS build's copy — and then named its cache after it. The
+   result was a worker that believed it was the old build: it wrote new files
+   into the old cache, and its activate sweep found nothing to delete because
+   the stale cache was, by its reckoning, the current one. Every deploy left
+   another core cache behind. */
+importScripts('build.js?v=' + SW_BUILD);      /* defines self.IND_BUILD */
 var CORE_CACHE = 'ind-core-' + (self.IND_BUILD || 'dev');
 
-importScripts('sw-precache.js');              /* defines self.IND_PRECACHE (generated) */
+importScripts('sw-precache.js?v=' + SW_BUILD); /* defines self.IND_PRECACHE (generated) */
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
@@ -77,9 +91,19 @@ self.addEventListener('fetch', function (e) {
   }
 
   /* core: network-first so a deploy is live on next load; the cache is the
-     answer when the network is not there. Navigations fall back to the shell. */
+     answer when the network is not there. Navigations fall back to the shell.
+
+     'reload' IS THE WHOLE POINT OF THE WORD NETWORK. A plain fetch() here is
+     answered by the browser's own HTTP cache, which for a page served with a
+     ten-minute max-age (and for one served with no cache headers at all, by
+     heuristic) hands back the index.html from the last visit — so
+     "network-first" quietly meant "last-time-first", and a deployed fix could
+     not reach a returning child. cache:'reload' goes past it to the server and
+     refreshes the HTTP cache on the way through. */
   e.respondWith(
-    fetch(req).then(function (r) {
+    fetch(new Request(req.url, {
+      cache: 'reload', credentials: 'same-origin', redirect: 'follow'
+    })).then(function (r) {
       if (r && r.ok) {
         var copy = r.clone();
         caches.open(CORE_CACHE).then(function (c) { c.put(req, copy); });

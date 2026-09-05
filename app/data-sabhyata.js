@@ -184,11 +184,22 @@ window.IND_SABHYATA = {
      Jobs are era-honest and gentle; the rakshaks are a village WATCH, not an army:
      they drive crop-raiders off with drums, torches and mended fences, and nobody
      in this game is ever hurt. */
+  /* WHO A CITY MAY PUT TO WORK.
+     `guard` is what one of them is worth at the gate when the dust rises, so
+     a role that earns nothing is not a role that does nothing. Which of these
+     a city may actually add is decided by what it has BUILT — see the `jobs`
+     roster in data-kit-build.js. Kisan are ungated everywhere, deliberately:
+     a city that cannot farm is a city that cannot start. */
   jobs: {
-    kisan:   { name: 'Kisan',   icon: '🌾', what: 'farms — feeds everyone, earns anna' },
-    karigar: { name: 'Karigar', icon: '🛠️', what: 'crafts — earns kala' },
-    kathakar:{ name: 'Kathakar',icon: '📜', what: 'tells and teaches — earns katha' },
-    rakshak: { name: 'Rakshak', icon: '🛡️', what: 'keeps watch — drives raids off, earns nothing' }
+    kisan:   { name: 'Kisan',   icon: '🌾', guard: 0, what: 'farms — feeds everyone, earns anna' },
+    karigar: { name: 'Karigar', icon: '🛠️', guard: 0, what: 'crafts — earns kala' },
+    kathakar:{ name: 'Kathakar',icon: '📜', guard: 0, what: 'tells and teaches — earns katha' },
+    rakshak: { name: 'Rakshak', icon: '🛡️', guard: 1, what: 'keeps watch — drives raids off, earns nothing' },
+    /* A DOORKEEPER IS NOT A SOLDIER. What the Harappan walls were for is
+       argued about and nothing in docs/19 settles it, so the earliest city
+       gets somebody who keeps a door, not somebody who fights a war. */
+    dwarpal: { name: 'Dwarpal', icon: '🚪', guard: 1, what: 'keeps the gate — counts who comes and goes, and holds it when the dust rises' },
+    dhanurdhar: { name: 'Dhanurdhar', icon: '🏹', guard: 2, what: 'keeps the bow from the tower — worth two on the wall' }
   },
 
   /* RAIDS — the wilds test the granaries, never people. Real, era-honest hazards a

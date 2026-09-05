@@ -38,8 +38,10 @@ const allOffered = async (p) => {
       if (t) t.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     }, g);
     await p.waitForTimeout(160);
+    /* the People shelf's tiles are praja, not pieces, and carry no data-p —
+       collecting them put nulls in the list and the next .indexOf threw */
     const got = await p.evaluate(() =>
-      [...document.querySelectorAll('.sab-tile')].map(x => x.getAttribute('data-p')));
+      [...document.querySelectorAll('.sab-tile[data-p]')].map(x => x.getAttribute('data-p')));
     out.push(...got);
   }
   return out;

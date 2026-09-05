@@ -74,6 +74,19 @@ SPRITES = {
         "a village watchman walking to the right, mid-stride, holding a tall "
         "bamboo lathi upright in one hand and a small lantern in the other, "
         "indigo tunic and a bright sash."),
+    # A DOORKEEPER, NOT A SOLDIER. What the earliest walls were for is argued
+    # about and nothing we have sourced settles it, so the person who belongs
+    # to a gate keeps a door: no armour, no weapon drawn, nobody to fight.
+    "dwarpal": p(
+        "a gatekeeper standing at ease facing the viewer, one hand resting on "
+        "a tall carved wooden staff planted on the ground, the other holding a "
+        "small palm-leaf tally, a heavy brass key on a cord at the waist, deep "
+        "green tunic and a saffron turban, calm and welcoming, no weapon."),
+    "dhanurdhar": p(
+        "an archer standing in profile facing right on watch, a long bamboo bow "
+        "held UNDRAWN and pointing down at their side, a quiver of arrows on "
+        "the back, one hand shading their eyes to look into the distance, "
+        "ochre tunic and a red waist sash. Watching, not shooting."),
     # ---- the towns (front view, compact, for the map lamps) -----------------
     "city1": p(
         "a tiny village: three round thatched mud huts close together under one "

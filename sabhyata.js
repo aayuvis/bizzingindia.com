@@ -329,13 +329,16 @@
     /* A shelf that covers the city is a shelf you cannot build on. It is now
        a band you can see the board through, and only as tall as its tiles. */
     '.sab-drawer{position:absolute;left:0;right:0;bottom:0;z-index:9;',
-    '  display:flex;flex-direction:column;background:rgba(18,12,26,.62);',
-    '  backdrop-filter:blur(7px) saturate(1.1);',
-    '  border-top:1px solid rgba(255,255,255,.14);border-radius:13px 13px 0 0;color:#f6efe1}',
+    '  display:flex;flex-direction:column;background:rgba(18,12,26,.34);',
+    '  backdrop-filter:blur(4px) saturate(1.15);',
+    '  border-top:1px solid rgba(255,255,255,.13);border-radius:13px 13px 0 0;color:#f6efe1;',
+    /* the board shows through, so the text needs its own contrast rather than
+       a panel behind it */
+    '  text-shadow:0 1px 3px rgba(12,8,18,.95),0 0 10px rgba(12,8,18,.7)}',
     '.sab-dhead{display:flex;align-items:center;gap:5px;padding:5px 6px 3px}',
     '.sab-dtabs{display:flex;gap:5px;overflow-x:auto;flex:1;scrollbar-width:none}',
     '.sab-dtabs::-webkit-scrollbar{display:none}',
-    '.sab-dtab{flex:0 0 auto;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.22);',
+    '.sab-dtab{flex:0 0 auto;border:1px solid rgba(255,255,255,.26);background:rgba(18,12,26,.42);',
     '  color:#e4d9c4;font:700 10.5px/1 var(--body);padding:5px 7px;border-radius:7px;',
     '  cursor:pointer;white-space:nowrap}',
     '.sab-dtab i{font-style:normal;opacity:.6;margin-left:5px}',
@@ -359,7 +362,7 @@
     '.sab-dtiles{display:flex;gap:6px;overflow-x:auto;padding:1px 7px 7px;',
     '  scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}',
     '.sab-tile{flex:0 0 74px;scroll-snap-align:start;display:grid;gap:1px;justify-items:center;',
-    '  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f6efe1;',
+    '  border:1px solid rgba(255,255,255,.22);background:rgba(18,12,26,.42);color:#f6efe1;',
     '  border-radius:9px;padding:5px 3px 5px;cursor:pointer;font:inherit;text-align:center}',
     '.sab-tile .art{position:relative;width:42px;height:34px;display:flex;align-items:flex-end;justify-content:center}',
     '.sab-tile .art img{max-width:42px;max-height:34px;object-fit:contain}',

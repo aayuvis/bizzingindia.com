@@ -12,9 +12,21 @@
  *   kind kheti | shilpa | vidya | '*'   what this city is FOR
  *   only [cityIds]   some things belong to one city and nowhere else
  *
+ *   tech 'plough'   the research that has to be finished first
+ *
+ * A tech-locked thing is SHOWN, greyed, reading what would unlock it. Hiding
+ * it would make research a thing a child does for no visible reason; showing
+ * it makes the shop the place they find out why the plough matters.
+ *
  * `on` says what it may stand on: 'land' (dry, unbuilt), 'green' (a field
  * tile), 'shore' (a cell touching water), 'road' (on the street itself).
  * `give` is per turn, forever. `once` is a one-off effect the engine reads.
+ * `pop` is homes: every one is another pair of hands the city may put to work.
+ * `bld` grants a legacy building power, so a bead workshop IS a workshop.
+ *
+ * `jobs` at the foot of this file is the other half: a building is only worth
+ * something because somebody works in it, and who a city may put to work
+ * depends on what it has built.
  */
 window.IND_KIT_BUILD = {
 
@@ -31,6 +43,7 @@ window.IND_KIT_BUILD = {
     ['home',   'Homes',       'Every home holds one more praja.'],
     ['water',  'Water',       'A dry land is a short story.'],
     ['guard',  'Defence',     'What stands between the city and the dust.'],
+    ['people', 'People',      'Who lives here, and what they spend the day doing.'],
     ['great',  'Great works', 'One to a city, and only where it belongs.']
   ],
 
@@ -104,16 +117,16 @@ window.IND_KIT_BUILD = {
       bld: 'workshop', cost: { anna: 20, kala: 20 }, give: { kala: 1 },
       what: 'A brick working floor with stone drills and a small furnace, carnelian beads drying on cloth.' },
     { p: 'bd-har-store', g: 'work', on: 'land', era: [0, 1], lv: 1, kind: '*',
-      bld: 'granary', cost: { anna: 30 }, give: { anna: 1 },
+      bld: 'granary', tech: 'plough', cost: { anna: 30 }, give: { anna: 1 },
       what: 'Mud-brick blocks raised clear of the flood with the goods stacked over them.' },
     { p: 'bd-har-hall', g: 'great', on: 'land', era: [0, 1], lv: 2, kind: '*',
-      cost: { kala: 40, anna: 20 }, give: { katha: 2, anna: 1 },
+      tech: 'brick', cost: { kala: 40, anna: 20 }, give: { katha: 2, anna: 1 },
       what: 'A great brick platform of separate blocks with air channels between them. Long called a granary \u2014 but no grain, no jars and no sealings were ever found in one, so what it held is still argued about.' },
     { p: 'wa-har-well', g: 'water', on: 'land', era: [0, 1], lv: 1, kind: '*',
       cost: { kala: 10 }, give: { anna: 1 },
       what: 'A ring of wedge-shaped bricks cut to the curve, its rim worn into grooves by rope.' },
     { p: 'wl-har-wall', g: 'guard', on: 'land', era: [0, 1], lv: 1, kind: '*',
-      bld: 'prakara', cost: { kala: 40, anna: 20 }, give: {},
+      bld: 'prakara', tech: 'brick', cost: { kala: 40, anna: 20 }, give: {},
       what: 'Mud brick faced with baked brick, battered so it leans back as it rises: worth two more rakshaks.' },
 
     /* ---- WORK -------------------------------------------------------- */
@@ -127,10 +140,10 @@ window.IND_KIT_BUILD = {
       cost: { kala: 12 }, give: { kala: 1 },
       what: 'A kiln. Fire turns clay into things that last: +1 🛠️.' },
     { p: 'bd-bazaar', g: 'work', on: 'road', era: [1, 12], lv: 2, kind: '*', bld: 'bazaar',
-      cost: { kala: 35 }, give: {},
+      tech: 'panchayat', cost: { kala: 35 }, give: {},
       what: 'A bazaar, on the street where it belongs: +1 of everything while the city is on a route.' },
     { p: 'bd-weighing', g: 'work', on: 'land', era: [1, 12], lv: 2, kind: '*',
-      cost: { kala: 18 }, give: { kala: 1, anna: 1 },
+      tech: 'panchayat', cost: { kala: 18 }, give: { kala: 1, anna: 1 },
       what: 'A weighing yard: honest measure brings trade back. +1 🛠️ +1 🌾.' },
     { p: 'bd-warehouse', g: 'work', on: 'shore', era: [1, 12], lv: 2, kind: '*',
       cost: { kala: 26, anna: 10 }, give: { kala: 2 },
@@ -142,7 +155,7 @@ window.IND_KIT_BUILD = {
       cost: { kala: 14 }, give: { kala: 1 },
       what: 'A pit loom. Thread in, cloth out.' },
     { p: 'bd-forge', g: 'work', on: 'land', era: [1, 12], lv: 3, kind: 'shilpa',
-      cost: { kala: 30 }, give: { kala: 2 },
+      tech: 'iron', cost: { kala: 30 }, give: { kala: 2 },
       what: 'A forge: +2 🛠️, and the rakshaks are better armed for it.' },
 
     /* ---- LEARNING ------------------------------------------------------ */
@@ -206,7 +219,7 @@ window.IND_KIT_BUILD = {
     { p: 'wl-gate', g: 'guard', on: 'road', era: [0, 12], lv: 2, kind: '*',
       cost: { kala: 20 }, give: {},
       what: 'A gate across the street. A wall without one is a wall around nothing.' },
-    { p: 'wl-watchtower', g: 'guard', on: 'land', era: [1, 8], lv: 2, kind: '*',
+    { p: 'wl-watchtower', g: 'guard', on: 'land', era: [1, 8], lv: 2, kind: '*', tech: 'iron',
       cost: { kala: 26 }, give: {}, watch: 1,
       what: 'A watchtower: the dust is seen sooner, and the warning comes earlier.' },
     { p: 'wl-keep', g: 'guard', on: 'land', era: [3, 12], lv: 3, kind: '*', bld: 'durg',
@@ -240,5 +253,40 @@ window.IND_KIT_BUILD = {
     { p: 'cr-threshing', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: 'kheti',
       cost: { anna: 7 }, give: { anna: 1 },
       what: 'A beaten threshing floor with a pole at its centre.' }
+  ],
+
+  /* ---- WHO A CITY MAY PUT TO WORK ------------------------------------
+     A building was scenery that paid rent. This is the other half of it: a
+     workshop is why the city HAS a karigar, and until one stands there is
+     nobody to craft. Every entry names the thing that has to be built first.
+
+       need.bld   any one of these legacy powers (a bead workshop IS a
+                  workshop, because its item carries bld:'workshop')
+       need.part  any one of these pieces standing on the board
+       era        [from, to] — the age the role belongs to
+       at         which built things this person is drawn standing on
+
+     Kisan have no `need` on purpose. A city that cannot farm cannot begin,
+     and every deadlock in this game has come from forgetting that.
+
+     This gate gives NOTHING away that a save already has: it decides what may
+     be ADDED, never what is taken. A city that already keeps a kathakar keeps
+     her whether or not the hall has been built yet. */
+  jobs: [
+    { j: 'kisan', era: [0, 12], at: ['cr-', 'gnd-field'],
+      what: 'Somebody has to grow the food. They always can — a city that cannot farm cannot start.' },
+    { j: 'karigar', era: [0, 12], need: { bld: ['workshop'], part: ['bd-kiln', 'pr-loom'] },
+      at: ['bd-har-bead', 'bd-workshop', 'bd-kiln', 'pr-loom', 'bd-forge', 'bd-warehouse'],
+      what: 'Hands need somewhere to work. Build a workshop, a kiln or a loom and a karigar has a bench.' },
+    { j: 'kathakar', era: [0, 12], need: { bld: ['gurukul'], part: ['bd-har-hall', 'bd-shrine-small', 'fg-teacher', 'bd-assembly'] },
+      at: ['bd-har-hall', 'bd-gurukul', 'bd-shrine-small', 'fg-teacher', 'bd-assembly', 'bd-observatory'],
+      what: 'A teller needs somewhere the city gathers to listen. A hall, a shrine, a gurukul — any of them will do.' },
+    { j: 'rakshak', era: [0, 12], need: { bld: ['prakara', 'durg'], part: ['wl-har-wall', 'wl-mud', 'wl-keep'] },
+      at: ['wl-har-wall', 'wl-mud', 'wl-keep'],
+      what: 'A watch needs a wall to stand on. Raise one and the city can keep its own gate.' },
+    { j: 'dwarpal', era: [0, 12], need: { part: ['wl-gate'] }, at: ['wl-gate'],
+      what: 'A gate wants somebody at it. They keep the door, and they hold it when the dust rises.' },
+    { j: 'dhanurdhar', era: [1, 12], need: { part: ['wl-watchtower'] }, at: ['wl-watchtower'],
+      what: 'From the tower you see further and reach further. Worth two on the wall.' }
   ]
 };

@@ -383,6 +383,45 @@
     '.sab-tile .c{font:700 9.5px/1 var(--body);color:var(--accent2);white-space:nowrap}',
     '.sab-tile .g{font:700 9px/1 var(--body);color:#7fd6a8;white-space:nowrap}',
     '.sab-tile.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}',
+    /* A LOCKED THING IS SHOWN, NOT HIDDEN. Greyed, with the research that
+       would open it in place of the price, so the shop is where a child finds
+       out what the plough is FOR. */
+    '.sab-tile.locked{opacity:.55;cursor:default;border-style:dashed}',
+    '.sab-tile.locked .art img{filter:grayscale(1)}',
+    '.sab-tile .c.lock{color:#d8c9a8;font-weight:700;max-width:70px;overflow:hidden;',
+    '  text-overflow:ellipsis;white-space:nowrap}',
+    /* people are counted, not bought: the tile carries the same two buttons
+       the corner chips do, sized for a thumb like everything else here */
+    '.sab-ptile{flex:0 0 78px}',
+    '.sab-ptile .pmrow{display:flex;gap:4px;margin-top:1px}',
+    '.sab-ptile .pm{min-width:26px;min-height:22px;border-radius:7px;',
+    '  border:1px solid rgba(255,255,255,.34);background:rgba(255,255,255,.08);',
+    '  color:#f6efe1;font:800 12px/1 var(--body);cursor:pointer;padding:0}',
+    '.sab-ptile .pm:disabled{opacity:.35;cursor:default}',
+    '.sab-ptile .pm:hover:not(:disabled){border-color:var(--accent2)}',
+    /* the card a building opens */
+    '.sab-pcart{display:block;margin:6px auto 2px;max-width:120px;max-height:96px;object-fit:contain}',
+    '.sab-pgive{font:800 14px/1.3 var(--body);color:#7fd6a8;margin:4px 0 2px}',
+    '.sab-pgive span{font:600 11px/1 var(--body);color:var(--muted)}',
+    '.sab-pcrews{margin-top:8px;border-top:1px solid var(--line);padding-top:6px;text-align:left}',
+    '.sab-pcrew{display:flex;align-items:center;gap:8px;padding:4px 0}',
+    '.sab-pcrew img{width:30px;height:30px;object-fit:contain;flex:0 0 30px}',
+    '.sab-pcrew>span{flex:1 1 auto;min-width:0}',
+    '.sab-pcrew b{display:block;font:800 12px/1.2 var(--body)}',
+    '.sab-pcrew i{display:block;font:400 10.5px/1.3 var(--body);color:var(--muted);font-style:normal}',
+    '.sab-pcrew .pmrow{flex:0 0 auto;display:flex;align-items:center;gap:5px}',
+    '.sab-pcrew .pmrow em{font:800 13px/1 var(--body);font-style:normal;min-width:14px;text-align:center}',
+    '.sab-pcrew .pm{min-width:30px;min-height:30px;border-radius:8px;',
+    '  border:1px solid var(--line);background:transparent;color:inherit;',
+    '  font:800 15px/1 var(--body);cursor:pointer;padding:0}',
+    '.sab-pcrew .pm:disabled{opacity:.35;cursor:default}',
+    /* the crew, standing on the board where they work. Anchored at the south
+       corner of the cell, so the sprite is nudged up by its own height and
+       half a tile left to sit ON the diamond rather than beside it. */
+    '.sab-kcrowd{position:absolute;inset:0;pointer-events:none}',
+    '.sab-kworker{position:absolute;width:38px;height:48px;object-fit:contain;',
+    '  object-position:50% 100%;transform:translate(-50%,-100%);',
+    '  filter:drop-shadow(0 2px 2px rgba(24,16,34,.45))}',
     '.sab-tile.poor{opacity:.5}',
     '.sab-tile:disabled{opacity:.35;cursor:default}',
     '@media (max-width:560px){.sab-tile{flex:0 0 68px}}',
@@ -734,6 +773,10 @@
        ================================================================ */
     var FOLK = { kheti: 'the granary keeper', shilpa: 'the master builder', vidya: 'the teacher' };
     var BLD = DATA.buildings, TECHS = DATA.techs, PORTS = DATA.ports || [];
+    /* THE FOUR JOBS ARE NOT FOUR ANY MORE. Every count, split and shrink used
+       to name kisan/karigar/kathakar/rakshak in a literal array, in six
+       places, so adding a role meant finding all six. Read the roster once. */
+    var JOB_IDS = Object.keys(DATA.jobs);
 
     /* THE PAINTINGS (tools/gen-sabhyata-art.py). Each city's painting shows it at its
        height with its monument at the centre — and the game shows it DESATURATED until
@@ -869,6 +912,50 @@
       });
     }
 
+    /* WHAT RESEARCH STILL OWES THIS ITEM. Returns the tech's name if it is
+       not finished yet, else null. The shop SHOWS a locked thing rather than
+       hiding it: a child who cannot see the forge has no reason to want iron,
+       and research that unlocks nothing visible is research nobody does. */
+    function techLock(it) {
+      if (!it || !it.tech || G.tech[it.tech]) return null;
+      var t = null;
+      TECHS.forEach(function (t2) { if (t2.id === it.tech) t = t2; });
+      return t ? t.name : it.tech;
+    }
+
+    /* Does this city have the thing that houses this kind of person? A role
+       already on the payroll always counts as open — the gate decides what may
+       be ADDED, never what is taken away from a save made before it existed. */
+    function jobOpen(id, jid) {
+      var role = null;
+      (BUILD.jobs || []).forEach(function (r) { if (r.j === jid) role = r; });
+      if (!role) return false;
+      var x = byId[id], q = G.sites[id];
+      if (x.era < role.era[0] || x.era > role.era[1]) return (q.jobs && q.jobs[jid] > 0);
+      if (!role.need) return true;
+      if ((q.jobs && q.jobs[jid] > 0)) return true;
+      var got = false;
+      (role.need.bld || []).forEach(function (b) { if (q.bld && q.bld[b]) got = true; });
+      if (!got && role.need.part && kitOn(id)) {
+        role.need.part.forEach(function (pp) { if (builtCount(id, pp) > 0) got = true; });
+      }
+      return got;
+    }
+    /* what a city is still missing before it can put this kind of person to
+       work — said as a thing to build, because that is the answer */
+    function jobNeed(id, jid) {
+      var role = null;
+      (BUILD.jobs || []).forEach(function (r) { if (r.j === jid) role = r; });
+      if (!role || !role.need) return '';
+      var names = [];
+      (role.need.bld || []).forEach(function (b) { if (BLD[b]) names.push(BLD[b].name || b); });
+      (role.need.part || []).forEach(function (pp) {
+        var d = W.IND_KIT && W.IND_KIT.def(pp); if (d) names.push(d.name);
+      });
+      if (!names.length) return '';
+      return 'needs ' + names.slice(0, 3).join(', or ');
+    }
+
     function builtCount(id, p) {
       var q = kitOf(id), n = 0;
       q.kit.forEach(function (b) { if (b.p === p) n++; });
@@ -898,6 +985,8 @@
          many as it likes. A crop belongs to one city AND is sown all over it. */
       if (it.only && !it.many && builtCount(id, it.p) >= 1)
         return 'a city has only one of these';
+      var tl = techLock(it);
+      if (tl) return 'nobody here knows how yet \u2014 study ' + tl + ' first';
       if (!canPay(costOf(it.cost, 'building'))) return 'not enough yet';
       return null;
     }
@@ -966,7 +1055,67 @@
       });
       return '<div class="sab-hero sab-kitboard"><div class="sab-kitinner" id="sab-kitinner"' +
         ' data-z="' + (G.kitZ || 1) + '" style="width:' + r.w + 'px;height:' + r.h +
-        'px">' + r.html + '</div></div>';
+        'px">' + r.html + kitCrowd(id) + '</div></div>';
+    }
+
+    /* THE PRAJA STAND ON THE WORK THEY DO.
+       The crew was four numbers on four chips: a child moved a person from the
+       fields to the workshop and nothing on the board moved. Now every
+       assigned worker is drawn AT one of the buildings that employs them —
+       kisan out among the crops, karigar at the kiln, a dwarpal on his gate —
+       so moving a person moves a person, and a workshop with nobody in it
+       looks like a workshop with nobody in it.
+
+       They are painted on, not played: aria-hidden, no pointer events, so
+       tapping a worker opens the building underneath them, which is what a
+       child means by tapping a worker. */
+    function kitCrowd(id) {
+      var K2 = W.IND_KIT, C = (W.IND_KIT_CITIES || {})[id];
+      if (!K2 || !C) return '';
+      var q2 = kitOf(id), jt = jobsOf(id), rot = G.kitRot || 0;
+      var ox = (rot % 2 ? C.gw : C.gh) * K2.W, oy = KIT_HEAD * K2.RISE;
+      /* every built thing, and every sown field, as a place somebody could be */
+      var placed = q2.kit.map(function (b) {
+        var d = K2.def(b.p);
+        return { p: b.p, x: b.x, y: b.y, L: (d && d.d[0]) || 1, B: (d && d.d[1]) || 1 };
+      });
+      Object.keys(q2.tiles || {}).forEach(function (key) {
+        var xy = key.split(',');
+        placed.push({ p: q2.tiles[key], x: +xy[0], y: +xy[1], L: 1, B: 1 });
+      });
+      var out = '';
+      (BUILD.jobs || []).forEach(function (r) {
+        var n = jt[r.j] || 0, sp = spOf(r.j);
+        if (!n || !sp) return;
+        var spots = placed.filter(function (b) {
+          return (r.at || []).some(function (a2) {
+            return a2.slice(-1) === '-' ? b.p.indexOf(a2) === 0 : a2 === b.p;
+          });
+        });
+        if (!spots.length) return;
+        /* spread them over the places there are; more workers than benches
+           means they double up, which is what a crowded workshop looks like */
+        for (var i = 0; i < Math.min(n, 12); i++) {
+          var b2 = spots[i % spots.length];
+          /* A PIECE STANDS ON THE SOUTH VERTEX OF ITS OWN FOOTPRINT, bottom
+             centre, which is what translate(-50%,-100%) means on .kit-p. A
+             worker has to be hung the same way or they are not on the ground
+             at all — a pixel offset put the first lot in mid-air over the
+             wrong cell. Turn the real footprint, take its anchor, then lift
+             half a tile so they stand in the middle of the front edge rather
+             than balanced on its corner. */
+          var c2 = K2.turn(b2.x, b2.y, b2.L, b2.B, rot, C.gw, C.gh);
+          var a2 = K2.anchor(c2.x, c2.y, c2.L, c2.B);
+          /* two on one spot must not be one on top of the other */
+          var jig = Math.floor(i / spots.length);
+          var px = a2.x + ox + (jig ? (jig % 2 ? 13 : -13) : 0);
+          var py = a2.y + oy - K2.H + (jig ? -5 * Math.ceil(jig / 2) : 0);
+          out += '<img class="sab-kworker" src="' + sp + '" alt=""' +
+            ' data-at="' + b2.p + '" data-cell="' + b2.x + ',' + b2.y + '"' +
+            ' style="left:' + px.toFixed(1) + 'px;top:' + py.toFixed(1) + 'px">';
+        }
+      });
+      return out ? '<div class="sab-kcrowd" aria-hidden="true">' + out + '</div>' : '';
     }
 
     /* THE SHOP IS A DRAWER, not a page. Forty-three rows down the page pushed
@@ -1003,6 +1152,16 @@
       var open = !!G.kitOpen;
       var byG = {};
       list.forEach(function (it) { (byG[it.g] = byG[it.g] || []).push(it); });
+      /* PEOPLE ARE A SHELF IN THE SHOP. Arranging the crew used to live only
+         on four chips pinned to the corners of the board, which is a fine
+         place to SEE them and a poor place to discover them — nothing there
+         says a workshop is what buys you a karigar. They get a tab, with the
+         locked ones showing what to build. */
+      var crew = (BUILD.jobs || []).filter(function (r) {
+        var x2 = byId[id];
+        return x2.era >= r.era[0] && x2.era <= r.era[1] && spOf(r.j);
+      }).map(function (r) { return { job: r, g: 'people' }; });
+      if (crew.length) byG.people = crew;
       var groups = (BUILD.groups || []).filter(function (g) { return byG[g[0]]; });
       if (!groups.length) return growBtn(id);
       var tab = (G.kitTab && byG[G.kitTab]) ? G.kitTab : groups[0][0];
@@ -1025,19 +1184,50 @@
           '<i>' + byG[g[0]].length + '</i></button>';
       }).join('');
 
+      var jt = jobsOf(id), popNow = popOf(id), busy = 0;
+      JOB_IDS.forEach(function (j2) { busy += jt[j2]; });
+
       var tiles = byG[tab].map(function (it) {
+        /* A PERSON IS NOT A PIECE. They cost no coin — the scarce thing is a
+           free pair of hands — so their tile counts heads and carries the
+           same two buttons the corner chips do, and says what to build when
+           the city has nowhere to put them yet. */
+        if (it.job) {
+          var r = it.job, jd = DATA.jobs[r.j], open2 = jobOpen(id, r.j);
+          var have = jt[r.j] || 0;
+          var canAdd = open2 && (busy < popNow || (jt.kisan > 0 && r.j !== 'kisan'));
+          return '<div class="sab-tile sab-ptile' + (open2 ? '' : ' locked') + '"' +
+            ' role="group" aria-label="' + esc(jd.name) + '. ' + esc(jd.what) +
+            (open2 ? '' : '. ' + esc(jobNeed(id, r.j))) + '">' +
+            '<span class="art"><img src="' + spOf(r.j) + '" alt="">' +
+            (have ? '<u>' + have + '</u>' : '') + '</span>' +
+            '<b>' + esc(jd.name) + '</b>' +
+            (open2
+              ? '<span class="pmrow">' +
+                  '<button class="pm" data-sab-act="job" data-j="' + r.j + '" data-d="-1"' +
+                  (have ? '' : ' disabled') + ' aria-label="One fewer ' + esc(jd.name) + '">\u2212</button>' +
+                  '<button class="pm" data-sab-act="job" data-j="' + r.j + '" data-d="1"' +
+                  (canAdd ? '' : ' disabled') + ' aria-label="One more ' + esc(jd.name) + '">+</button>' +
+                '</span>'
+              : '<span class="c lock">' + esc(jobNeed(id, r.j)) + '</span>') +
+            (r.j === 'kisan' || !jd.guard ? '' : '<span class="g">+' + jd.guard + '\ud83d\udee1\ufe0f</span>') +
+            '</div>';
+        }
         var def = W.IND_KIT.def(it.p), n = builtCount(id, it.p);
         var done = it.only && !it.many && n >= 1;
-        var poor = !done && !canPay(costOf(it.cost, 'building'));
+        var lock = techLock(it);
+        var poor = !done && !lock && !canPay(costOf(it.cost, 'building'));
         var give = ['anna', 'kala', 'katha'].filter(function (k) { return it.give && it.give[k]; })
           .map(function (k) { return '+' + it.give[k] + ICON[k]; }).join(' ');
         if (it.pop) give += (give ? ' ' : '') + '+' + it.pop + '\ud83d\udc64';
         return '<button class="sab-tile' + (hold && hold.p === it.p ? ' on' : '') +
-          (poor ? ' poor' : '') + '" data-sab-act="kitpick" data-p="' + it.p + '"' +
-          (done ? ' disabled' : '') +
+          (poor ? ' poor' : '') + (lock ? ' locked' : '') +
+          '" data-sab-act="kitpick" data-p="' + it.p + '"' +
+          (done || lock ? ' disabled' : '') +
           ' aria-label="' + esc(def ? def.name : it.p) + '. ' + esc(it.what) +
           ' Costs ' + esc(costStr(costOf(it.cost, 'building'))) +
-          (done ? '. Already built.' : poor ? '. Not enough yet.' : '') + '">' +
+          (done ? '. Already built.' : lock ? '. Locked until the city studies ' + esc(lock) + '.'
+                : poor ? '. Not enough yet.' : '') + '">' +
           /* a crop's tile shows the crop: the piece art for a field is the flat
              ground tile, which tells a child nothing about what they are sowing */
           '<span class="art' + (it.tile ? ' crop' : '') + '"><img src="' +
@@ -1045,8 +1235,9 @@
             : W.IND_KIT.src(it.p, 0)) || '') + '" alt="">' +
           (n ? '<u>' + n + '</u>' : '') + '</span>' +
           '<b>' + esc(def ? def.name : it.p) + '</b>' +
-          '<span class="c">' + esc(costStr(costOf(it.cost, 'building'))) + '</span>' +
-          (give ? '<span class="g">' + give + '</span>' : '') + '</button>';
+          (lock ? '<span class="c lock">\ud83d\udd12 ' + esc(lock) + '</span>'
+                : '<span class="c">' + esc(costStr(costOf(it.cost, 'building'))) + '</span>') +
+          (give && !lock ? '<span class="g">' + give + '</span>' : '') + '</button>';
       }).join('');
 
       return handle +
@@ -1273,10 +1464,13 @@
         q.jobs = { kisan: 2, karigar: 0, kathakar: 1, rakshak: 0 };
         q.jobs[JOB_OF_KIND[x.kind]] += pop - 3 > 0 ? 1 : 0;
       }
-      var total = q.jobs.kisan + q.jobs.karigar + q.jobs.kathakar + q.jobs.rakshak;
-      if (total < pop) q.jobs.kisan += pop - total;          /* newcomers farm */
+      /* a save written before a role existed has no count for it */
+      JOB_IDS.forEach(function (j2) { if (typeof q.jobs[j2] !== 'number') q.jobs[j2] = 0; });
+      var total = 0;
+      JOB_IDS.forEach(function (j2) { total += q.jobs[j2]; });
+      if (total < pop) { q.jobs.kisan += pop - total; total = pop; }  /* newcomers farm */
       while (total > pop) {                                   /* shrink fairly */
-        var big = ['kisan', 'karigar', 'kathakar', 'rakshak'].sort(function (a, b) { return q.jobs[b] - q.jobs[a]; })[0];
+        var big = JOB_IDS.slice().sort(function (a, b) { return q.jobs[b] - q.jobs[a]; })[0];
         q.jobs[big]--; total--;
       }
       return q.jobs;
@@ -2083,7 +2277,7 @@
             });
             if (atlas.plaza) { stops.push(atlas.plaza); stops.push(atlas.plaza); }
           }
-          ['kisan', 'karigar', 'kathakar', 'rakshak'].forEach(function (jid) {
+          JOB_IDS.forEach(function (jid) {
             var spw = spOf(jid); if (!spw) return;
             for (var k = 0; k < Math.min(j[jid], 5) && wi < 12; k++) {
               wi++;
@@ -2210,20 +2404,45 @@
            thin strip between them — so they stand in one row across the top
            and the whole board below is the city. The lower pair also had to
            climb out from under the shelf, which on a phone buried them. */
-        var ST_POS = narrow
-          ? { kathakar: 'left:0.5%;top:1%', rakshak: 'left:24.5%;top:1%',
-              kisan: 'left:48.5%;top:1%', karigar: 'left:72.5%;top:1%' }
-          : (KITC && G.kitOpen
-              ? { kisan: 'left:1.5%;top:44%', karigar: 'left:81%;top:44%',
-                  kathakar: 'left:1.5%;top:6%', rakshak: 'left:81%;top:6%' }
-              : { kisan: 'left:1.5%;bottom:26%', karigar: 'left:81%;bottom:26%',
-                  kathakar: 'left:1.5%;top:15%', rakshak: 'left:81%;top:15%' });
-        var totalJ = j.kisan + j.karigar + j.kathakar + j.rakshak;
-        var stations = ['kisan', 'karigar', 'kathakar', 'rakshak'].map(function (jid) {
+        var totalJ = 0;
+        JOB_IDS.forEach(function (j2) { totalJ += j[j2]; });
+        /* THE CREW IS WHAT THE CITY HAS BUILT FOR. Four corners were four
+           roles because there were only ever four; now a role stands here
+           once its building does, and a city that has raised no wall simply
+           has no watch to arrange. */
+        /* ON THE BUILT BOARD THE CREW IS NOT A ROW OF CHIPS.
+           The chips were the only way to arrange people, so they were pinned
+           over the city however much of it they covered — and as soon as
+           there were more than four roles they began colliding with each
+           other. The built board has two better places for the same thing:
+           the People shelf in the shop, where a child DISCOVERS that a
+           workshop is what buys a karigar, and the figures standing on the
+           work itself. So the chips stay where they are still the only
+           answer: the painted plates, which have no shop. */
+        var CREW = KITC ? [] : JOB_IDS.filter(function (jid) {
+          return (jobOpen(id, jid) || j[jid] > 0) && spOf(jid);
+        });
+        /* WHERE THEY STAND, FOR HOWEVER MANY THERE ARE. The four corners were
+           hand-written per role, which only works while the roles are four.
+           Narrow lays them across the top in one strip; wide runs them down
+           the two sides, left column first, so a fifth and sixth have a place
+           to be without anything moving that already had one. */
+        var stPos = function (i2) {
+          if (narrow) {
+            var per = Math.max(1, Math.min(CREW.length, 4));
+            var col = i2 % per, row = Math.floor(i2 / per);
+            return 'left:' + (0.5 + col * (98 / per)).toFixed(1) + '%;top:' +
+                   (1 + row * 21) + '%';
+          }
+          var side = i2 % 2, tier = Math.floor(i2 / 2);
+          var top = (KITC && G.kitOpen ? 6 : 15) + tier * 27;
+          return 'left:' + (side ? '81%' : '1.5%') + ';top:' + top + '%';
+        };
+        var stations = CREW.map(function (jid, i2) {
           var spw = spOf(jid); if (!spw) return '';
           var jd = DATA.jobs[jid];
           var canUp = totalJ < pop || (j.kisan > 0 && jid !== 'kisan');
-          return '<div class="sab-station" style="' + ST_POS[jid] + '">' +
+          return '<div class="sab-station" style="' + stPos(i2) + '">' +
             '<img src="' + spw + '" alt=""><b>' + j[jid] + '</b>' +
             '<i>' + esc(jd.name) + (jid === spec ? ' ×2' : '') + '</i>' +
             '<span class="srow">' +
@@ -2398,11 +2617,15 @@
          for a city with no painting to stand them on */
       if (!heroArt) h += '<div class="mono" style="margin-top:4px">The people · ' + pop + ' praja · eat ' +
         (pop * T.eat) + ' \ud83c\udf3e each turn</div><div class="sab-jobs" id="sab-sec-people">' +
-        Object.keys(DATA.jobs).map(function (jid) {
+        JOB_IDS.filter(function (jid) { return jobOpen(id, jid) || j[jid] > 0; }).map(function (jid) {
           var jd = DATA.jobs[jid];
-          var up = j.kisan + j.karigar + j.kathakar + j.rakshak < pop;
+          var up = 0;
+          JOB_IDS.forEach(function (j2) { up += j[j2]; });
+          up = up < pop;
           return '<div class="sab-job">' +
-            '<span class="sab-tico" style="width:28px;height:28px;border-radius:9px">' + ic({ kisan: 'wheat', karigar: 'hammer', kathakar: 'scroll', rakshak: 'shield' }[jid], 18) + '</span>' +
+            '<span class="sab-tico" style="width:28px;height:28px;border-radius:9px">' +
+            ic({ kisan: 'wheat', karigar: 'hammer', kathakar: 'scroll', rakshak: 'shield',
+                 dwarpal: 'shield', dhanurdhar: 'shield' }[jid] || 'shield', 18) + '</span>' +
             '<b>' + esc(jd.name) + (jid === spec ? ' \u00d72' : '') + '</b>' +
             '<span class="row2">' +
             '<button class="pm" data-sab-act="job" data-j="' + jid + '" data-d="-1"' + (j[jid] ? '' : ' disabled') + '>\u2212</button>' +
@@ -2804,6 +3027,7 @@
     /* ---- overlays: fact cards, era cards, endings, resume ---- */
     function showOverlay(html) {
       overlay = html;
+      if (!html) openPiece = null;
       D.getElementById('sab-ovhost').innerHTML =
         html ? '<div class="sab-over"><div class="sab-card" role="dialog" aria-modal="true">' + html + '</div></div>' : '';
       if (html) { var f = D.querySelector('#sab-ovhost .sab-btn'); if (f) f.focus({ preventScroll: true }); }
@@ -3013,8 +3237,17 @@
     /* every watcher this city can call on when the dust rises */
     function defenceOf(id) {
       var q2 = G.sites[id]; if (!q2) return { own: 0, wall: 0, help: 0, total: 0, from: [] };
-      var own = jobsOf(id).rakshak;
-      var wall = (q2.bld.prakara ? T.wallGuard : 0) + (q2.bld.durg ? T.fortGuard : 0);
+      /* EVERY KIND OF WATCHER, WEIGHED. A rakshak on the wall and a dwarpal
+         at the gate are each worth one; a dhanurdhar in the tower is worth
+         two. The weight rides on the role in DATA.jobs, so a new role is a
+         data change and not an engine change. */
+      var jj2 = jobsOf(id), own = 0;
+      JOB_IDS.forEach(function (j2) { own += jj2[j2] * (DATA.jobs[j2].guard || 0); });
+      /* AND THE TOWERS THEMSELVES. kitWatch has been summing the `watch` on
+         built pieces since the kit shipped and nothing ever read it, so a
+         watchtower cost 26 kala and did nothing at all. It counts now. */
+      var wall = (q2.bld.prakara ? T.wallGuard : 0) + (q2.bld.durg ? T.fortGuard : 0) +
+                 (kitOn(id) ? kitWatch(id) : 0);
       /* the neighbours march: half the idle watch of every city joined to this
          one by a road short enough to cross in time. Roads are defence. */
       var help = 0, from = [], me = byId[id];
@@ -3666,8 +3899,79 @@
 
     /* A tap on the board is a placement, not a walk. The board's own scale
        lives on the element, so the sum works at every zoom and every turn. */
+    /* THE CARD A BUILDING OPENS.
+       A thing a child paid for and placed should be able to say what it is
+       afterwards. This is that: the piece's own art, what it is, what it pays
+       every turn, and — the part that makes a building matter — who it lets
+       the city put to work, with the same two buttons that arrange the crew
+       anywhere else. Ends with the count, so the answer to "why build a
+       second workshop" is visible rather than asserted. */
+    var openPiece = null;   /* the card on screen, so hiring from it redraws it */
+    function showPiece(id, pc) {
+      var it = BY_PART[pc.p], def = W.IND_KIT && W.IND_KIT.def(pc.p);
+      if (!def) return;
+      openPiece = { id: id, pc: pc };
+      var q2 = G.sites[id], jt = jobsOf(id), popNow = popOf(id), busy = 0;
+      JOB_IDS.forEach(function (j2) { busy += jt[j2]; });
+      var give = '';
+      if (it && it.give) {
+        give = ['anna', 'kala', 'katha'].filter(function (k2) { return it.give[k2]; })
+          .map(function (k2) { return '+' + it.give[k2] + ' ' + ICON[k2]; }).join('  ');
+      }
+      var extra = [];
+      if (it && it.pop) extra.push('+' + it.pop + ' \ud83d\udc64 room to live');
+      if (it && it.watch) extra.push('+' + it.watch + ' \ud83d\udee1\ufe0f on the gate');
+      if (it && it.bld && BLD[it.bld]) extra.push('counts as a ' + (BLD[it.bld].name || it.bld));
+
+      /* who this building is the reason for */
+      var here = (BUILD.jobs || []).filter(function (r) {
+        return (r.at || []).some(function (a2) {
+          return a2.slice(-1) === '-' ? pc.p.indexOf(a2) === 0 : a2 === pc.p;
+        });
+      });
+      var crewHtml = here.filter(function (r) { return spOf(r.j); }).map(function (r) {
+        var jd = DATA.jobs[r.j], have = jt[r.j] || 0, open2 = jobOpen(id, r.j);
+        var canAdd = open2 && (busy < popNow || (jt.kisan > 0 && r.j !== 'kisan'));
+        return '<div class="sab-pcrew">' +
+          '<img src="' + spOf(r.j) + '" alt="">' +
+          '<span><b>' + esc(jd.name) + '</b><i>' + esc(jd.what) + '</i></span>' +
+          '<span class="pmrow">' +
+            '<button class="pm" data-sab-act="job" data-j="' + r.j + '" data-d="-1"' +
+            (have ? '' : ' disabled') + ' aria-label="One fewer ' + esc(jd.name) + '">\u2212</button>' +
+            '<em>' + have + '</em>' +
+            '<button class="pm" data-sab-act="job" data-j="' + r.j + '" data-d="1"' +
+            (canAdd ? '' : ' disabled') + ' aria-label="One more ' + esc(jd.name) + '">+</button>' +
+          '</span></div>';
+      }).join('');
+
+      var n = builtCount(id, pc.p);
+      showOverlay(
+        '<div class="mono" style="color:var(--accent2)">' + esc(nameOf(byId[id])) + '</div>' +
+        '<h3>' + esc(def.name) + '</h3>' +
+        '<img class="sab-pcart" src="' + (W.IND_KIT.src(pc.p, 0) || '') + '" alt="">' +
+        (it ? '<p>' + esc(it.what) + '</p>' : '') +
+        (give ? '<p class="sab-pgive">' + give + ' <span>every turn</span></p>' : '') +
+        (extra.length ? '<p class="tiny" style="color:var(--muted)">' + esc(extra.join(' \u00b7 ')) + '</p>' : '') +
+        (crewHtml ? '<div class="sab-pcrews"><div class="mono">Who works here</div>' + crewHtml + '</div>' : '') +
+        (n > 1 ? '<p class="tiny" style="color:var(--muted)">' + n + ' of these stand in the city.</p>' : '') +
+        '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Back to the city</button></div>');
+    }
+
+    /* which built thing stands on this cell, if any */
+    function pieceAt(id, cx, cy) {
+      var q2 = kitOf(id), K2 = W.IND_KIT, found = null;
+      q2.kit.forEach(function (b) {
+        var d = K2.def(b.p); if (!d) return;
+        var L = d.d[0] || 1, B = d.d[1] || 1;
+        if (cx >= b.x && cx < b.x + L && cy >= b.y && cy < b.y + B) found = b;
+      });
+      if (found) return found;
+      var t = q2.tiles && q2.tiles[cx + ',' + cy];
+      return t ? { p: t, x: cx, y: cy, tile: true } : null;
+    }
+
     function kitTap(e) {
-      if (!city || !hold || !kitOn(city)) return false;
+      if (!city || !kitOn(city)) return false;
       var inr = D.getElementById('sab-kitinner');
       if (!inr || !inr.contains(e.target)) return false;
       var r = inr.getBoundingClientRect();
@@ -3676,6 +3980,12 @@
                                     (e.clientY - r.top) / k,
                                     G.kitRot || 0, 1, KIT_HEAD);
       if (!cell) return true;
+      /* HANDS EMPTY, A TAP ASKS WHAT THIS IS. Everything a child had bought
+         and put down was mute afterwards — the shop said what it would give
+         and then the board never mentioned it again. Tapping one opens its
+         card: what it is, what it pays every turn, and who it lets the city
+         put to work. */
+      if (!hold) { var pc = pieceAt(city, cell.x, cell.y); if (pc) showPiece(city, pc); return true; }
       var it = BY_PART[hold.p];
       var why = canPlace(city, it, cell.x, cell.y);
       if (why) { say('Not there — ' + why + '.', ''); paintCity(); return true; }
@@ -3741,11 +4051,22 @@
         }
         if (a === 'job' && city) {
           var jj = jobsOf(city), jid = actEl.getAttribute('data-j'), dd = Number(actEl.getAttribute('data-d'));
-          var total = jj.kisan + jj.karigar + jj.kathakar + jj.rakshak;
+          /* a role the city has not built the home for cannot be ADDED to;
+             one already on the payroll may still be moved off */
+          if (dd > 0 && !jobOpen(city, jid)) {
+            say(DATA.jobs[jid].name + ' has nowhere to work yet — ' + jobNeed(city, jid) + '.', 'mist');
+            return;
+          }
+          var total = 0;
+          JOB_IDS.forEach(function (j2) { total += jj[j2]; });
           if (dd > 0 && total < popOf(city)) jj[jid]++;
           else if (dd > 0 && jj.kisan > 0 && jid !== 'kisan') { jj.kisan--; jj[jid]++; }   /* full town: new hands come off the fields */
           else if (dd < 0 && jj[jid] > 0) { jj[jid]--; jj.kisan++; }                        /* freed hands farm */
-          touch(city); paintCity(); paintAll(); return;
+          touch(city); paintCity(); paintAll();
+          /* hiring from a building's own card has to change that card, or the
+             count under your thumb sits there stale and the button looks dead */
+          if (openPiece && overlay) showPiece(openPiece.id, openPiece.pc);
+          return;
         }
         if (a === 'deed' && city) {
           var qh = G.sites[city], sh = byId[city];

@@ -473,6 +473,12 @@
     '.sab-kitboard{position:relative;width:100%;display:block;overflow:hidden;',
     '  background:radial-gradient(ellipse 72% 58% at 50% 58%,#e8dcc4 0%,#d8c9ab 78%)}',
     '.sab-kitinner{position:absolute;left:0;top:0;transform-origin:0 0}',
+    /* the layer that holds whatever is placed by board percentage: sized to
+       the board, so it moves and grows with it, but NOT inside the scaled
+       box, so a label does not shrink to nothing at 60% */
+    '.sab-kitpins{position:absolute;inset:0;pointer-events:none}',
+    '.sab-kitpins>*{pointer-events:auto}',
+    '.sab-kitpins .sab-plots{pointer-events:none}',
     /* the plate's crop rules are for a painting; the board sets its own height
        from the grid, and a max-height cuts the south half of the city off */
     '.sab-scene.iskit .sab-hero{aspect-ratio:auto;max-height:none}',
@@ -1042,7 +1048,7 @@
 
     var KIT_HEAD = 5;   /* sky above the tallest piece, in height units */
 
-    function kitBoard(id) {
+    function kitBoard(id, pins) {
       var q = kitOf(id);
       var ghost = null;
       if (hold && hold.cell) {
@@ -1053,9 +1059,18 @@
         rot: G.kitRot || 0, scale: 1, headroom: KIT_HEAD, pad: 0,
         built: q.kit, tiles: q.tiles, reach: reachOf(id), ghost: ghost
       });
+      /* PINNED TO THE BOARD, NOT TO THE FRAME.
+         The monument, the treasure and the plot markers are placed at a
+         PERCENTAGE OF THE BOARD — kitPt returns exactly that. They used to be
+         hung on .sab-cam, which is the frame: the frame does not change when
+         you zoom but the board does, so every zoom slid the monument across
+         the city and it ended up standing in the water. They live inside
+         .sab-kitboard now, which fit() sizes to the board exactly, so a
+         percentage means what it says at every zoom. */
       return '<div class="sab-hero sab-kitboard"><div class="sab-kitinner" id="sab-kitinner"' +
         ' data-z="' + (G.kitZ || 1) + '" style="width:' + r.w + 'px;height:' + r.h +
-        'px">' + r.html + kitCrowd(id) + '</div></div>';
+        'px">' + r.html + kitCrowd(id) + '</div>' +
+        (pins ? '<div class="sab-kitpins">' + pins + '</div>' : '') + '</div>';
     }
 
     /* THE PRAJA STAND ON THE WORK THEY DO.
@@ -2600,11 +2615,11 @@
           (atlas && !KITC ? '<style>' + roadKeyframes(id) + '</style>' : '') +
           (KITC ? '<div class="sab-view" id="sab-view">' : '') +
           '<div class="sab-cam" id="sab-cam" style="transform:' + camStr() + '">' +
-          (KITC ? kitBoard(id)
+          (KITC ? kitBoard(id, scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri)
                 : '<img class="sab-hero' + (q.mon ? '' : ' dim') + '" src="' + heroArt + '" alt="">') +
           (KITC ? '' : greenLayer(id)) +
           '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
-          scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri +
+          (KITC ? '' : scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri) +
           '</div>' + (KITC ? '</div>' : '') +
           plate + stations + badges + (KITC ? kitDrawer(id) : growBtn(id)) + '</div>' + treHint +
           (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
@@ -3822,9 +3837,10 @@
       }
     }
     /* PAN AND ZOOM. A city you build in is a city you move around inside, and
-       scrollbars are not how anyone does that. Drag the board to pan; wheel or
-       pinch to zoom about the pointer; +/- and double-click as well, because
-       every game here works by finger AND by key. */
+       scrollbars are not how anyone does that. Drag the board to pan, with a
+       finger or with the mouse. ZOOM IS THE + AND \u2212 BUTTONS AND NOTHING
+       ELSE — see the note by kitWheel's grave for why the wheel, the pinch
+       and the double-tap all lost it. */
     var ZOOMS = [0.6, 0.85, 1, 1.4, 2, 2.8];
 
     function kitView() { return D.getElementById('sab-view'); }
@@ -3847,12 +3863,15 @@
       v2.scrollTop = py * k - (ay == null ? r.height / 2 : ay - r.top);
     }
 
-    function kitStep(d, ax, ay) {
+    /* One step of the + or \u2212 button. No pointer position any more:
+       with the buttons the only way in, the thing to hold still is the middle
+       of the view, which is what kitZoomTo does when it is given nothing. */
+    function kitStep(d) {
       var i = ZOOMS.indexOf(G.kitZ || 1); if (i < 0) i = 2;
-      kitZoomTo(ZOOMS[Math.max(0, Math.min(ZOOMS.length - 1, i + d))], ax, ay);
+      kitZoomTo(ZOOMS[Math.max(0, Math.min(ZOOMS.length - 1, i + d))]);
     }
 
-    var drag = null, pinch = null;
+    var drag = null;
 
     function kitPointerDown(e) {
       var v = kitView();
@@ -3876,26 +3895,19 @@
       if (v) v.classList.remove('grabbing');
       drag = null;
     }
-    function kitWheel(e) {
-      var v = kitView();
-      if (!v || !city || !kitOn(city) || !v.contains(e.target)) return;
-      e.preventDefault();
-      kitStep(e.deltaY < 0 ? 1 : -1, e.clientX, e.clientY);
-    }
-    function kitTouch(e) {
-      var v = kitView();
-      if (!v || !city || !kitOn(city)) return;
-      if (e.touches && e.touches.length === 2) {
-        var a = e.touches[0], b2 = e.touches[1];
-        var d = Math.hypot(a.clientX - b2.clientX, a.clientY - b2.clientY);
-        var mx = (a.clientX + b2.clientX) / 2, my = (a.clientY + b2.clientY) / 2;
-        if (!pinch) { pinch = { d: d, z: G.kitZ || 1 }; }
-        else if (d > 0) {
-          e.preventDefault();
-          kitZoomTo(pinch.z * (d / pinch.d), mx, my);
-        }
-      } else { pinch = null; }
-    }
+    /* ZOOM IS A DECISION, NOT A TWITCH — the same rule the realm map was
+       given, for the same reason, now that the city board has a zoom of its
+       own. The wheel and the pinch stepped the level, so a trackpad scroll or
+       a clumsy two-finger drag kept yanking the city nearer and farther
+       mid-thought, and a double-tap meant to enter a building zoomed instead.
+       Zooming belongs to the + and \u2212 buttons and to nothing else. The
+       wheel scrolls the page like everywhere else, and any number of fingers
+       on the board can only pan it.
+
+       This does NOT cost the keyboard its zoom (house rule: every game works
+       by key as well as by finger). The buttons are real buttons — Tab reaches
+       them and Enter presses them — so both hands still work; what is gone is
+       zooming BY ACCIDENT. */
 
     /* A tap on the board is a placement, not a walk. The board's own scale
        lives on the element, so the sum works at every zoom and every turn. */
@@ -4469,16 +4481,6 @@
     D.addEventListener('pointermove', kitPointerMove);
     D.addEventListener('pointerup', kitPointerUp);
     D.addEventListener('pointercancel', kitPointerUp);
-    host.addEventListener('wheel', kitWheel, { passive: false });
-    host.addEventListener('touchmove', kitTouch, { passive: false });
-    host.addEventListener('touchend', function () { pinch = null; });
-    /* double-tap the board zooms in, the way every map does */
-    host.addEventListener('dblclick', function (e) {
-      var v = kitView();
-      if (v && city && kitOn(city) && v.contains(e.target) && !hold) {
-        e.preventDefault(); kitStep(1, e.clientX, e.clientY);
-      }
-    });
     /* Going into a city is handled in onClick, which counts the two taps
        itself — see the note there on why the browser's dblclick cannot do it.
        A dblclick listener is still wanted for one thing only: stopping the

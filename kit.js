@@ -508,7 +508,15 @@
       var host = (box.closest && box.closest('.sab-view')) || box.parentNode || box;
       var bw = host.clientWidth || host.offsetWidth;
       var bh = host.clientHeight || host.offsetHeight;
-      if (!bw) continue;
+      /* A BOARD WITH NO HEIGHT IS AN INVISIBLE BOARD.
+         .sab-kitboard hides its overflow and its only child is absolutely
+         positioned, so its height comes ENTIRELY from the line at the foot of
+         this loop. Every `continue` below used to skip that line, and the
+         board collapsed to nothing — a flat sheet of background where a city
+         should be, with the HUD floating on top of it and no clue why. When
+         the frame cannot be measured yet, leave the board its natural size and
+         come back on the next frame rather than leaving it at zero. */
+      if (!bw) { K.later(root); continue; }
       var w = parseFloat(el.style.width) || 1;
       /* fit to the box, then multiply by however far the child has zoomed in.
          Past 1 the board is bigger than its window and the window scrolls —
@@ -531,7 +539,12 @@
                : full ? Math.max(bw / (w * bleed), bh / (hh * bleed))
                       : Math.min(bw / (w * bleed), bh / (hh * bleed));
       var k = base * z;
-      if (!(k > 0.02 && k < 12)) continue;      /* a scale that absurd is a bug */
+      if (!(k > 0.02 && k < 12)) {              /* a scale that absurd is a bug */
+        el.style.transform = '';
+        box.style.width = ''; box.style.height = (hh || 1) + 'px';
+        K.later(root);
+        continue;
+      }
       el.style.transform = 'scale(' + k.toFixed(5) + ')';
       el.setAttribute('data-k', k.toFixed(5));
       box.style.height = (parseFloat(el.style.height) * k).toFixed(1) + 'px';
@@ -571,6 +584,16 @@
 
   /* the city repaint replaces the scene, which resets its scroll to zero, so the
      look has to happen after the browser has actually laid the new one out */
+  /* try again next frame, once — used when the frame has no size to measure
+     yet, which happens while a fixed full-screen surface is still settling */
+  K.later = function (root) {
+    if (K._soon) return;
+    K._soon = true;
+    var go = function () { K._soon = false; K.fit(root || document); };
+    if (W.requestAnimationFrame) W.requestAnimationFrame(function () { setTimeout(go, 60); });
+    else setTimeout(go, 60);
+  };
+
   K.lookSoon = function (cid, rot, headroom, cell) {
     var go = function () { K.fit(document); K.lookAt(cid, rot, headroom, cell); };
     if (W.requestAnimationFrame) W.requestAnimationFrame(function () { go(); go(); });

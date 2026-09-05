@@ -494,6 +494,24 @@
     '.sab-callrow em{flex:0 0 auto;font-style:normal;color:var(--accent);font-size:11px}',
     '.sab-callrow .go{flex:0 0 auto;font:700 17px/1 var(--body);opacity:.5}',
     '.sab-callrow.hot{background:rgba(230,160,60,.18);border-color:rgba(230,160,60,.5)}',
+    /* the card, in the panel's own place */
+    '.sab-calllist.iscard{width:min(340px,86vw);max-height:calc(100% - 118px);overflow:auto;',
+    '  -webkit-overflow-scrolling:touch}',
+    '.sab-callback{align-self:flex-start;min-height:34px;padding:0 10px;border-radius:9px;',
+    '  border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#f6efe1;',
+    '  font:700 11px/1 var(--body);cursor:pointer;margin-bottom:2px}',
+    '.sab-callback:hover{border-color:var(--accent2)}',
+    '.sab-cardtitle{margin:2px 4px 4px;font:800 15px/1.25 var(--display,Georgia,serif);color:#f6efe1}',
+    '.sab-cardbody{padding:0 4px 4px;color:#f6efe1;font-size:12.5px;line-height:1.5}',
+    '.sab-cardbody p{margin:6px 0}',
+    '.sab-cardbody .sab-btn{margin:4px 0}',
+    '.sab-cardbody .sab-cfact{background:rgba(255,255,255,.06);border-radius:9px;padding:7px 9px;',
+    '  margin:6px 0;font-size:12px;line-height:1.5}',
+    '.sab-cardbody img{max-width:100%;border-radius:9px}',
+    '.sab-cardbody .mch{display:inline-block;margin:2px 3px 2px 0;padding:3px 7px;border-radius:8px;',
+    '  background:rgba(255,255,255,.08);font:700 10.5px/1.3 var(--body)}',
+    '.sab-cardbody .sab-treshint{background:rgba(230,160,60,.14);border-radius:9px;padding:7px 9px;',
+    '  margin:6px 0;font-size:11.5px;font-style:italic}',
     '.sab-scene.iskit{overflow:hidden;position:relative;',
     '  height:min(66vh,620px);min-height:340px;touch-action:none}',
     '@media (max-width:560px){.sab-scene.iskit{height:min(60vh,480px)}}',
@@ -1498,6 +1516,17 @@
       return callAbout(id);
     }
     var openCall = null;   /* the call on screen, so acting on it redraws it */
+    /* WHAT WENT WRONG, WHERE IT WENT WRONG.
+       A row that does nothing is the worst thing this list can do, and the way
+       it happens is a handler throwing halfway: the panel stays open, the card
+       never appears, and nothing anywhere says so. Anything thrown while
+       opening a card is caught, written to the diagnostics ring a parent can
+       copy, and shown IN the panel where the finger already is. */
+    var callErr = '';
+    function callTrouble(where, err) {
+      callErr = where + ': ' + ((err && err.message) || err || 'something went wrong');
+      try { if (W.IND_DIAG && W.IND_DIAG.push) W.IND_DIAG.push('city', callErr); } catch (e3) {}
+    }
     /* A ROW ANSWERS THE TAP ITSELF.
        Everything else in this game is driven by one delegated click on the
        host, and everywhere else that is fine. These rows are reported dead on
@@ -1512,17 +1541,22 @@
        has to leave the card showing the ANSWER rather than the question it
        just replaced. Called by those actions once the state has moved. */
     function refreshCall() {
-      if (!openCall || !overlay || !city) return;
+      if (!openCall || !city || !G.callAt) return;
       var still = callList(openCall.id).some(function (c) { return c.k === openCall.k; });
-      if (still) showCall(openCall.id, openCall.k); else showOverlay('');
+      if (!still) { G.callAt = null; openCall = null; }
     }
+    /* THE CARD OPENS WHERE THE LIST WAS.
+       It used to be raised as a modal over the whole screen, which put the
+       overlay host, its z-index and its stacking context between a child's
+       finger and the answer — three things that can each go wrong on an engine
+       I cannot test here, and the failure looks identical to a dead button.
+       The panel is already on screen and already works: the card takes its
+       place, with a way back to the list. Nothing new has to render for it. */
     function showCall(id, k) {
-      var c = callCard(id, k);
-      if (!c) return;
+      callErr = '';
       openCall = { id: id, k: k };
-      showOverlay('<div class="mono" style="color:var(--accent2)">' + esc(nameOf(byId[id])) + '</div>' +
-        '<h3>' + c.t + '</h3>' + c.h +
-        '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Back to the city</button></div>');
+      G.callAt = k;
+      G.callsOpen = false;
     }
     /* THE BELL. Hidden work, visibly counted: how many things in this city are
        waiting on the child, and one tap to see them. */
@@ -1530,11 +1564,33 @@
       var list = callList(id);
       var hot = list.filter(function (c) { return c.hot; }).length;
       var open2 = !!G.callsOpen;
-      return '<button class="sab-bell' + (hot ? ' hot' : '') + '" data-sab-act="calls"' +
-        ' aria-expanded="' + open2 + '" aria-label="' +
+      var at = G.callAt, card = null;
+      if (at) {
+        /* the card, built where it is shown — and if building it throws, the
+           panel says so instead of the tap seeming to do nothing at all */
+        try { card = callCard(id, at); }
+        catch (e4) { callTrouble('opening ' + at, e4); card = null; }
+      }
+      var bell = '<button class="sab-bell' + (hot ? ' hot' : '') + '" data-sab-act="calls"' +
+        ' aria-expanded="' + (open2 || !!at) + '" aria-label="' +
         (hot ? hot + ' thing' + (hot > 1 ? 's' : '') + ' in this city are waiting on you'
              : 'Things to do in this city') +
-        '">\u2630' + (hot ? '<u>' + hot + '</u>' : '') + '</button>' +
+        '">\u2630' + (hot ? '<u>' + hot + '</u>' : '') + '</button>';
+
+      if (at) {
+        return bell + '<div class="sab-calllist iscard" role="group" aria-label="' +
+          esc(nameOf(byId[id])) + '">' +
+          '<button class="sab-callback" data-sab-act="callback">\u2190 things to do</button>' +
+          (card
+            ? '<h4 class="sab-cardtitle">' + card.t + '</h4>' +
+              '<div class="sab-cardbody">' + card.h + '</div>'
+            : '<div class="sab-cardbody"><p>Sorry — this one would not open.</p>' +
+              '<p class="tiny" style="opacity:.7">' + esc(callErr) + '</p>' +
+              '<p class="tiny" style="opacity:.7">A grown-up can copy this from ' +
+              'Me \u2192 Grown-ups and send it on.</p></div>') +
+          '</div>';
+      }
+      return bell +
         (open2 ? '<div class="sab-calllist" role="group" aria-label="Things to do in ' +
           esc(nameOf(byId[id])) + '">' +
           '<div class="sab-callhead">Things to do here</div>' +
@@ -4372,8 +4428,8 @@
       if (!row || !city) return;
       if (callRowAt(e.target) !== row) return;    /* lifted somewhere else */
       callTapAt = Date.now();
-      G.callsOpen = false;
-      showCall(city, row.getAttribute('data-c'));
+      try { showCall(city, row.getAttribute('data-c')); }
+      catch (e5) { callTrouble('opening', e5); G.callAt = row.getAttribute('data-c'); }
       paintCity();
     }
 
@@ -4486,13 +4542,20 @@
         /* zoom is the board's own, not the yatri camera's: a city you can
            build in is a city you must be able to lean into */
         if (a === 'kitzoom') { kitStep(+actEl.getAttribute('data-d') || 1); return; }
-        if (a === 'calls' && city) { G.callsOpen = !G.callsOpen; paintCity(); return; }
+        if (a === 'calls' && city) {
+          if (G.callAt) { G.callAt = null; openCall = null; G.callsOpen = true; }
+          else G.callsOpen = !G.callsOpen;
+          paintCity(); return;
+        }
+        if (a === 'callback' && city) {
+          G.callAt = null; openCall = null; G.callsOpen = true; paintCity(); return;
+        }
         if (a === 'call' && city) {
           /* the row already answered on pointerup; this is the click that
              followed it, and opening the same card twice would close it */
           if (Date.now() - callTapAt < 900) return;
-          G.callsOpen = false;
-          showCall(city, actEl.getAttribute('data-c'));
+          try { showCall(city, actEl.getAttribute('data-c')); }
+          catch (e6) { callTrouble('opening', e6); G.callAt = actEl.getAttribute('data-c'); }
           paintCity(); return;
         }
         if (a === 'leave' && city) { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
@@ -4652,6 +4715,10 @@
         /* Escape unwinds one thing at a time, innermost first: put the held
            piece back, then close the city. Closing the city while a child is
            holding a hut is not what Escape means. */
+        if (e.key === 'Escape' && G.callAt) {
+          eat(); G.callAt = null; openCall = null; G.callsOpen = true; paintCity(); return;
+        }
+        if (e.key === 'Escape' && G.callsOpen) { eat(); G.callsOpen = false; paintCity(); return; }
         if (e.key === 'Escape' && hold) { eat(); hold = null; paintCity(); return; }
         if (e.key === 'Escape') { eat(); city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
         /* the arrows walk the yatri — the keyboard walks too (house rule) */

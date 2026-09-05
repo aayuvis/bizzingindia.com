@@ -312,16 +312,43 @@ async function place(p, cx, cy) {
   check('it is offered in the city instead', await p.evaluate(() =>
         !!document.querySelector('.sab-grow')));
 
-  /* wheel zooms about the pointer */
+  /* ZOOM IS THE BUTTONS AND NOTHING ELSE. The wheel and the pinch used to
+     step it, which meant a trackpad scroll moved the city mid-thought. */
   const z0 = await p.evaluate(() => window.__SABG().kitZ || 1);
   await p.evaluate(() => {
     const v = document.querySelector('.sab-view'), r = v.getBoundingClientRect();
     v.dispatchEvent(new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: -120,
       clientX: r.left + r.width/2, clientY: r.top + r.height/2 }));
   });
+  await p.waitForTimeout(500);
+  check('the wheel does NOT zoom the board',
+        (await p.evaluate(() => window.__SABG().kitZ || 1)) === z0, z0);
+  await p.evaluate(() => {
+    const v = document.querySelector('.sab-view'), r = v.getBoundingClientRect();
+    const t = (x, y) => ({ clientX: x, clientY: y, identifier: 0, target: v });
+    const two = [t(r.left + 200, r.top + 200), t(r.left + 240, r.top + 200)];
+    const four = [t(r.left + 160, r.top + 200), t(r.left + 320, r.top + 200)];
+    v.dispatchEvent(new TouchEvent('touchmove', { bubbles: true, cancelable: true,
+      touches: two, targetTouches: two, changedTouches: two }));
+    v.dispatchEvent(new TouchEvent('touchmove', { bubbles: true, cancelable: true,
+      touches: four, targetTouches: four, changedTouches: four }));
+  }).catch(() => {});
+  await p.waitForTimeout(400);
+  check('and a pinch does NOT either',
+        (await p.evaluate(() => window.__SABG().kitZ || 1)) === z0, z0);
+  await p.evaluate(() => {
+    const b = document.querySelector('[data-sab-act="kitzoom"][data-d="1"]'); if (b) b.click();
+  });
   await p.waitForTimeout(600);
   const z1 = await p.evaluate(() => window.__SABG().kitZ || 1);
-  check('the wheel zooms the board', z1 > z0, z0 + ' -> ' + z1);
+  check('the + button does', z1 > z0, z0 + ' -> ' + z1);
+  await p.evaluate(() => {
+    const b = document.querySelector('[data-sab-act="kitzoom"][data-d="-1"]'); if (b) b.click();
+  });
+  await p.waitForTimeout(600);
+  check('and the \u2212 button comes back',
+        (await p.evaluate(() => window.__SABG().kitZ || 1)) === z0,
+        z1 + ' -> ' + await p.evaluate(() => window.__SABG().kitZ || 1));
 
   /* dragging the board pans it */
   const pan = await p.evaluate(async () => {

@@ -1263,7 +1263,7 @@
       /* every home built is one more pair of hands — the reason a child
          builds huts before they build anything clever */
       return 2 + q.lv * 2 + (q.bld.granary ? 1 : 0) +
-             (W.IND_KIT_MODE ? kitPop(id) : 0);
+             (kitOn(id) ? kitPop(id) : 0);
     }
     /* default split, and the top-up rule when the town grows: new hands farm first —
        which is also the deadlock guarantee: kisan exist from the first minute */
@@ -1319,7 +1319,7 @@
       if (inKingdomOf(x.id)) { out.anna += 1; out.kala += 1; out.katha += 1; }
       /* what was BUILT on the board pays out too — a wheat field is not
          scenery, it is one more 🌾 every turn for as long as it is sown */
-      if (W.IND_KIT_MODE) {
+      if (kitOn(x.id)) {
         var ky = kitYield(x.id);
         out.anna += ky.anna; out.kala += ky.kala; out.katha += ky.katha;
       }
@@ -2636,8 +2636,12 @@
     function camStr() {
       /* the painted plate is a wide picture and wants a camera pushed into it;
          the built board IS the city, edge to edge, and cropping it throws away
-         the half you were about to look at */
-      if (W.IND_KIT_MODE) return 'scale(1) translate(0,0)';
+         the half you were about to look at.
+         ASKED OF THE CITY, NOT THE MODE. Eight cities have a board and the
+         other twenty-three are still paintings; asking the global flag took
+         the camera away from every one of those paintings the moment the kit
+         became the default, and the yatri walked out of frame. */
+      if (kitOn(city)) return 'scale(1) translate(0,0)';
       var fit = function (p, o) {
         var t = (0.5 - o) / CAM_S + o - p / 100;
         var lo = o + (1 - o) / CAM_S - 1, hi = o - o / CAM_S;

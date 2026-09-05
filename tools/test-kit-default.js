@@ -1,7 +1,14 @@
-/* THE KIT IS THE DEFAULT, BUT ONLY EIGHT CITIES HAVE A BOARD.
-   So the question this suite asks is not "does the kit work" — the build
-   suite asks that — but "does turning it on quietly break the twenty-three
-   cities that are still paintings?" Every check here is about the seam. */
+/* EIGHT CITIES HAVE A BOARD; TWENTY-THREE DO NOT.
+   There is no kit mode any more — a city draws a built board if a board was
+   drawn for it, and the rest keep their painted plates because no kit has been
+   made for them yet. That is coverage, not a setting.
+
+   So the question this suite asks is not "does the kit work" — the build suite
+   asks that — but the one that outlives the switch: does having two renderers
+   in one game break the cities that are still paintings? It exists because it
+   caught exactly that. Three checks that asked a GLOBAL mode instead of the
+   city were each wrong for the twenty-three, and the worst would have taken
+   the walk-camera away from every one of them. */
 const { chromium } = require('playwright');
 let fails = 0;
 const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x !== undefined ? '  [' + x + ']' : '')); if (!ok) fails++; };
@@ -81,7 +88,10 @@ const leave = async p => {
 
   /* ---- 1 · the default, and the seam it creates ---- */
   const { p, errs } = await boot(b, 'http://localhost:8150/');
-  check('the kit is on without asking for it', await p.evaluate(() => !!window.IND_KIT_MODE));
+  check('nothing has to be asked for — there is no mode',
+        await p.evaluate(() => typeof window.IND_KIT_MODE === 'undefined'));
+  check('and no switch is offered to break it with',
+        await p.evaluate(() => !document.querySelector('[data-sab-act="kittoggle"]')));
   const kitIds = await p.evaluate(() => Object.keys(window.IND_KIT_CITIES || {}));
   const allIds = await p.evaluate(() => window.IND_SABHYATA.sites.map(s => s.id));
   const plateIds = allIds.filter(i => kitIds.indexOf(i) < 0);
@@ -107,25 +117,21 @@ const leave = async p => {
   check('every city still offers Grow', !noGrow.length, noGrow.join(', ') || 'all ' + allIds.length);
   check('no errors thrown', !errs.length, errs.slice(0, 2).join(' | ') || 'none');
 
-  /* ---- 2 · the ledger does not jump when the renderer changes ---- */
-  const ledgers = {};
-  for (const id of allIds.slice(0, 10)) { await open(p, id); const r = await look(p); if (r) ledgers[id] = r.ledger; await leave(p); }
+  /* ---- 2 · A STALE PREFERENCE MUST NOT STRAND ANYONE ----
+     While the kit was a test the built/painted switch wrote '0' into
+     'ind.kit', and the bootstrap only ever asked whether it was '1' — so those
+     zeroes meant nothing and plenty are lying around. When the kit briefly
+     became a default that honoured any stored value, a '0' written months ago
+     during a comparison pinned that browser to the old painted city, with no
+     bell and no full screen. That is what got reported. Nothing reads the key
+     now; this makes sure nothing starts to again. */
+  await p.evaluate(() => { localStorage.setItem('ind.kit', '0'); localStorage.setItem('ind.kit2', '0'); });
+  await p.reload({ waitUntil: 'networkidle' });
+  await p.waitForTimeout(700);
+  check('an old stored preference cannot turn the boards off',
+        await p.evaluate(() => typeof window.IND_KIT_MODE === 'undefined'));
+  check('no errors', !errs.length, errs.slice(0, 2).join(' | ') || 'none');
   await p.close();
-
-  const { p: p0, errs: e0 } = await boot(b, 'http://localhost:8150/?kit=0');
-  check('?kit=0 puts the paintings back', await p0.evaluate(() => !window.IND_KIT_MODE));
-  const drift = [];
-  for (const id of Object.keys(ledgers)) {
-    await open(p0, id);
-    const r = await look(p0);
-    if (r && r.ledger !== ledgers[id]) drift.push(id + ': "' + ledgers[id] + '" vs "' + r.ledger + '"');
-    if (r && r.board) drift.push(id + ' still drew a board under ?kit=0');
-    await leave(p0);
-  }
-  check('a saved city earns the same either way, with nothing built yet',
-        !drift.length, drift.slice(0, 2).join(' | ') || Object.keys(ledgers).length + ' cities level');
-  check('no errors with the kit off', !e0.length, e0.slice(0, 2).join(' | ') || 'none');
-  await p0.close();
 
   await b.close();
   console.log(fails ? '\n' + fails + ' FAILURES' : '\nALL GREEN');

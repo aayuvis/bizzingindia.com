@@ -71,7 +71,8 @@ const leave = async p => {
 
 (async () => {
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
-  for (const [label, url] of [['default', 'http://localhost:8150/'], ['kit', 'http://localhost:8150/?kit=1']]) {
+  /* one build now: there is no mode to run this twice for */
+  for (const [label, url] of [['the app', 'http://localhost:8150/']]) {
     for (const [vp, w, h] of [['phone', 390, 844], ['desktop', 1200, 900]]) {
       const p = await b.newPage({ viewport: { width: w, height: h } });
       p.on('pageerror', e => console.log('PAGEERROR', e.message));

@@ -23,7 +23,7 @@ async function boot(b, v) {
                               deviceScaleFactor: 2 });
   const errs = [];
   p.on('pageerror', e => errs.push(e.message));
-  await p.goto('http://localhost:8150/?kit=1', { waitUntil: 'networkidle' });
+  await p.goto('http://localhost:8150/', { waitUntil: 'networkidle' });
   await p.click('[data-act="begin"]').catch(()=>{});
   const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
   await p.waitForTimeout(400);

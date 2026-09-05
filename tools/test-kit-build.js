@@ -88,7 +88,7 @@ async function place(p, cx, cy) {
   const p = await b.newPage({ viewport: { width: 1340, height: 1100 } });
   const errs = [];
   p.on('pageerror', e => errs.push(e.message));
-  await p.goto('http://localhost:8150/?kit=1', { waitUntil: 'networkidle' });
+  await p.goto('http://localhost:8150/', { waitUntil: 'networkidle' });
   await p.click('[data-act="begin"]').catch(()=>{});
   const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
   await p.waitForTimeout(400);

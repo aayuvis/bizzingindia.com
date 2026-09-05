@@ -44,6 +44,14 @@ const shut = async p => {
     await p.waitForTimeout(170);
   }
 };
+/* back out of a card to the list — the panel's own way, not a modal close */
+const back = async p => {
+  await p.evaluate(() => { const b2 = document.querySelector('.sab-callback'); if (b2) b2.click(); });
+  await p.waitForTimeout(400);
+  await p.evaluate(() => { if (!document.querySelector('.sab-callrow')) {
+    const b3 = document.querySelector('.sab-bell'); if (b3) b3.click(); } });
+  await p.waitForTimeout(350);
+};
 const open = async (p, id) => {
   await p.evaluate(id => {
     const hit = () => { const g = document.getElementById('sab-' + id); if (!g) return;
@@ -53,9 +61,17 @@ const open = async (p, id) => {
   }, id);
   await p.waitForTimeout(1300); await shut(p);
 };
+/* THE CARD OPENS IN THE PANEL NOW, not as a modal over the screen — the
+   overlay host, its z-index and its stacking context were three things
+   between a finger and the answer, each of which can fail on an engine that
+   is not tested here, and all of which look exactly like a dead button. */
 const card = p => p.evaluate(() => {
-  const c = document.querySelector('#sab-ovhost .sab-card');
+  const c = document.querySelector('.sab-calllist.iscard .sab-cardbody');
   return c ? (c.textContent || '').replace(/\s+/g, ' ').trim() : null;
+});
+const cardTitle = p => p.evaluate(() => {
+  const t = document.querySelector('.sab-cardtitle');
+  return t ? (t.textContent || '').trim() : null;
 });
 const view = p => p.evaluate(() => {
   const v = document.getElementById('sab-view');
@@ -158,37 +174,31 @@ const view = p => p.evaluate(() => {
       }, sel);
       await p.waitForTimeout(500);
     };
-    await p.evaluate(() => { const h = document.getElementById('sab-ovhost'); if (h) h.innerHTML = ''; });
     await onlyPointers('.sab-callrow[data-c="about"]');
     check('a row opens on pointers alone, with no click at all', !!(await card(p)),
           (await card(p) || 'nothing opened').slice(0, 40));
-    await shut(p);
-    await p.evaluate(() => document.querySelector('.sab-bell').click());
-    await p.waitForTimeout(350);
+    await back(p);
     /* a tap that lands on the icon, not the words */
-    await p.evaluate(() => { const h = document.getElementById('sab-ovhost'); if (h) h.innerHTML = ''; });
     await onlyPointers('.sab-callrow[data-c="works"] .ic svg');
     check('and when the finger lands on the icon rather than the words',
           !!(await card(p)), (await card(p) || 'nothing opened').slice(0, 40));
-    await shut(p);
-    await p.evaluate(() => document.querySelector('.sab-bell').click());
-    await p.waitForTimeout(350);
-
-    await p.evaluate(() => { const h = document.getElementById('sab-ovhost'); if (h) h.innerHTML = ''; });
+    await back(p);
     await p.evaluate(() => document.querySelector('.sab-callrow[data-c="about"]').click());
     await p.waitForTimeout(500);
     const c1 = await card(p);
     check('the telling opens as a card, not a page', !!c1 && /Lothal/.test(c1), (c1 || 'no card').slice(0, 70));
     check('and it carries the facts that used to sit below', !!c1 && c1.length > 120, (c1 || '').length + ' chars');
-    await shut(p);
-
-    await p.evaluate(() => document.querySelector('.sab-bell').click());
-    await p.waitForTimeout(350);
+    await back(p);
     await p.evaluate(() => document.querySelector('.sab-callrow[data-c="works"]').click());
     await p.waitForTimeout(500);
     const c2 = await card(p);
     check('so do the works', !!c2 && /monument/i.test(c2), (c2 || 'no card').slice(0, 70));
-    await shut(p);
+    check('and the card names itself', !!(await cardTitle(p)), await cardTitle(p));
+    /* the way back to the list is in the panel, not a modal close */
+    await back(p);
+    check('the back button returns to the list',
+          await p.evaluate(() => !!document.querySelector('.sab-callrow') &&
+                                 !document.querySelector('.sab-calllist.iscard')));
 
     check('and there is a way out that is not a keyboard shortcut',
           await p.evaluate(() => !!document.querySelector('.sab-leave')));

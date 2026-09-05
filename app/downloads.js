@@ -36,6 +36,10 @@
     diagPush('promise', (e.reason && (e.reason.message || e.reason)) || 'unhandled rejection');
   });
   W.IND_DIAG = {
+    /* so the app can record a fault it CAUGHT, not only the ones that got
+       away — a handler that swallows its own exception leaves no trace at all,
+       and "nothing happened when I pressed it" is the hardest report to act on */
+    push: function (kind, msg) { diagPush(kind || 'note', msg); },
     list: function () { try { return JSON.parse(localStorage.getItem(DIAG_KEY) || '[]'); } catch (e) { return []; } },
     text: function () {
       return this.list().map(function (r) {

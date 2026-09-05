@@ -25,7 +25,23 @@ window.IND_KIT_TILES = {
    32
   ]
  },
+ "cr-gram": {
+  "kind": "tile",
+  "v": 3,
+  "wh": [
+   64,
+   32
+  ]
+ },
  "cr-kitchen": {
+  "kind": "tile",
+  "v": 3,
+  "wh": [
+   64,
+   32
+  ]
+ },
+ "cr-millet": {
   "kind": "tile",
   "v": 3,
   "wh": [
@@ -50,6 +66,22 @@ window.IND_KIT_TILES = {
   ]
  },
  "cr-paddy-wet": {
+  "kind": "tile",
+  "v": 3,
+  "wh": [
+   64,
+   32
+  ]
+ },
+ "cr-sesame": {
+  "kind": "tile",
+  "v": 3,
+  "wh": [
+   64,
+   32
+  ]
+ },
+ "cr-sugarcane": {
   "kind": "tile",
   "v": 3,
   "wh": [

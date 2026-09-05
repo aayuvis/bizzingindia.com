@@ -150,8 +150,15 @@
     return !!(W.IND_KIT_GROUND && W.IND_KIT_GROUND.indexOf(id) >= 0);
   };
 
+  /* How much of the field one cell shows. Ground wants a WIDE sample so its
+   * repeat hides; a crop wants a TIGHT one so its rows actually read as rows.
+   * At 0.5 a 64px cell showed an eighth of the painting — one plant, filling
+   * the diamond, and a sown field looked like a green lozenge. */
+  K.FIELD_S = { cr: 0.28, gnd: 0.5, wa: 0.42 };
+
   K.fieldCell = function (id, x, y, s, z, sown) {
-    var F = (W.IND_KIT_GROUND_SIZE || 1024) * s * 0.5,
+    var fs = K.FIELD_S[String(id).split('-')[0]] || 0.5;
+    var F = (W.IND_KIT_GROUND_SIZE || 1024) * s * fs,
         w = K.W * 2 * s * K.BLEED, h = K.H * 2 * s * K.BLEED,
         l = x - w / 2, t = y - h;
     function m(v) { v = v % F; return v < 0 ? v + F : v; }
@@ -391,7 +398,15 @@
 
     /* --- everything that stands up ------------------------------------- */
     var items = [];
-    (C.wild || []).concat(opts.built || []).forEach(function (it) {
+    /* A bought FIELD is ground, not a thing standing on ground. It goes into
+       the city's built list because that is what pays out every turn, but it
+       must be drawn once — as the ground it replaced. Drawn twice, the flat
+       piece sits on top of the painted rows and hides them, which is exactly
+       what made every crop read as a green lozenge. */
+    var standing = (opts.built || []).filter(function (b2) {
+      return !(opts.tiles && opts.tiles[b2.x + ',' + b2.y] === b2.p);
+    });
+    (C.wild || []).concat(standing).forEach(function (it) {
       var def = K.def(it.p);
       if (!def) return;
       var L = def.d[0] || 1, B = def.d[1] || 1, H = def.d[2] || 0;

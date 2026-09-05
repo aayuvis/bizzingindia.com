@@ -502,15 +502,25 @@
       /* Measure the box's PARENT, never the box. fit() sets the box's own
          width, so measuring the box feeds its last answer back into the next
          one and the scale runs away — it reached 15170x before this line. */
-      var host = box.parentNode || box;
+      /* CONTAIN, not just fit-to-width. On a wide screen a board fitted only
+         by its width comes out taller than the window and the city scrolls
+         vertically at 100%, which is not what 100% should mean. */
+      var host = (box.closest && box.closest('.sab-view')) || box.parentNode || box;
       var bw = host.clientWidth || host.offsetWidth;
+      var bh = host.clientHeight || host.offsetHeight;
       if (!bw) continue;
       var w = parseFloat(el.style.width) || 1;
       /* fit to the box, then multiply by however far the child has zoomed in.
          Past 1 the board is bigger than its window and the window scrolls —
          which is how a city becomes something you move around inside. */
       var z = parseFloat(el.getAttribute('data-z')) || 1;
-      var k = (bw / w) * z;
+      var hh = parseFloat(el.style.height) || 1;
+      /* ground tiles are drawn a whisker over size so their edges overlap
+         rather than hairline, and that whisker is enough to put a scrollbar
+         on a board that should exactly fit */
+      var bleed = K.BLEED, base = bh ? Math.min(bw / (w * bleed), bh / (hh * bleed))
+                                     : bw / (w * bleed);
+      var k = base * z;
       if (!(k > 0.02 && k < 12)) continue;      /* a scale that absurd is a bug */
       el.style.transform = 'scale(' + k.toFixed(5) + ')';
       el.setAttribute('data-k', k.toFixed(5));

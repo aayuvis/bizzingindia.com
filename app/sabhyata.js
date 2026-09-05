@@ -312,12 +312,15 @@
     '.sab-scene{position:relative;overflow:hidden;border-radius:var(--radius-lg);border:1px solid var(--line);margin:10px 0 2px}',
     /* the kit board is a fixed-size diamond scaled to the scene, so every
        percent the game already speaks in still means the same place */
-    '.sab-kitbar{position:absolute;right:8px;top:8px;z-index:6;display:flex;gap:6px;align-items:center}',
+    '.sab-kitbar{position:absolute;right:8px;top:8px;z-index:7;display:flex;gap:6px;align-items:center;',
+    '  flex-wrap:wrap;justify-content:flex-end;max-width:calc(100% - 16px)}',
     '.sab-kitbar .z{font:700 11px/1 var(--body);color:#f6efe1;background:rgba(24,16,34,.72);',
-    '  padding:7px 6px;border-radius:8px;min-width:38px;text-align:center;font-variant-numeric:tabular-nums}',
+    '  min-height:36px;display:flex;align-items:center;justify-content:center;padding:0 7px;',
+    '  border-radius:9px;min-width:44px;font-variant-numeric:tabular-nums}',
     /* the shop: one row per thing, and every row says its price and its point */
     /* the handle sits on the board; the shelf slides over its bottom third */
     '.sab-dhandle{position:absolute;left:8px;bottom:8px;z-index:8;display:flex;align-items:center;',
+    '  min-height:40px;',
     '  gap:7px;border:1px solid rgba(255,255,255,.35);background:rgba(24,16,34,.82);color:#f6efe1;',
     '  font:800 12.5px/1 var(--body);padding:9px 13px 9px 10px;border-radius:11px;cursor:pointer;',
     '  backdrop-filter:blur(5px);max-width:62%}',
@@ -339,15 +342,19 @@
     '.sab-dtabs{display:flex;gap:5px;overflow-x:auto;flex:1;scrollbar-width:none}',
     '.sab-dtabs::-webkit-scrollbar{display:none}',
     '.sab-dtab{flex:0 0 auto;border:1px solid rgba(255,255,255,.26);background:rgba(18,12,26,.42);',
-    '  color:#e4d9c4;font:700 10.5px/1 var(--body);padding:5px 7px;border-radius:7px;',
-    '  cursor:pointer;white-space:nowrap}',
+    '  color:#e4d9c4;font:700 10.5px/1 var(--body);min-height:32px;padding:0 10px;',
+    '  border-radius:8px;cursor:pointer;white-space:nowrap}',
     '.sab-dtab i{font-style:normal;opacity:.6;margin-left:5px}',
     '.sab-dtab.on{background:var(--accent);border-color:var(--accent);color:#2a1a10}',
     '.sab-dtab:focus-visible,.sab-dclose:focus-visible,.sab-tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
-    '.sab-dclose{flex:0 0 auto;border:0;background:none;color:#d9cdb8;font-size:15px;cursor:pointer;padding:2px 6px}',
+    '.sab-dclose{flex:0 0 auto;border:0;background:none;color:#d9cdb8;font-size:16px;cursor:pointer;',
+    '  min-width:36px;min-height:32px}',
     '.sab-dhint{flex:0 0 auto;font:700 10px/1 var(--body);color:#a2937c;white-space:nowrap}',
+    '.sab-drow{padding:0 7px 5px}',
+    '.sab-drow .sab-grow{width:100%;justify-content:center}',
     /* Grow lives with the city it grows, not on the realm map beside Route */
     '.sab-grow{position:absolute;right:8px;bottom:8px;z-index:8;display:flex;align-items:center;',
+    '  min-height:40px;',
     '  gap:8px;border:1px solid rgba(255,255,255,.3);background:rgba(24,16,34,.82);color:#f6efe1;',
     '  font:800 12.5px/1 var(--body);padding:9px 12px;border-radius:11px;cursor:pointer;',
     '  backdrop-filter:blur(5px)}',
@@ -355,8 +362,8 @@
     '.sab-grow.can{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}',
     '.sab-grow:disabled{opacity:.5;cursor:default}',
     '.sab-grow:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
-    '.sab-drawer .sab-grow{position:static;flex:0 0 auto;padding:5px 8px;font-size:10.5px;',
-    '  border-radius:7px;gap:6px;background:rgba(0,0,0,.28)}',
+    '.sab-drawer .sab-grow{position:static;flex:0 0 auto;min-height:32px;padding:0 10px;',
+    '  font-size:10.5px;border-radius:8px;gap:6px;background:rgba(18,12,26,.5)}',
     '.sab-dhold{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 8px 5px;font-size:11.5px}',
     '.sab-dhold .sab-btn{padding:4px 8px;font-size:10.5px}',
     '.sab-dtiles{display:flex;gap:6px;overflow-x:auto;padding:1px 7px 7px;',
@@ -390,10 +397,39 @@
     '.sab-view.grabbing{cursor:grabbing}',
     '.sab-view.placing{cursor:crosshair}',
     '.sab-scene.iskit .sab-cam{transform:none!important}',
+    /* A four-year-old's finger is the smallest thing that has to hit these,
+       so nothing on the board is under 36px in its short dimension. */
     '.sab-kitbar button{border:1px solid rgba(255,255,255,.35);background:rgba(24,16,34,.72);',
     '  color:#f6efe1;font:700 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;',
-    '  padding:7px 9px;border-radius:8px;cursor:pointer;backdrop-filter:blur(4px)}',
+    '  min-height:36px;min-width:36px;padding:0 11px;border-radius:9px;cursor:pointer;',
+    '  backdrop-filter:blur(4px)}',
     '.sab-kitbar button:hover{border-color:var(--accent2)}',
+    '.sab-kitbar button i{font-style:normal;font-size:13px}',
+    '.sab-kitbar button u{text-decoration:none;margin-left:5px}',
+    /* NARROW: the bar keeps its icons and drops its words, the crew stands in
+       a strip across the top, and the city gets the rest of the screen. */
+    '@media (max-width:700px){',
+    /* These sit earlier in the sheet than the rules they are correcting, so
+       every one of them is written against .sab-scene.tight — a plain
+       .sab-nameplate here loses to the .sab-nameplate defined further down,
+       and the banner stayed in the middle of the top edge on a phone. */
+    '  .sab-scene.tight .sab-kitbar button u{display:none}',
+    '  .sab-scene.tight .sab-kitbar button{padding:0 9px}',
+    '  .sab-scene.tight .sab-kitbar .z{min-width:40px;font-size:10px}',
+    '  .sab-scene.tight .sab-kitbar{top:auto;bottom:8px;right:8px}',
+    /* bottom-left is where the zoom bar lives on a phone, so the banner goes
+       just under the crew strip instead of underneath the buttons */
+    '  .sab-scene.tight .sab-nameplate{left:8px;right:auto;top:23%;bottom:auto;',
+    '    max-width:56%;transform:none;text-align:left;padding:4px 10px}',
+    '  .sab-scene.tight .sab-nameplate b{font-size:13px}',
+    '  .sab-scene.tight .sab-dhandle{left:8px;bottom:54px;min-height:38px;padding:0 11px}',
+    '  .sab-scene.tight .sab-grow{right:8px;bottom:54px;min-height:38px;font-size:11px}',
+    '  .sab-scene.tight .sab-station{transform:scale(.82);transform-origin:0 0}',
+    '  .sab-scene.tight.shelfup .sab-nameplate,',
+    '  .sab-scene.tight.shelfup .sab-kitbar{display:none}',
+    '  .sab-scene.iskit{height:min(46vh,380px);min-height:280px}',
+    '  .sab-scene.tight .sab-cbadge{display:none}',
+    '}',
     '.sab-kitboard{position:relative;width:100%;display:block;overflow:hidden;',
     '  background:radial-gradient(ellipse 72% 58% at 50% 58%,#e8dcc4 0%,#d8c9ab 78%)}',
     '.sab-kitinner{position:absolute;left:0;top:0;transform-origin:0 0}',
@@ -432,6 +468,11 @@
     '.sab-raksha.ready{background:rgba(24,110,66,.94);animation:none}',
     '.sab-raksha b{font:800 12.5px/1.15 var(--body);white-space:nowrap}',
     '.sab-raksha span{font:700 10px/1.15 var(--body);opacity:.92;white-space:nowrap}',
+    '.sab-raksha{min-height:34px;padding:0 10px}',
+    /* display:flex on the class outranks the browser's own [hidden] rule, so
+       the empty alarm chip sat in the bar for ever. Same trap as the gully
+       game covers; same one-line answer. */
+    '.sab-raksha[hidden]{display:none}',
     '@keyframes sabpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,60,30,.55)}50%{box-shadow:0 0 0 7px rgba(200,60,30,0)}}',
     '.sab-alarm{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:7;pointer-events:none;' +
       'display:grid;justify-items:center;gap:1px;padding:6px 14px;border-radius:12px;text-align:center;' +
@@ -791,6 +832,11 @@
        offer is the city's own: its age, how far it has grown, what it is FOR,
        and in a few cases the one thing only that city ever had.
        ============================================================ */
+    /* How much room there is. Asked in two places — the city render and the
+       shelf, which are different functions — so it is one helper, not a local
+       that only one of them can see. */
+    function tightScreen() { return (W.innerWidth || 1024) < 700; }
+
     var BUILD = W.IND_KIT_BUILD || { items: [], groups: [], reach: {} };
     var BY_PART = {};
     (BUILD.items || []).forEach(function (it) { BY_PART[it.p] = it; });
@@ -929,6 +975,7 @@
     function kitDrawer(id) {
       var q = kitOf(id), x = byId[id], list = offered(id);
       if (!list.length) return '';
+      var narrow = tightScreen();
       var open = !!G.kitOpen;
       var byG = {};
       list.forEach(function (it) { (byG[it.g] = byG[it.g] || []).push(it); });
@@ -992,10 +1039,15 @@
 
       return handle +
         '<div class="sab-drawer" id="sab-sec-build" role="group" aria-label="Build">' +
+          /* On a phone the tab row cannot carry the reach readout and Grow as
+             well; squeezed onto one line the tabs shrank to two letters. There,
+             Grow takes its own line and the readout goes, because the tabs are
+             what the row is for. */
           '<div class="sab-dhead"><div class="sab-dtabs">' + tabs + '</div>' +
-          '<span class="sab-dhint" title="How far from the city\u2019s heart it may build">lv ' +
-          q.lv + ' \u00b7 reach ' + reachOf(id) + '</span>' + grow +
+          (narrow ? '' : '<span class="sab-dhint" title="How far from the city\u2019s heart it may build">lv ' +
+            q.lv + ' \u00b7 reach ' + reachOf(id) + '</span>' + grow) +
           '<button class="sab-dclose" data-sab-act="kitopen" aria-label="Close the build shelf">\u2715</button></div>' +
+          (narrow && grow ? '<div class="sab-drow">' + grow + '</div>' : '') +
           (held ? '<div class="sab-dhold" role="status">Holding <b>' + esc(held.name) +
             '</b> \u00b7 tap the land' +
             '<button class="sab-btn" data-sab-act="kitturnp">Turn</button>' +
@@ -1997,6 +2049,9 @@
       var heroArt = dioOf(id) || artOf(id);
       var atlas = plateOf(id);
       var KITC = kitOn(id);
+      /* How much room there is decides where the crew stands and how much the
+         banner says, so it is asked once, before anything is laid out. */
+      var narrow = tightScreen();
       if (KITC) heroArt = heroArt || 'kit';
       var tune = (dioOf(id) && DIO_TUNE[id]) || {};
       if (heroArt) {
@@ -2112,23 +2167,45 @@
         if (W.IND_KIT && W.IND_KIT_CITIES && W.IND_KIT_CITIES[id]) {
           kitbar = '<div class="sab-kitbar">' +
             '<button data-sab-act="kittoggle" aria-label="Switch between the painted plate and the built board">' +
-            (KITC ? '\u25c9 built' : '\u25cb painted') + '</button>' +
-            (KITC ? '<button data-sab-act="kitturn" aria-label="Turn the board a quarter">\u27f3 turn</button>' +
+            '<i>' + (KITC ? '\u25c9' : '\u25cb') + '</i><u>' + (KITC ? 'built' : 'painted') + '</u></button>' +
+            (KITC ? '<button data-sab-act="kitturn" aria-label="Turn the board a quarter">' +
+              '<i>\u27f3</i><u>turn</u></button>' +
               '<button data-sab-act="kitzoom" data-d="-1" aria-label="Zoom out">\u2212</button>' +
               '<span class="z">' + Math.round((G.kitZ || 1) * 100) + '%</span>' +
               '<button data-sab-act="kitzoom" data-d="1" aria-label="Zoom in">+</button>' : '') +
             '</div>';
         }
-        var plate = alarm + kitbar + '<div class="sab-nameplate"><b>' + esc(nameOf(s)) + (G.capital === id ? ' ★' : '') + '</b>' +
-          '<span>lv ' + q.lv + ' · ' + pop + ' praja · eat ' + (pop * T.eat) + ' 🌾' +
-          (y ? ' · ' + ['anna', 'kala', 'katha'].filter(function (k2) { return y[k2]; })
-            .map(function (k2) { return '+' + y[k2] + ' ' + ICON[k2]; }).join(' ') : '') + '</span></div>';
+        /* The banner said the city's name AND its whole ledger. Given a
+           phone's width that ledger wrapped into twenty lines and the banner
+           grew to fill the board. It says the name and the size there; the
+           ledger is on the row under the board, where there is room for it. */
+        var yieldStr = y ? ['anna', 'kala', 'katha'].filter(function (k2) { return y[k2]; })
+          .map(function (k2) { return '+' + y[k2] + ' ' + ICON[k2]; }).join(' ') : '';
+        var plate = alarm + kitbar + '<div class="sab-nameplate"><b>' +
+          esc(nameOf(s)) + (G.capital === id ? ' \u2605' : '') + '</b><span>' +
+          (narrow
+            ? 'lv ' + q.lv + ' \u00b7 ' + pop + ' praja'
+            : 'lv ' + q.lv + ' \u00b7 ' + pop + ' praja \u00b7 eat ' + (pop * T.eat) + ' ' +
+              ICON.anna + (yieldStr ? ' \u00b7 ' + yieldStr : '')) +
+          '</span></div>'
         /* THE STATIONS ARE THE ALLOCATION. The four kinds of praja stand at
            their corners wearing the live count — and the −/+ that used to
            live in tiles below now hang right on their shoulders. What each
            job does rides the aria-label; the tiles below are gone. */
-        var ST_POS = { kisan: 'left:1.5%;bottom:26%', karigar: 'left:81%;bottom:26%',
-                       kathakar: 'left:1.5%;top:15%', rakshak: 'left:81%;top:15%' };
+        /* WHERE THE CREW STANDS depends on how much room there is. On a wide
+           screen they take the four corners and leave the city the middle. On
+           a phone four corner blocks ARE the screen — the board came out a
+           thin strip between them — so they stand in one row across the top
+           and the whole board below is the city. The lower pair also had to
+           climb out from under the shelf, which on a phone buried them. */
+        var ST_POS = narrow
+          ? { kathakar: 'left:0.5%;top:1%', rakshak: 'left:24.5%;top:1%',
+              kisan: 'left:48.5%;top:1%', karigar: 'left:72.5%;top:1%' }
+          : (KITC && G.kitOpen
+              ? { kisan: 'left:1.5%;top:44%', karigar: 'left:81%;top:44%',
+                  kathakar: 'left:1.5%;top:6%', rakshak: 'left:81%;top:6%' }
+              : { kisan: 'left:1.5%;bottom:26%', karigar: 'left:81%;bottom:26%',
+                  kathakar: 'left:1.5%;top:15%', rakshak: 'left:81%;top:15%' });
         var totalJ = j.kisan + j.karigar + j.kathakar + j.rakshak;
         var stations = ['kisan', 'karigar', 'kathakar', 'rakshak'].map(function (jid) {
           var spw = spOf(jid); if (!spw) return '';
@@ -2287,7 +2364,8 @@
            hung in the middle of it. The board now lives in its own scroller
            and the nameplate, the stations, the shelf and the zoom sit on top
            of it, pinned to the frame. */
-        h += '<div class="sab-scene' + (KITC ? ' iskit' : '') + '">' +
+        h += '<div class="sab-scene' + (KITC ? ' iskit' : '') +
+          (KITC && G.kitOpen ? ' shelfup' : '') + (narrow ? ' tight' : '') + '">' +
           (atlas && !KITC ? '<style>' + roadKeyframes(id) + '</style>' : '') +
           (KITC ? '<div class="sab-view" id="sab-view">' : '') +
           '<div class="sab-cam" id="sab-cam" style="transform:' + camStr() + '">' +
@@ -2735,6 +2813,13 @@
         return;
       }
       if (name === 'city' && !q.zzz) { city = sel; riddleWrong = false;
+        /* Contained, a board half again as wide as it is tall sits inside a
+           phone's frame as a postage stamp with grey all round. A phone opens
+           the city already leaning in, and pans; a desktop sees all of it. */
+        /* the board is half again as wide as it is tall, so on a phone even a
+           width-filling zoom leaves bands top and bottom; 2x covers the frame
+           and the child pans from there */
+        if (G.kitZ == null) G.kitZ = (W.innerWidth || 1024) < 700 ? 2 : 1;
         av = { x: 50, y: 84 };   /* you arrive at the city gate, street-side */
         if (walkTimer) { clearTimeout(walkTimer); walkTimer = null; }
         touch(sel); paintCity(); return; }
@@ -4003,6 +4088,28 @@
     host.addEventListener('mousedown', onMouseDown);
     host.addEventListener('click', onClick);
     D.addEventListener('pointermove', onPointerMove);
+    /* crossing the phone/desktop breakpoint changes where the crew stands and
+       what the banner says, so the city is repainted when it happens */
+    var lastNarrow = (W.innerWidth || 1024) < 700, rsz = null;
+    W.addEventListener('resize', function () {
+      clearTimeout(rsz);
+      rsz = setTimeout(function () {
+        var n = (W.innerWidth || 1024) < 700;
+        if (n !== lastNarrow) { lastNarrow = n; if (city) paintCity(); }
+        if (W.IND_KIT) W.IND_KIT.fit(D);
+      }, 160);
+    });
+    /* crossing the phone/desktop breakpoint changes where the crew stands and
+       how much the banner says, so the city is repainted when it happens */
+    var lastNarrow = (W.innerWidth || 1024) < 700, rsz = null;
+    W.addEventListener('resize', function () {
+      clearTimeout(rsz);
+      rsz = setTimeout(function () {
+        var n = (W.innerWidth || 1024) < 700;
+        if (n !== lastNarrow) { lastNarrow = n; if (city) paintCity(); }
+        if (W.IND_KIT) W.IND_KIT.fit(D);
+      }, 160);
+    });
     host.addEventListener('pointermove', kitHover);
     host.addEventListener('pointerdown', kitPointerDown);
     D.addEventListener('pointermove', kitPointerMove);

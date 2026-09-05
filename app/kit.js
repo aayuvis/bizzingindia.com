@@ -518,8 +518,18 @@
       /* ground tiles are drawn a whisker over size so their edges overlap
          rather than hairline, and that whisker is enough to put a scrollbar
          on a board that should exactly fit */
-      var bleed = K.BLEED, base = bh ? Math.min(bw / (w * bleed), bh / (hh * bleed))
-                                     : bw / (w * bleed);
+      /* CONTAIN IN A PANEL, COVER ON A FULL SCREEN.
+         In a panel with a page under it, 100% should mean "the whole board
+         fits" — anything else put a scrollbar on a board that had room. A
+         full-screen city is the opposite promise: the city IS the window, and
+         a contained board leaves a dead band of nothing under it on a phone,
+         where the board is far wider than it is tall. There, fill the frame
+         and let the child pan. */
+      var full = box.closest && box.closest('.sab-scene.full');
+      var bleed = K.BLEED,
+          base = !bh ? bw / (w * bleed)
+               : full ? Math.max(bw / (w * bleed), bh / (hh * bleed))
+                      : Math.min(bw / (w * bleed), bh / (hh * bleed));
       var k = base * z;
       if (!(k > 0.02 && k < 12)) continue;      /* a scale that absurd is a bug */
       el.style.transform = 'scale(' + k.toFixed(5) + ')';

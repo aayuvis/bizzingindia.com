@@ -336,17 +336,20 @@ async function place(p, cx, cy) {
   await p.waitForTimeout(400);
   check('and a pinch does NOT either',
         (await p.evaluate(() => window.__SABG().kitZ || 1)) === z0, z0);
-  await p.evaluate(() => {
-    const b = document.querySelector('[data-sab-act="kitzoom"][data-d="1"]'); if (b) b.click();
-  });
-  await p.waitForTimeout(600);
-  const z1 = await p.evaluate(() => window.__SABG().kitZ || 1);
-  check('the + button does', z1 > z0, z0 + ' -> ' + z1);
+  /* DOWN THEN UP, not up then down: the city opens leaned in and this suite
+     has already stepped it about, so it can be sitting on the top notch where
+     + has nowhere to go. Coming back to where it started is the real claim. */
   await p.evaluate(() => {
     const b = document.querySelector('[data-sab-act="kitzoom"][data-d="-1"]'); if (b) b.click();
   });
   await p.waitForTimeout(600);
-  check('and the \u2212 button comes back',
+  const z1 = await p.evaluate(() => window.__SABG().kitZ || 1);
+  check('the \u2212 button does', z1 < z0, z0 + ' -> ' + z1);
+  await p.evaluate(() => {
+    const b = document.querySelector('[data-sab-act="kitzoom"][data-d="1"]'); if (b) b.click();
+  });
+  await p.waitForTimeout(600);
+  check('and the + button brings it back',
         (await p.evaluate(() => window.__SABG().kitZ || 1)) === z0,
         z1 + ' -> ' + await p.evaluate(() => window.__SABG().kitZ || 1));
 

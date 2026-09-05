@@ -218,7 +218,9 @@
     '@keyframes sabflash{0%,100%{box-shadow:0 4px 14px rgba(30,20,64,.06)}35%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent2) 55%,transparent),0 4px 14px rgba(30,20,64,.06)}}',
     '.sab-flash{animation:sabflash 1s ease 2}',
 
-    '.sab-over{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;background:color-mix(in srgb,var(--ground) 82%,transparent);padding:18px;z-index:4;overflow:auto}',
+    /* z-index 80: the built city is a fixed surface at 70, and a card raised
+       from inside it has to land ON it rather than behind it */
+    '.sab-over{position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;background:color-mix(in srgb,var(--ground) 82%,transparent);padding:18px;z-index:80;overflow:auto}',
     '.sab-over .sab-card{margin:auto}',
     /* the fact / era / wake cards: SMALL on purpose — a note held up over the
        game, not a page replacing it. The map stays visible around them. */
@@ -428,6 +430,53 @@
     /* The built board gets a WINDOW, not the whole page. Bounded height means
        the board scrolls inside it, the build handle at its bottom edge is
        always reachable, and the city never pushes everything else off screen. */
+    /* THE BUILT CITY IS THE WHOLE SCREEN.
+       It used to be a panel with a page under it: the board at the top and the
+       master builder's question somewhere below the fold, so the city was a
+       thing you scrolled past to reach its own questions. Nothing hangs under
+       it now — the tellings and the works are tabs, the questions are the
+       bell — so it takes the window, and the window does not scroll. */
+    '.sab-scene.iskit.full{position:fixed;inset:0;z-index:70;margin:0;border:0;',
+    '  border-radius:0;height:100vh;height:100dvh;max-height:none;background:#e6dbc2}',
+    '.sab-scene.iskit.full .sab-view{height:100%}',
+    'body.sab-full{overflow:hidden}',
+    /* A FIXED ELEMENT IS ONLY AS HIGH AS THE CONTEXT IT IS TRAPPED IN.
+       #gamehost carries z-index:1, so the city's own z-index:70 was being
+       compared against its siblings INSIDE gamehost and capped at 1 — and the
+       sticky topbar, at 40 in the context above, painted straight over a city
+       that was supposed to be the whole screen. Dropping gamehost's index
+       while a city is open lets the city compete with the bar directly. It is
+       put back the moment the city closes. */
+    'body.sab-full #gamehost{z-index:auto}',
+    /* the wrapper's own padding is all that is left under a full city */
+    'body.sab-full .sab-city{padding:0}',
+    /* a way out that does not depend on knowing about Escape */
+    '.sab-leave{position:absolute;left:8px;top:8px;z-index:9;display:flex;align-items:center;gap:6px;',
+    '  min-height:36px;padding:0 12px;border-radius:11px;cursor:pointer;font:800 12px/1 var(--body);',
+    '  border:1px solid rgba(255,255,255,.35);background:rgba(24,16,34,.72);color:#f6efe1}',
+    '.sab-leave:hover{border-color:var(--accent2)}',
+    '.sab-leave:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    /* THE BELL — how many things in this city want a decision */
+    '.sab-bell{position:absolute;left:8px;top:52px;z-index:9;min-width:36px;min-height:36px;',
+    '  border-radius:11px;cursor:pointer;font:800 16px/1 var(--body);',
+    '  border:1px solid rgba(255,255,255,.35);background:rgba(24,16,34,.72);color:#f6efe1}',
+    '.sab-bell:hover{border-color:var(--accent2)}',
+    '.sab-bell:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    '.sab-bell.hot{border-color:var(--accent);box-shadow:0 0 0 2px rgba(230,160,60,.35)}',
+    '.sab-bell u{text-decoration:none;position:absolute;right:-5px;top:-5px;background:var(--accent);',
+    '  color:#2a1a10;border-radius:7px;padding:1px 4px;font:800 9px/1.3 var(--body)}',
+    '.sab-calllist{position:absolute;left:8px;top:94px;z-index:9;width:min(250px,62vw);',
+    '  display:flex;flex-direction:column;gap:4px;padding:6px;border-radius:12px;',
+    '  border:1px solid rgba(255,255,255,.25);background:rgba(24,16,34,.86);',
+    '  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}',
+    '.sab-callrow{display:flex;align-items:center;gap:7px;min-height:36px;padding:0 8px;',
+    '  border-radius:9px;cursor:pointer;text-align:left;color:#f6efe1;font:inherit;',
+    '  border:1px solid transparent;background:rgba(255,255,255,.06)}',
+    '.sab-callrow:hover{border-color:var(--accent2)}',
+    '.sab-callrow:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    '.sab-callrow b{flex:1 1 auto;font:700 11.5px/1.25 var(--body);min-width:0}',
+    '.sab-callrow em{font-style:normal;color:var(--accent);font-size:15px}',
+    '.sab-callrow.hot{background:rgba(230,160,60,.16)}',
     '.sab-scene.iskit{overflow:hidden;position:relative;',
     '  height:min(66vh,620px);min-height:340px;touch-action:none}',
     '@media (max-width:560px){.sab-scene.iskit{height:min(60vh,480px)}}',
@@ -458,8 +507,10 @@
     '  .sab-scene.tight .sab-kitbar{top:auto;bottom:8px;right:8px}',
     /* bottom-left is where the zoom bar lives on a phone, so the banner goes
        just under the crew strip instead of underneath the buttons */
-    '  .sab-scene.tight .sab-nameplate{left:8px;right:auto;top:23%;bottom:auto;',
-    '    max-width:56%;transform:none;text-align:left;padding:4px 10px}',
+    /* on a phone the left edge is the leave button, the bell and the list it
+       opens, so the city's name goes to the other side */
+    '  .sab-scene.tight .sab-nameplate{left:auto;right:8px;top:8px;bottom:auto;transform:none;',
+    '    max-width:56vw;text-align:right;padding:4px 10px}',
     '  .sab-scene.tight .sab-nameplate b{font-size:13px}',
     '  .sab-scene.tight .sab-dhandle{left:8px;bottom:54px;min-height:38px;padding:0 11px}',
     '  .sab-scene.tight .sab-grow{right:8px;bottom:8px;min-height:38px;font-size:11px}',
@@ -1272,6 +1323,178 @@
             '<button class="sab-btn" data-sab-act="kitdrop">Put back</button></div>' : '') +
           '<div class="sab-dtiles">' + tiles + '</div>' +
         '</div>';
+    }
+
+
+    /* ================================================================
+       THE CALLS — everything in this city that wants a decision.
+
+       These used to be a column of cards UNDER the board, so the city was a
+       page you scrolled: the board at the top, and the master builder's
+       question somewhere below the fold. On the built board the city is the
+       whole screen and nothing hangs beneath it, so each of these is raised
+       when it is asked for — from the bell, which says how many are waiting.
+
+       Each builder returns { t: what to call it, h: the card itself } and is
+       used BOTH ways: the painted plates still lay them out down the page, the
+       built board raises them one at a time. One copy of the markup, so the
+       two cannot drift apart.
+       ================================================================ */
+    function callHero(id) {
+      var s2 = byId[id], q2 = G.sites[id], hd = DATA.heroes[s2.kind];
+      var hface = spOf({ kheti: 'hero-annadata', shilpa: 'hero-sthapati', vidya: 'hero-acharya' }[s2.kind]);
+      var king2 = inKingdomOf(id);
+      var h2 = (hface ? '<img class="sab-heroface" src="' + hface + '" alt="">' : '') +
+        '<p><b>' + esc(hd.deed) + '</b> — ' + esc(hd.deedWhat) + '.</p>' +
+        '<button class="sab-btn go" data-sab-act="deed">Ask for the great deed</button>';
+      if (G.era >= T.kingdomEra && !king2)
+        h2 += '<button class="sab-btn" style="margin-left:8px" data-sab-act="crown"' +
+          (reach(id).filter(function (o) { return awake(o); }).length + 1 >= T.kingdomMin ? '' : ' disabled') +
+          '>Or: crown ' + esc(s2.name) + ' — found a kingdom</button>' +
+          '<p class="tiny" style="color:var(--muted);margin:8px 0 0">A crown needs ' + T.kingdomMin +
+          ' awake towns joined by roads. Every town the roads reach shares the kingdom’s strength (+1 of everything).</p>';
+      return { t: motif('peacock', 22) + esc(hd.name) + ' is here · ' + esc(hd.gift), h: h2 };
+    }
+    function callQuarrel(id) {
+      var s2 = byId[id], other = byId[G.disp.a === id ? G.disp.b : G.disp.a];
+      return { t: 'the panchayat sits · ' + G.disp.left + 's',
+        h: '<p>' + esc(s2.name) + ' and ' + esc(other.name) + ' have quarrelled over ' + esc(G.disp.over) +
+          '. The road between them carries nothing until it is settled.</p>' +
+          (G.tech.panchayat
+            ? '<button class="sab-btn go" data-sab-act="peace" data-i="-1">Let the five settle it (free — the Panchayat)</button>'
+            : G.disp.fix.map(function (f, i) {
+                var c = costOf(f.cost, 'peace');
+                return '<button class="sab-btn go" style="margin:4px 6px 0 0" data-sab-act="peace" data-i="' + i + '"' +
+                  (canPay(c) ? '' : ' disabled') + '>' + esc(f.what) + ' (' + costStr(c) + ')</button>';
+              }).join('')) };
+    }
+    function callGuru(id) {
+      var cd = Math.max(0, (G.quizAt[id] || -999) + T.quizCd - G.t);
+      return { t: 'the gurukul',
+        h: (quiz && quiz.at === id
+          ? '<p>' + (quiz.of !== id ? 'About <b>' + esc(byId[quiz.of].name) + '</b>: ' : '') + esc(askList(byId[quiz.of])[quiz.qi || 0].q) + '</p>' +
+            riddleOptions(byId[quiz.of], quiz.qi).map(function (o) {
+              return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" data-sab-act="quiz" data-o="' + esc(o) + '">' + esc(o) + '</button>';
+            }).join('') +
+            (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — think of the city’s own telling. Another go.</p>' : '')
+          : '<p>The teacher will take a question' + (G.tech.script ? ' about any woken city' : '') + '.</p>' +
+            '<button class="sab-btn" data-sab-act="quizstart"' + (cd > 0 ? ' disabled' : '') + '>' +
+            (cd > 0 ? 'The teacher rests (' + cd + 's)' : 'Ask me one (+' +
+              ((G.tech.script ? T.quizFarPay : T.quizPay) * (G.tech.press ? 2 : 1)) + ' 📜)') + '</button>') };
+    }
+    function callQuest(id) {
+      var s2 = byId[id], qq2 = G.quests[id];
+      var h2 = '<p>' + esc(questText(qq2, s2)) + '</p>';
+      if (qq2.kind === 'carry') {
+        h2 += '<button class="sab-btn go" data-sab-act="qcarry"' +
+          (connected(id) && G.res.kala >= T.eventAsk ? '' : ' disabled') + '>Bring it in (' + T.eventAsk + ' 🛠️)</button>' +
+          (!connected(id) ? '<p class="tiny" style="color:var(--muted);margin:8px 0 0">It needs a road into the city first.</p>' : '');
+      } else if (qq2.kind === 'utsav') {
+        h2 += '<button class="sab-btn go" data-sab-act="qutsav"' +
+          (G.utsav <= 0 && G.res.anna >= utsavCost().anna && G.res.kala >= utsavCost().kala ? '' : ' disabled') +
+          '>Hold the utsav here (' + utsavCost().anna + ' 🌾 + ' + utsavCost().kala + ' 🛠️)</button>';
+      } else if (qq2.kind === 'riddle') {
+        h2 += riddleOptions(s2).map(function (o) {
+          return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" ' +
+            'data-sab-act="qriddle" data-o="' + esc(o) + '">' + esc(o) + '</button>';
+        }).join('') + (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — the city’s own telling has it. Another go.</p>' : '');
+      } else {
+        h2 += '<p class="tiny" style="color:var(--muted)">This one is done out on the map — the scroll will close itself.</p>';
+      }
+      return { t: esc(FOLK[s2.kind]) + ' asks', h: h2 };
+    }
+    /* WHAT THE CITY IS FAMOUS FOR — its three works and the monument. */
+    function callWorks(id) {
+      var s2 = byId[id], q2 = G.sites[id];
+      var mc = costOf(T.monCost[s2.era], 'monument');
+      return { t: 'what this city is for',
+        h: '<div class="sab-mile">' +
+          (s2.works || []).slice(0, 2).map(function (w2, i2) {
+            return '<span class="mch' + (q2.lv > i2 ? ' done' : (q2.lv === i2 ? ' next' : '')) + '">' +
+              (q2.lv > i2 ? '✓ ' : '') + esc(w2) + '</span>';
+          }).join('') +
+          '<span class="mch' + (q2.mon ? ' star' : (q2.lv >= 3 ? ' next' : '')) + '">★ ' +
+          esc(s2.works[2]) + '</span></div>' +
+          (q2.mon
+            ? '<p class="tiny" style="color:var(--muted)">The monument stands — +2 📜 every turn, and the mist can never touch this town.</p>'
+            : q2.lv >= 3
+              ? '<p>The city is big enough. Raise it on the scaffolding out there, or here:</p>' +
+                '<button class="sab-btn go" data-sab-act="mon"' + (canPay(mc) ? '' : ' disabled') +
+                '>Build the monument (' + costStr(mc) + ')</button>'
+              : '<p class="tiny" style="color:var(--muted)">A level-3 city may raise its monument. Grow first.</p>') };
+    }
+    /* THE CITY'S OWN TELLING — the facts, and the whisper that hides a treasure. */
+    function callAbout(id) {
+      var s2 = byId[id], q2 = G.sites[id];
+      if (!q2.seen) return { t: esc(nameOf(s2)), h: '<p class="tiny" style="color:var(--muted)">Nobody has walked here yet.</p>' };
+      var trez = (DATA.treasures || {})[id];
+      return { t: esc(nameOf(s2)),
+        h: (W.IND_CITY_PHOTO_HTML ? W.IND_CITY_PHOTO_HTML(id) : '') +
+          '<div class="sab-cfact">' + esc(s2.fact) + '</div>' +
+          (s2.more || []).map(function (mf) { return '<div class="sab-cfact">' + esc(mf) + '</div>'; }).join('') +
+          (trez && !(q2.tre && q2.tre.got)
+            ? '<div class="sab-treshint">🔍 ' + esc(FOLK[s2.kind]) + ' whispers: “' +
+              esc(trez.hint) + '”</div>' : '') +
+          (q2.mon ? '' : '<p class="tiny" style="color:var(--muted)">The city as it could be — raise the monument, ' +
+            'the scaffolding comes down, and the colours come back.</p>') };
+    }
+    /* Which of them are waiting, cheaply — the bell only needs to count. */
+    function callList(id) {
+      var q2 = G.sites[id], s2 = byId[id], out = [];
+      if (G.quests[id]) out.push({ k: 'quest', t: esc(FOLK[s2.kind]) + ' asks', i: 'scroll', hot: true });
+      if (inDispute(id)) out.push({ k: 'quarrel', t: 'a quarrel', i: 'lotus', hot: true });
+      if (q2.hero && !q2.hero.gone && !q2.hero.used)
+        out.push({ k: 'hero', t: esc(DATA.heroes[s2.kind].name), i: 'peacock', hot: true });
+      if (q2.bld.gurukul)
+        out.push({ k: 'guru', t: 'the gurukul', i: 'scroll',
+                   hot: !!(quiz && quiz.at === id) ||
+                        (G.quizAt[id] || -999) + T.quizCd - G.t <= 0 });
+      out.push({ k: 'works', t: 'what this city is for', i: 'temple', hot: false });
+      out.push({ k: 'about', t: 'its telling', i: 'lamp', hot: false });
+      return out;
+    }
+    function callCard(id, k) {
+      if (k === 'hero') return callHero(id);
+      if (k === 'quarrel') return callQuarrel(id);
+      if (k === 'guru') return callGuru(id);
+      if (k === 'quest') return callQuest(id);
+      if (k === 'works') return callWorks(id);
+      return callAbout(id);
+    }
+    var openCall = null;   /* the call on screen, so acting on it redraws it */
+    /* Anything that answers a call — a riddle option, a peace offer, a quiz —
+       has to leave the card showing the ANSWER rather than the question it
+       just replaced. Called by those actions once the state has moved. */
+    function refreshCall() {
+      if (!openCall || !overlay || !city) return;
+      var still = callList(openCall.id).some(function (c) { return c.k === openCall.k; });
+      if (still) showCall(openCall.id, openCall.k); else showOverlay('');
+    }
+    function showCall(id, k) {
+      var c = callCard(id, k);
+      if (!c) return;
+      openCall = { id: id, k: k };
+      showOverlay('<div class="mono" style="color:var(--accent2)">' + esc(nameOf(byId[id])) + '</div>' +
+        '<h3>' + c.t + '</h3>' + c.h +
+        '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Back to the city</button></div>');
+    }
+    /* THE BELL. Hidden work, visibly counted: how many things in this city are
+       waiting on the child, and one tap to see them. */
+    function kitCalls(id) {
+      var list = callList(id);
+      var hot = list.filter(function (c) { return c.hot; }).length;
+      var open2 = !!G.callsOpen;
+      return '<button class="sab-bell' + (hot ? ' hot' : '') + '" data-sab-act="calls"' +
+        ' aria-expanded="' + open2 + '" aria-label="' +
+        (hot ? hot + ' thing' + (hot > 1 ? 's' : '') + ' in this city are waiting on you'
+             : 'Nothing is waiting — the city’s tellings and its works are in here') +
+        '">≡' + (hot ? '<u>' + hot + '</u>' : '') + '</button>' +
+        (open2 ? '<div class="sab-calllist" role="group" aria-label="This city">' +
+          list.map(function (c) {
+            return '<button class="sab-callrow' + (c.hot ? ' hot' : '') +
+              '" data-sab-act="call" data-c="' + c.k + '">' +
+              motif(c.i, 18) + '<b>' + c.t + '</b>' + (c.hot ? '<em>•</em>' : '') + '</button>';
+          }).join('') + '</div>' : '');
     }
 
     function dioOf(id) {
@@ -2610,8 +2833,11 @@
            hung in the middle of it. The board now lives in its own scroller
            and the nameplate, the stations, the shelf and the zoom sit on top
            of it, pinned to the frame. */
-        h += '<div class="sab-scene' + (KITC ? ' iskit' : '') +
+        h += '<div class="sab-scene' + (KITC ? ' iskit full' : '') +
           (KITC && G.kitOpen ? ' shelfup' : '') + (narrow ? ' tight' : '') + '">' +
+          (KITC ? '<button class="sab-leave" data-sab-act="leave"' +
+            ' aria-label="Leave ' + esc(nameOf(s)) + ' and go back to the map">' +
+            '\u2190 <span>the map</span></button>' : '') +
           (atlas && !KITC ? '<style>' + roadKeyframes(id) + '</style>' : '') +
           (KITC ? '<div class="sab-view" id="sab-view">' : '') +
           '<div class="sab-cam" id="sab-cam" style="transform:' + camStr() + '">' +
@@ -2621,12 +2847,14 @@
           '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
           (KITC ? '' : scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri) +
           '</div>' + (KITC ? '</div>' : '') +
-          plate + stations + badges + (KITC ? kitDrawer(id) : growBtn(id)) + '</div>' + treHint +
-          (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
-            'the scaffolding comes down, and the colours come back.</div>');
+          plate + stations + badges + (KITC ? kitCalls(id) : '') +
+          (KITC ? kitDrawer(id) : growBtn(id)) + '</div>' +
+          (KITC ? '' : treHint +
+            (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
+              'the scaffolding comes down, and the colours come back.</div>'));
       }
       var king = inKingdomOf(id);
-      if (king) h += '<div class="sab-herocap" style="font-weight:800;color:var(--accent)">' +
+      if (king && !KITC) h += '<div class="sab-herocap" style="font-weight:800;color:var(--accent)">' +
         motif('lotus', 20) + esc(G.kingdoms[king].name) + (king === id ? ' — this is the seat' : '') + '</div>';
       /* with a plate, the stations ARE the people UI — the tiles stay only
          for a city with no painting to stand them on */
@@ -2652,7 +2880,7 @@
         }).join('') + '</div>';
 
       /* A GREAT ONE, when one has risen here */
-      if (q.hero && !q.hero.gone) {
+      if (q.hero && !q.hero.gone && !KITC) {
         var hd = DATA.heroes[s.kind];
         /* the great one has a FACE now — an invented role, painted, never a
            real person (docs/05: roles may be pieces; people may not) */
@@ -2683,7 +2911,7 @@
 
       /* THE QUARREL COMES FIRST. If this town is in a dispute, the panchayat sits
          before anything else gets built — that is what a panchayat is for. */
-      if (inDispute(id)) {
+      if (inDispute(id) && !KITC) {
         var other = byId[G.disp.a === id ? G.disp.b : G.disp.a];
         h += '<div class="sab-quest" id="sab-sec-quarrel" style="border-color:var(--accent3)"><div class="who" style="color:var(--accent3)">the panchayat sits · ' +
           G.disp.left + 's</div>' +
@@ -2702,7 +2930,7 @@
          three tall boxes retelling what the plate already shows (the scaffold
          IS the monument button); one line of chips keeps the story. The full
          rows remain for a city with no painting. */
-      if (heroArt) {
+      if (heroArt && !KITC) {
         h += '<div class="sab-mile" id="sab-sec-works">' +
           (s.works || []).slice(0, 2).map(function (w2, i2) {
             return '<span class="mch' + (q.lv > i2 ? ' done' : (q.lv === i2 ? ' next' : '')) + '"' +
@@ -2715,7 +2943,7 @@
               (q.lv >= 3 ? 'raise it on the scaffold above' : 'a level-3 city may raise its monument') +
               '">★ ' + esc(s.works[2]) + '</span>') +
           '</div>';
-      } else
+      } else if (!KITC)
       h += '<div class="sab-works" id="sab-sec-works">' + (s.works || []).slice(0, 2).map(function (w, i) {
         return '<div class="sab-work' + (q.lv > i ? ' built' : '') + (q.lv === i + 1 ? ' now' : '') + '">' +
           '<i>' + (q.lv > i ? '✓' : (i + 1)) + '</i>' + esc(w) +
@@ -2772,7 +3000,7 @@
 
       /* THE GURUKUL — trivia as a living income. Build it and the teacher takes
          questions; with Brahmi Script, questions about every woken city on the map. */
-      if (q.bld.gurukul) {
+      if (q.bld.gurukul && !KITC) {
         var cd = Math.max(0, (G.quizAt[id] || -999) + T.quizCd - G.t);
         h += '<div class="sab-quest" id="sab-sec-guru"><div class="who">the gurukul</div>' +
           (quiz && quiz.at === id
@@ -2787,7 +3015,7 @@
                 ((G.tech.script ? T.quizFarPay : T.quizPay) * (G.tech.press ? 2 : 1)) + ' 📜)') + '</button>') +
           '</div>';
       }
-      if (qq) {
+      if (qq && !KITC) {
         h += '<div class="sab-quest" id="sab-sec-quest"><div class="who">' + esc(FOLK[s.kind]) + ' asks</div>' +
           '<p>' + esc(questText(qq, s)) + '</p>';
         if (qq.kind === 'carry') {
@@ -2808,7 +3036,7 @@
         }
         h += '</div>';
       }
-      if (q.seen) {
+      if (q.seen && !KITC) {
         h += (window.IND_CITY_PHOTO_HTML ? window.IND_CITY_PHOTO_HTML(id) : '') +
           '<div class="sab-cfact">' + esc(s.fact) + '</div>';
         (s.more || []).forEach(function (mf) {
@@ -2834,7 +3062,36 @@
       /* replacing a block this large lets the browser's scroll anchoring re-guess
          the position — a job tap mid-panel lurched the page 400px. Pin it. */
       var keepY = W.scrollY;
+      /* WHERE YOU WERE LOOKING SURVIVES THE REPAINT.
+         paintCity replaces the whole city, so .sab-view is a NEW element every
+         time and its scroll starts at zero — which means hiring a worker,
+         placing a hut or opening the bell threw the camera back to the empty
+         top-left corner of the land. Harmless while the board was a small
+         panel at 100%; unusable full-screen at 200%. */
+      var vOld = D.getElementById('sab-view');
+      var keepV = vOld ? { l: vOld.scrollLeft, t: vOld.scrollTop } : null;
       hostEl.innerHTML = open ? cityHTML(city) : '';
+      if (keepV) {
+        /* AFTER THE BOARD IS SIZED, NOT BEFORE. fit() is what gives the board
+           its width and height; until it has run the fresh view has nothing to
+           scroll, so a scrollLeft set here is clamped straight back to zero.
+           Fit first, restore second, and once more on the next frame because
+           the images inside are still arriving. */
+        var put = function () {
+          var vNew = D.getElementById('sab-view');
+          if (!vNew) return;
+          if (W.IND_KIT) W.IND_KIT.fit(D);
+          vNew.scrollLeft = keepV.l; vNew.scrollTop = keepV.t;
+        };
+        put();
+        if (W.requestAnimationFrame) W.requestAnimationFrame(put);
+      }
+      /* THE BUILT CITY TAKES THE WINDOW, so the page behind it must not
+         scroll under it — a fixed surface over a scrolling page is how you
+         get a city that slides away when a thumb brushes the edge. */
+      try {
+        D.body.classList.toggle('sab-full', !!(open && kitOn(city)));
+      } catch (e0) {}
       paintSheet();   /* the sheet is the city's nav while inside */
       /* pin on repaint AND on the way out — swapping a page-sized block either way
          lets scroll anchoring re-guess, and "leave" was landing the page at 0 */
@@ -3042,7 +3299,7 @@
     /* ---- overlays: fact cards, era cards, endings, resume ---- */
     function showOverlay(html) {
       overlay = html;
-      if (!html) openPiece = null;
+      if (!html) { openPiece = null; openCall = null; }
       D.getElementById('sab-ovhost').innerHTML =
         html ? '<div class="sab-over"><div class="sab-card" role="dialog" aria-modal="true">' + html + '</div></div>' : '';
       if (html) { var f = D.querySelector('#sab-ovhost .sab-btn'); if (f) f.focus({ preventScroll: true }); }
@@ -3074,7 +3331,25 @@
         /* the board is half again as wide as it is tall, so on a phone even a
            width-filling zoom leaves bands top and bottom; 2x covers the frame
            and the child pans from there */
-        if (G.kitZ == null) G.kitZ = (W.innerWidth || 1024) < 700 ? 2 : 1;
+        /* A CITY OPENS LEANED IN. At 100% the whole board fits and every
+           building is a thumbnail; the city is a place you stand in, so it
+           opens at 200% and you pan. The buttons take you back out. */
+        if (G.kitZ == null) G.kitZ = 2;
+        /* AND LOOKING AT SOMETHING. Leaned in to 200%, a board scrolled to 0,0
+           opens on the empty corner of the land with the town somewhere off
+           the bottom right. Look at the MONUMENT — in a city with nothing
+           built yet the build heart is bare ground, and opening on a screen of
+           empty sand tells a child nothing about where they are. The monument
+           in its scaffolding is the one thing every city has from the start.
+           Its cell is whatever cell its traced plate point falls in. */
+        if (kitOn(sel) && W.IND_KIT) {
+          var A0 = (W.IND_PLATES || {})[sel], at0 = null;
+          if (A0 && A0.mon) {
+            var c0 = W.IND_KIT.cellOf(A0.mon[0], A0.mon[1]);
+            if (c0) at0 = [c0.x, c0.y];
+          }
+          W.IND_KIT.lookSoon(sel, G.kitRot || 0, KIT_HEAD, at0);
+        }
         av = { x: 50, y: 84 };   /* you arrive at the city gate, street-side */
         if (walkTimer) { clearTimeout(walkTimer); walkTimer = null; }
         touch(sel); paintCity(); return; }
@@ -4143,6 +4418,13 @@
         /* zoom is the board's own, not the yatri camera's: a city you can
            build in is a city you must be able to lean into */
         if (a === 'kitzoom') { kitStep(+actEl.getAttribute('data-d') || 1); return; }
+        if (a === 'calls' && city) { G.callsOpen = !G.callsOpen; paintCity(); return; }
+        if (a === 'call' && city) {
+          G.callsOpen = false;
+          showCall(city, actEl.getAttribute('data-c'));
+          paintCity(); return;
+        }
+        if (a === 'leave' && city) { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
         if (a === 'kitpick') {
           var pid2 = actEl.getAttribute('data-p');
           hold = (hold && hold.p === pid2) ? null : { p: pid2, cell: null, f: 0 };

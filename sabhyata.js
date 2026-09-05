@@ -423,7 +423,8 @@
     '    max-width:56%;transform:none;text-align:left;padding:4px 10px}',
     '  .sab-scene.tight .sab-nameplate b{font-size:13px}',
     '  .sab-scene.tight .sab-dhandle{left:8px;bottom:54px;min-height:38px;padding:0 11px}',
-    '  .sab-scene.tight .sab-grow{right:8px;bottom:54px;min-height:38px;font-size:11px}',
+    '  .sab-scene.tight .sab-grow{right:8px;bottom:8px;min-height:38px;font-size:11px}',
+    '  .sab-scene.tight.iskit .sab-grow{bottom:54px}',
     '  .sab-scene.tight .sab-station{transform:scale(.82);transform-origin:0 0}',
     '  .sab-scene.tight.shelfup .sab-nameplate,',
     '  .sab-scene.tight.shelfup .sab-kitbar{display:none}',
@@ -943,6 +944,7 @@
 
     /* the piece the child is holding, and where it would land */
     var hold = null;    /* { p, cell:{x,y}, f } */
+    var lastTap = { id: null, t: 0 };   /* for the double tap, counted by us */
 
     function kitPt(id, at) {
       if (!at || !kitOn(id)) return at;
@@ -972,31 +974,41 @@
        So: a handle on the board, and when it is pulled, one shelf of icon
        tiles across the bottom — art, name, price, what it gives. The board
        stays visible above it, because the board is the point. */
+    /* GROWING IS A CITY THING, AND EVERY CITY CAN DO IT.
+       It used to sit on the realm map beside Route and Utsav, which are realm
+       things; a level is the city's own reach and its own menu, so it is
+       decided while looking at the city. Moving it, though, it was parked
+       inside the build shelf — and the build shelf only exists on the kit
+       board, for eight cities, behind ?kit=1. Everywhere else growing simply
+       vanished. It lives on its own now, so the city view can always show it
+       whatever is drawing the city. */
+    function growBtn(id) {
+      var q = kitOf(id), x = byId[id];
+      if (!q || q.lv >= T.maxLevel || q.zzz || q.her) return '';
+      var gc = costOf({ anna: T.growCost[q.lv] }, 'grow');
+      return '<button class="sab-grow' + (canPay(gc) ? ' can' : '') +
+        '" data-sab-act="grow"' + (canPay(gc) ? '' : ' disabled') +
+        ' aria-label="Grow ' + esc(nameOf(x)) + ' to level ' + (q.lv + 1) +
+        ' — the land it may build on widens, and more is offered. Costs ' +
+        esc(costStr(gc)) + '">\u2b06 Grow to level ' + (q.lv + 1) +
+        '<em>' + esc(costStr(gc)) + '</em></button>';
+    }
+
     function kitDrawer(id) {
       var q = kitOf(id), x = byId[id], list = offered(id);
-      if (!list.length) return '';
       var narrow = tightScreen();
+      /* a city with nothing left on offer still has a level to gain, so the
+         shelf standing empty must not take Grow down with it */
+      if (!list.length) return growBtn(id);
       var open = !!G.kitOpen;
       var byG = {};
       list.forEach(function (it) { (byG[it.g] = byG[it.g] || []).push(it); });
       var groups = (BUILD.groups || []).filter(function (g) { return byG[g[0]]; });
-      if (!groups.length) return '';
+      if (!groups.length) return growBtn(id);
       var tab = (G.kitTab && byG[G.kitTab]) ? G.kitTab : groups[0][0];
       var held = hold ? W.IND_KIT.def(hold.p) : null;
 
-      /* GROWING IS A CITY THING. It used to sit on the map beside Route and
-         Utsav, which are realm things; a level is the city's own reach and
-         its own menu, so it is decided while looking at the city. */
-      var grow = '';
-      if (q.lv < T.maxLevel && !q.zzz && !q.her) {
-        var gc = costOf({ anna: T.growCost[q.lv] }, 'grow');
-        grow = '<button class="sab-grow' + (canPay(gc) ? ' can' : '') +
-          '" data-sab-act="grow"' + (canPay(gc) ? '' : ' disabled') +
-          ' aria-label="Grow ' + esc(nameOf(x)) + ' to level ' + (q.lv + 1) +
-          ' — the land it may build on widens, and more is offered. Costs ' +
-          esc(costStr(gc)) + '">\u2b06 Grow to level ' + (q.lv + 1) +
-          '<em>' + esc(costStr(gc)) + '</em></button>';
-      }
+      var grow = growBtn(id);
 
       var handle = '<button class="sab-dhandle' + (open ? ' open' : '') +
         '" data-sab-act="kitopen" aria-expanded="' + open + '"' +
@@ -2375,7 +2387,7 @@
           '<div class="sab-praja" aria-hidden="true">' + breath + walkers + birds + moor + '</div>' +
           scaf + treHunt + '<div class="sab-plots">' + plots + '</div>' + yatri +
           '</div>' + (KITC ? '</div>' : '') +
-          plate + stations + badges + (KITC ? kitDrawer(id) : '') + '</div>' + treHint +
+          plate + stations + badges + (KITC ? kitDrawer(id) : growBtn(id)) + '</div>' + treHint +
           (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
             'the scaffolding comes down, and the colours come back.</div>');
       }
@@ -3914,6 +3926,23 @@
       if (id) {
         if (G.ev && id === G.ev.id) return helpEvent();
         if (targeting) return tryRoute(id);
+        /* ENTERING IS A DOUBLE TAP, AND WE COUNT IT OURSELVES.
+           The browser's own dblclick could not be used: selecting a city
+           repaints the map, which replaces the very node the second click
+           would have landed on, so no dblclick ever fired on a city that
+           was not ALREADY selected — a child had to double-click twice, once
+           to select and once to enter, which is not what double-click means.
+           Timing the two taps here works whatever the repaint does, and gives
+           touch the same gesture, which dblclick never reliably did. */
+        var now = Date.now();
+        var again = lastTap.id === id && now - lastTap.t < 450;
+        lastTap = { id: id, t: now };
+        var qd = G.sites[id];
+        if (again && qd && !qd.zzz && qd.fade < 0) {
+          lastTap = { id: null, t: 0 };
+          sel = id; kbd = id; act('city');
+          return;
+        }
         sel = id; kbd = id; paintAll();
         return;
       }
@@ -4125,17 +4154,12 @@
         e.preventDefault(); kitStep(1, e.clientX, e.clientY);
       }
     });
-    /* DOUBLE-CLICK A CITY TO GO IN. One click still selects it and shows what
-       it is; two takes you inside, which is what a child does anyway. */
+    /* Going into a city is handled in onClick, which counts the two taps
+       itself — see the note there on why the browser's dblclick cannot do it.
+       A dblclick listener is still wanted for one thing only: stopping the
+       browser selecting the label text under a fast double tap. */
     host.addEventListener('dblclick', function (e) {
-      if (city) return;
-      var id2 = siteAt(e.target);
-      if (!id2) return;
-      e.preventDefault();
-      var q2 = G.sites[id2];
-      if (!q2 || q2.zzz || q2.fade >= 0) return;
-      sel = id2; kbd = id2;
-      act('city');
+      if (!city && siteAt(e.target)) e.preventDefault();
     });
     D.addEventListener('pointerup', onPointerUp);
     D.addEventListener('pointercancel', onPointerUp);

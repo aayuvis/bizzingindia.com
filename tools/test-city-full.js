@@ -112,6 +112,27 @@ const view = p => p.evaluate(() => {
       [...document.querySelectorAll('.sab-callrow')].map(r => r.getAttribute('data-c')));
     check('it lists what the city has to say', rows.indexOf('works') >= 0 && rows.indexOf('about') >= 0,
           rows.join(', '));
+    /* A ROW HAS TO READ AS A DOOR. The first version was a bare phrase on a
+       dark strip — "the master builder asks", "its telling" — which reads as a
+       caption, something to be told rather than pressed, and said nothing
+       about what happens if you press it. And four of the six icons were
+       silently empty, because the helper returns '' for a name it does not
+       have and nothing complains. */
+    const shape = await p.evaluate(() => [...document.querySelectorAll('.sab-callrow')].map(r => ({
+      c: r.getAttribute('data-c'),
+      title: (r.querySelector('b') || {}).textContent || '',
+      why: (r.querySelector('i') || {}).textContent || '',
+      icon: !!(r.querySelector('.ic svg') || r.querySelector('.ic img') || r.querySelector('.ic span')),
+      chev: !!r.querySelector('.go'),
+      h: Math.round(r.getBoundingClientRect().height)
+    })));
+    check('every row says what pressing it does',
+          shape.every(r => r.title.length > 3 && r.why.length > 3),
+          shape.map(r => r.title + ' / ' + r.why).join(' · ').slice(0, 90));
+    check('every row has an icon that actually drew',
+          shape.every(r => r.icon), shape.filter(r => !r.icon).map(r => r.c).join(', ') || 'all drew');
+    check('and looks pressable — chevron, and a thumb-sized row',
+          shape.every(r => r.chev && r.h >= 44), shape.map(r => r.h + 'px').join(' '));
     check('including the gurukul, which is a thing to do', rows.indexOf('guru') >= 0, rows.join(', '));
 
     /* WHERE YOU WERE LOOKING SURVIVES A REPAINT — opening the bell is one */

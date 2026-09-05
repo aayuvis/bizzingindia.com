@@ -24,7 +24,7 @@ window.IND_SABHYATA = {
   needs_review: true,
 
   resources: {
-    anna:  { icon: '🌾', name: 'Anna',  hi: 'अन्न',  what: 'grain — grows settlements' },
+    anna:  { icon: '🌾', name: 'Anna',  hi: 'अन्न',  what: 'the harvest — whatever this land grows, and it grows settlements' },
     kala:  { icon: '🛠️', name: 'Kala',  hi: 'कला',  what: 'craft — builds routes' },
     katha: { icon: '📜', name: 'Katha', hi: 'कथा', what: 'stories — wake sleeping places' }
   },

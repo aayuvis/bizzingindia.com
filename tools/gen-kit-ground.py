@@ -59,10 +59,20 @@ GROUND = {
  "gnd-rock": "bare grey granite sheet, wide shallow curved cracks, faint lichen in gold and pale green",
  "gnd-mud": "dark churned wet earth, hoof marks and cart ruts, a few shallow puddles catching light",
  "gnd-court": "a swept courtyard of beaten pale earth, faint broom arcs across it, edged with a thin line of small stones",
- "cr-wheat": "a field of ripe golden wheat seen from above, planted in even rows, heads heavy",
- "cr-mustard": "a field of mustard in hard yellow flower, planted in rows, green stems below",
+ # EVERY CITY GROWS ITS OWN, and the rows must be FINE. One cell of the board
+ # shows about a fifth of this square, so a painting with six fat plants across
+ # it puts one plant in a whole diamond and reads as a blob. Twenty-five thin
+ # rows across the square is roughly four rows to a cell, which is a field.
+ "cr-wheat": "a VERY WIDE view from high above of a field of ripe wheat, at least twenty-five thin parallel rows crossing the whole square, sown in distinct parallel rows with dark furrow lines between them, the heads heavy and slightly separate so the rows read as rows, a low earth bund along one edge, dry gold going pale where the light catches",
+ "cr-barley": "a VERY WIDE view from high above of a barley field, at least twenty-five thin parallel rows crossing the whole square,  sown in parallel rows with furrows between, paler and shorter than wheat with long fine awns catching light, a low earth bund at one edge",
+ "cr-millet": "a VERY WIDE view from high above of a bajra millet field, at least twenty-five thin parallel rows crossing the whole square,  sturdy blue-green plants in wide-spaced rows with bare earth showing between them, thick seed heads standing up, a low earth bund at one edge",
+ "cr-cotton": "a VERY WIDE view from high above of a cotton field, at least twenty-five thin parallel rows crossing the whole square,  grey-green bushes in even rows with dark earth between, white bolls open on the branches, a low earth bund at one edge",
+ "cr-sugarcane": "a VERY WIDE view from high above of a sugarcane field, at least twenty-five thin parallel rows crossing the whole square,  tall dense green cane planted in long parallel rows with narrow dark channels between them, leaf tips fanning out",
+ "cr-sesame": "a VERY WIDE view from high above of a sesame field, at least twenty-five thin parallel rows crossing the whole square,  low bushy plants in neat rows with pale earth between, small white and pink flowers along the stems, a low earth bund at one edge",
+ "cr-gram": "a VERY WIDE view from high above of a chana gram field, at least twenty-five thin parallel rows crossing the whole square,  low bushy blue-green plants in close rows on dark earth, small pods along the stems, a low earth bund at one edge",
+ "cr-mustard": "a VERY WIDE view from high above of a mustard field, at least twenty-five thin parallel rows crossing the whole square,  sown in parallel rows with green stems visible between, hard yellow flower heads on top, a low earth bund at one edge",
  "cr-furrow": "a ploughed field of dark earth raked into long criss-crossing furrows in two directions, a lattice of ridges",
- "cr-paddy-green": "flooded paddy fields of bright emerald shoots in rows, low earth bunds dividing them into small rectangles",
+ "cr-paddy-green": "a VERY WIDE view from high above of a rice paddy, at least twenty-five thin rows of shoots crossing the whole square, bright emerald shoots planted in distinct rows in shallow water that shows between them, low earth bunds dividing the field into small rectangles",
  "wa-river": "slow river water, deep green-blue, long soft current threads and a few slow eddies, no bank and no shore",
  "wa-sea": "open sea water, deep blue-green, a long even swell",
 }

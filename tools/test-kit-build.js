@@ -96,7 +96,7 @@ async function place(p, cx, cy) {
   check('land beyond the reach is dimmed', st0.far > 0, st0.far);
 
   /* ---- 2 · pick, hold, place ---- */
-  await pick(p, 'cr-wheat'); await p.waitForTimeout(500);
+  await pick(p, 'cr-millet'); await p.waitForTimeout(500);
   check('picking a thing puts it in her hands', await p.evaluate(() => {
     const h = document.querySelector('.sab-dhandle b'); return !!h && h.textContent !== 'Build'; }));
   check('and the shelf gets out of the way of the land', !(await p.$('.sab-drawer')));
@@ -139,7 +139,7 @@ async function place(p, cx, cy) {
   check('and nothing may be built beyond the reach', k3 === 2, k3);
 
   /* ---- 5 · keyboard builds too (house rule) ---- */
-  await pick(p, 'cr-wheat'); await p.waitForTimeout(300);
+  await pick(p, 'cr-millet'); await p.waitForTimeout(300);
   await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowDown');
   await p.waitForTimeout(300);
   await p.keyboard.press('Enter'); await p.waitForTimeout(700);
@@ -182,6 +182,20 @@ async function place(p, cx, cy) {
     return D && D.only && D.only.length === 1 && D.only[0] === 'dholavira';
   });
   check('and to no other city, ever', elsewhere);
+
+  /* ---- 8 · every city grows its own, and grows it everywhere ---- */
+  const crops = await p.evaluate(() => {
+    const c = window.IND_KIT_BUILD.items.filter(i => i.g === 'field' && i.only);
+    return { n: c.length, cities: c.map(x => x.only[0]), parts: c.map(x => x.p),
+             many: c.every(x => x.many) };
+  });
+  check('every city is given a crop of its own', crops.n === 8, crops.cities.join(' '));
+  check('and no two cities share one', new Set(crops.parts).size === 8, crops.parts.join(' '));
+  check('a crop may be sown all over its own city', crops.many);
+  const sown = await p.evaluate(() => window.__SABG().sites.dholavira.kit.filter(b=>b.p==='cr-millet').length);
+  check('Dholavira sows bajra, not wheat', sown >= 1, sown + ' millet fields');
+  const painted = await p.evaluate(() => (window.IND_KIT_GROUND||[]).filter(g=>g.indexOf('cr-')===0).length);
+  check('every crop has a painted field to stand on', painted >= 8, painted + ' crop fields');
   await p.screenshot({ path: 'build-1.png' });
   console.log('errors:', errs.slice(0,4).join(' | ') || 'none');
   await b.close();

@@ -35,22 +35,47 @@ window.IND_KIT_BUILD = {
   ],
 
   items: [
-    /* ---- FIELDS: bought as ground, they replace the cell they stand on --- */
+    /* ---- FIELDS ---------------------------------------------------------
+       EVERY CITY GROWS ITS OWN. The Rann will not carry wheat and the Ganga
+       plain will not thank you for millet, so each city's Fields tab offers
+       the crop that land actually grows — and that crop is the only one it
+       will ever be offered. What the harvest is called is anna either way:
+       the currency is the crop, not the wheat. */
+    { p: 'cr-millet', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: '*',
+      only: ['dholavira'], cost: { anna: 6 }, give: { anna: 1 }, many: true,
+      what: 'Bajra — it grows where wheat will not, which is the whole reason there is a city here.' },
+    { p: 'cr-cotton', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: '*',
+      only: ['lothal'], cost: { anna: 7 }, give: { anna: 1, kala: 1 }, many: true,
+      what: 'Cotton. Food it is not, but the bolls become thread, and thread becomes trade.' },
     { p: 'cr-wheat', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: '*',
-      cost: { anna: 6 }, give: { anna: 1 },
-      what: 'Wheat. One more 🌾 every turn, for as long as it is sown.' },
-    { p: 'cr-barley', g: 'field', on: 'land', tile: true, era: [0, 4], lv: 1, kind: '*',
-      cost: { anna: 5 }, give: { anna: 1 },
-      what: 'Barley — hardier than wheat, and it asks less of the soil.' },
+      only: ['rakhigarhi'], cost: { anna: 6 }, give: { anna: 1 }, many: true,
+      what: 'Wheat, sown in rows across the mound country.' },
+    { p: 'cr-barley', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: '*',
+      only: ['kalibangan'], cost: { anna: 5 }, give: { anna: 1 }, many: true,
+      what: 'Barley — hardier than wheat, and it asks less of a dry soil.' },
+    { p: 'cr-sugarcane', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: '*',
+      only: ['hastinapura'], cost: { anna: 8 }, give: { anna: 2 }, many: true,
+      what: 'Cane, tall enough to hide a cart. Two anna a turn, and it drinks.' },
+    { p: 'cr-sesame', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: '*',
+      only: ['kashi'], cost: { anna: 6 }, give: { anna: 1, kala: 1 }, many: true,
+      what: 'Til. Seed for the kitchen and oil for the lamps on the ghats.' },
+    { p: 'cr-gram', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: '*',
+      only: ['ujjain'], cost: { anna: 6 }, give: { anna: 1 }, many: true,
+      what: 'Chana on the black soil of Malwa, low and close-sown.' },
+    { p: 'cr-paddy-green', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: '*',
+      only: ['vaishali'], cost: { anna: 7 }, give: { anna: 2 }, many: true,
+      what: 'Rice in flooded bunds — the crop that made the eastern plain worth arguing over.' },
+
+    /* what any city may add to its own crop */
     { p: 'cr-mustard', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 2, kind: '*',
       cost: { anna: 9 }, give: { anna: 1, kala: 1 },
-      what: 'Mustard. Food and oil both — 🌾 and 🛠️ each turn.' },
+      what: 'A stripe of mustard between the rows. Food and oil both.' },
     { p: 'cr-furrow', g: 'field', on: 'land', tile: true, era: [0, 12], lv: 1, kind: 'kheti',
       cost: { anna: 8 }, give: { anna: 2 },
-      what: 'Ploughed and cross-ploughed, the way Kalibangan did it first: 2 🌾.' },
+      what: 'Ploughed and cross-ploughed, the way Kalibangan\u2019s field was: 2 anna.' },
     { p: 'cr-paddy-green', g: 'field', on: 'shore', tile: true, era: [0, 12], lv: 2, kind: '*',
       cost: { anna: 12 }, give: { anna: 3 },
-      what: 'Paddy. It must touch water, and it feeds three.' },
+      what: 'Paddy on the water\u2019s edge. It must touch water, and it feeds three.' },
 
     /* ---- WORK -------------------------------------------------------- */
     { p: 'bd-granary', g: 'work', on: 'land', era: [0, 12], lv: 1, kind: '*', bld: 'granary',

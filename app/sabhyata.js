@@ -348,6 +348,9 @@
     '  border-radius:12px;padding:7px 5px 8px;cursor:pointer;font:inherit;text-align:center}',
     '.sab-tile .art{position:relative;width:52px;height:44px;display:flex;align-items:flex-end;justify-content:center}',
     '.sab-tile .art img{max-width:52px;max-height:44px;object-fit:contain}',
+    '.sab-tile .art.crop{border-radius:8px;overflow:hidden;height:44px;width:52px}',
+    '.sab-tile .art.crop img{width:52px;height:44px;max-width:none;max-height:none;',
+    '  object-fit:cover;object-position:50% 50%}',
     '.sab-tile .art u{position:absolute;right:-2px;top:-2px;text-decoration:none;font:800 10px/1 var(--body);',
     '  background:var(--accent);color:#2a1a10;border-radius:7px;padding:2px 4px}',
     '.sab-tile b{font:800 10.5px/1.2 var(--body);max-width:86px;overflow:hidden;',
@@ -822,7 +825,10 @@
           if (occupied(id, cx + a, cy + b2)) return 'something already stands there';
         }
       }
-      if (it.only && builtCount(id, it.p) >= 1) return 'a city has only one of these';
+      /* `only` fences a thing to its city; `many` says the city may have as
+         many as it likes. A crop belongs to one city AND is sown all over it. */
+      if (it.only && !it.many && builtCount(id, it.p) >= 1)
+        return 'a city has only one of these';
       if (!canPay(costOf(it.cost, 'building'))) return 'not enough yet';
       return null;
     }
@@ -926,7 +932,7 @@
 
       var tiles = byG[tab].map(function (it) {
         var def = W.IND_KIT.def(it.p), n = builtCount(id, it.p);
-        var done = it.only && n >= 1;
+        var done = it.only && !it.many && n >= 1;
         var poor = !done && !canPay(costOf(it.cost, 'building'));
         var give = ['anna', 'kala', 'katha'].filter(function (k) { return it.give && it.give[k]; })
           .map(function (k) { return '+' + it.give[k] + ICON[k]; }).join(' ');
@@ -937,7 +943,11 @@
           ' aria-label="' + esc(def ? def.name : it.p) + '. ' + esc(it.what) +
           ' Costs ' + esc(costStr(costOf(it.cost, 'building'))) +
           (done ? '. Already built.' : poor ? '. Not enough yet.' : '') + '">' +
-          '<span class="art"><img src="' + (W.IND_KIT.src(it.p, 0) || '') + '" alt="">' +
+          /* a crop's tile shows the crop: the piece art for a field is the flat
+             ground tile, which tells a child nothing about what they are sowing */
+          '<span class="art' + (it.tile ? ' crop' : '') + '"><img src="' +
+          ((it.tile && W.IND_KIT.hasField(it.p) ? 'art/kit/_ground/' + it.p + '.jpg'
+            : W.IND_KIT.src(it.p, 0)) || '') + '" alt="">' +
           (n ? '<u>' + n + '</u>' : '') + '</span>' +
           '<b>' + esc(def ? def.name : it.p) + '</b>' +
           '<span class="c">' + esc(costStr(costOf(it.cost, 'building'))) + '</span>' +

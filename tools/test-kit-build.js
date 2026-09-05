@@ -216,24 +216,49 @@ async function place(p, cx, cy) {
   const painted = await p.evaluate(() => (window.IND_KIT_GROUND||[]).filter(g=>g.indexOf('cr-')===0).length);
   check('every crop has a painted field to stand on', painted >= 8, painted + ' crop fields');
 
-  /* ---- 9 · nothing floats: a piece stands on its own shadow ---- */
+  /* ---- 9 · nothing floats: the shadow comes from the ART, not the cell ---- */
   const feet = await p.evaluate(() => {
-    const K = window.IND_KIT, out = [];
-    /* the shadow pools under the whole footprint, whose centre is half a
-       diamond above the south vertex the art is anchored on */
-    [[1,1],[2,2],[2,1],[1,3],[3,2]].forEach(([L,B]) => {
-      const s = K.shadowAt(0, 0, L, B);
-      out.push({ L, B, dx: s.x, dy: s.y, nudge: K.artNudge(L, B) });
+    const K = window.IND_KIT, out = {};
+    /* a footprint-sized shadow sticks out past the walls, because the drawing
+       does not fill its cell; an art-sized one cannot */
+    out.tight = K.shadowFor(100, 200, 64);
+    out.wide  = K.shadowFor(100, 200, 192);
+    out.nudge = [[1,1],[2,1],[1,3],[3,2]].map(([L,B]) => K.artNudge(L, B));
+    out.gone  = typeof K.shadowAt;
+    return out;
+  });
+  check('the shadow is sized from the drawing, not the footprint',
+        feet.tight.w < 64 && Math.abs(feet.wide.w / feet.tight.w - 3) < 0.01,
+        feet.tight.w + ' / ' + feet.wide.w);
+  check('and it sits under where the drawing ends',
+        feet.tight.x === 100 && feet.tight.y < 200 && 200 - feet.tight.y < 6,
+        JSON.stringify(feet.tight));
+  check('the footprint-derived shadow is gone for good', feet.gone === 'undefined');
+  check('a long piece is still nudged onto its own vertex',
+        feet.nudge[0] === 0 && feet.nudge[1] === 16 && feet.nudge[2] === -32 && feet.nudge[3] === 16,
+        feet.nudge.join(' '));
+  const onboard = await p.evaluate(() => {
+    const inr = document.getElementById('sab-kitinner');
+    const k = parseFloat(inr.getAttribute('data-k')) || 1;
+    const r = inr.getBoundingClientRect();
+    const out = [];
+    inr.querySelectorAll('img.kit-p').forEach(im => {
+      const ir = im.getBoundingClientRect();
+      let best = 1e9;
+      inr.querySelectorAll('.kit-shadow').forEach(sd => {
+        const sr = sd.getBoundingClientRect();
+        const d = Math.hypot((sr.left+sr.right)/2 - (ir.left+ir.right)/2,
+                             (sr.top+sr.bottom)/2 - ir.bottom);
+        if (d < best) best = d;
+      });
+      out.push(best / k);
     });
     return out;
   });
-  check('a square piece sits half a diamond above its anchor',
-        feet[0].dy === -16 && feet[1].dy === -32 && feet[0].dx === 0 && feet[1].dx === 0);
-  check('and a long one is nudged onto its own vertex, not its bounding box',
-        feet[2].nudge === 16 && feet[3].nudge === -32 && feet[4].nudge === 16,
-        feet.map(f => f.L + 'x' + f.B + ':' + f.nudge).join(' '));
-  check('the shadow follows the same rule the art does',
-        feet.every(f => f.dx === f.nudge));
+  check('every piece on the board has a shadow at its feet',
+        onboard.length > 0 && onboard.every(d => d < 14),
+        onboard.length + ' pieces, worst ' + Math.max(...onboard).toFixed(1) + 'px off');
+
   await p.screenshot({ path: 'build-1.png' });
   console.log('errors:', errs.slice(0,4).join(' | ') || 'none');
   await b.close();

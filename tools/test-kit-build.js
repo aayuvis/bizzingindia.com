@@ -48,8 +48,13 @@ const peek = p => p.evaluate(() => window.__SAB ? window.__SAB() : null);
 const G = p => p.evaluate(() => window.__SABG ? window.__SABG() : null);
 
 async function openCity(p, sid) {
-  await tap(p, '#sab-' + sid); await p.waitForTimeout(400);
-  await tap(p, '[data-sab-act="city"]'); await p.waitForTimeout(1400);
+  await p.evaluate(sid => {
+    const g = document.getElementById('sab-' + sid);
+    for (const t of ['pointerdown','mousedown','pointerup','mouseup','click'])
+      g.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true }));
+    g.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+  }, sid);
+  await p.waitForTimeout(1500);
 }
 /* place the held piece on a cell by clicking its true screen point */
 async function place(p, cx, cy) {
@@ -168,15 +173,29 @@ async function place(p, cx, cy) {
   /* ---- 6 · zoom and scroll ---- */
   await tap(p, '[data-sab-act="kitzoom"][data-d="1"]'); await p.waitForTimeout(900);
   const z = await p.evaluate(() => ({ z: window.__SABG().kitZ,
-    scrollable: (() => { const s=document.querySelector('.sab-scene'); return s.scrollWidth > s.clientWidth + 4; })() }));
+    scrollable: (() => { const s=document.querySelector('.sab-view'); return s.scrollWidth > s.clientWidth + 4; })() }));
   check('the board zooms in', z.z > 1, z.z);
   check('and once bigger than its window, the city scrolls', z.scrollable, z.scrollable);
   const look = await p.evaluate(() => {
-    const s=document.querySelector('.sab-scene');
+    const s=document.querySelector('.sab-view');
     return { l: Math.round(s.scrollLeft), t: Math.round(s.scrollTop) };
   });
   check('and it looks at the city, not at an empty corner', look.l > 0 || look.t > 0,
         'scroll ' + look.l + ',' + look.t);
+  /* the nameplate used to ride the board up the screen and hang in the middle */
+  const pinned = await p.evaluate(() => {
+    const v = document.querySelector('.sab-view');
+    const np = document.querySelector('.sab-nameplate');
+    const before = np.getBoundingClientRect().top;
+    v.scrollTop = v.scrollTop + 120; v.scrollLeft = v.scrollLeft + 120;
+    const after = np.getBoundingClientRect().top;
+    return Math.abs(after - before);
+  });
+  check('the city banner stays put while the board scrolls under it', pinned < 2,
+        pinned.toFixed(1) + 'px drift');
+  check('the shelf handle is pinned to the frame too', await p.evaluate(() => {
+    const v = document.querySelector('.sab-view'), h = document.querySelector('.sab-dhandle');
+    return h ? !v.contains(h) : false; }));
 
   /* ---- 7 · the menu is the city's own, and grows with it ---- */
   await p.evaluate(() => { const h=document.querySelector('.sab-dhandle'); if(h) h.dispatchEvent(new MouseEvent('click',{bubbles:true})); });
@@ -258,6 +277,53 @@ async function place(p, cx, cy) {
   check('every piece on the board has a shadow at its feet',
         onboard.length > 0 && onboard.every(d => d < 14),
         onboard.length + ' pieces, worst ' + Math.max(...onboard).toFixed(1) + 'px off');
+
+  /* ---- 10 · the city is operated, not fought with ---- */
+  await pick(p, 'hs-har-room'); await p.waitForTimeout(300);
+  check('a piece is in hand', await p.evaluate(() => {
+    const h=document.querySelector('.sab-dhandle b'); return !!h && h.textContent !== 'Build'; }));
+  await p.keyboard.press('Escape'); await p.waitForTimeout(400);
+  check('Escape puts the piece back', await p.evaluate(() => {
+    const h=document.querySelector('.sab-dhandle b'); return !!h && h.textContent === 'Build'; }));
+  check('and does NOT close the city with it', await p.evaluate(() => !!window.__SAB().city));
+  await p.keyboard.press('Escape'); await p.waitForTimeout(400);
+  check('a second Escape then leaves the city', await p.evaluate(() => !window.__SAB().city));
+
+  /* back in by double-click alone */
+  await openCity(p, 'dholavira');
+  check('double-clicking a city goes into it, with no button to press',
+        await p.evaluate(() => window.__SAB().city === 'dholavira'));
+  const mapTiles = await p.evaluate(() => {
+    /* what the realm map offers beside a healthy city */
+    return [...document.querySelectorAll('.sab-act')].map(b => b.getAttribute('data-sab-act'));
+  });
+  check('growing is no longer a realm-map errand', mapTiles.indexOf('grow') < 0, mapTiles.join(' '));
+  check('it is offered in the city instead', await p.evaluate(() =>
+        !!document.querySelector('.sab-grow')));
+
+  /* wheel zooms about the pointer */
+  const z0 = await p.evaluate(() => window.__SABG().kitZ || 1);
+  await p.evaluate(() => {
+    const v = document.querySelector('.sab-view'), r = v.getBoundingClientRect();
+    v.dispatchEvent(new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: -120,
+      clientX: r.left + r.width/2, clientY: r.top + r.height/2 }));
+  });
+  await p.waitForTimeout(600);
+  const z1 = await p.evaluate(() => window.__SABG().kitZ || 1);
+  check('the wheel zooms the board', z1 > z0, z0 + ' -> ' + z1);
+
+  /* dragging the board pans it */
+  const pan = await p.evaluate(async () => {
+    const v = document.querySelector('.sab-view'), r = v.getBoundingClientRect();
+    const before = v.scrollLeft;
+    const at = (t, x, y) => document.querySelector('.sab-view')
+      .dispatchEvent(new PointerEvent(t, { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+    at('pointerdown', r.left + 300, r.top + 200);
+    document.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: r.left + 180, clientY: r.top + 200 }));
+    document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+    return { before, after: v.scrollLeft };
+  });
+  check('and dragging it pans it', pan.after > pan.before, pan.before + ' -> ' + pan.after);
 
   await p.screenshot({ path: 'build-1.png' });
   console.log('errors:', errs.slice(0,4).join(' | ') || 'none');

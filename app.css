@@ -322,26 +322,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ---- the river of time atop the India door ---- */
 /* the band of time: one page-wide line, bubbles placed by the calendar */
-.tmband { position: relative; height: 118px; margin: 2px 0 8px; }
-/* WHEN EACH AGE WAS, UNDER ITS OWN DOT. The dates used to hide inside a popup
-   that only appeared after a first tap — so a child pressed a dot, saw a
-   tooltip instead of a map, and reasonably concluded nothing had happened.
-   Fourteen ages on one rail leave about sixty pixels each, so the labels
-   alternate high and low and get double the room; they are never a tap target
-   themselves, or a finger aiming at the dot would miss it. */
-.tmwhen { position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
-          width: 88px; text-align: center; pointer-events: none;
-          font: 700 8.5px/1.25 var(--mono, monospace); color: var(--muted);
-          letter-spacing: .01em; }
-.tmwhen.low { top: 48px; }
-.tmdot.on .tmwhen { color: var(--text); font-weight: 800; }
-.tmrail { position: absolute; left: 1.5%; right: 1.5%; top: 76px; height: 6px; border-radius: 3px;
+.tmband { position: relative; height: 88px; margin: 2px 0 8px; }
+.tmrail { position: absolute; left: 1.5%; right: 1.5%; top: 46px; height: 6px; border-radius: 3px;
   background: linear-gradient(90deg, var(--accent2), var(--accent) 60%, var(--accent3)); opacity: .55; }
-.tmdot { position: absolute; top: 66px; width: 26px; height: 26px; border-radius: 50%;
+.tmdot { position: absolute; top: 36px; width: 26px; height: 26px; border-radius: 50%;
   transform: translateX(-50%); border: 3.5px solid var(--accent2); background: var(--card);
   cursor: pointer; padding: 0; z-index: 2; }
 .tmdot:hover { border-color: var(--accent); }
-.tmdot.on { background: var(--accent); border-color: var(--accent); width: 32px; height: 32px; top: 63px; z-index: 3; }
+.tmdot.on { background: var(--accent); border-color: var(--accent); width: 32px; height: 32px; top: 33px; z-index: 3; }
 .tmdot.aaj { border-style: dashed; }
 .tmdot.aaj.on { border-style: solid; }
 .tmdot:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -356,7 +344,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tmpop.open b { color: var(--accent); }
 .tmpop.edgeL { left: 0; transform: none; }
 .tmpop.edgeR { left: auto; right: 0; transform: none; }
-.tmtick { position: absolute; top: 92px; transform: translateX(-50%); font: 700 10px/1 var(--mono, monospace);
+.tmtick { position: absolute; top: 62px; transform: translateX(-50%); font: 700 10px/1 var(--mono, monospace);
   letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .tmtick:last-of-type { transform: translateX(-100%); }
 .tm-zone { fill: transparent; cursor: pointer; }

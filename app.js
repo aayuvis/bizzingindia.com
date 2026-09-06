@@ -1155,17 +1155,7 @@
     souths: 650, chola: 1000, 'temple-builders': 1150, 'sultanate-mughal': 1300,
     'marathas-sikhs': 1700, colonial: 1800, freedom: 1900, modern: 1955, 'naya-bharat': 2000 };
   var timePeek = null;   /* kept: other code still clears it */
-  /* "about 3300–1300 BCE" is nineteen characters and a dot has about sixty
-     pixels. The age's own words stay in the aria-label and on its page; the
-     band gets the numbers. */
-  function whenShort(w) {
-    return String(w || '')
-      .replace(/^about\s+/i, '')
-      .replace(/\s*to now$/i, '–now')
-      .replace(/\s*–\s*today$/i, '–today')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
+
   /* ============== BHUGOL — the physical land, on today's map ==============
      A toggle beside Aaj's map swaps politics for geography: the same Survey
      of India outline, but filled with landform washes (elevation and soil,
@@ -1456,14 +1446,19 @@
       return '<button class="tmdot' + (open ? ' on' : '') + (it.id === 'aaj' ? ' aaj' : '') +
         '" style="left:' + xs[k].toFixed(2) + '%" data-act="tstop" data-id="' + it.id +
         '" aria-label="' + esc(it.name) + ' \u00b7 ' + esc(it.when) +
-        (open ? ' \u2014 open now' : '') + '">' + pop +
-        '<span class="tmwhen' + (k % 2 ? ' low' : '') + '">' + esc(whenShort(it.when)) +
-        '</span></button>';
+        (open ? ' \u2014 open now' : '') + '">' + pop + '</button>';
     }).join('');
     return '<div class="tmband" role="tablist" aria-label="The river of time, 3300 BCE to today">' +
-      /* the three rail ticks are gone: every dot now carries its own dates, so
-         "3300 BCE" sat on top of "3300–1300 BCE" saying the same thing twice */
+      /* Three markers for the whole rail, and no label under any dot. Fifteen
+         small date ranges staggered along one line read as clutter, not as
+         orientation — the ages are a river to travel, not a table to study.
+         Each dot still SAYS its dates in its aria-label, so the information is
+         there for anyone listening rather than looking, and the age's page
+         carries them in full. */
       '<span class="tmrail"></span>' + dots +
+      '<span class="tmtick" style="left:3%">3300 BCE</span>' +
+      '<span class="tmtick" style="left:' + (3 + (0 - y0) / (y1 - y0) * 94).toFixed(1) + '%">year 0</span>' +
+      '<span class="tmtick" style="left:97%">today</span>' +
       '</div>';
   }
   function timeLens(id) {

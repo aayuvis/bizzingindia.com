@@ -1,0 +1,152 @@
+# Publish the app to https://aayuvis.github.io/bizzingindia.com/.
+#
+# The site itself was never the problem. tools/deploy.sh has been publishing HEAD:app
+# to the gh-pages branch by plumbing — .nojekyll and all — and that branch is
+# byte-identical to app/ at HEAD. What was missing is that GitHub Pages had never been
+# switched on for the repository at all (the API reported has_pages: false), so nothing
+# was serving that branch and the address answered 404. A deploy that lands perfectly on
+# a branch nobody publishes looks exactly like a deploy that worked.
+#
+# So the first and best outcome here is one REST call: point Pages at gh-pages. After
+# that GitHub rebuilds on every deploy.sh push and this workflow has nothing left to do,
+# which is deliberate — it is a switch, not a second deploy pipeline competing with
+# deploy.sh for which one the live site came from.
+#
+# The fallback exists because creating a Pages site is documented as needing
+# Administration:write, and the `permissions:` block below cannot grant that. If the call
+# is refused we publish through Actions instead: configure-pages can enable the "GitHub
+# Actions" source with pages:write alone, and app/ goes up as the artifact. That path
+# costs an upload of the whole corpus on every run, which is why it is the fallback and
+# not the plan.
+#
+# Either way the last job proves the address answers. "Pages is enabled" is a setting;
+# "the app loads" is the thing that was asked for, and only a fetch of the live URL
+# says so.
+
+name: Pages
+
+on:
+  push:
+    branches:
+      - claude/bizzingindia-github-pages-8qsv38
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never two publishes at once, and never cancel one half-done: a Pages build that is
+# interrupted leaves the previous build live, but a cancelled *deploy* can leave the
+# site mid-swap.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # ---------------------------------------------------------------- the switch
+  branch-source:
+    name: Point Pages at gh-pages
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.enable.outputs.enabled }}
+    steps:
+      - id: enable
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          repo="$GITHUB_REPOSITORY"
+
+          if gh api "repos/$repo/pages" > current.json 2> api-err.txt; then
+            echo "Pages is already enabled:"
+            jq '{html_url, status, build_type, source}' current.json
+            build_type=$(jq -r '.build_type // "legacy"' current.json)
+            branch=$(jq -r '.source.branch // ""' current.json)
+            if [ "$build_type" = "legacy" ] && [ "$branch" != "gh-pages" ]; then
+              echo "::warning::Pages is serving branch '$branch', not gh-pages — repointing."
+              gh api -X PUT "repos/$repo/pages" \
+                -f 'source[branch]=gh-pages' -f 'source[path]=/' || true
+            fi
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Pages is not enabled on this repository. Creating the site from gh-pages."
+          cat api-err.txt
+          if printf '%s' '{"source":{"branch":"gh-pages","path":"/"}}' \
+             | gh api -X POST "repos/$repo/pages" --input - ; then
+            echo "Created — Pages now serves the gh-pages branch at the repository root."
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Could not create the Pages site with the workflow token. Creating one is documented as needing Administration:write, which a workflow token cannot hold. Falling back to publishing through Actions."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ------------------------------------------------------------- the fallback
+  actions-source:
+    name: Publish app/ through Actions
+    needs: branch-source
+    if: needs.branch-source.outputs.enabled != 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      # One commit only. The corpus is ~760MB of narration and art; full history is
+      # several gigabytes and none of it is needed to publish a tree.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      # No .nojekyll needed on this path: an artifact deploy serves files as they are
+      # and never runs Jekyll, so nothing hides the underscore-prefixed files.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  # -------------------------------------------------------------- the proof
+  verify:
+    name: Fetch the live site
+    needs: [branch-source, actions-source]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for the build, then load the page
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          repo="$GITHUB_REPOSITORY"
+          url="https://aayuvis.github.io/bizzingindia.com/"
+
+          # A Pages build of this corpus is not instant. Poll the API rather than
+          # guessing at a sleep.
+          for i in $(seq 1 40); do
+            status=$(gh api "repos/$repo/pages" --jq '.status' 2>/dev/null || echo "unknown")
+            echo "attempt $i: pages status = $status"
+            [ "$status" = "built" ] && break
+            [ "$status" = "errored" ] && { echo "::error::Pages build errored."; exit 1; }
+            sleep 15
+          done
+
+          gh api "repos/$repo/pages" --jq '{html_url, status, build_type, source}' || true
+
+          # The setting is not the deliverable. The page loading is.
+          for i in $(seq 1 20); do
+            code=$(curl -sS -o body.html -w '%{http_code}' -L "$url" || echo 000)
+            echo "attempt $i: GET $url -> $code"
+            if [ "$code" = "200" ]; then
+              grep -q '<title>Bizzing India</title>' body.html \
+                && echo "OK: the app's index.html is live at $url" \
+                && exit 0
+              echo "200, but this is not the app's index.html:"; head -20 body.html
+            fi
+            sleep 15
+          done
+          echo "::error::$url did not serve the app."
+          exit 1

@@ -19,6 +19,14 @@
 #
 # Run tools/stamp.sh first. This script deliberately does not stamp, so that an un-stamped
 # deploy is a decision rather than an accident.
+#
+# THIS SCRIPT DOES NOT MAKE THE SITE LIVE, and for a long time nobody noticed. Pushing
+# gh-pages is only half of it: GitHub has to be told to *serve* that branch, and the
+# repository setting was simply never switched on (the API reported has_pages: false).
+# Every deploy landed perfectly, reported a sha, and the address 404'd — which from here
+# is indistinguishable from a deploy that worked. .github/workflows/pages.yml is the
+# other half; it points Pages at gh-pages and then fetches the live URL to prove it.
+# If the address ever 404s again after a clean deploy, check the setting before the tree.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."

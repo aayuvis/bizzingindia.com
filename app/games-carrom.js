@@ -68,7 +68,7 @@
     '.car-canvas:focus-visible{outline:2px solid var(--accent2,#e9a13b);outline-offset:3px}',
     /* the rules / result card covers the whole game column, not just the board,
        so it never has to scroll inside a small phone-sized square */
-    '.car-over{position:absolute;inset:-4px;z-index:3;display:grid;place-items:center;background:rgba(26,14,5,.55);border-radius:16px;padding:12px;line-height:1.4;backdrop-filter:blur(2px)}',
+    '.car-over{position:absolute;top:-4px;right:-4px;bottom:-4px;left:-4px;z-index:3;display:grid;place-items:center;background:rgba(26,14,5,.55);border-radius:16px;padding:12px;line-height:1.4;backdrop-filter:blur(2px)}',
     '.car-over[hidden]{display:none}',
     /* flex column with the list as the only scrollable part, so the Play /
        result buttons are always on screen even on a short phone */

@@ -280,7 +280,7 @@
     var F = {
       /* Mithila painters outline everything twice. So does the card. */
       'double': function (s) {
-        return s + '.card::before{inset:5px;border:1.5px solid var(--accent-soft);' +
+        return s + '.card::before{top:5px;right:5px;bottom:5px;left:5px;border:1.5px solid var(--accent-soft);' +
           'border-radius:calc(var(--radius-lg) - 5px)}\n' +
           s + '.card{border-width:2px}\n';
       },
@@ -321,7 +321,7 @@
       },
       /* Kashmiri papier-mâché: a fine painted border, all four sides. */
       'papier': function (s) {
-        return s + '.card::before{inset:6px;border:1px dashed var(--accent-soft);' +
+        return s + '.card::before{top:6px;right:6px;bottom:6px;left:6px;border:1px dashed var(--accent-soft);' +
           'border-radius:calc(var(--radius-lg) - 6px)}\n';
       },
       /* A cricket ball is stitched. So is the card, down one edge. */
@@ -359,7 +359,7 @@
       },
       /* Truck art: a painted border and the tailboard stripe along the bottom. */
       'painted': function (s) {
-        return s + '.card::before{inset:4px;border:2px solid var(--accent-soft);' +
+        return s + '.card::before{top:4px;right:4px;bottom:4px;left:4px;border:2px solid var(--accent-soft);' +
           'border-radius:calc(var(--radius-lg) - 4px)}\n' +
           s + '.card::after{left:14px;right:14px;bottom:4px;height:6px;border-radius:3px;' +
           'background:repeating-linear-gradient(90deg,var(--accent) 0 8px,var(--accent2) 8px 16px);opacity:.5}\n';
@@ -415,7 +415,7 @@
   function baseCSS() {
     return [
       /* ------------------------------------------------------- the two layers */
-      '.wa-layer{position:fixed;inset:0;pointer-events:none;overflow:hidden;contain:strict}',
+      '.wa-layer{position:fixed;top:0;right:0;bottom:0;left:0;pointer-events:none;overflow:hidden;contain:strict}',
       '.wa-layer *{pointer-events:none!important}',
       /* BOTH LAYERS SIT BEHIND THE APP (#app is z-index 1).
          The stage used to stand at z-index 30, in front of the cards, on the
@@ -431,7 +431,7 @@
       /* muted overall: scenery is meant to be noticed second, not first */
       '.wa-back{opacity:.72}',
       '.wa-stage{opacity:.82}',
-      '.wa-bd{position:absolute;inset:0;overflow:hidden}',
+      '.wa-bd{position:absolute;top:0;right:0;bottom:0;left:0;overflow:hidden}',
       /* PAINTED BACKDROPS (art/worlds): a day and a night painting cross-fade
          with data-mode, and a small set of dynamic drifters lives ON the
          painting — a painting must not be a poster. Feature-agnostic motion
@@ -442,11 +442,11 @@
       /* the paintings sit well back: soft enough that the content, not
          the wall, is what a child reads first */
       '.wa-back.haspaint{opacity:.5}',
-      '.wa-bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.2s ease}',
+      '.wa-bgimg{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.2s ease}',
       '.wa-bgnight{opacity:0}',
       'html[data-mode="night"] .wa-bgnight{opacity:1}',
       'html[data-mode="night"] .wa-bgday{opacity:0}',
-      '.wa-fxday,.wa-fxnight{position:absolute;inset:0;transition:opacity 1.2s ease;pointer-events:none}',
+      '.wa-fxday,.wa-fxnight{position:absolute;top:0;right:0;bottom:0;left:0;transition:opacity 1.2s ease;pointer-events:none}',
       '.wa-fxnight{opacity:0}',
       '.wa-fxnight *{animation-play-state:paused}',
       'html[data-mode="night"] .wa-fxday{opacity:0}',
@@ -489,7 +489,7 @@
       /* .wa-air was the full-bleed wash that lived in FRONT of the cards. It
          is behind them now with everything else, and held lower still, so it
          tints the page's open ground rather than veiling what is on it. */
-      '.wa-air{position:absolute;inset:0;overflow:hidden;opacity:.6}',
+      '.wa-air{position:absolute;top:0;right:0;bottom:0;left:0;overflow:hidden;opacity:.6}',
       /* THE DESKTOP GUTTERS. A wide window leaves a hand's width of empty ground down
          each side of the 1100px content column, and a soft wash there is a colour, not
          a thing to look at. Each world hangs one real object in each gutter instead.
@@ -506,7 +506,7 @@
       /* ------------------------------------------------- day / night groups
          Both groups always exist; CSS cross-fades them and HARD-STOPS the
          animations of the hidden one, so the node budget is per-state. */
-      '.wa-day,.wa-night{position:absolute;inset:0;transition:opacity .55s ease}',
+      '.wa-day,.wa-night{position:absolute;top:0;right:0;bottom:0;left:0;transition:opacity .55s ease}',
       '.wa-night{opacity:0}',
       'html[data-mode="night"] .wa-day{opacity:0}',
       'html[data-mode="night"] .wa-night{opacity:1}',
@@ -1007,10 +1007,10 @@
       ';-webkit-mask-size:84px 46px;mask-size:84px 46px;-webkit-mask-repeat:repeat-x;mask-repeat:repeat-x">' +
       '</i>';
     return '<div class="wa-day">' +
-      '<div class="wam-bob" style="position:absolute;inset:0;animation-duration:5.5s">' + toran + '</div>' +
+      '<div class="wam-bob" style="position:absolute;top:0;right:0;bottom:0;left:0;animation-duration:5.5s">' + toran + '</div>' +
       '</div>' +
       '<div class="wa-night">' +
-      '<div style="position:absolute;inset:0;opacity:.72">' + toran + '</div>' +
+      '<div style="position:absolute;top:0;right:0;bottom:0;left:0;opacity:.72">' + toran + '</div>' +
       /* string lights come on across the header */
       bulbs({ c: '#ffd07a', top: 'calc(100% - 22px)', h: '22px', pitch: 30, r: 2.8, rows: 2, dur: 2.2 }) +
       '</div>';
@@ -1096,7 +1096,7 @@
       '-webkit-mask-image:' + M_TORAN + ';mask-image:' + M_TORAN + ';-webkit-mask-size:63px 34px;mask-size:63px 34px;' +
       '-webkit-mask-repeat:repeat-x;mask-repeat:repeat-x;opacity:.75"></i>';
     return '<i class="wa-fade" style="bottom:52px;height:70px"></i>' + ledge +
-      '<div class="wam-bob" style="position:absolute;inset:0;animation-duration:6.5s">' + garland + '</div>' +
+      '<div class="wam-bob" style="position:absolute;top:0;right:0;bottom:0;left:0;animation-duration:6.5s">' + garland + '</div>' +
       rangoli() + row +
       '<div class="wa-day">' +
       /* unlit and waiting: a stack of spare diyas and the oil pot */

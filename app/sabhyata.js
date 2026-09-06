@@ -220,7 +220,7 @@
 
     /* z-index 80: the built city is a fixed surface at 70, and a card raised
        from inside it has to land ON it rather than behind it */
-    '.sab-over{position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;background:color-mix(in srgb,var(--ground) 82%,transparent);padding:18px;z-index:80;overflow:auto}',
+    '.sab-over{position:fixed;top:0;right:0;bottom:0;left:0;display:flex;align-items:flex-start;justify-content:center;background:color-mix(in srgb,var(--ground) 82%,transparent);padding:18px;z-index:80;overflow:auto}',
     '.sab-over .sab-card{margin:auto}',
     /* the fact / era / wake cards: SMALL on purpose — a note held up over the
        game, not a page replacing it. The map stays visible around them. */
@@ -420,7 +420,7 @@
     /* the crew, standing on the board where they work. Anchored at the south
        corner of the cell, so the sprite is nudged up by its own height and
        half a tile left to sit ON the diamond rather than beside it. */
-    '.sab-kcrowd{position:absolute;inset:0;pointer-events:none}',
+    '.sab-kcrowd{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}',
     '.sab-kworker{position:absolute;width:38px;height:48px;object-fit:contain;',
     '  object-position:50% 100%;transform:translate(-50%,-100%);',
     '  filter:drop-shadow(0 2px 2px rgba(24,16,34,.45))}',
@@ -436,7 +436,7 @@
        thing you scrolled past to reach its own questions. Nothing hangs under
        it now — the tellings and the works are tabs, the questions are the
        bell — so it takes the window, and the window does not scroll. */
-    '.sab-scene.iskit.full{position:fixed;inset:0;z-index:70;margin:0;border:0;',
+    '.sab-scene.iskit.full{position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;margin:0;border:0;',
     '  border-radius:0;height:100vh;height:100dvh;max-height:none;background:#e6dbc2}',
     '.sab-scene.iskit.full .sab-view{height:100%}',
     'body.sab-full{overflow:hidden}',
@@ -515,7 +515,7 @@
     '.sab-scene.iskit{overflow:hidden;position:relative;',
     '  height:min(66vh,620px);min-height:340px;touch-action:none}',
     '@media (max-width:560px){.sab-scene.iskit{height:min(60vh,480px)}}',
-    '.sab-view{position:absolute;inset:0;overflow:auto;-webkit-overflow-scrolling:touch;',
+    '.sab-view{position:absolute;top:0;right:0;bottom:0;left:0;overflow:auto;-webkit-overflow-scrolling:touch;',
     '  cursor:grab;scrollbar-width:thin}',
     '.sab-view.grabbing{cursor:grabbing}',
     '.sab-view.placing{cursor:crosshair}',
@@ -562,7 +562,7 @@
     /* the layer that holds whatever is placed by board percentage: sized to
        the board, so it moves and grows with it, but NOT inside the scaled
        box, so a label does not shrink to nothing at 60% */
-    '.sab-kitpins{position:absolute;inset:0;pointer-events:none}',
+    '.sab-kitpins{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}',
     '.sab-kitpins>*{pointer-events:auto}',
     '.sab-kitpins .sab-plots{pointer-events:none}',
     /* the plate's crop rules are for a painting; the board sets its own height
@@ -574,14 +574,14 @@
     '.kit-p{position:absolute;transform:translate(-50%,-100%);pointer-events:none}',
     '.kit-shadow{position:absolute;transform:translate(-50%,-50%);border-radius:50%;background:rgba(20,12,26,.26);pointer-events:none;filter:blur(1.5px)}',
     '.sab-scene .sab-hero{margin:0;border:0;border-radius:0}',
-    '.sab-praja{position:absolute;inset:0;pointer-events:none}',
+    '.sab-praja{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}',
     /* A WALKER PINNED TO A ROAD. The keyframes carry left/top along the
        plate's own traced street, so the sprite's feet land on the road. */
     '.sab-walker.onroad,.sab-stand.onroad,.sab-cross.onroad{bottom:auto;transform:translate(-50%,-100%)}',
     '.sab-walker.onroad,.sab-cross.onroad{left:auto}',
     /* the green places breathe under the paint — a soft leaf wash, never a
        shape a child must read, just the land looking alive */
-    '.sab-greens{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;' +
+    '.sab-greens{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;' +
       'mix-blend-mode:soft-light}',
     '.sab-greens polygon{fill:#3f9c5c;opacity:.26;animation:sabgreen 7s ease-in-out infinite alternate}',
     '@keyframes sabgreen{from{opacity:.18}to{opacity:.34}}',
@@ -622,7 +622,7 @@
     '.sab-work.atwork{outline:2px solid var(--accent2);outline-offset:-2px}',
     '.sab-projbar{display:block;margin-top:5px;height:9px;border-radius:99px;background:var(--line);' +
       'position:relative;overflow:hidden;max-width:190px}',
-    '.sab-projbar i{position:absolute;inset:0;width:var(--pc,0%);background:var(--accent2);' +
+    '.sab-projbar i{position:absolute;top:0;right:0;bottom:0;left:0;width:var(--pc,0%);background:var(--accent2);' +
       'border-radius:99px;transition:width .6s linear}',
     '.sab-projbar b{position:absolute;right:-30px;top:-3px;font:800 10.5px var(--body);color:var(--accent)}',
     '.sab-scaffold{position:absolute;left:50%;bottom:16%;height:52%;width:auto;transform:translateX(-50%);' +
@@ -631,7 +631,7 @@
        painting and the building rises there, permanently. Unbuilt plots are
        ghost outlines with the cost; built ones stand in colour with a name
        chip. Real buttons in DOM order — keyboard and touch both, >=44px. */
-    '.sab-plots{position:absolute;inset:0;pointer-events:none}',
+    '.sab-plots{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}',
     '.sab-plot{pointer-events:auto;position:absolute;bottom:2%;width:15%;min-width:48px;min-height:44px;' +
       'display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;' +
       'padding:3px 2px;border:0;background:none;cursor:pointer;font:700 10px/1.15 var(--body,system-ui);color:#fff}',

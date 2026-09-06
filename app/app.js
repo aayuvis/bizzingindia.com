@@ -3328,53 +3328,110 @@
      small thing — and a grown-up witnessing it. The mala grows and is never
      finished, which is also true of the thing it represents. */
 
+
+  /* ================================================================
+     NEETI IS A LIBRARY OF TOOLS, not a page of tiles.
+     Borrowed wholesale from Bizzing Bee's Explore hub, which is the pattern
+     the team already reads fluently: a head, then coloured hub panels, and
+     inside each a row — icon, what it is, and a subtitle carrying LIVE STATE
+     rather than a description. "4 of 12 cards" tells a child where they are;
+     "learn about values" tells them nothing they did not already know.
+     ================================================================ */
+  function neetiDeck() { return window.IND_NEETI_DECK || { values: {}, dvandva: [], ghar: [] }; }
+  function neetiState() {
+    if (!S.neeti) S.neeti = {};
+    if (!S.neeti.cards) S.neeti.cards = {};
+    if (!S.neeti.dv) S.neeti.dv = {};
+    if (!S.neeti.ghar) S.neeti.ghar = {};
+    return S.neeti;
+  }
+  function neetiStories(vid) {
+    var tagged = (window.IND_NEETI_STORIES || {})[vid] || [];
+    var byId = {}; allStories().forEach(function (st) { byId[st.id] = st; });
+    var K = window.IND_NEETI, v = K && K.values.filter(function (x) { return x.id === vid; })[0];
+    /* the hand-picked ones first — somebody chose those on purpose */
+    var ids = (v && v.stories || []).concat(tagged.filter(function (id) {
+      return (v && v.stories || []).indexOf(id) < 0;
+    }));
+    return ids.map(function (id) { return byId[id]; }).filter(Boolean);
+  }
+  /* one row of a hub */
+  function neetiRow(act, arg, ic, label, sub, col) {
+    return '<button class="tile" style="display:flex;align-items:center;gap:11px;text-align:left;width:100%;margin-bottom:8px"' +
+      ' data-act="' + act + '"' + (arg ? ' data-v="' + esc(arg) + '"' : '') + '>' +
+      '<span style="flex:0 0 auto;display:flex">' + (typeof ic === 'string' && ic.indexOf('<') === 0 ? ic : icon(ic, 30)) + '</span>' +
+      '<span style="flex:1 1 auto;min-width:0">' +
+      '<b style="display:block;font-family:var(--display);font-size:15px">' + esc(label) + '</b>' +
+      '<span class="tiny muted" style="display:block;margin-top:1px">' + esc(sub) + '</span></span>' +
+      '<span style="flex:0 0 auto;font-weight:800;color:' + (col || 'var(--accent)') + '">→</span></button>';
+  }
+  function neetiHub(title, intro, col, inner) {
+    return '<section class="card" style="border-color:color-mix(in srgb,' + col + ' 34%,var(--line))">' +
+      '<div class="mono" style="color:' + col + '">' + esc(title) + '</div>' +
+      '<p class="tiny muted" style="margin:2px 0 11px">' + esc(intro) + '</p>' + inner + '</section>';
+  }
+
   V.neeti = function () {
     var K = window.IND_NEETI;
     if (!K) return '<div class="card"><h1>Moral Science</h1><p>Not loaded.</p></div>';
+    var D = neetiDeck(), NS = neetiState();
     var beads = (S.mala || []).length;
-    /* NEETI IS THE WHOLE PILLAR NOW — values, faiths, festivals, verses — because they are
-       one subject seen from four sides. A value is what a story leaves behind; the faiths
-       are where those stories are carried, each told from the inside and never ranked; the
-       festivals are the days a family actually lives them; the verses are how they are
-       remembered word for word. Splitting that across two tabs made each half look like a
-       module, and this app does not sell modules. */
+    var cardsDone = Object.keys(NS.cards).length, allV = K.values.length;
+    var dvDone = Object.keys(NS.dv).length, gharDone = Object.keys(NS.ghar).length;
     var fest = (typeof utsavNow === 'function') ? utsavNow() : [];
-    var festGame = (window.IND_GAMES || []).some(function (g2) { return g2.id === 'festival'; })
-      ? '<button class="tile" data-act="game" data-id="festival"><b>Festival Frenzy</b>' +
-        '<span class="tiny muted">Twelve festivals, one year \u2014 match each to its month and its home. Play it here, beside the festivals themselves.</span></button>'
-      : '';
+    var deedsAll = 0;
+    Object.keys(D.values || {}).forEach(function (k) { deedsAll += (D.values[k].deeds || []).length; });
+
+    /* LEARN — where the ideas are kept */
+    var learn = neetiRow('go', 'dharma', 'temple', 'Dharma — the faiths',
+        (window.IND_DHARMA ? 'Four traditions, each told from the inside' : 'not loaded'), '#7C5CFF') +
+      neetiRow('go', 'shlok', 'scroll', 'Shlok — verses to carry',
+        'Thirukkural, Dhammapada, subhashitas', '#7C5CFF') +
+      neetiRow('go', 'utsav', 'lamp', 'Utsav — festivals of India',
+        (fest.length ? fest[0].name + ' falls this month · ' : '') +
+        ((window.IND_UTSAV && window.IND_UTSAV.festivals.length) || 0) + ' festivals', '#7C5CFF');
+
+    /* PRACTISE — the twelve, and what to do about them */
+    var practise = neetiRow('cards', null, 'star', 'The value deck',
+        cardsDone + ' of ' + allV + ' cards done · ' + deedsAll + ' deeds to try', '#13A892') +
+      neetiRow('go', 'dvandva', 'peace', 'Dvandva — when two goods collide',
+        dvDone + ' of ' + (D.dvandva || []).length + ' met · nothing is scored', '#13A892') +
+      neetiRow('go', 'ghar', 'home', 'Ghar ki baat — ask at home',
+        gharDone + ' of ' + (D.ghar || []).length + ' asked', '#13A892');
+
+    /* MEET — the people */
+    var meet = neetiRow('go', 'people', 'crown', 'People who lived it',
+        allV + ' lives · the compass each one steered by', '#F0703C') +
+      ((window.IND_GAMES || []).some(function (g2) { return g2.id === 'festival'; })
+        ? neetiRow('game', 'festival', 'lamp', 'Festival Frenzy',
+          'Twelve festivals, one year — match each to its month', '#F0703C') : '');
+
     return '<div class="card"><h1>Moral Science</h1>' +
-      '<div class="mono" style="margin-bottom:8px">neeti \u00b7 \u0928\u0940\u0924\u093f \u2014 the art of living well</div><p>' + esc(K.intro) + '</p>' +
-      '<p class="tiny muted">No levels here, and nothing to finish. You get a bead when you ' +
-      '<b>do</b> one of these, not when you read about it.</p></div>' +
+      '<div class="mono" style="margin-bottom:8px">neeti · नीति — the art of living well</div>' +
+      '<p>' + esc(K.intro) + '</p>' +
+      '<p class="tiny muted">Cards pay sikke. Beads are different: you get one when you ' +
+      '<b>do</b> something, never when you read about it, and nobody checks.</p></div>' +
       (beads ? V.malaStrip() : '') +
-
-      '<div class="grid g2" style="margin-bottom:var(--space-lg)">' +
-        (window.IND_DHARMA
-          ? '<button class="tile" data-act="go" data-v="dharma">' +
-            '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art('buddha', 52) +
-            '<div style="flex:1"><h3 style="margin:0">Dharma — the faiths</h3>' +
-            '<p class="tiny" style="margin:5px 0 0">Hinduism, Buddhism, Jainism and Sikhi, each ' +
-            'told from the inside — where these values are carried.</p></div></div></button>'
-          : '') +
-        (window.IND_UTSAV
-          ? '<button class="tile" data-act="go" data-v="utsav">' +
-            '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + icon('lamp', 40) +
-            '<div style="flex:1"><h3 style="margin:0">Utsav — the festivals</h3>' +
-            '<p class="tiny" style="margin:5px 0 0">' +
-            (fest.length ? esc(fest[0].name) + ' falls this month. ' : '') +
-            window.IND_UTSAV.festivals.length + ' festivals — the days all of this is lived.' +
-            '</p></div></div></button>'
-          : '') +
-        festGame +
+      '<div class="grid g2" style="align-items:start">' +
+      neetiHub('Learn', 'Where these ideas are kept, and how they are said.', '#7C5CFF', learn) +
+      neetiHub('Practise', 'The twelve values, the hard cases, and the question you take home.', '#13A892', practise) +
       '</div>' +
+      neetiHub('Meet', 'People who steered by one of these, and a game.', '#F0703C', meet);
+  };
 
-      '<button class="tile" style="margin-bottom:var(--space-lg)" data-act="go" data-v="shlok">' +
-      '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art('saraswati', 52) +
-      '<div style="flex:1"><h3 style="margin:0">Shlok — verses to carry</h3>' +
-      '<p class="tiny" style="margin:5px 0 0">Thirukkural, Dhammapada, subhashitas. The ones your ' +
-      'grandparents can still say from memory.</p></div></div></button>' +
+  /* THE VALUE DECK — a card per value, and the currency comes from doing them */
+  V.cards = function () {
+    var K = window.IND_NEETI, D = neetiDeck(), NS = neetiState();
+    if (!K) return '<div class="card">Not loaded.</div>';
+    var done = Object.keys(NS.cards).length;
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Moral Science</button>' +
+      '<div class="card"><h1>The value deck</h1>' +
+      '<div class="mono">' + done + ' of ' + K.values.length + ' done</div>' +
+      '<p class="tiny muted">Each card: what it is, what it does for you, where it is spoken ' +
+      'of, and the stories that carry it. Finish a card and it pays.</p></div>' +
       '<div class="grid g2">' + K.values.map(function (v) {
+        var d = (D.values || {})[v.id] || {};
+        var got = !!NS.cards[v.id];
         var n = (S.mala || []).filter(function (b) { return b.v === v.id; }).length;
         return '<button class="tile" data-act="value" data-id="' + v.id + '">' +
           '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(v.avatar, 58) +
@@ -3382,9 +3439,99 @@
           '<span class="deva" style="font-size:22px;font-weight:700;color:' + v.colour + '">' + esc(v.term) + '</span> ' +
           '<span class="mono" style="text-transform:none">' + esc(v.roman) + '</span>' +
           '<div style="font-family:var(--display);font-weight:800;font-size:17px;margin:4px 0 3px">' + esc(v.en) + '</div>' +
-          '<div class="tiny muted">' + esc(v.kid) + '</div>' +
-          (n ? '<div class="tiny" style="margin-top:7px;color:' + v.colour + '"><b>' + n + ' bead' + (n > 1 ? 's' : '') + '</b></div>' : '') +
+          '<div class="tiny muted">' + esc(d.benefit || v.kid) + '</div>' +
+          '<div class="tiny" style="margin-top:7px;color:' + v.colour + '">' +
+          (got ? '<b>✓ card done</b>' : '<b>new card</b>') +
+          (n ? ' · ' + n + ' bead' + (n > 1 ? 's' : '') : '') + '</div>' +
           '</div></div></button>';
+      }).join('') + '</div>';
+  };
+
+  /* DVANDVA — two values pulling against each other, and no score anywhere */
+  V.dvandva = function () {
+    var D = neetiDeck(), NS = neetiState(), K = window.IND_NEETI;
+    var name = function (id) {
+      var v = K && K.values.filter(function (x) { return x.id === id; })[0];
+      return v ? v.en : id;
+    };
+    var col = function (id) {
+      var v = K && K.values.filter(function (x) { return x.id === id; })[0];
+      return v ? v.colour : 'var(--accent)';
+    };
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Moral Science</button>' +
+      '<div class="card"><h1>Dvandva</h1>' +
+      '<div class="mono">when two goods collide</div>' +
+      '<p>Twelve values, all good, is a poster. The thinking starts when two of ' +
+      'them want different things from you on the same afternoon.</p>' +
+      '<p class="tiny muted">Nothing here is scored and none of these has a right ' +
+      'answer. The Mahabharata is a hundred thousand verses of the same argument.</p></div>' +
+      (D.dvandva || []).map(function (c) {
+        var picked = NS.dv[c.id];
+        return '<div class="card"><div class="row" style="gap:6px;margin-bottom:8px">' +
+          '<span class="pill" style="background:color-mix(in srgb,' + col(c.a) + ' 20%,transparent)">' + esc(name(c.a)) + '</span>' +
+          '<span class="tiny muted" style="align-self:center">against</span>' +
+          '<span class="pill" style="background:color-mix(in srgb,' + col(c.b) + ' 20%,transparent)">' + esc(name(c.b)) + '</span></div>' +
+          '<p style="font-size:16px">' + esc(c.scene) + '</p>' +
+          '<p class="mono" style="margin:10px 0 6px">' + esc(c.ask) + '</p>' +
+          c.opts.map(function (o, i) {
+            var on = picked === i;
+            return '<button class="btn' + (on ? '' : ' ghost') + '" style="display:block;width:100%;text-align:left;margin:6px 0"' +
+              ' data-act="dvpick" data-id="' + c.id + '" data-i="' + i + '">' + esc(o) + '</button>';
+          }).join('') +
+          (picked != null
+            ? '<div class="card flat" style="margin-top:10px"><p style="margin:0 0 8px">' + esc(c.after) + '</p>' +
+              '<p class="tiny muted" style="margin:0">' + esc(c.says) + '</p></div>'
+            : '') +
+          '</div>';
+      }).join('') +
+      '<div class="card flat"><p class="tiny muted">These cards are drafts. What a ' +
+      'tradition holds is not ours to summarise unreviewed, so a named reviewer ' +
+      'signs them off before they are anything but a conversation starter.</p></div>';
+  };
+
+  /* GHAR KI BAAT — the question that leaves the app */
+  V.ghar = function () {
+    var D = neetiDeck(), NS = neetiState(), K = window.IND_NEETI;
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Moral Science</button>' +
+      '<div class="card"><h1>Ghar ki baat</h1>' +
+      '<div class="mono">the question you take home</div>' +
+      '<p>One question per value, for a parent or a grandparent. The answers are ' +
+      'theirs, not ours — tap what they said, roughly.</p>' +
+      '<p class="tiny muted">Nothing you type is kept anywhere, because nothing here ' +
+      'can be typed. The last answer on every question is the honest one.</p></div>' +
+      (D.ghar || []).map(function (g) {
+        var v = K && K.values.filter(function (x) { return x.id === g.v; })[0];
+        var picked = NS.ghar[g.v];
+        return '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
+          (v ? art(v.avatar, 44) : '') +
+          '<div style="flex:1"><div class="mono" style="color:' + (v ? v.colour : 'var(--accent)') + '">' +
+          esc(v ? v.en : g.v) + '</div>' +
+          '<p style="margin:4px 0 8px;font-size:15px">' + esc(g.q) + '</p>' +
+          g.opts.map(function (o, i) {
+            return '<button class="btn' + (picked === i ? '' : ' ghost') + '" style="display:block;width:100%;text-align:left;margin:5px 0"' +
+              ' data-act="gharpick" data-v="' + g.v + '" data-i="' + i + '">' + esc(o) + '</button>';
+          }).join('') + '</div></div></div>';
+      }).join('');
+  };
+
+  /* PEOPLE WHO LIVED IT — built from the person already on every value, so
+     every claim here has been through the same hands the values did */
+  V.people = function () {
+    var K = window.IND_NEETI;
+    if (!K) return '<div class="card">Not loaded.</div>';
+    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Moral Science</button>' +
+      '<div class="card"><h1>People who lived it</h1>' +
+      '<div class="mono">a compass, and somebody who steered by it</div>' +
+      '<p>A value is easy to admire and hard to do. These are people who did one ' +
+      'of them, at a cost, for long enough that it changed something.</p></div>' +
+      '<div class="grid g2">' + K.values.map(function (v) {
+        if (!v.person) return '';
+        return '<button class="tile" data-act="value" data-id="' + v.id + '">' +
+          '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(v.person.avatar, 62) +
+          '<div style="flex:1"><b style="font-family:var(--display);font-size:16px">' + esc(v.person.name) + '</b>' +
+          '<div class="mono" style="text-transform:none;color:' + v.colour + ';margin:2px 0 4px">' +
+          esc(v.roman) + ' · ' + esc(v.en) + '</div>' +
+          '<div class="tiny muted">' + esc(v.person.did) + '</div></div></div></button>';
       }).join('') + '</div>';
   };
 
@@ -3424,11 +3571,19 @@
     var K = window.IND_NEETI;
     var v = K && K.values.filter(function (x) { return x.id === id; })[0];
     if (!v) return '<div class="card">Not found.</div>';
-    var mine = allStories().filter(function (s) { return (v.stories || []).indexOf(s.id) >= 0; });
+    /* the hand-picked stories plus everything the corpus's own morals matched */
+    var mine = neetiStories(v.id);
     var done = (S.mala || []).filter(function (b) { return b.v === v.id; });
     var big = (S.age || 8) >= 9;
+    var d = (neetiDeck().values || {})[v.id] || {};
+    var NS = neetiState(), gotCard = !!NS.cards[v.id];
+    /* SIX DEEDS, NOT ONE. The value pages have always said a bead is earned by
+       doing rather than reading, and then offered a single deed per value —
+       twelve in the whole subject. One is shown at a time, and it changes. */
+    var deeds = (d.deeds || []).length ? d.deeds : [{ t: v.doit, at: 'anywhere' }];
+    var pick = deeds[done.length % deeds.length];
 
-    return '<button class="backlink" data-act="go" data-v="neeti">' + icon('back', 18) + ' Moral Science</button>' +
+    return '<button class="backlink" data-act="go" data-v="cards">' + icon('back', 18) + ' The value deck</button>' +
       '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(v.avatar, 92) +
       '<div style="flex:1"><span class="deva" style="font-size:34px;font-weight:700;color:' + v.colour + '">' + esc(v.term) + '</span>' +
       '<div class="mono" style="text-transform:none">' + esc(v.roman) + '</div>' +
@@ -3436,15 +3591,36 @@
       '<p style="margin:0;font-size:17px">' + esc(v.kid) + '</p></div></div>' +
       (big ? '<div class="card flat" style="margin-top:14px">' + esc(v.big) + '</div>' : '') + '</div>' +
 
-      /* THE DEED — the only thing that earns anything */
-      '<div class="card tint notch"><div class="mono">Do this one</div>' +
-      '<p style="font-family:var(--display);font-size:21px;margin:8px 0 14px">' + esc(v.doit) + '</p>' +
+      /* WHAT IT DOES FOR YOU — the card had every other side of a value and
+         not this one, which is the side a child actually weighs */
+      (d.benefit ? '<div class="card tint"><div class="mono">What it gets you</div>' +
+        '<p style="font-family:var(--display);font-size:19px;margin:6px 0 0">' + esc(d.benefit) + '</p></div>' : '') +
+
+      (d.where ? '<div class="card flat"><div class="mono">Where it is spoken of</div>' +
+        '<p style="margin:6px 0 0">' + esc(d.where) + '</p>' +
+        (v.verse ? '<p class="tiny muted" style="margin:8px 0 0">' + esc(v.verse) + '</p>' : '') +
+        '</div>' : '') +
+
+      /* THE DEED — the only thing that earns a bead */
+      '<div class="card tint notch"><div class="mono">Do this one' +
+      (deeds.length > 1 ? ' · ' + ((done.length % deeds.length) + 1) + ' of ' + deeds.length : '') + '</div>' +
+      '<p style="font-family:var(--display);font-size:21px;margin:8px 0 4px">' + esc(pick.t) + '</p>' +
+      '<p class="tiny muted" style="margin:0 0 14px">' + esc(pick.at === 'anywhere' ? 'anywhere' : 'at ' + pick.at) + '</p>' +
       '<div class="row">' +
       '<button class="btn" data-act="deed" data-id="' + v.id + '">I did it</button>' +
       '<button class="btn ghost" data-act="deednani" data-id="' + v.id + '">Tell ' + esc(kinTerm('nani')) + '</button></div>' +
       (done.length ? '<div class="tiny muted" style="margin-top:12px">You have done this ' +
         done.length + ' time' + (done.length > 1 ? 's' : '') + '. Last: ' + esc(done[done.length - 1].on) + '</div>' : '') +
       '<p class="tiny muted" style="margin-top:10px">Nobody is checking. That is rather the point.</p></div>' +
+
+      /* THE CARD ITSELF — read it through, and it pays once */
+      (gotCard
+        ? '<div class="card flat"><div class="mono">Card done</div><p class="tiny muted" ' +
+          'style="margin:6px 0 0">You have this one. The deeds keep going.</p></div>'
+        : '<div class="card"><div class="mono">Finish the card</div>' +
+          '<p class="tiny muted" style="margin:6px 0 10px">Read it through and take it. ' +
+          'Sikke for the card; beads only ever for the doing.</p>' +
+          '<button class="btn" data-act="carddone" data-id="' + v.id + '">Take the card</button></div>') +
 
       (mine.length ? '<div class="card"><h3>Told this way</h3>' +
         '<p class="tiny muted">The same idea, from different traditions. None of them is the right one.</p>' +
@@ -5523,6 +5699,10 @@
       case 'shlok': h = V.shlok(); break;
       case 'verses': h = V.verses(view.arg); break;
       case 'neeti': h = V.neeti(); break;
+      case 'cards': h = V.cards(); break;
+      case 'dvandva': h = V.dvandva(); break;
+      case 'ghar': h = V.ghar(); break;
+      case 'people': h = V.people(); break;
       case 'value': h = V.value(view.arg); break;
       case 'rishtey': h = V.rishtey(); break;
       case 'rishquiz': h = V.rishquiz(); break;
@@ -5873,6 +6053,26 @@
       if (!S.recited[vid]) { S.recited[vid] = today(); earn(4, 'said it aloud'); save(); }
       toast('Say it out loud, twice. That is how it sticks.');
       return;
+    }
+    /* the deck's own actions. A card pays sikke ONCE and only for reading it
+       through; the mala is untouched, because a bead has always meant a thing
+       done and that rule is older than this screen. */
+    if (a === 'cards') { go('cards'); return; }
+    if (a === 'carddone') {
+      var cid = t.getAttribute('data-id'), NSc = neetiState();
+      if (!NSc.cards[cid]) { NSc.cards[cid] = today(); save(); earn(6, 'card taken'); }
+      render(); return;
+    }
+    if (a === 'dvpick') {
+      var dvid = t.getAttribute('data-id'), NSd = neetiState();
+      NSd.dv[dvid] = +t.getAttribute('data-i'); save(); render(); return;
+    }
+    if (a === 'gharpick') {
+      var gv = t.getAttribute('data-v'), NSg = neetiState();
+      var first = NSg.ghar[gv] == null;
+      NSg.ghar[gv] = +t.getAttribute('data-i'); save();
+      if (first) earn(4, 'you asked at home');
+      render(); return;
     }
     if (a === 'deed') {
       var vid = t.getAttribute('data-id');

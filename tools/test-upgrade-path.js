@@ -20,8 +20,24 @@ const fs = require('fs');
 let fails = 0;
 const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x !== undefined ? '  [' + x + ']' : '')); if (!ok) fails++; };
 const use = v => { try { fs.unlinkSync('/tmp/serve'); } catch (e) {} fs.symlinkSync(v, '/tmp/serve'); };
+/* PREFLIGHT. The old worker serves the whole app offline, so with no fixture
+   server running this suite loads happily from cache and reports the OLD build
+   passing every check about the new one. Refuse to run rather than lie. */
+const http = require('http');
+const alive = () => new Promise(r2 => {
+  const rq = http.get('http://localhost:8155/build.js', s2 => {
+    let b = ''; s2.on('data', d => b += d); s2.on('end', () => r2(s2.statusCode === 200 && b));
+  });
+  rq.on('error', () => r2(false)); rq.setTimeout(2000, () => { rq.destroy(); r2(false); });
+});
 (async () => {
   use('/tmp/ghp-old');
+  const pre = await alive();
+  if (!pre) {
+    console.log('FAIL  a fixture server is serving /tmp/serve on :8155');
+    console.log('      python3 -m http.server 8155 -d /tmp/serve   (see header)');
+    process.exit(2);
+  }
   const ctx = await chromium.launchPersistentContext('/tmp/pw-profile4', {
     executablePath: '/opt/pw-browsers/chromium', viewport: { width: 1280, height: 900 } });
   const p = ctx.pages()[0] || await ctx.newPage();
@@ -95,7 +111,9 @@ const use = v => { try { fs.unlinkSync('/tmp/serve'); } catch (e) {} fs.symlinkS
     await p.waitForTimeout(800);
     const after = await p.evaluate(() => {
       const s2 = document.querySelector('.sab-scene');
-      const ov = document.querySelector('#sab-ovhost .sab-card');
+      /* the call card lives INSIDE the bell panel, not in an overlay — moved
+         there when an overlay over a full-screen city proved unreachable */
+      const ov = document.querySelector('.sab-calllist.iscard .sab-cardbody');
       return { card: ov ? (ov.textContent||'').replace(/\s+/g,' ').trim().slice(0,45) : null,
                cls: s2 ? s2.className : 'NO SCENE' };
     });

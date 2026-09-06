@@ -1,0 +1,229 @@
+## ahimsa  (7 matched, keeping 7)
+  [ 4] fk.dugong-meadow         The elders carry the map of the spare meadows. Learn it before you need it.
+       matched: spare, gentle
+  [ 3] fk.bamboo-bonga          Take from the edges and spare the heart, and the grove will outlast your grandchildren's
+       matched: spare
+  [ 3] pu.krishna-kaliya        Deal with the harm and let the one who did it go. The two are not the same job.
+       matched: harm
+  [ 3] fk.bomong-bong           Sometimes the kindest thing a bright person can do is turn gentle — and take the night w
+       matched: gentle
+  [ 3] fk.gautami-yanam         A good person's first thought after a harm is not "who saw me?" but "how do I make it ri
+       matched: harm
+  [ 3] pt.monkey-crocodile      Do not trust someone whose nature is to harm you. And keep your wits about you in a toug
+       matched: harm
+  [ 1] dv.narasimha             A promise made carefully is still a promise. And the bravest person in this story is the
+       matched: harm
+
+## satya  (18 matched, keeping 10)
+  [ 3] dv.the-ninth             When two traditions differ, the honest thing is to say so — and to name whose belief is 
+       matched: honest
+  [ 3] fk.bonbibi-dukhey        Enter the forest needing, not wanting. The guardian walks with clean hearts — of every f
+       matched: honest
+  [ 3] kh.milkha                Losing honestly, at the very top, in front of everyone — and owning it forever — can mak
+       matched: honest
+  [ 3] jt.quail-fire            When you have nothing else, you still have the truth about who you are — and that is not
+       matched: truth
+  [ 3] pt.mice-iron             A ridiculous lie is best answered with a ridiculous lie of exactly the same size.
+       matched: lie
+  [ 3] fk.ngaitei               Give back what belongs to the river, and keep what belongs to you — and be honest about 
+       matched: honest
+  [ 3] fk.gaddi-dog             The truest guardians do not wait to be asked. They keep their own count.
+       matched: true
+  [ 3] fk.lal-ded               Speak truth plainly enough and everyone will claim you — because truth, spoken plainly, 
+       matched: truth
+  [ 3] fk.kannagi-anklet        One person with the truth in her hand outweighs a palace — and a judge who does not chec
+       matched: truth
+  [ 3] fk.gautami-yanam         A good person's first thought after a harm is not "who saw me?" but "how do I make it ri
+       matched: honest
+
+## karuna  (22 matched, keeping 10)
+  [ 4] fk.tapoi                 Kindness done when no ships are in sight is the kind that gets remembered when the sails
+       matched: kind, kindness
+  [ 4] fk.sandrembi             Kindness keeps its shape. Whatever shape the world puts you in, it shows through.
+       matched: kind, kindness
+  [ 4] fk.abotani-sky-bride     Be kind before you need anything. Cleverness finishes what kindness starts.
+       matched: kind, kindness
+  [ 4] fk.raja-rasalu           Set out when your story calls you — and be kind on the road. Every kindness travels ahea
+       matched: kind, kindness
+  [ 3] dv.krishna               The eighth came down and refused to be solemn about it. That is not a smaller kind of ho
+       matched: kind
+  [ 3] jt.woodpecker-lion       Do the kind thing because it is yours to do — not because of what you expect back.
+       matched: kind
+  [ 3] fk.pebet                 When someone is being far too kind, teach your children to fly.
+       matched: kind
+  [ 3] fk.chhura-nahaia         What the clever call a trap, the patient may find is a treasure — and the kind share the
+       matched: kind
+  [ 3] fk.bomong-bong           Sometimes the kindest thing a bright person can do is turn gentle — and take the night w
+       matched: kind
+  [ 3] fk.khangchendzonga-five  The best treasure is the kind kept safe for the day everyone needs it — not spent on the
+       matched: kind
+
+## seva  (20 matched, keeping 10)
+  [ 3] fk.tree-that-counts      Real wealth is whatever still feeds your family in fifty years. Count in trees, not coin
+       matched: feed
+  [ 3] fk.sal-grove-promise     Take what you need and keep a grove whole. The thank-you you leave standing feeds your g
+       matched: feed
+  [ 3] fk.manika-curd           Serve every dusty stranger well. You have no idea who is riding ahead of the king.
+       matched: serve
+  [ 3] ny.infosys               Great companies are built the way trust is built: slowly, promise by kept promise — and 
+       matched: share
+  [ 3] pu.govardhan             Thank whatever actually feeds you — and then get your own stick under the hill.
+       matched: feed
+  [ 3] fk.chhura-nahaia         What the clever call a trap, the patient may find is a treasure — and the kind share the
+       matched: share
+  [ 3] fk.mauruangi             Love outlasts its shapes — fish, flower, tree, girl. Feed people; it comes back flowerin
+       matched: feed
+  [ 3] fk.sagol-kangjei         A thing shared is not a thing lost. Manipur gave away a game, and now the whole world pl
+       matched: share
+  [ 3] fk.phunga-wari           Feed the fire, feed the family, then feed the story. A house that keeps all three stays 
+       matched: feed
+  [ 3] fk.chiri-kaan            Share the eating with those who shared the working. And when your own beak conveniently 
+       matched: share
+
+## dhairya  (41 matched, keeping 10)
+  [ 4] fk.first-coconut         Small, slow and packed with patience will cross an ocean that big and loud cannot.
+       matched: patien, slow
+  [ 4] fk.kangra-brush          Greatness does not need a big canvas. It needs a steady hand, real colours, and the pati
+       matched: patien, steady
+  [ 3] fk.ross-ficus            What is built by force stands for a while. What grows by patience takes it back.
+       matched: patien
+  [ 3] fk.flying-fox-ferry      Some of the most important work in the world looks like a slow line of somebody else's e
+       matched: slow
+  [ 3] fk.rasagola-door         Even the Lord of the Universe knocks politely when he has kept the household waiting. Ho
+       matched: wait
+  [ 3] kh.neeraj                History can wait a hundred years and then change in ninety seconds — thrown by someone w
+       matched: wait
+  [ 3] kh.gukesh                Talent opens the game, but patience wins the last hour of it — hope, kept deliberately a
+       matched: patien
+  [ 3] ny.infosys               Great companies are built the way trust is built: slowly, promise by kept promise — and 
+       matched: slow
+  [ 3] ny.flipkart              Trust is built the slow way, one kept promise at a time — and it is the realest thing a 
+       matched: slow
+  [ 3] fk.chhura-nahaia         What the clever call a trap, the patient may find is a treasure — and the kind share the
+       matched: patien
+
+## buddhi  (103 matched, keeping 10)
+  [ 4] fk.gopal-pot-of-wit      Wit cannot be poured, bought or borrowed — only grown from small seeds, while the neck o
+       matched: wit, plan
+  [ 4] fk.ilish-rain            Love a season's gift enough to guard it — take it with joy, and leave enough that it alw
+       matched: wit, think
+  [ 4] jt.three-birds-king      The best advice usually comes from whoever you were not planning to ask.
+       matched: wit, plan
+  [ 4] pt.lion-makers           Cleverness tells you that you can. Common sense asks whether you should.
+       matched: clever, sense
+  [ 4] fk.tree-streets          Plant something whose shade you will never sit in. Someone will cycle through it and be 
+       matched: wit, plan
+  [ 4] fk.kangri-winter         You cannot argue with winter, but you can out-think it — with wool, willow, and a small 
+       matched: wit, think
+  [ 3] fk.ubaidullah-lamp       A message carried gently travels further than one carried loudly. He arrived with nothin
+       matched: wit
+  [ 3] fk.first-coconut         Small, slow and packed with patience will cross an ocean that big and loud cannot.
+       matched: wit
+  [ 3] fk.sarhul-flowers        Begin the year with a thank-you, and everything eaten after it tastes like a gift.
+       matched: wit
+  [ 3] fk.boita-bandana         A paper boat with a lamp can carry two thousand years of remembering. Small things launc
+       matched: wit
+
+## sahas  (11 matched, keeping 10)
+  [ 4] wt.tenali-vikatakavi     He was not fearless because nothing frightened him. He was fearless because he could fin
+       matched: fear, dare
+  [ 3] dv.narasimha             A promise made carefully is still a promise. And the bravest person in this story is the
+       matched: brave
+  [ 3] rah.savitribai           Courage is not always loud. Sometimes it is a teacher, walking the same hard road to sch
+       matched: courage
+  [ 3] fk.kiranmala             The voices behind you are not always your people. Sometimes the bravest thing is simply 
+       matched: brave
+  [ 3] fk.kathanar              Most fears shrink when somebody holds up a lamp and asks the dark a kind question.
+       matched: fear
+  [ 3] fk.obavva-onake          Courage is not always loud. Sometimes it is one person deciding to stand completely stil
+       matched: courage
+  [ 3] sci-ramanujan            He asked for nothing except to be checked. Being checkable is the bravest way to knock o
+       matched: brave
+  [ 1] jt.woodpecker-lion       Do the kind thing because it is yours to do — not because of what you expect back.
+       matched: brave
+  [ 1] pu.durga-mahisha         Sometimes the answer is not one more hero. It is everybody handing over their best thing
+       matched: stood up
+  [ 1] fk.tapta                 The scariest thing in the dark is usually a small thing you have not seen in daylight ye
+       matched: afraid
+
+## kshama  (4 matched, keeping 4)
+  [ 3] dv.parashurama           Anger that begins as justice does not stay justice on its own. Someone has to choose to 
+       matched: anger
+  [ 3] fk.xorai-elephant        Being big is not a licence, being small is not helpless — and a sorry only counts when y
+       matched: sorry
+  [ 3] jn.chandkaushik          Anger has been shouted at all its life. It has almost never been stood still in front of
+       matched: anger
+  [ 1] fk.ngaitei               Give back what belongs to the river, and keep what belongs to you — and be honest about 
+       matched: angry
+
+## vidya  (32 matched, keeping 10)
+  [ 4] rah.hansa                Check the small words. The whole world can hang on them — and somebody has to be the one
+       matched: teach, read
+  [ 4] rah.savitribai           Courage is not always loud. Sometimes it is a teacher, walking the same hard road to sch
+       matched: teach, school
+  [ 4] fk.cat-tiger-lesson      Honour your teacher — she knows one thing more than she taught you.
+       matched: taught, teach
+  [ 4] wt.tenali-book           The truly learned say "I do not know" easily. It is only the boasters who cannot afford 
+       matched: learn, read
+  [ 3] ds.shukracharya          He taught the boy who had come to take everything from him, because a student had asked.
+       matched: taught
+  [ 3] fk.cheraman-sails        Set out looking for one thing and stay ready to find another. The best discoveries are u
+       matched: read
+  [ 3] fk.dugong-meadow         The elders carry the map of the spare meadows. Learn it before you need it.
+       matched: learn
+  [ 3] it.konark-chariot        Build your idea so well that seven centuries later, strangers can still read it at sunri
+       matched: read
+  [ 3] jt.guttila-veena         Skill is what you were taught. Mastery is what you do when the strings start breaking.
+       matched: taught
+  [ 3] fk.pebet                 When someone is being far too kind, teach your children to fly.
+       matched: teach
+
+## kritagyata  (12 matched, keeping 10)
+  [ 3] fk.sal-grove-promise     Take what you need and keep a grove whole. The thank-you you leave standing feeds your g
+       matched: thank
+  [ 3] fk.sarhul-flowers        Begin the year with a thank-you, and everything eaten after it tastes like a gift.
+       matched: thank
+  [ 3] pu.govardhan             Thank whatever actually feeds you — and then get your own stick under the hill.
+       matched: thank
+  [ 3] fk.bihu-goru             Begin the year by thanking whoever carried the last one.
+       matched: thank
+  [ 3] fk.ali-aye-ligang        Begin together, begin with thanks, and the year knows where to go.
+       matched: thank
+  [ 3] fk.wangala               Say thank you before you taste — and say it loud enough for the hills to hear.
+       matched: thank
+  [ 3] fk.kine-nane             Eat gratefully, plant faithfully, and give the first handful back.
+       matched: grateful
+  [ 3] fk.tendong-hill          When the flood is over, go back and thank whatever held you up.
+       matched: thank
+  [ 3] fk.kadalamma             A gift that arrives at everyone's feet is meant for everyone's baskets — and taking gent
+       matched: thank
+  [ 3] fk.narali-punam          Say thank you to what feeds you — out loud, together, every year.
+       matched: thank
+
+## namrata  (2 matched, keeping 2)
+  [ 3] fk.tawang-horse          Search with all your might — and stay humble enough to notice when the answer wanders of
+       matched: humble
+  [ 3] wt.tenali-book           The truly learned say "I do not know" easily. It is only the boasters who cannot afford 
+       matched: boast
+
+## vachan  (27 matched, keeping 10)
+  [ 4] dv.vamana                A promise you keep only when it is cheap was never a promise. Bali kept his after he kne
+       matched: promise, kept his
+  [ 4] rah.hansa                Check the small words. The whole world can hang on them — and somebody has to be the one
+       matched: promise, word
+  [ 4] fk.kabi-lungchok         A promise meant to outlive you should be witnessed by something that will.
+       matched: promise, oath
+  [ 3] dv.narasimha             A promise made carefully is still a promise. And the bravest person in this story is the
+       matched: promise
+  [ 3] ds.shukracharya          He taught the boy who had come to take everything from him, because a student had asked.
+       matched: word
+  [ 3] ny.infosys               Great companies are built the way trust is built: slowly, promise by kept promise — and 
+       matched: promise
+  [ 3] ny.flipkart              Trust is built the slow way, one kept promise at a time — and it is the realest thing a 
+       matched: promise
+  [ 3] jt.nandivisala           Harsh words cost you nothing to say and everything to be answered.
+       matched: word
+  [ 3] fk.hornbill-honour       The highest honours are for promises kept when nobody is watching.
+       matched: promise
+  [ 3] fk.republic-day          A country is a promise its people make to each other — and once a year it is worth stand
+       matched: promise

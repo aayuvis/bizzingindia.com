@@ -37,3 +37,6 @@ tools/anim/**/sprites.json
 tools/anim/*/shot-*.html
 build/
 masters/city-kit/
+
+# headless test screenshots — artefacts, not sources
+/*.png

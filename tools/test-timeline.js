@@ -36,12 +36,19 @@ const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x
     console.log('\n=== ' + n + ' ===');
     const dots = await p.evaluate(() => [...document.querySelectorAll('.tmdot')].map(d => ({
       id: d.getAttribute('data-id'),
-      when: (d.querySelector('.tmwhen') || {}).textContent || '',
+      label: d.getAttribute('aria-label') || '',
       box: (() => { const r = d.getBoundingClientRect(); return { x: Math.round(r.x), w: Math.round(r.width), h: Math.round(r.height) }; })()
     })));
     check('the river has its ages', dots.length > 10, dots.length + ' dots');
-    check('and every one says when it was', dots.every(d => d.when.length >= 3),
-          dots.map(d => d.when).slice(0, 4).join(' | '));
+    /* the band carries no date labels — fifteen of them staggered along one
+       line is clutter, not orientation — but every dot must still SAY when it
+       was to anyone listening rather than looking */
+    check('every dot still names its age and its dates to a screen reader',
+          /* every age but one is a span of years; the last one is "now" */
+          dots.every(d => d.label.length > 8 && /\d|now|today/i.test(d.label)),
+          dots.map(d => d.label).slice(0, 2).join(' | '));
+    check('and the band is not littered with them',
+          await p.evaluate(() => document.querySelectorAll('.tmwhen').length === 0));
     check('every dot is a real tap target', dots.every(d => d.box.w >= 24 && d.box.h >= 24),
           Math.min(...dots.map(d => d.box.w)) + 'px smallest');
     /* ONE tap must travel */

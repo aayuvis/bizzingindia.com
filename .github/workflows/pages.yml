@@ -1,27 +1,36 @@
 # Publish the app to https://aayuvis.github.io/bizzingindia.com/.
 #
-# The site itself was never the problem. tools/deploy.sh has been publishing HEAD:app
-# to the gh-pages branch by plumbing — .nojekyll and all — and that branch is
-# byte-identical to app/ at HEAD. What was missing is that GitHub Pages had never been
-# switched on for the repository at all (the API reported has_pages: false), so nothing
-# was serving that branch and the address answered 404. A deploy that lands perfectly on
-# a branch nobody publishes looks exactly like a deploy that worked.
+# The site itself was never the problem. tools/deploy.sh has been publishing HEAD:app to
+# the gh-pages branch by plumbing — .nojekyll and all — and that branch is byte-identical
+# to app/ at HEAD. What was missing is that GitHub Pages had never been switched on for
+# the repository at all (the API reported has_pages: false), so nothing was serving that
+# branch and the address answered 404. A deploy that lands perfectly on a branch nobody
+# publishes reports a sha and looks exactly like one that worked, which is why this
+# survived so long.
 #
-# So the first and best outcome here is one REST call: point Pages at gh-pages. After
-# that GitHub rebuilds on every deploy.sh push and this workflow has nothing left to do,
-# which is deliberate — it is a switch, not a second deploy pipeline competing with
-# deploy.sh for which one the live site came from.
+# THERE ARE TWO WAYS TO SERVE IT AND THEY ARE NOT EQUALLY GOOD.
 #
-# The fallback exists because creating a Pages site is documented as needing
-# Administration:write, and the `permissions:` block below cannot grant that. If the call
-# is refused we publish through Actions instead: configure-pages can enable the "GitHub
-# Actions" source with pages:write alone, and app/ goes up as the artifact. That path
-# costs an upload of the whole corpus on every run, which is why it is the fallback and
-# not the plan.
+#   * Branch source (gh-pages, /) is what this repo is built for. deploy.sh publishes by
+#     plumbing, so a deploy costs the same whether the corpus is 1MB or 1GB, and GitHub
+#     rebuilds on every push to the branch. Nothing here would need to run again.
 #
-# Either way the last job proves the address answers. "Pages is enabled" is a setting;
-# "the app loads" is the thing that was asked for, and only a fetch of the live URL
-# says so.
+#   * Actions source uploads app/ — ~760MB of narration and art — as an artifact on every
+#     run, and makes the live site come from a workflow rather than from deploy.sh.
+#
+# The branch source is therefore tried first, and it is the one to keep. But setting it is
+# an *admin* change to the repository, and a workflow token is refused: the REST call comes
+# back 403 "Resource not accessible by integration". Creating an Actions-sourced site is
+# the one Pages change a token holding pages:write is allowed to make, so that is the
+# fallback — it gets the address answering now, and a human can move the source back to the
+# branch afterwards in Settings → Pages with one click.
+#
+# Enablement happens in its own job on purpose. The deploy job references the reserved
+# `github-pages` environment, and that environment does not exist until Pages is Actions-
+# sourced — reference it too early and the job dies during setup, before a single step
+# runs and with no log to say why. That cost one round.
+#
+# Either way the last job fetches the live URL and greps for the app's own title. "Pages is
+# enabled" is a setting; "the app loads" is what was asked for, and only a fetch says so.
 
 name: Pages
 
@@ -36,20 +45,22 @@ permissions:
   pages: write
   id-token: write
 
-# Never two publishes at once, and never cancel one half-done: a Pages build that is
-# interrupted leaves the previous build live, but a cancelled *deploy* can leave the
-# site mid-swap.
+# Never two publishes at once, and never cancel one half-done: an interrupted Pages *build*
+# leaves the previous build live, but an interrupted *deploy* can leave the site mid-swap.
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  # ---------------------------------------------------------------- the switch
-  branch-source:
-    name: Point Pages at gh-pages
+  # ------------------------------------------------------------------ the switch
+  enable:
+    name: Switch Pages on
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
     outputs:
-      enabled: ${{ steps.enable.outputs.enabled }}
+      mode: ${{ steps.enable.outputs.mode }}
     steps:
       - id: enable
         env:
@@ -58,62 +69,79 @@ jobs:
           set -uo pipefail
           repo="$GITHUB_REPOSITORY"
 
-          if gh api "repos/$repo/pages" > current.json 2> api-err.txt; then
-            echo "Pages is already enabled:"
+          # Already on? Then say which way, and leave the setting alone — a human may have
+          # chosen the branch source deliberately, and this workflow is not entitled to
+          # overrule that.
+          if gh api "repos/$repo/pages" > current.json 2>/dev/null; then
             jq '{html_url, status, build_type, source}' current.json
-            build_type=$(jq -r '.build_type // "legacy"' current.json)
-            branch=$(jq -r '.source.branch // ""' current.json)
-            if [ "$build_type" = "legacy" ] && [ "$branch" != "gh-pages" ]; then
-              echo "::warning::Pages is serving branch '$branch', not gh-pages — repointing."
-              gh api -X PUT "repos/$repo/pages" \
-                -f 'source[branch]=gh-pages' -f 'source[path]=/' || true
-            fi
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            case "$(jq -r '.build_type // "legacy"' current.json)" in
+              workflow) echo "Pages is enabled, Actions-sourced." ; echo "mode=workflow" >> "$GITHUB_OUTPUT" ;;
+              *)        echo "Pages is enabled, serving branch '$(jq -r '.source.branch' current.json)'." ; echo "mode=branch" >> "$GITHUB_OUTPUT" ;;
+            esac
             exit 0
           fi
 
-          echo "Pages is not enabled on this repository. Creating the site from gh-pages."
-          cat api-err.txt
+          echo "Pages is not enabled on this repository."
+
+          echo "--- attempt 1: serve the gh-pages branch (the one to keep) ---"
           if printf '%s' '{"source":{"branch":"gh-pages","path":"/"}}' \
              | gh api -X POST "repos/$repo/pages" --input - ; then
-            echo "Created — Pages now serves the gh-pages branch at the repository root."
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::Could not create the Pages site with the workflow token. Creating one is documented as needing Administration:write, which a workflow token cannot hold. Falling back to publishing through Actions."
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Done — Pages now serves gh-pages at the repository root, and deploy.sh"
+            echo "publishes to it directly. Nothing else in this workflow needs to run again."
+            echo "mode=branch" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
-  # ------------------------------------------------------------- the fallback
-  actions-source:
+          echo "--- attempt 2: Actions source (all a workflow token is allowed to set) ---"
+          if gh api -X POST "repos/$repo/pages" -f build_type=workflow ; then
+            echo "::notice::Pages enabled with the GitHub Actions source. This works, but the"
+            echo "::notice::branch source is better for this repo — it is what tools/deploy.sh"
+            echo "::notice::publishes to, and it does not re-upload 760MB per deploy. To move it:"
+            echo "::notice::Settings → Pages → Source → Deploy from a branch → gh-pages → / (root)."
+            echo "mode=workflow" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "::error::Could not enable Pages with the workflow token. Both REST calls were"
+          echo "::error::refused. A repository admin must do it by hand, once:"
+          echo "::error::Settings → Pages → Source → Deploy from a branch → gh-pages → / (root)."
+          echo "::error::The gh-pages branch already holds the whole site; nothing needs rebuilding."
+          echo "mode=none" >> "$GITHUB_OUTPUT"
+          exit 1
+
+  # --------------------------------------------------------------- the fallback
+  deploy:
     name: Publish app/ through Actions
-    needs: branch-source
-    if: needs.branch-source.outputs.enabled != 'true'
+    needs: enable
+    if: needs.enable.outputs.mode == 'workflow'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      # One commit only. The corpus is ~760MB of narration and art; full history is
-      # several gigabytes and none of it is needed to publish a tree.
+      # One commit only. Full history of this repo is several gigabytes of narration and
+      # art, and none of it is needed to publish a tree.
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      # No .nojekyll needed on this path: an artifact deploy serves files as they are
-      # and never runs Jekyll, so nothing hides the underscore-prefixed files.
+      # No .nojekyll on this path: an artifact deploy serves files as they are and never
+      # runs Jekyll, so nothing hides the underscore-prefixed files.
       - uses: actions/upload-pages-artifact@v3
         with:
           path: app
       - id: deploy
         uses: actions/deploy-pages@v4
 
-  # -------------------------------------------------------------- the proof
+  # ------------------------------------------------------------------ the proof
   verify:
     name: Fetch the live site
-    needs: [branch-source, actions-source]
-    if: always()
+    needs: [enable, deploy]
+    if: always() && needs.enable.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Wait for the build, then load the page
@@ -124,29 +152,26 @@ jobs:
           repo="$GITHUB_REPOSITORY"
           url="https://aayuvis.github.io/bizzingindia.com/"
 
-          # A Pages build of this corpus is not instant. Poll the API rather than
-          # guessing at a sleep.
+          # A first build of this corpus is not instant. Poll rather than guess at a sleep.
           for i in $(seq 1 40); do
-            status=$(gh api "repos/$repo/pages" --jq '.status' 2>/dev/null || echo "unknown")
+            status=$(gh api "repos/$repo/pages" --jq '.status' 2>/dev/null || echo unknown)
             echo "attempt $i: pages status = $status"
             [ "$status" = "built" ] && break
-            [ "$status" = "errored" ] && { echo "::error::Pages build errored."; exit 1; }
+            [ "$status" = "errored" ] && { echo "::error::The Pages build errored."; exit 1; }
             sleep 15
           done
-
           gh api "repos/$repo/pages" --jq '{html_url, status, build_type, source}' || true
 
-          # The setting is not the deliverable. The page loading is.
+          # DNS and the CDN lag the build. Keep asking.
           for i in $(seq 1 20); do
             code=$(curl -sS -o body.html -w '%{http_code}' -L "$url" || echo 000)
             echo "attempt $i: GET $url -> $code"
-            if [ "$code" = "200" ]; then
-              grep -q '<title>Bizzing India</title>' body.html \
-                && echo "OK: the app's index.html is live at $url" \
-                && exit 0
-              echo "200, but this is not the app's index.html:"; head -20 body.html
+            if [ "$code" = "200" ] && grep -q '<title>Bizzing India</title>' body.html; then
+              echo "OK: the app is live at $url"
+              exit 0
             fi
             sleep 15
           done
           echo "::error::$url did not serve the app."
+          tail -30 body.html || true
           exit 1

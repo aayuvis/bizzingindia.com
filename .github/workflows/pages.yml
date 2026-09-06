@@ -165,16 +165,34 @@ jobs:
           done
           gh api "repos/$repo/pages" --jq '{html_url, status, build_type, source}' || true
 
+          # What SHOULD be live: the stamp tools/stamp.sh wrote into app/build.js at the
+          # commit this run is testing. Fetching it from the repo rather than a checkout
+          # keeps this job free of the 760MB clone.
+          want=$(gh api "repos/$repo/contents/app/build.js?ref=$GITHUB_SHA" \
+                   --jq '.content' | base64 -d | grep -oE "[0-9]{12}" | head -1)
+          echo "expecting build $want"
+
           # DNS and the CDN lag the build. Keep asking.
           for i in $(seq 1 20); do
             code=$(curl -sS -o body.html -w '%{http_code}' -L "$url" || echo 000)
             echo "attempt $i: GET $url -> $code"
             if [ "$code" = "200" ] && grep -q '<title>Bizzing India</title>' body.html; then
-              echo "OK: the app is live at $url"
+              # A 200 on index.html only says Pages is serving SOMETHING. stamp.sh exists
+              # because a deploy once went out behind an unchanged ?v= and browsers kept
+              # the old files, so the build id is the only honest answer to "is my fix
+              # live?" — ask the site for its own, and say so either way.
+              live=$(curl -sS -L "$url/build.js" | grep -oE "[0-9]{12}" | head -1)
+              echo "live build = ${live:-none}"
+              if [ -n "$want" ] && [ "$live" != "$want" ]; then
+                echo "Serving build $live, waiting for $want."
+                sleep 15
+                continue
+              fi
+              echo "OK: $url is serving build ${live:-unknown} — the commit under test."
               exit 0
             fi
             sleep 15
           done
-          echo "::error::$url did not serve the app."
+          echo "::error::$url did not serve the expected build."
           tail -30 body.html || true
           exit 1

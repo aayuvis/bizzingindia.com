@@ -45,12 +45,6 @@ permissions:
   pages: write
   id-token: write
 
-# Never two publishes at once, and never cancel one half-done: an interrupted Pages *build*
-# leaves the previous build live, but an interrupted *deploy* can leave the site mid-swap.
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
   # ------------------------------------------------------------------ the switch
   enable:
@@ -115,6 +109,13 @@ jobs:
     needs: enable
     if: needs.enable.outputs.mode == 'workflow'
     runs-on: ubuntu-latest
+    # The lock belongs HERE, on the one job that writes to the live site, and not on the
+    # workflow. It was workflow-level once and a wedged verify job held the group for a
+    # quarter of an hour, queueing the very switch this workflow exists to flip — a lock
+    # around the part that cannot be concurrent, not around the whole thing.
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
     permissions:
       contents: read
       pages: write
@@ -143,6 +144,8 @@ jobs:
     needs: [enable, deploy]
     if: always() && needs.enable.result == 'success'
     runs-on: ubuntu-latest
+    # Bounded on purpose. This job only reports; it must never outlive what it is watching.
+    timeout-minutes: 12
     steps:
       - name: Wait for the build, then load the page
         env:

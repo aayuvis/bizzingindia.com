@@ -1051,6 +1051,13 @@
   }
   window.IND_CITY_PHOTO_HTML = cityPhoto;
   var timeSite = null;   /* the tapped place on an era map */
+  /* NEVER DECLARED, ONLY ASSIGNED — and this file is strict, so every attempt
+     to travel to an age threw ReferenceError before it got anywhere. The
+     timeline read timeZone in four places and set it in one, and that one was
+     the line that carries you to the age's map: press a dot twice and the
+     handler died on the second press, silently, every time. It has always
+     been broken. Declared here with the rest of the timeline's state. */
+  var timeZone = null;   /* the highlighted zone on an era map */
   /* which Sabhyata sites stand on each age's map (same 1000x1100 frame), and
      which Sabhyata era index to use so a city wears its name OF THAT AGE —
      Kashi is Banaras under the sultans and Varanasi today; Bombay only
@@ -1147,7 +1154,18 @@
   var TIME_YEARS = { harappa: -3300, vedic: -1500, 'buddha-age': -600, maurya: -322, gupta: 320,
     souths: 650, chola: 1000, 'temple-builders': 1150, 'sultanate-mughal': 1300,
     'marathas-sikhs': 1700, colonial: 1800, freedom: 1900, modern: 1955, 'naya-bharat': 2000 };
-  var timePeek = null;   /* the bubble whose name is popped up, one tap short of travelling */
+  var timePeek = null;   /* kept: other code still clears it */
+  /* "about 3300–1300 BCE" is nineteen characters and a dot has about sixty
+     pixels. The age's own words stay in the aria-label and on its page; the
+     band gets the numbers. */
+  function whenShort(w) {
+    return String(w || '')
+      .replace(/^about\s+/i, '')
+      .replace(/\s*to now$/i, '–now')
+      .replace(/\s*–\s*today$/i, '–today')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
   /* ============== BHUGOL — the physical land, on today's map ==============
      A toggle beside Aaj's map swaps politics for geography: the same Survey
      of India outline, but filled with landform washes (elevation and soil,
@@ -1429,24 +1447,23 @@
       else if (xs[i] > xs[i + 1] - 5.6) xs[i] = xs[i + 1] - 5.6;
     }
     var dots = items.map(function (it, k) {
-      var open = timeStop === it.id, peek = timePeek === it.id;
-      var pop = '';
-      if (peek || open) {
-        var edge = xs[k] < 12 ? ' edgeL' : xs[k] > 88 ? ' edgeR' : '';
-        pop = '<span class="tmpop' + edge + (open ? ' open' : '') + '">' +
-          '<b>' + esc(it.name) + '</b><i>' + esc(it.when) + '</i>' +
-          (open ? '' : '<u>tap again to travel</u>') + '</span>';
-      }
+      var open = timeStop === it.id;
+      /* the open age says its name; every age says WHEN it was, always */
+      var pop = open
+        ? '<span class="tmpop open' + (xs[k] < 12 ? ' edgeL' : xs[k] > 88 ? ' edgeR' : '') + '">' +
+          '<b>' + esc(it.name) + '</b></span>'
+        : '';
       return '<button class="tmdot' + (open ? ' on' : '') + (it.id === 'aaj' ? ' aaj' : '') +
         '" style="left:' + xs[k].toFixed(2) + '%" data-act="tstop" data-id="' + it.id +
         '" aria-label="' + esc(it.name) + ' \u00b7 ' + esc(it.when) +
-        (open ? ' \u2014 open now' : ' \u2014 press twice to travel') + '">' + pop + '</button>';
+        (open ? ' \u2014 open now' : '') + '">' + pop +
+        '<span class="tmwhen' + (k % 2 ? ' low' : '') + '">' + esc(whenShort(it.when)) +
+        '</span></button>';
     }).join('');
     return '<div class="tmband" role="tablist" aria-label="The river of time, 3300 BCE to today">' +
+      /* the three rail ticks are gone: every dot now carries its own dates, so
+         "3300 BCE" sat on top of "3300–1300 BCE" saying the same thing twice */
       '<span class="tmrail"></span>' + dots +
-      '<span class="tmtick" style="left:3%">3300 BCE</span>' +
-      '<span class="tmtick" style="left:' + (3 + (0 - y0) / (y1 - y0) * 94).toFixed(1) + '%">year 0</span>' +
-      '<span class="tmtick" style="left:97%">today</span>' +
       '</div>';
   }
   function timeLens(id) {
@@ -5778,10 +5795,14 @@
     if (a === 'era')    return go('era', t.getAttribute('data-id'));
     if (a === 'tstop')  {
       var tsv2 = t.getAttribute('data-id') || 'aaj';
-      /* first tap pops the name; the second tap (or a double-click) travels */
-      if (timeStop === tsv2 || timePeek === tsv2) {
-        timeStop = tsv2; timePeek = null; timeSite = null; timeZone = null; go('map');
-      } else { timePeek = tsv2; render(); }
+      /* ONE TAP TRAVELS. It used to take two: the first popped the era's name
+         and the words "tap again to travel", the second went there. Nobody
+         reads an instruction inside the thing they just pressed — they press
+         it, nothing appears to happen, and they conclude the map is broken.
+         The dates the peek was carrying are written under every dot now, so
+         the first tap had nothing left to say. */
+      timeStop = tsv2; timePeek = null; timeSite = null; timeZone = null;
+      go('map');
       return;
     }
     if (a === 'tzone')  {

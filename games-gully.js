@@ -54,7 +54,7 @@
         'border-radius:18px;overflow:hidden;touch-action:none;display:block}' +
       '.gy-hold{position:relative;width:100%;max-width:920px;display:grid;justify-items:center}' +
       '.gy-cover[hidden]{display:none}' +
-      '.gy-cover{position:absolute;inset:0;display:grid;place-items:center;padding:14px;' +
+      '.gy-cover{position:absolute;top:0;right:0;bottom:0;left:0;display:grid;place-items:center;padding:14px;' +
         'background:rgba(26,15,5,.45);border-radius:18px;z-index:4}' +
       '.gy-card{background:var(--card);border:1px solid var(--line);border-radius:18px;' +
         'padding:18px 20px;max-width:430px;display:grid;gap:10px;justify-items:center;text-align:center;' +

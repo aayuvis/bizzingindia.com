@@ -540,7 +540,13 @@
                       : Math.min(bw / (w * bleed), bh / (hh * bleed));
       var k = base * z;
       if (!(k > 0.02 && k < 12)) {              /* a scale that absurd is a bug */
+        /* Show the board unscaled rather than not at all — AND SAY SO. Every
+           tap on the board is converted through data-k; leaving a stale scale
+           on the element while clearing its transform means a finger lands on
+           a cell that is not under it, and a piece is placed somewhere else or
+           nowhere. The readout must always describe the board as it is drawn. */
         el.style.transform = '';
+        el.setAttribute('data-k', '1');
         box.style.width = ''; box.style.height = (hh || 1) + 'px';
         K.later(root);
         continue;

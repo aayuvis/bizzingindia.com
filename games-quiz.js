@@ -52,7 +52,7 @@
     '.qz-body{display:flex;gap:var(--space-lg);align-items:flex-start;flex-wrap:wrap}',
     '.qz-main{flex:1 1 280px;min-width:0}',
     '.qz-stage{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-lg);position:relative;overflow:hidden}',
-    '.qz-stage:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2));opacity:.5}',
+    '.qz-stage:before{content:"";position:absolute;top:0;right:0;bottom:auto;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2));opacity:.5}',
     '.qz-q{font:700 19px/1.35 var(--display,Georgia,serif);margin:4px 0 8px;text-align:center}',
     '.qz-sub{font-size:12.5px;color:var(--muted);text-align:center;margin:0 0 8px}',
 

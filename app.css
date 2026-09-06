@@ -21,7 +21,7 @@ body {
    it is decoration, so it never takes pointer events and stops dead for
    anyone who asked for reduced motion. */
 body::before {
-  content: ''; position: fixed; inset: -60px; z-index: 0;
+  content: ''; position: fixed; top:-60px;right:-60px;bottom:-60px;left:-60px; z-index: 0;
   pointer-events: none; opacity: .5;
   background-image: radial-gradient(var(--dot) 1px, transparent 1px);
   background-size: 22px 22px;
@@ -154,7 +154,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ---------------------------------------------------------------- shell */
 .wrap { max-width: 1120px; margin: 0 auto; padding: var(--space-xl) var(--space-lg) 80px; }
 /* the game runs wide: one bar of verbs and a big board want the room */
-.wrap:has(#gamehost) { max-width: 1500px; }
+.wrap:has(#gamehost) { max-width: 1500px; } /* css-compat-ok: without :has() the game simply runs at the narrower width — nothing breaks */
 
 .topbar {
   position: sticky; top: 0; z-index: 40;
@@ -322,14 +322,26 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ---- the river of time atop the India door ---- */
 /* the band of time: one page-wide line, bubbles placed by the calendar */
-.tmband { position: relative; height: 88px; margin: 2px 0 8px; }
-.tmrail { position: absolute; left: 1.5%; right: 1.5%; top: 46px; height: 6px; border-radius: 3px;
+.tmband { position: relative; height: 118px; margin: 2px 0 8px; }
+/* WHEN EACH AGE WAS, UNDER ITS OWN DOT. The dates used to hide inside a popup
+   that only appeared after a first tap — so a child pressed a dot, saw a
+   tooltip instead of a map, and reasonably concluded nothing had happened.
+   Fourteen ages on one rail leave about sixty pixels each, so the labels
+   alternate high and low and get double the room; they are never a tap target
+   themselves, or a finger aiming at the dot would miss it. */
+.tmwhen { position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+          width: 88px; text-align: center; pointer-events: none;
+          font: 700 8.5px/1.25 var(--mono, monospace); color: var(--muted);
+          letter-spacing: .01em; }
+.tmwhen.low { top: 48px; }
+.tmdot.on .tmwhen { color: var(--text); font-weight: 800; }
+.tmrail { position: absolute; left: 1.5%; right: 1.5%; top: 76px; height: 6px; border-radius: 3px;
   background: linear-gradient(90deg, var(--accent2), var(--accent) 60%, var(--accent3)); opacity: .55; }
-.tmdot { position: absolute; top: 36px; width: 26px; height: 26px; border-radius: 50%;
+.tmdot { position: absolute; top: 66px; width: 26px; height: 26px; border-radius: 50%;
   transform: translateX(-50%); border: 3.5px solid var(--accent2); background: var(--card);
   cursor: pointer; padding: 0; z-index: 2; }
 .tmdot:hover { border-color: var(--accent); }
-.tmdot.on { background: var(--accent); border-color: var(--accent); width: 32px; height: 32px; top: 33px; z-index: 3; }
+.tmdot.on { background: var(--accent); border-color: var(--accent); width: 32px; height: 32px; top: 63px; z-index: 3; }
 .tmdot.aaj { border-style: dashed; }
 .tmdot.aaj.on { border-style: solid; }
 .tmdot:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -344,7 +356,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tmpop.open b { color: var(--accent); }
 .tmpop.edgeL { left: 0; transform: none; }
 .tmpop.edgeR { left: auto; right: 0; transform: none; }
-.tmtick { position: absolute; top: 62px; transform: translateX(-50%); font: 700 10px/1 var(--mono, monospace);
+.tmtick { position: absolute; top: 92px; transform: translateX(-50%); font: 700 10px/1 var(--mono, monospace);
   letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .tmtick:last-of-type { transform: translateX(-100%); }
 .tm-zone { fill: transparent; cursor: pointer; }
@@ -411,7 +423,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .bg-badge{cursor:pointer;pointer-events:none}
 .bg-badge circle{fill:var(--card);stroke:#8b7a5a;stroke-width:1.2}
 .bg-badge text{font:800 13px var(--body);fill:var(--text)}
-.bg-full{position:fixed;inset:0;z-index:70;background:var(--ground);display:flex;flex-direction:column}
+.bg-full{position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;background:var(--ground);display:flex;flex-direction:column}
 .bg-fhead{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--line);flex:none}
 .bg-ftitle{display:grid;line-height:1.2}
 .bg-ftitle b{font:800 19px/1.15 var(--display,Georgia,serif)}
@@ -444,7 +456,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tm-headL{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;min-width:0}
 .tm-title{font:800 21px/1.15 var(--display,Georgia,serif)}
 .tm-hook{margin:5px 0 0;font:600 13.5px/1.5 var(--body);color:var(--text2)}
-.tm-scrim{position:fixed;inset:0;z-index:80;border:0;background:rgba(26,15,44,.45);cursor:pointer}
+.tm-scrim{position:fixed;top:0;right:0;bottom:0;left:0;z-index:80;border:0;background:rgba(26,15,44,.45);cursor:pointer}
 .tm-pop{position:fixed !important;left:50%;top:50%;transform:translate(-50%,-50%);z-index:81;
   width:min(600px,94vw);max-height:86vh;overflow:auto;background:var(--card);
   border:1px solid var(--line);border-radius:22px;
@@ -670,7 +682,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .buddybtn img, .buddybtn svg { display: block; width: 216px; height: 216px; }
 @media (max-width: 430px) { .buddybtn img, .buddybtn svg { width: 150px; height: 150px; } }
 
-.deckscrim { position: fixed; inset: 0; z-index: 120; background: rgba(14, 10, 34, .74);
+.deckscrim { position: fixed; top:0;right:0;bottom:0;left:0; z-index: 120; background: rgba(14, 10, 34, .74);
   backdrop-filter: blur(5px); display: grid; place-items: end center;
   /* minmax(0,1fr), not the implicit auto track: an auto track sizes to the
      widest thing inside and would shove the whole popup off-screen. */
@@ -839,10 +851,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .bigdoor:hover, .bigdoor:focus-visible,
 .mdoor:hover, .mdoor:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow); }
 
-.bdart { position: absolute; inset: 0; background-size: cover; background-position: center 32%; }
+.bdart { position: absolute; top:0;right:0;bottom:0;left:0; background-size: cover; background-position: center 32%; }
 /* the veil is what makes white text legible over ANY painting — without it the
    copy reads on a sunset and vanishes on a sky */
-.bdveil { position: absolute; inset: 0;
+.bdveil { position: absolute; top:0;right:0;bottom:0;left:0;
   background: linear-gradient(180deg, rgba(18,10,32,.10) 0%, rgba(18,10,32,.34) 42%,
     rgba(18,10,32,.82) 100%); }
 .bdbody { position: relative; display: flex; flex-direction: column; gap: 5px;
@@ -858,7 +870,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* the randomiser's wall: twelve paintings from twelve different shelves, laid
    flat and pushed back far enough that the number on top is the thing you read */
-.mosaic { position: absolute; inset: 0; display: grid;
+.mosaic { position: absolute; top:0;right:0;bottom:0;left:0; display: grid;
   grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); }
 /* pushed back on purpose: twelve paintings at full strength fight the number on
    top of them, and the number is the point of this tile */
@@ -1124,7 +1136,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .journey:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
 .journey .banner { position: relative; height: 172px; background: var(--card2); background-size: cover; background-position: center; }
-.journey .banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.02)); }
+.journey .banner::after { content: ''; position: absolute; top:0;right:0;bottom:0;left:0; background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.02)); }
 .journey .tag {
   position: absolute; top: 14px; right: 14px; z-index: 2;
   background: rgba(20,12,45,.82); color: #fff; font-size: 12px; font-weight: 700;
@@ -1758,7 +1770,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   border: 1px solid var(--line2); border-radius: var(--radius-lg);
   background: var(--card2); overflow: hidden; touch-action: none;
 }
-.tguide, .tink { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tguide, .tink { position: absolute; top:0;right:0;bottom:0;left:0; width: 100%; height: 100%; }
 .tink { cursor: crosshair; }
 .tink:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; border-radius: var(--radius-lg); }
 .tpen {
@@ -2258,7 +2270,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .ghero{position:relative;display:flex;align-items:flex-end;width:100%;min-height:215px;border:0;
   border-radius:var(--radius-lg,20px);overflow:hidden;cursor:pointer;padding:0;text-align:left;color:#fff;
   margin:14px 0 4px;box-shadow:0 6px 18px rgba(30,20,64,.14),0 18px 48px rgba(30,20,64,.16)}
-.ghero .gh-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.ghero .gh-bg{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
 .ghero:hover .gh-bg{transform:scale(1.05)}
 .ghero:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .gh-mist{position:absolute;width:62%;height:74%;border-radius:50%;filter:blur(28px);pointer-events:none;
@@ -2325,7 +2337,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .navmore{display:flex}
   #main{padding-bottom:92px}
 }
-#navmoresheet{position:fixed;inset:0;z-index:70;background:color-mix(in srgb,var(--ground) 45%,transparent)}
+#navmoresheet{position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;background:color-mix(in srgb,var(--ground) 45%,transparent)}
 #navmoresheet .nm-in{position:absolute;left:10px;right:10px;
   bottom:calc(70px + env(safe-area-inset-bottom));background:var(--card);border-radius:18px;
   box-shadow:0 -10px 40px rgba(30,20,64,.28);padding:8px;display:flex;flex-direction:column}

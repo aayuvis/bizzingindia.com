@@ -65,6 +65,29 @@ git update-index --add --cacheinfo 100644,"$EMPTY",.nojekyll
 if README_BLOB=$(git rev-parse HEAD:README.md 2>/dev/null); then
   git update-index --add --cacheinfo 100644,"$README_BLOB",README.md
 fi
+
+# CARRY THE CUSTOM DOMAIN FORWARD, if there is one.
+#
+# Setting a custom domain in Settings -> Pages writes a CNAME file into the gh-pages branch,
+# and an ABSENT CNAME is how GitHub is told the custom domain has been removed. This script
+# builds the published tree from HEAD:app plus .nojekyll and nothing else, so without this
+# block the very next deploy would quietly drop that file and the site would fall back to
+# the github.io address -- hours after someone believed they had moved it, with a deploy log
+# that says nothing but success. Exactly the failure this repo has already been bitten by
+# once, in the other direction.
+#
+# A CNAME committed at the repo root wins, so the domain can live in git where it is
+# reviewable and a deploy from any checkout carries it. Otherwise whatever is already live
+# is preserved untouched.
+if CNAME_BLOB=$(git rev-parse HEAD:CNAME 2>/dev/null); then
+  git update-index --add --cacheinfo 100644,"$CNAME_BLOB",CNAME
+  echo "domain: carrying ./CNAME from the repo root ($(git cat-file -p HEAD:CNAME | tr -d '\n'))"
+elif CNAME_BLOB=$(git rev-parse origin/gh-pages:CNAME 2>/dev/null || git rev-parse gh-pages:CNAME 2>/dev/null); then
+  git update-index --add --cacheinfo 100644,"$CNAME_BLOB",CNAME
+  echo "domain: preserving the CNAME already live on gh-pages"
+else
+  echo "domain: none set -- serving from the github.io address"
+fi
 TREE=$(git write-tree)
 unset GIT_INDEX_FILE
 

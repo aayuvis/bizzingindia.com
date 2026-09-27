@@ -137,6 +137,22 @@ fi
 TREE=$(git write-tree)
 unset GIT_INDEX_FILE
 
+# AND REFUSE TO PUSH A TREE THAT DROPS ANYTHING. The block above is the intent; this is
+# the guard, and it is here because the failure it prevents is another project's live
+# site going dark -- silently, with this script reporting success. Fail closed: if a name
+# that is on gh-pages today is not in the tree about to replace it, stop and say which.
+if [ -n "$PARENT" ]; then
+  LOST=""
+  for name in $(git ls-tree --name-only "$PARENT"); do
+    git cat-file -e "$TREE:$name" 2>/dev/null || LOST="$LOST $name"
+  done
+  if [ -n "$LOST" ]; then
+    echo "DEPLOY REFUSED: this would remove from gh-pages:$LOST" >&2
+    echo "Nothing has been pushed. Deploying must never delete what it did not publish." >&2
+    exit 1
+  fi
+fi
+
 # NO CNAME. Deliberately: the site is served from GitHub Pages' own github.io address
 # while it is in development, and writing a CNAME here would point Pages at a domain
 # that is not in use yet — which takes the site OFF the address that does work.

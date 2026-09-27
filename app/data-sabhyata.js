@@ -123,43 +123,174 @@ window.IND_SABHYATA = {
 
   /* Techs: two choices an era, and the coins rarely stretch to both at once —
      the order IS the strategy. Each names a real thing. */
+  /* ==================================================================
+     VIDYA — the research tree, and it is a TREE now
+     ==================================================================
+     It used to be a flat list gated only by the age, with no prerequisites at all,
+     and -- worse -- nine of the thirteen ages offered exactly ONE thing, so for most
+     of a five-thousand-year game there was no choice to make. The doc's own promise
+     ("two doors open in every age... the order you choose is the strategy") was true
+     for the first four ages and quietly false after them.
+
+     Three things changed. `needs` makes it a tree: zero wants the script that wrote
+     it down, the shipyards want the dockyards. Every age now offers at least two
+     doors. And `boost` is the eureka -- doing the thing part-learns the thing, which
+     is the best teaching mechanic in the genre and belongs in a learning app more
+     than in a strategy game: sow three fields and the plough half teaches itself.
+
+     WHERE THE NEW ONES COME FROM MATTERS. Nothing here is written from memory
+     (CLAUDE.md, docs/05 §2). Every added tech is named for something this file
+     ALREADY carries with its own sources[] a few hundred lines below -- Lothal's
+     cube-shaped weights each doubling the last, Dholavira's sixteen stepped
+     reservoirs, the great brick basin many archaeologists read as a dockyard,
+     Ashoka's edicts, the stupas, Vaishali's assembly. The effects are game effects;
+     the names are this repo's own attested content, and the file's standing
+     needs_review flag covers them exactly as it covers the rest.
+
+     `boost` reads: { of: <what to count>, n: <how many>, by: <fraction of the work> }
+     and the counters live in eurekaCount() in the engine. */
   techs: [
     { id: 'plough',   era: 0, name: 'The Plough',      cost: { katha: 25, kala: 15 },
+      boost: { of: 'field', n: 3, by: 0.4 },
       what: 'Kalibangan\u2019s furrows everywhere: +1 🌾 from every farming city.' },
     { id: 'brick',    era: 0, name: 'Fired Brick',     cost: { katha: 25, anna: 15 },
+      boost: { of: 'work', n: 2, by: 0.4 },
       what: 'Kiln-fired and true: buildings cost a third less.' },
+    { id: 'weights',  era: 0, name: 'Weights and Measures', cost: { katha: 30, kala: 15 },
+      needs: ['brick'], boost: { of: 'routes', n: 2, by: 0.4 },
+      what: 'Cube weights, each size doubling the last, the same in every town: +1 🛠️ from every city on a route.' },
+    { id: 'reservoir', era: 0, name: 'Stepped Reservoirs', cost: { katha: 35, kala: 20 },
+      needs: ['brick'], boost: { of: 'water', n: 2, by: 0.5 },
+      what: 'Rain caught and kept, one basin stepped into the next: no city fades while a drought holds.' },
     { id: 'iron',     era: 1, name: 'Iron Tools',      cost: { katha: 40, kala: 20 },
+      needs: ['brick'], boost: { of: 'work', n: 4, by: 0.4 },
       what: 'The forests open: +1 🛠️ from every craft city.' },
     { id: 'panchayat',era: 1, name: 'The Panchayat',   cost: { katha: 35, anna: 20 },
+      boost: { of: 'peace', n: 1, by: 0.5 },
       what: 'Five who sit together: settling a quarrel costs nothing.' },
+    { id: 'dock',     era: 1, name: 'The Dockyards',    cost: { katha: 45, kala: 25 },
+      needs: ['weights'], boost: { of: 'ports', n: 1, by: 0.5 },
+      what: 'A great brick basin the ships can lie in: +1 of everything from every port on a route.' },
     { id: 'script',   era: 2, name: 'Brahmi Script',   cost: { katha: 50, kala: 25 },
+      needs: ['weights'], boost: { of: 'learn', n: 2, by: 0.4 },
       what: 'Written down, a question travels: every gurukul can ask about every woken city.' },
     { id: 'roads',    era: 2, name: 'Royal Roads',     cost: { katha: 45, anna: 25 },
+      needs: ['iron'], boost: { of: 'routes', n: 5, by: 0.4 },
       what: 'Milestones and rest-houses: routes cost half.' },
+    { id: 'edict',    era: 2, name: 'The Edicts',       cost: { katha: 55, anna: 25 },
+      needs: ['script'], boost: { of: 'woken', n: 6, by: 0.4 },
+      what: 'Words cut into rock where everyone passes: every woken city earns +1 📜.' },
     { id: 'zero',     era: 3, name: 'Zero',            cost: { katha: 60, kala: 30 },
+      needs: ['script'], boost: { of: 'learn', n: 5, by: 0.4 },
       what: 'Nothing, counted: +1 📜 from every learning city.' },
     { id: 'temple',   era: 3, name: 'Temple Craft',    cost: { katha: 55, anna: 30 },
+      needs: ['iron'], boost: { of: 'monuments', n: 1, by: 0.5 },
       what: 'Stone on stone to the sky: monuments cost a third less.' },
+    { id: 'stupa',    era: 3, name: 'The Stupas',       cost: { katha: 60, anna: 30 },
+      needs: ['temple'], boost: { of: 'monuments', n: 2, by: 0.4 },
+      what: 'A dome over a memory, and a railing for those who walk round it: a monument is raised a quarter faster.' },
     { id: 'monsoon',  era: 4, name: 'Monsoon Sailing', cost: { katha: 70, kala: 35 },
+      needs: ['dock'], boost: { of: 'ports', n: 3, by: 0.4 },
       what: 'Ride the winds out and home: +2 of everything from every port on a route.' },
+    { id: 'assembly', era: 4, name: 'The Assembly',     cost: { katha: 65, anna: 35 },
+      needs: ['panchayat'], boost: { of: 'peace', n: 3, by: 0.4 },
+      what: 'Vaishali\u2019s way, written into every town: a quarrel can never bring the mist.' },
     /* one door per later age — the ladder is longer now, so each rung carries
        one real thing that changed the country, never a weapon among them */
-    { id: 'paper',    era: 5,  name: 'Paper',               cost: { katha: 70, kala: 35 },
+    { id: 'paper',    era: 5,  name: 'Paper',               cost: { katha: 70, kala: 35 }, needs: ['edict'], boost: { of: 'learn', n: 8, by: 0.4 },
       what: 'Books, not palm leaves: +1 📜 from every learning city.' },
-    { id: 'charkha',  era: 6,  name: 'The Charkha',         cost: { katha: 70, anna: 35 },
+    { id: 'charkha',  era: 6,  name: 'The Charkha',         cost: { katha: 70, anna: 35 }, needs: ['paper'], boost: { of: 'work', n: 10, by: 0.4 },
       what: 'A spinning wheel in every home: +1 🛠️ from every craft city.' },
-    { id: 'chahbagh', era: 7,  name: 'The Char Bagh',       cost: { katha: 75, kala: 40 },
+    { id: 'chahbagh', era: 7,  name: 'The Char Bagh',       cost: { katha: 75, kala: 40 }, needs: ['reservoir'], boost: { of: 'water', n: 5, by: 0.4 },
       what: 'Gardens of four quarters: an utsav costs half — the whole town is already outdoors.' },
-    { id: 'ship',     era: 8,  name: 'The Shipyards',       cost: { katha: 75, kala: 40 },
+    { id: 'ship',     era: 8,  name: 'The Shipyards',       cost: { katha: 75, kala: 40 }, needs: ['monsoon'], boost: { of: 'ports', n: 5, by: 0.4 },
       what: 'Ocean-going hulls from Indian yards: +1 of everything from every port on a route.' },
-    { id: 'railway',  era: 9,  name: 'The Railway',         cost: { katha: 80, kala: 45 },
+    { id: 'railway',  era: 9,  name: 'The Railway',         cost: { katha: 80, kala: 45 }, needs: ['roads'], boost: { of: 'routes', n: 10, by: 0.4 },
       what: 'Iron roads: new routes cost half again.' },
-    { id: 'press',    era: 10, name: 'The Printing Press',  cost: { katha: 80, anna: 45 },
+    { id: 'press',    era: 10, name: 'The Printing Press',  cost: { katha: 80, anna: 45 }, needs: ['paper'], boost: { of: 'learn', n: 12, by: 0.4 },
       what: 'A thousand copies by morning: every teacher’s question pays double.' },
-    { id: 'harit',    era: 11, name: 'The Green Revolution', cost: { katha: 85, anna: 50 },
+    { id: 'harit',    era: 11, name: 'The Green Revolution', cost: { katha: 85, anna: 50 }, needs: ['plough'], boost: { of: 'field', n: 14, by: 0.4 },
       what: 'New seeds and shared science: +2 🌾 from every farming city.' },
-    { id: 'satellite',era: 12, name: 'The Satellite',       cost: { katha: 90, kala: 50 },
+    { id: 'satellite',era: 12, name: 'The Satellite',       cost: { katha: 90, kala: 50 }, needs: ['zero'], boost: { of: 'woken', n: 20, by: 0.4 },
       what: 'Aryabhata, 1975 — India’s own eye in the sky: explorers walk twice as fast, and no city ever fades again.' }
+  ],
+
+  /* ==================================================================
+     RITI — how your realm does things (the second tree)
+     ==================================================================
+     Vidya is what the age knows how to DO. Riti is what your realm has decided to
+     BE, and it is the answer to nine ages offering a single door: the two trees run
+     in parallel, so every age has at least two things worth wanting and never enough
+     coin for both. Two interlocking trees are most of where the genre's decision
+     density actually comes from.
+
+     THESE ARE NOT HISTORICAL CLAIMS AND MUST NOT READ AS ANY. Each is a rule the
+     player adopts, named with a word this app already uses for its own mechanics --
+     grama, shreni, dana, utsav, yatra, praja. Nothing here asserts that a named
+     people or period did a named thing, so nothing here needs a sources[] it cannot
+     have (docs/05 §2, and the file's standing needs_review flag).
+
+     AND NOTHING HERE TOUCHES FAITH. A civics tree in this genre usually ends up
+     scoring religions against each other, and docs/05 §4 is explicit: faiths are
+     presented from the inside, never ranked, never compared to judge. So the whole
+     track is secular custom -- how the fields are shared, who sits to settle a
+     quarrel, what the granary owes a hungry neighbour -- and the pilgrim road is a
+     road, carrying people and stories, never a score.
+
+     Each riti opens a POLICY, and policies sit in slots that can be swapped for
+     nothing. That is deliberate: a nine-year-old should be able to change their mind
+     about how their realm works, and an irreversible choice made in the third minute
+     of a five-thousand-year game teaches only regret. */
+  riti: [
+    { id: 'grama',   era: 0, name: 'Grama',    cost: { katha: 20 }, gives: 'sanjha',
+      what: 'The village, and what it owes itself.' },
+    { id: 'shreni',  era: 1, name: 'Shreni',   cost: { katha: 30 }, needs: ['grama'], gives: 'benches',
+      what: 'Crafts organised: the hands of one trade keep each other’s standards.' },
+    { id: 'dana',    era: 1, name: 'Dana',     cost: { katha: 30 }, needs: ['grama'], gives: 'openstore',
+      what: 'Giving as a duty of plenty, not a kindness of mood.' },
+    { id: 'sadak',   era: 2, name: 'Sadak Riti', cost: { katha: 40 }, needs: ['shreni'], gives: 'cheaproad',
+      what: 'The road is everybody’s business, so everybody keeps it.' },
+    { id: 'yatra',   era: 3, name: 'Yatra',    cost: { katha: 45 }, needs: ['sadak'], gives: 'pilgrim',
+      what: 'People walk to places on purpose, and carry the stories both ways.' },
+    { id: 'gurupar', era: 4, name: 'Guru-Parampara', cost: { katha: 50 }, needs: ['dana'], gives: 'freeschool',
+      what: 'What one generation keeps, it is expected to hand on.' },
+    { id: 'kosh',    era: 5, name: 'Kosh',     cost: { katha: 55 }, needs: ['shreni'], gives: 'granarycap',
+      what: 'A treasury, and the habit of keeping something back.' },
+    { id: 'karkhana',era: 6, name: 'Karkhana Riti', cost: { katha: 60 }, needs: ['kosh'], gives: 'quarter',
+      what: 'Workshops belong together, and the city is planned as though they do.' },
+    { id: 'bagh',    era: 7, name: 'Bagh Riti', cost: { katha: 60 }, needs: ['yatra'], gives: 'gardens',
+      what: 'A town owes its people somewhere to sit that grows nothing.' },
+    { id: 'bandar',  era: 8, name: 'Bandar Riti', cost: { katha: 65 }, needs: ['sadak'], gives: 'harbour',
+      what: 'The port is the realm’s front door and is kept like one.' },
+    { id: 'dak',     era: 9, name: 'Dak',      cost: { katha: 70 }, needs: ['bandar'], gives: 'post',
+      what: 'A message can outrun the person carrying it.' },
+    { id: 'sabhyariti', era: 10, name: 'Praja Sabha', cost: { katha: 75 }, needs: ['gurupar'], gives: 'voice',
+      what: 'The people who live somewhere have a say in it.' },
+    { id: 'sahkari', era: 11, name: 'Sahkari', cost: { katha: 80 }, needs: ['sabhyariti'], gives: 'shared',
+      what: 'Held in common, worked in common, shared out in common.' },
+    { id: 'sanchar', era: 12, name: 'Sanchar', cost: { katha: 85 }, needs: ['dak'], gives: 'everywhere',
+      what: 'Everyone can reach everyone, and a story told once is heard everywhere at once.' }
+  ],
+
+  /* THE CARDS. A slot holds one; swapping is free. `eff` is read by the engine and
+     every key here is honoured somewhere -- a card whose effect nothing reads is
+     worse than a wrong one, because a wrong number gets corrected the first time
+     somebody looks and an ignored one never changes. */
+  policies: [
+    { id: 'sanjha',    name: 'Sanjha Khet',    what: 'Shared fields: +1 🌾 in every farming city.',           eff: { annaKind: 'kheti' } },
+    { id: 'benches',   name: 'Open Benches',   what: 'Room at the bench: +1 🛠️ in every craft city.',          eff: { kalaKind: 'shilpa' } },
+    { id: 'openstore', name: 'The Open Store', what: 'Nobody goes hungry twice: the realm eats a quarter less.', eff: { eat: 0.75 } },
+    { id: 'cheaproad', name: 'Kept Roads',     what: 'Everybody keeps the road: routes cost a third less.',    eff: { routeCut: 0.67 } },
+    { id: 'pilgrim',   name: 'Pilgrim Roads',  what: 'Walkers carry stories: +1 📜 from every city on a route.', eff: { kathaRouted: 1 } },
+    { id: 'freeschool',name: 'Free Learning',  what: 'Handed on for nothing: research finishes a fifth sooner.', eff: { techCut: 0.8 } },
+    { id: 'granarycap',name: 'The Full Kosh',  what: 'Something kept back: no city fades while the stores hold.', eff: { noFade: true } },
+    { id: 'quarter',   name: 'The Quarter',    what: 'Workshops planned together: +1 🛠️ in every city on a route.', eff: { kalaRouted: 1 } },
+    { id: 'gardens',   name: 'Public Gardens', what: 'Somewhere to sit: an utsav costs a third less.',         eff: { utsavCut: 0.67 } },
+    { id: 'harbour',   name: 'The Front Door', what: 'The port kept properly: +2 of everything from every port on a route.', eff: { port: 2 } },
+    { id: 'post',      name: 'The Dak',        what: 'Word outruns the walker: a warning comes twice as early.', eff: { warn: 2 } },
+    { id: 'voice',     name: 'A Say in It',    what: 'The people are asked: settling a quarrel pays double 📜.', eff: { peace: 2 } },
+    { id: 'shared',    name: 'Held in Common', what: 'Shared out: +1 🌾 and +1 📜 in every city in a kingdom.',  eff: { kingdom: 1 } },
+    { id: 'everywhere',name: 'All at Once',    what: 'Heard everywhere: +1 📜 from every awake city, wherever it is.', eff: { katha: 1 } }
   ],
 
   /* THE RIVERS — the map's own veins, projected from real courses through the same

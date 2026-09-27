@@ -244,6 +244,16 @@
     '.sab-plotpv i{font-style:normal;color:var(--muted);font-weight:700;margin-left:4px}',
     '.sab-pvwhy{flex:1 1 100%;color:var(--muted);line-height:1.35}',
     '.sab-pvno{color:#8a3a2e;font-weight:700}',
+    /* the trees: a locked row is shown and greyed, never hidden */
+    '.sab-work.sab-shut{opacity:.55}',
+    '.sab-need{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-top:2px}',
+    '.sab-eu{display:block;font-size:11px;font-weight:800;color:var(--accent2);margin-top:2px}',
+    '.sab-slots{display:flex;flex-direction:column;gap:8px;margin-top:4px}',
+    '.sab-slot{padding:9px 11px;border-radius:12px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08)}',
+    '.sab-slot b{display:block;font-size:13.5px}',
+    '.sab-slot>span{display:block;font-size:11.5px;color:var(--muted);margin:1px 0 6px}',
+    '.sab-polpick{display:flex;flex-wrap:wrap;gap:6px}',
+    '.sab-polpick .sab-btn{font-size:11.5px;padding:6px 9px;min-height:32px}',
     /* AGLA SAAL IS THE BIGGEST THING ON THE BAR, because in Sochna pressing it is
        the game. It carries a count of what is still waiting, so a child learns to
        clear the board before spending the year. */
@@ -866,7 +876,9 @@
                darshan: {}, sutra: {}, tre: {}, lastakal: 0, lastdarshan: 0, calmUntil: 0,
                /* the clock is the player's now: which speed, and whether the world
                   stops itself when something is waiting on a decision */
-               speed: SPEED_DEFAULT, autoPause: true };
+               speed: SPEED_DEFAULT, autoPause: true,
+               /* the second tree, the cards it opens, and what is in force */
+               riti: {}, pol: [], peaceMade: 0 };
     }
 
     /* ---- rules helpers ---- */
@@ -913,6 +925,98 @@
        ================================================================ */
     var FOLK = { kheti: 'the granary keeper', shilpa: 'the master builder', vidya: 'the teacher' };
     var BLD = DATA.buildings, TECHS = DATA.techs, PORTS = DATA.ports || [];
+    var RITI = DATA.riti || [], POLS = DATA.policies || [];
+    var POL_BY = {}; POLS.forEach(function (x) { POL_BY[x.id] = x; });
+    var TECH_BY = {}; TECHS.forEach(function (x) { TECH_BY[x.id] = x; });
+    var RITI_BY = {}; RITI.forEach(function (x) { RITI_BY[x.id] = x; });
+
+    /* ==================================================================
+       THE TREES — what is open, what it costs, and what doing the thing is worth
+       ==================================================================
+       Research was a flat list gated only by the age, so "open" meant nothing except
+       "old enough", and the order was never forced by anything. `needs` makes it a
+       tree, and the tree is what turns a shopping list into a route. */
+    function techOpenFor(t) {
+      if (!t || t.era > G.era) return false;
+      return (t.needs || []).every(function (n) { return !!G.tech[n]; });
+    }
+    function ritiOpenFor(r) {
+      if (!r || r.era > G.era) return false;
+      return (r.needs || []).every(function (n) { return !!(G.riti || {})[n]; });
+    }
+    function techMissing(t) {
+      return (t.needs || []).filter(function (n) { return !G.tech[n]; })
+        .map(function (n) { return TECH_BY[n] ? TECH_BY[n].name : n; });
+    }
+    function ritiMissing(r) {
+      return (r.needs || []).filter(function (n) { return !(G.riti || {})[n]; })
+        .map(function (n) { return RITI_BY[n] ? RITI_BY[n].name : n; });
+    }
+
+    /* A WIDE REALM SHOULD NOT MAKE LEARNING FREE. Costs were flat, so by the middle
+       ages a big network bought every door the turn it opened and the tree stopped
+       being a choice. The price now rises gently with how much there is to teach. */
+    function techScale() {
+      var woke = SITES.filter(function (x) { return inEra(x) && awake(x.id); }).length;
+      return 1 + Math.max(0, woke - 3) * 0.06;
+    }
+    function techCost(t) {
+      var c = costOf(t.cost, 'tech'), out = {};
+      Object.keys(c).forEach(function (k) { out[k] = Math.round(c[k] * techScale()); });
+      return out;
+    }
+
+    /* ==================================================================
+       EUREKA — doing the thing part-learns the thing
+       ==================================================================
+       The best teaching mechanic in the genre, and it belongs in a learning app more
+       than it does in a strategy game: a child who has sown three fields has already
+       met the reason the plough matters, and the research should say so rather than
+       asking them to read it off a card. Every `boost` in the data names something
+       countable, and every name below is counted — a boost whose `of` nothing reads
+       would silently never fire. */
+    function eurekaCount(of) {
+      var n = 0;
+      if (of === 'routes') return G.routes.length;
+      if (of === 'woken') return SITES.filter(function (x) { return inEra(x) && awake(x.id); }).length;
+      if (of === 'monuments') return SITES.filter(function (x) { return G.sites[x.id].mon; }).length;
+      if (of === 'ports') return G.routes.filter(function (r) {
+        return PORTS.indexOf(r[0]) >= 0 || PORTS.indexOf(r[1]) >= 0; }).length;
+      if (of === 'peace') return G.peaceMade || 0;
+      /* otherwise it is a build group: count the pieces of that group on every board */
+      SITES.forEach(function (x) {
+        if (!inEra(x)) return;
+        (G.sites[x.id].kit || []).forEach(function (b) {
+          var it = BY_PART[b.p]; if (it && it.g === of) n++;
+        });
+      });
+      return n;
+    }
+    /* how much of this research is already paid for by what the player has done */
+    function eurekaPct(t) {
+      if (!t || !t.boost) return 0;
+      var have = eurekaCount(t.boost.of);
+      if (have < t.boost.n) return 0;
+      return Math.min(0.9, t.boost.by);
+    }
+
+    /* ==================================================================
+       POLICIES — reversible, because a child should be able to change their mind
+       ================================================================== */
+    function polSlots() { return 1 + Math.floor(Object.keys(G.riti || {}).length / 3); }
+    function polHeld() { return (G.pol || []).filter(Boolean); }
+    function polEff(key) {
+      var v = 0, seen = false;
+      polHeld().forEach(function (pid) {
+        var c = POL_BY[pid];
+        if (c && c.eff && c.eff[key] != null) { seen = true; v = c.eff[key]; }
+      });
+      return seen ? v : null;
+    }
+    function polOpen() {
+      return RITI.filter(function (r) { return (G.riti || {})[r.id]; })
+                 .map(function (r) { return r.gives; });
+    }
     /* THE FOUR JOBS ARE NOT FOUR ANY MORE. Every count, split and shrink used
        to name kisan/karigar/kathakar/rakshak in a literal array, in six
        places, so adding a role meant finding all six. Read the roster once. */
@@ -2016,6 +2120,9 @@
       if (kind === 'route' && G.tech.roads) f = 1 / 2;
       if (kind === 'route' && G.tech.railway) f = f / 2;     /* iron roads stack */
       if (kind === 'utsav' && G.tech.chahbagh) f = 1 / 2;    /* the town is already outdoors */
+      /* and what the realm has decided to be — the other half of polEff's promise */
+      if (kind === 'route' && polEff('routeCut')) f *= polEff('routeCut');
+      if (kind === 'utsav' && polEff('utsavCut')) f *= polEff('utsavCut');
       var out = {};
       Object.keys(c).forEach(function (k) { out[k] = Math.ceil(c[k] * f); });
       return out;
@@ -2132,6 +2239,20 @@
       }
       /* THE RIVER FEEDS THE TOWN BESIDE IT — terrain, not territory */
       out.anna += riverAnna(x.id);
+      /* WHAT THE REALM HAS DECIDED TO BE. Every policy effect is read here or in
+         costOf, so a card can never be a promise nothing keeps. */
+      if (polEff('annaKind') === x.kind) out.anna += 1;
+      if (polEff('kalaKind') === x.kind) out.kala += 1;
+      if (polEff('katha')) out.katha += polEff('katha');
+      if (conn && polEff('kathaRouted')) out.katha += polEff('kathaRouted');
+      if (conn && polEff('kalaRouted')) out.kala += polEff('kalaRouted');
+      if (conn && polEff('port') && PORTS.indexOf(x.id) >= 0) {
+        var pb = polEff('port');
+        out.anna += pb; out.kala += pb; out.katha += pb;
+      }
+      if (polEff('kingdom') && inKingdomOf(x.id)) {
+        out.anna += polEff('kingdom'); out.katha += polEff('kingdom');
+      }
       if (q.bld.granary) out.anna += 1;
       if (q.bld.workshop) out.kala += 1;
       if (q.bld.gurukul) out.katha += 1;
@@ -3637,22 +3758,78 @@
     /* ---- THE VIDYA PANEL: the tech tree, two doors an era ---- */
     var techOpen = false;
     function techHTML() {
+      /* A LOCKED THING IS SHOWN, NOT HIDDEN — the same rule the build shelf already
+         follows. A tree whose branches appear only once you can afford them is a list
+         with extra steps; seeing what the plough leads to is most of why a child
+         wants the plough. So everything in this age and the next is on screen, and
+         what is locked says what would open it. */
       var rows = TECHS.map(function (t) {
-        if (t.era > G.era) return '';
-        var have = !!G.tech[t.id], c = costOf(t.cost, 'tech');
+        if (t.era > G.era + 1) return '';
+        var have = !!G.tech[t.id], c = techCost(t);
+        var soon = t.era > G.era;
+        var shut = !soon && !techOpenFor(t);
         var va = artOf('vidya-' + t.id);
         var busy = G.proj && G.proj.id === t.id;
-        return '<div class="sab-work' + (have ? ' built' : busy ? ' now atwork' : ' now') + '">' +
+        var eu = eurekaPct(t);
+        return '<div class="sab-work' + (have ? ' built' : busy ? ' now atwork' : ' now') +
+          (soon || shut ? ' sab-shut' : '') + '">' +
           (va ? '<img class="sab-vthumb" src="' + va + '" alt=""' + (have ? '' : ' style="filter:grayscale(.8)"') + '>' : '<i>' + (have ? '✓' : '?') + '</i>') +
           '<span><b>' + esc(t.name) + '</b> · <span class="tiny" style="color:var(--muted)">' + esc(t.what) + '</span>' +
+          (soon ? '<span class="sab-need">next age</span>'
+                : shut ? '<span class="sab-need">after ' + esc(techMissing(t).join(' and ')) + '</span>' : '') +
+          (!have && !soon && !shut && eu ? '<span class="sab-eu">⚡ you already know ' +
+             Math.round(eu * 100) + '% of this — ' + eurekaCount(t.boost.of) + ' built</span>' : '') +
           (busy ? '<span class="sab-projbar" style="--pc:' + (projPct() * 100).toFixed(1) + '%">' +
             '<i></i><b>' + Math.round(projPct() * 100) + '%</b></span>' : '') + '</span>' +
           '<span style="flex:1"></span>' +
           (have ? '' : busy ? '<span class="tiny" style="color:var(--accent);font-weight:800">at work</span>'
+            : soon || shut ? ''
             : '<button class="sab-btn" data-sab-act="tech" data-t="' + t.id + '"' +
             (canPay(c) && !G.proj ? '' : ' disabled') + '>' + costStr(c) + '</button>') +
           '</div>';
       }).join('');
+
+      /* ---- RITI: the second tree ---- */
+      var ritiRows = RITI.map(function (r) {
+        if (r.era > G.era + 1) return '';
+        var have = !!(G.riti || {})[r.id], soon = r.era > G.era;
+        var shut = !soon && !ritiOpenFor(r);
+        var c = costOf(r.cost, 'riti');
+        var card = POL_BY[r.gives] || {};
+        return '<div class="sab-work' + (have ? ' built' : ' now') + (soon || shut ? ' sab-shut' : '') + '">' +
+          '<i>' + (have ? '✓' : '○') + '</i>' +
+          '<span><b>' + esc(r.name) + '</b> · <span class="tiny" style="color:var(--muted)">' +
+          esc(r.what) + '</span>' +
+          '<span class="tiny" style="color:var(--accent2);font-weight:800">opens “' + esc(card.name || '') + '”</span>' +
+          (soon ? '<span class="sab-need">next age</span>'
+                : shut ? '<span class="sab-need">after ' + esc(ritiMissing(r).join(' and ')) + '</span>' : '') +
+          '</span><span style="flex:1"></span>' +
+          (have || soon || shut ? '' :
+            '<button class="sab-btn" data-sab-act="riti" data-r="' + r.id + '"' +
+            (canPay(c) ? '' : ' disabled') + '>' + costStr(c) + '</button>') +
+          '</div>';
+      }).join('');
+
+      /* ---- THE SLOTS. Swapping is free; the cost was the custom, not the card. ---- */
+      var open = polOpen();
+      var slots = '';
+      var n = polSlots(), i;
+      for (i = 0; i < n; i++) {
+        var inSlot = (G.pol || [])[i];
+        var card2 = POL_BY[inSlot];
+        slots += '<div class="sab-slot">' +
+          '<b>' + (card2 ? esc(card2.name) : 'empty') + '</b>' +
+          (card2 ? '<span>' + esc(card2.what) + '</span>' +
+                   '<button class="sab-btn" data-sab-act="polclear" data-s="' + i + '">take out</button>'
+                 : '<span>Slot ' + (i + 1) + ' — put a custom to work.</span>') +
+          '<div class="sab-polpick">' + open.filter(function (pid3) {
+            return pid3 !== inSlot;
+          }).map(function (pid3) {
+            var cd = POL_BY[pid3] || {};
+            return '<button class="sab-btn" data-sab-act="pol" data-p="' + pid3 + '" data-s="' + i + '"' +
+              ' title="' + esc(cd.what || '') + '">' + esc(cd.name || pid3) + '</button>';
+          }).join('') + '</div></div>';
+      }
       /* SUTRAS — the threads through the ages, drawn as malas filling bead by
          bead. Only threads the player has actually met appear: an arc is a
          discovery, not a checklist handed out in advance. */
@@ -3685,8 +3862,16 @@
             'Every living city hides one real thing. The folk whisper where; a patient eye catches the glint. ' +
             'A city folded into memory keeps its unfound khazana forever.</p>';
         })() +
+        '<div class="mono" style="margin-top:8px">Vidya — what the age knows how to do</div>' +
         '<div class="sab-works">' + rows + '</div>' +
-        '<p class="tiny" style="color:var(--muted)">Two doors open in every age, and the coins rarely stretch to both at once. The order you choose is the strategy.</p>' +
+        '<div class="mono" style="margin-top:12px">Riti — how your realm does things</div>' +
+        '<div class="sab-works">' + ritiRows + '</div>' +
+        '<div class="mono" style="margin-top:12px">In force — ' + polSlots() +
+          ' slot' + (polSlots() > 1 ? 's' : '') + ', and swapping costs nothing</div>' +
+        '<div class="sab-slots">' + slots + '</div>' +
+        '<p class="tiny" style="color:var(--muted)">Two trees run at once and the coins never stretch to both, ' +
+        'so the order is the strategy. Build the thing first and the learning comes quicker — ' +
+        'three fields and the plough half teaches itself.</p>' +
         '</div>';
     }
     var techOpened = false;
@@ -3994,7 +4179,7 @@
       var raid = pool[(G.t * 5) % pool.length];
       /* a park wonder keeps the beasts off; a watchtower doubles the warning */
       if (raid.kind === 'beast' && wonderGuard(tgt.id, 'beast')) return;
-      var lead = wonderGuard(tgt.id, 'watch') ? T.warnTower : T.warnTicks;
+      var lead = (wonderGuard(tgt.id, 'watch') ? T.warnTower : T.warnTicks) * (polEff('warn') || 1);
       G.warn = { id: tgt.id, raid: raid.id, at: G.t + lead, lead: lead };
       G.lastraid = G.t;
       fxAt(tgt.x, tgt.y, 'mist');
@@ -4181,10 +4366,14 @@
       SITES.forEach(function (s2) { var q2 = G.sites[s2.id]; if (q2 && q2.bld && q2.bld.gurukul) k++; });
       return k;
     }
-    function techDur() {
+    function techDur(t) {
       var base = T.techTicks + T.techEra * G.era;
       var cut = Math.max(T.techFloor, 1 - schools() * T.techSchool);
-      return Math.max(4, Math.round(base * cut));
+      if (polEff('techCut')) cut *= polEff('techCut');
+      /* THE EUREKA IS TIME, NOT COIN. Paying less would say "this was cheap"; finishing
+         sooner says "you already knew half of this", which is the true thing. */
+      cut *= (1 - eurekaPct(t));
+      return Math.max(3, Math.round(base * cut));
     }
     /* WHERE THE WALLS STAND DECIDES HOW FAST THE MONUMENT RISES.
        docs/16 already says the fort shelters a monument still rising — it was true in
@@ -4293,7 +4482,7 @@
         var y = yieldOf(s);
         if (y) { G.res.anna += y.anna; G.res.kala += y.kala; G.res.katha += y.katha; }
         var q = G.sites[s.id];
-        if (!q.zzz && !q.her) eaten += popOf(s.id) * T.eat;
+        if (!q.zzz && !q.her) eaten += popOf(s.id) * T.eat * (polEff('eat') || 1);
       });
       if (eaten) {
         if (G.res.anna >= eaten) G.res.anna -= eaten;
@@ -4498,6 +4687,10 @@
         var q = G.sites[s.id];
         if (q.zzz || q.her) return;                 /* memory does not fade twice */
         if (G.tech.satellite) { q.idle = 0; if (q.fade >= 0) q.fade = -1; return; }   /* nothing found is ever lost again */
+        /* THE FULL KOSH — something kept back. While there is grain in the stores no
+           town slides toward the mist; empty them and the promise lapses, which is
+           the point of a treasury rather than a blessing. */
+        if (polEff('noFade') && G.res.anna > 0) { q.idle = 0; if (q.fade >= 0) q.fade = -1; return; }
         if (connected(s.id)) { q.idle = 0; if (q.fade >= 0 && !G.ev) q.fade = -1; return; }
         if (q.fade >= 0) {
           q.fade++;
@@ -4909,7 +5102,8 @@
           var pa = byId[G.disp.a].name, pb = byId[G.disp.b].name;
           touch(G.disp.a); touch(G.disp.b);
           G.disp = null; G.lastd = G.t;
-          G.res.katha += T.reward.peace; G.score += 40;
+          G.res.katha += T.reward.peace * (polEff('peace') || 1); G.score += 40;
+          G.peaceMade = (G.peaceMade || 0) + 1;
           say('The panchayat rises: ' + pa + ' and ' + pb + ' shake on it. Peace pays. +' + T.reward.peace + ' \ud83d\udcdc', 'warm');
           paintCity(); paintAll(); return;
         }
@@ -4954,6 +5148,37 @@
           say(G.moving ? 'Tap something you have built to lift it — it costs a third of its price to set down again.'
                        : '', '');
           paintCity(); return;
+        }
+        /* ADOPTING A CUSTOM, and slotting the card it opens */
+        if (a === 'riti') {
+          var rid2 = actEl.getAttribute('data-r'), rd = RITI_BY[rid2];
+          if (!rd || (G.riti || {})[rid2]) return;
+          if (!ritiOpenFor(rd)) { say(rd.name + ' waits on ' + ritiMissing(rd).join(' and ') + '.', ''); return; }
+          var rc = costOf(rd.cost, 'riti');
+          if (!canPay(rc)) return;
+          pay(rc);
+          if (!G.riti) G.riti = {};
+          G.riti[rid2] = true; G.score += 25;
+          say(rd.name + ' — the realm takes it up. ' + (POL_BY[rd.gives] || {}).name +
+              ' is yours to slot.', 'warm');
+          paintTech(); paintAll(); return;
+        }
+        if (a === 'pol') {
+          var pidw = actEl.getAttribute('data-p'), slot = +actEl.getAttribute('data-s') || 0;
+          if (!G.pol) G.pol = [];
+          if (polOpen().indexOf(pidw) < 0) return;
+          /* swapping is free, on purpose: a nine-year-old must be able to change
+             their mind about how their realm works */
+          var was = G.pol.indexOf(pidw);
+          if (was >= 0) G.pol[was] = null;
+          G.pol[slot] = pidw;
+          say((POL_BY[pidw] || {}).name + ' — in force.', 'warm');
+          paintTech(); paintAll(); return;
+        }
+        if (a === 'polclear') {
+          var cs = +actEl.getAttribute('data-s') || 0;
+          if (G.pol) G.pol[cs] = null;
+          paintTech(); paintAll(); return;
         }
         if (a === 'kitturn') {
           G.kitRot = ((G.kitRot || 0) + 1) % 4;
@@ -5063,13 +5288,14 @@
           var tid = actEl.getAttribute('data-t');
           var td = null; TECHS.forEach(function (t) { if (t.id === tid) td = t; });
           if (!td || G.tech[tid] || td.era > G.era) return;
-          var tc = costOf(td.cost, 'tech');
+          if (!techOpenFor(td)) { say(td.name + ' waits on ' + techMissing(td).join(' and ') + '.', ''); return; }
+          var tc = techCost(td);
           if (!canPay(tc)) return;
           if (G.proj) { say('The school is already at work on ' +
             (function () { var o = ''; TECHS.forEach(function (t2) { if (t2.id === G.proj.id) o = t2.name; }); return o; })() +
             '. One thing at a time.', 'warm'); return; }
           pay(tc);
-          G.proj = { id: tid, at: G.rt, dur: techDur() };
+          G.proj = { id: tid, at: G.rt, dur: techDur(td) };
           say(td.name + ' — the school begins. ' + (schools() ? schools() + ' gurukul' + (schools() > 1 ? 's' : '') +
             ' at work; it' : 'It') + ' will take a while.', 'warm');
           paintTech(); paintAll(); return;
@@ -5490,7 +5716,10 @@
                   kity: kitYield, adjPrev: adjPreview, adj: adjTotal,
                   terrain: function (id, x, y) { return W.IND_KIT.terrain(id, x, y); },
                   river: riverAnna, reachTo: reachTo, monShelter: monShelter,
-                  lift: liftPiece };
+                  lift: liftPiece,
+                  techOpen: techOpenFor, ritiOpen: ritiOpenFor, techCost: techCost,
+                  eureka: eurekaPct, eurekaN: eurekaCount, techDur: techDur,
+                  polEff: polEff, polSlots: polSlots, polOpen: polOpen };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,

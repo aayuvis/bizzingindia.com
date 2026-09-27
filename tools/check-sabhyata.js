@@ -345,6 +345,131 @@ check('grow-dir', 'growth reaches further on the side the player chose', async (
     throw new Error(`choosing east changed nothing (${r.before} -> ${r.after}) — growth is still a circle`);
 });
 
+/* ------------------------------------------------ PHASE 3: the two trees */
+
+check('prereq', 'research is a tree: a locked door stays shut and says why', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.res.anna = 900; G.res.kala = 900; G.res.katha = 900;
+    G.tech = {};
+    const T = window.IND_SABHYATA.techs;
+    const gated = T.find(t => (t.needs || []).length && t.era === 0);
+    const openNow = window.__SABDO.techOpen(gated);
+    /* try to buy it anyway, the way a tap would */
+    window.__SABDO.act('dholavira', 'close');
+    const boughtWhileShut = (() => {
+      const before = !!window.__SABG().proj;
+      const el = document.createElement('button');
+      el.setAttribute('data-sab-act', 'tech'); el.setAttribute('data-t', gated.id);
+      document.getElementById('sabwrap').appendChild(el); el.click(); el.remove();
+      return !before && !!window.__SABG().proj;
+    })();
+    /* now grant the prerequisite and ask again */
+    (gated.needs || []).forEach(n => { G.tech[n] = true; });
+    const openAfter = window.__SABDO.techOpen(gated);
+    return { id: gated.id, needs: gated.needs, openNow, openAfter, boughtWhileShut };
+  });
+  if (r.openNow) throw new Error(`${r.id} was open with ${r.needs.join(',')} unlearned`);
+  if (!r.openAfter) throw new Error(`${r.id} stayed shut after its prerequisites were met`);
+  if (r.boughtWhileShut) throw new Error(`${r.id} was bought while its prerequisites were unmet`);
+});
+
+check('doors', 'every age offers at least two things worth wanting', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const D = window.IND_SABHYATA, out = [];
+    for (let e = 0; e < D.eras.length; e++) {
+      const n = D.techs.filter(t => t.era === e).length + (D.riti || []).filter(x => x.era === e).length;
+      if (n < 2) out.push(e + ' has ' + n);
+    }
+    return out;
+  });
+  if (r.length) throw new Error('ages with fewer than two doors: ' + r.join(', '));
+});
+
+check('eureka', 'doing the thing shortens the learning of it', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    const plough = window.IND_SABHYATA.techs.find(t => t.id === 'plough');
+    G.sites.dholavira.kit = [];
+    const cold = window.__SABDO.techDur(plough);
+    const pct0 = window.__SABDO.eureka(plough);
+    /* sow the fields the boost asks for */
+    const field = window.IND_KIT_BUILD.items.find(i => i.g === 'field');
+    G.sites.dholavira.kit = [];
+    for (let i = 0; i < plough.boost.n; i++)
+      G.sites.dholavira.kit.push({ p: field.p, x: i, y: 0 });
+    const warm = window.__SABDO.techDur(plough);
+    const pct1 = window.__SABDO.eureka(plough);
+    G.sites.dholavira.kit = [];
+    return { cold, warm, pct0, pct1, need: plough.boost.n };
+  });
+  if (r.pct0 !== 0) throw new Error(`the boost was already part-paid with nothing built (${r.pct0})`);
+  if (!(r.pct1 > 0)) throw new Error(`building ${r.need} fields did not part-pay the plough`);
+  if (!(r.warm < r.cold)) throw new Error(`the plough took ${r.warm} ticks warm and ${r.cold} cold — the eureka buys nothing`);
+});
+
+check('policy', 'a custom opens a card, the card pays, and swapping is free', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.res.anna = 900; G.res.kala = 900; G.res.katha = 900;
+    G.riti = {}; G.pol = [];
+    const grama = window.IND_SABHYATA.riti.find(x => x.id === 'grama');
+    const openBefore = window.__SABDO.polOpen().length;
+    const click = (act, attrs) => {
+      const el = document.createElement('button');
+      el.setAttribute('data-sab-act', act);
+      Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
+      document.getElementById('sabwrap').appendChild(el); el.click(); el.remove();
+    };
+    click('riti', { 'data-r': 'grama' });
+    const adopted = !!window.__SABG().riti.grama;
+    const openAfter = window.__SABDO.polOpen().length;
+    /* slot it and check the effect is really read */
+    click('pol', { 'data-p': grama.gives, 'data-s': '0' });
+    const inForce = window.__SABDO.polEff('annaKind');
+    click('polclear', { 'data-s': '0' });
+    const cleared = window.__SABDO.polEff('annaKind');
+    return { adopted, openBefore, openAfter, inForce, cleared };
+  });
+  if (!r.adopted) throw new Error('the custom was never adopted');
+  if (!(r.openAfter > r.openBefore)) throw new Error('adopting a custom opened no card');
+  if (r.inForce !== 'kheti') throw new Error(`the slotted card read back as ${r.inForce}, so nothing honours it`);
+  if (r.cleared !== null) throw new Error('taking the card out left it in force');
+});
+
+check('policy-read', 'every policy effect is read somewhere in the engine', async () => {
+  /* A CARD WHOSE EFFECT NOTHING READS is worse than a wrong number: a wrong one gets
+     corrected the first time somebody looks, an ignored one never changes. Read from
+     disk rather than through the page -- the page has no honest view of its own source. */
+  const src = fs.readFileSync(path.join(ROOT, 'sabhyata.js'), 'utf8');
+  const data = fs.readFileSync(path.join(ROOT, 'data-sabhyata.js'), 'utf8');
+  const keys = new Set();
+  const block = data.slice(data.indexOf('policies: ['), data.indexOf('rivers:'));
+  for (const m of block.matchAll(/eff: *\{([^}]*)\}/g))
+    for (const kv of m[1].split(','))
+      if (kv.trim()) keys.add(kv.split(':')[0].trim());
+  if (!keys.size) throw new Error('found no policy effects to check');
+  const unread = [...keys].filter(k => !src.includes(`polEff('${k}')`));
+  if (unread.length) throw new Error('policy effects nothing reads: ' + unread.join(', '));
+});
+
+check('techscale', 'a wider realm does not make learning free', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    const plough = window.IND_SABHYATA.techs.find(t => t.id === 'plough');
+    const ids = Object.keys(G.sites);
+    ids.forEach(id => { G.sites[id].zzz = true; });
+    G.sites.dholavira.zzz = false;
+    const small = window.__SABDO.techCost(plough);
+    ids.slice(0, 12).forEach(id => { G.sites[id].zzz = false; G.sites[id].found = true; });
+    const big = window.__SABDO.techCost(plough);
+    return { small, big };
+  });
+  const k = Object.keys(r.small)[0];
+  if (!(r.big[k] > r.small[k]))
+    throw new Error(`the plough cost ${r.small[k]} in a small realm and ${r.big[k]} in a wide one`);
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

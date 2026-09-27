@@ -1100,6 +1100,46 @@ check('no-raw-escapes', 'no \\uXXXX escape reaches a child as text', async () =>
     throw new Error('escapes that will print as text:\n       ' + bad.join('\n       '));
 });
 
+check('board-share', 'the map is the page, not a stamp beside empty space', async ({ p }) => {
+  /* `board-fills` asks whether the map fills the BOARD. It was green all along while a
+     player was looking at a map that filled a third of the SCREEN, because the board
+     itself was small: a portrait map is bound by height, the HUD was stacked on top of
+     it taking the scarce axis, and a reserved rail strip took 280px more on every
+     screen where nothing was live. Nothing measured the map against the page, so
+     nothing could see it.
+
+     A crude floor, deliberately. The exact share depends on the viewport's shape and
+     is not worth pinning; what is worth catching is the map dropping back to a third
+     of the screen, which is what every version of this fault has looked like. If this
+     fires, open a screenshot before touching the number. */
+  const sizes = [[1440, 900], [1920, 1080]];
+  const bad = [];
+  for (const [w, h] of sizes) {
+    await p.setViewportSize({ width: w, height: h });
+    await p.waitForTimeout(400);
+    const share = await p.evaluate(() => {
+      const st = document.getElementById('sab-stage');
+      const svg = st && st.querySelector('svg');
+      if (!svg) return null;
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      svg.querySelectorAll('path.sab-terr').forEach(el => {
+        const q = el.getBoundingClientRect();
+        if (q.width < 1) return;
+        x0 = Math.min(x0, q.left); y0 = Math.min(y0, q.top);
+        x1 = Math.max(x1, q.right); y1 = Math.max(y1, q.bottom);
+      });
+      if (x1 < x0) return null;
+      return ((x1 - x0) * (y1 - y0)) / (innerWidth * innerHeight);
+    });
+    if (share === null) { bad.push(`${w}x${h}: no board`); continue; }
+    if (share < 0.35)
+      bad.push(`${w}x${h}: the map is ${Math.round(share * 100)}% of the screen`);
+  }
+  await p.setViewportSize({ width: 1440, height: 900 });
+  await p.waitForTimeout(300);
+  if (bad.length) throw new Error('the map has shrunk on the page — ' + bad.join('; '));
+});
+
 check('board-fills', 'the board uses the room it is given, at every width', async ({ p }) => {
   /* Found by looking at a screenshot, which is the only thing that found it. The stage
      was whatever height the flex column had spare and whatever width the page was, and

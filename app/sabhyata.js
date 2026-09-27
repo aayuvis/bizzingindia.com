@@ -524,8 +524,46 @@
          northeast. Reserving the strip as padding means the map's own box ends where
          the rail begins, so nothing is covered by arithmetic rather than by luck.
          Narrow screens keep the corner overlay -- there is no strip to spare. */
-      '.sab-stage{aspect-ratio:auto;height:78vh;width:min(100%,calc(78vh*10/11 + 280px));padding-right:280px;box-sizing:border-box}' +
+      /* A PORTRAIT MAP ON A LANDSCAPE SCREEN IS BOUND BY HEIGHT, so height is what to
+         spend. 78vh left the board well short of the room the column actually had;
+         84vh uses it and the width follows, which is the only way a 1000x1100 map
+         gets bigger on a wide screen without being cropped.
+         The rail's strip is added only when the rail has something in it -- see the
+         has-rail toggle where the rail is filled. Reserved unconditionally it took
+         280px of board on every screen where nothing was live. */
+      '.sab-stage{width:min(100%,calc(84vh*10/11))}' +
+      '.sab-stage.has-rail{width:min(100%,calc(84vh*10/11 + 280px));padding-right:280px;box-sizing:border-box}' +
       '.sab-rail{width:264px;max-height:calc(100% - 16px)}' +
+    '}',
+    /* THE HUD GOES BESIDE THE MAP, NOT ABOVE IT, ONCE THERE IS ROOM.
+       India is taller than it is wide, so on a landscape screen the board is bound by
+       height and can never fill the width without being cropped -- and cropping India
+       is not on the table. Stacking the bar on top then spent the one axis that was
+       actually scarce: the board lost ~110px of height to a row that had 500px of
+       empty space beside it, and the map sat narrow in the middle of a wide card with
+       dead ground either side. That is what "the map is a quarter of the page" is.
+       Beside it, the bar costs the board nothing and the board takes the whole column.
+       Below 1100px there is no room for a second column and the bar goes back on top. */
+    '@media (min-width: 1100px){' +
+      /* THE BOARD'S COLUMN IS SIZED HERE, NOT BY THE BOARD. An `auto` column sizes to
+         its content while the stage sizes itself from `100%` of that column, which is
+         circular: the pair collapsed to 609px and the map got SMALLER than it had been
+         stacked. The column is the dial now and the stage simply fills it. */
+      '.sab-wrap{display:grid;' +
+        'grid-template-columns:min(62vw,calc(88vh*10/11)) minmax(260px,1fr);' +
+        'column-gap:12px;align-content:start}' +
+      '.sab-wrap>.sab-stage{grid-column:1;grid-row:1/span 8;align-self:start;width:100%}' +
+      '.sab-wrap>.sab-bar,.sab-wrap>.sab-strip,.sab-wrap>.sab-advise{grid-column:2;align-self:start}' +
+      '.sab-wrap>.sab-tray,.sab-wrap>#sab-cityhost{grid-column:1/-1}' +
+      /* a column, not a strip: it may wrap now, and the turn button is the widest thing */
+      '.sab-bar{flex-wrap:wrap;row-gap:8px}' +
+      '.sab-bar .sab-gap{display:none}' +
+      '.sab-globals{flex-wrap:wrap}' +
+      /* The rail stays the corner overlay it has always been. It cannot move into the
+         side column without leaving the stage, and it is the stage it is positioned
+         against; with the board now half again as wide it covers proportionally less
+         of the land than the reserved strip cost every screen that had no rail at all. */
+      '.sab-stage.has-rail{padding-right:0;width:100%}' +
       '.sab-hero{max-height:180px;aspect-ratio:auto}' +
       '.sab-cardart{max-height:170px;object-fit:cover}' +
       '.sab-vthumb{width:96px;height:64px}' +
@@ -3570,6 +3608,12 @@
             '</div>';
         }).join('');
         rail.hidden = !items.length;
+        /* THE STRIP EXISTS ONLY WHEN THE RAIL DOES. Reserving room for it always cost
+           280px of board on every screen where nothing was live -- which is most of
+           them, most of the time -- and that empty band is what a player sees as the
+           map being half the page. */
+        var stg = D.getElementById('sab-stage');
+        if (stg) stg.classList.toggle('has-rail', !!items.length);
       }
       var av = D.getElementById('sab-advise');
       if (av) {

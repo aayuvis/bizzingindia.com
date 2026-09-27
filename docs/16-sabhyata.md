@@ -277,6 +277,20 @@ Five passes, each with a check that fails before it passes.
   name. Both are the mist's grey with weight now, and the pulse is gone: docs/16 §3 says
   a fading site is sad, not scary, and a throbbing red chip is an alarm in costume.
 
+- **H — the map against the page, not against its own box.** Reported from a real
+  screen, not found here: *"the map occupies only a quarter of the page."* It did.
+  `board-fills` was green throughout, because it asks whether the map fills the **board**
+  and the board itself was small. Three causes, all horizontal room being spent on
+  nothing: the 280px rail strip from pass F was reserved **whether or not the rail had
+  anything in it**, which is most of the time; the HUD was stacked *above* the board,
+  spending the one axis a portrait map is actually short of; and the board's height cap
+  left room in the column unused. India is taller than it is wide, so on a landscape
+  screen the board can never fill the width without being cropped — the width is
+  therefore for the HUD, and above 1100px the bar now sits **beside** the map instead of
+  on top of it. The strip appears only when the rail has rows. Measured: the map went
+  from **34% of a 1440×900 screen to 44%**, and from 31% to 39% at 1920×1080; the drawn
+  map is 35% wider and 83% larger in area than before pass F.
+
 ### What this pass taught, twice
 
 **A write-up can run ahead of the code.** It happened on the tech tree in v6 and again on
@@ -306,7 +320,13 @@ also turned up why it could not open one — `G.ev` puts a second thing over the
 swallows the pair of taps a city needs — which is the sort of fact only an attempt
 surfaces.
 
-**54 checks, 0 failed.** F and G added two — `board-fills` and `no-raw-escapes` — and
+`board-share` is the check that should have existed before any of this: it measures the
+map against the **screen** at two desktop sizes, because every version of this fault has
+looked the same — a map at about a third of the page — and no check that measures a thing
+against its own container can see it. It was watched to fail on the reported layout and
+named it exactly: 31% at 1440×900, 28% at 1920×1080.
+
+**55 checks, 0 failed.** F, G and H added three — `board-fills` and `no-raw-escapes` — and
 widened a third; each was watched to fail first, and `colour-roles` failed for the wrong
 reason before it failed for the right one.
 
@@ -319,7 +339,7 @@ loosening it.** Three did here — the rail check, the city-turn overlap check a
 ladder — and each was rewritten to check the real promise instead of a proxy for it. That is
 the same rule as Bizzing-Videos' `rig.ladderSpan`, arrived at independently.
 
-54 checks, 0 failed, layout audit green.
+55 checks, 0 failed, layout audit green.
 
 ## 10. Phase 2 and beyond (not in this build)
 

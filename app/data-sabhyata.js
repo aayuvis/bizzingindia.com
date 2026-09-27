@@ -311,6 +311,40 @@ window.IND_SABHYATA = {
   /* ports, for Monsoon Sailing */
   ports: ['lothal', 'sopara', 'mamallapuram', 'muziris', 'konark'],
 
+  /* ==================================================================
+     GOODS — why a road to somewhere DIFFERENT is worth more than another road
+     ==================================================================
+     There was no scarcity in this game beyond coin. Every city produced the same
+     three numbers, so one more road was worth exactly as much as any other road and
+     the map had no geography to it: a network of eight farming towns beat a network
+     of four farms, two workshops and two schools, which is the opposite of the lesson.
+
+     A good here is a CATEGORY, not a historical claim, and that is deliberate. It is
+     what the city's own `kind` already says it is for, crossed with the part of the
+     country it stands in -- "the fields of the west", "the workshops of the south".
+     Naming a specific commodity per site would mean asserting what each real place
+     traded, and this file may not do that from memory (docs/05 §2); the categories
+     assert nothing and do the same mechanical work.
+
+     KHUSHI is what they are for: a realm's contentment is how many DIFFERENT goods
+     its roads can reach. Variety, not volume -- so the interesting network is the
+     wide one, and a child learns why a trade route goes somewhere unlike home. A
+     realm short of variety grows restless and its towns gather dust; it is never
+     shamed, and it is always fixable by reaching somewhere new. */
+  regions: {
+    PB: 'north', HR: 'north', DL: 'north', CH: 'north', UP: 'north', RJ: 'north',
+    GJ: 'west', MH: 'west', MP: 'centre',
+    BR: 'east', WB: 'east', OR: 'east',
+    AP: 'south', KA: 'south', KL: 'south', TN: 'south'
+  },
+  goodNames: {
+    kheti:  'fields', shilpa: 'workshops', vidya: 'learning'
+  },
+  /* how many distinct goods a realm wants by the age it is in. It rises, because a
+     bigger realm that has not widened is the thing this is meant to notice. */
+  khushi: [1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5],
+
+
   /* THE PEOPLE. Every city has praja — citizens with jobs the player allocates.
      Jobs are era-honest and gentle; the rakshaks are a village WATCH, not an army:
      they drive crop-raiders off with drums, torches and mended fences, and nobody

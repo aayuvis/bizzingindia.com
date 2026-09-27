@@ -154,6 +154,7 @@
     '.sab-res{display:flex;gap:8px;flex-wrap:wrap}',
     '.sab-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07),0 3px 10px rgba(30,20,64,.06);font-weight:800;font-size:12.5px}',
     '.sab-chip small{font-weight:600;color:var(--muted)}',
+    '.sab-restless{background:#fdf0e6;cursor:pointer}',
     '.sab-btn{min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font:700 14px var(--body,system-ui);cursor:pointer}',
     '.sab-btn:disabled{opacity:.45;cursor:default}',
     '.sab-btn.go{background:var(--accent);border-color:var(--accent);color:#fff}',
@@ -1016,6 +1017,80 @@
     function polOpen() {
       return RITI.filter(function (r) { return (G.riti || {})[r.id]; })
                  .map(function (r) { return r.gives; });
+    }
+
+    /* ==================================================================
+       GOODS AND KHUSHI — variety, not volume
+       ==================================================================
+       Every city produced the same three numbers, so one more road was worth exactly
+       what any other road was worth: eight farming towns beat four farms, two
+       workshops and two schools, which is the opposite of the lesson a trade game
+       should teach. A good is a category (the city's own kind, crossed with the part
+       of the country it stands in) and a realm's contentment is how many DIFFERENT
+       ones its roads reach. */
+    var REGIONS = DATA.regions || {}, GOODNM = DATA.goodNames || {};
+    function goodOf(id) {
+      var x = byId[id]; if (!x) return null;
+      var nm = GOODNM[x.kind], rg = REGIONS[x.state];
+      return (nm && rg) ? (nm + ' of the ' + rg) : null;
+    }
+    /* which goods the realm can actually reach: a city on no road trades with nobody,
+       so its good does not count -- that is what makes a road to somewhere DIFFERENT
+       the interesting move rather than another road to somewhere the same. */
+    function goodsReached() {
+      var out = {};
+      SITES.forEach(function (x) {
+        if (!inEra(x) || !awake(x.id)) return;
+        if (!connected(x.id) && G.capital !== x.id) return;
+        var g = goodOf(x.id); if (g) out[g] = (out[g] || 0) + 1;
+      });
+      return out;
+    }
+    function khushiWant() {
+      var arr = DATA.khushi || [];
+      return arr[Math.min(G.era, arr.length - 1)] || 1;
+    }
+    function khushiHave() { return Object.keys(goodsReached()).length; }
+    /* short of variety the realm grows restless. It is never shamed and always
+       fixable by reaching somewhere new -- docs/16: a fading thing is sad, not scary. */
+    function restless() { return Math.max(0, khushiWant() - khushiHave()); }
+
+    /* ==================================================================
+       WHAT A REALM CAN DO AT ONCE
+       ==================================================================
+       Nothing capped the number of great works in flight, so a rich realm started
+       every monument in the same turn and the decision "which city does the great
+       thing this age" never came up. */
+    function worksCap() { return 1 + Math.floor(G.era / 4); }
+    function worksRunning() {
+      return SITES.filter(function (x) { return G.sites[x.id].monB; }).length;
+    }
+
+    /* DIMINISHING RETURNS. Every bonus in this game was additive and permanent, and
+       the kingdom's +1 of everything to every connected city meant the mid-game
+       collapsed into inevitability: there was no decision left because everything was
+       already paid for. The sum of the STACKED bonuses (not the city's own work) is
+       softened once it runs away. */
+    function soften(n) {
+      if (n <= 4) return n;
+      return 4 + Math.round((n - 4) * 0.6);
+    }
+
+    /* UPKEEP. A road cost kala once and then nothing for five thousand years, so a
+       sprawling network was strictly better than a considered one and pruning was
+       never a move. Roads past the first few ask a little grain each turn. */
+    function upkeep() {
+      var free = 4 + G.era;
+      return Math.max(0, G.routes.length - free) * 0.2;
+    }
+
+    /* AND THE STORES HAVE A LID. Hoarding anna was strictly optimal -- nothing ever
+       asked the player to spend -- so the granaries were a wall to stand behind
+       rather than a thing to use. */
+    function storeCap() {
+      var g = 0;
+      SITES.forEach(function (x) { if (inEra(x) && G.sites[x.id].bld.granary) g++; });
+      return 120 + G.era * 20 + g * 40 + (polEff('noFade') ? 60 : 0);
     }
     /* THE FOUR JOBS ARE NOT FOUR ANY MORE. Every count, split and shrink used
        to name kisan/karigar/kathakar/rakshak in a literal array, in six
@@ -2173,8 +2248,10 @@
       var q = G.sites[id];
       /* every home built is one more pair of hands — the reason a child
          builds huts before they build anything clever */
-      return 2 + q.lv * 2 + (q.bld.granary ? 1 : 0) +
-             (kitOn(id) ? kitPop(id) : 0);
+      /* `away` and `came` are migration's ledger: pop is otherwise derived from the
+         level and the board, so people leaving had nowhere to be recorded. */
+      return Math.max(2, 2 + q.lv * 2 + (q.bld.granary ? 1 : 0) +
+             (kitOn(id) ? kitPop(id) : 0) - (q.away || 0) + (q.came || 0));
     }
     /* default split, and the top-up rule when the town grows: new hands farm first —
        which is also the deadlock guarantee: kisan exist from the first minute */
@@ -2195,6 +2272,48 @@
       }
       return q.jobs;
     }
+    /* ==================================================================
+       MIGRATION — pressure without a border
+       ==================================================================
+       The genre's version of this flips cities between empires when one side's culture
+       outweighs the other's, and it is the one mechanic here that could not be ported
+       as it stands: it is territory changing hands, drawn on a map, which CLAUDE.md
+       forbids outright. What is worth keeping is the PRESSURE -- that a place nobody
+       tends loses its people to a place somebody does.
+
+       So it runs on this game's own fiction instead of on food. A dusty or fading town
+       loses a pair of hands to a thriving town its own road reaches. Nothing is
+       conquered, nothing changes colour, nobody is shamed: somebody walks down a road
+       that already exists, toward the town that is being looked after. And it reverses
+       the moment the neglected town is tended again, because `away` is a ledger and not
+       a wound. */
+    function migrate() {
+      var leaving = null, going = null;
+      SITES.forEach(function (x) {
+        if (!inEra(x) || !awake(x.id)) return;
+        var q = G.sites[x.id];
+        if (q.her) return;
+        var sad = dusty(x.id) || q.fade >= 0;
+        if (sad && popOf(x.id) > 2 && !leaving) leaving = x.id;
+      });
+      if (!leaving) return;
+      /* somewhere its own road actually goes */
+      var near = reach(leaving) || [];
+      near.forEach(function (id) {
+        if (going || id === leaving) return;
+        var q2 = G.sites[id];
+        if (!awake(id) || q2.her || dusty(id) || q2.fade >= 0) return;
+        going = id;
+      });
+      if (!going) return;
+      var ql = G.sites[leaving], qg = G.sites[going];
+      ql.away = (ql.away || 0) + 1;
+      qg.came = (qg.came || 0) + 1;
+      ql.jobs = null; qg.jobs = null;          /* re-split both crews */
+      say('A family walks from ' + nameOf(byId[leaving]) + ' to ' + nameOf(byId[going]) +
+          ' — tend a town and its people stay.', 'mist');
+    }
+
     function inKingdomOf(id) {
       var seats = Object.keys(G.kingdoms);
       for (var i = 0; i < seats.length; i++) {
@@ -2229,8 +2348,13 @@
       out.kala += j.karigar * (spec === 'karigar' ? 2 : 1);
       out.katha += j.kathakar * (spec === 'kathakar' ? 2 : 1);
       if (conn) ['anna', 'kala', 'katha'].forEach(function (k) { if (out[k]) out[k] += 1; });
-      if (q.hero && !q.hero.gone) out[YIELD[x.kind]] += 2;
-      if (inKingdomOf(x.id)) { out.anna += 1; out.kala += 1; out.katha += 1; }
+      /* WHAT THE CITY ITSELF MAKES is above this line; everything below is a BONUS
+         stacked on top, and those are what ran away. They are gathered and softened
+         together so no single one has to be nerfed and the city's own hands always
+         pay in full. */
+      var st = { anna: 0, kala: 0, katha: 0 };
+      if (q.hero && !q.hero.gone) st[YIELD[x.kind]] += 2;
+      if (inKingdomOf(x.id)) { st.anna += 1; st.kala += 1; st.katha += 1; }
       /* what was BUILT on the board pays out too — a wheat field is not
          scenery, it is one more 🌾 every turn for as long as it is sown */
       if (kitOn(x.id)) {
@@ -2256,7 +2380,7 @@
       if (q.bld.granary) out.anna += 1;
       if (q.bld.workshop) out.kala += 1;
       if (q.bld.gurukul) out.katha += 1;
-      if (q.bld.bazaar && conn) { out.anna += 1; out.kala += 1; out.katha += 1; }
+      if (q.bld.bazaar && conn) { st.anna += 1; st.kala += 1; st.katha += 1; }
       if (G.tech.plough && x.kind === 'kheti') out.anna += 1;
       if (G.tech.iron && x.kind === 'shilpa') out.kala += 1;
       if (G.tech.zero && x.kind === 'vidya') out.katha += 1;
@@ -2266,6 +2390,15 @@
       if (G.tech.charkha && x.kind === 'shilpa') out.kala += 1;
       if (G.tech.ship && conn && PORTS.indexOf(x.id) >= 0) { out.anna += 1; out.kala += 1; out.katha += 1; }
       if (G.tech.harit && x.kind === 'kheti') out.anna += 2;
+      /* the stacked bonuses, softened once they run away */
+      out.anna += soften(st.anna); out.kala += soften(st.kala); out.katha += soften(st.katha);
+      /* A REALM SHORT OF VARIETY IS RESTLESS, and a restless town works slower. Never
+         a punishment that cannot be undone: reach somewhere unlike home and it lifts. */
+      if (restless()) {
+        var rf = Math.max(0.5, 1 - restless() * 0.15);
+        out.anna = Math.floor(out.anna * rf); out.kala = Math.floor(out.kala * rf);
+        out.katha = Math.floor(out.katha * rf);
+      }
       /* what the land itself gives, once a scout has found it */
       var wg = wonderYield(x.id);
       out.anna += wg.anna; out.kala += wg.kala; out.katha += wg.katha;
@@ -2697,9 +2830,18 @@
       });
       D.getElementById('sab-res').innerHTML = ['anna', 'kala', 'katha'].map(function (k) {
         var d = Math.round(net[k] * 10) / 10;
+        var lid = (k === 'anna') ? ' <small>of ' + storeCap() + '</small>' : '';
         return '<span class="sab-chip">' + ICON[k] + ' ' + Math.floor(G.res[k]) +
-          ' <small>' + (d >= 0 ? '+' : '') + d + '/turn</small></span>';
-      }).join('');
+          ' <small>' + (d >= 0 ? '+' : '') + d + '/turn</small>' + lid + '</span>';
+      }).join('') +
+      /* KHUSHI ON THE BAR. Variety is now a thing the realm can be short of, and a
+         number the player cannot see is a rule they cannot play to. */
+      (function () {
+        var w = khushiWant(), h = khushiHave(), r2 = restless();
+        return '<span class="sab-chip' + (r2 ? ' sab-restless' : '') + '"' +
+          ' data-sab-act="khushi" title="' + esc(Object.keys(goodsReached()).join(', ') || 'nothing reached yet') + '">' +
+          '🧡 ' + h + '/' + w + ' <small>' + (r2 ? 'restless' : 'content') + '</small></span>';
+      })();
       var adv = D.getElementById('sab-adv');
       if (G.era < ERAS.length - 1) {
         adv.hidden = false;
@@ -4482,8 +4624,10 @@
         var y = yieldOf(s);
         if (y) { G.res.anna += y.anna; G.res.kala += y.kala; G.res.katha += y.katha; }
         var q = G.sites[s.id];
+        void q;
         if (!q.zzz && !q.her) eaten += popOf(s.id) * T.eat * (polEff('eat') || 1);
       });
+      eaten += upkeep();                     /* the roads ask a little grain too */
       if (eaten) {
         if (G.res.anna >= eaten) G.res.anna -= eaten;
         else {
@@ -4492,6 +4636,23 @@
           say('The granaries are empty and every town feels it — put more hands to farming.', 'mist');
         }
       }
+
+      /* THE STORES HAVE A LID, so grain is a thing to use rather than a wall to
+         stand behind. Overflow is not lost quietly — it is said out loud, because a
+         number that stops moving with no explanation reads as a bug. */
+      var cap = storeCap();
+      if (G.res.anna > cap) {
+        G.res.anna = cap;
+        if (!G.saidCap || G.t - G.saidCap > 30) {
+          G.saidCap = G.t;
+          say('The granaries are full to the roof — spend it, or build somewhere to keep it.', '');
+        }
+      }
+
+      /* PRAJA MOVE. A town that cannot feed itself loses a pair of hands to one that
+         can. This is population pressure with no border anywhere near it: nobody is
+         conquered, nothing changes colour, somebody just walks to where there is food. */
+      if (G.t % 8 === 0) migrate();
 
       /* THE PLANS RUN. A city with a queue spends the realm's coin on its own
          next thing, in the order the player set, the moment it can afford it. */
@@ -5180,6 +5341,21 @@
           if (G.pol) G.pol[cs] = null;
           paintTech(); paintAll(); return;
         }
+        if (a === 'khushi') {
+          var gr = goodsReached(), ks = Object.keys(gr).sort();
+          showOverlay('<div class="mono" style="color:var(--accent2)">khushi — what the roads reach</div>' +
+            '<h3>' + khushiHave() + ' of ' + khushiWant() + ' kinds of thing</h3>' +
+            '<p>A realm is content when its roads reach enough DIFFERENT places — not enough places. ' +
+            'Eight farming towns are eight of the same thing; a farm, a workshop and a school are three. ' +
+            (restless() ? 'Yours is short by ' + restless() + '. Reach somewhere unlike home and it lifts — ' +
+              'nothing is lost meanwhile, the towns just work slower.'
+                        : 'Yours has plenty, and every town works at full pace.') + '</p>' +
+            (ks.length ? '<ul style="margin:6px 0 0;padding-left:18px">' + ks.map(function (k2) {
+              return '<li class="tiny">' + esc(k2) + ' ×' + gr[k2] + '</li>'; }).join('') + '</ul>'
+                       : '<p class="tiny">No road reaches anything yet.</p>') +
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">I see</button></div>');
+          return;
+        }
         if (a === 'kitturn') {
           G.kitRot = ((G.kitRot || 0) + 1) % 4;
           paintCity(); paintAll(); return;
@@ -5223,6 +5399,11 @@
           flashSec(actEl.getAttribute('data-t'));
           var qm = G.sites[city], sm = byId[city];
           if (qm.mon || qm.lv < 3) return;
+          if (worksRunning() >= worksCap()) {
+            say('The realm can raise ' + worksCap() + ' great work' + (worksCap() > 1 ? 's' : '') +
+                ' at a time, and the masons are all out. Which city gets this age is the decision.', '');
+            return;
+          }
           var mc = costOf(T.monCost[sm.era], 'monument');
           if (!canPay(mc)) return;
           if (qm.monB) return;
@@ -5719,7 +5900,11 @@
                   lift: liftPiece,
                   techOpen: techOpenFor, ritiOpen: ritiOpenFor, techCost: techCost,
                   eureka: eurekaPct, eurekaN: eurekaCount, techDur: techDur,
-                  polEff: polEff, polSlots: polSlots, polOpen: polOpen };
+                  polEff: polEff, polSlots: polSlots, polOpen: polOpen,
+                  good: goodOf, goods: goodsReached, khushi: function () {
+                    return { want: khushiWant(), have: khushiHave(), restless: restless() }; },
+                  worksCap: worksCap, worksRunning: worksRunning, upkeep: upkeep,
+                  storeCap: storeCap, migrate: migrate, soften: soften };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,

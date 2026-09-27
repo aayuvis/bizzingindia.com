@@ -470,6 +470,133 @@ check('techscale', 'a wider realm does not make learning free', async ({ p }) =>
     throw new Error(`the plough cost ${r.small[k]} in a small realm and ${r.big[k]} in a wide one`);
 });
 
+/* ----------------------------------------------- PHASE 4: scarcity */
+
+check('goods', 'a road somewhere different is worth more than another road the same', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    const D = window.IND_SABHYATA;
+    /* two towns of the SAME kind and region vs two of different ones */
+    const byGood = {};
+    D.sites.forEach(x => {
+      const g = window.__SABDO.good(x.id);
+      if (g) (byGood[g] = byGood[g] || []).push(x.id);
+    });
+    const same = Object.values(byGood).find(a => a.length >= 2);
+    const goods = Object.keys(byGood);
+    const diff = [byGood[goods[0]][0], byGood[goods[1]][0]];
+    const wake = ids => {
+      Object.keys(G.sites).forEach(id => { G.sites[id].zzz = true; G.sites[id].found = false; });
+      G.routes = [];
+      ids.forEach(id => { G.sites[id].zzz = false; G.sites[id].found = true; });
+      G.routes = [[ids[0], ids[1]]];
+    };
+    wake(same);
+    const sameN = window.__SABDO.khushi().have;
+    wake(diff);
+    const diffN = window.__SABDO.khushi().have;
+    return { sameN, diffN, same, diff };
+  });
+  if (!(r.diffN > r.sameN))
+    throw new Error(`two alike towns gave ${r.sameN} kinds and two unlike gave ${r.diffN} — variety counts for nothing`);
+});
+
+check('restless', 'a realm short of variety works slower, and it always lifts', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 6;                                   /* an age that wants real variety */
+    Object.keys(G.sites).forEach(id => { G.sites[id].zzz = true; });
+    const one = Object.keys(G.sites)[0];
+    G.sites.dholavira.zzz = false; G.sites.dholavira.found = true;
+    G.routes = [];
+    const short = window.__SABDO.khushi();
+    const thin = window.__SABDO.kity('dholavira');
+    /* now reach plenty of different things */
+    const D = window.IND_SABHYATA, seen = new Set(), ids = [];
+    D.sites.forEach(x => {
+      const g = window.__SABDO.good(x.id);
+      if (g && !seen.has(g)) { seen.add(g); ids.push(x.id); }
+    });
+    ids.forEach(id => { G.sites[id].zzz = false; G.sites[id].found = true; });
+    G.routes = ids.slice(1).map(id => ['dholavira', id]);
+    const full = window.__SABDO.khushi();
+    return { shortBy: short.restless, fullBy: full.restless, want: short.want };
+  });
+  if (!(r.shortBy > 0)) throw new Error(`a one-town realm in age 7 was not short of anything (wants ${r.want})`);
+  if (r.fullBy !== 0) throw new Error(`a wide realm was still short by ${r.fullBy}`);
+});
+
+check('caps', 'one age raises a limited number of great works', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 0;
+    const cap0 = window.__SABDO.worksCap();
+    G.era = 8;
+    const cap8 = window.__SABDO.worksCap();
+    return { cap0, cap8 };
+  });
+  if (!(r.cap0 >= 1)) throw new Error('no great work can be raised at all');
+  if (!(r.cap8 > r.cap0)) throw new Error(`the cap never widens (${r.cap0} -> ${r.cap8})`);
+});
+
+check('upkeep', 'a sprawling road network costs something to keep', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 0; G.routes = [];
+    const none = window.__SABDO.upkeep();
+    const ids = Object.keys(G.sites).slice(0, 24);
+    G.routes = ids.slice(1).map((id, i) => [ids[i], id]);
+    const many = window.__SABDO.upkeep();
+    return { none, many, n: G.routes.length };
+  });
+  if (r.none !== 0) throw new Error(`an empty network already costs ${r.none}`);
+  if (!(r.many > 0)) throw new Error(`${r.n} roads cost nothing to keep`);
+});
+
+check('soften', 'stacked bonuses stop running away', async ({ p }) => {
+  const r = await p.evaluate(() => [1, 3, 4, 8, 16].map(n => [n, window.__SABDO.soften(n)]));
+  const small = r.find(x => x[0] === 3), big = r.find(x => x[0] === 16);
+  if (small[1] !== 3) throw new Error(`a small stack was softened (${small[1]}) — the city's own work must pay in full`);
+  if (!(big[1] < 16)) throw new Error(`a stack of 16 still pays ${big[1]}`);
+  if (!(big[1] > small[1])) throw new Error('softening went backwards — more is no longer more');
+});
+
+check('storecap', 'the granaries have a lid, and building raises it', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    Object.keys(G.sites).forEach(id => { G.sites[id].bld = {}; });
+    const bare = window.__SABDO.storeCap();
+    G.sites.dholavira.bld.granary = true;
+    const withOne = window.__SABDO.storeCap();
+    G.res.anna = bare * 10;
+    window.__SABDO.turn();
+    const held = window.__SABG().res.anna;
+    return { bare, withOne, held };
+  });
+  if (!(r.withOne > r.bare)) throw new Error('a granary does not raise the lid');
+  if (!(r.held <= r.withOne + 1)) throw new Error(`the stores held ${r.held} against a lid of ${r.withOne}`);
+});
+
+check('migrate', 'a neglected town loses people to a tended one, and no border moves', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    const ids = Object.keys(G.sites);
+    const a = 'dholavira';
+    const b = ids.find(i => i !== a);
+    [a, b].forEach(i => { G.sites[i].zzz = false; G.sites[i].found = true; G.sites[i].her = false;
+                          G.sites[i].lv = 3; G.sites[i].away = 0; G.sites[i].came = 0; });
+    G.routes = [[a, b]];
+    /* neglect one of them hard */
+    G.sites[a].neg = 99999;
+    const popBefore = { a: G.sites[a].away || 0, b: G.sites[b].came || 0 };
+    window.__SABDO.migrate();
+    const G2 = window.__SABG();
+    return { left: G2.sites[a].away || 0, arrived: G2.sites[b].came || 0, popBefore };
+  });
+  if (!(r.left > 0 || r.arrived > 0))
+    throw new Error('a hard-neglected town beside a tended one lost nobody');
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

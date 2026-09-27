@@ -327,8 +327,17 @@ Five passes, each with a check that fails before it passes.
   `no-bleed` holds the decision rather than the accident — the board stays inside its
   parent's content box at three phone widths, and the page never scrolls sideways,
   because an overflowing negative margin is how a bleed comes back by accident rather
-  than on purpose. The phone map is therefore **29% of the screen and stays there**; on
-  a phone the ceiling is the page's own margins, and those are not this game's to spend.
+  than on purpose.
+
+  The room the board could not take by bleeding was then given to it properly: the
+  **card's own side padding drops from 22px to 8px below 560px**, in `app.css`, so the
+  board gains the width from inside the page rather than by stepping outside it. Vertical
+  padding is untouched — it is the rhythm between cards, and it costs the map nothing,
+  because the board's height follows its width. A 390px phone went **29% → 34.5%**, a
+  375px one to 41.4%, and the HUD bar collapsed from two rows to one, so the map gained
+  height as well. That padding is site-wide, so `no-bleed` watches both halves of the
+  promise: the board stays inside the page, **and** takes at least 85% of its width. A
+  card padding quietly restored is a map quietly shrunk, and nothing else would notice.
 
 ### What this pass taught, twice
 

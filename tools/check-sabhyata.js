@@ -1159,7 +1159,7 @@ check('realm', 'the side column says what the realm is doing, from turn one', as
     throw new Error(`clicking ${went.want} selected ${went.got}`);
 });
 
-check('no-bleed', 'the board stays inside the page, at every phone width', async ({ p }) => {
+check('no-bleed', 'on a phone the board fills the page without escaping it', async ({ p }) => {
   /* A phone binds the board by WIDTH -- the opposite of a desktop, where it is bound by
      height -- so it is tempting to buy the map some room by stepping the board out of
      the page's padding and running it to the screen edge. That was tried and is not
@@ -1168,7 +1168,13 @@ check('no-bleed', 'the board stays inside the page, at every phone width', async
      So this is a check on a decision, not on an accident. It holds the board within its
      parent's content box on the three common phone widths, and holds the page to no
      sideways scroll -- because a negative margin that overflows is how a bleed comes
-     back by accident rather than on purpose. */
+     back by accident rather than on purpose.
+
+     AND THE OTHER HALF OF THE SAME PROMISE: inside the page, but using nearly all of
+     it. The room the board could not take by bleeding was found instead by cutting the
+     card's own side padding on phones from 22px to 8px -- that padding is site-wide, so
+     the number lives in app.css and this is the only thing watching it. A phone's board
+     is bound by width, so a card padding quietly restored is a map quietly shrunk. */
   const sizes = [[390, 844], [360, 740], [375, 667]];
   const bad = [];
   for (const [w, h] of sizes) {
@@ -1180,6 +1186,7 @@ check('no-bleed', 'the board stays inside the page, at every phone width', async
       const b = st.getBoundingClientRect();
       const host = st.parentElement.getBoundingClientRect();
       return { outL: Math.round(host.left - b.left), outR: Math.round(b.right - host.right),
+               frac: b.width / innerWidth,
                over: document.documentElement.scrollWidth - document.documentElement.clientWidth };
     });
     if (!r) { bad.push(`${w}x${h}: no board`); continue; }
@@ -1187,6 +1194,8 @@ check('no-bleed', 'the board stays inside the page, at every phone width', async
       bad.push(`${w}x${h}: the board bleeds out of the page by ${Math.max(r.outL, r.outR)}px`);
     if (r.over > 1)
       bad.push(`${w}x${h}: the page scrolls sideways by ${r.over}px`);
+    if (r.frac < 0.85)
+      bad.push(`${w}x${h}: the board is only ${Math.round(r.frac * 100)}% of the screen's width — side padding has crept back`);
   }
   await p.setViewportSize({ width: 1440, height: 900 });
   await p.waitForTimeout(300);

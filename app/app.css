@@ -228,6 +228,15 @@ button, input, select, textarea { font: inherit; color: inherit; }
   box-shadow: var(--shadow); margin-bottom: var(--space-lg);
 }
 .card.tight { padding: var(--space-md) var(--space-lg); }
+/* A PHONE'S SIDE PADDING IS THE MAP'S WIDTH. The board in Sabhyata is bound by width
+   on a phone -- the opposite of a desktop, where it is bound by height -- so every
+   horizontal pixel of chrome comes straight off the map. 22px each side of a 390px
+   screen is 11% of it. Vertical padding is untouched: it is the rhythm between cards
+   and costs the map nothing, because the board's height follows its width. */
+@media (max-width: 560px) {
+  .card { padding: var(--space-xl) var(--space-sm); }
+  .card.tight { padding: var(--space-md) var(--space-sm); }
+}
 .card.flat { box-shadow: none; background: var(--card2); }
 .grid { display: grid; gap: var(--space-lg); }
 .g2 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }

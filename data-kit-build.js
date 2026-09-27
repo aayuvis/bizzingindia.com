@@ -13,6 +13,11 @@
  *   only [cityIds]   some things belong to one city and nowhere else
  *
  *   tech 'plough'   the research that has to be finished first
+ *   needsGood 'fields of the north'
+ *                   a GOOD the realm's roads must actually reach. Research gated what a
+ *                   city knew how to make; nothing gated what it had to make it FROM, so
+ *                   a forge could be raised in a realm whose roads touched no metalwork
+ *                   at all. Same scarcity khushi measures, asked as a hard question.
  *
  * A tech-locked thing is SHOWN, greyed, reading what would unlock it. Hiding
  * it would make research a thing a child does for no visible reason; showing
@@ -145,7 +150,7 @@ window.IND_KIT_BUILD = {
     { p: 'bd-weighing', g: 'work', on: 'land', era: [1, 12], lv: 2, kind: '*',
       tech: 'panchayat', cost: { kala: 18 }, give: { kala: 1, anna: 1 },
       what: 'A weighing yard: honest measure brings trade back. +1 🛠️ +1 🌾.' },
-    { p: 'bd-warehouse', g: 'work', on: 'shore', era: [1, 12], lv: 2, kind: '*',
+    { p: 'bd-warehouse', g: 'work', on: 'shore', era: [1, 12], lv: 2, kind: '*', needsGood: 'fields of the north',
       cost: { kala: 26, anna: 10 }, give: { kala: 2 },
       what: 'A warehouse on the water: +2 🛠️ a turn.' },
     { p: 'bd-stable', g: 'work', on: 'road', era: [1, 12], lv: 2, kind: '*',
@@ -154,7 +159,7 @@ window.IND_KIT_BUILD = {
     { p: 'pr-loom', g: 'work', on: 'land', era: [0, 12], lv: 2, kind: 'shilpa',
       cost: { kala: 14 }, give: { kala: 1 },
       what: 'A pit loom. Thread in, cloth out.' },
-    { p: 'bd-forge', g: 'work', on: 'land', era: [1, 12], lv: 3, kind: 'shilpa',
+    { p: 'bd-forge', g: 'work', on: 'land', era: [1, 12], lv: 3, kind: 'shilpa', needsGood: 'workshops of the west',
       tech: 'iron', cost: { kala: 30 }, give: { kala: 2 },
       what: 'A forge: +2 🛠️, and the rakshaks are better armed for it.' },
 
@@ -272,6 +277,50 @@ window.IND_KIT_BUILD = {
      This gate gives NOTHING away that a save already has: it decides what may
      be ADDED, never what is taken. A city that already keeps a kathakar keeps
      her whether or not the hall has been built yet. */
+  /* WHERE A THING STANDS IS WORTH MORE THAN WHAT IT IS.
+   *
+   * Until now `give` was the whole story: a workshop paid one kala wherever it was
+   * put, so the board was a legality puzzle -- does it fit, is it dry, is the street
+   * clear -- and never a decision. kitYield() summed the pieces and never once looked
+   * at their coordinates. That is the single biggest thing separating this from the
+   * strategy games it is shaped like, where WHERE you put the district IS the game.
+   *
+   * These are rules, not code, because every one of them is a claim about how a city
+   * actually worked and belongs next to the claim it makes. Each reads: a piece of
+   * group `g`, for every neighbour of group `of` (or on terrain `ter`), earns `pay`,
+   * counted at most `cap` times. Neighbours are orthogonal and touch the footprint --
+   * diagonals are not neighbours, because a channel does not run diagonally.
+   *
+   * `why` is shown to the child on the plot they are about to build on, which is the
+   * only way an adjacency rule can be learned rather than guessed at. Keep it a
+   * sentence a nine-year-old would say back.
+   *
+   * Nothing here is a boundary, a border or a claim on land: it is what a well does
+   * for the field beside it. */
+  adjacency: [
+    { g: 'water', of: 'field',  pay: { anna: 1 }, cap: 4,
+      why: 'Water reaches the fields beside it \u2014 every one of them grows more.' },
+    { g: 'field', ter: 'shore', pay: { anna: 1 }, cap: 1,
+      why: 'Sown where the water comes right up to it.' },
+    { g: 'work',  ter: 'road',  pay: { kala: 1 }, cap: 1,
+      why: 'On the street: what is made here can leave the same day.' },
+    { g: 'work',  of: 'work',   pay: { kala: 1 }, cap: 2,
+      why: 'Workshops beside workshops \u2014 a whole quarter of one trade, and each hand learns from the next.' },
+    { g: 'work',  ter: 'shore', pay: { kala: 1 }, cap: 1,
+      why: 'A workshop on the water loads straight onto the boats.' },
+    { g: 'learn', of: 'great',  pay: { katha: 1 }, cap: 1,
+      why: 'Learning in the shadow of the great work \u2014 the two keep each other\u2019s story.' },
+    { g: 'learn', of: 'learn',  pay: { katha: 1 }, cap: 2,
+      why: 'One school beside another: what one keeps, the other copies.' },
+    { g: 'home',  of: 'field',  pay: { anna: 1 }, cap: 2,
+      why: 'The family lives beside the field it works.' },
+    { g: 'home',  of: 'water',  pay: { katha: 1 }, cap: 1,
+      why: 'A well at the end of the lane \u2014 where the whole street meets, and talks.' },
+    /* defence is placement too: a wall alone is a wall, a wall in a line is a rampart */
+    { g: 'guard', of: 'guard',  pay: { watch: 1 }, cap: 2,
+      why: 'Wall joined to wall \u2014 a rampart, not a fence.' }
+  ],
+
   jobs: [
     { j: 'kisan', era: [0, 12], at: ['cr-', 'gnd-field'],
       what: 'Somebody has to grow the food. They always can — a city that cannot farm cannot start.' },

@@ -144,23 +144,94 @@
      STYLE — injected once, scoped under .sab-
      ================================================================== */
   var CSS = [
-    '.sab-wrap{display:flex;flex-direction:column;gap:10px;color:var(--text);font-family:var(--body,system-ui,sans-serif);-webkit-tap-highlight-color:transparent}',
+    /* THE BOARD TAKES WHAT IS LEFT, and what is left is nearly everything. The wrap
+       is a column that knows its own height, so `flex:1` on the stage means "all the
+       room nobody else claimed" instead of "as tall as the picture happens to be". */
+    '.sab-wrap{display:flex;flex-direction:column;gap:6px;min-height:min(86vh,940px);color:var(--text);font-family:var(--body,system-ui,sans-serif);-webkit-tap-highlight-color:transparent}',
+    /* The stage knows its own size now (it is the map's ratio), so it must not also be
+       told a height by flex-grow: when both axes are definite, aspect-ratio is simply
+       ignored, which is how a phone kept a quarter of its board empty while the desktop
+       rule appeared to work. Height leads, width follows it, and max-width takes over
+       on anything narrow. */
+    '.sab-wrap>.sab-stage{flex:0 0 auto}',
+    /* one line, and it does not wrap into two */
+    '.sab-bar{flex:0 0 auto}',
+    '.sab-strip{flex:0 0 auto}',
+    /* the fold-away drawer for everything that is not the map */
+    '.sab-more{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border-radius:14px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07),0 8px 26px rgba(30,20,64,.10)}',
+    '.sab-more[hidden]{display:none}',
     /* ONE LINE RUNS THE GAME. Era, coins, the selected place and every verb
        share a single strip; on a narrow screen it wraps, on a monitor it is
        one line. The era and the coins are information and stay flat. */
     '.sab-era{display:flex;flex-direction:column;justify-content:center;padding-right:4px}',
     '.sab-era b{display:block;font:800 14.5px/1.1 var(--display,Georgia,serif);white-space:nowrap}',
     '.sab-era span{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}',
-    '.sab-res{display:flex;gap:8px;flex-wrap:wrap}',
-    '.sab-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07),0 3px 10px rgba(30,20,64,.06);font-weight:800;font-size:12.5px}',
+    '.sab-res{display:flex;gap:5px;flex-wrap:nowrap;min-width:0;overflow:hidden}',
+    /* NUMBERS ARE REFERENCE, NOT ACTION. Four chips with the same lift and shadow as
+       the buttons made the bar read as eight things to press, of which six do nothing
+       when pressed. They sit flat now and the eye goes past them to the verb. */
+    '.sab-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border:0;border-radius:999px;background:var(--card2,var(--card));box-shadow:none;font-weight:800;font-size:12.5px;white-space:nowrap;color:var(--text2,var(--text))}',
     '.sab-chip small{font-weight:600;color:var(--muted)}',
     '.sab-restless{background:#fdf0e6;cursor:pointer}',
-    '.sab-ages{display:flex;align-items:center;gap:3px;border:0;background:none;padding:6px 2px;min-height:44px;cursor:pointer}',
+    /* the chip that moved, and by how much */
+    '.sab-chip{position:relative}',
+    '.sab-chip.sab-moved{animation:sabbump .5s cubic-bezier(.2,.8,.3,1.2)}',
+    '.sab-delta{position:absolute;left:50%;top:-2px;transform:translateX(-50%);font:900 11px/1 var(--body,system-ui,sans-serif);' +
+      'color:var(--accent3,#2f6f5e);pointer-events:none;animation:sabfloat 1.1s ease-out forwards}',
+    '.sab-delta.down{color:var(--muted)}',
+    '@keyframes sabbump{0%{transform:scale(1)}38%{transform:scale(1.11)}100%{transform:scale(1)}}',
+    '@keyframes sabfloat{0%{opacity:0;transform:translate(-50%,4px)}' +
+      '22%{opacity:1}100%{opacity:0;transform:translate(-50%,-16px)}}',
+    /* THE PRESS IS ACKNOWLEDGED. A button that does something big should feel like it
+       was pressed, or a child presses it twice. */
+    '.sab-act.go:active{transform:scale(.96)}',
+    '.sab-act{transition:transform .12s ease}',
+    /* a row that arrives should arrive, not blink into being */
+    '.sab-railrow{animation:sabslide .22s ease-out}',
+    '@keyframes sabslide{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}',
+    /* AND ALL OF IT STOPS when a child has asked for less motion. Feedback is the one
+       kind worth keeping, so the delta still appears — it simply does not travel. */
+    '@media (prefers-reduced-motion: reduce){' +
+      '.sab-chip.sab-moved,.sab-railrow{animation:none}' +
+      '.sab-act{transition:none}' +
+      '.sab-delta{animation:none;opacity:1;transform:translate(-50%,-14px)}' +
+    '}',
+    /* A CHIP THAT CAN BE TAPPED IS A BUTTON and takes a button's target, however
+       small the numbers beside it get. Shrinking the resource chips for the phone
+       took khushi down to 25px with it — it is the one chip that opens something. */
+    '.sab-chip[data-sab-act]{min-height:40px;padding-left:10px;padding-right:10px}',
+    /* PINNED TO THE CITY FRAME, bottom centre, where a thumb already is and where the
+       board has its emptiest ground. It keeps clear of Build (bottom left), Grow
+       (bottom right) and the zoom row. */
+    /* IT MUST NOT WRAP AND IT MUST NOT LAND ON ANYTHING. The first cut sat bottom
+       centre, which on a phone is exactly where Grow already is: the coins broke to
+       two rows, "Agla Saal" broke to two lines with its count clipped off, and the
+       whole thing sat under the Grow button. nowrap everywhere, and on a narrow
+       screen it moves to the clear column under the map button instead of fighting
+       for the bottom edge with the two verbs that were there first. */
+    '.sab-cityturn{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:6;' +
+      'display:flex;align-items:center;gap:6px;padding:5px;border-radius:999px;white-space:nowrap;' +
+      'flex-wrap:nowrap;background:color-mix(in srgb,var(--card) 94%,transparent);' +
+      'box-shadow:0 2px 6px rgba(30,20,64,.14),0 10px 30px rgba(30,20,64,.18)}',
+    '.sab-cityres{gap:3px;flex-wrap:nowrap}',
+    '.sab-cityturn .sab-chip{box-shadow:none;background:transparent;font-size:12.5px;padding:2px 5px;white-space:nowrap}',
+    '.sab-cityturn .sab-act{min-height:42px;white-space:nowrap}',
+    '.sab-cityturn .sab-act .lbl{flex-direction:row;gap:5px;align-items:baseline}',
+    '.sab-cityturn .sab-act em{font-style:normal;font-weight:800;opacity:.85;font-size:11px}',
+    '@media (max-width:620px){' +
+      '.sab-cityturn{left:8px;right:auto;top:108px;bottom:auto;transform:none;gap:3px;padding:4px;' +
+        'flex-direction:column;align-items:stretch;border-radius:16px}' +
+      '.sab-cityres{justify-content:center}' +
+      '.sab-cityturn .sab-chip{font-size:11.5px;padding:1px 3px}' +
+      '.sab-cityturn .sab-act{min-height:38px;font-size:12px;padding:5px 9px;justify-content:center}' +
+      '.sab-cityturn .sab-act em{display:none}' +
+    '}',
+    '.sab-ages{display:flex;align-items:center;gap:2.5px;border:0;background:none;padding:6px 4px;min-height:44px;cursor:pointer;flex:0 1 auto;min-width:0;overflow:hidden}',
     '.sab-ages i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}',
     '.sab-ages i.g{background:var(--accent2)}',
     '.sab-ages i.q{background:var(--muted);opacity:.6}',
     '.sab-ages i.now{background:var(--accent);box-shadow:0 0 0 2px rgba(0,0,0,.06)}',
-    '.sab-advise{display:flex;gap:6px;align-items:stretch;margin:2px 0}',
+    '.sab-advise{flex:0 0 auto;display:flex;gap:6px;align-items:stretch;margin:0}',
     '.sab-advisebtn{flex:1;display:flex;gap:7px;align-items:center;text-align:left;border:0;border-radius:12px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08);padding:9px 11px;min-height:44px;font:inherit;color:var(--text);cursor:pointer}',
     '.sab-advisebtn em{font-style:normal;font-weight:900;color:var(--accent2)}',
     '.sab-advisebtn span{font-size:12.5px;font-weight:700}',
@@ -169,13 +240,42 @@
     '.sab-brk span{display:block;font-size:11.5px;color:var(--muted);font-weight:700}',
     '.sab-brk i{font-style:normal;font-weight:600}',
     /* THE RAIL sits above the board, never over it */
-    '.sab-rail{display:flex;flex-direction:column;gap:4px}',
-    /* an author display rule beats the UA rule for [hidden], so hiding it needs saying */
+    /* FLOATING, TOP RIGHT, over sea. Narrow enough to leave the land visible behind
+       it and capped so it can never become a wall down the side of the board. */
+    '.sab-rail{position:absolute;top:8px;right:8px;z-index:4;display:flex;flex-direction:column;gap:4px;width:min(290px,46%);max-height:42%;overflow:auto}',
+    '.sab-railgo{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    /* ON A PHONE A RAIL THAT WRAPS TO FIVE LINES IS A WALL ACROSS THE COUNTRY. It keeps
+       one line each and the rest is the tap. */
+    '@media (max-width:620px){.sab-rail{width:66%;max-height:34%}' +
+      '.sab-railgo{font-size:11.5px;padding:6px 9px;min-height:34px}' +
+      '.sab-railx{width:34px;min-height:34px;font-size:13px}}',
     '.sab-rail[hidden]{display:none}',
+    '.sab-railgo,.sab-railx{backdrop-filter:saturate(1.2)}',
     '.sab-railrow{display:flex;gap:4px;align-items:stretch}',
     '.sab-railgo{flex:1;text-align:left;border:0;border-radius:10px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08);padding:8px 11px;min-height:40px;font:700 12px/1.3 var(--body,system-ui,sans-serif);color:var(--text);cursor:pointer}',
-    '.sab-railrow.p0 .sab-railgo{background:#fbeceb;color:#8a3a2e}',
-    '.sab-railrow.p1 .sab-railgo{background:#fdf3e3}',
+    /* ==================================================================
+       COLOUR MEANS ONE THING AT A TIME
+       ==================================================================
+       Two problems, and the second is the editorial one.
+
+       In this app's warm theme --accent is #c63c28, a red, and it is what every GO
+       button wears: Agla Saal, Grow, the primary of every card. I then made the rail's
+       top row red too. So on one screen red meant both "press this" and "worry about
+       this", and a child has no way to tell those apart by colour -- which is the only
+       thing colour is for.
+
+       And an alarm-red warning is the wrong register for this game entirely. docs/16
+       §3: no combat, no lives, no shaming; a fading site is SAD, NOT SCARY, and
+       Vismriti follows docs/04 -- soft-edged, slow, never a face. A boar in the wheat
+       is not an emergency. The mist is grey, so urgency here is the mist's own grey
+       with weight behind it: a solid edge, a darker ground, heavier type. It reads as
+       "this wants you" without once reading as "something terrible is happening".
+
+       Red is left to mean exactly one thing: this is the thing to press. */
+    '.sab-railrow .sab-railgo{border-left:4px solid transparent}',
+    '.sab-railrow.p0 .sab-railgo{background:#eceaf0;color:var(--text);border-left-color:#6f6880;font-weight:800}',
+    '.sab-railrow.p1 .sab-railgo{background:#f6f1e8;border-left-color:var(--accent2)}',
+    '.sab-railrow.p2 .sab-railgo{border-left-color:rgba(120,110,140,.45)}',
     '.sab-railx{border:0;border-radius:10px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08);width:40px;min-height:40px;font-size:15px;font-weight:800;color:var(--muted);cursor:pointer}',
     /* the road somebody overseas is waiting on */
     '.sab-route.asked{stroke:#d9a23d;stroke-width:4.5}',
@@ -185,8 +285,30 @@
     '.sab-btn.go{background:var(--accent);border-color:var(--accent);color:#fff}',
     '.sab-btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
 
-    '.sab-stage{position:relative;background:var(--ground2);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}',
-    '.sab-stage svg{display:block;width:100%;height:auto;max-height:72vh}',
+    /* [hidden] LOSES TO AN AUTHOR display RULE, AND IT COST THIS FILE THREE TIMES —
+       the rail, then a hidden tray that kept 14 pixels and read as a mystery progress
+       bar above the map, then the New era button, which stayed on screen as an empty
+       red blob because the branch that hides it never sets its text. Three is enough:
+       the rule goes in once, for everything under the wrapper, rather than being
+       remembered for each new element. `hidden` is not a suggestion. */
+    '.sab-wrap [hidden],.sab-wrap[hidden]{display:none !important}',
+    /* THE STAGE IS THE MAP'S OWN SHAPE. It used to be whatever height the column had
+       spare and whatever width the page was, and the svg's default preserveAspectRatio
+       (xMidYMid meet) then pillarboxed a 1000x1100 portrait map inside it. On a 1440
+       desktop that drew India at 39% of the stage width with 416px of dead ground on
+       each side; on a phone it wasted a quarter of the height. Giving the stage the
+       viewBox's own ratio means there is no letterbox to waste, at any size.
+       Two rules used to set this svg's height and the second won by source order, so
+       `height:100%` in the first was dead text that read as if it were doing the job.
+       They are one rule now.
+       WIDTH IS THE ONLY DIAL, and it is a min() of both limits. aspect-ratio is ignored
+       outright when width and height are both definite, so setting a height as well
+       silently reinstates the letterbox on whichever orientation it does not suit --
+       that cost two rounds here, one wasting a phone's height and one a tablet's.
+       min(100%, 72vh*10/11) is bound by the page on a phone and by the viewport on a
+       desktop, and the height follows from the ratio in both. */
+    '.sab-stage{position:relative;background:var(--ground2);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;display:flex;aspect-ratio:10/11;width:min(100%,calc(72vh*10/11));height:auto;margin-inline:auto}',
+    '.sab-stage>svg{flex:1 1 auto;display:block;width:100%;height:100%}',
     '.sab-terr{fill:var(--mist);stroke:var(--line);stroke-width:1;pointer-events:none}',
     '.sab-river{fill:none;stroke:#7ba6c9;stroke-width:4.5;stroke-linecap:round;opacity:.6;pointer-events:none}',
 
@@ -216,7 +338,8 @@
     '.sab-lamp{animation:sablamp 2.6s ease-in-out infinite}',
     '@keyframes sablamp{0%,100%{opacity:.85}50%{opacity:1}}',
 
-    '.sab-feed{min-height:22px;margin:0;font-size:14.5px;font-weight:600;color:var(--muted)}',
+    '.sab-feed{min-height:0;margin:0;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.sab-feed:empty{display:none}',
     '.sab-feed.warm{color:var(--good)}',
     '.sab-feed.mist{color:var(--accent2)}',
 
@@ -272,6 +395,20 @@
     '.sab-pvno{color:#8a3a2e;font-weight:700}',
     /* the trees: a locked row is shown and greyed, never hidden */
     '.sab-work.sab-shut{opacity:.55}',
+    /* THE AGE IS THE RUNG. Without it the two trees are one column of twenty-three
+       rows and the ladder a child is climbing is invisible. */
+    '.sab-rung{margin:12px 0 4px;font:800 11px/1 var(--body,system-ui,sans-serif);letter-spacing:.09em;' +
+      'text-transform:uppercase;color:var(--muted)}',
+    '.sab-rung.next{opacity:.55}',
+    '.sab-works>.sab-rung:first-child{margin-top:2px}',
+    /* AND A THING THAT WAITS ON ANOTHER HANGS OFF IT. A dependency written as a
+       sentence ("after Iron Tools") is a fact a child has to hold in their head while
+       looking somewhere else; indented, with a rule running back up to what it waits
+       on, it is a shape they can see. */
+    '.sab-work.sab-branch{margin-left:18px;position:relative}',
+    '.sab-work.sab-branch::before{content:"";position:absolute;left:-12px;top:-7px;bottom:50%;' +
+      'width:10px;border-left:2px solid var(--line);border-bottom:2px solid var(--line);' +
+      'border-bottom-left-radius:8px}',
     '.sab-need{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-top:2px}',
     '.sab-eu{display:block;font-size:11px;font-weight:800;color:var(--accent2);margin-top:2px}',
     '.sab-slots{display:flex;flex-direction:column;gap:8px;margin-top:4px}',
@@ -286,8 +423,21 @@
     '#sab-turn{font-size:14px;padding:7px 14px;min-height:44px}',
     /* on a phone the strip keeps every target a finger can hit and drops the words
        it can do without — the house rule is 44px, not 44px on a monitor */
-    '@media (max-width:560px){.sab-speed{font-size:11px;padding:7px 4px}' +
-      '#sab-turn{font-size:13px;padding:7px 10px}}',
+    /* ON A PHONE the numbers keep their icons and drop their per-turn tails: four
+       chips reading "260 +44/turn of 180" is a sentence, and a sentence does not fit
+       on one line beside a turn button that has to stay thumb-sized. */
+    '@media (max-width:620px){' +
+      '.sab-speed{font-size:11px;padding:7px 4px}' +
+      '#sab-turn{font-size:13px;padding:7px 10px}' +
+      '.sab-chip{font-size:12px;padding:3px 7px}' +
+      '.sab-chip small{display:none}' +
+      '.sab-era span{display:none}' +
+      '.sab-wrap{min-height:min(88vh,860px)}' +
+      /* the ages ribbon is the one thing on the line that can be read later: it is a
+         history, not a decision, and it stays one tap away under the menu */
+      '.sab-ages{display:none}' +
+      '.sab-act.sq{width:40px;min-height:40px}' +
+    '}',
     '#sab-turn em{font-style:normal;opacity:.8;font-weight:800;margin-left:6px}',
     '.sab-tico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none;' +
       'background:var(--accent-soft,rgba(91,63,214,.1));color:var(--accent)}',
@@ -321,8 +471,20 @@
     '.sab-cb text{font:800 12px var(--body,system-ui);fill:#fff;stroke:none;text-anchor:middle}',
 
     /* THE CITY, FROM INSIDE — a full-stage panel, not a small modal */
-    '.sab-city{background:var(--card);border:0;border-radius:20px;padding:12px 12px 16px;box-shadow:0 2px 6px rgba(30,20,64,.05),0 14px 40px rgba(30,20,64,.08)}',
-    '.sab-city .chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}',
+    /* THE PANEL SCROLLS, NOT THE PAGE.
+       `position:sticky` on the head did nothing, and it could not: sticky pins to the
+       nearest scrolling ancestor, and the scrolling ancestor here was the document —
+       so a screen into Vidya the whole panel, title and exit included, had simply gone
+       up past the top of the window. A child was in a long list with no name on it and
+       no door, which is the thing sticky was supposed to prevent.
+
+       Bounding the panel makes it its own scroller: the head stays because there is now
+       something for it to stay inside, and the page behind stops sliding the game away. */
+    '.sab-city{background:var(--card);border:0;border-radius:20px;padding:12px 12px 16px;box-shadow:0 2px 6px rgba(30,20,64,.05),0 14px 40px rgba(30,20,64,.08);max-height:min(82vh,900px);overflow:auto;overscroll-behavior:contain}',
+    /* THE HEAD STAYS. A screen into Vidya, the title and the way out had both gone off
+       the top: a child was in a long list with no name on it and no door. */
+    '.sab-city .chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:5;' +
+      'background:var(--card);padding:6px 0 8px;box-shadow:0 8px 12px -8px rgba(30,20,64,.18)}',
     '.sab-city h3{margin:0;font:800 20px/1.1 var(--display,Georgia,serif)}',
     '.sab-city .mono{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}',
     '.sab-works{display:flex;flex-direction:column;gap:5px;margin:8px 0}',
@@ -356,7 +518,14 @@
        the paintings stop being posters. Phones keep the tall map. */
     '@media (min-width: 900px){' +
       '.sab-wrap{gap:8px}' +
-      '.sab-stage svg{max-height:70vh}' +
+      /* A DESKTOP HAS ROOM FOR THE RAIL BESIDE THE MAP, so it stops being an overlay.
+         While the board was letterboxed the rail happened to land in the dead ground
+         and cleared the land by accident; taking the letterbox away put it over the
+         northeast. Reserving the strip as padding means the map's own box ends where
+         the rail begins, so nothing is covered by arithmetic rather than by luck.
+         Narrow screens keep the corner overlay -- there is no strip to spare. */
+      '.sab-stage{aspect-ratio:auto;height:78vh;width:min(100%,calc(78vh*10/11 + 280px));padding-right:280px;box-sizing:border-box}' +
+      '.sab-rail{width:264px;max-height:calc(100% - 16px)}' +
       '.sab-hero{max-height:180px;aspect-ratio:auto}' +
       '.sab-cardart{max-height:170px;object-fit:cover}' +
       '.sab-vthumb{width:96px;height:64px}' +
@@ -911,7 +1080,8 @@
                req: {}, fav: {}, sold: {}, diaspora: {},
                /* the age's own tally, whether the last age was thin, what a golden age
                   dedicated itself to, and the record of the ages already passed */
-               deeds: {}, dark: false, ded: null, ages: [], log: [], hushed: {} };
+               deeds: {}, dark: false, ded: null, ages: [], log: [], hushed: {},
+               delta: null };
     }
 
     /* ---- rules helpers ---- */
@@ -2212,6 +2382,21 @@
       }
       return { t: esc(FOLK[s2.kind]) + ' asks', h: h2 };
     }
+    /* The city's own turn strip: what you have, and the year. Deliberately the same
+       markup and the same handler as the bar's - a second Agla Saal that behaved even
+       slightly differently from the first would be a worse bug than not having one. */
+    function cityTurnBar() {
+      var waiting = decisionList().length;
+      return '<div class="sab-cityturn">' +
+        '<div class="sab-res sab-cityres">' + ['anna', 'kala', 'katha'].map(function (k) {
+          return '<span class="sab-chip">' + ICON[k] + ' ' + Math.floor(G.res[k]) + '</span>';
+        }).join('') + '</div>' +
+        '<button class="sab-act txt go" data-sab-act="turn"' + (G.won || overlay ? ' disabled' : '') +
+        ' aria-label="Spend a year, without leaving this city">' +
+        '<span class="lbl">Agla Saal \u25b8' + (waiting ? '<em>' + waiting + ' waiting</em>' : '') +
+        '</span></button></div>';
+    }
+
     /* WHAT THE CITY IS FAMOUS FOR — its three works and the monument. */
     function callWorks(id) {
       var s2 = byId[id], q2 = G.sites[id];
@@ -2894,10 +3079,20 @@
          within twenty pixels around Pataliputra, two on the Odisha coast — and twenty
          names all set above their dots read as one smear exactly where the game is
          most alive. Checked against the rendered board, not assumed. */
-      var lab = s.lab || 'n', lx = s.x, ly = s.y - r - 14, anc = 'middle';
-      if (lab === 's') { ly = s.y + r + 30; }
-      if (lab === 'e') { lx = s.x + r + 10; ly = s.y + 8; anc = 'start'; }
-      if (lab === 'w') { lx = s.x - r - 10; ly = s.y + 8; anc = 'end'; }
+      /* A NAME IS THE SAME SIZE WHEREVER YOU ARE STANDING.
+         The label was 24 SVG user units, and the board zooms by shrinking its viewBox
+         — so leaning in blew every name up with the land under it. At the framing the
+         game used to open on, "Dholavira" rendered sixty pixels tall, "Pataliputra"
+         ran off the right edge, and Kashi sat on top of it. Nothing about that is a
+         legibility choice; it is a unit mistake.
+
+         The name now hangs in its own group, translated to the dot and scaled by the
+         inverse of the zoom, so BOTH the type size and its distance from the lamp are
+         constant on screen. The offsets below are therefore in screen units. */
+      var lab = s.lab || 'n', ox = 0, oy = -r - 14, anc = 'middle';
+      if (lab === 's') { oy = r + 30; }
+      if (lab === 'e') { ox = r + 10; oy = 8; anc = 'start'; }
+      if (lab === 'w') { ox = -r - 10; oy = 8; anc = 'end'; }
       /* the town is a painted sprite when one exists — the circles stay for the
          hit area, the halo cues and the lamp glowing at its foot; the sprite
          itself grows with level in paintSite */
@@ -2917,7 +3112,8 @@
         '<text x="' + (s.x - r - 4) + '" y="' + (s.y - r + 1) + '">\u26a1</text></g>' +
         '<g class="sab-cb" style="display:none"><circle cx="' + s.x + '" cy="' + (s.y + r + 8) + '" r="10"/>' +
         '<text x="' + s.x + '" y="' + (s.y + r + 13) + '">\u2605</text></g>' +
-        '<text x="' + lx + '" y="' + ly + '" text-anchor="' + anc + '">' + esc(s.name) + '</text>' +
+        '<g class="sab-lab" transform="translate(' + s.x + ',' + s.y + ')">' +
+        '<text x="' + ox + '" y="' + oy + '" text-anchor="' + anc + '">' + esc(s.name) + '</text></g>' +
         '</g>';
     }
     function routeSVG(r, i) {
@@ -3053,8 +3249,17 @@
     /* region fit — the map's home framing; also called when explorers arrive
        somewhere new, but only while the player IS at region level, so a chosen
        near or all view is never yanked away mid-look */
+    /* THE MAP OPENS ON THE MAP. It used to open at zlevel 1, framed on the handful of
+       places found so far — which in the first age is one city in the Rann and reads as
+       a picture of Gujarat rather than a game about India. A child cannot plan a road to
+       somewhere they cannot see. Region framing still follows discoveries; it just no
+       longer starts by throwing the country away. */
     function fitFound(force) {
       if (force || zlevel === 1) zoomTo(1);
+    }
+    function openFraming() {
+      var b = revealedBox();
+      zoomTo((b.x1 - b.x0) > 520 ? 1 : 2);
     }
     var rsTm = null;
     function onResize() {
@@ -3063,9 +3268,78 @@
     }
     W.addEventListener('resize', onResize);
     var panning = null, swallowClick = false;
+    /* THE INVERSE OF THE ZOOM — MEASURED, NOT ASSUMED.
+       The first cut used VZ.w / 1000, which is the right answer only when the board is
+       width-constrained. It is not: the map is 1000x1100 in a frame far wider than it
+       is tall, so preserveAspectRatio fits it by HEIGHT and the pixels-per-unit come
+       off VZ.h. Dividing by the wrong axis left the names still growing as you leaned
+       in — 18px out, 48px in — with a scale attribute on every one of them that looked
+       exactly right.
+
+       So ask the element. `meet` scales by whichever axis binds, and the ratio between
+       what binds now and what bound at the full view IS the number wanted, whatever
+       shape the frame happens to be. */
+    function labScale() {
+      var svg = D.querySelector('#sab-stage svg');
+      if (!svg) return 1;
+      var r = svg.getBoundingClientRect();
+      if (!r.width || !r.height || !VZ.w || !VZ.h) return 1;
+      var now = Math.min(r.width / VZ.w, r.height / VZ.h);
+      var full = Math.min(r.width / 1000, r.height / 1100);
+      if (!now || !full) return 1;
+      /* CLAMPED AT THE TOP ONLY. The floor was 0.28 and it was the whole reason the
+         names still grew: leaned right in, constant size wants 0.127, so the floor was
+         holding every label at twice the size it should be — a limit put there to stop
+         a name dwarfing the country, which is a risk at the far-OUT end and nowhere
+         near the far-in one. The ceiling is the one that does that job. */
+      return Math.max(0.08, Math.min(1.15, full / now));
+    }
+    /* AND NAMES THIN OUT WHEN THEY WOULD PILE UP — measured, not guessed at.
+       The first cut hid names by whether the place was awake, which does nothing about
+       the case that actually happens: Kashi and Pataliputra are twenty units apart and
+       both awake, so both names drew, on top of each other. History clusters, and no
+       amount of per-site label DIRECTION fixes two names wanting the same pixels.
+
+       So the boxes are measured on screen and a name that would land on one already
+       placed simply does not draw. Rank decides who wins, and the ranking is what the
+       player is thinking about: the one you selected, then the one being warned about,
+       then awake places, then the rest. A name is never shortened or shrunk to fit —
+       a half-legible label is worse than the lamp on its own, and the lamp is always
+       still there to tap. */
+    function applyLabels() {
+      var k = labScale(), i, g = D.querySelectorAll('#sab-sites .sab-lab');
+      var items = [];
+      for (i = 0; i < g.length; i++) {
+        var host2 = g[i].parentNode, id2 = host2 && host2.getAttribute('data-sab');
+        var s2 = id2 && byId[id2];
+        if (!s2) continue;
+        g[i].setAttribute('transform', 'translate(' + s2.x + ',' + s2.y + ') scale(' + k.toFixed(3) + ')');
+        g[i].style.display = '';                    /* measure them all shown */
+        var vis = onMap(s2) && getComputedStyle(host2).display !== 'none';
+        var rank = !vis ? 9
+                 : sel === id2 ? 0
+                 : (G.warn && G.warn.id === id2) ? 1
+                 : awake(id2) ? 2 : 3;
+        items.push({ g: g[i], rank: rank, vis: vis });
+      }
+      items.sort(function (a, b) { return a.rank - b.rank; });
+      var placed = [];
+      items.forEach(function (it) {
+        if (!it.vis) { it.g.style.display = 'none'; return; }
+        var r = it.g.getBoundingClientRect();
+        if (!r.width) { it.g.style.display = 'none'; return; }
+        var clash = placed.some(function (o) {
+          return !(o.right < r.left - 2 || o.left > r.right + 2 ||
+                   o.bottom < r.top - 2 || o.top > r.bottom + 2);
+        });
+        if (clash) { it.g.style.display = 'none'; return; }
+        placed.push(r);
+      });
+    }
     function vzApply() {
       var svg = D.querySelector('#sab-stage svg');
       if (svg) svg.setAttribute('viewBox', VZ.x.toFixed(1) + ' ' + VZ.y.toFixed(1) + ' ' + VZ.w.toFixed(1) + ' ' + VZ.h.toFixed(1));
+      applyLabels();
     }
     function vzClamp() {
       VZ.h = VZ.w * vasp();
@@ -3120,6 +3394,22 @@
 
     function shell() {
       host.innerHTML = '<div class="sab-wrap" id="sabwrap">' +
+        /* ==============================================================
+           ONE STRIP, THEN THE MAP.
+           ==============================================================
+           The screenshots settled this. On a 390px phone the board was getting
+           150 pixels of 1700 — NINE PER CENT of the screen — because everything
+           above it stacked: era block, bead ribbon, four resource chips wrapping
+           to two rows, a red warning, four buttons, four more buttons, Agla Saal
+           on a line of its own, two rail rows and a progress bar. Five of those
+           strips I added myself while fixing the systems, each one reasonable on
+           its own, and together they pushed the game off the screen.
+
+           A strategy game is its map. Everything that is not the map now lives on
+           ONE line, or inside it, or behind a button — and the board takes every
+           pixel that is left. The verbs that used to sit in the bar moved into the
+           selection tray, where they were always more at home: they act on a place,
+           and you have to have chosen a place for them to mean anything. */
         '<div class="sab-bar">' +
           '<div class="sab-era"><span id="sab-eradate"></span><b id="sab-eraname"></b></div>' +
           /* TIME WAS INVISIBLE. The era's dates were on screen and the turn was not,
@@ -3127,28 +3417,33 @@
              docs/16 §3 — an interpolated single year would be a precision the
              evidence does not have — so the turn count carries the passing time. */
           '<div class="sab-era"><span>Turn</span><b id="sab-turnno">1</b></div>' +
-          /* THE AGES BEHIND YOU, as a ribbon of beads: a filled one was golden. The arc
-             a child has actually lived was invisible, and it is most of the point of a
-             game that spans five thousand years. */
-          '<button class="sab-ages" id="sab-ages" data-sab-act="timeline" aria-label="The ages behind you"></button>' +
           '<div class="sab-res" id="sab-res" aria-live="off"></div>' +
-          '<button class="sab-raksha" id="sab-raksha" hidden></button>' +
+          /* THE WARNING USED TO BE SAID TWICE — a red chip here and the rail's own top
+             row, the same sentence in two places on one screen. The rail keeps it,
+             because the rail is where everything else that wants you already is. */
           '<span class="sab-gap"></span>' +
           '<div class="sab-globals">' +
             '<button class="sab-act txt go" id="sab-adv" hidden></button>' +
+            /* THE ONLY THREE THINGS THAT EARN A PLACE ON THE LINE: what needs you,
+               what is behind you, and the turn. Everything else is one tap away
+               under the menu, which is what a menu is for. */
+            '<button class="sab-act sq" id="sab-next" aria-label="The next thing that needs you">⇢</button>' +
+            '<button class="sab-ages" id="sab-ages" data-sab-act="timeline" aria-label="The ages behind you"></button>' +
+            '<button class="sab-act sq" id="sab-menu" aria-expanded="false" aria-label="More">☰</button>' +
+            '<button class="sab-act txt go" id="sab-turn"></button>' +
+          '</div>' +
+          /* the rest, folded away: opened by the menu, closed by anything else */
+          '<div class="sab-more" id="sab-more" hidden>' +
             '<button class="sab-act txt" id="sab-tech">Vidya</button>' +
             '<button class="sab-act txt" id="sab-world">Sea roads</button>' +
-            /* THE TURN LIVES IN THE BAR, at the end of the line, where the eye
-               ends up. Agla Saal is the biggest button on the screen in Sochna
-               because pressing it IS the game. */
-            '<button class="sab-act sq" id="sab-next" aria-label="The next thing that needs you">\u2b90</button>' +
-            '<button class="sab-act sq" id="sab-undo" aria-label="Take back the last spend" disabled>\u21b6</button>' +
-            '<button class="sab-act sq" id="sab-restart" aria-label="Start again">\u21ba</button>' +
-            '<button class="sab-act sq" id="sab-pause" aria-pressed="false" aria-label="Pause">⏸</button>' +
+            '<button class="sab-act txt" data-sab-act="digest">Happenings</button>' +
+            '<button class="sab-act txt" data-sab-act="timeline">The ages</button>' +
+            '<button class="sab-act txt" id="sab-undo" disabled>↶ Undo</button>' +
+            '<button class="sab-act txt" id="sab-pause" aria-pressed="false">⏸ Pause</button>' +
+            '<button class="sab-act txt" id="sab-restart">↺ Start again</button>' +
             '<select class="sab-speed" id="sab-speed" aria-label="How fast the world moves">' +
               SPEEDS.map(function (x) { return '<option value="' + x.id + '">' + x.name + '</option>'; }).join('') +
             '</select>' +
-            '<button class="sab-act txt go" id="sab-turn"></button>' +
           '</div>' +
         '</div>' +
         /* THE RAIL. The feed is one line and the world talks over it, so a warning, a
@@ -3156,16 +3451,21 @@
            stacks what is live, worst first, each one dismissible, and it sits ABOVE the
            map rather than on it — a notification over the board covers the thing it is
            telling you about, which is the one place it must never be. */
-        '<div class="sab-rail" id="sab-rail"></div>' +
         '<div class="sab-tray" id="sab-sheet" hidden></div>' +
         '<div id="sab-cityhost"></div>' +
         '<div class="sab-stage" id="sab-stage">' + board() +
+          /* OVER THE MAP, NOT ABOVE IT. A rail that pushes the board down costs the
+             board twice: once for its own height and again for the gap. Floating it
+             in the corner costs nothing, and the corner of India is sea. */
+          '<div class="sab-rail" id="sab-rail"></div>' +
           '<div style="position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:3">' +
           '<button class="sab-btn" data-sab-act="zin" aria-label="Zoom in">+</button>' +
           '<button class="sab-btn" data-sab-act="zout" aria-label="Zoom out">\u2212</button>' +
           '<button class="sab-btn" data-sab-act="zreset" aria-label="Whole map">\u2302</button></div>' +
           '<div id="sab-ovhost"></div></div>' +
-        '<p class="sab-feed" id="sab-feed" aria-live="polite"></p>' +
+        '<div class="sab-strip">' +
+          '<p class="sab-feed" id="sab-feed" aria-live="polite"></p>' +
+        '</div>' +
         /* MITHU'S LINE. One suggestion, never a list — a list is another thing to read.
            This answers the half of "I'm not making strategic decisions" that is not a
            systems problem: a child who cannot tell what the game wants next does
@@ -3173,7 +3473,7 @@
         '<div class="sab-advise"><button id="sab-advise" class="sab-advisebtn" data-sab-act="advise"></button>' +
           '<button class="sab-btn" data-sab-act="digest" aria-label="What has been happening">\\u2263</button></div>' +
         '<p class="sab-guide" id="sab-guide"></p>' +
-        '<p class="sab-help">Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
+        '<p class="sab-help" hidden>Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
           '<b>1–4</b> fire an action (<b>4</b> steps inside the city), <b>Esc</b> cancels, <b>P</b> pauses. ' +
           'Routes keep a place safe from the mist; <b>!</b> is a quest, <b>\u26a1</b> a quarrel for your panchayat, <b>\u2605</b> the capital. ' +
           'Cities gather dust if nobody visits — and a monument, once raised, is never forgotten.</p>' +
@@ -3187,22 +3487,6 @@
       /* THE ALARM LIVES IN THE BAR. The feed is one line and the world keeps
          talking; a threat on its way must stay on screen until it lands, and
          tapping it takes you straight to the city that needs hands. */
-      var rk = D.getElementById('sab-raksha');
-      if (rk) {
-        if (G.warn && byId[G.warn.id]) {
-          var rr = null; (DATA.raids || []).forEach(function (r4) { if (r4.id === G.warn.raid) rr = r4; });
-          var dd2 = defenceOf(G.warn.id);
-          var nd2 = (rr ? rr.str : 5) + Math.floor(G.era / 3) + (keyCity(G.warn.id) ? 2 : 0);
-          rk.hidden = false;
-          rk.className = 'sab-raksha' + (dd2.total >= nd2 ? ' ready' : '');
-          rk.innerHTML = '<b>\u26a0 ' + esc(nameOf(byId[G.warn.id])) + '</b><span>' +
-            esc(rr ? rr.warn : 'something comes') + ' \u00b7 ' + Math.max(0, G.warn.at - G.t) +
-            ' turns \u00b7 gate ' + dd2.total + '/' + nd2 + '</span>';
-          rk.setAttribute('data-sab-act', 'gowarn');
-          rk.setAttribute('aria-label', (rr ? rr.warn : 'A threat') + ' at ' +
-            nameOf(byId[G.warn.id]) + ' — the gate holds ' + dd2.total + ' of ' + nd2 + '; open the city');
-        } else { rk.hidden = true; rk.removeAttribute('data-sab-act'); }
-      }
       D.getElementById('sab-eraname').textContent = e.name;
       D.getElementById('sab-eradate').textContent = 'Era ' + (G.era + 1) + ' of ' + ERAS.length + ' · ' + e.dates;
       var tn = D.getElementById('sab-turnno');
@@ -3246,24 +3530,27 @@
         var items = [];
         if (G.warn && byId[G.warn.id]) {
           var dw = defenceOf(G.warn.id);
+          /* SHORT ENOUGH TO READ AT A GLANCE. A rail row that wraps and then truncates
+             mid-sentence ("Something comes to… Dholavira — 6 turns,") is worse than no
+             row at all: it costs the board its space and still does not say the thing. */
           items.push({ p: 0, k: 'warn', go: G.warn.id,
-            t: 'Something comes to ' + nameOf(byId[G.warn.id]) +
-               ' — ' + Math.max(0, G.warn.at - G.t) + ' turns, gate ' + dw.total });
+            t: '⚠ ' + nameOf(byId[G.warn.id]) + ' · ' +
+               Math.max(0, G.warn.at - G.t) + ' turns · gate ' + dw.total });
         }
         if (G.disp) items.push({ p: 1, k: 'disp', go: G.disp.a,
-          t: nameOf(byId[G.disp.a]) + ' and ' + nameOf(byId[G.disp.b]) + ' have fallen out — sit the panchayat' });
+          t: '⚡ ' + nameOf(byId[G.disp.a]) + ' & ' + nameOf(byId[G.disp.b]) + ' · panchayat' });
         if (G.ev && byId[G.ev.id]) items.push({ p: 2, k: 'ev', go: G.ev.id,
-          t: nameOf(byId[G.ev.id]) + ' is asking for grain' });
+          t: '🌾 ' + nameOf(byId[G.ev.id]) + ' · asking for grain' });
         Object.keys(G.req || {}).forEach(function (pid) {
           var pn2 = ''; PARTNERS.forEach(function (x) { if (x.id === pid) pn2 = x.name; });
           items.push({ p: 3, k: 'req:' + pid, go: null,
-            t: pn2 + ' is asking for ' + G.req[pid].want +
-               (canSupply(G.req[pid].want) ? ' — your roads reach it' : ' — no road of yours reaches it') });
+            t: '⚓ ' + pn2 + ' · ' + G.req[pid].want +
+               (canSupply(G.req[pid].want) ? '' : ' (no road)') });
         });
         SITES.forEach(function (x) {
           if (!onMap(x) || !awake(x.id)) return;
           if (G.sites[x.id].fade >= 0)
-            items.push({ p: 2, k: 'fade:' + x.id, go: x.id, t: 'The mist is drifting over ' + nameOf(x) });
+            items.push({ p: 2, k: 'fade:' + x.id, go: x.id, t: '🌫 ' + nameOf(x) + ' · the mist' });
         });
         items = items.filter(function (i2) { return !(G.hushed || {})[i2.k]; })
                      .sort(function (a9, b9) { return a9.p - b9.p; }).slice(0, 4);
@@ -3292,11 +3579,29 @@
         if (y) { net.anna += y.anna; net.kala += y.kala; net.katha += y.katha; }
         if (!G.sites[x.id].zzz) net.anna -= popOf(x.id) * T.eat;
       });
+      /* ==============================================================
+         THE NUMBERS SAY WHICH ONE MOVED.
+         ==============================================================
+         There is plenty of ambient motion in this game already — walkers, smoke,
+         a swaying tree — and almost none of it is FEEDBACK. Press Agla Saal, the
+         core verb of the whole game, and three numbers quietly become three other
+         numbers with nothing to say which, or by how much, or that anything
+         happened at all. A turn that changes the world without acknowledging the
+         press is a button a child stops trusting.
+
+         So a chip that changed carries the delta for a moment and lifts. It is the
+         cheapest possible version of the thing, and it is the difference between a
+         turn landing and a turn being taken on faith. */
+      var dl = (G.delta && G.delta.at === G.t) ? G.delta : null;
       D.getElementById('sab-res').innerHTML = ['anna', 'kala', 'katha'].map(function (k) {
         var d = Math.round(net[k] * 10) / 10;
         var lid = (k === 'anna') ? ' <small>of ' + storeCap() + '</small>' : '';
-        return '<span class="sab-chip">' + ICON[k] + ' ' + Math.floor(G.res[k]) +
-          ' <small>' + (d >= 0 ? '+' : '') + d + '/turn</small>' + lid + '</span>';
+        var now = Math.floor(G.res[k]);
+        var moved = dl ? dl[k] : 0;
+        return '<span class="sab-chip' + (moved ? ' sab-moved' : '') + '">' + ICON[k] + ' ' + now +
+          ' <small>' + (d >= 0 ? '+' : '') + d + '/turn</small>' + lid +
+          (moved ? '<b class="sab-delta' + (moved > 0 ? '' : ' down') + '">' +
+            (moved > 0 ? '+' : '') + moved + '</b>' : '') + '</span>';
       }).join('') +
       /* KHUSHI ON THE BAR. Variety is now a thing the realm can be short of, and a
          number the player cannot see is a rule they cannot play to. */
@@ -3307,9 +3612,12 @@
           '🧡 ' + h + '/' + w + ' <small>' + (r2 ? 'restless' : 'content') + '</small></span>';
       })();
       var adv = D.getElementById('sab-adv');
-      if (G.era < ERAS.length - 1) {
+      /* SHOWN ONLY WHEN IT CAN BE PRESSED. It used to sit there greyed for most of
+         every age — a permanent slot on a one-line bar, spent on something actionable
+         perhaps twice an hour. */
+      if (G.era < ERAS.length - 1 && canAdvance()) {
         adv.hidden = false;
-        adv.disabled = !canAdvance();
+        adv.disabled = false;
         adv.innerHTML = '<span class="lbl">New era<em>' + ERAS[G.era].katha + ' 📜</em></span>';
       } else adv.hidden = true;
     }
@@ -3612,6 +3920,9 @@
     function paintAll() {
       paintHud(); SITES.forEach(paintSite); paintRoutes(); paintFog(); paintExplorers();
       paintSheet(); paintFeed(); paintGuide();
+      /* which names are worth showing changes when a place wakes or is selected, not
+         only when the view moves — so the declutter runs on every repaint too */
+      applyLabels();
     }
 
     /* ================================================================
@@ -4004,6 +4315,21 @@
           (KITC ? '<button class="sab-leave" data-sab-act="leave"' +
             ' aria-label="Leave ' + esc(nameOf(s)) + ' and go back to the map">' +
             '\u2190 <span>the map</span></button>' : '') +
+          /* ==============================================================
+             THE TURN BELONGS IN HERE TOO.
+             ==============================================================
+             The founder's note, and they are right: the city had no Agla Saal. In
+             Sochna that makes the city a dead end - you come in to plan, you spend
+             your coin, and then you have to walk back out to the map to spend the
+             year. tick() has taken a `forced` flag since the day Sochna was built
+             precisely so a turn could be asked for from inside a city ("you plan in
+             the city, then spend the turn", says the comment); I wrote the machinery
+             and never put the button anywhere a child could reach it.
+
+             The coins come with it, and that is not scope creep: this is the screen
+             where nearly all the spending happens, and it showed no totals at all. A
+             turn button that moves numbers you cannot see is half a button. */
+          cityTurnBar() +
           (atlas && !KITC ? '<style>' + roadKeyframes(id) + '</style>' : '') +
           (KITC ? '<div class="sab-view" id="sab-view">' : '') +
           '<div class="sab-cam" id="sab-cam" style="transform:' + camStr() + '">' +
@@ -4401,16 +4727,26 @@
          with extra steps; seeing what the plough leads to is most of why a child
          wants the plough. So everything in this age and the next is on screen, and
          what is locked says what would open it. */
-      var rows = TECHS.map(function (t) {
+      var rows = TECHS.slice().sort(function (a, b) { return a.era - b.era; }).map(function (t, i2, arr) {
         if (t.era > G.era + 1) return '';
+        /* THE AGE IS THE RUNG, so the ladder has to be visible as one. A flat column of
+           twenty-three rows with "after Iron Tools" written on some of them is an
+           annotated list; item 23 asked for a tree, and this is where it was owed. */
+        var head = (i2 === 0 || arr[i2 - 1].era !== t.era)
+          ? '<div class="sab-rung' + (t.era > G.era ? ' next' : '') + '">' +
+            esc(ERAS[t.era] ? ERAS[t.era].name : 'Age ' + (t.era + 1)) +
+            (t.era > G.era ? ' \u00b7 not yet' : '') + '</div>'
+          : '';
         var have = !!G.tech[t.id], c = techCost(t);
         var soon = t.era > G.era;
         var shut = !soon && !techOpenFor(t);
         var va = artOf('vidya-' + t.id);
         var busy = G.proj && G.proj.id === t.id;
         var eu = eurekaPct(t);
-        return '<div class="sab-work' + (have ? ' built' : busy ? ' now atwork' : ' now') +
-          (soon || shut ? ' sab-shut' : '') + '">' +
+        /* a thing that waits on another sits under it and hangs off it: the
+           relationship is the point, and a sentence is the weakest way to draw one */
+        return head + '<div class="sab-work' + (have ? ' built' : busy ? ' now atwork' : ' now') +
+          (soon || shut ? ' sab-shut' : '') + ((t.needs || []).length ? ' sab-branch' : '') + '">' +
           (va ? '<img class="sab-vthumb" src="' + va + '" alt=""' + (have ? '' : ' style="filter:grayscale(.8)"') + '>' : '<i>' + (have ? '✓' : '?') + '</i>') +
           '<span><b>' + esc(t.name) + '</b> · <span class="tiny" style="color:var(--muted)">' + esc(t.what) + '</span>' +
           (soon ? '<span class="sab-need">next age</span>'
@@ -4428,13 +4764,19 @@
       }).join('');
 
       /* ---- RITI: the second tree ---- */
-      var ritiRows = RITI.map(function (r) {
+      var ritiRows = RITI.slice().sort(function (a, b) { return a.era - b.era; }).map(function (r, i3, arr3) {
         if (r.era > G.era + 1) return '';
+        var rhead = (i3 === 0 || arr3[i3 - 1].era !== r.era)
+          ? '<div class="sab-rung' + (r.era > G.era ? ' next' : '') + '">' +
+            esc(ERAS[r.era] ? ERAS[r.era].name : 'Age ' + (r.era + 1)) +
+            (r.era > G.era ? ' \u00b7 not yet' : '') + '</div>'
+          : '';
         var have = !!(G.riti || {})[r.id], soon = r.era > G.era;
         var shut = !soon && !ritiOpenFor(r);
         var c = costOf(r.cost, 'riti');
         var card = POL_BY[r.gives] || {};
-        return '<div class="sab-work' + (have ? ' built' : ' now') + (soon || shut ? ' sab-shut' : '') + '">' +
+        return rhead + '<div class="sab-work' + (have ? ' built' : ' now') + (soon || shut ? ' sab-shut' : '') +
+          ((r.needs || []).length ? ' sab-branch' : '') + '">' +
           '<i>' + (have ? '✓' : '○') + '</i>' +
           '<span><b>' + esc(r.name) + '</b> · <span class="tiny" style="color:var(--muted)">' +
           esc(r.what) + '</span>' +
@@ -5184,6 +5526,14 @@
       /* past here the turn is really happening: the undo window closes, and nothing
          inside the turn may open a new one (see undoPoint) */
       tickSeq++; inTick = true;
+      /* WHAT THIS TURN DID, measured across the whole turn rather than diffed in the
+         painter. The first cut compared each paint against the last one's numbers,
+         which looked right and could not work: paintHud runs twice per turn (once at
+         the end of tick, once from paintAll), and the second run diffed against the
+         values the first had just stored, wiping the marker every time. A delta
+         belongs to the turn that earned it. */
+      var res0 = { anna: Math.floor(G.res.anna), kala: Math.floor(G.res.kala),
+                   katha: Math.floor(G.res.katha) };
       G.t++;
       if (G.utsav > 0) G.utsav--;
 
@@ -5497,6 +5847,10 @@
         if (pd) { pause = true; syncPauseBtn(); say('The world waits \u2014 ' + pd + '.', 'warm'); }
       }
 
+      G.delta = { at: G.t,
+                  anna: Math.floor(G.res.anna) - res0.anna,
+                  kala: Math.floor(G.res.kala) - res0.kala,
+                  katha: Math.floor(G.res.katha) - res0.katha };
       if (G.t % 5 === 0) save(G);
       inTick = false;
       paintHud(); SITES.forEach(paintSite); paintGuide();
@@ -5779,6 +6133,7 @@
          the `e.target.closest ? ... : null` guard and did nothing at all. A
          parentNode walk works on every node there is. */
       var actEl = actAt(e.target);
+      if (!actEl || actEl.id !== 'sab-menu') closeMore();
       if (actEl) {
         var a = actEl.getAttribute('data-sab-act');
         if (a === 'zin')  { zoomTo(zlevel - 1, sel && byId[sel] ? byId[sel] : null); return; }
@@ -5937,6 +6292,7 @@
           paintTech(); paintAll(); return;
         }
         /* THE WORLD PANEL — who is out there and what they are asking for */
+        if (a === 'turn') { stepTurn(); return; }
         if (a === 'railgo') {
           var rg = actEl.getAttribute('data-g');
           if (rg && byId[rg]) { sel = rg; targeting = false; zoomTo(byId[rg]); paintAll(); }
@@ -6363,7 +6719,7 @@
     function syncPauseBtn() {
       var b = D.getElementById('sab-pause');
       if (!b) return;
-      b.textContent = pause ? '▶' : '⏸';
+      b.textContent = pause ? '▶ Play' : '⏸ Pause';
       b.setAttribute('aria-label', pause ? 'Play' : 'Pause');
       b.setAttribute('aria-pressed', String(pause));
       b.hidden = !turnMs();          /* in Sochna there is nothing to pause */
@@ -6546,15 +6902,33 @@
     /* HUD buttons are re-created whenever shell() rebuilds the DOM (a restart does),
        so their listeners bind per-shell — bound once at boot, a restarted game's
        HUD was a row of dead buttons. */
+    function closeMore() {
+      var m = D.getElementById('sab-more');
+      if (m && !m.hidden) {
+        m.hidden = true;
+        var b = D.getElementById('sab-menu');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      }
+    }
     function bindHud() {
       D.getElementById('sab-adv').addEventListener('click', advance);
-      D.getElementById('sab-pause').addEventListener('click', togglePause);
+      D.getElementById('sab-pause').addEventListener('click', function () { togglePause(); closeMore(); });
       D.getElementById('sab-turn').addEventListener('click', stepTurn);
-      D.getElementById('sab-world').addEventListener('click', function () { act2('world'); });
+      D.getElementById('sab-world').addEventListener('click', function () { closeMore(); act2('world'); });
+      /* THE MENU. Everything that is not the map lives behind it, and it shuts the
+         moment anything inside it is used — a drawer left hanging open is the same
+         stolen screen the bar used to take, only now it is the player's fault. */
+      D.getElementById('sab-menu').addEventListener('click', function (e2) {
+        e2.stopPropagation();
+        var m = D.getElementById('sab-more');
+        m.hidden = !m.hidden;
+        D.getElementById('sab-menu').setAttribute('aria-expanded', String(!m.hidden));
+      });
       D.getElementById('sab-next').addEventListener('click', gotoNextDecision);
-      D.getElementById('sab-undo').addEventListener('click', undoNow);
-      D.getElementById('sab-speed').addEventListener('change', function (e2) { setSpeed(e2.target.value); });
+      D.getElementById('sab-undo').addEventListener('click', function () { undoNow(); closeMore(); });
+      D.getElementById('sab-speed').addEventListener('change', function (e2) { setSpeed(e2.target.value); closeMore(); });
       D.getElementById('sab-tech').addEventListener('click', function () {
+        closeMore();
         techOpen = !techOpen; if (techOpen) { city = null; quiz = null; } paintTech(); });
       D.getElementById('sab-restart').addEventListener('click', function () {
         city = null; techOpen = false; paintCity(); paintTech();
@@ -6573,7 +6947,7 @@
       st2.addEventListener('pointerdown', onPointerDown);
     }
     bindHud();
-    fitFound();
+    openFraming();
     host.addEventListener('mousedown', onMouseDown);
     host.addEventListener('click', onClick);
     D.addEventListener('pointermove', onPointerMove);
@@ -6647,6 +7021,7 @@
                     var led = []; var y = yieldOf(byId[id], led); return { y: y, led: led }; },
                   digestLog: function () { return G.log || []; },
                   goodLock: goodLock, sisters: sisters, remembered: remembered,
+                  zoom: zoomTo, labScale: labScale,
                   canPlace: function (id, part, x, y) {
                     return canPlace(id, BY_PART[part], x, y); } };
     W.__SAB = function () {

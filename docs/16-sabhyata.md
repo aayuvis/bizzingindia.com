@@ -314,6 +314,22 @@ Five passes, each with a check that fails before it passes.
   not a list**: they are the game's subject, and naming them would give away a map the
   mist is still keeping.
 
+- **J — the phone, checked.** The two-column desktop layout is dissolved on narrow
+  screens with `display:contents`, so the first job was proving the phone still stacks
+  bar → map → rail → advisor → guide, with no sideways scroll, no tap target under 32px
+  and no page errors. It does, at 375, 390, 360 and 820 wide.
+
+  A phone binds the board by **width** — the exact opposite of a desktop, where it is
+  bound by height — so horizontal chrome comes straight off the map. 38px of it on each
+  side belongs to the page and the card, not to the game, and stepping the board out of
+  them took a 390px phone from 29% of the screen to 45%. **That was tried and is not
+  wanted**: the board sits inside the same margins as every other card in the app. So
+  `no-bleed` holds the decision rather than the accident — the board stays inside its
+  parent's content box at three phone widths, and the page never scrolls sideways,
+  because an overflowing negative margin is how a bleed comes back by accident rather
+  than on purpose. The phone map is therefore **29% of the screen and stays there**; on
+  a phone the ceiling is the page's own margins, and those are not this game's to spend.
+
 ### What this pass taught, twice
 
 **A write-up can run ahead of the code.** It happened on the tech tree in v6 and again on
@@ -360,8 +376,8 @@ the map — which looks exactly like the column being empty. The column is one w
 pinned as a unit, dissolved with `display:contents` on narrow screens where `order`
 restores the phone's stacking.
 
-**56 checks, 0 failed.** F through I added four — `board-fills`, `no-raw-escapes`,
-`board-share` and `realm` — widened `colour-roles` and rewrote `rail`. Each was watched to
+**57 checks, 0 failed.** F through J added five — `board-fills`, `no-raw-escapes`,
+`board-share`, `realm` and `no-bleed` — widened `colour-roles` and rewrote `rail`. Each was watched to
 fail first, and `colour-roles` failed for the wrong reason before it failed for the right
 one.
 
@@ -374,7 +390,7 @@ loosening it.** Three did here — the rail check, the city-turn overlap check a
 ladder — and each was rewritten to check the real promise instead of a proxy for it. That is
 the same rule as Bizzing-Videos' `rig.ladderSpan`, arrived at independently.
 
-56 checks, 0 failed, layout audit green.
+57 checks, 0 failed, layout audit green.
 
 ## 10. Phase 2 and beyond (not in this build)
 

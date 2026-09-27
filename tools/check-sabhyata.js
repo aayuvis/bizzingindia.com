@@ -1159,6 +1159,40 @@ check('realm', 'the side column says what the realm is doing, from turn one', as
     throw new Error(`clicking ${went.want} selected ${went.got}`);
 });
 
+check('no-bleed', 'the board stays inside the page, at every phone width', async ({ p }) => {
+  /* A phone binds the board by WIDTH -- the opposite of a desktop, where it is bound by
+     height -- so it is tempting to buy the map some room by stepping the board out of
+     the page's padding and running it to the screen edge. That was tried and is not
+     wanted: the board sits inside the same margins as every other card in the app.
+
+     So this is a check on a decision, not on an accident. It holds the board within its
+     parent's content box on the three common phone widths, and holds the page to no
+     sideways scroll -- because a negative margin that overflows is how a bleed comes
+     back by accident rather than on purpose. */
+  const sizes = [[390, 844], [360, 740], [375, 667]];
+  const bad = [];
+  for (const [w, h] of sizes) {
+    await p.setViewportSize({ width: w, height: h });
+    await p.waitForTimeout(350);
+    const r = await p.evaluate(() => {
+      const st = document.getElementById('sab-stage');
+      if (!st) return null;
+      const b = st.getBoundingClientRect();
+      const host = st.parentElement.getBoundingClientRect();
+      return { outL: Math.round(host.left - b.left), outR: Math.round(b.right - host.right),
+               over: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+    });
+    if (!r) { bad.push(`${w}x${h}: no board`); continue; }
+    if (r.outL > 1 || r.outR > 1)
+      bad.push(`${w}x${h}: the board bleeds out of the page by ${Math.max(r.outL, r.outR)}px`);
+    if (r.over > 1)
+      bad.push(`${w}x${h}: the page scrolls sideways by ${r.over}px`);
+  }
+  await p.setViewportSize({ width: 1440, height: 900 });
+  await p.waitForTimeout(300);
+  if (bad.length) throw new Error(bad.join('; '));
+});
+
 check('board-share', 'the map is the page, not a stamp beside empty space', async ({ p }) => {
   /* `board-fills` asks whether the map fills the BOARD. It was green all along while a
      player was looking at a map that filled a third of the SCREEN, because the board

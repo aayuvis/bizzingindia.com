@@ -169,6 +169,32 @@
        small the numbers beside it get. Shrinking the resource chips for the phone
        took khushi down to 25px with it — it is the one chip that opens something. */
     '.sab-chip[data-sab-act]{min-height:40px;padding-left:10px;padding-right:10px}',
+    /* PINNED TO THE CITY FRAME, bottom centre, where a thumb already is and where the
+       board has its emptiest ground. It keeps clear of Build (bottom left), Grow
+       (bottom right) and the zoom row. */
+    /* IT MUST NOT WRAP AND IT MUST NOT LAND ON ANYTHING. The first cut sat bottom
+       centre, which on a phone is exactly where Grow already is: the coins broke to
+       two rows, "Agla Saal" broke to two lines with its count clipped off, and the
+       whole thing sat under the Grow button. nowrap everywhere, and on a narrow
+       screen it moves to the clear column under the map button instead of fighting
+       for the bottom edge with the two verbs that were there first. */
+    '.sab-cityturn{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:6;' +
+      'display:flex;align-items:center;gap:6px;padding:5px;border-radius:999px;white-space:nowrap;' +
+      'flex-wrap:nowrap;background:color-mix(in srgb,var(--card) 94%,transparent);' +
+      'box-shadow:0 2px 6px rgba(30,20,64,.14),0 10px 30px rgba(30,20,64,.18)}',
+    '.sab-cityres{gap:3px;flex-wrap:nowrap}',
+    '.sab-cityturn .sab-chip{box-shadow:none;background:transparent;font-size:12.5px;padding:2px 5px;white-space:nowrap}',
+    '.sab-cityturn .sab-act{min-height:42px;white-space:nowrap}',
+    '.sab-cityturn .sab-act .lbl{flex-direction:row;gap:5px;align-items:baseline}',
+    '.sab-cityturn .sab-act em{font-style:normal;font-weight:800;opacity:.85;font-size:11px}',
+    '@media (max-width:620px){' +
+      '.sab-cityturn{left:8px;right:auto;top:108px;bottom:auto;transform:none;gap:3px;padding:4px;' +
+        'flex-direction:column;align-items:stretch;border-radius:16px}' +
+      '.sab-cityres{justify-content:center}' +
+      '.sab-cityturn .sab-chip{font-size:11.5px;padding:1px 3px}' +
+      '.sab-cityturn .sab-act{min-height:38px;font-size:12px;padding:5px 9px;justify-content:center}' +
+      '.sab-cityturn .sab-act em{display:none}' +
+    '}',
     '.sab-ages{display:flex;align-items:center;gap:2.5px;border:0;background:none;padding:6px 4px;min-height:44px;cursor:pointer;flex:0 1 auto;min-width:0;overflow:hidden}',
     '.sab-ages i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}',
     '.sab-ages i.g{background:var(--accent2)}',
@@ -2256,6 +2282,21 @@
       }
       return { t: esc(FOLK[s2.kind]) + ' asks', h: h2 };
     }
+    /* The city's own turn strip: what you have, and the year. Deliberately the same
+       markup and the same handler as the bar's - a second Agla Saal that behaved even
+       slightly differently from the first would be a worse bug than not having one. */
+    function cityTurnBar() {
+      var waiting = decisionList().length;
+      return '<div class="sab-cityturn">' +
+        '<div class="sab-res sab-cityres">' + ['anna', 'kala', 'katha'].map(function (k) {
+          return '<span class="sab-chip">' + ICON[k] + ' ' + Math.floor(G.res[k]) + '</span>';
+        }).join('') + '</div>' +
+        '<button class="sab-act txt go" data-sab-act="turn"' + (G.won || overlay ? ' disabled' : '') +
+        ' aria-label="Spend a year, without leaving this city">' +
+        '<span class="lbl">Agla Saal \u25b8' + (waiting ? '<em>' + waiting + ' waiting</em>' : '') +
+        '</span></button></div>';
+    }
+
     /* WHAT THE CITY IS FAMOUS FOR — its three works and the monument. */
     function callWorks(id) {
       var s2 = byId[id], q2 = G.sites[id];
@@ -4073,6 +4114,21 @@
           (KITC ? '<button class="sab-leave" data-sab-act="leave"' +
             ' aria-label="Leave ' + esc(nameOf(s)) + ' and go back to the map">' +
             '\u2190 <span>the map</span></button>' : '') +
+          /* ==============================================================
+             THE TURN BELONGS IN HERE TOO.
+             ==============================================================
+             The founder's note, and they are right: the city had no Agla Saal. In
+             Sochna that makes the city a dead end - you come in to plan, you spend
+             your coin, and then you have to walk back out to the map to spend the
+             year. tick() has taken a `forced` flag since the day Sochna was built
+             precisely so a turn could be asked for from inside a city ("you plan in
+             the city, then spend the turn", says the comment); I wrote the machinery
+             and never put the button anywhere a child could reach it.
+
+             The coins come with it, and that is not scope creep: this is the screen
+             where nearly all the spending happens, and it showed no totals at all. A
+             turn button that moves numbers you cannot see is half a button. */
+          cityTurnBar() +
           (atlas && !KITC ? '<style>' + roadKeyframes(id) + '</style>' : '') +
           (KITC ? '<div class="sab-view" id="sab-view">' : '') +
           '<div class="sab-cam" id="sab-cam" style="transform:' + camStr() + '">' +
@@ -6007,6 +6063,7 @@
           paintTech(); paintAll(); return;
         }
         /* THE WORLD PANEL — who is out there and what they are asking for */
+        if (a === 'turn') { stepTurn(); return; }
         if (a === 'railgo') {
           var rg = actEl.getAttribute('data-g');
           if (rg && byId[rg]) { sel = rg; targeting = false; zoomTo(byId[rg]); paintAll(); }

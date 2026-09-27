@@ -1016,6 +1016,64 @@ check('rail', 'what is live is stacked worst-first, dismissible, and never over 
     throw new Error(`the rail covers ${Math.round(r.area * 100)}% of the board — it is a wall, not a corner`);
 });
 
+check('city-turn', 'a year can be spent without leaving the city', async ({ p }) => {
+  /* In Sochna the city was a dead end: you came in to plan, spent your coin, and had
+     to walk back out to the map to spend the year. The engine always allowed it —
+     tick() takes a `forced` flag for exactly this — there was simply no button. */
+  const G0 = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.res = { anna: 300, kala: 300, katha: 300 };
+    return Object.keys(G.sites)[0];
+  });
+  await openCity(p, 'dholavira');
+  const r = await p.evaluate(() => {
+    const inCity = !!window.__SAB().city;
+    const btn = document.querySelector('.sab-cityturn [data-sab-act="turn"]');
+    if (!btn) return { inCity, found: false };
+    const box = btn.getBoundingClientRect();
+    const t0 = window.__SAB().t;
+    btn.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    return { inCity, found: true, t0, t1: window.__SAB().t,
+             stillIn: !!window.__SAB().city,
+             w: Math.round(box.width), h: Math.round(box.height),
+             coins: document.querySelectorAll('.sab-cityturn .sab-chip').length };
+  });
+  if (!r.inCity) throw new Error('the city never opened, so this proves nothing');
+  if (!r.found) throw new Error('no Agla Saal inside the city — the city is a dead end in Sochna');
+  if (r.t1 !== r.t0 + 1) throw new Error(`the city turn moved the clock ${r.t0} -> ${r.t1}`);
+  if (!r.stillIn) throw new Error('taking a turn threw the player out of the city');
+  if (Math.min(r.w, r.h) < 28) throw new Error(`the city turn button is ${r.w}x${r.h}`);
+  if (r.coins < 3) throw new Error(`${r.coins} totals beside it — a turn that moves numbers you cannot see is half a button`);
+
+  /* AND IT MUST NOT LAND ON THE VERBS THAT WERE THERE FIRST. The first placement sat
+     bottom centre, which on a phone is where Grow already is — it wrapped to two rows
+     and sat under the button. An overlap is invisible to every other check here. */
+  const clash = await p.evaluate(() => {
+    const strip = document.querySelector('.sab-cityturn');
+    const r1 = strip.getBoundingClientRect();
+    const hit = [];
+    document.querySelectorAll('.sab-grow,.sab-dhandle,.sab-leave,[data-sab-act="kitzoom"]').forEach(el => {
+      const r2 = el.getBoundingClientRect();
+      if (r2.width < 1) return;
+      const over = !(r2.right < r1.left || r2.left > r1.right ||
+                     r2.bottom < r1.top || r2.top > r1.bottom);
+      if (over) hit.push(el.className || el.getAttribute('data-sab-act'));
+    });
+    /* AND IT MUST NOT HAVE BROKEN ONTO EXTRA ROWS. Measure the LABEL, not the button:
+       the button carries a min-height for the finger, so comparing its box to a line
+       of text fires on a perfectly good button. The label's own height against its own
+       line-height is the only thing that answers "did this wrap". */
+    const lbl = strip.querySelector('[data-sab-act="turn"] .lbl') ||
+                strip.querySelector('[data-sab-act="turn"]');
+    const cs = getComputedStyle(lbl);
+    const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.3;
+    return { hit, lblH: lbl.getBoundingClientRect().height, lh,
+             tall: lbl.getBoundingClientRect().height > lh * 1.7 };
+  });
+  if (clash.hit.length) throw new Error('the city turn strip sits on: ' + clash.hit.join(', '));
+  if (clash.tall) throw new Error('the Agla Saal label wrapped onto a second line');
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

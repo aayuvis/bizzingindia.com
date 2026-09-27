@@ -291,6 +291,16 @@ Five passes, each with a check that fails before it passes.
   from **34% of a 1440×900 screen to 44%**, and from 31% to 39% at 1920×1080; the drawn
   map is 35% wider and 83% larger in area than before pass F.
 
+  Then, asked for more still: the board's cap went 88vh → 96vh, which was 108px of
+  viewport that nothing was using. **47% of a 1440×900 screen, 42% at 1920×1080 and at
+  1366×768** — measured as the painted land, not the board. That is the end of the road
+  without cropping: at a given height India's own shape fixes the width, and a taller
+  board than this no longer fits under the site's sticky topbar. Which is why the HUD is
+  now **pinned** below that topbar: the board is deliberately taller than the space under
+  it, so scrolling to the south of India was carrying Agla Saal, the resources and the
+  turn count away with it. **The one button that moves the world must never be the thing
+  that scrolls away.**
+
 ### What this pass taught, twice
 
 **A write-up can run ahead of the code.** It happened on the tech tree in v6 and again on

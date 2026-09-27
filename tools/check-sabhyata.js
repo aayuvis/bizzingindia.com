@@ -1074,6 +1074,53 @@ check('city-turn', 'a year can be spent without leaving the city', async ({ p })
   if (clash.tall) throw new Error('the Agla Saal label wrapped onto a second line');
 });
 
+check('labels', 'a city name is the same size however far you lean in', async ({ p }) => {
+  /* The label was sized in SVG user units and the board zooms by shrinking its
+     viewBox, so leaning in blew every name up with the land: "Pataliputra" ran off
+     the frame and Kashi sat on top of it. A name is chrome, not terrain. */
+  const measure = () => p.evaluate(() => {
+    const t = document.querySelector('#sab-sites .sab-lab text');
+    if (!t) return null;
+    const r = t.getBoundingClientRect();
+    return { h: r.height, w: r.width };
+  });
+  await p.evaluate(() => { const G = window.__SABG();
+    Object.keys(G.sites).forEach(id => { G.sites[id].found = true; G.sites[id].zzz = false; });
+    window.__SABDO.paint(); });
+  await p.evaluate(() => window.__SABDO.zoom(2));      /* the whole country */
+  await p.waitForTimeout(250);
+  const out = await measure();
+  await p.evaluate(() => window.__SABDO.zoom(0));      /* leaned right in */
+  await p.waitForTimeout(250);
+  const near = await measure();
+  if (!out || !near) throw new Error('no city label on the board at all');
+  const ratio = near.h / out.h;
+  if (!(ratio > 0.6 && ratio < 1.7))
+    throw new Error(`a name is ${out.h.toFixed(1)}px out and ${near.h.toFixed(1)}px in — it scales with the land`);
+  if (near.h > 40) throw new Error(`a city name renders ${near.h.toFixed(0)}px tall — that is a headline, not a label`);
+
+  /* AND NO TWO NAMES MAY SHARE PIXELS. History clusters -- Kashi and Pataliputra are
+     twenty units apart -- so this is the case that actually happens, and no amount of
+     per-site label direction fixes two names wanting the same spot. */
+  const overlaps = await p.evaluate(() => {
+    const vis = [...document.querySelectorAll('#sab-sites .sab-lab')]
+      .filter(g => g.style.display !== 'none' && g.getBoundingClientRect().width > 0)
+      .map(g => ({ r: g.getBoundingClientRect(),
+                   t: (g.textContent || '').trim() }));
+    const bad = [];
+    for (let i = 0; i < vis.length; i++)
+      for (let j = i + 1; j < vis.length; j++) {
+        const a = vis[i].r, b = vis[j].r;
+        if (!(b.right < a.left || b.left > a.right || b.bottom < a.top || b.top > a.bottom))
+          bad.push(vis[i].t + ' / ' + vis[j].t);
+      }
+    return { shown: vis.length, bad };
+  });
+  if (!overlaps.shown) throw new Error('no names are drawn at all');
+  if (overlaps.bad.length)
+    throw new Error('names sitting on each other: ' + overlaps.bad.slice(0, 4).join(', '));
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

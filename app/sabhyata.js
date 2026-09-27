@@ -2979,10 +2979,20 @@
          within twenty pixels around Pataliputra, two on the Odisha coast — and twenty
          names all set above their dots read as one smear exactly where the game is
          most alive. Checked against the rendered board, not assumed. */
-      var lab = s.lab || 'n', lx = s.x, ly = s.y - r - 14, anc = 'middle';
-      if (lab === 's') { ly = s.y + r + 30; }
-      if (lab === 'e') { lx = s.x + r + 10; ly = s.y + 8; anc = 'start'; }
-      if (lab === 'w') { lx = s.x - r - 10; ly = s.y + 8; anc = 'end'; }
+      /* A NAME IS THE SAME SIZE WHEREVER YOU ARE STANDING.
+         The label was 24 SVG user units, and the board zooms by shrinking its viewBox
+         — so leaning in blew every name up with the land under it. At the framing the
+         game used to open on, "Dholavira" rendered sixty pixels tall, "Pataliputra"
+         ran off the right edge, and Kashi sat on top of it. Nothing about that is a
+         legibility choice; it is a unit mistake.
+
+         The name now hangs in its own group, translated to the dot and scaled by the
+         inverse of the zoom, so BOTH the type size and its distance from the lamp are
+         constant on screen. The offsets below are therefore in screen units. */
+      var lab = s.lab || 'n', ox = 0, oy = -r - 14, anc = 'middle';
+      if (lab === 's') { oy = r + 30; }
+      if (lab === 'e') { ox = r + 10; oy = 8; anc = 'start'; }
+      if (lab === 'w') { ox = -r - 10; oy = 8; anc = 'end'; }
       /* the town is a painted sprite when one exists — the circles stay for the
          hit area, the halo cues and the lamp glowing at its foot; the sprite
          itself grows with level in paintSite */
@@ -3002,7 +3012,8 @@
         '<text x="' + (s.x - r - 4) + '" y="' + (s.y - r + 1) + '">\u26a1</text></g>' +
         '<g class="sab-cb" style="display:none"><circle cx="' + s.x + '" cy="' + (s.y + r + 8) + '" r="10"/>' +
         '<text x="' + s.x + '" y="' + (s.y + r + 13) + '">\u2605</text></g>' +
-        '<text x="' + lx + '" y="' + ly + '" text-anchor="' + anc + '">' + esc(s.name) + '</text>' +
+        '<g class="sab-lab" transform="translate(' + s.x + ',' + s.y + ')">' +
+        '<text x="' + ox + '" y="' + oy + '" text-anchor="' + anc + '">' + esc(s.name) + '</text></g>' +
         '</g>';
     }
     function routeSVG(r, i) {
@@ -3157,9 +3168,78 @@
     }
     W.addEventListener('resize', onResize);
     var panning = null, swallowClick = false;
+    /* THE INVERSE OF THE ZOOM — MEASURED, NOT ASSUMED.
+       The first cut used VZ.w / 1000, which is the right answer only when the board is
+       width-constrained. It is not: the map is 1000x1100 in a frame far wider than it
+       is tall, so preserveAspectRatio fits it by HEIGHT and the pixels-per-unit come
+       off VZ.h. Dividing by the wrong axis left the names still growing as you leaned
+       in — 18px out, 48px in — with a scale attribute on every one of them that looked
+       exactly right.
+
+       So ask the element. `meet` scales by whichever axis binds, and the ratio between
+       what binds now and what bound at the full view IS the number wanted, whatever
+       shape the frame happens to be. */
+    function labScale() {
+      var svg = D.querySelector('#sab-stage svg');
+      if (!svg) return 1;
+      var r = svg.getBoundingClientRect();
+      if (!r.width || !r.height || !VZ.w || !VZ.h) return 1;
+      var now = Math.min(r.width / VZ.w, r.height / VZ.h);
+      var full = Math.min(r.width / 1000, r.height / 1100);
+      if (!now || !full) return 1;
+      /* CLAMPED AT THE TOP ONLY. The floor was 0.28 and it was the whole reason the
+         names still grew: leaned right in, constant size wants 0.127, so the floor was
+         holding every label at twice the size it should be — a limit put there to stop
+         a name dwarfing the country, which is a risk at the far-OUT end and nowhere
+         near the far-in one. The ceiling is the one that does that job. */
+      return Math.max(0.08, Math.min(1.15, full / now));
+    }
+    /* AND NAMES THIN OUT WHEN THEY WOULD PILE UP — measured, not guessed at.
+       The first cut hid names by whether the place was awake, which does nothing about
+       the case that actually happens: Kashi and Pataliputra are twenty units apart and
+       both awake, so both names drew, on top of each other. History clusters, and no
+       amount of per-site label DIRECTION fixes two names wanting the same pixels.
+
+       So the boxes are measured on screen and a name that would land on one already
+       placed simply does not draw. Rank decides who wins, and the ranking is what the
+       player is thinking about: the one you selected, then the one being warned about,
+       then awake places, then the rest. A name is never shortened or shrunk to fit —
+       a half-legible label is worse than the lamp on its own, and the lamp is always
+       still there to tap. */
+    function applyLabels() {
+      var k = labScale(), i, g = D.querySelectorAll('#sab-sites .sab-lab');
+      var items = [];
+      for (i = 0; i < g.length; i++) {
+        var host2 = g[i].parentNode, id2 = host2 && host2.getAttribute('data-sab');
+        var s2 = id2 && byId[id2];
+        if (!s2) continue;
+        g[i].setAttribute('transform', 'translate(' + s2.x + ',' + s2.y + ') scale(' + k.toFixed(3) + ')');
+        g[i].style.display = '';                    /* measure them all shown */
+        var vis = onMap(s2) && getComputedStyle(host2).display !== 'none';
+        var rank = !vis ? 9
+                 : sel === id2 ? 0
+                 : (G.warn && G.warn.id === id2) ? 1
+                 : awake(id2) ? 2 : 3;
+        items.push({ g: g[i], rank: rank, vis: vis });
+      }
+      items.sort(function (a, b) { return a.rank - b.rank; });
+      var placed = [];
+      items.forEach(function (it) {
+        if (!it.vis) { it.g.style.display = 'none'; return; }
+        var r = it.g.getBoundingClientRect();
+        if (!r.width) { it.g.style.display = 'none'; return; }
+        var clash = placed.some(function (o) {
+          return !(o.right < r.left - 2 || o.left > r.right + 2 ||
+                   o.bottom < r.top - 2 || o.top > r.bottom + 2);
+        });
+        if (clash) { it.g.style.display = 'none'; return; }
+        placed.push(r);
+      });
+    }
     function vzApply() {
       var svg = D.querySelector('#sab-stage svg');
       if (svg) svg.setAttribute('viewBox', VZ.x.toFixed(1) + ' ' + VZ.y.toFixed(1) + ' ' + VZ.w.toFixed(1) + ' ' + VZ.h.toFixed(1));
+      applyLabels();
     }
     function vzClamp() {
       VZ.h = VZ.w * vasp();
@@ -3722,6 +3802,9 @@
     function paintAll() {
       paintHud(); SITES.forEach(paintSite); paintRoutes(); paintFog(); paintExplorers();
       paintSheet(); paintFeed(); paintGuide();
+      /* which names are worth showing changes when a place wakes or is selected, not
+         only when the view moves — so the declutter runs on every repaint too */
+      applyLabels();
     }
 
     /* ================================================================
@@ -6792,6 +6875,7 @@
                     var led = []; var y = yieldOf(byId[id], led); return { y: y, led: led }; },
                   digestLog: function () { return G.log || []; },
                   goodLock: goodLock, sisters: sisters, remembered: remembered,
+                  zoom: zoomTo, labScale: labScale,
                   canPlace: function (id, part, x, y) {
                     return canPlace(id, BY_PART[part], x, y); } };
     W.__SAB = function () {

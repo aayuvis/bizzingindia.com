@@ -834,6 +834,175 @@ check('ribbon', 'the ages behind you are on screen', async ({ p }) => {
   if (!/golden/.test(r.label)) throw new Error('the ribbon has no readable label: ' + r.label);
 });
 
+/* ------------------------------------------- PHASE 7: making it legible */
+
+check('breakdown', 'the itemised yield adds up to exactly what the city is paid', async ({ p }) => {
+  /* THE ONE THING THAT MATTERS HERE. A breakdown computed a second way would drift from
+     the payout, and an explanation that disagrees with the coins teaches the wrong rule
+     with perfect confidence. */
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 3;
+    const id = 'dholavira';
+    const q = G.sites[id];
+    q.zzz = false; q.found = true; q.lv = 3;
+    q.bld = { granary: true, workshop: true, gurukul: true, bazaar: true };
+    const other = Object.keys(G.sites).find(i => i !== id);
+    G.sites[other].zzz = false; G.sites[other].found = true;
+    G.routes = [[id, other]];
+    const { y, led } = window.__SABDO.yieldLedger(id);
+    const sums = { anna: 0, kala: 0, katha: 0 };
+    led.forEach(l => { sums[l.k] += l.n; });
+    return { y, sums, lines: led.length };
+  });
+  if (!r.lines) throw new Error('the breakdown explained nothing at all');
+  for (const k of ['anna', 'kala', 'katha']) {
+    if (r.sums[k] !== r.y[k])
+      throw new Error(`${k}: the card adds to ${r.sums[k]} and the city is paid ${r.y[k]} — the card is a lie`);
+  }
+});
+
+check('advisor', 'there is always one next thing to do, and it is never a list', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    const fresh = window.__SABDO.advise();
+    /* an empty-handed realm still has to be told something */
+    G.res = { anna: 0, kala: 0, katha: 0 };
+    G.routes = [];
+    const broke = window.__SABDO.advise();
+    /* and with something waiting, it points at the thing */
+    G.warn = { id: 'dholavira', raid: 'boar', at: G.t + 5 };
+    const urgent = window.__SABDO.advise();
+    return { fresh, broke, urgent };
+  });
+  for (const [name, a] of Object.entries(r)) {
+    if (!a || !a.why || !a.why.length) throw new Error(`the advisor had nothing to say (${name})`);
+    if (a.why.length > 160) throw new Error(`the advice is a paragraph, not a line (${name})`);
+  }
+  if (r.urgent.go !== 'dholavira')
+    throw new Error(`with a warning live the advisor pointed at ${r.urgent.go}`);
+});
+
+check('digest', 'what happened is kept, not overwritten', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.log = [];
+    G.res.anna = 400; G.res.kala = 400; G.res.katha = 400;
+    window.__SABDO.act('dholavira', 'grow');
+    const after = window.__SABDO.digestLog().length;
+    /* and it is capped, so a long game cannot grow it without bound */
+    for (let i = 0; i < 80; i++) window.__SABDO.turn();
+    return { after, capped: window.__SABDO.digestLog().length };
+  });
+  if (!(r.after > 0)) throw new Error('nothing was recorded when the world spoke');
+  if (r.capped > 40) throw new Error(`the log grew to ${r.capped} entries with no cap`);
+});
+
+check('replay', 'the order the lamps were lit in is remembered', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.res.katha = 900; G.res.kala = 900; G.res.anna = 900;
+    const other = Object.keys(G.sites).find(i => i !== 'dholavira');
+    G.sites[other].found = true; G.sites[other].zzz = true;
+    G.routes = [['dholavira', other]];
+    window.__SABDO.act(other, 'wake');
+    return { litAt: window.__SABG().sites[other].litAt, awake: !window.__SABG().sites[other].zzz };
+  });
+  if (!r.awake) throw new Error('the place did not wake, so the replay cannot be checked');
+  if (r.litAt == null) throw new Error('waking a place did not record when — there is no replay');
+});
+
+check('sound-optional', 'sound never blocks a verb and is silent under reduced motion', async ({ p }) => {
+  /* a browser that refuses audio, or a child who asked for less motion, must still be
+     able to play every verb — sound that can throw is sound that can break the game */
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.res.anna = 400;
+    /* break AudioContext outright and check the verb still lands */
+    const realAC = window.AudioContext, realWK = window.webkitAudioContext;
+    window.AudioContext = function () { throw new Error('no audio here'); };
+    window.webkitAudioContext = undefined;
+    const lv = G.sites.dholavira.lv;
+    let threw = null;
+    try { window.__SABDO.act('dholavira', 'grow'); } catch (e) { threw = e.message; }
+    const after = window.__SABG().sites.dholavira.lv;
+    window.AudioContext = realAC; window.webkitAudioContext = realWK;
+    return { threw, grew: after > lv };
+  });
+  if (r.threw) throw new Error('a broken AudioContext threw out of a verb: ' + r.threw);
+  if (!r.grew) throw new Error('the verb did not happen when sound failed');
+});
+
+/* ------------------------ the three the tally caught me having skipped */
+
+check('goodgate', 'a thing cannot be built from stuff the realm cannot reach', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const gated = window.IND_KIT_BUILD.items.find(i => i.needsGood);
+    if (!gated) return { none: true };
+    const G = window.__SABG();
+    /* reach nothing */
+    Object.keys(G.sites).forEach(id => { G.sites[id].zzz = true; G.sites[id].found = false; });
+    G.sites.dholavira.zzz = false; G.sites.dholavira.found = true; G.routes = [];
+    const locked = window.__SABDO.goodLock(gated);
+    /* now reach the thing it needs */
+    const D = window.IND_SABHYATA;
+    const src = D.sites.find(x => window.__SABDO.good(x.id) === gated.needsGood);
+    G.sites[src.id].zzz = false; G.sites[src.id].found = true;
+    G.routes = [['dholavira', src.id]];
+    const freed = window.__SABDO.goodLock(gated);
+    return { part: gated.p, needs: gated.needsGood, locked, freed };
+  });
+  if (r.none) throw new Error('no catalogue item is gated on a good at all');
+  if (!r.locked) throw new Error(`${r.part} was buildable with no road reaching ${r.needs}`);
+  if (r.freed) throw new Error(`${r.part} stayed locked after a road reached ${r.needs}`);
+});
+
+check('sisters', 'the shared meter counts all of India and only goes up', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 2;
+    const ids = Object.keys(G.sites);
+    ids.forEach(id => { G.sites[id].zzz = true; });
+    G.sites.dholavira.zzz = false;
+    const few = window.__SABDO.remembered();
+    /* wake places that are NOT on the player's roads — somebody else's lamps */
+    G.routes = [];
+    ids.slice(0, 8).forEach(id => { G.sites[id].zzz = false; G.sites[id].found = true; });
+    const many = window.__SABDO.remembered();
+    return { few, many, sis: window.__SABDO.sisters().length };
+  });
+  if (!(r.many.lit > r.few.lit))
+    throw new Error('lamps lit off the player\'s roads do not count toward the meter');
+  if (r.many.pct < r.few.pct)
+    throw new Error('the shared meter went DOWN — it must only ever rise');
+});
+
+check('rail', 'what is live is stacked worst-first, dismissible, and never over the map', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.hushed = {};
+    G.warn = { id: 'dholavira', raid: 'boar', at: G.t + 5 };
+    G.ev = { id: 'dholavira', at: G.t + 9 };
+    window.__SABDO.paint();
+    const rail = document.getElementById('sab-rail');
+    const rows = [...rail.querySelectorAll('.sab-railrow')];
+    const order = rows.map(x => x.className.match(/p(\d)/)[1]);
+    /* dismiss the first and check it goes */
+    const before = rows.length;
+    rows[0].querySelector('.sab-railx').click();
+    const after = document.querySelectorAll('#sab-rail .sab-railrow').length;
+    /* and the rail must not sit on top of the board */
+    const board = document.querySelector('.sab-stage').getBoundingClientRect();
+    const rr = rail.getBoundingClientRect();
+    return { before, after, order, overlaps: rr.bottom > board.top + 2 && rr.height > 0 };
+  });
+  if (r.before < 2) throw new Error(`only ${r.before} rows with two things live`);
+  if (r.order.join('') !== [...r.order].sort().join(''))
+    throw new Error('the rail is not worst-first: ' + r.order.join(','));
+  if (!(r.after < r.before)) throw new Error('dismissing a row did not remove it');
+  if (r.overlaps) throw new Error('the rail sits over the board — it covers the thing it is telling you about');
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

@@ -13,6 +13,11 @@
  *   only [cityIds]   some things belong to one city and nowhere else
  *
  *   tech 'plough'   the research that has to be finished first
+ *   needsGood 'fields of the north'
+ *                   a GOOD the realm's roads must actually reach. Research gated what a
+ *                   city knew how to make; nothing gated what it had to make it FROM, so
+ *                   a forge could be raised in a realm whose roads touched no metalwork
+ *                   at all. Same scarcity khushi measures, asked as a hard question.
  *
  * A tech-locked thing is SHOWN, greyed, reading what would unlock it. Hiding
  * it would make research a thing a child does for no visible reason; showing
@@ -145,7 +150,7 @@ window.IND_KIT_BUILD = {
     { p: 'bd-weighing', g: 'work', on: 'land', era: [1, 12], lv: 2, kind: '*',
       tech: 'panchayat', cost: { kala: 18 }, give: { kala: 1, anna: 1 },
       what: 'A weighing yard: honest measure brings trade back. +1 🛠️ +1 🌾.' },
-    { p: 'bd-warehouse', g: 'work', on: 'shore', era: [1, 12], lv: 2, kind: '*',
+    { p: 'bd-warehouse', g: 'work', on: 'shore', era: [1, 12], lv: 2, kind: '*', needsGood: 'fields of the north',
       cost: { kala: 26, anna: 10 }, give: { kala: 2 },
       what: 'A warehouse on the water: +2 🛠️ a turn.' },
     { p: 'bd-stable', g: 'work', on: 'road', era: [1, 12], lv: 2, kind: '*',
@@ -154,7 +159,7 @@ window.IND_KIT_BUILD = {
     { p: 'pr-loom', g: 'work', on: 'land', era: [0, 12], lv: 2, kind: 'shilpa',
       cost: { kala: 14 }, give: { kala: 1 },
       what: 'A pit loom. Thread in, cloth out.' },
-    { p: 'bd-forge', g: 'work', on: 'land', era: [1, 12], lv: 3, kind: 'shilpa',
+    { p: 'bd-forge', g: 'work', on: 'land', era: [1, 12], lv: 3, kind: 'shilpa', needsGood: 'workshops of the west',
       tech: 'iron', cost: { kala: 30 }, give: { kala: 2 },
       what: 'A forge: +2 🛠️, and the rakshaks are better armed for it.' },
 

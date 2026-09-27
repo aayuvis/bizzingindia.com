@@ -160,6 +160,23 @@
     '.sab-ages i.g{background:var(--accent2)}',
     '.sab-ages i.q{background:var(--muted);opacity:.6}',
     '.sab-ages i.now{background:var(--accent);box-shadow:0 0 0 2px rgba(0,0,0,.06)}',
+    '.sab-advise{display:flex;gap:6px;align-items:stretch;margin:2px 0}',
+    '.sab-advisebtn{flex:1;display:flex;gap:7px;align-items:center;text-align:left;border:0;border-radius:12px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08);padding:9px 11px;min-height:44px;font:inherit;color:var(--text);cursor:pointer}',
+    '.sab-advisebtn em{font-style:normal;font-weight:900;color:var(--accent2)}',
+    '.sab-advisebtn span{font-size:12.5px;font-weight:700}',
+    '.sab-brk{padding:7px 0;border-bottom:1px solid var(--line)}',
+    '.sab-brk b{display:block;font-size:15px}',
+    '.sab-brk span{display:block;font-size:11.5px;color:var(--muted);font-weight:700}',
+    '.sab-brk i{font-style:normal;font-weight:600}',
+    /* THE RAIL sits above the board, never over it */
+    '.sab-rail{display:flex;flex-direction:column;gap:4px}',
+    /* an author display rule beats the UA rule for [hidden], so hiding it needs saying */
+    '.sab-rail[hidden]{display:none}',
+    '.sab-railrow{display:flex;gap:4px;align-items:stretch}',
+    '.sab-railgo{flex:1;text-align:left;border:0;border-radius:10px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08);padding:8px 11px;min-height:40px;font:700 12px/1.3 var(--body,system-ui,sans-serif);color:var(--text);cursor:pointer}',
+    '.sab-railrow.p0 .sab-railgo{background:#fbeceb;color:#8a3a2e}',
+    '.sab-railrow.p1 .sab-railgo{background:#fdf3e3}',
+    '.sab-railx{border:0;border-radius:10px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08);width:40px;min-height:40px;font-size:15px;font-weight:800;color:var(--muted);cursor:pointer}',
     /* the road somebody overseas is waiting on */
     '.sab-route.asked{stroke:#d9a23d;stroke-width:4.5}',
     '@media (prefers-reduced-motion: reduce){.sab-route.asked{stroke-dasharray:none}}',
@@ -894,7 +911,7 @@
                req: {}, fav: {}, sold: {}, diaspora: {},
                /* the age's own tally, whether the last age was thin, what a golden age
                   dedicated itself to, and the record of the ages already passed */
-               deeds: {}, dark: false, ded: null, ages: [] };
+               deeds: {}, dark: false, ded: null, ages: [], log: [], hushed: {} };
     }
 
     /* ---- rules helpers ---- */
@@ -1044,6 +1061,11 @@
        of the country it stands in) and a realm's contentment is how many DIFFERENT
        ones its roads reach. */
     var REGIONS = DATA.regions || {}, GOODNM = DATA.goodNames || {};
+    /* what a catalogue item still owes the realm in goods, or null */
+    function goodLock(it) {
+      if (!it || !it.needsGood) return null;
+      return canSupply(it.needsGood) ? null : it.needsGood;
+    }
     function goodOf(id) {
       var x = byId[id]; if (!x) return null;
       var nm = GOODNM[x.kind], rg = REGIONS[x.state];
@@ -1069,6 +1091,71 @@
     /* short of variety the realm grows restless. It is never shamed and always
        fixable by reaching somewhere new -- docs/16: a fading thing is sad, not scary. */
     function restless() { return Math.max(0, khushiWant() - khushiHave()); }
+
+    /* WHY IS IT SEVEN — the card. Built from the ledger yieldOf fills on its own pass,
+       so what a child reads and what the city pays can never disagree. */
+    function yieldCard(id) {
+      var x = byId[id]; if (!x) return;
+      var led = [], y = yieldOf(x, led);
+      if (!y) {
+        showOverlay('<h3>' + esc(nameOf(x)) + '</h3><p>It is asleep, and earns nothing until it is woken.</p>' +
+          '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Back</button></div>');
+        return;
+      }
+      var rows = ['anna', 'kala', 'katha'].map(function (k) {
+        var mine = led.filter(function (l) { return l.k === k && l.n; });
+        if (!mine.length && !y[k]) return '';
+        return '<div class="sab-brk"><b>' + ICON[k] + ' ' + y[k] + '</b>' +
+          mine.map(function (l) {
+            return '<span>' + (l.n > 0 ? '+' : '') + l.n + ' <i>' + esc(l.why) + '</i></span>';
+          }).join('') + '</div>';
+      }).filter(Boolean).join('');
+      var appetite = Math.round(popOf(id) * T.eat * (polEff('eat') || 1) * 10) / 10;
+      showOverlay('<div class="mono" style="color:var(--accent2)">where the numbers come from</div>' +
+        '<h3>' + esc(nameOf(x)) + ' — every turn</h3>' +
+        rows +
+        '<p class="tiny" style="color:var(--muted)">And ' + popOf(id) + ' praja eat ' + appetite +
+        ' 🌾 a turn. Everything above is one pass of the same arithmetic the city is paid by — ' +
+        'if this card and the coins ever disagree, the card is the bug.</p>' +
+        '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">I see</button></div>');
+    }
+
+    /* ==================================================================
+       THE TURN'S OWN REPORT, AND THE ONE THING TO DO NEXT
+       ==================================================================
+       The feed is a single line and the world keeps talking over it, so everything that
+       happened in a turn was announced and then immediately overwritten. A digest keeps
+       the turn's three most important facts where they can be read at leisure.
+
+       And the advisor answers the question the founder's note was really asking. "I'm
+       not making strategic decisions" is partly a systems problem, which the other
+       forty-nine items address, and partly this: a child who does not know what the
+       game wants next does nothing, and doing nothing looks exactly like a game with
+       nothing in it. */
+    function digest(line) {
+      if (!G.log) G.log = [];
+      G.log.unshift({ t: G.t, s: line });
+      if (G.log.length > 40) G.log.length = 40;
+    }
+    /* ONE suggestion, never a list: a list is another thing to read. */
+    function advise() {
+      var L = decisionList();
+      if (L.length) return { why: nameOf(byId[L[0].id]) + ' wants you — ' + L[0].why, go: L[0].id };
+      var zz = SITES.filter(function (x) { return onMap(x) && !awake(x.id) && connected(x.id); })[0];
+      if (zz) return { why: 'A road already reaches ' + nameOf(zz) + '. Wake it and its story is yours.', go: zz.id };
+      var far = SITES.filter(function (x) { return onMap(x) && !awake(x.id); })[0];
+      if (far) return { why: nameOf(far) + ' is found but unreached — a road would let you wake it.', go: far.id };
+      if (hiddenSites().length && G.res.anna >= T.exploreCost)
+        return { why: 'There is country nobody has walked yet. Send an explorer.', go: null };
+      if (restless())
+        return { why: 'The realm is restless — reach somewhere unlike home and it lifts.', go: null };
+      var open = TECHS.filter(function (t) { return techOpenFor(t) && !G.tech[t.id] && canPay(techCost(t)); })[0];
+      if (open && !G.proj) return { why: 'The school could begin ' + open.name + '.', go: null };
+      var ask = Object.keys(G.req || {})[0];
+      if (ask && canSupply(G.req[ask].want)) return { why: 'Somebody overseas is waiting on a road you already have.', go: null };
+      if (canAdvance()) return { why: 'Every lamp of this age is lit. The age can turn.', go: null };
+      return { why: 'Grow a town, or lay a road — everything else follows from those two.', go: null };
+    }
 
     /* ==================================================================
        A SHORTER GAME — starting somewhere other than the beginning
@@ -1264,6 +1351,34 @@
       if (G.t % 10 !== 0) return;
       G.res.katha += n * 3; G.res.kala += n * 2;
       say('Word and goods home from ' + n + ' quarter' + (n > 1 ? 's' : '') + ' overseas.', 'warm');
+    }
+
+    /* ==================================================================
+       THE SISTER REALMS — the one competitor that is not one
+       ==================================================================
+       The genre's tension comes from other players wanting what you want. Every version
+       of that which fits on this map is forbidden and should be: a rival janapada that
+       can be beaten is the external enemy docs/16 §1 refuses, and it is somebody's
+       ancestor besides.
+
+       So the sisters are janapadas whose lamps are not yours to light and whose troubles
+       are not yours to cause. They ask for help, and the SHARED METER only ever goes up
+       — theirs rising lifts yours too. It is the shape of competition with the sign
+       flipped: you watch somebody else's number and you are glad when it moves. That is
+       a thing worth teaching a nine-year-old about neighbours, and it costs the design
+       nothing, because the mist was always the only adversary this game needed. */
+    function sisters() {
+      /* drawn from the roster itself: places of this age that are not on your roads.
+         They are not entities with saves — they are the rest of India, getting on with
+         it, which is exactly what they were historically. */
+      return SITES.filter(function (x) {
+        return inEra(x) && found(x.id) && !connected(x.id) && !awake(x.id);
+      }).slice(0, 3);
+    }
+    function remembered() {
+      var lit = SITES.filter(function (x) { return inEra(x) && awake(x.id); }).length;
+      var all = SITES.filter(function (x) { return inEra(x); }).length || 1;
+      return { lit: lit, all: all, pct: Math.round(lit / all * 100) };
     }
 
     /* ==================================================================
@@ -1547,7 +1662,15 @@
       if (it.only && !it.many && builtCount(id, it.p) >= 1)
         return 'a city has only one of these';
       var tl = techLock(it);
-      if (tl) return 'nobody here knows how yet \u2014 study ' + tl + ' first';
+      if (tl) return 'nobody here knows how yet \\u2014 study ' + tl + ' first';
+      /* AND SOME THINGS NEED STUFF THE REALM HAS TO REACH FIRST.
+         Research gated what a city KNEW how to make; nothing gated what it had to make
+         it FROM, so a shipyard could be raised in a realm whose roads touched no timber
+         and a kiln in one that reached no clay. `needs` on a catalogue item names a good
+         (see regions/goodNames) and the road network has to reach it. It is the same
+         scarcity khushi measures, asked as a hard question rather than a soft one. */
+      var gl = goodLock(it);
+      if (gl) return 'nothing on your roads brings ' + gl + ' yet';
       if (!canPay(costOf(it.cost, 'building'))) return 'not enough yet';
       return null;
     }
@@ -2755,7 +2878,8 @@
     var sel = null, targeting = false, kbd = null, feed = '', feedCls = '', overlay = null, pause = false;
     var timer = null, dead = false;
 
-    function say(t, cls) { feed = t; feedCls = cls || ''; paintFeed(); }
+    function say(t, cls) {
+      if (t) digest(t); feed = t; feedCls = cls || ''; paintFeed(); }
 
     /* ================================================================
        RENDER — the board is drawn once; ticks only PATCH attributes.
@@ -3027,6 +3151,12 @@
             '<button class="sab-act txt go" id="sab-turn"></button>' +
           '</div>' +
         '</div>' +
+        /* THE RAIL. The feed is one line and the world talks over it, so a warning, a
+           quarrel and a request arriving together left two of them unseen. The rail
+           stacks what is live, worst first, each one dismissible, and it sits ABOVE the
+           map rather than on it — a notification over the board covers the thing it is
+           telling you about, which is the one place it must never be. */
+        '<div class="sab-rail" id="sab-rail"></div>' +
         '<div class="sab-tray" id="sab-sheet" hidden></div>' +
         '<div id="sab-cityhost"></div>' +
         '<div class="sab-stage" id="sab-stage">' + board() +
@@ -3036,6 +3166,12 @@
           '<button class="sab-btn" data-sab-act="zreset" aria-label="Whole map">\u2302</button></div>' +
           '<div id="sab-ovhost"></div></div>' +
         '<p class="sab-feed" id="sab-feed" aria-live="polite"></p>' +
+        /* MITHU'S LINE. One suggestion, never a list — a list is another thing to read.
+           This answers the half of "I'm not making strategic decisions" that is not a
+           systems problem: a child who cannot tell what the game wants next does
+           nothing, and doing nothing looks exactly like a game with nothing in it. */
+        '<div class="sab-advise"><button id="sab-advise" class="sab-advisebtn" data-sab-act="advise"></button>' +
+          '<button class="sab-btn" data-sab-act="digest" aria-label="What has been happening">\\u2263</button></div>' +
         '<p class="sab-guide" id="sab-guide"></p>' +
         '<p class="sab-help">Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
           '<b>1–4</b> fire an action (<b>4</b> steps inside the city), <b>Esc</b> cancels, <b>P</b> pauses. ' +
@@ -3104,6 +3240,48 @@
       if (ub) ub.disabled = !canUndo();
       var nb = D.getElementById('sab-next');
       if (nb) nb.disabled = !decisionList().length;
+      /* WORST FIRST, and only what is actually live */
+      var rail = D.getElementById('sab-rail');
+      if (rail) {
+        var items = [];
+        if (G.warn && byId[G.warn.id]) {
+          var dw = defenceOf(G.warn.id);
+          items.push({ p: 0, k: 'warn', go: G.warn.id,
+            t: 'Something comes to ' + nameOf(byId[G.warn.id]) +
+               ' — ' + Math.max(0, G.warn.at - G.t) + ' turns, gate ' + dw.total });
+        }
+        if (G.disp) items.push({ p: 1, k: 'disp', go: G.disp.a,
+          t: nameOf(byId[G.disp.a]) + ' and ' + nameOf(byId[G.disp.b]) + ' have fallen out — sit the panchayat' });
+        if (G.ev && byId[G.ev.id]) items.push({ p: 2, k: 'ev', go: G.ev.id,
+          t: nameOf(byId[G.ev.id]) + ' is asking for grain' });
+        Object.keys(G.req || {}).forEach(function (pid) {
+          var pn2 = ''; PARTNERS.forEach(function (x) { if (x.id === pid) pn2 = x.name; });
+          items.push({ p: 3, k: 'req:' + pid, go: null,
+            t: pn2 + ' is asking for ' + G.req[pid].want +
+               (canSupply(G.req[pid].want) ? ' — your roads reach it' : ' — no road of yours reaches it') });
+        });
+        SITES.forEach(function (x) {
+          if (!onMap(x) || !awake(x.id)) return;
+          if (G.sites[x.id].fade >= 0)
+            items.push({ p: 2, k: 'fade:' + x.id, go: x.id, t: 'The mist is drifting over ' + nameOf(x) });
+        });
+        items = items.filter(function (i2) { return !(G.hushed || {})[i2.k]; })
+                     .sort(function (a9, b9) { return a9.p - b9.p; }).slice(0, 4);
+        rail.innerHTML = items.map(function (i3) {
+          return '<div class="sab-railrow p' + i3.p + '">' +
+            '<button class="sab-railgo" data-sab-act="railgo" data-g="' + (i3.go || '') + '">' +
+            esc(i3.t) + '</button>' +
+            '<button class="sab-railx" data-sab-act="hush" data-k="' + esc(i3.k) + '" aria-label="Dismiss">×</button>' +
+            '</div>';
+        }).join('');
+        rail.hidden = !items.length;
+      }
+      var av = D.getElementById('sab-advise');
+      if (av) {
+        var ad = advise();
+        av.innerHTML = '<em>\\u25b8</em><span>' + esc(ad.why) + '</span>';
+        av.setAttribute('data-go', ad.go || '');
+      }
       /* the age grades the light on the land — one filter on the whole wash */
       var svgEl = D.querySelector('#sab-stage svg');
       if (svgEl) svgEl.setAttribute('class', 'sab-e' + G.era);
@@ -3296,6 +3474,37 @@
       }
     }
     /* event sparks at a point on the board — fire and forget, self-removing */
+    /* ==================================================================
+       SOUND — one short tone a verb, and nothing else
+       ==================================================================
+       Connecting two places is the core verb of this whole game and it felt like
+       nothing: no weight, no confirmation, no difference between a road laid and a tap
+       that missed. Synthesised rather than sampled on purpose — the corpus is already
+       760MB of narration and art, and this needs no byte of it.
+
+       It follows prefers-reduced-motion, because a child who has asked for less motion
+       has usually asked for less of everything, and it is off until the first real tap
+       so no page ever makes a noise a child did not ask for. */
+    var AC = null, muted = false;
+    var TONES = { road: [392, 0.09], wake: [523, 0.16], grow: [330, 0.1],
+                  build: [294, 0.07], learn: [659, 0.14], peace: [440, 0.13],
+                  turn: [247, 0.06], no: [180, 0.08] };
+    function blip(kind) {
+      if (REDUCED || muted) return;
+      var t = TONES[kind]; if (!t) return;
+      try {
+        if (!AC) AC = new (W.AudioContext || W.webkitAudioContext)();
+        var o = AC.createOscillator(), g = AC.createGain();
+        o.type = 'triangle'; o.frequency.value = t[0];
+        g.gain.value = 0.0001;
+        o.connect(g); g.connect(AC.destination);
+        var now = AC.currentTime;
+        g.gain.exponentialRampToValueAtTime(0.06, now + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + t[1]);
+        o.start(now); o.stop(now + t[1] + 0.02);
+      } catch (e) { muted = true; }      /* a browser that refuses is simply silent */
+    }
+
     function fxAt(x, y, kind) {
       if (REDUCED) return;
       var g = D.getElementById('sab-fx'); if (!g) return;
@@ -3374,7 +3583,8 @@
            Wake — which needs a road — and no way to build one. Roads are undirected,
            so the sleeping town can start its own: Reach it, then Wake it. */
         b.push(tile('route', 'road', 'Reach it', costStr(costOf({ kala: T.routeCost }, 'route'))));
-        b.push(tile('wake', 'sun', 'Wake', connected(sel) ? wakeCost(sel) + ' \ud83d\udcdc' : 'needs a road',
+        b.push(tile('yields', 'book', 'Why?', 'where the numbers come from', true));
+        b.push(tile('wake', 'sun', 'Wake', connected(sel) ? wakeCost(sel) + ' \\ud83d\\udcdc' : 'needs a road',
           { go: true, disabled: !connected(sel) }));
       } else {
         b.push(tile('route', 'road', 'Route', costStr(costOf({ kala: T.routeCost }, 'route'))));
@@ -4402,7 +4612,7 @@
       if (name === 'grow' && !q.zzz && q.lv < T.maxLevel) {
         var cost = T.growCost[q.lv];
         if (G.res.anna < cost) return say('Not enough anna yet — the fields are still filling.', '');
-        pay({ anna: cost }); q.lv++; G.score += 10; touch(sel);
+        pay({ anna: cost }); blip('grow'); q.lv++; G.score += 10; touch(sel);
         fxAt(s.x, s.y, 'grow');
         /* AND IT GROWS SOMEWHERE. The level is the reward; the direction is the
            decision, and it is asked at the moment it is earned. */
@@ -4440,7 +4650,8 @@
         if (!connected(sel)) return say(s.name + ' needs a road first — a story has to travel to be heard.', '');
         if (G.res.katha < wakeCost(sel)) return say((G.sites[sel].deep ? 'This one has slept through an age and asks more — ' : '') +
           'not enough katha yet. Stories are earned by helping and holding utsavs.', '');
-        pay({ katha: wakeCost(sel) }); deed('wake'); G.sites[sel].deep = 0; q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
+        pay({ katha: wakeCost(sel) }); deed('wake'); G.sites[sel].deep = 0;
+        G.sites[sel].litAt = G.t; blip('wake');    /* for the replay */ q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
         fxAt(s.x, s.y, 'utsav');
         say(s.name + ' wakes!', 'warm');
         if (!q.seen) { q.seen = true;
@@ -4458,7 +4669,7 @@
       if (routed(a, b)) { targeting = false; return say('That road is already walked.', ''); }
       var rc = costOf({ kala: T.routeCost }, 'route');
       if (!canPay(rc)) { targeting = false; return say('Not enough kala for this road.', ''); }
-      pay(rc); deed('road'); G.routes.push([a, b]); G.score += 15;
+      pay(rc); deed('road'); blip('road'); G.routes.push([a, b]); G.score += 15;
       targeting = false; touch(a); touch(b);
       var q = G.sites[a]; q.idle = 0; if (q.fade >= 0) q.fade = -1;
       var p = G.sites[b]; p.idle = 0; if (p.fade >= 0) p.fade = -1;
@@ -4922,7 +5133,7 @@
       G.rt++;
       if (G.proj && projPct() >= 1) {
         var td = null; TECHS.forEach(function (t2) { if (t2.id === G.proj.id) td = t2; });
-        G.tech[G.proj.id] = true; G.proj = null; G.score += 30; deed('tech');
+        G.tech[G.proj.id] = true; G.proj = null; G.score += 30; deed('tech'); blip('learn');
         if (td) say(td.name + ' — learned at last! ' + td.what, 'warm');
         if (techOpen) paintTech();
         paintAll();
@@ -5648,7 +5859,7 @@
           touch(G.disp.a); touch(G.disp.b);
           G.disp = null; G.lastd = G.t;
           G.res.katha += T.reward.peace * (polEff('peace') || 1); G.score += 40;
-          G.peaceMade = (G.peaceMade || 0) + 1; deed('peace');
+          G.peaceMade = (G.peaceMade || 0) + 1; deed('peace'); blip('peace');
           say('The panchayat rises: ' + pa + ' and ' + pb + ' shake on it. Peace pays. +' + T.reward.peace + ' \ud83d\udcdc', 'warm');
           paintCity(); paintAll(); return;
         }
@@ -5726,6 +5937,63 @@
           paintTech(); paintAll(); return;
         }
         /* THE WORLD PANEL — who is out there and what they are asking for */
+        if (a === 'railgo') {
+          var rg = actEl.getAttribute('data-g');
+          if (rg && byId[rg]) { sel = rg; targeting = false; zoomTo(byId[rg]); paintAll(); }
+          return;
+        }
+        if (a === 'hush') {
+          if (!G.hushed) G.hushed = {};
+          /* G.t + 1, NOT G.t. Storing the turn number as the marker meant a row
+             dismissed on turn 0 stored 0, which is falsy, so the filter that hides
+             hushed rows never hid it — the button appeared to do nothing, and only on
+             the first turn of a game, which is the one turn every child sees. Keeping
+             the turn (rather than `true`) leaves room for hushes that expire. */
+          G.hushed[actEl.getAttribute('data-k')] = G.t + 1;
+          paintAll(); return;
+        }
+        if (a === 'sisters') {
+          var sis = sisters(), rem = remembered();
+          showOverlay('<div class="mono" style="color:var(--accent2)">the rest of India</div>' +
+            '<h3>' + rem.lit + ' of ' + rem.all + ' lamps lit — ' + rem.pct + '%</h3>' +
+            '<p>These places are not yours to light and their troubles are not yours to cause. ' +
+            'The meter counts every lamp in India, not only the ones on your roads, and it only ' +
+            'ever goes up — so somebody else waking a town is good news here.</p>' +
+            (sis.length ? '<ul style="margin:6px 0;padding-left:18px">' + sis.map(function (x) {
+              return '<li class="tiny"><b>' + esc(nameOf(x)) + '</b> sleeps, off your roads.</li>';
+            }).join('') + '</ul>' : '<p class="tiny">Every place you have found is on a road of yours.</p>') +
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Back</button></div>');
+          return;
+        }
+        if (a === 'advise') {
+          var go = actEl.getAttribute('data-go');
+          /* the line is the advice; the tap is a shortcut only when there is somewhere
+             to be taken. Sending a child to an unrelated panel would be worse than
+             doing nothing. */
+          if (go && byId[go]) { sel = go; targeting = false; zoomTo(byId[go]); paintAll(); }
+          return;
+        }
+        if (a === 'digest') {
+          var lg = (G.log || []).slice(0, 12).map(function (l) {
+            return '<li class="tiny"><b>turn ' + (l.t + 1) + '</b> · ' + esc(l.s) + '</li>';
+          }).join('');
+          /* AND THE REPLAY: which lamp lit when, which is the emotional payoff of a
+             game that spans five thousand years and was nowhere on screen. */
+          var lit = SITES.filter(function (x) { return G.sites[x.id].litAt != null; })
+            .sort(function (a8, b8) { return G.sites[a8.id].litAt - G.sites[b8.id].litAt; })
+            .map(function (x) {
+              return '<li class="tiny">turn ' + (G.sites[x.id].litAt + 1) + ' — <b>' +
+                esc(nameOf(x)) + '</b> woke</li>';
+            }).join('');
+          showOverlay('<div class="mono" style="color:var(--accent2)">what has been happening</div>' +
+            '<h3>The last dozen things</h3>' +
+            '<ul style="margin:6px 0;padding-left:18px">' + (lg || '<li class="tiny">Nothing yet.</li>') + '</ul>' +
+            (lit ? '<div class="mono" style="margin-top:10px">Every lamp, in the order you lit it</div>' +
+                   '<ul style="margin:6px 0;padding-left:18px">' + lit + '</ul>' : '') +
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Back</button></div>');
+          return;
+        }
+        if (a === 'yields') { yieldCard(actEl.getAttribute('data-c') || city || sel); return; }
         if (a === 'scen') {
           var sid3 = actEl.getAttribute('data-s');
           overlay = null; D.getElementById('sab-ovhost').innerHTML = '';
@@ -5808,7 +6076,8 @@
             (ks.length ? '<ul style="margin:6px 0 0;padding-left:18px">' + ks.map(function (k2) {
               return '<li class="tiny">' + esc(k2) + ' ×' + gr[k2] + '</li>'; }).join('') + '</ul>'
                        : '<p class="tiny">No road reaches anything yet.</p>') +
-            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">I see</button></div>');
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">I see</button></div>' +
+            '<div class="row"><button class="sab-btn" data-sab-act="sisters">And the rest of India</button></div>');
           return;
         }
         if (a === 'kitturn') {
@@ -6124,6 +6393,7 @@
     /* AGLA SAAL — next year. One turn, asked for, from wherever you are standing. */
     function stepTurn() {
       if (G.won || dead || overlay) return;
+      blip('turn');
       tick(true);
       paintAll(); if (city) paintCity();
     }
@@ -6372,7 +6642,13 @@
                   act2: act2,
                   eraScore: eraScore, eraBar: eraBar, golden: golden, deed: deed,
                   verdict: ageVerdict, vics: victoriesWon, wakeCost: wakeCost,
-                  dedEff: dedEff, scenario: startScenario, scenarios: function () { return SCENARIOS; } };
+                  dedEff: dedEff, scenario: startScenario, scenarios: function () { return SCENARIOS; },
+                  advise: advise, yieldLedger: function (id) {
+                    var led = []; var y = yieldOf(byId[id], led); return { y: y, led: led }; },
+                  digestLog: function () { return G.log || []; },
+                  goodLock: goodLock, sisters: sisters, remembered: remembered,
+                  canPlace: function (id, part, x, y) {
+                    return canPlace(id, BY_PART[part], x, y); } };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,

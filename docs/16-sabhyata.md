@@ -148,7 +148,70 @@ heroes and kingdoms. All in, and each passed through the same editorial gate:
   pointer, drag to pan, corner buttons and + − 0 for keyboards. A drag never selects
   the lamp it ends on.
 
-## 8. Phase 2 and beyond (not in this build)
+## 8. The fifty (v6) — what a strategy game actually asks of a player
+
+The note back was *"the gameplay is still very poor, benchmark Civ 6."* Fifty changes
+answered it. The diagnosis was three things, and everything else followed:
+
+1. **The clock ran whether or not anybody had decided anything.** `TICK_MS = 3000`, every
+   constant in seconds. A world that moves on its own can only be *reacted* to, so every
+   quarrel, raid and lean season arrived as an interruption nobody chose and the game
+   became firefighting. **Sochna** — thinking — is now the default: nothing happens until
+   *Agla Saal* is pressed. The live speeds remain, and on those a timed decision stops the
+   clock itself rather than letting it answer on the player's behalf.
+2. **Placement was legality, not strategy.** `kitYield()` summed every piece's `give` and
+   never read its coordinates; `canPlace()` only asked whether a thing *fit*. Ten adjacency
+   rules now live in `data-kit-build.js` — water reaches the fields beside it, a workshop on
+   the street gets its goods out, wall joined to wall is a rampart — and the plot preview is
+   computed by the *same* function that pays out, so it can never promise what the city
+   won't deliver. The rivers, drawn from real courses and explicitly inert, now feed the
+   towns beside them: the boundary rule forbids a *border*, not terrain.
+3. **There was no choice architecture and no other agent.** 17 techs with no prerequisites,
+   nine of thirteen ages offering exactly one door, one victory, and nothing in the world
+   with intent except the mist. Now: a tech **tree** with real prereqs, a parallel **Riti**
+   civics tree with swappable policy cards, **eurekas** (three fields and the plough half
+   teaches itself), **four roads to an ending**, **era score** with golden and quiet ages —
+   and six **overseas partners** who ask, pay and remember.
+
+### The lines that had to hold
+
+- **No boundary, ever.** Growth gained a *direction*, migration gained *pressure*, kingdoms
+  stayed a set of connections. Nothing is drawn, coloured, claimed or moved. The genre's
+  loyalty mechanic flips cities between empires on a map; only its pressure was portable,
+  so a neglected town loses a family down a road that already exists.
+- **No external enemy.** Partners are overseas and can never be hostile; a check fails the
+  build if any partner's text reads as an adversary. The sister realms' meter only ever goes
+  up — competition with the sign flipped.
+- **No faith as a score.** The genre's civics tree ends in religions converting each other.
+  Riti is entirely secular custom (docs/05 §4); the pilgrim road carries people and stories
+  and is never a score.
+- **Nothing written from memory.** Every added tech is named for something this repo already
+  carries with its own `sources[]` — Lothal's doubling cube weights, Dholavira's stepped
+  reservoirs, the basin read as a dockyard, the edicts, the stupas, Vaishali's assembly.
+  Every partner's link to India is cited to the file that sources it. Goods are *categories*
+  (`fields of the west`), never commodities, because naming what each real place traded
+  would be an assertion this file cannot make.
+- **Nothing unrecoverable.** Favour never drops below zero. A quiet age *lowers* the next
+  age's bar, so a bad stretch is where a good one starts. Deep sleep costs more to wake and
+  the check holds that price inside reach, because beyond reach is beyond recovery. And a
+  building can be lifted for a third of its price — a divergence the adjacency rules force,
+  since a child meets a placement rule for the first time by getting it wrong.
+- **Undo, which the genre does not have.** An adult who misclicks has chosen badly and that
+  is the game; a nine-year-old has been robbed of sixty anna by a finger. It covers exactly
+  the spend not yet lived with, and never the world: a snapshot is only taken outside a
+  turn and dies when one passes.
+
+### What holds it
+
+`tools/check-sabhyata.js` — checks that drive the real engine and read the real state, so
+none can pass by agreeing with a render that is itself wrong. It has already caught, in the
+work it was written for: three policy cards whose effects nothing read; `pay()` not being the
+only door money left by (six spends reached into `G.res` directly); an undo that could rewind
+a raid; and the phone regression where the globals row cannot wrap inside a bar that can.
+Twice the failing thing was the *check* and not the engine, which is written into the commits
+because both nearly sent good code to the bin.
+
+## 9. Phase 2 and beyond (not in this build)
 
 Narrated site cards in the app's own voice; more eras (Vijayanagara, the takeoff era
 bridging to Itihaas); a "visit the story" link from a woken site into the story library;

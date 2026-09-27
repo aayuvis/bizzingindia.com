@@ -155,6 +155,11 @@
     '.sab-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07),0 3px 10px rgba(30,20,64,.06);font-weight:800;font-size:12.5px}',
     '.sab-chip small{font-weight:600;color:var(--muted)}',
     '.sab-restless{background:#fdf0e6;cursor:pointer}',
+    '.sab-ages{display:flex;align-items:center;gap:3px;border:0;background:none;padding:6px 2px;min-height:44px;cursor:pointer}',
+    '.sab-ages i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}',
+    '.sab-ages i.g{background:var(--accent2)}',
+    '.sab-ages i.q{background:var(--muted);opacity:.6}',
+    '.sab-ages i.now{background:var(--accent);box-shadow:0 0 0 2px rgba(0,0,0,.06)}',
     /* the road somebody overseas is waiting on */
     '.sab-route.asked{stroke:#d9a23d;stroke-width:4.5}',
     '@media (prefers-reduced-motion: reduce){.sab-route.asked{stroke-dasharray:none}}',
@@ -886,7 +891,10 @@
                /* the world beyond the map: who is asking, who is pleased, what has
                   been sold often enough to be cheap, and where there is a street of
                   ours overseas */
-               req: {}, fav: {}, sold: {}, diaspora: {} };
+               req: {}, fav: {}, sold: {}, diaspora: {},
+               /* the age's own tally, whether the last age was thin, what a golden age
+                  dedicated itself to, and the record of the ages already passed */
+               deeds: {}, dark: false, ded: null, ages: [] };
     }
 
     /* ---- rules helpers ---- */
@@ -1063,6 +1071,117 @@
     function restless() { return Math.max(0, khushiWant() - khushiHave()); }
 
     /* ==================================================================
+       A SHORTER GAME — starting somewhere other than the beginning
+       ==================================================================
+       Thirteen ages is a beautiful shape and far too long for one sitting with a
+       nine-year-old: the only way in was Dholavira, 3300 BCE, with all of India unseen,
+       and anything past the third age was simply never reached by most players. A
+       scenario hands over a realm that already works and starts the clock in the middle,
+       which is also the only way a child ever sees the later ages at all.
+
+       It builds the realm out of the SAME rules the long game does — the sites of those
+       ages woken, roads between them, the era's own techs learned — rather than a
+       hand-written save, so a scenario can never drift from the game it is a slice of. */
+    var SCENARIOS = [
+      { id: 'maurya', era: 2, name: 'The Great Sabha',
+        blurb: 'Begin with the Mauryan roads already laid and the script already cut. About twenty minutes.' },
+      { id: 'chola',  era: 4, name: 'Temples and the Sea',
+        blurb: 'Begin in the south with the ports open and the sea roads busy. About twenty minutes.' }
+    ];
+    function startScenario(id) {
+      var sc = null; SCENARIOS.forEach(function (x) { if (x.id === id) sc = x; });
+      if (!sc) return;
+      G = fresh();
+      G.era = sc.era;
+      /* everything of this age and before is found and awake */
+      var live = [];
+      SITES.forEach(function (x) {
+        if (x.era > G.era) return;
+        var q = G.sites[x.id];
+        q.found = true; q.seen = true;
+        /* the ages fold the old cities into memory exactly as advance() would */
+        if (x.era <= G.era - 2 && !x.renames) { q.her = true; q.mon = true; }
+        else { q.zzz = false; live.push(x.id); }
+      });
+      /* a road network, built by the game's own rule: nearest neighbour outward */
+      for (var i = 1; i < live.length; i++) G.routes.push([live[i - 1], live[i]]);
+      /* the learning of the ages already passed */
+      TECHS.forEach(function (t) { if (t.era < G.era) G.tech[t.id] = true; });
+      RITI.forEach(function (r) { if (r.era < G.era) G.riti[r.id] = true; });
+      G.pol = polOpen().slice(0, polSlots());
+      G.res = { anna: 120, kala: 120, katha: 80 };
+      sel = null; city = null; techOpen = false; overlay = null;
+      armClock(); shell(); fitFound();
+      say(sc.name + ' — the realm is already standing. Take it on.', 'warm');
+    }
+
+    /* ==================================================================
+       THE AGE'S OWN VERDICT — era score, golden ages, and the way back
+       ==================================================================
+       Thirteen ages passed with no opinion about any of them: clear the gate and the age
+       was simply over, so the middle of a five-thousand-year game had no stakes at all.
+       You could not lose and you could not excel, only continue.
+
+       THE COMEBACK IS IN THE ARITHMETIC, and that is the part that matters. A thin age
+       lowers the bar for the next one, so a bad stretch is the setup for a good one
+       rather than the start of a slide. A game for children has to build that in rather
+       than hope for it. */
+    var DEEDS = DATA.deeds || [], DEDS = DATA.dedications || [], VICS = DATA.victories || [];
+    var DEED_BY = {}; DEEDS.forEach(function (d) { DEED_BY[d.id] = d; });
+
+    function deed(id, n) {
+      if (!G.deeds) G.deeds = {};
+      G.deeds[id] = (G.deeds[id] || 0) + (n || 1);
+    }
+    function eraScore() {
+      var t = 0;
+      Object.keys(G.deeds || {}).forEach(function (k) {
+        var d = DEED_BY[k]; if (d) t += d.n * G.deeds[k];
+      });
+      return t;
+    }
+    function eraBar() {
+      var arr = DATA.eraBar || [];
+      var base = arr[Math.min(G.era, arr.length - 1)] || 20;
+      return Math.max(6, base - (G.dark ? Math.round(base * 0.3) : 0));
+    }
+    function golden() { return eraScore() >= eraBar(); }
+    function dedEff(id) { return G.ded === id; }
+
+    /* ==================================================================
+       FOUR ROADS TO AN ENDING
+       ==================================================================
+       One victory — light every lamp — is a completion checklist: one thing to do and
+       one order to do it in, so nothing chosen along the way changes how you win. */
+    function vicMemory() { return allAwake(); }
+    function vicLearning() {
+      return TECHS.every(function (t) { return !!G.tech[t.id]; }) &&
+             RITI.every(function (r) { return !!(G.riti || {})[r.id]; });
+    }
+    function vicSea() {
+      var portsOk = PORTS.every(function (id) {
+        return !byId[id] || !inEra(byId[id]) || connected(id) || isHer(id);
+      });
+      return portsOk && (DATA.partners || []).every(function (x) {
+        return (G.diaspora || {})[x.id];
+      });
+    }
+    function vicStone() {
+      var eras = {};
+      SITES.forEach(function (x) { if (G.sites[x.id].mon) eras[x.era] = 1; });
+      for (var e = 0; e <= G.era; e++) if (!eras[e]) return false;
+      return true;
+    }
+    function victoriesWon() {
+      var out = [];
+      if (vicMemory()) out.push('memory');
+      if (vicLearning()) out.push('learning');
+      if (vicSea()) out.push('sea');
+      if (vicStone()) out.push('stone');
+      return out;
+    }
+
+    /* ==================================================================
        PARTNERS — somebody else who wants something, and remembers
        ==================================================================
        The only force in this game with any intent was the mist, and the mist wants one
@@ -1101,7 +1220,7 @@
       if (!canSupply(r.want)) { say('No road of yours reaches ' + r.want + ' yet.', ''); return; }
       var price = marketPrice(r.want);
       var paid = Math.round(r.pay * price);
-      G.res.katha += paid; G.score += 30;
+      G.res.katha += paid; G.score += 30; deed('fill');
       if (!G.fav) G.fav = {};
       G.fav[pid] = favour(pid) + 1;
       G.sold = G.sold || {};
@@ -2280,6 +2399,11 @@
     }
 
     /* ---- money: one place understands discounts, affording and paying ---- */
+    /* what waking THIS place costs, which is no longer one number for the whole map */
+    function wakeCost(id) {
+      var q = G.sites[id] || {};
+      return Math.round(T.wakeCost * (1 + (q.deep || 0) * 0.4));
+    }
     function costOf(c, kind) {
       var f = 1;
       if (kind === 'building' && G.tech.brick) f = 2 / 3;
@@ -2427,7 +2551,24 @@
     }
 
     /* ---- what a city actually brings in each turn, all rules in one place ---- */
-    function yieldOf(x) {
+    /* ==================================================================
+       WHY IS IT SEVEN? — the yield, itemised
+       ==================================================================
+       Every rule in this game meets in yieldOf, and a child was shown only its answer.
+       A number with no derivation cannot be played to: you cannot tell whether the road
+       or the granary or the plough did that, so you cannot decide what to do next, and
+       the whole system stays a black box that hands out coins. The genre's answer is a
+       tooltip that takes the number apart, and it is most of how players ever learn how
+       any of it works.
+
+       The ledger is filled by the SAME PASS that computes the total — a second function
+       that explained the first would drift from it, and an explanation that disagrees
+       with the payout teaches the wrong rule with perfect confidence. */
+    function yieldOf(x, led) {
+      var note = led ? function (k, n, why) {
+        if (!n) return;
+        led.push({ k: k, n: n, why: why });
+      } : function () {};
       var q = G.sites[x.id];
       /* a heritage city asks nothing and gives one thing: its monument keeps
          telling its story. Stone remembers — that rule outlives the city. */
@@ -2436,10 +2577,16 @@
       var conn = connected(x.id) && !inDispute(x.id);
       var out = { anna: 0, kala: 0, katha: 0 };
       var j = jobsOf(x.id), spec = JOB_OF_KIND[x.kind];
-      out.anna += j.kisan * (spec === 'kisan' ? 2 : 1);
-      out.kala += j.karigar * (spec === 'karigar' ? 2 : 1);
-      out.katha += j.kathakar * (spec === 'kathakar' ? 2 : 1);
-      if (conn) ['anna', 'kala', 'katha'].forEach(function (k) { if (out[k]) out[k] += 1; });
+      var kA = j.kisan * (spec === 'kisan' ? 2 : 1);
+      var kB = j.karigar * (spec === 'karigar' ? 2 : 1);
+      var kC = j.kathakar * (spec === 'kathakar' ? 2 : 1);
+      out.anna += kA; out.kala += kB; out.katha += kC;
+      note('anna', kA, j.kisan + ' kisan' + (spec === 'kisan' ? ' \u00d72, this city\u2019s own trade' : ''));
+      note('kala', kB, j.karigar + ' karigar' + (spec === 'karigar' ? ' \u00d72, this city\u2019s own trade' : ''));
+      note('katha', kC, j.kathakar + ' kathakar' + (spec === 'kathakar' ? ' \u00d72, this city\u2019s own trade' : ''));
+      if (conn) ['anna', 'kala', 'katha'].forEach(function (k) {
+        if (out[k]) { out[k] += 1; note(k, 1, 'on a road'); }
+      });
       /* WHAT THE CITY ITSELF MAKES is above this line; everything below is a BONUS
          stacked on top, and those are what ran away. They are gathered and softened
          together so no single one has to be nerfed and the city's own hands always
@@ -2452,15 +2599,23 @@
       if (kitOn(x.id)) {
         var ky = kitYield(x.id);
         out.anna += ky.anna; out.kala += ky.kala; out.katha += ky.katha;
+        var adjp = adjTotal(x.id);
+        note('anna', ky.anna - adjp.anna, 'what is built here');
+        note('kala', ky.kala - adjp.kala, 'what is built here');
+        note('katha', ky.katha - adjp.katha, 'what is built here');
+        note('anna', adjp.anna, 'how it is arranged');
+        note('kala', adjp.kala, 'how it is arranged');
+        note('katha', adjp.katha, 'how it is arranged');
       }
       /* THE RIVER FEEDS THE TOWN BESIDE IT — terrain, not territory */
-      out.anna += riverAnna(x.id);
+      out.anna += riverAnna(x.id); note('anna', riverAnna(x.id), 'on the ' + (onRiver(x.id) || 'river'));
       /* WHAT THE REALM HAS DECIDED TO BE. Every policy effect is read here or in
          costOf, so a card can never be a promise nothing keeps. */
       if (polEff('annaKind') === x.kind) out.anna += 1;
       if (polEff('kalaKind') === x.kind) out.kala += 1;
       if (polEff('katha')) out.katha += polEff('katha');
       if (conn && polEff('kathaRouted')) out.katha += polEff('kathaRouted');
+      if (conn && dedEff('pilgrimage')) out.katha += 1;    /* the age dedicated to walking */
       if (conn && polEff('kalaRouted')) out.kala += polEff('kalaRouted');
       if (conn && polEff('port') && PORTS.indexOf(x.id) >= 0) {
         var pb = polEff('port');
@@ -2469,9 +2624,9 @@
       if (polEff('kingdom') && inKingdomOf(x.id)) {
         out.anna += polEff('kingdom'); out.katha += polEff('kingdom');
       }
-      if (q.bld.granary) out.anna += 1;
-      if (q.bld.workshop) out.kala += 1;
-      if (q.bld.gurukul) out.katha += 1;
+      if (q.bld.granary) { out.anna += 1; note('anna', 1, 'the granary'); }
+      if (q.bld.workshop) { out.kala += 1; note('kala', 1, 'the workshop'); }
+      if (q.bld.gurukul) { out.katha += 1; note('katha', 1, 'the gurukul'); }
       if (q.bld.bazaar && conn) { st.anna += 1; st.kala += 1; st.katha += 1; }
       if (G.tech.plough && x.kind === 'kheti') out.anna += 1;
       if (G.tech.iron && x.kind === 'shilpa') out.kala += 1;
@@ -2484,10 +2639,16 @@
       if (G.tech.harit && x.kind === 'kheti') out.anna += 2;
       /* the stacked bonuses, softened once they run away */
       out.anna += soften(st.anna); out.kala += soften(st.kala); out.katha += soften(st.katha);
+      note('anna', soften(st.anna), 'the hero, the crown and the bazaar' + (st.anna > 4 ? ' (softened)' : ''));
+      note('kala', soften(st.kala), 'the hero, the crown and the bazaar' + (st.kala > 4 ? ' (softened)' : ''));
+      note('katha', soften(st.katha), 'the hero, the crown and the bazaar' + (st.katha > 4 ? ' (softened)' : ''));
       /* A REALM SHORT OF VARIETY IS RESTLESS, and a restless town works slower. Never
          a punishment that cannot be undone: reach somewhere unlike home and it lifts. */
       if (restless()) {
         var rf = Math.max(0.5, 1 - restless() * 0.15);
+        note('anna', -(out.anna - Math.floor(out.anna * rf)), 'restless \u2014 short of ' + restless() + ' kinds of thing');
+        note('kala', -(out.kala - Math.floor(out.kala * rf)), 'restless');
+        note('katha', -(out.katha - Math.floor(out.katha * rf)), 'restless');
         out.anna = Math.floor(out.anna * rf); out.kala = Math.floor(out.kala * rf);
         out.katha = Math.floor(out.katha * rf);
       }
@@ -2576,7 +2737,7 @@
       var zz = SITES.filter(function (x) { return onMap(x) && !awake(x.id); })[0];
       if (zz) {
         if (!connected(zz.id)) return 'Build a road toward <b>' + esc(zz.name) + '</b> — it sleeps under the mist.';
-        if (G.res.katha >= T.wakeCost) return '<b>' + esc(zz.name) + '</b> is reached — wake it (' + T.wakeCost + ' \ud83d\udcdc).';
+        if (G.res.katha >= wakeCost(zz.id)) return '<b>' + esc(zz.name) + '</b> is reached — wake it (' + wakeCost(zz.id) + ' \ud83d\udcdc).';
         return 'Earn katha to wake <b>' + esc(zz.name) + '</b> — quests and lean-season help pay best.';
       }
       var m3 = SITES.filter(function (x) { return inEra(x) && awake(x.id) && !isHer(x.id) && G.sites[x.id].lv >= 3 && !G.sites[x.id].mon; })[0];
@@ -2842,6 +3003,10 @@
              docs/16 §3 — an interpolated single year would be a precision the
              evidence does not have — so the turn count carries the passing time. */
           '<div class="sab-era"><span>Turn</span><b id="sab-turnno">1</b></div>' +
+          /* THE AGES BEHIND YOU, as a ribbon of beads: a filled one was golden. The arc
+             a child has actually lived was invisible, and it is most of the point of a
+             game that spans five thousand years. */
+          '<button class="sab-ages" id="sab-ages" data-sab-act="timeline" aria-label="The ages behind you"></button>' +
           '<div class="sab-res" id="sab-res" aria-live="off"></div>' +
           '<button class="sab-raksha" id="sab-raksha" hidden></button>' +
           '<span class="sab-gap"></span>' +
@@ -2906,6 +3071,22 @@
       D.getElementById('sab-eradate').textContent = 'Era ' + (G.era + 1) + ' of ' + ERAS.length + ' · ' + e.dates;
       var tn = D.getElementById('sab-turnno');
       if (tn) tn.textContent = String(G.t + 1);
+      var ag = D.getElementById('sab-ages');
+      if (ag) {
+        var past = G.ages || [];
+        ag.innerHTML = ERAS.map(function (_, i) {
+          var rec = past.filter(function (a6) { return a6.era === i; })[0];
+          var cls = rec ? (rec.good ? 'g' : 'q') : (i === G.era ? 'now' : '');
+          return '<i class="' + cls + '"></i>';
+        }).join('');
+        ag.setAttribute('aria-label', past.length + ' ages behind you, ' +
+          past.filter(function (a7) { return a7.good; }).length + ' of them golden');
+        /* and what this age is dedicated to, if anything */
+        var dn2 = '';
+        DEDS.forEach(function (d) { if (d.id === G.ded) dn2 = d.name; });
+        ag.title = 'Score this age: ' + eraScore() + ' of ' + eraBar() +
+          (dn2 ? ' · dedicated to ' + dn2 : '') + (G.dark ? ' · the last age was quiet, so this bar is lower' : '');
+      }
       /* THE TURN BUTTON. In Sochna it is the only thing that moves the world, so it
          says what is still unanswered; on a live speed there is nothing to press and
          it steps one turn early for anyone who wants to hurry. */
@@ -3193,7 +3374,7 @@
            Wake — which needs a road — and no way to build one. Roads are undirected,
            so the sleeping town can start its own: Reach it, then Wake it. */
         b.push(tile('route', 'road', 'Reach it', costStr(costOf({ kala: T.routeCost }, 'route'))));
-        b.push(tile('wake', 'sun', 'Wake', connected(sel) ? T.wakeCost + ' \ud83d\udcdc' : 'needs a road',
+        b.push(tile('wake', 'sun', 'Wake', connected(sel) ? wakeCost(sel) + ' \ud83d\udcdc' : 'needs a road',
           { go: true, disabled: !connected(sel) }));
       } else {
         b.push(tile('route', 'road', 'Route', costStr(costOf({ kala: T.routeCost }, 'route'))));
@@ -4257,8 +4438,9 @@
       }
       if (name === 'wake' && q.zzz) {
         if (!connected(sel)) return say(s.name + ' needs a road first — a story has to travel to be heard.', '');
-        if (G.res.katha < T.wakeCost) return say('Not enough katha — stories are earned by helping and holding utsavs.', '');
-        pay({ katha: T.wakeCost }); q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
+        if (G.res.katha < wakeCost(sel)) return say((G.sites[sel].deep ? 'This one has slept through an age and asks more — ' : '') +
+          'not enough katha yet. Stories are earned by helping and holding utsavs.', '');
+        pay({ katha: wakeCost(sel) }); deed('wake'); G.sites[sel].deep = 0; q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
         fxAt(s.x, s.y, 'utsav');
         say(s.name + ' wakes!', 'warm');
         if (!q.seen) { q.seen = true;
@@ -4276,7 +4458,7 @@
       if (routed(a, b)) { targeting = false; return say('That road is already walked.', ''); }
       var rc = costOf({ kala: T.routeCost }, 'route');
       if (!canPay(rc)) { targeting = false; return say('Not enough kala for this road.', ''); }
-      pay(rc); G.routes.push([a, b]); G.score += 15;
+      pay(rc); deed('road'); G.routes.push([a, b]); G.score += 15;
       targeting = false; touch(a); touch(b);
       var q = G.sites[a]; q.idle = 0; if (q.fade >= 0) q.fade = -1;
       var p = G.sites[b]; p.idle = 0; if (p.fade >= 0) p.fade = -1;
@@ -4284,15 +4466,61 @@
       paintAll(); paintFog();
     }
 
+    /* ==================================================================
+       THE AGE IS JUDGED BEFORE THE NEXT ONE BEGINS
+       ==================================================================
+       This is the one screen the game was most missing. The advance used to hand over an
+       aha card and move on, so nothing ever said what the last five hundred years had
+       been like, and the arc a child had actually lived was invisible. */
+    function ageVerdict(after) {
+      var sc = eraScore(), bar = eraBar(), good = sc >= bar;
+      var name = ERAS[G.era].name;
+      var lines = Object.keys(G.deeds || {}).map(function (k) {
+        var d = DEED_BY[k]; if (!d) return '';
+        return '<li class="tiny">' + G.deeds[k] + ' × ' + esc(d.what) +
+               ' <span style="color:var(--muted)">(' + (d.n * G.deeds[k]) + ')</span></li>';
+      }).filter(Boolean).join('');
+      /* record it, so the timeline can be drawn from what really happened */
+      if (!G.ages) G.ages = [];
+      G.ages.push({ era: G.era, name: name, score: sc, bar: bar, good: good });
+      G.dark = !good;
+      G.deeds = {};
+
+      if (!good) {
+        G.ded = null;
+        showOverlay('<div class="mono" style="color:var(--muted)">andhera — a thin age</div>' +
+          '<h3>' + esc(name) + ' passes quietly</h3>' +
+          '<ul style="margin:6px 0;padding-left:18px">' + (lines || '<li class="tiny">very little was done</li>') + '</ul>' +
+          '<p>' + sc + ' against ' + bar + '. The mist moves a little faster for a while — ' +
+          '<b>and the next age asks less of you</b>, so a quiet age is where a great one starts. ' +
+          'Nothing has been lost that cannot be woken.</p>' +
+          '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">On, then</button></div>');
+        if (after) after();
+        return;
+      }
+      showOverlay('<div class="mono" style="color:var(--accent2)">swarna yug — a golden age</div>' +
+        '<h3>' + esc(name) + ' will be remembered</h3>' +
+        '<ul style="margin:6px 0;padding-left:18px">' + lines + '</ul>' +
+        '<p>' + sc + ' against ' + bar + '. Choose what this age is remembered FOR — ' +
+        'it holds for the whole of the next one.</p>' +
+        '<div class="row">' + DEDS.map(function (d) {
+          return '<button class="sab-btn go" data-sab-act="dedicate" data-d="' + d.id + '"' +
+            ' title="' + esc(d.what) + '">' + esc(d.name) + '</button>';
+        }).join('') + '</div>');
+      if (after) after();
+    }
+
     function advance() {
       if (!canAdvance()) return;
       pay({ katha: ERAS[G.era].katha });
+      ageVerdict();
       var aha = ERAS[G.era].aha;
       var AHA_ART = ['vidya-iron', 'vidya-script', 'vidya-zero', 'vidya-monsoon',
                      'vidya-paper', 'vidya-charkha', 'vidya-chahbagh', 'vidya-ship',
                      'vidya-railway', 'vidya-swadeshi', 'vidya-samvidhan', 'vidya-khula'];
       var ea = artOf(AHA_ART[G.era]);
       G.era++; G.score += 50;
+      void ea;
       var next = ERAS[G.era];
       grant(40, 'a new age — ' + next.name);   /* a pitara draw's worth, into the child's pocket */
 
@@ -4360,14 +4588,29 @@
          child had waited twenty lamps for, swallowed by the applause. The close
          button calls back here, so the ending is only ever deferred, not lost. */
       if (overlay) return;
-      if (G.won || G.era < ERAS.length - 1 || !allAwake()) return;
-      G.won = true; wipe();
+      if (G.won || G.era < ERAS.length - 1) return;
+      var roads = victoriesWon();
+      if (!roads.length) return;
+      G.won = true; G.roads = roads; wipe();
       grant(60, 'India remembers');
-      showOverlay(mascot('gattu', 'happy', 110) + '<h3>India remembers.</h3>' +
+      var vnames = roads.map(function (r5) {
+        var v = null; VICS.forEach(function (x) { if (x.id === r5) v = x; });
+        return v ? v.name : r5;
+      });
+      showOverlay(mascot('gattu', 'happy', 110) +
+        '<div class="mono" style="color:var(--accent2)">' + esc(vnames.join(' · ')) + '</div>' +
+        '<h3>India remembers.</h3>' +
         '<p>From the first brick of Dholavira to this morning’s countdown at Sriharikota — ' +
         'every lamp lit, every road walked, and the mist gone back to the sea. ' +
         'Five thousand years, and not one of these places was taken: every one was reached, ' +
         'and the ones that grew quiet are remembered by their stones.</p>' +
+        '<p class="tiny">You got here by ' +
+        (vnames.length > 1 ? 'more than one road at once: ' : 'the road of ') +
+        esc(vnames.join(', ')) + '. There are ' + VICS.length +
+        ' and they do not need the same realm.</p>' +
+        ((G.ages || []).length ? '<p class="tiny">' +
+          (G.ages.filter(function (a5) { return a5.good; }).length) + ' of your ' +
+          G.ages.length + ' ages were golden.</p>' : '') +
         '<div class="row"><button class="sab-btn go" data-sab-act="finish">Take a bow</button></div>');
     }
 
@@ -4628,6 +4871,7 @@
       var base = T.techTicks + T.techEra * G.era;
       var cut = Math.max(T.techFloor, 1 - schools() * T.techSchool);
       if (polEff('techCut')) cut *= polEff('techCut');
+      if (dedEff('freeinquiry')) cut *= 0.67;    /* the age dedicated to asking */
       /* THE EUREKA IS TIME, NOT COIN. Paying less would say "this was cheap"; finishing
          sooner says "you already knew half of this", which is the true thing. */
       cut *= (1 - eurekaPct(t));
@@ -4660,6 +4904,7 @@
       var base = T.monTicks + T.monEra * s2.era;
       var cut = Math.max(T.monFloor, 1 - jobsOf(id).karigar * T.monHand);
       cut *= (1 - 0.12 * monShelter(id));      /* walls around the work */
+      if (dedEff('monumentality')) cut *= 0.67;   /* the age dedicated to stone */
       return Math.max(6, Math.round(base * cut));
     }
     function projPct() {
@@ -4677,7 +4922,7 @@
       G.rt++;
       if (G.proj && projPct() >= 1) {
         var td = null; TECHS.forEach(function (t2) { if (t2.id === G.proj.id) td = t2; });
-        G.tech[G.proj.id] = true; G.proj = null; G.score += 30;
+        G.tech[G.proj.id] = true; G.proj = null; G.score += 30; deed('tech');
         if (td) say(td.name + ' — learned at last! ' + td.what, 'warm');
         if (techOpen) paintTech();
         paintAll();
@@ -4688,7 +4933,7 @@
         if (q2 && q2.monB && !q2.mon && monPct(s2.id) >= 1) { q2.mon = true; q2.monB = null; done = s2; }
       });
       if (done) {
-        touch(done.id); G.score += 60; G.res.katha += 10;
+        touch(done.id); G.score += 60; G.res.katha += 10; deed('mon');
         grant(15, 'a monument raised');
         say(done.works[2].charAt(0).toUpperCase() + done.works[2].slice(1) + ' — ' + nameOf(done) +
             ' has raised its monument. Stone remembers.', 'warm');
@@ -4797,14 +5042,15 @@
           var t2 = byId[ex.target];
           if (!t2 || found(ex.target)) { ex.done = true; return; }
           var dx = t2.x - ex.x, dy = t2.y - ex.y, d = Math.sqrt(dx * dx + dy * dy);
-          var spd = T.exploreSpeed * (G.tech.satellite ? 2 : 1);   /* an eye in the sky finds the way */
+          var spd = T.exploreSpeed * (G.tech.satellite ? 2 : 1) * (dedEff('exodus') ? 2 : 1);
           if (d <= spd) { ex.x = t2.x; ex.y = t2.y; ex.done = true; arrived.push(ex.target); }
           else { ex.x += dx / d * spd; ex.y += dy / d * spd; }
           if (!found2) found2 = scoutLook(ex);      /* one wonder a turn, at most */
         });
         G.explorers = G.explorers.filter(function (ex) { return !ex.done; });
         arrived.forEach(function (id) {
-          var q2 = G.sites[id]; q2.found = true; G.res.katha += 15; G.score += 20;
+          var q2 = G.sites[id]; q2.found = true;
+          G.res.katha += 15 * (dedEff('exodus') ? 2 : 1); G.score += 20;
           var s2 = byId[id];
           showOverlay('<h3>' + esc(s2.name) + ' — found!</h3>' +
             '<p>Your explorer walks into ' + esc(s2.name) + ' through the thinning mist. It sleeps — ' +
@@ -4982,10 +5228,18 @@
            town slides toward the mist; empty them and the promise lapses, which is
            the point of a treasury rather than a blessing. */
         if (polEff('noFade') && G.res.anna > 0) { q.idle = 0; if (q.fade >= 0) q.fade = -1; return; }
+        if (dedEff('penseverance')) { q.idle = 0; if (q.fade >= 0) q.fade = -1; return; }
         if (connected(s.id)) { q.idle = 0; if (q.fade >= 0 && !G.ev) q.fade = -1; return; }
         if (q.fade >= 0) {
           q.fade++;
-          if (q.fade >= T.fadeLen) { q.zzz = true; q.fade = -1;
+          if (q.fade >= T.fadeLen) {
+            /* DEEP SLEEP. Nothing could really be lost, so nothing was ever tense: a
+               town slept and woke for the same price it always cost. A place left to
+               sleep through a whole age settles deeper and asks more to wake — still
+               never destroyed, still always recoverable, which is the line docs/16
+               draws and this stays inside. */
+            if (q.zzz) q.deep = (q.deep || 0) + 1;
+            q.zzz = true; q.fade = -1;
             showOverlay(mascot('vismriti', null, 90) + '<h3>' + esc(s.name) + ' sleeps.</h3>' +
               '<p>Vismriti has drifted over its lamps — for now. Nothing is lost that a road and a story cannot bring back.</p>' +
               '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Reach it again</button></div>');
@@ -5394,7 +5648,7 @@
           touch(G.disp.a); touch(G.disp.b);
           G.disp = null; G.lastd = G.t;
           G.res.katha += T.reward.peace * (polEff('peace') || 1); G.score += 40;
-          G.peaceMade = (G.peaceMade || 0) + 1;
+          G.peaceMade = (G.peaceMade || 0) + 1; deed('peace');
           say('The panchayat rises: ' + pa + ' and ' + pb + ' shake on it. Peace pays. +' + T.reward.peace + ' \ud83d\udcdc', 'warm');
           paintCity(); paintAll(); return;
         }
@@ -5449,7 +5703,7 @@
           if (!canPay(rc)) return;
           pay(rc);
           if (!G.riti) G.riti = {};
-          G.riti[rid2] = true; G.score += 25;
+          G.riti[rid2] = true; G.score += 25; deed('riti');
           say(rd.name + ' — the realm takes it up. ' + (POL_BY[rd.gives] || {}).name +
               ' is yours to slot.', 'warm');
           paintTech(); paintAll(); return;
@@ -5472,6 +5726,33 @@
           paintTech(); paintAll(); return;
         }
         /* THE WORLD PANEL — who is out there and what they are asking for */
+        if (a === 'scen') {
+          var sid3 = actEl.getAttribute('data-s');
+          overlay = null; D.getElementById('sab-ovhost').innerHTML = '';
+          wipe(); startScenario(sid3); return;
+        }
+        if (a === 'dedicate') {
+          G.ded = actEl.getAttribute('data-d');
+          var dd3 = null; DEDS.forEach(function (x) { if (x.id === G.ded) dd3 = x; });
+          overlay = null; D.getElementById('sab-ovhost').innerHTML = '';
+          say('This age is dedicated to ' + (dd3 ? dd3.name : '') + '. ' + (dd3 ? dd3.what : ''), 'warm');
+          paintAll(); return;
+        }
+        if (a === 'timeline') {
+          var past = (G.ages || []).map(function (a4) {
+            return '<div class="sab-work' + (a4.good ? ' built' : '') + '">' +
+              '<i>' + (a4.good ? '★' : '·') + '</i>' +
+              '<span><b>' + esc(a4.name) + '</b> · <span class="tiny" style="color:var(--muted)">' +
+              (a4.good ? 'a golden age' : 'a quiet age') + ' — ' + a4.score + ' of ' + a4.bar +
+              '</span></span></div>';
+          }).join('');
+          showOverlay('<div class="mono" style="color:var(--accent2)">the ages behind you</div>' +
+            '<h3>Five thousand years, so far</h3>' +
+            '<div class="sab-works">' + (past ||
+              '<div class="sab-work"><span>The first age is still going.</span></div>') + '</div>' +
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Back</button></div>');
+          return;
+        }
         if (a === 'world') {
           var rows2 = partnersNow().map(function (pd2) {
             var r3 = (G.req || {})[pd2.id];
@@ -6010,7 +6291,13 @@
         showOverlay('<h3>Start the sabhyata again?</h3>' +
           '<p>The whole journey begins afresh at Dholavira, and this one is forgotten. There is no undo.</p>' +
           '<div class="row"><button class="sab-btn go" data-sab-act="restart2">Start again</button>' +
-          '<button class="sab-btn" data-sab-act="ovclose">Keep playing</button></div>');
+          '<button class="sab-btn" data-sab-act="ovclose">Keep playing</button></div>' +
+          '<p class="tiny" style="color:var(--muted);margin-top:10px">Or begin in the middle, with a realm ' +
+          'that already works — shorter, and the only way most players ever see the later ages:</p>' +
+          '<div class="row">' + SCENARIOS.map(function (sc2) {
+            return '<button class="sab-btn" data-sab-act="scen" data-s="' + sc2.id + '"' +
+              ' title="' + esc(sc2.blurb) + '">' + esc(sc2.name) + '</button>';
+          }).join('') + '</div>');
       });
       var st2 = D.getElementById('sab-stage');
       st2.addEventListener('pointerdown', onPointerDown);
@@ -6082,7 +6369,10 @@
                   storeCap: storeCap, migrate: migrate, soften: soften,
                   partners: partnersNow, favour: favour, ask: askPartner,
                   fill: fillRequest, price: marketPrice, canSupply: canSupply,
-                  act2: act2 };
+                  act2: act2,
+                  eraScore: eraScore, eraBar: eraBar, golden: golden, deed: deed,
+                  verdict: ageVerdict, vics: victoriesWon, wakeCost: wakeCost,
+                  dedEff: dedEff, scenario: startScenario, scenarios: function () { return SCENARIOS; } };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,

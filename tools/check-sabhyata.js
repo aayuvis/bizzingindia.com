@@ -704,6 +704,136 @@ check('diaspora', 'a long-served partner makes room, and it is never taken', asy
   if (r.routes > 0) throw new Error('the diaspora added routes on the map — it must not touch territory');
 });
 
+/* --------------------------------------- PHASE 6: the arc and the endings */
+
+check('erascore', 'an age is judged, and a thin one makes the next easier', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 2; G.deeds = {}; G.dark = false;
+    const zero = window.__SABDO.eraScore();
+    const bar = window.__SABDO.eraBar();
+    const goldAtZero = window.__SABDO.golden();
+    window.__SABDO.deed('wake', 20);
+    const lots = window.__SABDO.eraScore();
+    const goldNow = window.__SABDO.golden();
+    /* a thin age lowers the next bar — the comeback has to be in the arithmetic */
+    G.dark = true;
+    const easier = window.__SABDO.eraBar();
+    return { zero, bar, goldAtZero, lots, goldNow, easier };
+  });
+  if (r.zero !== 0) throw new Error(`a fresh age already scored ${r.zero}`);
+  if (r.goldAtZero) throw new Error('an age with nothing done in it counted as golden');
+  if (!(r.lots > r.zero)) throw new Error('deeds do not score');
+  if (!r.goldNow) throw new Error(`${r.lots} against a bar of ${r.bar} was not golden`);
+  if (!(r.easier < r.bar)) throw new Error(`after a quiet age the bar stayed at ${r.easier} — there is no way back`);
+});
+
+check('verdict', 'the age turning shows what it was, and records it', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 1; G.deeds = {}; G.ages = [];
+    window.__SABDO.deed('wake', 40);              /* comfortably golden */
+    window.__SABDO.verdict();
+    const card = document.querySelector('#sab-ovhost');
+    const txt = card ? card.textContent : '';
+    const recorded = (window.__SABG().ages || []).length;
+    const dedBtn = !!document.querySelector('#sab-ovhost [data-sab-act="dedicate"]');
+    return { txt: txt.slice(0, 200), recorded, dedBtn, cleared: Object.keys(window.__SABG().deeds).length };
+  });
+  if (r.recorded !== 1) throw new Error(`the age was not recorded (${r.recorded} in the ledger)`);
+  if (!/golden|swarna/i.test(r.txt)) throw new Error('a golden age did not say so: ' + r.txt);
+  if (!r.dedBtn) throw new Error('a golden age offered no dedication to choose');
+  if (r.cleared !== 0) throw new Error('the deed tally was not reset for the new age');
+});
+
+check('dedication', 'a dedication actually changes the next age', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.ded = null;
+    const plain = window.__SABDO.techDur(window.IND_SABHYATA.techs[0]);
+    G.ded = 'freeinquiry';
+    const dedicated = window.__SABDO.techDur(window.IND_SABHYATA.techs[0]);
+    const reads = window.__SABDO.dedEff('freeinquiry');
+    G.ded = null;
+    return { plain, dedicated, reads };
+  });
+  if (!r.reads) throw new Error('the dedication does not read back');
+  if (!(r.dedicated < r.plain)) throw new Error(`Free Inquiry left learning at ${r.dedicated} vs ${r.plain}`);
+});
+
+check('fourroads', 'there is more than one way to finish, and each is reachable', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = window.IND_SABHYATA.eras.length - 1;
+    /* nothing done: no road is complete */
+    Object.keys(G.sites).forEach(id => { G.sites[id].zzz = true; G.sites[id].mon = false; });
+    const none = window.__SABDO.vics();
+    /* the learning road, without waking a single extra lamp */
+    window.IND_SABHYATA.techs.forEach(t => { G.tech[t.id] = true; });
+    G.riti = {}; window.IND_SABHYATA.riti.forEach(x => { G.riti[x.id] = true; });
+    const learning = window.__SABDO.vics();
+    return { none, learning, total: window.IND_SABHYATA.victories.length };
+  });
+  if (r.none.length) throw new Error('an empty realm already won by ' + r.none.join(','));
+  if (!r.learning.includes('learning'))
+    throw new Error('opening every door in both trees did not finish the game');
+  if (r.learning.includes('memory'))
+    throw new Error('the learning road also counted as memory — the roads are not distinct');
+  if (r.total < 4) throw new Error(`only ${r.total} roads exist`);
+});
+
+check('deepsleep', 'a place left asleep through an age asks more to wake, and never less than it can give', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    const id = 'lothal';
+    G.sites[id].deep = 0;
+    const fresh = window.__SABDO.wakeCost(id);
+    G.sites[id].deep = 2;
+    const deep = window.__SABDO.wakeCost(id);
+    G.sites[id].deep = 0;
+    return { fresh, deep };
+  });
+  if (!(r.deep > r.fresh)) throw new Error(`a deeply sleeping place still costs ${r.deep} vs ${r.fresh}`);
+  if (!(r.deep < r.fresh * 4)) throw new Error(`waking it costs ${r.deep} — beyond reach is beyond recovery`);
+});
+
+check('scenario', 'a scenario hands over a realm that already works', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    window.__SABDO.scenario('maurya');
+    const G = window.__SABG();
+    const ids = Object.keys(G.sites);
+    return { era: G.era,
+             awake: ids.filter(i => !G.sites[i].zzz && !G.sites[i].her).length,
+             routes: G.routes.length,
+             techs: Object.keys(G.tech).length,
+             riti: Object.keys(G.riti || {}).length,
+             anna: G.res.anna };
+  });
+  if (r.era !== 2) throw new Error(`the Maurya scenario started in era ${r.era}`);
+  if (r.awake < 2) throw new Error(`only ${r.awake} places were awake — that is not a working realm`);
+  if (r.routes < 1) throw new Error('the realm had no roads');
+  if (r.techs < 1) throw new Error('the realm knew nothing from the ages before it');
+  if (!(r.anna > 0)) throw new Error('the realm started broke');
+});
+
+check('ribbon', 'the ages behind you are on screen', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.ages = [{ era: 0, name: 'x', score: 30, bar: 10, good: true },
+              { era: 1, name: 'y', score: 2, bar: 14, good: false }];
+    window.__SABDO.paint();
+    const el = document.getElementById('sab-ages');
+    return { beads: el ? el.querySelectorAll('i').length : 0,
+             golden: el ? el.querySelectorAll('i.g').length : 0,
+             quiet: el ? el.querySelectorAll('i.q').length : 0,
+             label: el ? el.getAttribute('aria-label') : '' };
+  });
+  if (r.beads !== 13) throw new Error(`${r.beads} beads for 13 ages`);
+  if (r.golden !== 1 || r.quiet !== 1)
+    throw new Error(`the ribbon shows ${r.golden} golden and ${r.quiet} quiet, expected 1 and 1`);
+  if (!/golden/.test(r.label)) throw new Error('the ribbon has no readable label: ' + r.label);
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

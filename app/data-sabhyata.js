@@ -362,6 +362,66 @@ window.IND_SABHYATA = {
 
      `wants` is a GOOD (see regions/goodNames): a partner asks for something your
      roads may or may not reach, which is what makes reaching wide pay twice. */
+  /* ==================================================================
+     THE AGE'S OWN VERDICT — era score, and the dedication that follows it
+     ==================================================================
+     Thirteen ages passed with no opinion about any of them. The advance gate asked for
+     a katha bank and every lamp awake, and once you cleared it the age was simply over:
+     nothing said whether it had been a good age or a thin one, and nothing carried
+     forward. So the middle of a five-thousand-year game had no stakes at all -- you
+     could not lose and you could not excel, only continue.
+
+     `deeds` are the countable things worth doing in an age, each worth a few points.
+     Clear the age's `bar` and it is a SWARNA YUG -- a golden age -- and you choose one
+     dedication to carry into the next. Fall short and it is ANDHERA, the dark: the mist
+     moves faster, and the bar for the NEXT age drops, so a thin age makes the following
+     one easier to shine in. That last part matters more than the rest. A game for
+     children must let a bad stretch be the setup for a good one, not the start of a
+     slide, and the comeback has to be built into the arithmetic rather than hoped for.
+
+     Nothing here is scored against another people, and nothing sacred is ranked. */
+  deeds: [
+    { id: 'wake',    n: 3, what: 'a place woken' },
+    { id: 'road',    n: 2, what: 'a road laid' },
+    { id: 'mon',     n: 6, what: 'a monument raised' },
+    { id: 'tech',    n: 4, what: 'something learned' },
+    { id: 'riti',    n: 4, what: 'a custom taken up' },
+    { id: 'peace',   n: 4, what: 'a quarrel settled' },
+    { id: 'fill',    n: 3, what: 'a request from overseas filled' },
+    { id: 'fend',    n: 3, what: 'a raid turned away gently' },
+    { id: 'khazana', n: 5, what: 'a treasure found' }
+  ],
+  /* the bar rises with the age, because a bigger realm can do more in one */
+  eraBar: [10, 14, 18, 22, 26, 30, 32, 34, 36, 38, 40, 42, 44],
+
+  /* ONE DEDICATION, chosen when an age is golden, in force for the whole next age. */
+  dedications: [
+    { id: 'monumentality', name: 'Monumentality', what: 'Monuments rise half again as fast, and cost a third less.' },
+    { id: 'penseverance',  name: 'Perseverance',  what: 'No place fades this age, whatever the mist tries.' },
+    { id: 'exodus',        name: 'Exodus',        what: 'Explorers walk twice as far, and finding pays double.' },
+    { id: 'freeinquiry',   name: 'Free Inquiry',  what: 'Learning finishes a third sooner.' },
+    { id: 'pilgrimage',    name: 'Pilgrimage',    what: 'Every road pays +1 📜 a turn.' }
+  ],
+
+  /* ==================================================================
+     THE FOUR ROADS TO AN ENDING
+     ==================================================================
+     There was one victory: light every lamp in the last age. That is a completion
+     checklist, not a strategy -- there is exactly one thing to do and one order to do
+     it in, so nothing a player chooses along the way changes how they win. Four roads
+     now end the game, they are checked in the last age, and the ending names which one
+     the player actually walked. `all` is still there and still the warmest of them. */
+  victories: [
+    { id: 'memory',   name: 'India Remembers',
+      what: 'Every lamp lit, from Dholavira to Sriharikota.' },
+    { id: 'learning', name: 'The Whole Vidya',
+      what: 'Every door in both trees opened.' },
+    { id: 'sea',      name: 'The Sea Roads',
+      what: 'Every port on a road, and a quarter of your own in every partner’s city.' },
+    { id: 'stone',    name: 'Stone Remembers',
+      what: 'A monument standing in every age of the game.' }
+  ],
+
   partners: [
     { id: 'mesopotamia', name: 'Mesopotamia', era: [0, 2], wants: 'workshops of the west',
       blurb: 'Ships from the Gulf, asking for beads so small a whole necklace passes through a bangle.' },

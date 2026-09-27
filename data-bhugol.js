@@ -395,7 +395,7 @@ window.IND_BHUGOL = {
   {"id": "talakaveri-ka", "n": "Talakaveri", "st": "KA", "t": "spring", "x": 269.1, "y": 900.1, "f": "The Kaveri’s source — a small spring-fed tank on a Kodagu hillside where the river is born, honoured with a festival."},
   {"id": "tungabhadra-ka", "n": "Tungabhadra", "st": "KA", "t": "river", "x": 294.8, "y": 800.5, "f": "The river of Hampi — it slides through granite boulders past the old capital’s ruins."},
   {"id": "agumbe-ka", "n": "Agumbe", "st": "KA", "t": "range", "x": 256.4, "y": 861.9, "f": "The “Cherrapunji of the south” — rainforest research country and the king cobra’s capital."},
-  {"id": "st-mary-u2019s-islands-ka", "n": "St Mary\\u2019s Islands", "st": "KA", "t": "island", "x": 243.1, "y": 866.0, "f": "Islands of hexagonal basalt columns — rock that crystallised when Madagascar tore away from India."},
+  {"id": "st-mary-u2019s-islands-ka", "n": "St Mary’s Islands", "st": "KA", "t": "island", "x": 243.1, "y": 866.0, "f": "Islands of hexagonal basalt columns — rock that crystallised when Madagascar tore away from India."},
   {"id": "ranganathittu-ka", "n": "Ranganathittu", "st": "KA", "t": "wetland", "x": 305.9, "y": 898.7, "f": "Islets in the Kaveri where storks and pelicans nest in trees above basking crocodiles — a boat glides you past."},
   {"id": "gokarna-ka", "n": "Gokarna", "st": "KA", "t": "coast", "x": 232.0, "y": 826.1, "f": "Om-shaped beach coves below a temple town — the coast at its calmest."},
   {"id": "dandeli-ka", "n": "Dandeli", "st": "KA", "t": "park", "x": 241.5, "y": 801.6, "f": "Hornbill forests on the black-water Kali — Karnataka’s white-water rafting river."},

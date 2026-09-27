@@ -301,6 +301,19 @@ Five passes, each with a check that fails before it passes.
   turn count away with it. **The one button that moves the world must never be the thing
   that scrolls away.**
 
+- **I — the side column earns its width.** Putting the HUD beside the map bought a 565px
+  column and then left 690px of it cream, because on turn one the rail has nothing live
+  and the advisor is one line. Three things fill it now: the **rail has left the map**
+  (it floated in the board's corner because, when the board was flex-sized, anything
+  above it cost the board that height — the board is sized from the map's own ratio now,
+  so a sibling cannot shrink it, and a notification no longer sits on the country it is
+  talking about); the **"Next:" guide** moved out from under the board; and a new
+  **realm panel** says what a child could otherwise only learn by walking into every
+  city — which places are awake, how big, and what each is actually making, with
+  *"nothing planned"* stated rather than left blank. The sleeping places are a **count,
+  not a list**: they are the game's subject, and naming them would give away a map the
+  mist is still keeping.
+
 ### What this pass taught, twice
 
 **A write-up can run ahead of the code.** It happened on the tech tree in v6 and again on
@@ -336,9 +349,21 @@ looked the same — a map at about a third of the page — and no check that mea
 against its own container can see it. It was watched to fail on the reported layout and
 named it exactly: 31% at 1440×900, 28% at 1920×1080.
 
-**55 checks, 0 failed.** F, G and H added three — `board-fills` and `no-raw-escapes` — and
-widened a third; each was watched to fail first, and `colour-roles` failed for the wrong
-reason before it failed for the right one.
+Two layout traps in pass I are worth keeping, because both produced a screen that was
+wrong while the numbers were right. **A sticky element's containing block is its wrapper,
+not its grid row** — pinning the bar alone let it slide down over the rail and the realm
+as the page scrolled, and a probe of the flow reported *no overlap at all*, because in the
+flow there wasn't one; only a screenshot showed it. And **sparse grid auto-placement never
+walks its cursor backwards**: two hidden column-one items with no row of their own pushed
+the cursor past the stage's eight-row span, so every side item after them landed *under*
+the map — which looks exactly like the column being empty. The column is one wrapper now,
+pinned as a unit, dissolved with `display:contents` on narrow screens where `order`
+restores the phone's stacking.
+
+**56 checks, 0 failed.** F through I added four — `board-fills`, `no-raw-escapes`,
+`board-share` and `realm` — widened `colour-roles` and rewrote `rail`. Each was watched to
+fail first, and `colour-roles` failed for the wrong reason before it failed for the right
+one.
 
 (This paragraph said 55 until the suite was actually run. The count was the number I
 expected, not the number the tool printed, which is the same failure the section above is
@@ -349,7 +374,7 @@ loosening it.** Three did here — the rail check, the city-turn overlap check a
 ladder — and each was rewritten to check the real promise instead of a proxy for it. That is
 the same rule as Bizzing-Videos' `rig.ladderSpan`, arrived at independently.
 
-55 checks, 0 failed, layout audit green.
+56 checks, 0 failed, layout audit green.
 
 ## 10. Phase 2 and beyond (not in this build)
 

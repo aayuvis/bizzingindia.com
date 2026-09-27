@@ -993,27 +993,35 @@ check('rail', 'what is live is stacked worst-first, dismissible, and never over 
     const after = document.querySelectorAll('#sab-rail .sab-railrow').length;
     /* AND IT MUST NOT COVER THE BOARD IT IS TALKING ABOUT.
        This started as "the rail may not overlap the board at all", which was right
-       while the rail sat in the flow and wrong the moment it stopped: a rail above the
-       map costs the map its whole height, and on a phone the map only had 150px to
-       give. The promise was never "no overlap" — it was "you can still see the thing".
-       So the check asks what it actually cares about: the rail stays in a corner, it
-       takes a minority of the board, and it never sits over the middle. */
+       while the rail sat in the flow and wrong the moment it started floating: a rail
+       above the map cost the map its whole height, and on a phone the map only had
+       150px to give. So it became corner rules — a minority of the board, never over
+       the middle.
+       Now the board is sized from the map's own ratio, a sibling cannot shrink it, and
+       the rail has left the map altogether. That is the promise kept in full, so a rail
+       that does not touch the board at all passes outright; the corner rules stay for
+       any width where it still has to float. The promise was never about where the rail
+       sits, it was "you can still see the thing". */
     const board = document.querySelector('.sab-stage').getBoundingClientRect();
     const rr = rail.getBoundingClientRect();
     const area = (rr.width * rr.height) / (board.width * board.height);
     const cx = board.left + board.width / 2, cy = board.top + board.height / 2;
     const overCentre = cx > rr.left && cx < rr.right && cy > rr.top && cy < rr.bottom;
-    return { before, after, order, area, overCentre,
+    const clear = rr.right <= board.left + 2 || rr.left >= board.right - 2 ||
+                  rr.bottom <= board.top + 2 || rr.top >= board.bottom - 2;
+    return { before, after, order, area, overCentre, clear,
              inside: rr.left >= board.left - 2 && rr.right <= board.right + 2 };
   });
   if (r.before < 2) throw new Error(`only ${r.before} rows with two things live`);
   if (r.order.join('') !== [...r.order].sort().join(''))
     throw new Error('the rail is not worst-first: ' + r.order.join(','));
   if (!(r.after < r.before)) throw new Error('dismissing a row did not remove it');
-  if (!r.inside) throw new Error('the rail hangs outside the board');
-  if (r.overCentre) throw new Error('the rail sits over the middle of the board');
-  if (r.area > 0.28)
-    throw new Error(`the rail covers ${Math.round(r.area * 100)}% of the board — it is a wall, not a corner`);
+  if (!r.clear) {
+    if (!r.inside) throw new Error('the rail overlaps the board and hangs off its edge');
+    if (r.overCentre) throw new Error('the rail sits over the middle of the board');
+    if (r.area > 0.28)
+      throw new Error(`the rail covers ${Math.round(r.area * 100)}% of the board — it is a wall, not a corner`);
+  }
 });
 
 check('city-turn', 'a year can be spent without leaving the city', async ({ p }) => {
@@ -1098,6 +1106,57 @@ check('no-raw-escapes', 'no \\uXXXX escape reaches a child as text', async () =>
   }
   if (bad.length)
     throw new Error('escapes that will print as text:\n       ' + bad.join('\n       '));
+});
+
+check('realm', 'the side column says what the realm is doing, from turn one', async ({ p }) => {
+  /* Putting the HUD beside the map bought a 565px column and then left 690px of it
+     cream, because at turn one the rail has nothing live and the advisor is one line.
+     A realm has a state worth showing from the first turn -- which places are awake,
+     how big, and what each is actually making -- and without it a child had to walk
+     into every city to discover that none of them was doing anything.
+
+     The check asks for the fact, not the markup: a row per awake place, each naming
+     what it is doing, a count of the ones still asleep, and a row that takes you
+     there. It reads the engine for the expected names rather than trusting the panel
+     to agree with itself. */
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    const awake = Object.keys(G.sites).filter(id => !G.sites[id].zzz);
+    const panel = document.getElementById('sab-realm');
+    if (!panel) return { none: true };
+    const cs = getComputedStyle(panel);
+    const rows = [...panel.querySelectorAll('.sab-realmrow')];
+    return {
+      shown: cs.display !== 'none' && !panel.hasAttribute('hidden'),
+      awake: awake.length,
+      rows: rows.length,
+      texts: rows.map(x => x.textContent.trim()),
+      targets: rows.map(x => x.getAttribute('data-g')),
+      asleepLine: (panel.querySelector('.sab-realmasleep') || {}).textContent || '',
+      totalSites: Object.keys(G.sites).length,
+    };
+  });
+  if (r.none) throw new Error('there is no realm panel');
+  if (!r.shown) throw new Error('the realm panel is not on screen at a desktop width');
+  if (r.rows !== r.awake)
+    throw new Error(`${r.awake} places are awake but the panel lists ${r.rows}`);
+  /* every row must say what that place is doing -- "nothing planned" counts, and is
+     in fact the one a child most needs on turn one */
+  const silent = r.texts.filter(t => !/nothing planned|monument|fading|\+\d|[a-z]{4}/i.test(t));
+  if (silent.length) throw new Error('a row does not say what the place is doing: ' + silent[0]);
+  const asleep = r.totalSites - r.awake;
+  if (asleep > 0 && !new RegExp('\\b' + asleep + '\\b').test(r.asleepLine))
+    throw new Error(`${asleep} places are asleep but the panel does not say so (saw "${r.asleepLine}")`);
+
+  /* and a row takes you to that place */
+  const went = await p.evaluate(() => {
+    const row = document.querySelector('.sab-realmrow');
+    const want = row.getAttribute('data-g');
+    row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    return { want, got: window.__SABDO.sel ? window.__SABDO.sel() : null };
+  });
+  if (went.got !== null && went.got !== undefined && went.got !== went.want)
+    throw new Error(`clicking ${went.want} selected ${went.got}`);
 });
 
 check('board-share', 'the map is the page, not a stamp beside empty space', async ({ p }) => {

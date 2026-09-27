@@ -154,6 +154,11 @@
        rule appeared to work. Height leads, width follows it, and max-width takes over
        on anything narrow. */
     '.sab-wrap>.sab-stage{flex:0 0 auto}',
+    /* the side wrapper does not exist as far as a narrow layout is concerned */
+    '.sab-side{display:contents}',
+    '.sab-bar,.sab-tray,#sab-cityhost{order:0}',
+    '.sab-stage{order:1}',
+    '.sab-rail,.sab-strip,.sab-realm,.sab-advise,.sab-guide,.sab-help{order:2}',
     /* one line, and it does not wrap into two */
     '.sab-bar{flex:0 0 auto}',
     '.sab-strip{flex:0 0 auto}',
@@ -242,11 +247,22 @@
     /* THE RAIL sits above the board, never over it */
     /* FLOATING, TOP RIGHT, over sea. Narrow enough to leave the land visible behind
        it and capped so it can never become a wall down the side of the board. */
-    '.sab-rail{position:absolute;top:8px;right:8px;z-index:4;display:flex;flex-direction:column;gap:4px;width:min(290px,46%);max-height:42%;overflow:auto}',
+    '.sab-rail{display:flex;flex-direction:column;gap:4px;width:auto}',
+    '.sab-realm{display:none;flex-direction:column;gap:4px}',
+    '.sab-realmhd{font:800 11px/1.2 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:2px 0 0}',
+    '.sab-realmrow{display:flex;align-items:baseline;gap:8px;text-align:left;border:0;width:100%;' +
+      'background:var(--card);border-radius:10px;padding:7px 11px;min-height:40px;cursor:pointer;' +
+      'box-shadow:0 1px 2px rgba(30,20,64,.07)}',
+    '.sab-realmrow b{font:800 12.5px/1.3 var(--body);color:var(--text);white-space:nowrap}',
+    '.sab-realmrow i{font:700 10.5px/1.3 var(--body);color:var(--muted);font-style:normal;white-space:nowrap}',
+    '.sab-realmrow s{flex:1;text-align:right;font:700 11px/1.3 var(--body);color:var(--muted);' +
+      'text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.sab-realmrow.idle s{color:var(--accent2)}',
+    '.sab-realmasleep{font:700 11px/1.35 var(--body);color:var(--muted);padding:2px 2px 0}',
     '.sab-railgo{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     /* ON A PHONE A RAIL THAT WRAPS TO FIVE LINES IS A WALL ACROSS THE COUNTRY. It keeps
        one line each and the rest is the tap. */
-    '@media (max-width:620px){.sab-rail{width:66%;max-height:34%}' +
+    '@media (max-width:620px){' +
       '.sab-railgo{font-size:11.5px;padding:6px 9px;min-height:34px}' +
       '.sab-railx{width:34px;min-height:34px;font-size:13px}}',
     '.sab-rail[hidden]{display:none}',
@@ -522,18 +538,13 @@
          While the board was letterboxed the rail happened to land in the dead ground
          and cleared the land by accident; taking the letterbox away put it over the
          northeast. Reserving the strip as padding means the map's own box ends where
-         the rail begins, so nothing is covered by arithmetic rather than by luck.
-         Narrow screens keep the corner overlay -- there is no strip to spare. */
       /* A PORTRAIT MAP ON A LANDSCAPE SCREEN IS BOUND BY HEIGHT, so height is what to
-         spend. 78vh left the board well short of the room the column actually had;
-         84vh uses it and the width follows, which is the only way a 1000x1100 map
-         gets bigger on a wide screen without being cropped.
-         The rail's strip is added only when the rail has something in it -- see the
-         has-rail toggle where the rail is filled. Reserved unconditionally it took
-         280px of board on every screen where nothing was live. */
+         spend: the width follows from the map's own ratio, and that is the only way a
+         1000x1100 map gets bigger on a wide screen without being cropped.
+         There is no reserved strip here any more. The rail used to float over the board
+         and pass F bought it room by taking 280px of board -- on every screen, whether
+         or not anything was live. The rail is simply not on the map now. */
       '.sab-stage{width:min(100%,calc(84vh*10/11))}' +
-      '.sab-stage.has-rail{width:min(100%,calc(84vh*10/11 + 280px));padding-right:280px;box-sizing:border-box}' +
-      '.sab-rail{width:264px;max-height:calc(100% - 16px)}' +
     '}',
     /* THE HUD GOES BESIDE THE MAP, NOT ABOVE IT, ONCE THERE IS ROOM.
        India is taller than it is wide, so on a landscape screen the board is bound by
@@ -551,26 +562,18 @@
          stacked. The column is the dial now and the stage simply fills it. */
       '.sab-wrap{display:grid;' +
         'grid-template-columns:min(64vw,calc(96vh*10/11)) minmax(240px,1fr);' +
-        'column-gap:12px;align-content:start}' +
-      '.sab-wrap>.sab-stage{grid-column:1;grid-row:1/span 8;align-self:start;width:100%}' +
-      '.sab-wrap>.sab-bar,.sab-wrap>.sab-strip,.sab-wrap>.sab-advise{grid-column:2;align-self:start}' +
-      /* AND THE HUD STAYS ON SCREEN. The board is deliberately taller than the space
-         under the site's own sticky topbar (130px of it), because coverage is what a
-         map is for -- so scrolling to the south of India used to carry Agla Saal, the
-         resources and the turn count off the top with it. The one button that moves
-         the world must never be the thing that scrolls away. Pinned below the topbar,
-         under its z-index so it slides beneath rather than over it. */
-      '.sab-wrap>.sab-bar{position:sticky;top:138px;z-index:5}' +
-      '.sab-wrap>.sab-tray,.sab-wrap>#sab-cityhost{grid-column:1/-1}' +
+        'column-gap:12px;align-content:start;grid-auto-rows:min-content}' +
+      '.sab-wrap>.sab-stage{grid-column:1;grid-row:1;align-self:start;width:100%}' +
+      '.sab-side{display:flex;flex-direction:column;gap:8px;grid-column:2;grid-row:1;' +
+        'align-self:start;position:sticky;top:138px}' +
+      '.sab-realm{display:flex}' +
+
+      '.sab-wrap>.sab-tray,.sab-wrap>#sab-cityhost{grid-column:1/-1;grid-row:1}' +
       /* a column, not a strip: it may wrap now, and the turn button is the widest thing */
       '.sab-bar{flex-wrap:wrap;row-gap:8px}' +
       '.sab-bar .sab-gap{display:none}' +
       '.sab-globals{flex-wrap:wrap}' +
-      /* The rail stays the corner overlay it has always been. It cannot move into the
-         side column without leaving the stage, and it is the stage it is positioned
-         against; with the board now half again as wide it covers proportionally less
-         of the land than the reserved strip cost every screen that had no rail at all. */
-      '.sab-stage.has-rail{padding-right:0;width:100%}' +
+      '.sab-stage{width:100%}' +
       '.sab-hero{max-height:180px;aspect-ratio:auto}' +
       '.sab-cardart{max-height:170px;object-fit:cover}' +
       '.sab-vthumb{width:96px;height:64px}' +
@@ -3463,6 +3466,15 @@
            pixel that is left. The verbs that used to sit in the bar moved into the
            selection tray, where they were always more at home: they act on a place,
            and you have to have chosen a place for them to mean anything. */
+        /* ONE COLUMN, ONE STICKY. On a wide screen every one of these sits beside the
+           map, and the column is pinned as a unit. Pinning the bar alone looked right
+           and was not: a sticky element's containing block is this wrapper, not its own
+           grid row, so the bar slid down over the rail and the realm as the page
+           scrolled -- the flow had no overlap at all, which is why only a screenshot
+           showed it. display:contents dissolves this div on narrow screens, where the
+           children go back to being the wrap's own flex items and `order` puts the bar
+           above the map and everything else below it, exactly as before. */
+        '<div class="sab-side">' +
         '<div class="sab-bar">' +
           '<div class="sab-era"><span id="sab-eradate"></span><b id="sab-eraname"></b></div>' +
           /* TIME WAS INVISIBLE. The era's dates were on screen and the turn was not,
@@ -3499,6 +3511,29 @@
             '</select>' +
           '</div>' +
         '</div>' +
+        /* BESIDE THE MAP, NOT OVER IT. The rail used to float in the board's corner,
+           because when the board was flex-sized anything above it cost the board that
+           height and a phone's map only had 150px to give. The board is sized from the
+           map's own ratio now, so a sibling cannot shrink it, and the rail can stop
+           sitting on the country it is talking about. */
+        '<div class="sab-rail" id="sab-rail"></div>' +
+        '<div class="sab-strip">' +
+          '<p class="sab-feed" id="sab-feed" aria-live="polite"></p>' +
+        '</div>' +
+        /* WHAT YOU HAVE, AT A GLANCE. The side column held a 130px bar in 864px of
+           room; the rest was cream. A realm has a state worth showing from turn one --
+           which places are awake, how big, and what each is actually making -- and
+           without it a child had to enter every city to find out that none of them was
+           doing anything. */
+        '<div class="sab-realm" id="sab-realm" hidden></div>' +
+        /* MITHU'S LINE. One suggestion, never a list — a list is another thing to read.
+           This answers the half of "I'm not making strategic decisions" that is not a
+           systems problem: a child who cannot tell what the game wants next does
+           nothing, and doing nothing looks exactly like a game with nothing in it. */
+        '<div class="sab-advise"><button id="sab-advise" class="sab-advisebtn" data-sab-act="advise"></button>' +
+          '<button class="sab-btn" data-sab-act="digest" aria-label="What has been happening">≣</button></div>' +
+        '<p class="sab-guide" id="sab-guide"></p>' +
+        '</div>' +
         /* THE RAIL. The feed is one line and the world talks over it, so a warning, a
            quarrel and a request arriving together left two of them unseen. The rail
            stacks what is live, worst first, each one dismissible, and it sits ABOVE the
@@ -3507,25 +3542,11 @@
         '<div class="sab-tray" id="sab-sheet" hidden></div>' +
         '<div id="sab-cityhost"></div>' +
         '<div class="sab-stage" id="sab-stage">' + board() +
-          /* OVER THE MAP, NOT ABOVE IT. A rail that pushes the board down costs the
-             board twice: once for its own height and again for the gap. Floating it
-             in the corner costs nothing, and the corner of India is sea. */
-          '<div class="sab-rail" id="sab-rail"></div>' +
           '<div style="position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:3">' +
           '<button class="sab-btn" data-sab-act="zin" aria-label="Zoom in">+</button>' +
           '<button class="sab-btn" data-sab-act="zout" aria-label="Zoom out">\u2212</button>' +
           '<button class="sab-btn" data-sab-act="zreset" aria-label="Whole map">\u2302</button></div>' +
           '<div id="sab-ovhost"></div></div>' +
-        '<div class="sab-strip">' +
-          '<p class="sab-feed" id="sab-feed" aria-live="polite"></p>' +
-        '</div>' +
-        /* MITHU'S LINE. One suggestion, never a list — a list is another thing to read.
-           This answers the half of "I'm not making strategic decisions" that is not a
-           systems problem: a child who cannot tell what the game wants next does
-           nothing, and doing nothing looks exactly like a game with nothing in it. */
-        '<div class="sab-advise"><button id="sab-advise" class="sab-advisebtn" data-sab-act="advise"></button>' +
-          '<button class="sab-btn" data-sab-act="digest" aria-label="What has been happening">≣</button></div>' +
-        '<p class="sab-guide" id="sab-guide"></p>' +
         '<p class="sab-help" hidden>Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
           '<b>1–4</b> fire an action (<b>4</b> steps inside the city), <b>Esc</b> cancels, <b>P</b> pauses. ' +
           'Routes keep a place safe from the mist; <b>!</b> is a quest, <b>\u26a1</b> a quarrel for your panchayat, <b>\u2605</b> the capital. ' +
@@ -3615,12 +3636,45 @@
             '</div>';
         }).join('');
         rail.hidden = !items.length;
-        /* THE STRIP EXISTS ONLY WHEN THE RAIL DOES. Reserving room for it always cost
-           280px of board on every screen where nothing was live -- which is most of
-           them, most of the time -- and that empty band is what a player sees as the
-           map being half the page. */
-        var stg = D.getElementById('sab-stage');
-        if (stg) stg.classList.toggle('has-rail', !!items.length);
+      }
+
+      /* THE REALM, AT A GLANCE. Every awake place, how big, and what it is actually
+         making. Built from the same fields the city view reads -- nothing here is a
+         second copy of the truth, and a row that says "nothing planned" is telling a
+         child the one thing they could not otherwise learn without entering the city
+         and looking. The sleeping places are a count, not a list: they are the game's
+         subject, and naming them all would give away a map the mist is still keeping. */
+      var realm = D.getElementById('sab-realm');
+      if (realm) {
+        var ids = Object.keys(G.sites).filter(awake);
+        ids.sort(function (a1, b1) {
+          if ((G.capital === a1) !== (G.capital === b1)) return G.capital === a1 ? -1 : 1;
+          return (G.sites[b1].lv || 0) - (G.sites[a1].lv || 0);
+        });
+        var asleep = Object.keys(G.sites).length - ids.length;
+        realm.innerHTML =
+          '<p class="sab-realmhd">' + ids.length +
+            (ids.length === 1 ? ' place awake' : ' places awake') + '</p>' +
+          ids.map(function (id4) {
+            var q4 = G.sites[id4], doing = '', idle = '';
+            if (q4.mon || q4.monB) doing = 'raising a monument';
+            else if (q4.plan && q4.plan.length) {
+              var h4 = q4.plan[0];
+              doing = h4.kind === 'monument' ? 'a monument, when it can'
+                    : (BLD[h4.id] ? BLD[h4.id].name : 'something');
+              if (q4.plan.length > 1) doing += ' +' + (q4.plan.length - 1);
+            } else { doing = 'nothing planned'; idle = ' idle'; }
+            if (q4.fade >= 0) { doing = 'fading'; idle = ' idle'; }
+            return '<button class="sab-realmrow' + idle + '" data-sab-act="railgo" data-g="' +
+              esc(id4) + '" aria-label="' + esc(nameOf(byId[id4])) + ' — ' + esc(doing) + '">' +
+              '<b>' + esc(nameOf(byId[id4])) + (G.capital === id4 ? ' \u2605' : '') + '</b>' +
+              '<i>lv ' + (q4.lv || 1) + ' \u00b7 ' + popOf(id4) + '</i>' +
+              '<s>' + esc(doing) + '</s></button>';
+          }).join('') +
+          (asleep ? '<p class="sab-realmasleep">and ' + asleep +
+            (asleep === 1 ? ' place still asleep in the mist' :
+                            ' places still asleep in the mist') + '</p>' : '');
+        realm.hidden = !ids.length;
       }
       var av = D.getElementById('sab-advise');
       if (av) {

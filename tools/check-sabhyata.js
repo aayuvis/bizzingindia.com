@@ -1074,6 +1074,53 @@ check('city-turn', 'a year can be spent without leaving the city', async ({ p })
   if (clash.tall) throw new Error('the Agla Saal label wrapped onto a second line');
 });
 
+check('board-fills', 'the board uses the room it is given, at every width', async ({ p }) => {
+  /* Found by looking at a screenshot, which is the only thing that found it. The stage
+     was whatever height the flex column had spare and whatever width the page was, and
+     the svg's default preserveAspectRatio then letterboxed a 1000x1100 portrait map
+     inside it: on a 1440 desktop India drew at 39% of the stage width with 416px of dead
+     ground either side, and on a phone a quarter of the board was empty.
+
+     Nothing caught it because nothing asserted the outcome. Every check here measured a
+     mechanism -- a rule is present, an element exists -- and the pillarbox is not a rule,
+     it is what happens when no rule decides. So this one measures what a player sees: the
+     painted land against the board it is painted on, at three real widths.
+
+     The tolerance is 85%, not 100%, because the map artwork carries its own margin inside
+     the viewBox -- India's bounding box is about 92% of 1000x1100. 85% passes the artwork
+     and fails a letterbox, which is the distinction that matters. */
+  const sizes = [[1440, 900], [820, 1180], [390, 844]];
+  const bad = [];
+  for (const [w, h] of sizes) {
+    await p.setViewportSize({ width: w, height: h });
+    await p.waitForTimeout(350);
+    const r = await p.evaluate(() => {
+      const st = document.getElementById('sab-stage');
+      const svg = st && st.querySelector('svg');
+      if (!svg) return null;
+      /* measured against the SVG, not the stage: the svg IS the room given to the map,
+         and on a wide screen the stage deliberately holds a strip beside it for the rail.
+         Measuring the stage would read that strip as waste and fail correct work. */
+      const b = svg.getBoundingClientRect();
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      svg.querySelectorAll('path.sab-terr').forEach(el => {
+        const q = el.getBoundingClientRect();
+        if (q.width < 1) return;
+        x0 = Math.min(x0, q.left); y0 = Math.min(y0, q.top);
+        x1 = Math.max(x1, q.right); y1 = Math.max(y1, q.bottom);
+      });
+      if (x1 < x0) return null;
+      return { fw: (x1 - x0) / b.width, fh: (y1 - y0) / b.height };
+    });
+    if (!r) { bad.push(`${w}x${h}: no board`); continue; }
+    if (r.fw < 0.85) bad.push(`${w}x${h}: the map is ${Math.round(r.fw * 100)}% of the board's width`);
+    if (r.fh < 0.85) bad.push(`${w}x${h}: the map is ${Math.round(r.fh * 100)}% of the board's height`);
+  }
+  await p.setViewportSize({ width: 1440, height: 900 });
+  await p.waitForTimeout(300);
+  if (bad.length) throw new Error('the board is letterboxed -- ' + bad.join('; '));
+});
+
 check('labels', 'a city name is the same size however far you lean in', async ({ p }) => {
   /* The label was sized in SVG user units and the board zooms by shrinking its
      viewBox, so leaning in blew every name up with the land: "Pataliputra" ran off

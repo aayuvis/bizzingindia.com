@@ -211,7 +211,85 @@ a raid; and the phone regression where the globals row cannot wrap inside a bar 
 Twice the failing thing was the *check* and not the engine, which is written into the commits
 because both nearly sent good code to the bin.
 
-## 9. Phase 2 and beyond (not in this build)
+## 9. The look (v7) — the same game, legible
+
+The note back was *"the UI/UX is a 3 on 10, benchmark Civ 6, take it to 10/10."* Civ 6's
+screen is not prettier than ours was; it is **ordered**. Its information has a hierarchy a
+newcomer reads without being taught: one place for what you own, one for what is happening,
+one for what you are asked to decide, and a single unmistakable button for *I am done*.
+Ours had all the same information and no ranking of it — every panel the same weight, every
+number the same size, the verb that advances the game no louder than the verb that opens a
+menu. That is what a 3 out of 10 feels like from the inside.
+
+Five passes, each with a check that fails before it passes.
+
+- **A — the frame.** One bar that owns what the realm has, one rail for what is live, one
+  button that ends the year, and nothing else competing at that size. The turn button and
+  the turn counter are asserted to agree, because a screen that disagrees with itself is
+  worse than one that says nothing.
+- **B — the map.** City names are measured, not guessed: `labScale()` reads the bound axis
+  off the live viewBox and scales the type by its inverse, so a name is the same size
+  however far in you lean. Two names that would sit on top of each other are moved apart by
+  *measured rectangle collision*, not by a proxy — the first version separated them by
+  which city was awake, and Kashi and Pataliputra are both awake, so it did nothing at all.
+- **C — colour and role.** The colour that means *press this* is not the colour that means
+  *worry*. Held by a check, because it is the kind of rule that decays one convenient
+  exception at a time.
+- **D — the panels.** A long panel keeps its name and its way out at the top of a bounded
+  scroller. `position: sticky` pins to the nearest *scrolling* ancestor, and the first
+  version of this pinned to the document and therefore to nothing; the check now measures
+  the header's position after a scroll rather than asserting the rule exists. The city got
+  its own *Agla Saal*, so a year can be spent without leaving the city you are spending it
+  on.
+- **E — feedback.** Anna, kala and katha announce what moved. The delta belongs to the
+  **turn**, not to the painter: `paintHud` runs twice per turn and the second run wiped the
+  first version of it, so `G.delta` carries the turn it describes and is only rendered on a
+  match. All of the motion sits inside `prefers-reduced-motion: reduce`, which drops the
+  travel and keeps the fact.
+
+- **F — the board's own shape.** Found by looking at a screenshot after the other five
+  were green, which is the only thing that found it. The stage was whatever height the
+  flex column had spare and whatever width the page was, and the SVG's default
+  `preserveAspectRatio` then letterboxed a 1000×1100 portrait map inside it: on a 1440
+  desktop India drew at **39% of the board's width** with 416px of dead ground either
+  side, and a phone wasted **a quarter of the board's height**. The stage now takes the
+  viewBox's own ratio, and **width is the only dial** — `min(100%, 72vh × 10/11)` — because
+  `aspect-ratio` is ignored outright when both axes are definite, which quietly reinstates
+  the letterbox on whichever orientation it does not suit. That cost two rounds: one
+  wasting a phone's height, one a tablet's. All three sizes now fill 92.8% of the board's
+  width and 97.3% of its height, the remainder being the artwork's own margin, and the
+  desktop map is **23% larger in area**. On a wide screen the stage also reserves a strip
+  for the rail, so the rail stops being an overlay: while the board was letterboxed the
+  rail landed in the dead ground and cleared the land *by accident*, and removing the
+  letterbox put it over the northeast.
+
+### What this pass taught, twice
+
+**A write-up can run ahead of the code.** It happened on the tech tree in v6 and again on
+the sticky header here: the prose was true of the intention and false of the file. Nothing in
+the test suite caught either, because both checks asserted the *mechanism* I had written
+rather than the *outcome* a player would see. The two things that do catch it are a check
+phrased as the visible promise — "the header is still on screen after scrolling", not "the
+rule is present" — and looking at a screenshot. `tools/shoot-sabhyata.js` takes 24 of them
+across phone, tablet and desktop for exactly that, and it earns its place every pass:
+`audit-city-ui.js` can prove nothing overflows and cannot tell you a child would not know
+where to look first.
+
+Pass F is the strongest case for the screenshot. Fifty-two checks were green and the board
+was drawing India at 39% of its width, because **a letterbox is not a rule that is wrong —
+it is what happens when no rule decides**, and no test written against a mechanism can see
+an absence. `board-fills` measures the painted land against the box the map was given, at
+three real widths, and it was watched to fail on the old CSS first: it reported exactly the
+39% and the 75% that the screenshot had shown.
+
+**An assertion that fires on correct work is a bug in the assertion, and fixing it is not
+loosening it.** Three did here — the rail check, the city-turn overlap check and the size
+ladder — and each was rewritten to check the real promise instead of a proxy for it. That is
+the same rule as Bizzing-Videos' `rig.ladderSpan`, arrived at independently.
+
+53 checks, 0 failed, layout audit green.
+
+## 10. Phase 2 and beyond (not in this build)
 
 Narrated site cards in the app's own voice; more eras (Vijayanagara, the takeoff era
 bridging to Itihaas); a "visit the story" link from a woken site into the story library;

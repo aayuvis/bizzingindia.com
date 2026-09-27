@@ -148,7 +148,12 @@
        is a column that knows its own height, so `flex:1` on the stage means "all the
        room nobody else claimed" instead of "as tall as the picture happens to be". */
     '.sab-wrap{display:flex;flex-direction:column;gap:6px;min-height:min(86vh,940px);color:var(--text);font-family:var(--body,system-ui,sans-serif);-webkit-tap-highlight-color:transparent}',
-    '.sab-wrap>.sab-stage{flex:1 1 auto;min-height:320px}',
+    /* The stage knows its own size now (it is the map's ratio), so it must not also be
+       told a height by flex-grow: when both axes are definite, aspect-ratio is simply
+       ignored, which is how a phone kept a quarter of its board empty while the desktop
+       rule appeared to work. Height leads, width follows it, and max-width takes over
+       on anything narrow. */
+    '.sab-wrap>.sab-stage{flex:0 0 auto}',
     /* one line, and it does not wrap into two */
     '.sab-bar{flex:0 0 auto}',
     '.sab-strip{flex:0 0 auto}',
@@ -287,9 +292,23 @@
        the rule goes in once, for everything under the wrapper, rather than being
        remembered for each new element. `hidden` is not a suggestion. */
     '.sab-wrap [hidden],.sab-wrap[hidden]{display:none !important}',
-    '.sab-stage{position:relative;background:var(--ground2);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;display:flex}',
-    '.sab-stage>svg{flex:1 1 auto;width:100%;height:100%;display:block}',
-    '.sab-stage svg{display:block;width:100%;height:auto;max-height:72vh}',
+    /* THE STAGE IS THE MAP'S OWN SHAPE. It used to be whatever height the column had
+       spare and whatever width the page was, and the svg's default preserveAspectRatio
+       (xMidYMid meet) then pillarboxed a 1000x1100 portrait map inside it. On a 1440
+       desktop that drew India at 39% of the stage width with 416px of dead ground on
+       each side; on a phone it wasted a quarter of the height. Giving the stage the
+       viewBox's own ratio means there is no letterbox to waste, at any size.
+       Two rules used to set this svg's height and the second won by source order, so
+       `height:100%` in the first was dead text that read as if it were doing the job.
+       They are one rule now.
+       WIDTH IS THE ONLY DIAL, and it is a min() of both limits. aspect-ratio is ignored
+       outright when width and height are both definite, so setting a height as well
+       silently reinstates the letterbox on whichever orientation it does not suit --
+       that cost two rounds here, one wasting a phone's height and one a tablet's.
+       min(100%, 72vh*10/11) is bound by the page on a phone and by the viewport on a
+       desktop, and the height follows from the ratio in both. */
+    '.sab-stage{position:relative;background:var(--ground2);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;display:flex;aspect-ratio:10/11;width:min(100%,calc(72vh*10/11));height:auto;margin-inline:auto}',
+    '.sab-stage>svg{flex:1 1 auto;display:block;width:100%;height:100%}',
     '.sab-terr{fill:var(--mist);stroke:var(--line);stroke-width:1;pointer-events:none}',
     '.sab-river{fill:none;stroke:#7ba6c9;stroke-width:4.5;stroke-linecap:round;opacity:.6;pointer-events:none}',
 
@@ -499,7 +518,14 @@
        the paintings stop being posters. Phones keep the tall map. */
     '@media (min-width: 900px){' +
       '.sab-wrap{gap:8px}' +
-      '.sab-stage svg{max-height:70vh}' +
+      /* A DESKTOP HAS ROOM FOR THE RAIL BESIDE THE MAP, so it stops being an overlay.
+         While the board was letterboxed the rail happened to land in the dead ground
+         and cleared the land by accident; taking the letterbox away put it over the
+         northeast. Reserving the strip as padding means the map's own box ends where
+         the rail begins, so nothing is covered by arithmetic rather than by luck.
+         Narrow screens keep the corner overlay -- there is no strip to spare. */
+      '.sab-stage{aspect-ratio:auto;height:78vh;width:min(100%,calc(78vh*10/11 + 280px));padding-right:280px;box-sizing:border-box}' +
+      '.sab-rail{width:264px;max-height:calc(100% - 16px)}' +
       '.sab-hero{max-height:180px;aspect-ratio:auto}' +
       '.sab-cardart{max-height:170px;object-fit:cover}' +
       '.sab-vthumb{width:96px;height:64px}' +

@@ -1041,6 +1041,33 @@
       return (BUILD.reach && BUILD.reach[q.lv]) || 5;
     }
 
+    /* ==================================================================
+       A CITY GROWS IN A DIRECTION
+       ==================================================================
+       Reach was a radius: grow, and the buildable circle widened evenly on every
+       side. Nothing about that is a decision — there is no version of it a player can
+       get wrong, so there is no version they can get right. Settling toward the water
+       or away from it, along the road or up the rise, is the oldest strategic choice a
+       town makes, and Dholavira's own three nested parts are the evidence.
+
+       So each level gained asks WHICH WAY, and the chosen side reaches further. This
+       is not a boundary: nothing is drawn, coloured or claimed, and the ground is the
+       same neutral wash it always was. It is which way the streets went. */
+    var DIRS = [{ id: 'n', name: 'north' }, { id: 'e', name: 'east' },
+                { id: 's', name: 'south' }, { id: 'w', name: 'west' }];
+    var DIR_BONUS = 5;
+    function dirOfCell(id, cx, cy) {
+      var C = (W.IND_KIT_CITIES || {})[id];
+      if (!C || !C.centre) return null;
+      var dx = cx - C.centre[0], dy = cy - C.centre[1];
+      if (Math.abs(dx) >= Math.abs(dy)) return dx >= 0 ? 'e' : 'w';
+      return dy >= 0 ? 's' : 'n';
+    }
+    function reachTo(id, cx, cy) {
+      var q = G.sites[id], grown = q.grown || [], d = dirOfCell(id, cx, cy);
+      return reachOf(id) + (d && grown.indexOf(d) >= 0 ? DIR_BONUS : 0);
+    }
+
     /* Everything a child may be shown for THIS city, right now. Four gates,
        and the last one is the reason Dholavira's reservoirs are not on
        Vaishali's menu. */
@@ -1111,7 +1138,7 @@
     function canPlace(id, it, cx, cy) {
       var K2 = W.IND_KIT, q = kitOf(id), def = K2 && K2.def(it.p);
       if (!def) return 'no such piece';
-      if (K2.reach(id, cx, cy) > reachOf(id)) return 'too far out — the city has not grown that way yet';
+      if (K2.reach(id, cx, cy) > reachTo(id, cx, cy)) return 'too far out — the city has not grown that way yet';
       var L = def.d[0] || 1, B = def.d[1] || 1, a, b2;
       for (a = 0; a < L; a++) {
         for (b2 = 0; b2 < B; b2++) {
@@ -1501,8 +1528,16 @@
             return '<span class="sab-pvwhy">' + esc(w.why) + (w.n > 1 ? ' \u00d7' + w.n : '') + '</span>';
           }).join('')) + '</div>';
       }
-      if (!open) return handle + note + grow;
-      handle += note;
+      /* the lift button lives with the shelf, because moving a thing is the same
+         decision as placing it, made a second time with more information */
+      var moveBtn = q.kit && q.kit.length
+        ? '<button class="sab-grow' + (G.moving ? ' can' : '') + '" data-sab-act="kitmove"' +
+          ' aria-label="Lift something already built and put it somewhere better \u2014 ' +
+          'it costs a third of its price">' + (G.moving ? '\u2716 Stop lifting' : '\u21f2 Move a building') +
+          '<em>a third of its price</em></button>'
+        : '';
+      if (!open) return handle + note + moveBtn + grow;
+      handle += note + moveBtn;
 
       var tabs = groups.map(function (g) {
         return '<button class="sab-dtab' + (g[0] === tab ? ' on' : '') +
@@ -3745,6 +3780,19 @@
         if (G.res.anna < cost) return say('Not enough anna yet — the fields are still filling.', '');
         pay({ anna: cost }); q.lv++; G.score += 10; touch(sel);
         fxAt(s.x, s.y, 'grow');
+        /* AND IT GROWS SOMEWHERE. The level is the reward; the direction is the
+           decision, and it is asked at the moment it is earned. */
+        showOverlay('<h3>' + esc(nameOf(s)) + ' grows — which way?</h3>' +
+          '<p>The town may build further out on the side you choose. Dholavira itself ' +
+          'was laid out in three nested parts, wall within wall — a city goes the ' +
+          'way it decides to go.</p>' +
+          '<div class="row">' + DIRS.map(function (d2) {
+            var had = (q.grown || []).indexOf(d2.id) >= 0;
+            return '<button class="sab-btn' + (had ? '' : ' go') +
+              '" data-sab-act="growdir" data-d="' + d2.id + '" data-c="' + sel + '">' +
+              d2.name.charAt(0).toUpperCase() + d2.name.slice(1) + (had ? ' ✓' : '') +
+              '</button>';
+          }).join('') + '</div>');
         say(s.name + ' grows \u2014 the land it may build on widens, and the '
             + 'shelf has more on it.', 'warm');
         if (city === sel) paintCity();
@@ -4138,10 +4186,33 @@
       var cut = Math.max(T.techFloor, 1 - schools() * T.techSchool);
       return Math.max(4, Math.round(base * cut));
     }
+    /* WHERE THE WALLS STAND DECIDES HOW FAST THE MONUMENT RISES.
+       docs/16 already says the fort shelters a monument still rising — it was true in
+       the fiction and nowhere in the arithmetic. A guard piece beside the monument's
+       own cell now speeds the work, which gives the walls a placement decision of
+       their own: a rampart put where it happened to fit protects nothing in
+       particular, and a rampart put around the great work is why the great cities of
+       every age raised one first. */
+    function monShelter(id) {
+      var A = (W.IND_PLATES || {})[id], K2 = W.IND_KIT;
+      if (!A || !A.mon || !K2) return 0;
+      var c = K2.cellOf(A.mon[0], A.mon[1]);
+      if (!c) return 0;
+      var at = adjMap(kitOf(id).kit), n = 0, seen = {};
+      NB.concat([[0, 0]]).forEach(function (d) {
+        (at[(c.x + d[0]) + ',' + (c.y + d[1])] || []).forEach(function (o) {
+          if (o.g !== 'guard') return;
+          var k = o.b.p + '@' + o.b.x + ',' + o.b.y;
+          if (seen[k]) return; seen[k] = 1; n++;
+        });
+      });
+      return Math.min(n, 2);
+    }
     function monDur(id) {
       var s2 = byId[id];
       var base = T.monTicks + T.monEra * s2.era;
       var cut = Math.max(T.monFloor, 1 - jobsOf(id).karigar * T.monHand);
+      cut *= (1 - 0.12 * monShelter(id));      /* walls around the work */
       return Math.max(6, Math.round(base * cut));
     }
     function projPct() {
@@ -4651,6 +4722,25 @@
       return t ? { p: t, x: cx, y: cy, tile: true } : null;
     }
 
+    /* lift a built piece for a third of what it cost, and hold it like a new one */
+    function liftPiece(id, b) {
+      var it = BY_PART[b.p];
+      var fee = {};
+      Object.keys((it && it.cost) || {}).forEach(function (k) {
+        var v = Math.ceil(it.cost[k] / 3); if (v) fee[k] = v;
+      });
+      if (Object.keys(fee).length && !canPay(fee))
+        return say('Lifting it costs ' + costStr(fee) + ' — not yet.', '');
+      if (Object.keys(fee).length) pay(fee);
+      var q = kitOf(id);
+      q.kit = q.kit.filter(function (o) { return !(o.p === b.p && o.x === b.x && o.y === b.y); });
+      hold = { p: b.p, cell: { x: b.x, y: b.y }, f: b.f || 0 };
+      G.moving = false;
+      touch(id);
+      say('Lifted. Put it somewhere it is worth more.', 'warm');
+      paintCity(); paintAll();
+    }
+
     function kitTap(e) {
       if (!city || !kitOn(city)) return false;
       var inr = D.getElementById('sab-kitinner');
@@ -4666,7 +4756,13 @@
          and then the board never mentioned it again. Tapping one opens its
          card: what it is, what it pays every turn, and who it lets the city
          put to work. */
-      if (!hold) { var pc = pieceAt(city, cell.x, cell.y); if (pc) showPiece(city, pc); return true; }
+      if (!hold) {
+        var pc = pieceAt(city, cell.x, cell.y);
+        /* in move mode a tap LIFTS rather than explains */
+        if (pc && G.moving) { liftPiece(city, pc); return true; }
+        if (pc) showPiece(city, pc);
+        return true;
+      }
       var it = BY_PART[hold.p];
       var why = canPlace(city, it, cell.x, cell.y);
       if (why) { say('Not there — ' + why + '.', ''); paintCity(); return true; }
@@ -4825,6 +4921,39 @@
           pay(bc); qy.bld[bid] = true; touch(city); G.score += 15;
           say(bd.name + ' raised in ' + byId[city].name + '.', 'warm');
           paintCity(); paintAll(); return;
+        }
+        /* WHICH WAY THE CITY GREW */
+        if (a === 'growdir') {
+          var gd = actEl.getAttribute('data-d'), gc2 = actEl.getAttribute('data-c');
+          var gq = G.sites[gc2];
+          if (gq) {
+            if (!gq.grown) gq.grown = [];
+            if (gq.grown.indexOf(gd) < 0) gq.grown.push(gd);
+            var dn = '';
+            DIRS.forEach(function (d3) { if (d3.id === gd) dn = d3.name; });
+            say(nameOf(byId[gc2]) + ' spreads ' + dn + ' — there is room to build that way now.', 'warm');
+          }
+          overlay = null; D.getElementById('sab-ovhost').innerHTML = '';
+          paintAll(); if (city) paintCity();
+          return;
+        }
+        /* ==============================================================
+           MOVING WHAT IS ALREADY BUILT
+           ==============================================================
+           A deliberate divergence, and the adjacency rules are what force it. Civ
+           will not let you move a district, and that is a fair bargain with an adult
+           who knew the rule when they placed it. A child meets the rule FOR THE FIRST
+           TIME by placing something in the wrong spot — that is how they learn it —
+           and a board where the first four lessons are permanent is a board they stop
+           touching. So a thing can be lifted and set down again for a third of its
+           price: enough that where it goes still matters, little enough that finding
+           out is not a punishment. */
+        if (a === 'kitmove' && city) {
+          G.moving = !G.moving;
+          if (G.moving) hold = null;
+          say(G.moving ? 'Tap something you have built to lift it — it costs a third of its price to set down again.'
+                       : '', '');
+          paintCity(); return;
         }
         if (a === 'kitturn') {
           G.kitRot = ((G.kitRot || 0) + 1) % 4;
@@ -5360,7 +5489,8 @@
                   act: function (id, name) { sel = id; act(name); },
                   kity: kitYield, adjPrev: adjPreview, adj: adjTotal,
                   terrain: function (id, x, y) { return W.IND_KIT.terrain(id, x, y); },
-                  river: riverAnna };
+                  river: riverAnna, reachTo: reachTo, monShelter: monShelter,
+                  lift: liftPiece };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,

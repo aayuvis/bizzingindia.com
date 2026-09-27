@@ -157,13 +157,20 @@ check('undo', 'a direct spend can be taken back; a passed turn closes the window
   if (back.lv !== r.lv) throw new Error(`undo left the town at level ${back.lv}`);
   if (back.anna !== r.before) throw new Error(`undo returned ${back.anna} anna, expected ${r.before}`);
 
-  /* AND THE WORLD CANNOT BE UNDONE: once a turn passes, the window is shut */
+  /* AND THE WORLD CANNOT BE UNDONE: once a turn passes, the window is shut.
+     Growing now asks which way the city spread, and that card stops the world until
+     it is answered — correctly, but it means the turn has to be taken AFTER the
+     direction is chosen or no turn passes at all and this proves nothing. */
   const shut = await p.evaluate(() => {
     window.__SABDO.act('dholavira', 'grow');
     const open = window.__SAB().canUndo;
+    const btn = document.querySelector('#sab-ovhost [data-sab-act="growdir"]');
+    if (btn) btn.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    const cardGone = !window.__SAB().overlay;
     window.__SABDO.turn();
-    return { open, after: window.__SAB().canUndo };
+    return { open, cardGone, after: window.__SAB().canUndo, t: window.__SAB().t };
   });
+  if (!shut.cardGone) throw new Error('the grow-direction card would not close');
   if (!shut.open) throw new Error('the second spend left no undo behind');
   if (shut.after) throw new Error('undo survived a passed turn — a world event could be rewound');
 });
@@ -317,6 +324,25 @@ check('rivers', 'a city on a river is fed by it, and no boundary is drawn', asyn
   });
   if (!r.on) throw new Error('not one site in the whole roster sits on a river — the rivers are still decoration');
   if (!r.off) throw new Error('every site counts as riverine, so the bonus says nothing');
+});
+
+check('grow-dir', 'growth reaches further on the side the player chose', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    const C = window.IND_KIT_CITIES.dholavira;
+    const q = G.sites.dholavira;
+    q.grown = [];
+    /* a cell due east, far enough out to be past the plain radius */
+    const reach = window.IND_KIT_BUILD.reach[q.lv] || 5;
+    const cell = [C.centre[0] + reach + 2, C.centre[1]];
+    const before = window.__SABDO.reachTo('dholavira', cell[0], cell[1]);
+    q.grown = ['e'];
+    const after = window.__SABDO.reachTo('dholavira', cell[0], cell[1]);
+    q.grown = [];
+    return { before, after, reach };
+  });
+  if (!(r.after > r.before))
+    throw new Error(`choosing east changed nothing (${r.before} -> ${r.after}) — growth is still a circle`);
 });
 
 async function main() {

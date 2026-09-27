@@ -40,6 +40,27 @@
      world by the same breath. */
   var TICK_MS = 3000;
 
+  /* THE CLOCK IS A SETTING NOW, AND ONE OF ITS SETTINGS STOPS IT.
+     Three seconds was the right answer to "the numbers move faster than a child can
+     read them" and the wrong answer to "I am not making strategic decisions", because
+     both have the same cause: a clock that runs whether or not anyone has decided
+     anything. A world that moves on its own can only ever be reacted to — every
+     quarrel, raid and lean season arrives as an interruption, and the player spends
+     the game putting out fires they did not choose.
+
+     SOCHNA — thinking — is the default: nothing happens until Agla Saal is pressed.
+     That is the whole difference between a strategy game and a game of catch. The
+     live speeds stay for anyone who wants the world breathing on its own, and the
+     old three seconds is still one of them. */
+  var SPEEDS = [
+    { id: 'sochna',   name: 'Sochna',   ms: 0,    what: 'the world waits for you' },
+    { id: 'slow',     name: 'Slow',     ms: 4500, what: 'a turn every 4.5 seconds' },
+    { id: 'standard', name: 'Standard', ms: 3000, what: 'a turn every 3 seconds' },
+    { id: 'quick',    name: 'Quick',    ms: 1800, what: 'a turn every 1.8 seconds' }
+  ];
+  var SPEED_BY = {}; SPEEDS.forEach(function (x) { SPEED_BY[x.id] = x; });
+  var SPEED_DEFAULT = 'sochna';
+
   /* ---- tuning, in one place ---- */
   var T = {
     startRes:   { anna: 40, kala: 40, katha: 0 },
@@ -190,7 +211,10 @@
       'background:var(--card);box-shadow:0 2px 8px rgba(30,20,64,.06);animation:sabtray .22s ease}',
     '@keyframes sabtray{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}',
     '.sab-gap{flex:1}',
-    '.sab-globals{display:flex;gap:8px;margin-left:auto}',
+    /* THE BAR WRAPS; THE GLOBALS DID NOT, and adding the turn strip to them pushed a
+       390px phone 146px sideways. A row that cannot wrap inside a row that can is a
+       row that overflows the moment anything is added to it. */
+    '.sab-globals{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;min-width:0}',
     '.sab-who{display:flex;flex-direction:column;justify-content:center;padding:0 10px 0 2px;max-width:300px}',
     '.sab-who b{font:800 15.5px/1.1 var(--display,Georgia,serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.sab-who span{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.02em}',
@@ -210,6 +234,17 @@
     '.sab-act.go .lbl em{color:rgba(255,255,255,.85)}',
     '.sab-act.txt{padding:4px 15px}',   /* the game's own text verbs (Vidya) */
     '.sab-act.sq{width:44px;justify-content:center;padding:4px;font-size:16px}',   /* icon verbs: pause, restart, close */
+    '.sab-act.sq[disabled]{opacity:.35}',
+    '.sab-speed{border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07);font:800 12px/1 var(--body,system-ui,sans-serif);color:var(--text);padding:7px 8px;min-height:44px}',
+    /* AGLA SAAL IS THE BIGGEST THING ON THE BAR, because in Sochna pressing it is
+       the game. It carries a count of what is still waiting, so a child learns to
+       clear the board before spending the year. */
+    '#sab-turn{font-size:14px;padding:7px 14px;min-height:44px}',
+    /* on a phone the strip keeps every target a finger can hit and drops the words
+       it can do without — the house rule is 44px, not 44px on a monitor */
+    '@media (max-width:560px){.sab-speed{font-size:11px;padding:7px 4px}' +
+      '#sab-turn{font-size:13px;padding:7px 10px}}',
+    '#sab-turn em{font-style:normal;opacity:.8;font-weight:800;margin-left:6px}',
     '.sab-tico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none;' +
       'background:var(--accent-soft,rgba(91,63,214,.1));color:var(--accent)}',
     '.sab-badge{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;' +
@@ -811,6 +846,8 @@
       var st = {};
       SITES.forEach(function (s) { st[s.id] = { lv: 1, zzz: s.era > 0 || s.id !== 'dholavira', fade: -1, idle: 0, seen: false,
                                                 bld: {}, mon: false, neg: 0, jobs: null, hero: null,
+                                                /* `plan` is the city's build queue — see queueStep() */
+                                                plan: [],
                                                 found: s.id === 'dholavira' }; });
       st.dholavira.seen = true;
       return { era: 0, res: { anna: T.startRes.anna, kala: T.startRes.kala, katha: T.startRes.katha },
@@ -818,7 +855,10 @@
                quests: {}, qdone: 0, lastq: 0,
                tech: {}, proj: null, rt: 0, warn: null, wonders: {}, capital: null, disp: null, lastd: 0, quizAt: {}, quizN: 0,
                kingdoms: {}, lastraid: 0, explorers: [],
-               darshan: {}, sutra: {}, tre: {}, lastakal: 0, lastdarshan: 0, calmUntil: 0 };
+               darshan: {}, sutra: {}, tre: {}, lastakal: 0, lastdarshan: 0, calmUntil: 0,
+               /* the clock is the player's now: which speed, and whether the world
+                  stops itself when something is waiting on a decision */
+               speed: SPEED_DEFAULT, autoPause: true };
     }
 
     /* ---- rules helpers ---- */
@@ -1764,7 +1804,19 @@
       return out;
     }
     function canPay(c) { return Object.keys(c).every(function (k) { return G.res[k] >= c[k]; }); }
-    function pay(c) { Object.keys(c).forEach(function (k) { G.res[k] -= c[k]; }); }
+    /* EVERY SPEND THE PLAYER MAKES MEETS HERE, and that had to be made true before
+       undo could work: six of them used to reach into G.res directly — grow, wake,
+       utsav, explore, the era advance and the quest cart — so an undo hooked here
+       would silently have covered half the game. One door for money leaving is worth
+       having on its own; it is also the only place a snapshot belongs.
+
+       The world's own appetite (the per-turn eating in tick) deliberately does NOT
+       come through here: the mist and the granary are not purchases, and nothing that
+       happens to the player may ever be undone by them. */
+    function pay(c) {
+      undoPoint();
+      Object.keys(c).forEach(function (k) { G.res[k] -= c[k]; });
+    }
     /* the utsav's price goes through the same discount door as everything
        else — the Char Bagh halves it */
     function utsavCost() { return costOf(T.utsavCost, 'utsav'); }
@@ -2208,14 +2260,28 @@
       host.innerHTML = '<div class="sab-wrap" id="sabwrap">' +
         '<div class="sab-bar">' +
           '<div class="sab-era"><span id="sab-eradate"></span><b id="sab-eraname"></b></div>' +
+          /* TIME WAS INVISIBLE. The era's dates were on screen and the turn was not,
+             so nothing told a child the world had moved. Dates stay RANGES per
+             docs/16 §3 — an interpolated single year would be a precision the
+             evidence does not have — so the turn count carries the passing time. */
+          '<div class="sab-era"><span>Turn</span><b id="sab-turnno">1</b></div>' +
           '<div class="sab-res" id="sab-res" aria-live="off"></div>' +
           '<button class="sab-raksha" id="sab-raksha" hidden></button>' +
           '<span class="sab-gap"></span>' +
           '<div class="sab-globals">' +
             '<button class="sab-act txt go" id="sab-adv" hidden></button>' +
             '<button class="sab-act txt" id="sab-tech">Vidya</button>' +
+            /* THE TURN LIVES IN THE BAR, at the end of the line, where the eye
+               ends up. Agla Saal is the biggest button on the screen in Sochna
+               because pressing it IS the game. */
+            '<button class="sab-act sq" id="sab-next" aria-label="The next thing that needs you">\u2b90</button>' +
+            '<button class="sab-act sq" id="sab-undo" aria-label="Take back the last spend" disabled>\u21b6</button>' +
             '<button class="sab-act sq" id="sab-restart" aria-label="Start again">\u21ba</button>' +
             '<button class="sab-act sq" id="sab-pause" aria-pressed="false" aria-label="Pause">⏸</button>' +
+            '<select class="sab-speed" id="sab-speed" aria-label="How fast the world moves">' +
+              SPEEDS.map(function (x) { return '<option value="' + x.id + '">' + x.name + '</option>'; }).join('') +
+            '</select>' +
+            '<button class="sab-act txt go" id="sab-turn"></button>' +
           '</div>' +
         '</div>' +
         '<div class="sab-tray" id="sab-sheet" hidden></div>' +
@@ -2259,7 +2325,26 @@
         } else { rk.hidden = true; rk.removeAttribute('data-sab-act'); }
       }
       D.getElementById('sab-eraname').textContent = e.name;
-      D.getElementById('sab-eradate').textContent = 'Era ' + (G.era + 1) + ' · ' + e.dates;
+      D.getElementById('sab-eradate').textContent = 'Era ' + (G.era + 1) + ' of ' + ERAS.length + ' · ' + e.dates;
+      var tn = D.getElementById('sab-turnno');
+      if (tn) tn.textContent = String(G.t + 1);
+      /* THE TURN BUTTON. In Sochna it is the only thing that moves the world, so it
+         says what is still unanswered; on a live speed there is nothing to press and
+         it steps one turn early for anyone who wants to hurry. */
+      var tb = D.getElementById('sab-turn');
+      if (tb) {
+        var waiting = decisionList().length;
+        tb.innerHTML = '<span class="lbl">Agla Saal ▸' +
+          (waiting ? '<em>' + waiting + ' waiting</em>' : '') + '</span>';
+        tb.disabled = !!(G.won || overlay);
+        tb.title = turnMs() ? 'Take the next turn now' : 'The world waits — press to spend a year';
+      }
+      var sp = D.getElementById('sab-speed');
+      if (sp && sp.value !== G.speed) sp.value = G.speed;
+      var ub = D.getElementById('sab-undo');
+      if (ub) ub.disabled = !canUndo();
+      var nb = D.getElementById('sab-next');
+      if (nb) nb.disabled = !decisionList().length;
       /* the age grades the light on the land — one filter on the whole wash */
       var svgEl = D.querySelector('#sab-stage svg');
       if (svgEl) svgEl.setAttribute('class', 'sab-e' + G.era);
@@ -2381,7 +2466,7 @@
             (bp ? '<circle r="10" cx="17" cy="-27" fill="#fffbee" stroke="#c9a24b" stroke-width="1.5"/>' +
                   '<image href="' + bp.src + '" x="9" y="-35" width="16" height="16"/>' : '');
         }
-        return '<g class="sab-exwalk" style="transition:transform ' + (TICK_MS / 1000) + 's linear;transform:translate(' +
+        return '<g class="sab-exwalk" style="transition:transform ' + ((turnMs() || TICK_MS) / 1000) + 's linear;transform:translate(' +
             ex.x.toFixed(1) + 'px,' + ex.y.toFixed(1) + 'px)">' + body + '</g>';
       }).join('');
     }
@@ -3467,14 +3552,14 @@
           var dx = t2.x - s.x, dy = t2.y - s.y, d2 = dx * dx + dy * dy;
           if (d2 < best) { best = d2; near = t2; }
         });
-        G.res.anna -= T.exploreCost; G.score += 10; touch(sel);
+        pay({ anna: T.exploreCost }); G.score += 10; touch(sel);
         G.explorers.push({ from: sel, target: near.id, x: s.x, y: s.y });
         say('An explorer sets out from ' + s.name + ', lamp in hand, into the mist.', 'warm');
       }
       if (name === 'grow' && !q.zzz && q.lv < T.maxLevel) {
         var cost = T.growCost[q.lv];
         if (G.res.anna < cost) return say('Not enough anna yet — the fields are still filling.', '');
-        G.res.anna -= cost; q.lv++; G.score += 10; touch(sel);
+        pay({ anna: cost }); q.lv++; G.score += 10; touch(sel);
         fxAt(s.x, s.y, 'grow');
         say(s.name + ' grows \u2014 the land it may build on widens, and the '
             + 'shelf has more on it.', 'warm');
@@ -3487,7 +3572,7 @@
       if (name === 'utsav' && G.utsav <= 0) {
         if (G.res.anna < utsavCost().anna || G.res.kala < utsavCost().kala)
           return say('An utsav needs both grain and craft — the whole village brings something.', '');
-        G.res.anna -= utsavCost().anna; G.res.kala -= utsavCost().kala;
+        pay(utsavCost());
         G.res.katha += T.utsavKatha; G.utsav = T.utsavCd; G.score += 15; touch(sel);
         SITES.forEach(function (t) { var w = G.sites[t.id]; if (w.fade >= 0) { w.fade = -1; w.idle = 0; } });
         fxAt(s.x, s.y, 'utsav');
@@ -3498,7 +3583,7 @@
       if (name === 'wake' && q.zzz) {
         if (!connected(sel)) return say(s.name + ' needs a road first — a story has to travel to be heard.', '');
         if (G.res.katha < T.wakeCost) return say('Not enough katha — stories are earned by helping and holding utsavs.', '');
-        G.res.katha -= T.wakeCost; q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
+        pay({ katha: T.wakeCost }); q.zzz = false; q.fade = -1; q.idle = 0; q.neg = 0; G.score += 25;
         fxAt(s.x, s.y, 'utsav');
         say(s.name + ' wakes!', 'warm');
         if (!q.seen) { q.seen = true;
@@ -3526,7 +3611,7 @@
 
     function advance() {
       if (!canAdvance()) return;
-      G.res.katha -= ERAS[G.era].katha;
+      pay({ katha: ERAS[G.era].katha });
       var aha = ERAS[G.era].aha;
       var AHA_ART = ['vidya-iron', 'vidya-script', 'vidya-zero', 'vidya-monsoon',
                      'vidya-paper', 'vidya-charkha', 'vidya-chahbagh', 'vidya-ship',
@@ -3928,11 +4013,19 @@
       var lab = el.querySelector('b');
       if (lab) lab.textContent = Math.round(projPct() * 100) + '%';
     }
-    function tick() {
+    function tick(forced) {
       /* the works advance wherever the player is standing — pause is pause,
          but a city screen no longer freezes the masons and the school */
       if (!(pause || G.won || dead)) progressWorks();
-      if (pause || overlay || city || techOpen || G.won || dead) return;   /* inside a city or the vidya panel, time waits */
+      if (G.won || dead) return;
+      /* A CARD ON SCREEN STOPS THE WORLD, ALWAYS. Everything else is only a
+         default: `forced` is Agla Saal, and a turn asked for from inside a city
+         is the whole point of Sochna — you plan in the city, then spend the turn. */
+      if (overlay) return;
+      if (!forced && (pause || city || techOpen)) return;
+      /* past here the turn is really happening: the undo window closes, and nothing
+         inside the turn may open a new one (see undoPoint) */
+      tickSeq++; inTick = true;
       G.t++;
       if (G.utsav > 0) G.utsav--;
 
@@ -3955,6 +4048,10 @@
           say('The granaries are empty and every town feels it — put more hands to farming.', 'mist');
         }
       }
+
+      /* THE PLANS RUN. A city with a queue spends the realm's coin on its own
+         next thing, in the order the player set, the moment it can afford it. */
+      SITES.forEach(function (s) { if (inEra(s)) planStep(s.id); });
 
       /* EXPLORERS WALK. Each turn they cover a stretch of country, the fog opening
          around their lamp; arriving, the place is FOUND — visible, asleep, ready
@@ -4187,14 +4284,24 @@
          by simply living completes (maybeEnd guards itself against overlays) */
       maybeEnd();
 
+      /* THE WORLD STOPS ITSELF when something has a deadline on it. On a live speed
+         the clock used to answer these three on the player's behalf — the grain went
+         unsent, the quarrel festered, the blow landed — and losing to a timer you did
+         not notice is not a decision anybody made. Sochna has no need of it. */
+      if (G.autoPause && turnMs() && !pause) {
+        var pd = pendingDecision();
+        if (pd) { pause = true; syncPauseBtn(); say('The world waits \u2014 ' + pd + '.', 'warm'); }
+      }
+
       if (G.t % 5 === 0) save(G);
+      inTick = false;
       paintHud(); SITES.forEach(paintSite); paintGuide();
     }
 
     function helpEvent() {
       if (!G.ev) return;
       if (G.res.anna < T.eventAsk) return say('Not enough grain to send — grow the fields.', '');
-      G.res.anna -= T.eventAsk; G.res.katha += T.eventKatha; G.score += 20;
+      pay({ anna: T.eventAsk }); G.res.katha += T.eventKatha; G.score += 20;
       say(byId[G.ev.id].name + ' eats well, and the story of the help travels further than the grain. +' + T.eventKatha + ' 📜', 'warm');
       G.ev = null; paintHud();
     }
@@ -4624,7 +4731,7 @@
         }
         if (a === 'qcarry' && city) {
           if (G.res.kala >= T.eventAsk && connected(city)) {
-            G.res.kala -= T.eventAsk; finishQuest(city, 'The carts roll in.');
+            pay({ kala: T.eventAsk }); finishQuest(city, 'The carts roll in.');
             paintCity(); paintAll();
           }
           return;
@@ -4711,6 +4818,12 @@
     function onKey(e) {
       if (dead) return;
       var eat = function () { e.preventDefault(); e.stopPropagation(); };
+      /* THE TURN HAS A KEY, everywhere, even standing in a city — the house rule is
+         that everything works by finger AND by key, and the turn is now the most
+         used verb in the game. */
+      if ((e.key === ' ' || e.key === 'Spacebar') && !overlay && !quiz) { eat(); stepTurn(); return; }
+      if ((e.key === 'n' || e.key === 'N') && !overlay) { eat(); gotoNextDecision(); return; }
+      if ((e.key === 'z' || e.key === 'Z') && !overlay) { eat(); undoNow(); return; }
       if (city) {
         /* Escape unwinds one thing at a time, innermost first: put the held
            piece back, then close the city. Closing the city while a child is
@@ -4803,13 +4916,147 @@
       var el = D.getElementById('sab-' + kbd); if (el) el.focus();
       SITES.forEach(paintSite);
     }
-    function togglePause() {
-      pause = !pause;
+    function syncPauseBtn() {
       var b = D.getElementById('sab-pause');
+      if (!b) return;
       b.textContent = pause ? '▶' : '⏸';
       b.setAttribute('aria-label', pause ? 'Play' : 'Pause');
       b.setAttribute('aria-pressed', String(pause));
+      b.hidden = !turnMs();          /* in Sochna there is nothing to pause */
+    }
+    function togglePause() {
+      pause = !pause;
+      syncPauseBtn();
       say(pause ? 'The world holds its breath.' : '', '');
+    }
+
+    /* ================================================================
+       THE CLOCK — how long a turn is, and who decides it passes
+       ================================================================ */
+    function turnMs() { return (SPEED_BY[G.speed] || SPEED_BY.standard).ms; }
+    function armClock() {
+      if (timer) { clearInterval(timer); timer = null; }
+      var ms = turnMs();
+      if (ms) timer = setInterval(tick, ms);
+    }
+    function setSpeed(id) {
+      if (!SPEED_BY[id]) return;
+      G.speed = id;
+      if (!turnMs()) pause = false;      /* a stopped world cannot also be paused */
+      armClock(); syncPauseBtn(); paintAll();
+      say(SPEED_BY[id].name + ' — ' + SPEED_BY[id].what + '.', '');
+    }
+    /* AGLA SAAL — next year. One turn, asked for, from wherever you are standing. */
+    function stepTurn() {
+      if (G.won || dead || overlay) return;
+      tick(true);
+      paintAll(); if (city) paintCity();
+    }
+
+    /* WHAT IS WAITING ON A DECISION THAT CAN BE MISSED. Not the whole bell: a
+       monument you could start is not urgent, and stopping the world for it would
+       stop the world for ever. These three have deadlines — the help that expires,
+       the quarrel that festers, the blow that lands — and they are exactly the
+       things the running clock used to decide on the player's behalf. */
+    function pendingDecision() {
+      if (G.ev) return 'a neighbour is asking for grain';
+      if (G.disp) return 'a quarrel wants your panchayat';
+      if (G.warn) return 'something is coming to ' + nameOf(byId[G.warn.id]);
+      return null;
+    }
+
+    /* ================================================================
+       UNDO — one spend, taken back
+       ================================================================
+       Civ does not have this and should not: an adult who mis-clicks has chosen
+       badly and that is the game. A nine-year-old who mis-taps has been robbed of
+       sixty anna by a finger, and the session ends there. So every purchase — and
+       only a purchase, which is why the hook is inside pay() where all six of them
+       meet — leaves a snapshot behind, good until the turn turns. In Sochna that is
+       exactly as long as the decision itself. */
+    /* AND IT MUST NOT REWIND THE WORLD. The first cut snapshotted inside pay() and
+       allowed the undo for the rest of the turn, which meant a purchase made early in
+       a turn could be taken back AFTER the raid that landed later in it — undoing the
+       mist, which is precisely what this must never do. Two rules close it:
+
+         · a snapshot is only taken OUTSIDE a turn, so the queue's own spending (which
+           the player already authorised when they set the plan) leaves none, and
+         · the snapshot dies the moment a turn passes, counted by a sequence number
+           rather than G.t, so nothing that happened in a turn can ever be inside the
+           window that undoes it.
+
+       What is left is exactly the misclick: the spend you have not yet lived with. */
+    var undoSnap = null, tickSeq = 0, inTick = false;
+    function undoPoint() {
+      if (inTick) return;
+      try { undoSnap = { seq: tickSeq, g: JSON.parse(JSON.stringify(G)) }; } catch (e) { undoSnap = null; }
+    }
+    function canUndo() { return !!(undoSnap && undoSnap.seq === tickSeq && !G.won); }
+    function undoNow() {
+      if (!canUndo()) return;
+      G = undoSnap.g; undoSnap = null;
+      sel = null; targeting = false; hold = null;
+      armClock(); paintAll(); if (city) paintCity();
+      say('Taken back.', 'warm');
+    }
+
+    /* THE NEXT THING THAT WANTS YOU. Civ's blinking End Turn, which is really a
+       promise: you will never have to hunt the map for what you forgot. */
+    function decisionList() {
+      var out = [];
+      if (G.warn && byId[G.warn.id]) out.push({ id: G.warn.id, why: 'a warning' });
+      if (G.disp) out.push({ id: G.disp.a, why: 'a quarrel' });
+      SITES.forEach(function (s) {
+        if (!onMap(s) || !awake(s.id)) return;
+        var w = cityJobsWaiting(s.id);
+        if (w.length) out.push({ id: s.id, why: w[0].name.toLowerCase() });
+      });
+      return out.filter(function (x, i, a) {
+        return byId[x.id] && a.findIndex(function (y) { return y.id === x.id; }) === i;
+      });
+    }
+    function gotoNextDecision() {
+      var L = decisionList();
+      if (!L.length) { say('Nothing is waiting — the realm is yours to shape.', 'warm'); return; }
+      var next = L.find(function (x) { return x.id !== sel; }) || L[0];
+      sel = next.id; targeting = false;
+      zoomTo(byId[next.id]); paintAll();
+      say(nameOf(byId[next.id]) + ' — ' + next.why + '.', '');
+    }
+
+    /* THE CITY'S PLAN — Civ's production queue, which is the difference between
+       deciding once and deciding forty times. Buildings and the monument queue
+       here because neither needs a cell chosen; what goes on the board is placed
+       by hand, because placing it IS the decision (see the adjacency rules). */
+    function planStep(id) {
+      var q = G.sites[id];
+      if (!q || q.zzz || q.her || !q.plan || !q.plan.length) return;
+      var head = q.plan[0];
+      if (head.kind === 'building') {
+        var bd = BLD[head.id];
+        if (!bd || q.bld[head.id] || bd.era > G.era) { q.plan.shift(); return planStep(id); }
+        var c = costOf(bd.cost, 'building');
+        if (!canPay(c)) return;
+        pay(c); q.bld[head.id] = true; touch(id); G.score += 15; q.plan.shift();
+        say(bd.name + ' raised in ' + nameOf(byId[id]) + ' — it was next in the plan.', 'warm');
+      } else if (head.kind === 'monument') {
+        /* a monument is the city's own work (monB), not the realm's research slot */
+        if (q.mon || q.monB) { q.plan.shift(); return; }
+        if (q.lv < 3) return;                       /* wait for the town to grow */
+        var mc = costOf(T.monCost[byId[id].era], 'monument');
+        if (!canPay(mc)) return;
+        pay(mc); q.monB = { at: G.rt, dur: monDur(id) };
+        touch(id); q.plan.shift();
+        say('The foundation is laid at ' + nameOf(byId[id]) + ' \u2014 it was next in the plan.', 'warm');
+      }
+    }
+    function planAdd(id, kind, what) {
+      var q = G.sites[id]; if (!q) return;
+      if (!q.plan) q.plan = [];
+      if (q.plan.length >= 4) { say('Four things is a plan; five is a wish.', ''); return; }
+      if (q.plan.some(function (x) { return x.kind === kind && x.id === what; })) return;
+      q.plan.push({ kind: kind, id: what });
+      say('Added to the plan at ' + nameOf(byId[id]) + '.', '');
     }
 
     /* ================================================================
@@ -4857,6 +5104,10 @@
     function bindHud() {
       D.getElementById('sab-adv').addEventListener('click', advance);
       D.getElementById('sab-pause').addEventListener('click', togglePause);
+      D.getElementById('sab-turn').addEventListener('click', stepTurn);
+      D.getElementById('sab-next').addEventListener('click', gotoNextDecision);
+      D.getElementById('sab-undo').addEventListener('click', undoNow);
+      D.getElementById('sab-speed').addEventListener('change', function (e2) { setSpeed(e2.target.value); });
       D.getElementById('sab-tech').addEventListener('click', function () {
         techOpen = !techOpen; if (techOpen) { city = null; quiz = null; } paintTech(); });
       D.getElementById('sab-restart').addEventListener('click', function () {
@@ -4919,12 +5170,19 @@
     /* a debug window, not an API — the same idiom the carrom board uses, so a
        headless check can read the real clock instead of guessing at pixels */
     W.__SABG = function () { return G; };
+    /* a check has to be able to PLAY, not just look: one turn, one speed, one undo */
+    W.__SABDO = { turn: stepTurn, speed: setSpeed, undo: undoNow,
+                  next: gotoNextDecision, plan: planAdd, paint: paintAll,
+                  act: function (id, name) { sel = id; act(name); } };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,
-               era: G.era, proj: G.proj };
+               era: G.era, proj: G.proj,
+               speed: G.speed, turnMs: turnMs(), canUndo: canUndo(),
+               waiting: decisionList().length };
     };
-    timer = setInterval(tick, TICK_MS);
+    armClock();
+    syncPauseBtn();
     if (!REDUCED) lifeRAF = requestAnimationFrame(lifeStep);
 
     return function teardown() {

@@ -162,7 +162,10 @@
     '.sab-era b{display:block;font:800 14.5px/1.1 var(--display,Georgia,serif);white-space:nowrap}',
     '.sab-era span{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}',
     '.sab-res{display:flex;gap:5px;flex-wrap:nowrap;min-width:0;overflow:hidden}',
-    '.sab-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07),0 3px 10px rgba(30,20,64,.06);font-weight:800;font-size:12.5px;white-space:nowrap}',
+    /* NUMBERS ARE REFERENCE, NOT ACTION. Four chips with the same lift and shadow as
+       the buttons made the bar read as eight things to press, of which six do nothing
+       when pressed. They sit flat now and the eye goes past them to the verb. */
+    '.sab-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border:0;border-radius:999px;background:var(--card2,var(--card));box-shadow:none;font-weight:800;font-size:12.5px;white-space:nowrap;color:var(--text2,var(--text))}',
     '.sab-chip small{font-weight:600;color:var(--muted)}',
     '.sab-restless{background:#fdf0e6;cursor:pointer}',
     /* A CHIP THAT CAN BE TAPPED IS A BUTTON and takes a button's target, however
@@ -222,8 +225,29 @@
     '.sab-railgo,.sab-railx{backdrop-filter:saturate(1.2)}',
     '.sab-railrow{display:flex;gap:4px;align-items:stretch}',
     '.sab-railgo{flex:1;text-align:left;border:0;border-radius:10px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08);padding:8px 11px;min-height:40px;font:700 12px/1.3 var(--body,system-ui,sans-serif);color:var(--text);cursor:pointer}',
-    '.sab-railrow.p0 .sab-railgo{background:#fbeceb;color:#8a3a2e}',
-    '.sab-railrow.p1 .sab-railgo{background:#fdf3e3}',
+    /* ==================================================================
+       COLOUR MEANS ONE THING AT A TIME
+       ==================================================================
+       Two problems, and the second is the editorial one.
+
+       In this app's warm theme --accent is #c63c28, a red, and it is what every GO
+       button wears: Agla Saal, Grow, the primary of every card. I then made the rail's
+       top row red too. So on one screen red meant both "press this" and "worry about
+       this", and a child has no way to tell those apart by colour -- which is the only
+       thing colour is for.
+
+       And an alarm-red warning is the wrong register for this game entirely. docs/16
+       §3: no combat, no lives, no shaming; a fading site is SAD, NOT SCARY, and
+       Vismriti follows docs/04 -- soft-edged, slow, never a face. A boar in the wheat
+       is not an emergency. The mist is grey, so urgency here is the mist's own grey
+       with weight behind it: a solid edge, a darker ground, heavier type. It reads as
+       "this wants you" without once reading as "something terrible is happening".
+
+       Red is left to mean exactly one thing: this is the thing to press. */
+    '.sab-railrow .sab-railgo{border-left:4px solid transparent}',
+    '.sab-railrow.p0 .sab-railgo{background:#eceaf0;color:var(--text);border-left-color:#6f6880;font-weight:800}',
+    '.sab-railrow.p1 .sab-railgo{background:#f6f1e8;border-left-color:var(--accent2)}',
+    '.sab-railrow.p2 .sab-railgo{border-left-color:rgba(120,110,140,.45)}',
     '.sab-railx{border:0;border-radius:10px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08);width:40px;min-height:40px;font-size:15px;font-weight:800;color:var(--muted);cursor:pointer}',
     /* the road somebody overseas is waiting on */
     '.sab-route.asked{stroke:#d9a23d;stroke-width:4.5}',

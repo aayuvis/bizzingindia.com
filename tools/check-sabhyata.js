@@ -1121,6 +1121,34 @@ check('labels', 'a city name is the same size however far you lean in', async ({
     throw new Error('names sitting on each other: ' + overlaps.bad.slice(0, 4).join(', '));
 });
 
+check('colour-roles', 'the colour that means "press this" is not the colour that means "worry"', async ({ p }) => {
+  /* --accent in this theme is a red, and it is what every GO button wears. A rail row
+     painted the same red makes one colour mean two opposite things on one screen. And
+     an alarm-red warning is the wrong register anyway: docs/16 §3 says a fading site
+     is sad, not scary. */
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.warn = { id: 'dholavira', raid: 'boar', at: G.t + 5 };
+    window.__SABDO.paint();
+    const rgb = el => getComputedStyle(el).backgroundColor
+      .match(/[\d.]+/g).slice(0, 3).map(Number);
+    const go = document.querySelector('#sab-turn') ||
+               document.querySelector('.sab-act.go,.sab-btn.go');
+    const row = document.querySelector('#sab-rail .sab-railrow.p0 .sab-railgo');
+    if (!go || !row) return { missing: !go ? 'no primary action' : 'no warning row' };
+    const a = rgb(go), b = rgb(row);
+    const dist = Math.sqrt(a.reduce((t, v, i) => t + (v - b[i]) ** 2, 0));
+    /* and the warning must not itself be a red: red is spoken for */
+    const redness = b[0] - (b[1] + b[2]) / 2;
+    return { dist, redness, a, b };
+  });
+  if (r.missing) throw new Error(r.missing);
+  if (!(r.dist > 90))
+    throw new Error(`the action and the warning are ${Math.round(r.dist)} apart in colour — too close to tell apart`);
+  if (r.redness > 22)
+    throw new Error(`the warning row is itself a red (r ${r.b[0]} vs g/b ${r.b[1]}/${r.b[2]}) — this game does not do alarms`);
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

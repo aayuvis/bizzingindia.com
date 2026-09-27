@@ -550,10 +550,17 @@
          circular: the pair collapsed to 609px and the map got SMALLER than it had been
          stacked. The column is the dial now and the stage simply fills it. */
       '.sab-wrap{display:grid;' +
-        'grid-template-columns:min(62vw,calc(88vh*10/11)) minmax(260px,1fr);' +
+        'grid-template-columns:min(64vw,calc(96vh*10/11)) minmax(240px,1fr);' +
         'column-gap:12px;align-content:start}' +
       '.sab-wrap>.sab-stage{grid-column:1;grid-row:1/span 8;align-self:start;width:100%}' +
       '.sab-wrap>.sab-bar,.sab-wrap>.sab-strip,.sab-wrap>.sab-advise{grid-column:2;align-self:start}' +
+      /* AND THE HUD STAYS ON SCREEN. The board is deliberately taller than the space
+         under the site's own sticky topbar (130px of it), because coverage is what a
+         map is for -- so scrolling to the south of India used to carry Agla Saal, the
+         resources and the turn count off the top with it. The one button that moves
+         the world must never be the thing that scrolls away. Pinned below the topbar,
+         under its z-index so it slides beneath rather than over it. */
+      '.sab-wrap>.sab-bar{position:sticky;top:138px;z-index:5}' +
       '.sab-wrap>.sab-tray,.sab-wrap>#sab-cityhost{grid-column:1/-1}' +
       /* a column, not a strip: it may wrap now, and the turn button is the widest thing */
       '.sab-bar{flex-wrap:wrap;row-gap:8px}' +

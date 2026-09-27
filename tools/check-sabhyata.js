@@ -1149,6 +1149,39 @@ check('colour-roles', 'the colour that means "press this" is not the colour that
     throw new Error(`the warning row is itself a red (r ${r.b[0]} vs g/b ${r.b[1]}/${r.b[2]}) — this game does not do alarms`);
 });
 
+check('panel-head', 'a long panel keeps its name and its way out', async ({ p }) => {
+  /* Scrolled a screen into Vidya, the title and the Back button had both gone off the
+     top of the window -- a child in a long list with no name on it and no door. */
+  await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 6; G.res = { anna: 400, kala: 400, katha: 400 };
+    window.__SABDO.paint();
+    document.getElementById('sab-tech').click();
+  });
+  await p.waitForTimeout(700);
+  const r = await p.evaluate(() => {
+    const panel = document.querySelector('.sab-city');
+    if (!panel) return { none: true };
+    const head = panel.querySelector('.chead');
+    const before = head.getBoundingClientRect().top;
+    panel.scrollTop = panel.scrollHeight;          /* all the way down */
+    return new Promise(res => requestAnimationFrame(() => {
+      const after = head.getBoundingClientRect();
+      res({ scrolls: panel.scrollHeight > panel.clientHeight + 10,
+            before, top: after.top, h: after.height,
+            exit: !!panel.querySelector('[data-sab-act="techclose"]'),
+            panelTop: panel.getBoundingClientRect().top });
+    }));
+  });
+  if (r.none) throw new Error('the Vidya panel did not open');
+  if (!r.scrolls) throw new Error('the panel is not scrollable, so this proves nothing');
+  if (!r.exit) throw new Error('the panel has no way out in it');
+  if (!(r.h > 0)) throw new Error('the head is not rendered');
+  /* scrolled to the bottom, the head must still be at the panel's top edge */
+  if (Math.abs(r.top - r.panelTop) > 40)
+    throw new Error(`scrolled down, the head sits ${Math.round(r.top - r.panelTop)}px from the panel top — it scrolled away`);
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

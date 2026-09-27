@@ -353,6 +353,20 @@
     '.sab-pvno{color:#8a3a2e;font-weight:700}',
     /* the trees: a locked row is shown and greyed, never hidden */
     '.sab-work.sab-shut{opacity:.55}',
+    /* THE AGE IS THE RUNG. Without it the two trees are one column of twenty-three
+       rows and the ladder a child is climbing is invisible. */
+    '.sab-rung{margin:12px 0 4px;font:800 11px/1 var(--body,system-ui,sans-serif);letter-spacing:.09em;' +
+      'text-transform:uppercase;color:var(--muted)}',
+    '.sab-rung.next{opacity:.55}',
+    '.sab-works>.sab-rung:first-child{margin-top:2px}',
+    /* AND A THING THAT WAITS ON ANOTHER HANGS OFF IT. A dependency written as a
+       sentence ("after Iron Tools") is a fact a child has to hold in their head while
+       looking somewhere else; indented, with a rule running back up to what it waits
+       on, it is a shape they can see. */
+    '.sab-work.sab-branch{margin-left:18px;position:relative}',
+    '.sab-work.sab-branch::before{content:"";position:absolute;left:-12px;top:-7px;bottom:50%;' +
+      'width:10px;border-left:2px solid var(--line);border-bottom:2px solid var(--line);' +
+      'border-bottom-left-radius:8px}',
     '.sab-need{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-top:2px}',
     '.sab-eu{display:block;font-size:11px;font-weight:800;color:var(--accent2);margin-top:2px}',
     '.sab-slots{display:flex;flex-direction:column;gap:8px;margin-top:4px}',
@@ -415,8 +429,20 @@
     '.sab-cb text{font:800 12px var(--body,system-ui);fill:#fff;stroke:none;text-anchor:middle}',
 
     /* THE CITY, FROM INSIDE — a full-stage panel, not a small modal */
-    '.sab-city{background:var(--card);border:0;border-radius:20px;padding:12px 12px 16px;box-shadow:0 2px 6px rgba(30,20,64,.05),0 14px 40px rgba(30,20,64,.08)}',
-    '.sab-city .chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}',
+    /* THE PANEL SCROLLS, NOT THE PAGE.
+       `position:sticky` on the head did nothing, and it could not: sticky pins to the
+       nearest scrolling ancestor, and the scrolling ancestor here was the document —
+       so a screen into Vidya the whole panel, title and exit included, had simply gone
+       up past the top of the window. A child was in a long list with no name on it and
+       no door, which is the thing sticky was supposed to prevent.
+
+       Bounding the panel makes it its own scroller: the head stays because there is now
+       something for it to stay inside, and the page behind stops sliding the game away. */
+    '.sab-city{background:var(--card);border:0;border-radius:20px;padding:12px 12px 16px;box-shadow:0 2px 6px rgba(30,20,64,.05),0 14px 40px rgba(30,20,64,.08);max-height:min(82vh,900px);overflow:auto;overscroll-behavior:contain}',
+    /* THE HEAD STAYS. A screen into Vidya, the title and the way out had both gone off
+       the top: a child was in a long list with no name on it and no door. */
+    '.sab-city .chead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:5;' +
+      'background:var(--card);padding:6px 0 8px;box-shadow:0 8px 12px -8px rgba(30,20,64,.18)}',
     '.sab-city h3{margin:0;font:800 20px/1.1 var(--display,Georgia,serif)}',
     '.sab-city .mono{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}',
     '.sab-works{display:flex;flex-direction:column;gap:5px;margin:8px 0}',
@@ -4633,16 +4659,26 @@
          with extra steps; seeing what the plough leads to is most of why a child
          wants the plough. So everything in this age and the next is on screen, and
          what is locked says what would open it. */
-      var rows = TECHS.map(function (t) {
+      var rows = TECHS.slice().sort(function (a, b) { return a.era - b.era; }).map(function (t, i2, arr) {
         if (t.era > G.era + 1) return '';
+        /* THE AGE IS THE RUNG, so the ladder has to be visible as one. A flat column of
+           twenty-three rows with "after Iron Tools" written on some of them is an
+           annotated list; item 23 asked for a tree, and this is where it was owed. */
+        var head = (i2 === 0 || arr[i2 - 1].era !== t.era)
+          ? '<div class="sab-rung' + (t.era > G.era ? ' next' : '') + '">' +
+            esc(ERAS[t.era] ? ERAS[t.era].name : 'Age ' + (t.era + 1)) +
+            (t.era > G.era ? ' \u00b7 not yet' : '') + '</div>'
+          : '';
         var have = !!G.tech[t.id], c = techCost(t);
         var soon = t.era > G.era;
         var shut = !soon && !techOpenFor(t);
         var va = artOf('vidya-' + t.id);
         var busy = G.proj && G.proj.id === t.id;
         var eu = eurekaPct(t);
-        return '<div class="sab-work' + (have ? ' built' : busy ? ' now atwork' : ' now') +
-          (soon || shut ? ' sab-shut' : '') + '">' +
+        /* a thing that waits on another sits under it and hangs off it: the
+           relationship is the point, and a sentence is the weakest way to draw one */
+        return head + '<div class="sab-work' + (have ? ' built' : busy ? ' now atwork' : ' now') +
+          (soon || shut ? ' sab-shut' : '') + ((t.needs || []).length ? ' sab-branch' : '') + '">' +
           (va ? '<img class="sab-vthumb" src="' + va + '" alt=""' + (have ? '' : ' style="filter:grayscale(.8)"') + '>' : '<i>' + (have ? '✓' : '?') + '</i>') +
           '<span><b>' + esc(t.name) + '</b> · <span class="tiny" style="color:var(--muted)">' + esc(t.what) + '</span>' +
           (soon ? '<span class="sab-need">next age</span>'
@@ -4660,13 +4696,19 @@
       }).join('');
 
       /* ---- RITI: the second tree ---- */
-      var ritiRows = RITI.map(function (r) {
+      var ritiRows = RITI.slice().sort(function (a, b) { return a.era - b.era; }).map(function (r, i3, arr3) {
         if (r.era > G.era + 1) return '';
+        var rhead = (i3 === 0 || arr3[i3 - 1].era !== r.era)
+          ? '<div class="sab-rung' + (r.era > G.era ? ' next' : '') + '">' +
+            esc(ERAS[r.era] ? ERAS[r.era].name : 'Age ' + (r.era + 1)) +
+            (r.era > G.era ? ' \u00b7 not yet' : '') + '</div>'
+          : '';
         var have = !!(G.riti || {})[r.id], soon = r.era > G.era;
         var shut = !soon && !ritiOpenFor(r);
         var c = costOf(r.cost, 'riti');
         var card = POL_BY[r.gives] || {};
-        return '<div class="sab-work' + (have ? ' built' : ' now') + (soon || shut ? ' sab-shut' : '') + '">' +
+        return rhead + '<div class="sab-work' + (have ? ' built' : ' now') + (soon || shut ? ' sab-shut' : '') +
+          ((r.needs || []).length ? ' sab-branch' : '') + '">' +
           '<i>' + (have ? '✓' : '○') + '</i>' +
           '<span><b>' + esc(r.name) + '</b> · <span class="tiny" style="color:var(--muted)">' +
           esc(r.what) + '</span>' +

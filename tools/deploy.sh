@@ -53,6 +53,18 @@ fi
 # the tree, commit it onto gh-pages, push. No files are copied, no worktree is checked
 # out, nothing can half-happen, and it takes the same time whether the corpus is 1MB or
 # 1GB because every blob is already in the object store.
+# FETCH FIRST, ALWAYS. The parent commit is read from origin/gh-pages, and a stale ref
+# makes this script build its commit on a parent that is no longer the tip -- the push is
+# then rejected as a non-fast-forward and the deploy simply fails. That happens whenever
+# anything else has published since this checkout last fetched, which on a shared branch
+# is most of the time.
+for i in 1 2 3 4; do
+  git fetch origin gh-pages 2>/dev/null && break
+  sleep $((2 ** i))
+done
+
+PARENT=$(git rev-parse origin/gh-pages 2>/dev/null || git rev-parse gh-pages 2>/dev/null || true)
+
 TREE_SRC=$(git rev-parse HEAD:app)
 SCRATCH_INDEX=$(mktemp -u)
 # The trap must not read GIT_INDEX_FILE: the script unsets it below, and `set -u` then
@@ -64,6 +76,40 @@ EMPTY=$(printf '' | git hash-object -w --stdin)
 git update-index --add --cacheinfo 100644,"$EMPTY",.nojekyll
 if README_BLOB=$(git rev-parse HEAD:README.md 2>/dev/null); then
   git update-index --add --cacheinfo 100644,"$README_BLOB",README.md
+fi
+
+# THIS BRANCH IS NOT OURS ALONE. Bizzing Schedule publishes to schedule/ on this same
+# gh-pages branch, and this script builds the published tree from HEAD:app plus a couple
+# of named files -- so every deploy from here deleted it, and its next deploy deleted
+# whatever of ours was not under its own prefix. The two scripts had been wiping each
+# other's live site in turn, and neither said a word, because from inside either one the
+# deploy landed perfectly and reported a sha.
+#
+# So: anything already on gh-pages whose name does not exist in app/ is somebody else's,
+# and it is carried forward untouched. The rule is a subtraction rather than a list of
+# names, so a fourth project added next year is protected without anyone remembering to
+# come back here. The cost is that a top-level entry genuinely deleted from app/ would
+# survive; that is the right way round, since the failure this prevents is a live site
+# going dark and the failure it risks is a stale file.
+if [ -n "$PARENT" ]; then
+  APP_NAMES=$(git ls-tree --name-only "$TREE_SRC")
+  KEPT=""
+  while read -r mode type sha name; do
+    [ -z "$name" ] && continue
+    case "$name" in .nojekyll|README.md|CNAME) continue ;; esac
+    if printf '%s\n' "$APP_NAMES" | grep -qxF "$name"; then continue; fi
+    if [ "$type" = tree ]; then
+      git read-tree --prefix="$name/" "$PARENT:$name"
+    else
+      git update-index --add --cacheinfo "$mode","$sha","$name"
+    fi
+    KEPT="$KEPT $name"
+  done <<EOF
+$(git ls-tree "$PARENT")
+EOF
+  if [ -n "$KEPT" ]; then
+    echo "neighbours: carrying forward$KEPT (not ours -- published by something else)"
+  fi
 fi
 
 # CARRY THE CUSTOM DOMAIN FORWARD, if there is one.
@@ -95,7 +141,6 @@ unset GIT_INDEX_FILE
 # while it is in development, and writing a CNAME here would point Pages at a domain
 # that is not in use yet — which takes the site OFF the address that does work.
 
-PARENT=$(git rev-parse origin/gh-pages 2>/dev/null || git rev-parse gh-pages 2>/dev/null || true)
 if [ -n "$PARENT" ] && [ "$(git rev-parse "$PARENT^{tree}")" = "$TREE" ]; then
   echo "gh-pages already matches app/ at HEAD — nothing to deploy"
 else

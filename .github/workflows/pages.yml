@@ -170,7 +170,35 @@ jobs:
           # keeps this job free of the 760MB clone.
           want=$(gh api "repos/$repo/contents/app/build.js?ref=$GITHUB_SHA" \
                    --jq '.content' | base64 -d | grep -oE "[0-9]{12}" | head -1)
-          echo "expecting build $want"
+          want_orig="$want"
+          echo "this commit's build = ${want:-none}"
+
+          # IS THIS COMMIT ACTUALLY DEPLOYED? A push to the development branch does not
+          # publish anything -- tools/deploy.sh does, separately and on purpose. This job
+          # used to demand that the live site serve whatever commit had just been pushed,
+          # so every ordinary commit went red and stayed red, and runs 22 to 25 of this
+          # workflow failed for no reason but that. A signal that is red in the normal
+          # case cannot report a real failure: the next genuine outage would look exactly
+          # like the last four green-in-spirit runs.
+          #
+          # gh-pages carries build.js at its root, so the branch can simply be asked what
+          # it holds. If that is this commit's stamp, the deploy has happened and the live
+          # site owes us that build -- anything else is a real fault and fails the run. If
+          # it is not, the commit was never deployed, and the only honest thing to check is
+          # that the site is still up.
+          have=$(gh api "repos/$repo/contents/build.js?ref=gh-pages" \
+                   --jq '.content' 2>/dev/null | base64 -d 2>/dev/null \
+                   | grep -oE "[0-9]{12}" | head -1)
+          echo "gh-pages holds build = ${have:-none}"
+          if [ -n "$want" ] && [ "$have" = "$want" ]; then
+            deployed=yes
+            echo "this commit IS deployed -- the live site must serve $want"
+          else
+            deployed=no
+            want=""
+            echo "this commit is NOT deployed (run tools/deploy.sh to publish it)."
+            echo "checking only that the site is up and serving the app."
+          fi
 
           # DNS and the CDN lag the build. Keep asking.
           for i in $(seq 1 20); do
@@ -188,11 +216,21 @@ jobs:
                 sleep 15
                 continue
               fi
-              echo "OK: $url is serving build ${live:-unknown} — the commit under test."
+              if [ "$deployed" = yes ]; then
+                echo "OK: $url is serving build ${live:-unknown} — the commit under test."
+              else
+                echo "OK: $url is up, serving build ${live:-unknown}."
+                echo "NOTE: that is not this commit (${want_orig:-unknown}) — it has not been deployed."
+              fi
               exit 0
             fi
             sleep 15
           done
-          echo "::error::$url did not serve the expected build."
+          if [ "$deployed" = yes ]; then
+            echo "::error::$url did not serve build $want, which gh-pages already carries."
+            tail -30 body.html || true
+            exit 1
+          fi
+          echo "::error::$url did not load at all."
           tail -30 body.html || true
           exit 1

@@ -236,6 +236,14 @@
     '.sab-act.sq{width:44px;justify-content:center;padding:4px;font-size:16px}',   /* icon verbs: pause, restart, close */
     '.sab-act.sq[disabled]{opacity:.35}',
     '.sab-speed{border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07);font:800 12px/1 var(--body,system-ui,sans-serif);color:var(--text);padding:7px 8px;min-height:44px}',
+    /* THE PLOT PREVIEW sits with the held piece, above the shelf, because that is
+       where the eye already is while a child is deciding where to put it. */
+    '.sab-plotpv{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0 0;padding:7px 10px;border-radius:12px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.08);font-size:12px}',
+    '.sab-plotpv.no{background:#fbeceb}',
+    '.sab-plotpv b{font-size:13.5px;font-weight:900}',
+    '.sab-plotpv i{font-style:normal;color:var(--muted);font-weight:700;margin-left:4px}',
+    '.sab-pvwhy{flex:1 1 100%;color:var(--muted);line-height:1.35}',
+    '.sab-pvno{color:#8a3a2e;font-weight:700}',
     /* AGLA SAAL IS THE BIGGEST THING ON THE BAR, because in Sochna pressing it is
        the game. It carries a count of what is still waiting, so a child learns to
        clear the board before spending the year. */
@@ -1140,6 +1148,152 @@
     }
 
     /* what the built city adds, every turn, forever */
+    /* ==================================================================
+       ADJACENCY — what a thing is worth depends on what stands next to it
+       ==================================================================
+       The board looked like a city-builder and behaved like a form: kitYield()
+       summed every piece's `give` and never read its coordinates, so a workshop
+       paid the same in the middle of the bazaar as alone in the sand. Every rule
+       lives in data-kit-build.js `adjacency` next to the claim it makes about how
+       a city worked; this is only the arithmetic.
+
+       ONE FUNCTION ANSWERS BOTH QUESTIONS, and it has to. "What does this city
+       earn?" and "what would this piece earn if I put it here?" must never be able
+       to disagree, or the preview becomes a lie that teaches the wrong rule. So
+       adjacency takes an optional extra piece and is called speculatively by the
+       plot preview with exactly the code the yield uses. */
+    var ADJ = BUILD.adjacency || [];
+
+    /* ==================================================================
+       THE RIVERS DO SOMETHING NOW
+       ==================================================================
+       data-sabhyata.js drew every great river of India from its real course and then
+       said, in its own comment, "Terrain only — nothing interactive, nothing
+       gamified." That was the boundary rule being applied one step too far. What
+       CLAUDE.md forbids is a BORDER that draws, pulses, moves or gets conquered; a
+       river that waters the town beside it is not a border, it is the reason the town
+       is there. Every janapada on the map is on a river because that is where you
+       could grow enough to have a city at all, and a game about Indian civilization
+       in which the Ganga is wallpaper has thrown away its best teacher.
+
+       So: a site within RIVER_NEAR map-units of a real course is riverine. It earns
+       one more anna, and a drought cannot close its throat (see akal). Nothing is
+       coloured, nothing is claimed, and the geometry is the same neutral wash it
+       always was. */
+    var RIVER_NEAR = 26;          /* map units — the map is ~1000 across */
+    var riverCache = {};
+    /* distance from a point to a segment, which is the only honest way to ask
+       "is this town ON the river" of a polyline traced from a real course */
+    function segDist(px, py, ax, ay, bx, by) {
+      var dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy;
+      var t = L ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / L)) : 0;
+      var cx = ax + t * dx, cy = ay + t * dy;
+      return Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
+    }
+    function onRiver(id) {
+      if (riverCache[id] != null) return riverCache[id];
+      var s2 = byId[id];
+      if (!s2) return (riverCache[id] = null);
+      var best = Infinity, which = null;
+      (DATA.rivers || []).forEach(function (r) {
+        for (var i = 0; i < r.p.length - 1; i++) {
+          var d = segDist(s2.x, s2.y, r.p[i][0], r.p[i][1], r.p[i + 1][0], r.p[i + 1][1]);
+          if (d < best) { best = d; which = r.n; }
+        }
+      });
+      return (riverCache[id] = (best <= RIVER_NEAR ? which : null));
+    }
+    /* what the river is worth to this city, in anna. Zero is an answer. */
+    function riverAnna(id) { return onRiver(id) ? 1 : 0; }
+
+    /* every cell a piece covers. Footprints come from the part's own dims, read the
+       same way canPlace() reads them, so a thing can never occupy cells for placement
+       and different cells for payment. */
+    function footprint(b) {
+      var K2 = W.IND_KIT, def = K2 && K2.def(b.p), out = [];
+      var L = (def && def.d[0]) || 1, B = (def && def.d[1]) || 1, a, c;
+      for (a = 0; a < L; a++) for (c = 0; c < B; c++) out.push([b.x + a, b.y + c]);
+      return out;
+    }
+    function groupOf(b) { var it = BY_PART[b.p]; return it ? it.g : null; }
+
+    /* WHAT STANDS NEXT TO WHAT. Built once per question rather than per piece: a
+       city with forty pieces was forty scans of forty pieces, every turn, for every
+       city. */
+    function adjMap(pieces) {
+      var at = {};
+      pieces.forEach(function (b) {
+        var g = groupOf(b); if (!g) return;
+        footprint(b).forEach(function (c) {
+          var k = c[0] + ',' + c[1];
+          (at[k] || (at[k] = [])).push({ g: g, b: b });
+        });
+      });
+      return at;
+    }
+    var NB = [[1, 0], [-1, 0], [0, 1], [0, -1]];   /* orthogonal; a channel does not run diagonally */
+
+    /* what one piece earns from where it stands. `at` is the occupancy map of every
+       OTHER piece, so a piece never counts itself as its own neighbour. */
+    function adjFor(id, b, at) {
+      var out = { anna: 0, kala: 0, katha: 0, watch: 0 }, why = [];
+      var g = groupOf(b); if (!g) return { pay: out, why: why };
+      var K2 = W.IND_KIT, mine = {};
+      footprint(b).forEach(function (c) { mine[c[0] + ',' + c[1]] = 1; });
+      ADJ.forEach(function (r) {
+        if (r.g !== g) return;
+        var hits = 0, seen = {};
+        footprint(b).forEach(function (c) {
+          if (r.ter) {
+            /* terrain is asked of the cell the piece STANDS on, not its neighbours */
+            if (K2 && K2.terrain(id, c[0], c[1]) === r.ter) hits++;
+            return;
+          }
+          NB.forEach(function (d) {
+            var nx = c[0] + d[0], ny = c[1] + d[1], k = nx + ',' + ny;
+            if (mine[k]) return;                   /* its own other half is not a neighbour */
+            (at[k] || []).forEach(function (o) {
+              if (o.g !== r.of) return;
+              var oid = o.b.p + '@' + o.b.x + ',' + o.b.y;
+              if (seen[oid]) return;               /* a 2x2 neighbour is ONE neighbour */
+              seen[oid] = 1; hits++;
+            });
+          });
+        });
+        if (!hits) return;
+        var n = Math.min(hits, r.cap || 1);
+        Object.keys(r.pay).forEach(function (k) { out[k] += r.pay[k] * n; });
+        why.push({ n: n, why: r.why, pay: r.pay });
+      });
+      return { pay: out, why: why };
+    }
+
+    /* the city's whole adjacency purse, and optionally what one more piece would add */
+    function adjTotal(id, extra) {
+      var q = kitOf(id), pieces = q.kit.slice();
+      if (extra) pieces.push(extra);
+      var at = adjMap(pieces);
+      var out = { anna: 0, kala: 0, katha: 0, watch: 0 };
+      pieces.forEach(function (b) {
+        var r = adjFor(id, b, at);
+        ['anna', 'kala', 'katha', 'watch'].forEach(function (k) { out[k] += r.pay[k]; });
+      });
+      return out;
+    }
+    /* WHAT THIS PLOT WOULD BE WORTH — the preview, answered by the same arithmetic
+       that pays out, including what the new piece does for its neighbours and not
+       only what they do for it. */
+    function adjPreview(id, part, cx, cy) {
+      var it = BY_PART[part]; if (!it) return null;
+      var before = adjTotal(id);
+      var cand = { p: part, x: cx, y: cy };
+      var after = adjTotal(id, cand);
+      var own = adjFor(id, cand, adjMap(kitOf(id).kit));
+      var d = {};
+      ['anna', 'kala', 'katha', 'watch'].forEach(function (k) { d[k] = after[k] - before[k]; });
+      return { base: it.give || {}, bonus: d, why: own.why };
+    }
+
     function kitYield(id) {
       var q = kitOf(id), out = { anna: 0, kala: 0, katha: 0 };
       q.kit.forEach(function (b) {
@@ -1148,6 +1302,9 @@
           if (it.give[k]) out[k] += it.give[k];
         });
       });
+      /* and what the arrangement itself is worth */
+      var a = adjTotal(id);
+      out.anna += a.anna; out.kala += a.kala; out.katha += a.katha;
       return out;
     }
 
@@ -1160,7 +1317,7 @@
     }
 
     function kitWatch(id) {
-      var q = kitOf(id), n = 0;
+      var q = kitOf(id), n = adjTotal(id).watch;   /* wall joined to wall is a rampart */
       q.kit.forEach(function (b) {
         var it = BY_PART[b.p]; if (it && it.watch) n += it.watch;
       });
@@ -1320,7 +1477,32 @@
           list.length + ' things this city may build') + '">' +
         (held ? '<img src="' + (W.IND_KIT.src(hold.p, 0) || '') + '" alt="">' : '<em>\u271a</em>') +
         '<b>' + (held ? esc(held.name) : 'Build') + '</b></button>';
-      if (!open) return handle + grow;
+      /* WHAT THIS PLOT IS WORTH, before the coin is spent.
+         An adjacency rule that cannot be seen is a rule a child can only discover by
+         accident, and most never will — so the moment a piece is held over a cell the
+         board says what it would pay there and WHY, in the rule's own words. Every
+         number comes from adjPreview(), which is the same arithmetic that pays out;
+         a preview computed a second way would eventually disagree with the city and
+         teach the wrong lesson with total confidence. */
+      var pv = (held && hold.cell) ? adjPreview(id, hold.p, hold.cell.x, hold.cell.y) : null;
+      var note = '';
+      if (pv) {
+        var bad = canPlace(id, BY_PART[hold.p], hold.cell.x, hold.cell.y);
+        var sum = ['anna', 'kala', 'katha'].map(function (k) {
+          var tot = (pv.base[k] || 0) + (pv.bonus[k] || 0);
+          if (!tot) return '';
+          return '<b>' + ICON[k] + ' +' + tot + '</b>' +
+                 (pv.bonus[k] ? '<i>' + (pv.base[k] || 0) + ' + ' + pv.bonus[k] + ' for where it stands</i>' : '');
+        }).filter(Boolean).join('');
+        note = '<div class="sab-plotpv' + (bad ? ' no' : '') + '">' +
+          (bad ? '<span class="sab-pvno">' + esc(bad) + '</span>'
+               : (sum || '<span class="sab-pvno">Nothing extra here \u2014 try it beside something.</span>')) +
+          (bad ? '' : pv.why.map(function (w) {
+            return '<span class="sab-pvwhy">' + esc(w.why) + (w.n > 1 ? ' \u00d7' + w.n : '') + '</span>';
+          }).join('')) + '</div>';
+      }
+      if (!open) return handle + note + grow;
+      handle += note;
 
       var tabs = groups.map(function (g) {
         return '<button class="sab-dtab' + (g[0] === tab ? ' on' : '') +
@@ -1913,6 +2095,8 @@
         var ky = kitYield(x.id);
         out.anna += ky.anna; out.kala += ky.kala; out.katha += ky.katha;
       }
+      /* THE RIVER FEEDS THE TOWN BESIDE IT — terrain, not territory */
+      out.anna += riverAnna(x.id);
       if (q.bld.granary) out.anna += 1;
       if (q.bld.workshop) out.kala += 1;
       if (q.bld.gurukul) out.katha += 1;
@@ -5173,7 +5357,10 @@
     /* a check has to be able to PLAY, not just look: one turn, one speed, one undo */
     W.__SABDO = { turn: stepTurn, speed: setSpeed, undo: undoNow,
                   next: gotoNextDecision, plan: planAdd, paint: paintAll,
-                  act: function (id, name) { sel = id; act(name); } };
+                  act: function (id, name) { sel = id; act(name); },
+                  kity: kitYield, adjPrev: adjPreview, adj: adjTotal,
+                  terrain: function (id, x, y) { return W.IND_KIT.terrain(id, x, y); },
+                  river: riverAnna };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,

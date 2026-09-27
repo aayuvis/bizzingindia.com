@@ -231,6 +231,94 @@ check('nextdec', 'the next-decision jump finds what is waiting', async ({ p }) =
   if (!(r.some > r.none)) throw new Error(`waiting count did not rise with a warning (${r.none} -> ${r.some})`);
 });
 
+/* ------------------------------------------- PHASE 2: placement and terrain */
+
+/* find two dry, empty, buildable cells that are neighbours, and two that are far
+   apart, so the check is about ARRANGEMENT and never about terrain luck */
+const twoSpots = async (p, cid) => p.evaluate(cid => {
+  const T = (x, y) => window.__SABDO.terrain(cid, x, y);
+  const C = window.IND_KIT_CITIES[cid];
+  const dry = [];
+  for (let y = 0; y < C.gh; y++) for (let x = 0; x < C.gw; x++)
+    if (T(x, y) === 'land') dry.push([x, y]);
+  const pair = [];
+  for (const [x, y] of dry) {
+    if (T(x + 1, y) === 'land') { pair.push([x, y], [x + 1, y]); break; }
+  }
+  /* THE FIRST CUT OF THIS TOOK THE FIRST TWO DRY CELLS MORE THAN SIX AWAY, which in
+     scan order are neighbours of each other -- so "apart" was also side by side and
+     the check said placement did not matter while the engine was working fine. The
+     two distant cells have to be distant from EACH OTHER too. */
+  const far = [];
+  for (const [x, y] of dry) {
+    const fromPair = Math.abs(x - pair[0][0]) + Math.abs(y - pair[0][1]);
+    if (fromPair <= 6) continue;
+    if (far.some(([fx, fy]) => Math.abs(x - fx) + Math.abs(y - fy) <= 4)) continue;
+    far.push([x, y]);
+    if (far.length === 2) break;
+  }
+  return { pair, far };
+}, cid);
+
+check('adjacency', 'the same two workshops are worth more side by side than apart', async ({ p }) => {
+  const spots = await twoSpots(p, 'dholavira');
+  if (spots.pair.length < 2 || spots.far.length < 2)
+    throw new Error('could not find both an adjacent pair and two distant cells to compare');
+  const r = await p.evaluate(({ pair, far }) => {
+    const G = window.__SABG();
+    const q = G.sites.dholavira;
+    const put = cells => { q.kit = cells.map(c => ({ p: 'bd-har-bead', x: c[0], y: c[1] })); };
+    put(far);
+    const apart = window.__SABDO.kity('dholavira');
+    put(pair);
+    const together = window.__SABDO.kity('dholavira');
+    q.kit = [];
+    return { apart, together };
+  }, spots);
+  if (r.together.kala <= r.apart.kala)
+    throw new Error(`side by side paid ${r.together.kala} kala, apart paid ${r.apart.kala} — placement still does not matter`);
+});
+
+check('preview', 'the plot preview and the payout agree exactly', async ({ p }) => {
+  const spots = await twoSpots(p, 'dholavira');
+  const r = await p.evaluate(({ pair }) => {
+    const G = window.__SABG();
+    const q = G.sites.dholavira;
+    q.kit = [{ p: 'bd-har-bead', x: pair[0][0], y: pair[0][1] }];
+    const before = window.__SABDO.kity('dholavira');
+    /* what the game PROMISES this plot is worth */
+    const pv = window.__SABDO.adjPrev('dholavira', 'bd-har-bead', pair[1][0], pair[1][1]);
+    /* what it actually pays once built */
+    q.kit.push({ p: 'bd-har-bead', x: pair[1][0], y: pair[1][1] });
+    const after = window.__SABDO.kity('dholavira');
+    q.kit = [];
+    const real = { anna: after.anna - before.anna, kala: after.kala - before.kala,
+                   katha: after.katha - before.katha };
+    return { pv, real };
+  }, spots);
+  if (!r.pv) throw new Error('no preview returned for a real part');
+  /* the promise is base + the arrangement's bonus, and it must equal the payout */
+  for (const k of ['anna', 'kala', 'katha']) {
+    const promised = (r.pv.base[k] || 0) + (r.pv.bonus[k] || 0);
+    if (promised !== r.real[k])
+      throw new Error(`preview promised ${promised} ${k} and the city paid ${r.real[k]} — the preview is a lie`);
+  }
+  if (!r.pv.why.length) throw new Error('the preview explains nothing — an adjacency nobody can read cannot be learned');
+});
+
+check('rivers', 'a city on a river is fed by it, and no boundary is drawn', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    const on = [], off = [];
+    Object.keys(G.sites).forEach(id => {
+      (window.__SABDO.river(id) ? on : off).push(id);
+    });
+    return { on: on.length, off: off.length, sample: on.slice(0, 4) };
+  });
+  if (!r.on) throw new Error('not one site in the whole roster sits on a river — the rivers are still decoration');
+  if (!r.off) throw new Error('every site counts as riverine, so the bonus says nothing');
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

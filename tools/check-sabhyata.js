@@ -597,6 +597,113 @@ check('migrate', 'a neglected town loses people to a tended one, and no border m
     throw new Error('a hard-neglected town beside a tended one lost nobody');
 });
 
+/* --------------------------------------- PHASE 5: somebody else in the world */
+
+check('partners', 'every age has somebody asking, and none of them is an enemy', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG(), out = [];
+    for (let e = 0; e < window.IND_SABHYATA.eras.length; e++) {
+      G.era = e;
+      if (!window.__SABDO.partners().length) out.push(e);
+    }
+    /* and no partner may carry anything that reads as hostility */
+    const words = /\b(attack|invad|enemy|war|conquer|raid|army|destroy)/i;
+    const hostile = (window.IND_SABHYATA.partners || [])
+      .filter(x => words.test(x.blurb + ' ' + x.name));
+    return { empty: out, hostile: hostile.map(x => x.id) };
+  });
+  if (r.empty.length) throw new Error('ages with nobody out there: ' + r.empty.join(', '));
+  if (r.hostile.length) throw new Error('partners written as adversaries: ' + r.hostile.join(', '));
+});
+
+check('request', 'a request can only be filled if a road actually reaches the thing', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 0; G.req = {}; G.fav = {}; G.sold = {};
+    /* nothing reachable: one town, no roads */
+    Object.keys(G.sites).forEach(id => { G.sites[id].zzz = true; G.sites[id].found = false; });
+    G.sites.dholavira.zzz = false; G.sites.dholavira.found = true;
+    G.routes = [];
+    window.__SABDO.ask();
+    const pid = Object.keys(G.req)[0];
+    const want = G.req[pid].want;
+    const before = G.res.katha;
+    window.__SABDO.fill(pid);
+    const refused = window.__SABG().res.katha === before && !!window.__SABG().req[pid];
+    /* now make the wanted good reachable */
+    const D = window.IND_SABHYATA;
+    const supplier = D.sites.find(x => window.__SABDO.good(x.id) === want);
+    G.sites[supplier.id].zzz = false; G.sites[supplier.id].found = true;
+    G.routes = [['dholavira', supplier.id]];
+    window.__SABDO.fill(pid);
+    const G2 = window.__SABG();
+    return { refused, want, paid: G2.res.katha > before, gone: !G2.req[pid],
+             fav: (G2.fav || {})[pid] || 0 };
+  });
+  if (!r.refused) throw new Error(`a request for ${r.want} was filled with no road reaching it`);
+  if (!r.paid) throw new Error('filling a reachable request paid nothing');
+  if (!r.gone) throw new Error('the request stayed open after being filled');
+  if (!(r.fav > 0)) throw new Error('filling a request earned no favour — nobody remembers');
+});
+
+check('market', 'the price of a thing falls the more of it you sell', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.sold = {};
+    const good = Object.keys(window.__SABDO.goods())[0] ||
+                 window.__SABDO.good(window.IND_SABHYATA.sites[0].id);
+    const fresh = window.__SABDO.price(good);
+    G.sold[good] = 6;
+    const tired = window.__SABDO.price(good);
+    G.sold[good] = 999;
+    const floor = window.__SABDO.price(good);
+    return { fresh, tired, floor };
+  });
+  if (!(r.tired < r.fresh)) throw new Error(`selling six changed nothing (${r.fresh} -> ${r.tired})`);
+  if (!(r.floor > 0.2)) throw new Error(`the price bottomed out at ${r.floor} — a specialised good must still be worth carrying`);
+});
+
+check('favour-floor', 'a missed request costs favour but never loses a partner for good', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 0; G.fav = {}; G.req = {};
+    window.__SABDO.ask();
+    const pid = Object.keys(G.req)[0];
+    G.fav[pid] = 0;
+    /* let it lapse many times over */
+    for (let i = 0; i < 6; i++) {
+      G.req[pid] = { at: G.t, due: G.t - 1, want: 'nothing', pay: 10 };
+      window.__SABDO.turn();
+    }
+    return { fav: (window.__SABG().fav || {})[pid] || 0,
+             still: window.__SABDO.partners().some(x => x.id === pid) };
+  });
+  if (r.fav < 0) throw new Error(`favour went to ${r.fav} — below zero is a hole a child cannot climb out of`);
+  if (!r.still) throw new Error('a partner disappeared entirely after missed requests');
+});
+
+check('diaspora', 'a long-served partner makes room, and it is never taken', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.era = 0; G.fav = {}; G.diaspora = {};
+    const pid = window.__SABDO.partners()[0].id;
+    G.res.katha = 500;
+    /* three envoys is the threshold */
+    for (let i = 0; i < 4; i++) {
+      const el = document.createElement('button');
+      el.setAttribute('data-sab-act', 'envoy'); el.setAttribute('data-p', pid);
+      document.getElementById('sabwrap').appendChild(el); el.click(); el.remove();
+    }
+    const G2 = window.__SABG();
+    return { fav: (G2.fav || {})[pid] || 0, quarter: !!(G2.diaspora || {})[pid],
+             routes: G2.routes.length, sites: Object.keys(G2.sites).length };
+  });
+  if (!(r.fav >= 3)) throw new Error(`four envoys only reached favour ${r.fav}`);
+  if (!r.quarter) throw new Error('favour never turned into a quarter overseas');
+  /* and nothing on the Indian map changed hands to get it */
+  if (r.routes > 0) throw new Error('the diaspora added routes on the map — it must not touch territory');
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

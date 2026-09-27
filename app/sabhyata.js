@@ -155,6 +155,9 @@
     '.sab-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:0;border-radius:999px;background:var(--card);box-shadow:0 1px 2px rgba(30,20,64,.07),0 3px 10px rgba(30,20,64,.06);font-weight:800;font-size:12.5px}',
     '.sab-chip small{font-weight:600;color:var(--muted)}',
     '.sab-restless{background:#fdf0e6;cursor:pointer}',
+    /* the road somebody overseas is waiting on */
+    '.sab-route.asked{stroke:#d9a23d;stroke-width:4.5}',
+    '@media (prefers-reduced-motion: reduce){.sab-route.asked{stroke-dasharray:none}}',
     '.sab-btn{min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font:700 14px var(--body,system-ui);cursor:pointer}',
     '.sab-btn:disabled{opacity:.45;cursor:default}',
     '.sab-btn.go{background:var(--accent);border-color:var(--accent);color:#fff}',
@@ -879,7 +882,11 @@
                   stops itself when something is waiting on a decision */
                speed: SPEED_DEFAULT, autoPause: true,
                /* the second tree, the cards it opens, and what is in force */
-               riti: {}, pol: [], peaceMade: 0 };
+               riti: {}, pol: [], peaceMade: 0,
+               /* the world beyond the map: who is asking, who is pleased, what has
+                  been sold often enough to be cheap, and where there is a street of
+                  ours overseas */
+               req: {}, fav: {}, sold: {}, diaspora: {} };
     }
 
     /* ---- rules helpers ---- */
@@ -1054,6 +1061,91 @@
     /* short of variety the realm grows restless. It is never shamed and always
        fixable by reaching somewhere new -- docs/16: a fading thing is sad, not scary. */
     function restless() { return Math.max(0, khushiWant() - khushiHave()); }
+
+    /* ==================================================================
+       PARTNERS — somebody else who wants something, and remembers
+       ==================================================================
+       The only force in this game with any intent was the mist, and the mist wants one
+       thing and never negotiates, so every decision the player made was against
+       arithmetic. Partners are overseas and are never enemies (docs/16 §1 refuses the
+       external enemy, and rightly): they ask, they pay, they remember, and they can be
+       disappointed. That is intent, and it is enough of it.
+
+       FAVOUR is the memory. It rises when a request is filled and drifts down when one
+       is missed — never below zero, because a partner who can be lost for good is a
+       punishment a child cannot come back from, and this game does not do those. */
+    var PARTNERS = DATA.partners || [];
+    function partnersNow() {
+      return PARTNERS.filter(function (x) { return G.era >= x.era[0] && G.era <= x.era[1]; });
+    }
+    function favour(id) { return (G.fav || {})[id] || 0; }
+    function canSupply(want) { return !!goodsReached()[want]; }
+
+    /* A REQUEST IS A DEADLINE WITH A REASON. It asks for a good — something your roads
+       may or may not reach — which is what makes reaching WIDE pay twice: once in
+       khushi, once here. */
+    function askPartner() {
+      var live = partnersNow().filter(function (x) { return !(G.req || {})[x.id]; });
+      if (!live.length) return;
+      var pick = live[Math.floor(Math.random() * live.length)];
+      if (!G.req) G.req = {};
+      G.req[pick.id] = { at: G.t, due: G.t + 18, want: pick.wants,
+                         pay: 30 + G.era * 5 };
+      say(pick.name + ' sends word — they are asking for ' + pick.wants + '.', 'warm');
+    }
+    /* filling one, which is only possible if a road actually reaches the thing */
+    function fillRequest(pid) {
+      var r = (G.req || {})[pid], pd = null;
+      PARTNERS.forEach(function (x) { if (x.id === pid) pd = x; });
+      if (!r || !pd) return;
+      if (!canSupply(r.want)) { say('No road of yours reaches ' + r.want + ' yet.', ''); return; }
+      var price = marketPrice(r.want);
+      var paid = Math.round(r.pay * price);
+      G.res.katha += paid; G.score += 30;
+      if (!G.fav) G.fav = {};
+      G.fav[pid] = favour(pid) + 1;
+      G.sold = G.sold || {};
+      G.sold[r.want] = (G.sold[r.want] || 0) + 1;      /* the market notices */
+      delete G.req[pid];
+      say(pd.name + ' is well pleased — ' + paid + ' 📜, and they will ask again.', 'warm');
+      maybeDiaspora(pid);
+    }
+
+    /* THE PRICE OF A THING FALLS AS YOU SELL MORE OF IT. Supply and demand, which is
+       the one bit of economics a ten-year-old can feel rather than be told, and a
+       bridge to the sibling app about money. Never below a third: a good you have
+       specialised in should still be worth carrying. */
+    function marketPrice(good) {
+      var sold = (G.sold || {})[good] || 0;
+      return Math.max(0.34, 1 - sold * 0.08);
+    }
+
+    /* DIASPORA — growth that is emphatically not territory. A partner who has been
+       well served long enough asks for a quarter of its own, and thereafter sends a
+       gift home every few turns. Nothing is settled, claimed or coloured; somebody
+       else's city has an Indian street in it, which is how this actually happened. */
+    function maybeDiaspora(pid) {
+      if (favour(pid) < 3) return;
+      if (!G.diaspora) G.diaspora = {};
+      if (G.diaspora[pid]) return;
+      G.diaspora[pid] = { at: G.t };
+      var pd = null; PARTNERS.forEach(function (x) { if (x.id === pid) pd = x; });
+      G.score += 60;
+      showOverlay('<div class="mono" style="color:var(--accent2)">a street of your own, far away</div>' +
+        '<h3>' + esc(pd ? pd.name : '') + ' makes room</h3>' +
+        '<p>Traders from your roads have been coming so long that ' + esc(pd ? pd.name : 'they') +
+        ' has given them a quarter of their own — a street where your language is spoken and ' +
+        'your festivals are kept. Nothing was taken to get it. It sends something home every few turns, ' +
+        'for as long as it stands.</p>' +
+        '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Good</button></div>');
+    }
+    function diasporaGift() {
+      var n = Object.keys(G.diaspora || {}).length;
+      if (!n) return;
+      if (G.t % 10 !== 0) return;
+      G.res.katha += n * 3; G.res.kala += n * 2;
+      say('Word and goods home from ' + n + ' quarter' + (n > 1 ? 's' : '') + ' overseas.', 'warm');
+    }
 
     /* ==================================================================
        WHAT A REALM CAN DO AT ONCE
@@ -2547,7 +2639,19 @@
       var a = byId[r[0]], b = byId[r[1]];
       var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - 24;   /* a gentle bow, like a road, not a wire */
       var d = 'M' + a.x + ' ' + a.y + ' Q' + mx + ' ' + my + ' ' + b.x + ' ' + b.y;
-      return '<path class="sab-bed" d="' + d + '"/><path class="sab-route live" id="sabr-' + i + '" d="' + d + '"/>';
+      /* A ROAD THAT IS CARRYING SOMETHING LOOKS LIKE IT.
+         Carts already roll every route — the founder's note above ensureCarts is right
+         that a cart on a route IS the meaning of a route. What was invisible was the
+         REQUEST: a partner asking for the workshops of the south told the player
+         nothing about which of their own roads mattered this season. The road that
+         reaches an asked-for good now carries a warm thread, so the ask is a thing you
+         can see on the map instead of a line of text in a panel. */
+      var asked = '';
+      var wants = {};
+      Object.keys(G.req || {}).forEach(function (pid) { wants[G.req[pid].want] = 1; });
+      if (wants[goodOf(r[0])] || wants[goodOf(r[1])]) asked = ' asked';
+      return '<path class="sab-bed" d="' + d + '"/><path class="sab-route live' + asked +
+        '" id="sabr-' + i + '" d="' + d + '"/>';
     }
 
     function board() {
@@ -2744,6 +2848,7 @@
           '<div class="sab-globals">' +
             '<button class="sab-act txt go" id="sab-adv" hidden></button>' +
             '<button class="sab-act txt" id="sab-tech">Vidya</button>' +
+            '<button class="sab-act txt" id="sab-world">Sea roads</button>' +
             /* THE TURN LIVES IN THE BAR, at the end of the line, where the eye
                ends up. Agla Saal is the biggest button on the screen in Sochna
                because pressing it IS the game. */
@@ -4042,6 +4147,17 @@
     /* ================================================================
        ACTIONS
        ================================================================ */
+    /* SOME VERBS ARE THE REALM'S, NOT A PLACE'S. act() requires a selected lamp, which
+       is right for grow and route and wrong for the sea roads: the world is not
+       somewhere on the map. act2 reaches the same dispatcher without pretending a
+       city is selected. */
+    function act2(name) {
+      var el = D.createElement('button');
+      el.setAttribute('data-sab-act', name);
+      D.getElementById('sabwrap').appendChild(el);
+      el.click(); el.remove();
+    }
+
     function act(name) {
       if (!sel || G.won) return;
       var s = byId[sel], q = G.sites[sel];
@@ -4648,6 +4764,20 @@
           say('The granaries are full to the roof — spend it, or build somewhere to keep it.', '');
         }
       }
+
+      /* THE WORLD ASKS, AND FORGETS IF IT IS IGNORED. Favour drifts down on a missed
+         request and never goes below zero — a partner lost for good is a punishment a
+         child cannot come back from, and this game does not do those. */
+      if (G.t % 14 === 0) askPartner();
+      Object.keys(G.req || {}).forEach(function (pid) {
+        var r = G.req[pid];
+        if (G.t < r.due) return;
+        delete G.req[pid];
+        if (G.fav && G.fav[pid]) G.fav[pid] = Math.max(0, G.fav[pid] - 1);
+        var pn = ''; PARTNERS.forEach(function (x) { if (x.id === pid) pn = x.name; });
+        say(pn + ' waited, and the ships went elsewhere this season. They will ask again.', 'mist');
+      });
+      diasporaGift();
 
       /* PRAJA MOVE. A town that cannot feed itself loses a pair of hands to one that
          can. This is population pressure with no border anywhere near it: nobody is
@@ -5341,6 +5471,50 @@
           if (G.pol) G.pol[cs] = null;
           paintTech(); paintAll(); return;
         }
+        /* THE WORLD PANEL — who is out there and what they are asking for */
+        if (a === 'world') {
+          var rows2 = partnersNow().map(function (pd2) {
+            var r3 = (G.req || {})[pd2.id];
+            var can = canSupply(pd2.wants);
+            var pr = Math.round(marketPrice(pd2.wants) * 100);
+            return '<div class="sab-work' + (r3 ? ' now' : '') + '">' +
+              '<i>' + (G.diaspora && G.diaspora[pd2.id] ? '⚑' : favour(pd2.id) ? '★' : '○') + '</i>' +
+              '<span><b>' + esc(pd2.name) + '</b> · <span class="tiny" style="color:var(--muted)">' +
+              esc(pd2.blurb) + '</span>' +
+              '<span class="tiny" style="color:var(--accent2);font-weight:800">wants ' + esc(pd2.wants) +
+              ' · paying ' + pr + '% · favour ' + favour(pd2.id) + '</span>' +
+              (r3 ? '<span class="sab-need">asking now — ' + Math.max(0, r3.due - G.t) + ' turns left</span>'
+                  : '') +
+              '</span><span style="flex:1"></span>' +
+              (r3 ? (can ? '<button class="sab-btn go" data-sab-act="fill" data-p="' + pd2.id + '">send it</button>'
+                         : '<span class="tiny" style="color:var(--muted)">no road reaches it</span>')
+                  : '<button class="sab-btn" data-sab-act="envoy" data-p="' + pd2.id + '"' +
+                    (G.res.katha >= 20 ? '' : ' disabled') + '>envoy · 20 📜</button>') +
+              '</div>';
+          }).join('');
+          showOverlay('<div class="mono" style="color:var(--accent2)">the sea roads</div>' +
+            '<h3>Who is out there</h3>' +
+            '<p class="tiny">Nobody here is an enemy and nobody can be. They ask, they pay, and they ' +
+            'remember — and the price of a thing falls the more of it you sell, so a realm that reaches ' +
+            'many different places is worth more than a big one.</p>' +
+            '<div class="sab-works">' + (rows2 || '<div class="sab-work"><span>No ships this age.</span></div>') + '</div>' +
+            '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Back</button></div>');
+          return;
+        }
+        if (a === 'fill') { fillRequest(actEl.getAttribute('data-p')); paintAll(); act('world'); return; }
+        /* AN ENVOY IS FAVOUR BOUGHT WITH STORIES, not with grain — the only currency
+           this game lets you spend on somebody else's goodwill. */
+        if (a === 'envoy') {
+          var ep = actEl.getAttribute('data-p');
+          if (G.res.katha < 20) return;
+          pay({ katha: 20 });
+          if (!G.fav) G.fav = {};
+          G.fav[ep] = favour(ep) + 1;
+          var en = ''; PARTNERS.forEach(function (x) { if (x.id === ep) en = x.name; });
+          say('An envoy sails for ' + en + ' with a season of stories. Favour ' + favour(ep) + '.', 'warm');
+          maybeDiaspora(ep);
+          paintAll(); act('world'); return;
+        }
         if (a === 'khushi') {
           var gr = goodsReached(), ks = Object.keys(gr).sort();
           showOverlay('<div class="mono" style="color:var(--accent2)">khushi — what the roads reach</div>' +
@@ -5825,6 +5999,7 @@
       D.getElementById('sab-adv').addEventListener('click', advance);
       D.getElementById('sab-pause').addEventListener('click', togglePause);
       D.getElementById('sab-turn').addEventListener('click', stepTurn);
+      D.getElementById('sab-world').addEventListener('click', function () { act2('world'); });
       D.getElementById('sab-next').addEventListener('click', gotoNextDecision);
       D.getElementById('sab-undo').addEventListener('click', undoNow);
       D.getElementById('sab-speed').addEventListener('change', function (e2) { setSpeed(e2.target.value); });
@@ -5904,7 +6079,10 @@
                   good: goodOf, goods: goodsReached, khushi: function () {
                     return { want: khushiWant(), have: khushiHave(), restless: restless() }; },
                   worksCap: worksCap, worksRunning: worksRunning, upkeep: upkeep,
-                  storeCap: storeCap, migrate: migrate, soften: soften };
+                  storeCap: storeCap, migrate: migrate, soften: soften,
+                  partners: partnersNow, favour: favour, ask: askPartner,
+                  fill: fillRequest, price: marketPrice, canSupply: canSupply,
+                  act2: act2 };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,

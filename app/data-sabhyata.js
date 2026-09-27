@@ -331,6 +331,57 @@ window.IND_SABHYATA = {
      wide one, and a child learns why a trade route goes somewhere unlike home. A
      realm short of variety grows restless and its towns gather dust; it is never
      shamed, and it is always fixable by reaching somewhere new. */
+  /* ==================================================================
+     PARTNERS — somebody else in the world who wants something
+     ==================================================================
+     THE THING THIS GAME WAS MISSING MOST. There was no other agent in it at all: the
+     only force with any intent was the mist, and the mist wants one thing and never
+     negotiates. Every decision the player made was against arithmetic. What makes the
+     genre compelling is that somebody ELSE is also playing -- they want land, they
+     want favour, they remember what you did -- and none of that could be ported here
+     as it stands, because a rival empire on an Indian map is the "external enemy"
+     docs/16 §1 refuses, and every candidate for it is somebody's ancestor.
+
+     The way through is that the partners are OVERSEAS and they are never enemies.
+     They ask for things, they pay, they remember, and they can be disappointed --
+     which is intent, and enough of it. Nobody is attacked, nobody invades, no
+     boundary exists to be crossed. Historically this is also simply what happened:
+     the Indian Ocean was a trading world for four thousand years.
+
+     EVERY PARTNER'S LINK TO INDIA IS ALREADY SOURCED IN THIS REPO, and cited here so
+     the next person can check it rather than trust it:
+       · Mesopotamia — Lothal's carnelian beads "travelled as far as Mesopotamia"
+         (this file, lothal.more[0], with its own sources[])
+       · Greece      — Megasthenes, and Sanghamitta's mission (this file, asks + sites)
+       · China       — Xuanzang came from China and stayed years at Nalanda; students
+         sailed from China, Korea, Tibet and Java (this file, nalanda.more)
+       · Srivijaya   — Rajendra I sent ships to Srivijaya, recorded in his own
+         Thanjavur inscription (data-itihaas.js, with that citation)
+       · Persia      — travellers from Persia write home amazed (data-itihaas.js)
+     The game effects are game effects. The links are the repo's, not mine.
+
+     `wants` is a GOOD (see regions/goodNames): a partner asks for something your
+     roads may or may not reach, which is what makes reaching wide pay twice. */
+  partners: [
+    { id: 'mesopotamia', name: 'Mesopotamia', era: [0, 2], wants: 'workshops of the west',
+      blurb: 'Ships from the Gulf, asking for beads so small a whole necklace passes through a bangle.' },
+    { id: 'greece', name: 'The Greek cities', era: [2, 4], wants: 'learning of the north',
+      blurb: 'An envoy who writes everything down, and wants to know what your schools know.' },
+    { id: 'china', name: 'China', era: [3, 6], wants: 'learning of the east',
+      blurb: 'Monks who will walk for two years to read in your halls, and carry your stories home.' },
+    { id: 'srivijaya', name: 'Srivijaya', era: [4, 8], wants: 'workshops of the south',
+      blurb: 'The sea road east, and a harbour that wants everything your southern benches make.' },
+    { id: 'persia', name: 'Persia', era: [6, 10], wants: 'fields of the north',
+      blurb: 'Travellers who write home amazed, and traders who would rather carry grain than gossip.' },
+    /* THE LAST PARTNER IS THIS APP'S OWN AUDIENCE. By the modern ages the people asking
+       India for its stories are largely Indians who live somewhere else -- which is who
+       Bizzing India is for in the first place (CLAUDE.md: the diaspora is the primary
+       audience). It needs no historical claim beyond the obvious, and it is the one
+       partner a child using this app may actually belong to. */
+    { id: 'pravasi', name: 'The Pravasi', era: [10, 12], wants: 'learning of the south',
+      blurb: 'Indians grown up somewhere else, asking for the India they have not lived in.' }
+  ],
+
   regions: {
     PB: 'north', HR: 'north', DL: 'north', CH: 'north', UP: 'north', RJ: 'north',
     GJ: 'west', MH: 'west', MP: 'centre',

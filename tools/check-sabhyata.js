@@ -1182,6 +1182,54 @@ check('panel-head', 'a long panel keeps its name and its way out', async ({ p })
     throw new Error(`scrolled down, the head sits ${Math.round(r.top - r.panelTop)}px from the panel top — it scrolled away`);
 });
 
+check('feedback', 'a turn says which number moved, and stills under reduced motion', async ({ p }) => {
+  /* This game has plenty of ambient motion and almost no feedback: press Agla Saal --
+     the core verb -- and three numbers quietly become three other numbers with nothing
+     to say which, or that anything happened. */
+  const r = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.res = { anna: 100, kala: 100, katha: 100 };
+    window.__SABDO.paint();                       /* establish a baseline */
+    const before = document.querySelectorAll('#sab-res .sab-delta').length;
+    window.__SABDO.turn();                        /* the world pays out */
+    const chips = [...document.querySelectorAll('#sab-res .sab-chip')];
+    const deltas = [...document.querySelectorAll('#sab-res .sab-delta')]
+      .map(d => d.textContent.trim());
+    return { before, moved: chips.filter(c => c.classList.contains('sab-moved')).length,
+             deltas };
+  });
+  if (r.before !== 0) throw new Error('a delta was showing before anything changed');
+  if (!r.moved) throw new Error('a turn changed the numbers and no chip said so');
+  if (!r.deltas.length || !r.deltas.some(d => /^[+-]?\d/.test(d)))
+    throw new Error('the deltas do not read as numbers: ' + JSON.stringify(r.deltas));
+
+  /* AND A CHILD WHO ASKED FOR LESS MOTION GETS THE FACT WITHOUT THE TRAVEL.
+     The first version of this read the stylesheet text looking for the rule, which is
+     asking whether the CSS was WRITTEN rather than whether it WORKS -- a rule can be
+     present and overridden, or absent and handled another way. Emulate the preference
+     and ask the element what it is actually doing. */
+  await p.emulateMedia({ reducedMotion: 'reduce' });
+  const still = await p.evaluate(() => {
+    const G = window.__SABG();
+    G.res = { anna: 100, kala: 100, katha: 100 };
+    window.__SABDO.paint();
+    window.__SABDO.turn();
+    const d = document.querySelector('#sab-res .sab-delta');
+    const chip = document.querySelector('#sab-res .sab-chip.sab-moved');
+    if (!d) return { none: true };
+    const cs = getComputedStyle(d);
+    return { anim: cs.animationName,
+             chipAnim: chip ? getComputedStyle(chip).animationName : 'none',
+             shown: cs.opacity !== '0' && cs.display !== 'none' };
+  });
+  await p.emulateMedia({ reducedMotion: null });
+  if (still.none) throw new Error('no delta rendered under reduced motion');
+  if (still.anim !== 'none' || still.chipAnim !== 'none')
+    throw new Error(`motion still runs under reduced motion (delta:${still.anim} chip:${still.chipAnim})`);
+  if (!still.shown)
+    throw new Error('reduced motion hid the delta entirely — the fact should survive, only the travel goes');
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

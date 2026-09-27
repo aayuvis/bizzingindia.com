@@ -168,6 +168,29 @@
     '.sab-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border:0;border-radius:999px;background:var(--card2,var(--card));box-shadow:none;font-weight:800;font-size:12.5px;white-space:nowrap;color:var(--text2,var(--text))}',
     '.sab-chip small{font-weight:600;color:var(--muted)}',
     '.sab-restless{background:#fdf0e6;cursor:pointer}',
+    /* the chip that moved, and by how much */
+    '.sab-chip{position:relative}',
+    '.sab-chip.sab-moved{animation:sabbump .5s cubic-bezier(.2,.8,.3,1.2)}',
+    '.sab-delta{position:absolute;left:50%;top:-2px;transform:translateX(-50%);font:900 11px/1 var(--body,system-ui,sans-serif);' +
+      'color:var(--accent3,#2f6f5e);pointer-events:none;animation:sabfloat 1.1s ease-out forwards}',
+    '.sab-delta.down{color:var(--muted)}',
+    '@keyframes sabbump{0%{transform:scale(1)}38%{transform:scale(1.11)}100%{transform:scale(1)}}',
+    '@keyframes sabfloat{0%{opacity:0;transform:translate(-50%,4px)}' +
+      '22%{opacity:1}100%{opacity:0;transform:translate(-50%,-16px)}}',
+    /* THE PRESS IS ACKNOWLEDGED. A button that does something big should feel like it
+       was pressed, or a child presses it twice. */
+    '.sab-act.go:active{transform:scale(.96)}',
+    '.sab-act{transition:transform .12s ease}',
+    /* a row that arrives should arrive, not blink into being */
+    '.sab-railrow{animation:sabslide .22s ease-out}',
+    '@keyframes sabslide{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}',
+    /* AND ALL OF IT STOPS when a child has asked for less motion. Feedback is the one
+       kind worth keeping, so the delta still appears — it simply does not travel. */
+    '@media (prefers-reduced-motion: reduce){' +
+      '.sab-chip.sab-moved,.sab-railrow{animation:none}' +
+      '.sab-act{transition:none}' +
+      '.sab-delta{animation:none;opacity:1;transform:translate(-50%,-14px)}' +
+    '}',
     /* A CHIP THAT CAN BE TAPPED IS A BUTTON and takes a button's target, however
        small the numbers beside it get. Shrinking the resource chips for the phone
        took khushi down to 25px with it — it is the one chip that opens something. */
@@ -1031,7 +1054,8 @@
                req: {}, fav: {}, sold: {}, diaspora: {},
                /* the age's own tally, whether the last age was thin, what a golden age
                   dedicated itself to, and the record of the ages already passed */
-               deeds: {}, dark: false, ded: null, ages: [], log: [], hushed: {} };
+               deeds: {}, dark: false, ded: null, ages: [], log: [], hushed: {},
+               delta: null };
     }
 
     /* ---- rules helpers ---- */
@@ -3529,11 +3553,29 @@
         if (y) { net.anna += y.anna; net.kala += y.kala; net.katha += y.katha; }
         if (!G.sites[x.id].zzz) net.anna -= popOf(x.id) * T.eat;
       });
+      /* ==============================================================
+         THE NUMBERS SAY WHICH ONE MOVED.
+         ==============================================================
+         There is plenty of ambient motion in this game already — walkers, smoke,
+         a swaying tree — and almost none of it is FEEDBACK. Press Agla Saal, the
+         core verb of the whole game, and three numbers quietly become three other
+         numbers with nothing to say which, or by how much, or that anything
+         happened at all. A turn that changes the world without acknowledging the
+         press is a button a child stops trusting.
+
+         So a chip that changed carries the delta for a moment and lifts. It is the
+         cheapest possible version of the thing, and it is the difference between a
+         turn landing and a turn being taken on faith. */
+      var dl = (G.delta && G.delta.at === G.t) ? G.delta : null;
       D.getElementById('sab-res').innerHTML = ['anna', 'kala', 'katha'].map(function (k) {
         var d = Math.round(net[k] * 10) / 10;
         var lid = (k === 'anna') ? ' <small>of ' + storeCap() + '</small>' : '';
-        return '<span class="sab-chip">' + ICON[k] + ' ' + Math.floor(G.res[k]) +
-          ' <small>' + (d >= 0 ? '+' : '') + d + '/turn</small>' + lid + '</span>';
+        var now = Math.floor(G.res[k]);
+        var moved = dl ? dl[k] : 0;
+        return '<span class="sab-chip' + (moved ? ' sab-moved' : '') + '">' + ICON[k] + ' ' + now +
+          ' <small>' + (d >= 0 ? '+' : '') + d + '/turn</small>' + lid +
+          (moved ? '<b class="sab-delta' + (moved > 0 ? '' : ' down') + '">' +
+            (moved > 0 ? '+' : '') + moved + '</b>' : '') + '</span>';
       }).join('') +
       /* KHUSHI ON THE BAR. Variety is now a thing the realm can be short of, and a
          number the player cannot see is a rule they cannot play to. */
@@ -5458,6 +5500,14 @@
       /* past here the turn is really happening: the undo window closes, and nothing
          inside the turn may open a new one (see undoPoint) */
       tickSeq++; inTick = true;
+      /* WHAT THIS TURN DID, measured across the whole turn rather than diffed in the
+         painter. The first cut compared each paint against the last one's numbers,
+         which looked right and could not work: paintHud runs twice per turn (once at
+         the end of tick, once from paintAll), and the second run diffed against the
+         values the first had just stored, wiping the marker every time. A delta
+         belongs to the turn that earned it. */
+      var res0 = { anna: Math.floor(G.res.anna), kala: Math.floor(G.res.kala),
+                   katha: Math.floor(G.res.katha) };
       G.t++;
       if (G.utsav > 0) G.utsav--;
 
@@ -5771,6 +5821,10 @@
         if (pd) { pause = true; syncPauseBtn(); say('The world waits \u2014 ' + pd + '.', 'warm'); }
       }
 
+      G.delta = { at: G.t,
+                  anna: Math.floor(G.res.anna) - res0.anna,
+                  kala: Math.floor(G.res.kala) - res0.kala,
+                  katha: Math.floor(G.res.katha) - res0.katha };
       if (G.t % 5 === 0) save(G);
       inTick = false;
       paintHud(); SITES.forEach(paintSite); paintGuide();

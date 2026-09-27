@@ -1074,6 +1074,32 @@ check('city-turn', 'a year can be spent without leaving the city', async ({ p })
   if (clash.tall) throw new Error('the Agla Saal label wrapped onto a second line');
 });
 
+check('no-raw-escapes', 'no \\uXXXX escape reaches a child as text', async () => {
+  /* Found on a phone screenshot: the advisor row read "\\u25b8 Dholavira wants you" and
+     the digest button was a box with "\\u2263" in it. Five sequences across two files had
+     been written with a doubled backslash inside a single-quoted string, so JS never
+     decoded them and the app printed the escape.
+
+     Nothing caught it because every check here asks the engine what it thinks, and the
+     engine was right -- the advisor really did want that row. Only the rendered text was
+     wrong, and no test reads the rendered text for nonsense.
+
+     Source, not DOM: a rendered scan would only cover the states a test happens to open,
+     and one of these lived in the geography data behind a single island. */
+  const dir = path.join(__dirname, '..', 'app');
+  const bad = [];
+  for (const f of fs.readdirSync(dir)) {
+    if (!f.endsWith('.js')) continue;
+    const lines = fs.readFileSync(path.join(dir, f), 'utf8').split('\n');
+    lines.forEach((ln, i) => {
+      const m = ln.match(/\\\\u[0-9a-fA-F]{4}/g);
+      if (m) bad.push(`${f}:${i + 1} ${m.join(' ')}`);
+    });
+  }
+  if (bad.length)
+    throw new Error('escapes that will print as text:\n       ' + bad.join('\n       '));
+});
+
 check('board-fills', 'the board uses the room it is given, at every width', async ({ p }) => {
   /* Found by looking at a screenshot, which is the only thing that found it. The stage
      was whatever height the flex column had spare and whatever width the page was, and
@@ -1169,31 +1195,100 @@ check('labels', 'a city name is the same size however far you lean in', async ({
 });
 
 check('colour-roles', 'the colour that means "press this" is not the colour that means "worry"', async ({ p }) => {
-  /* --accent in this theme is a red, and it is what every GO button wears. A rail row
+  /* --accent in this theme is a red, and it is what every GO button wears. A warning
      painted the same red makes one colour mean two opposite things on one screen. And
      an alarm-red warning is the wrong register anyway: docs/16 §3 says a fading site
-     is sad, not scary. */
-  const r = await p.evaluate(() => {
-    const G = window.__SABG();
-    G.warn = { id: 'dholavira', raid: 'boar', at: G.t + 5 };
-    window.__SABDO.paint();
-    const rgb = el => getComputedStyle(el).backgroundColor
-      .match(/[\d.]+/g).slice(0, 3).map(Number);
-    const go = document.querySelector('#sab-turn') ||
-               document.querySelector('.sab-act.go,.sab-btn.go');
-    const row = document.querySelector('#sab-rail .sab-railrow.p0 .sab-railgo');
-    if (!go || !row) return { missing: !go ? 'no primary action' : 'no warning row' };
-    const a = rgb(go), b = rgb(row);
-    const dist = Math.sqrt(a.reduce((t, v, i) => t + (v - b[i]) ** 2, 0));
-    /* and the warning must not itself be a red: red is spoken for */
-    const redness = b[0] - (b[1] + b[2]) / 2;
-    return { dist, redness, a, b };
+     is sad, not scary.
+
+     IT READS EVERY WARNING SURFACE, AND IT GOES TO THEM. The first version named only
+     the notification rail, so the city kept an alarm-red gate banner straight through
+     the pass that existed to remove it -- a screenshot of the city caught what the
+     check could not. The second version named the city's surfaces but still ran on the
+     map, where they do not exist, so querySelectorAll found nothing and it passed with
+     the red still in place: green for the wrong reason, which is worse than red.
+     So it now opens the city, and it FAILS IF A SURFACE IT NAMES IS NOT THERE. A check
+     that silently skips what it cannot find is not a check. */
+  const scan = () => p.evaluate(() => {
+    const rgb = el => (getComputedStyle(el).backgroundColor.match(/[\d.]+/g) || [0, 0, 0])
+      .slice(0, 3).map(Number);
+    const vis = el => {
+      if (!el || el.hasAttribute('hidden')) return false;
+      const cs = getComputedStyle(el);
+      return cs.display !== 'none' && cs.visibility !== 'hidden';
+    };
+    const go = [...document.querySelectorAll('#sab-turn,.sab-act.go,.sab-btn.go,.sab-cityturn')]
+      .find(vis);
+    const out = { go: go ? rgb(go) : null, found: {} };
+    const grab = (sel, name) => {
+      [...document.querySelectorAll(sel)].filter(vis).forEach(el => {
+        if (el.classList.contains('ready')) return;  /* green = the gate holds: the opposite of a warning */
+        const cs = getComputedStyle(el);
+        (out.found[name] = out.found[name] || []).push({ b: rgb(el), anim: cs.animationName });
+      });
+    };
+    grab('#sab-rail .sab-railrow.p0 .sab-railgo', 'the rail\'s top row');
+    grab('.sab-alarm', 'the city gate banner');
+    return out;
   });
-  if (r.missing) throw new Error(r.missing);
-  if (!(r.dist > 90))
-    throw new Error(`the action and the warning are ${Math.round(r.dist)} apart in colour — too close to tell apart`);
-  if (r.redness > 22)
-    throw new Error(`the warning row is itself a red (r ${r.b[0]} vs g/b ${r.b[1]}/${r.b[2]}) — this game does not do alarms`);
+
+  /* THE CITY FIRST, AND WITHOUT A PAINT BEFORE IT. Selecting a city is two taps a real
+     gap apart, and a repaint between them swaps the node out from under the pair, so
+     the city never opens and every city surface reads as "not there". */
+  await p.evaluate(() => {
+    const G = window.__SABG();
+    G.hushed = {};
+    G.res = { anna: 300, kala: 300, katha: 300 };
+    /* G.warn only. G.ev puts a second thing on screen that can sit over the map and
+       swallow the pair of taps that opens a city. */
+    G.warn = { id: 'dholavira', raid: 'boar', at: G.t + 5 };
+  });
+  await openCity(p, 'dholavira');
+  if (!await p.evaluate(() => !!window.__SAB().city))
+    throw new Error('the city never opened, so the gate banner could not be checked');
+  const inCity = await scan();
+
+  /* then back out to the map for the rail */
+  await p.evaluate(() => {
+    const b = document.querySelector('[data-sab-act="leave"]');
+    if (b) b.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  });
+  await p.waitForTimeout(600);
+  await p.evaluate(() => {
+    const G = window.__SABG();
+    G.hushed = {};
+    G.warn = { id: 'dholavira', raid: 'boar', at: G.t + 5 };
+    G.ev = { id: 'dholavira', at: G.t + 9 };
+    window.__SABDO.paint();
+  });
+  await p.waitForTimeout(300);
+  const onMap = await scan();
+
+  const action = onMap.go || inCity.go;
+  if (!action) throw new Error('no primary action was on screen to compare against');
+
+  const warns = [];
+  for (const src of [onMap, inCity])
+    for (const [name, list] of Object.entries(src.found))
+      list.forEach(w => warns.push({ name, ...w }));
+
+  /* the surfaces this check exists for MUST have been on screen */
+  const names = new Set(warns.map(w => w.name));
+  for (const must of ["the rail's top row", 'the city gate banner'])
+    if (!names.has(must))
+      throw new Error(`${must} was never on screen — this check cannot pass by not finding it`);
+
+  const bad = [];
+  for (const w of warns) {
+    const dist = Math.sqrt(action.reduce((t, v, i) => t + (v - w.b[i]) ** 2, 0));
+    const redness = w.b[0] - (w.b[1] + w.b[2]) / 2;
+    if (!(dist > 90))
+      bad.push(`${w.name} is only ${Math.round(dist)} from the primary action in colour`);
+    if (redness > 22)
+      bad.push(`${w.name} is itself a red (r ${w.b[0]} vs g/b ${w.b[1]}/${w.b[2]}) — this game does not do alarms`);
+    if (w.anim && w.anim !== 'none')
+      bad.push(`${w.name} pulses ("${w.anim}") — nothing in this game throbs at a child`);
+  }
+  if (bad.length) throw new Error(bad.join('; '));
 });
 
 check('panel-head', 'a long panel keeps its name and its way out', async ({ p }) => {

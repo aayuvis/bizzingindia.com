@@ -840,11 +840,20 @@
     '@keyframes sabwbob{from{transform:translateY(0)}to{transform:translateY(-1.5%)}}',
     /* the bamboo climbs: stage one is a frame, stage three is nearly a
        monument, and the bar beneath fills as the masons work */
-    /* the alarm: red while the gate is short, green the moment it is enough */
-    /* the bar's own alarm: red while the gate is short, green when it holds */
+    /* THE CITY'S TWO WARNINGS, IN THE MIST'S REGISTER AND NOT AN ALARM'S.
+       Pass C took alarm red off the notification rail and left these two behind,
+       which a screenshot of the city caught: the gate banner and this chip were the
+       same red as Agla Saal, so on one screen red meant both `worry about this` and
+       `press this` -- the exact fault pass C existed to fix, on a surface its check
+       did not look at. The check reads every warning surface now, not one.
+       The pulse went with it. docs/16 §3: no combat, no lives, no shaming, and a
+       fading site is SAD, NOT SCARY. A throbbing red chip is an alarm in costume,
+       and a boar in the wheat is not an emergency.
+       Grey with weight behind it says `this wants you`. Green still means the gate
+       holds, which is not an alarm but its opposite, so it stays. */
     '.sab-raksha{display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:0;cursor:pointer;' +
-      'padding:5px 12px;border-radius:12px;background:#96201288;color:#fff;text-align:left;' +
-      'background:rgba(150,32,18,.94);animation:sabpulse 1.6s ease-in-out infinite}',
+      'padding:5px 12px;border-radius:12px;color:#fff;text-align:left;' +
+      'background:rgba(74,70,88,.94)}',
     '.sab-raksha.ready{background:rgba(24,110,66,.94);animation:none}',
     '.sab-raksha b{font:800 12.5px/1.15 var(--body);white-space:nowrap}',
     '.sab-raksha span{font:700 10px/1.15 var(--body);opacity:.92;white-space:nowrap}',
@@ -853,10 +862,9 @@
        the empty alarm chip sat in the bar for ever. Same trap as the gully
        game covers; same one-line answer. */
     '.sab-raksha[hidden]{display:none}',
-    '@keyframes sabpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,60,30,.55)}50%{box-shadow:0 0 0 7px rgba(200,60,30,0)}}',
     '.sab-alarm{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:7;pointer-events:none;' +
       'display:grid;justify-items:center;gap:1px;padding:6px 14px;border-radius:12px;text-align:center;' +
-      'background:rgba(150,32,18,.93);color:#fff;box-shadow:0 4px 14px rgba(40,10,4,.4);max-width:88%}',
+      'background:rgba(74,70,88,.94);color:#fff;box-shadow:0 4px 14px rgba(30,24,44,.38);max-width:88%}',
     '.sab-alarm.ready{background:rgba(24,110,66,.93)}',
     '.sab-alarm b{font:800 13px/1.2 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}',
     '.sab-alarm span{font:700 10.5px/1.2 var(--body);opacity:.9}',
@@ -1832,7 +1840,7 @@
       if (it.only && !it.many && builtCount(id, it.p) >= 1)
         return 'a city has only one of these';
       var tl = techLock(it);
-      if (tl) return 'nobody here knows how yet \\u2014 study ' + tl + ' first';
+      if (tl) return 'nobody here knows how yet — study ' + tl + ' first';
       /* AND SOME THINGS NEED STUFF THE REALM HAS TO REACH FIRST.
          Research gated what a city KNEW how to make; nothing gated what it had to make
          it FROM, so a shipyard could be raised in a realm whose roads touched no timber
@@ -3471,7 +3479,7 @@
            systems problem: a child who cannot tell what the game wants next does
            nothing, and doing nothing looks exactly like a game with nothing in it. */
         '<div class="sab-advise"><button id="sab-advise" class="sab-advisebtn" data-sab-act="advise"></button>' +
-          '<button class="sab-btn" data-sab-act="digest" aria-label="What has been happening">\\u2263</button></div>' +
+          '<button class="sab-btn" data-sab-act="digest" aria-label="What has been happening">≣</button></div>' +
         '<p class="sab-guide" id="sab-guide"></p>' +
         '<p class="sab-help" hidden>Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
           '<b>1–4</b> fire an action (<b>4</b> steps inside the city), <b>Esc</b> cancels, <b>P</b> pauses. ' +
@@ -3566,7 +3574,7 @@
       var av = D.getElementById('sab-advise');
       if (av) {
         var ad = advise();
-        av.innerHTML = '<em>\\u25b8</em><span>' + esc(ad.why) + '</span>';
+        av.innerHTML = '<em>▸</em><span>' + esc(ad.why) + '</span>';
         av.setAttribute('data-go', ad.go || '');
       }
       /* the age grades the light on the land — one filter on the whole wash */
@@ -3892,7 +3900,7 @@
            so the sleeping town can start its own: Reach it, then Wake it. */
         b.push(tile('route', 'road', 'Reach it', costStr(costOf({ kala: T.routeCost }, 'route'))));
         b.push(tile('yields', 'book', 'Why?', 'where the numbers come from', true));
-        b.push(tile('wake', 'sun', 'Wake', connected(sel) ? wakeCost(sel) + ' \\ud83d\\udcdc' : 'needs a road',
+        b.push(tile('wake', 'sun', 'Wake', connected(sel) ? wakeCost(sel) + ' 📜' : 'needs a road',
           { go: true, disabled: !connected(sel) }));
       } else {
         b.push(tile('route', 'road', 'Route', costStr(costOf({ kala: T.routeCost }, 'route'))));

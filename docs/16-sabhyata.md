@@ -263,6 +263,20 @@ Five passes, each with a check that fails before it passes.
   rail landed in the dead ground and cleared the land *by accident*, and removing the
   letterbox put it over the northeast.
 
+- **G — what the other screenshots showed.** Having found F by looking, I looked at the
+  rest, and the phone and the city each gave up a fault fifty-three checks had not.
+  The phone was printing `\u25b8` and `\u2263` as *text*: five sequences across two files
+  had been written with a doubled backslash inside a single-quoted string, so JS never
+  decoded them and the app showed the escape. Nothing caught it because every check asks
+  the engine what it thinks, and the engine was right — the advisor really did want that
+  row. Only the rendered words were nonsense, and no test read them. `no-raw-escapes`
+  reads the source rather than the DOM, because a rendered scan covers only the states a
+  test happens to open and one of these lived behind a single island in the geography
+  data. The city, meanwhile, still had an **alarm-red gate banner and a pulsing red
+  chip** — the exact fault pass C existed to remove, on a surface pass C's check did not
+  name. Both are the mist's grey with weight now, and the pulse is gone: docs/16 §3 says
+  a fading site is sad, not scary, and a throbbing red chip is an alarm in costume.
+
 ### What this pass taught, twice
 
 **A write-up can run ahead of the code.** It happened on the tech tree in v6 and again on
@@ -282,12 +296,30 @@ an absence. `board-fills` measures the painted land against the box the map was 
 three real widths, and it was watched to fail on the old CSS first: it reported exactly the
 39% and the 75% that the screenshot had shown.
 
+And the colour check taught the sharper version of the same lesson twice over. Widened to
+name the city's surfaces, it went green **with the red still in place** — it was running on
+the map, where `.sab-alarm` does not exist, so `querySelectorAll` found nothing and it
+passed by not looking. *Green for the wrong reason is worse than red*, because red gets
+investigated. It now opens the city, and it **fails if a surface it names is not on
+screen**: a check that silently skips what it cannot find is not a check. Getting there
+also turned up why it could not open one — `G.ev` puts a second thing over the map that
+swallows the pair of taps a city needs — which is the sort of fact only an attempt
+surfaces.
+
+**54 checks, 0 failed.** F and G added two — `board-fills` and `no-raw-escapes` — and
+widened a third; each was watched to fail first, and `colour-roles` failed for the wrong
+reason before it failed for the right one.
+
+(This paragraph said 55 until the suite was actually run. The count was the number I
+expected, not the number the tool printed, which is the same failure the section above is
+about and the reason it is written down: **do not report a number you have not read.**)
+
 **An assertion that fires on correct work is a bug in the assertion, and fixing it is not
 loosening it.** Three did here — the rail check, the city-turn overlap check and the size
 ladder — and each was rewritten to check the real promise instead of a proxy for it. That is
 the same rule as Bizzing-Videos' `rig.ladderSpan`, arrived at independently.
 
-53 checks, 0 failed, layout audit green.
+54 checks, 0 failed, layout audit green.
 
 ## 10. Phase 2 and beyond (not in this build)
 

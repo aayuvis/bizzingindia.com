@@ -991,16 +991,29 @@ check('rail', 'what is live is stacked worst-first, dismissible, and never over 
     const before = rows.length;
     rows[0].querySelector('.sab-railx').click();
     const after = document.querySelectorAll('#sab-rail .sab-railrow').length;
-    /* and the rail must not sit on top of the board */
+    /* AND IT MUST NOT COVER THE BOARD IT IS TALKING ABOUT.
+       This started as "the rail may not overlap the board at all", which was right
+       while the rail sat in the flow and wrong the moment it stopped: a rail above the
+       map costs the map its whole height, and on a phone the map only had 150px to
+       give. The promise was never "no overlap" — it was "you can still see the thing".
+       So the check asks what it actually cares about: the rail stays in a corner, it
+       takes a minority of the board, and it never sits over the middle. */
     const board = document.querySelector('.sab-stage').getBoundingClientRect();
     const rr = rail.getBoundingClientRect();
-    return { before, after, order, overlaps: rr.bottom > board.top + 2 && rr.height > 0 };
+    const area = (rr.width * rr.height) / (board.width * board.height);
+    const cx = board.left + board.width / 2, cy = board.top + board.height / 2;
+    const overCentre = cx > rr.left && cx < rr.right && cy > rr.top && cy < rr.bottom;
+    return { before, after, order, area, overCentre,
+             inside: rr.left >= board.left - 2 && rr.right <= board.right + 2 };
   });
   if (r.before < 2) throw new Error(`only ${r.before} rows with two things live`);
   if (r.order.join('') !== [...r.order].sort().join(''))
     throw new Error('the rail is not worst-first: ' + r.order.join(','));
   if (!(r.after < r.before)) throw new Error('dismissing a row did not remove it');
-  if (r.overlaps) throw new Error('the rail sits over the board — it covers the thing it is telling you about');
+  if (!r.inside) throw new Error('the rail hangs outside the board');
+  if (r.overCentre) throw new Error('the rail sits over the middle of the board');
+  if (r.area > 0.28)
+    throw new Error(`the rail covers ${Math.round(r.area * 100)}% of the board — it is a wall, not a corner`);
 });
 
 async function main() {

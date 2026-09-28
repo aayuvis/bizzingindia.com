@@ -329,15 +329,26 @@ Five passes, each with a check that fails before it passes.
   because an overflowing negative margin is how a bleed comes back by accident rather
   than on purpose.
 
-  The room the board could not take by bleeding was then given to it properly: the
-  **card's own side padding drops from 22px to 8px below 560px**, in `app.css`, so the
-  board gains the width from inside the page rather than by stepping outside it. Vertical
-  padding is untouched — it is the rhythm between cards, and it costs the map nothing,
-  because the board's height follows its width. A 390px phone went **29% → 34.5%**, a
-  375px one to 41.4%, and the HUD bar collapsed from two rows to one, so the map gained
-  height as well. That padding is site-wide, so `no-bleed` watches both halves of the
-  promise: the board stays inside the page, **and** takes at least 85% of its width. A
-  card padding quietly restored is a map quietly shrunk, and nothing else would notice.
+  The room the board could not take by bleeding was then given to it properly, by cutting
+  the chrome it sits in: below 560px the **card's side padding drops 22px → 8px** and the
+  **page's gutter 16px → 8px**, both in `app.css`. Between them those two were taking
+  **38px of each side of a 390px screen — 19% of it** — before a single pixel went to the
+  thing the screen is for. Vertical padding is untouched: it is the rhythm between cards
+  and costs the map nothing, because the board's height follows its width.
+
+  | phone | before | now |
+  |---|---|---|
+  | 390×844 | 29% | **37.8%** |
+  | 375×667 | 34.6% | **45.6%** |
+  | 360×740 | 29.2% | **39.1%** |
+
+  The board is now 91% of the screen's width, and at the wider board the HUD bar
+  collapsed from two rows to one, so the map gained height as well. Both numbers are
+  site-wide, so every screen was walked at 390 **and 320** before shipping — no sideways
+  scroll, nothing clipped, and text still lands 16px from the edge. `no-bleed` watches
+  both halves of one promise: the board stays inside the page **and** takes at least 88%
+  of its width. A padding quietly restored is a map quietly shrunk, and nothing else in
+  the suite would notice.
 
 ### What this pass taught, twice
 

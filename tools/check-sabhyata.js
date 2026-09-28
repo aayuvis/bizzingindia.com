@@ -1172,10 +1172,14 @@ check('no-bleed', 'on a phone the board fills the page without escaping it', asy
 
      AND THE OTHER HALF OF THE SAME PROMISE: inside the page, but using nearly all of
      it. The room the board could not take by bleeding was found instead by cutting the
-     card's own side padding on phones from 22px to 8px -- that padding is site-wide, so
-     the number lives in app.css and this is the only thing watching it. A phone's board
-     is bound by width, so a card padding quietly restored is a map quietly shrunk. */
-  const sizes = [[390, 844], [360, 740], [375, 667]];
+     chrome it sits in -- the card's own side padding from 22px to 8px, and the page's
+     gutter from 16px to 8px, both below 560px. Between them those two were taking 38px
+     of each side of a 390px screen, 19% of it, before a single pixel went to the thing
+     the screen is for.
+     Both numbers live in app.css and this is the only thing watching them. A phone's
+     board is bound by width, so a padding quietly restored is a map quietly shrunk, and
+     nothing else in the suite would notice. */
+  const sizes = [[390, 844], [360, 740], [375, 667], [320, 568]];
   const bad = [];
   for (const [w, h] of sizes) {
     await p.setViewportSize({ width: w, height: h });
@@ -1194,7 +1198,7 @@ check('no-bleed', 'on a phone the board fills the page without escaping it', asy
       bad.push(`${w}x${h}: the board bleeds out of the page by ${Math.max(r.outL, r.outR)}px`);
     if (r.over > 1)
       bad.push(`${w}x${h}: the page scrolls sideways by ${r.over}px`);
-    if (r.frac < 0.85)
+    if (r.frac < 0.88)
       bad.push(`${w}x${h}: the board is only ${Math.round(r.frac * 100)}% of the screen's width — side padding has crept back`);
   }
   await p.setViewportSize({ width: 1440, height: 900 });

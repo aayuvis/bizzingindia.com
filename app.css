@@ -236,6 +236,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (max-width: 560px) {
   .card { padding: var(--space-xl) var(--space-sm); }
   .card.tight { padding: var(--space-md) var(--space-sm); }
+  /* and the page's own gutter, for the same reason. Between them the card and the page
+     were taking 38px of each side of a 390px screen -- 19% of it -- before a single
+     pixel went to the thing the screen is for. The topbar keeps its 16px, and content
+     now lands at 8+8=16 from the edge, so the two still line up. */
+  .wrap { padding-left: var(--space-sm); padding-right: var(--space-sm); }
 }
 .card.flat { box-shadow: none; background: var(--card2); }
 .grid { display: grid; gap: var(--space-lg); }

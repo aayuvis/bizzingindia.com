@@ -163,7 +163,45 @@
        is said in words on the pill instead, and the card stays as readable as the ones
        beside it. Somebody deciding whether to buy a course needs to be able to read it. */
     '.pa-lock b{color:var(--text2)}',
-    '@media (prefers-reduced-motion: reduce){.pa-bar i{transition:none}}'
+    '@media (prefers-reduced-motion: reduce){.pa-bar i{transition:none}}',
+
+    /* ============================ THE TAKE-HOME PACK ============================
+       A course that only exists on a screen is a course a family cannot do at the table.
+       This is the part that leaves: verse cards, a question for each part to ask at
+       dinner, something to do at home, and every project brief with room to write on.
+       It is one page, built to be printed or saved as a PDF, and it carries its own
+       attribution because a sheet of paper has no tooltip. */
+    '.pk-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}',
+    '.pk{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px}',
+    '.pk h1{font:800 26px/1.15 var(--display,Georgia,serif);margin:0 0 4px}',
+    '.pk h2{font:800 18px/1.2 var(--display,Georgia,serif);margin:22px 0 6px;' +
+      'border-top:1px solid var(--line);padding-top:14px}',
+    '.pk h3{font:800 14px/1.25 var(--body);margin:14px 0 4px}',
+    '.pk p{margin:0 0 8px;font-size:13.5px;line-height:1.6}',
+    '.pk .pk-lead{color:var(--muted)}',
+    '.pk-verse{border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 10px;' +
+      'background:var(--ground2);break-inside:avoid}',
+    '.pk-sa{font-size:19px;white-space:pre-line;margin:0 0 6px}',
+    '.pk-tr{font-style:italic;color:var(--text2);white-space:pre-line;margin:0 0 6px;font-size:13px}',
+    '.pk-at{font-size:11.5px;color:var(--muted);margin:6px 0 0}',
+    '.pk-mod{break-inside:avoid;margin:0 0 6px}',
+    '.pk-q{border-left:4px solid var(--accent2);padding:6px 0 6px 11px;margin:6px 0}',
+    '.pk-q b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}',
+    '.pk-rule{border-bottom:1px solid var(--line);height:26px}',
+    '.pk-foot{margin-top:20px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}',
+
+    /* PRINTING. Everything that is screen furniture goes: the site bar, the bottom nav,
+       the page artwork, the back link and the buttons that do nothing on paper. What is
+       left is black on white with the parts kept whole across page breaks. */
+    '@media print{' +
+      'body{background:#fff !important}' +
+      '.topbar,.nav,.navtab,.wa-layer,.pk-tools,.backlink,#navmoresheet{display:none !important}' +
+      '.pk{border:0;padding:0;background:#fff}' +
+      '.pk h2{break-after:avoid}' +
+      '.pk-verse,.pk-mod{break-inside:avoid}' +
+      '.pk-rule{border-bottom:1px solid #999}' +
+      '.wrap{padding:0 !important;max-width:none !important}' +
+    '}'
   ].join('');
 
   function styles() {
@@ -275,7 +313,9 @@
       '<span class="pa-pill' + (s.mastered ? ' on' : '') + '">' + s.mastered + ' of ' +
         s.objectives + ' learned</span>' +
       '<span class="pa-pill">' + s.made + ' of ' + s.projects + ' projects made</span></div>' +
-      '<div class="pa-bar"><i style="width:' + s.pct + '%"></i></div></div>' +
+      '<div class="pa-bar"><i style="width:' + s.pct + '%"></i></div>' +
+      '<div class="pk-tools" style="margin-top:12px"><button class="btn" data-pa="pack" data-id="' +
+        esc(c.id) + '">Take-home pack — print it</button></div></div>' +
       warn +
       '<div class="pa-mods">' + mods + '</div>' +
       (asg ? '<h3>Every week, with your family</h3>' + asg : '') +
@@ -321,6 +361,106 @@
       body + '</div></div>';
   }
 
+  /* -------------------------------------------------------------- the take-home pack */
+  /* Verse cards are built from data-shlok.js at render time, so a card cannot drift from
+     the verse it claims to be — there is one copy of the text and this is not it. Only
+     ids the course actually cites appear, and only ones that resolve to a real verse. */
+  /* THE SCRIPT IS THE COLLECTION'S, NOT SANSKRIT'S. The first version set lang="sa" on
+     every card, which put Thirukkural — Tamil — into a Devanagari face. docs/05: a script
+     is set correctly or it is not set at all, and the Neeti-facing parts of these courses
+     cite Tamil and Pali on purpose, because the same quality turning up in three
+     traditions is the lesson. The lang attribute is derived from the collection, and the
+     app's own :lang() rules then pick the right face, size and line-height. */
+  var LANG = { Sanskrit: 'sa', Tamil: 'ta', Pali: null, Hindi: 'hi' };
+  function verseCards(c) {
+    var SH = W.IND_SHLOK;
+    if (!SH || !SH.verses) return '';
+    var langOf = {};
+    (SH.collections || []).forEach(function (x) { langOf[x.id] = LANG[x.language] || null; });
+    var want = [];
+    c.modules.forEach(function (m) {
+      m.lessons.forEach(function (l) {
+        ((l.use || {}).sh || []).forEach(function (id) {
+          if (want.indexOf(id) < 0) want.push(id);
+        });
+      });
+    });
+    var cards = want.map(function (id) {
+      var v = null;
+      SH.verses.forEach(function (x) { if (x.id === id) v = x; });
+      if (!v) return '';                      /* a collection id, not a verse — skip */
+      var lg = langOf[v.collection];
+      return '<div class="pk-verse">' +
+        '<p class="pk-sa"' + (lg ? ' lang="' + lg + '"' : '') + '>' +
+          esc(v.text_original || '') + '</p>' +
+        (v.translit ? '<p class="pk-tr">' + esc(v.translit) + '</p>' : '') +
+        '<p>' + esc(v.meaning_kid || '') + '</p>' +
+        '<p class="pk-at">' + esc(v.source || '') + '</p></div>';
+    }).filter(Boolean).join('');
+    if (!cards) return '';
+    return '<h2>Verse cards</h2>' +
+      '<p class="pk-lead">Cut these out. Every one carries where it comes from, because a ' +
+      'sheet of paper cannot be tapped for a source. Nothing is printed here that this app ' +
+      'cannot attribute.</p>' + cards;
+  }
+
+  /* the pack counts its own cards, so the sentence describing it cannot drift from it */
+  function nCards(c) {
+    var SH = W.IND_SHLOK; if (!SH || !SH.verses) return '';
+    var ids = [];
+    c.modules.forEach(function (m) { m.lessons.forEach(function (l) {
+      ((l.use || {}).sh || []).forEach(function (id) {
+        if (ids.indexOf(id) < 0 && SH.verses.some(function (v) { return v.id === id; })) ids.push(id);
+      });
+    }); });
+    return ids.length ? ids.length + ' ' : '';
+  }
+
+  function packPage(cid) {
+    styles();
+    var c = get(cid); if (!c) return hub();
+    var review = (c.needsReview && c.needsReview.length)
+      ? '<h2>For the grown-up, before you start</h2>' +
+        c.needsReview.map(function (x) { return '<p>' + esc(x) + '</p>'; }).join('')
+      : '';
+    var mods = c.modules.map(function (m, i) {
+      return '<div class="pk-mod"><h3>' + (i + 1) + '. ' + esc(m.name) + '</h3>' +
+        '<p>After this part a child can <b>' + esc(m.objective) + '</b>.</p>' +
+        (m.talk ? '<div class="pk-q"><b>Ask at the table</b>' + esc(m.talk) + '</div>' : '') +
+        (m.home ? '<div class="pk-q"><b>At home this week</b>' + esc(m.home) + '</div>' : '') +
+        '<p><b>Project · ' + esc(m.project.name) + '</b> — ' + esc(m.project.brief) + '</p>' +
+        '<p class="pk-at">You will have made: ' + esc(m.project.made) + '</p>' +
+        '<div class="pk-rule"></div><div class="pk-rule"></div><div class="pk-rule"></div>' +
+        '</div>';
+    }).join('');
+    var asg = (c.assignments || []).map(function (a) {
+      return '<p><b>' + esc(a.name) + '</b> — ' + esc(a.brief) + '</p>';
+    }).join('');
+    return '<div class="pa-wrap">' +
+      '<div class="pk-tools">' +
+        '<button class="backlink" data-pa="course" data-id="' + esc(cid) + '">' +
+          api.icon('back', 18) + ' ' + esc(c.name) + '</button>' +
+        '<button class="btn primary" data-pa="print">Print, or save as PDF</button>' +
+      '</div>' +
+      '<div class="pk">' +
+      '<h1>' + esc(c.name) + '</h1>' +
+      '<p class="pk-lead">' + esc(c.sub) + ' · ' + c.hours + ' hours · ages ' +
+        c.ages[0] + '–' + c.ages[1] + ' · ' + c.modules.length + ' parts</p>' +
+      '<p>' + esc(c.blurb) + '</p>' +
+      (c.takeHome ? '<p class="pk-lead">In this pack: ' + nCards(c) + esc(c.takeHome) + '</p>' : '') +
+      '<h2>How this course measures learning</h2>' +
+      '<p>' + esc(P.parentNote) + '</p>' +
+      review +
+      verseCards(c) +
+      '<h2>The parts</h2>' + mods +
+      (asg ? '<h2>Every week, with your family</h2>' + asg : '') +
+      '<h2>Where this comes from</h2>' +
+      (c.sources || []).map(function (x) { return '<p class="pk-at">' + esc(x) + '</p>'; }).join('') +
+      '<p class="pk-foot">Bizzing India · Paathshala · this pack is generated from the ' +
+        'course itself, so it cannot disagree with what is on the screen.</p>' +
+      '</div></div>';
+  }
+
   /* ------------------------------------------------------------------ actions */
   /* Returns true when it handled the click, so the host can fall through to its own
      dispatcher for everything else. Keyboard comes free: every control here is a real
@@ -333,6 +473,8 @@
                        '|' + el.getAttribute('data-l'));
       return true;
     }
+    if (a === 'pack')  { api.go('paathp', el.getAttribute('data-id')); return true; }
+    if (a === 'print') { W.print(); return true; }
     if (a === 'made') {
       var cid = el.getAttribute('data-id'), pid = el.getAttribute('data-p');
       var r = course(cid);
@@ -362,6 +504,7 @@
     state: function () { return st; },
     hub: hub,
     course: coursePage,
+    pack: packPage,
     lesson: function (arg) {
       var p = String(arg || '').split('|');
       return lessonPage(p[0], p[1], p.slice(2).join('|'));

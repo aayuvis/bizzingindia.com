@@ -5352,6 +5352,12 @@
     if (!U) return V.paath();
     return U.lesson(arg);
   };
+  /* the printable take-home pack — the half of a course that leaves the screen */
+  V.paathp = function (arg) {
+    var U = paathUI();
+    if (!U) return V.paath();
+    return U.pack(arg);
+  };
 
   V.me = function () {
     var packs = window.IND_AVATAR_PACKS || [];
@@ -5756,6 +5762,7 @@
       case 'avcard': h = V.avcard(view.arg); break;
       case 'paath':  h = V.paath(view.arg); break;
       case 'paathl': h = V.paathl(view.arg); break;
+      case 'paathp': h = V.paathp(view.arg); break;
       case 'me': h = V.me(); break;
       default: h = V.home();
     }

@@ -85,6 +85,23 @@ The short version:
   property, read `docs/02-production-brief.md` in Bizzing-Videos. Every trap in it was paid
   for once already.
 
+## Courses (Paathshala)
+
+Ten courses, 246 hours, laid over the corpus rather than written from scratch — see
+[docs/20-courses.md](docs/20-courses.md). Three rules bind anyone touching them:
+
+- **A check on the same day as its teaching is practice, not learning.** `ledger()` in
+  `app/paath.js` is the only door into the mastery record, and it writes only when the
+  check happens on a later day. The grown-up's report shows objectives, never minutes.
+- **A course may only quote a verse that already exists, sourced, in `data-shlok.js`.**
+  The Gita course is built on the five Gita verses this app has and says so. Anywhere a
+  course wants a verse it does not have, `needsVerse` renders an honest screen.
+- **Sensitive modules carry `needsReview` and do not publish.** Colonial rule, Partition,
+  contested claims in the history of science, and the whole Gita course.
+
+`tools/check-paath.js` holds all of it — hours = modules × 3, every corpus reference
+resolves, nothing sensitive claims to be finished.
+
 ## Architecture (planned)
 
 Vanilla ES modules + Vite + PWA · Supabase (Auth/Postgres/RLS) · Stripe (+ Razorpay/UPI for

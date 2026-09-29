@@ -5322,6 +5322,37 @@
       (n ? '<button class="pill" data-act="diagclear">Clear it</button>' : '') + '</div>';
   }
 
+  /* ---------------------------------------------------------------- PAATHSHALA */
+  /* The course engine lives in paath.js and keeps its own record. This is the whole of
+     the seam: it is handed the four things it needs from the host and nothing else, and
+     it never reaches into S itself. `owns` is a LABEL check, not an entitlement check —
+     the real gate is server-authoritative and does not exist yet (docs/07), so a premium
+     course shows the lock and sends the grown-up to the Parents area. */
+  var paathReady = false;
+  function paathUI() {
+    if (!window.IND_PAATH_UI || !window.IND_PAATH) return null;
+    if (!paathReady) {
+      S.paath = S.paath || { v: 1, c: {} };
+      window.IND_PAATH_UI.init({
+        state: S.paath,
+        save: save, go: go, toast: toast, icon: icon, esc: esc,
+        owns: function (cid) { return (S.own.packs || []).indexOf('paath.' + cid) >= 0; }
+      });
+      paathReady = true;
+    }
+    return window.IND_PAATH_UI;
+  }
+  V.paath = function (arg) {
+    var U = paathUI();
+    if (!U) return '<div class="card"><h2>Paathshala</h2><p>The courses did not load.</p></div>';
+    return arg ? U.course(arg) : U.hub();
+  };
+  V.paathl = function (arg) {
+    var U = paathUI();
+    if (!U) return V.paath();
+    return U.lesson(arg);
+  };
+
   V.me = function () {
     var packs = window.IND_AVATAR_PACKS || [];
     return '<div class="card"><div class="row" style="flex-wrap:nowrap">' + art(S.buddy, 92) +
@@ -5462,7 +5493,8 @@
      Moral Science · Play. Itihaas is not a door any more — the river of time
      lives INSIDE India (the timeline atop the map); V.itihaas and V.era stay
      as pages the timeline opens. */
-  var TABS = [['home', 'Home', 'chart'], ['stories', 'Stories', 'tree'], ['map', 'India', 'map'],
+  var TABS = [['home', 'Home', 'chart'], ['paath', 'Paathshala', 'book'],
+              ['stories', 'Stories', 'tree'], ['map', 'India', 'map'],
               ['bhasha', 'Bhasha', 'script'], ['neeti', 'Moral Science', 'star'],
               ['khel', 'Play', 'game']];
 
@@ -5722,6 +5754,8 @@
       case 'worlds': h = V.worlds(); break;
       case 'tongue': h = V.tongue(); break;
       case 'avcard': h = V.avcard(view.arg); break;
+      case 'paath':  h = V.paath(view.arg); break;
+      case 'paathl': h = V.paathl(view.arg); break;
       case 'me': h = V.me(); break;
       default: h = V.home();
     }
@@ -5843,6 +5877,12 @@
 
   /* =============================================================== DISPATCH */
   document.addEventListener('click', function (e) {
+    /* PAATHSHALA FIRST. Its controls carry data-pa rather than data-act so the course
+       engine owns its own verbs and this dispatcher does not grow ten more branches.
+       It returns true when it handled the click; everything else falls through. */
+    var pa = e.target.closest('[data-pa]');
+    if (pa && window.IND_PAATH_UI &&
+        window.IND_PAATH_UI.act(pa.getAttribute('data-pa'), pa)) return;
     var t = e.target.closest('[data-act]'); if (!t) return;
     var a = t.getAttribute('data-act');
 
@@ -5851,7 +5891,9 @@
     if (nms && a !== 'navmore') nms.remove();
 
     if (a === 'begin')  { view = { name: 'onboard' }; return render(); }
-    if (a === 'go')     return go(t.getAttribute('data-v'));
+    /* data-arg is optional and was added for Paathshala, whose lessons link straight
+       into a story, a verse or an era. Absent everywhere else, so undefined. */
+    if (a === 'go')     return go(t.getAttribute('data-v'), t.getAttribute('data-arg') || undefined);
     /* the day's target is the family's to choose (Bee's goal picker) */
     if (a === 'goalset') {
       S.goal = +t.getAttribute('data-g') || 3; save();

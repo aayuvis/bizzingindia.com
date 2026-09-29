@@ -44,7 +44,8 @@ function serve() {
 function corpus() {
   global.window = global.window || {};
   const need = ['data-shlok.js', 'data-neeti.js', 'data-dharma.js', 'data-utsav.js',
-                'data-rishtey.js', 'data-itihaas.js', 'data-geet.js', 'data-paath.js'];
+                'data-rishtey.js', 'data-itihaas.js', 'data-geet.js',
+                'data-epic-mahabharata.js', 'data-paath.js'];
   need.forEach(f => require(path.join(APP, f)));
   const W = global.window;
   /* stories live across a dozen files and two epics; scrape their ids textually rather
@@ -71,6 +72,9 @@ function corpus() {
     /* an era reference may be the era or one of the figures inside it */
     it: new Set([].concat(...arr(W.IND_ITIHAAS, 'eras')
           .map(e => [e.id].concat((e.figures || []).map(f => f.id).filter(Boolean))))),
+    /* Mahabharata episodes are numbered, not id'd, so `mb` holds numbers. The Gita
+       course leans on episode 26, which is the conversation retold without quoting it. */
+    mb: new Set(arr(W.IND_EPIC_MAHABHARATA, 'episodes').map(e => e.n)),
   };
 }
 
@@ -307,6 +311,82 @@ check('dayrule', 'a check taken the same day is practice, not learning', async (
     throw new Error('a check on a LATER day still did not count — the rule is now unpassable');
 });
 
+check('pack', 'a course leaves the screen', async ({ p, C }) => {
+  /* A course that only exists on a screen is a course a family cannot do at the table.
+     The take-home pack is the half that leaves: verse cards with their attribution, a
+     question to ask at dinner and something to do at home for each part, and every
+     project brief with room to write on. It is generated from the course itself, so it
+     cannot disagree with what is on the screen. */
+  await p.evaluate(() => document.querySelector('.pa-card[data-id="gita-course"]').click());
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('[data-pa="pack"]').click());
+  await p.waitForTimeout(700);
+  const gita = C.P.courses.find(c => c.id === 'gita-course');
+  const r = await p.evaluate(() => ({
+    verses: document.querySelectorAll('.pk-verse').length,
+    mods: document.querySelectorAll('.pk-mod').length,
+    boxes: document.querySelectorAll('.pk-q').length,
+    rules: document.querySelectorAll('.pk-rule').length,
+    attributed: [...document.querySelectorAll('.pk-verse')]
+      .every(v => (v.querySelector('.pk-at') || {}).textContent),
+  }));
+  if (r.mods !== gita.modules.length)
+    throw new Error(`the pack shows ${r.mods} parts, the course has ${gita.modules.length}`);
+  if (!r.verses) throw new Error('no verse cards in a course built on verses');
+  if (!r.attributed) throw new Error('a verse card has no attribution — on paper there is no tooltip');
+  /* every part carries a question to ask and something to do at home */
+  const want = gita.modules.filter(m => m.talk).length + gita.modules.filter(m => m.home).length;
+  if (r.boxes !== want) throw new Error(`${want} table questions and home activities, ${r.boxes} rendered`);
+  if (r.rules < gita.modules.length) throw new Error('there is nowhere to write');
+
+  /* and printing takes the screen furniture away */
+  await p.emulateMedia({ media: 'print' });
+  await p.waitForTimeout(300);
+  const pr = await p.evaluate(() => {
+    const gone = n => { const e = document.querySelector(n); return !e || getComputedStyle(e).display === 'none'; };
+    return { topbar: gone('.topbar'), tools: gone('.pk-tools'), art: gone('.wa-layer'),
+             pack: getComputedStyle(document.querySelector('.pk')).display !== 'none' };
+  });
+  await p.emulateMedia({ media: 'screen' });
+  if (!pr.topbar || !pr.tools || !pr.art)
+    throw new Error('printing does not hide the screen furniture');
+  if (!pr.pack) throw new Error('printing hides the pack itself');
+});
+
+check('script', 'every verse is set in its own script', async ({ p }) => {
+  /* docs/05: a script is set correctly or it is not set at all. The first version of the
+     pack put lang="sa" on every card, which renders Thirukkural — Tamil — in a Devanagari
+     face. These courses cite Tamil and Pali deliberately, because the same quality turning
+     up in three traditions is the lesson, so the pack must carry three scripts and not one.
+     The lang attribute is derived from the verse's collection, and the app's :lang() rules
+     do the rest. */
+  await p.evaluate(() => document.querySelector('.pa-card[data-id="gita-course"]').click());
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('[data-pa="pack"]').click());
+  await p.waitForTimeout(700);
+  const bad = await p.evaluate(() => {
+    const SH = window.IND_SHLOK;
+    const langOf = {};
+    (SH.collections || []).forEach(c => { langOf[c.id] = c.language; });
+    const expect = { Sanskrit: 'sa', Tamil: 'ta', Pali: null };
+    const out = [];
+    /* walk the cards in order against the verses the course cites, by matching text */
+    document.querySelectorAll('.pk-verse').forEach(card => {
+      const txt = (card.querySelector('.pk-sa') || {}).textContent || '';
+      const lang = (card.querySelector('.pk-sa') || {}).getAttribute
+                 ? card.querySelector('.pk-sa').getAttribute('lang') : null;
+      let v = null;
+      (SH.verses || []).forEach(x => { if ((x.text_original || '') === txt) v = x; });
+      if (!v) { out.push('a card matches no verse in data-shlok.js'); return; }
+      const want = expect[langOf[v.collection]];
+      if ((want || null) !== (lang || null))
+        out.push(`${v.id} is ${langOf[v.collection]} but tagged lang="${lang}"`);
+    });
+    return out;
+  });
+  if (bad.length) throw new Error(bad.join('; '));
+});
+
 check('report', 'the grown-up is told objectives, never minutes', async ({ p }) => {
   /* docs/05 and the sibling app's rule: if it is not in the mastery record it does not go
      in a report. A report that counts minutes rewards leaving the app open. */
@@ -388,7 +468,7 @@ async function main() {
     ? process.argv[process.argv.indexOf('--only') + 1] : null;
   const C = corpus();
   const needsBrowser = CHECKS.some(c => (!only || c.id === only) &&
-    ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable'].includes(c.id));
+    ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script'].includes(c.id));
 
   let server = null, browser = null, port = 0;
   if (needsBrowser) {
@@ -401,7 +481,7 @@ async function main() {
   let pass = 0, fail = 0;
   for (const c of CHECKS) {
     if (only && c.id !== only) continue;
-    const browserCheck = ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable'].includes(c.id);
+    const browserCheck = ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script'].includes(c.id);
     let ctx = { C };
     if (browserCheck) ctx = Object.assign({ C }, await boot(browser, port));
     try {

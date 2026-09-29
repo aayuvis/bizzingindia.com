@@ -87,8 +87,9 @@ The short version:
 
 ## Courses (Paathshala)
 
-Ten courses, 246 hours, laid over the corpus rather than written from scratch — see
-[docs/20-courses.md](docs/20-courses.md). Three rules bind anyone touching them:
+Ten courses, 264 hours, laid over the corpus rather than written from scratch — see
+[docs/20-courses.md](docs/20-courses.md), and [docs/21-gita.md](docs/21-gita.md) for the
+Gita module specifically. Four rules bind anyone touching them:
 
 - **A check on the same day as its teaching is practice, not learning.** `ledger()` in
   `app/paath.js` is the only door into the mastery record, and it writes only when the
@@ -98,6 +99,10 @@ Ten courses, 246 hours, laid over the corpus rather than written from scratch �
   course wants a verse it does not have, `needsVerse` renders an honest screen.
 - **Sensitive modules carry `needsReview` and do not publish.** Colonial rule, Partition,
   contested claims in the history of science, and the whole Gita course.
+- **A verse is set in its own script.** The courses cite Tamil and Pali alongside Sanskrit
+  on purpose — the same quality in three traditions is the lesson — so the take-home pack
+  derives each card's language from its collection. Setting Thirukkural in a Devanagari
+  face is the `docs/05` script rule broken, and `script` in check-paath.js holds it.
 
 `tools/check-paath.js` holds all of it — hours = modules × 3, every corpus reference
 resolves, nothing sensitive claims to be finished.

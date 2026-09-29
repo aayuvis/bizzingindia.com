@@ -1,6 +1,6 @@
 # 20 — Paathshala: the courses
 
-Ten courses, 246 hours, 82 parts, 328 lessons and 82 projects, laid over the corpus this
+Ten courses, 264 hours, 88 parts, 352 lessons and 88 projects, laid over the corpus this
 app already holds. Built in [`app/data-paath.js`](../app/data-paath.js) (the courses) and
 [`app/paath.js`](../app/paath.js) (the engine), checked by
 [`tools/check-paath.js`](../tools/check-paath.js).
@@ -17,7 +17,7 @@ objectives, prerequisites, and **assessment kept separate from teaching**.
 
 ## 2. The economics, because this is where the project dies if it is got wrong
 
-Ten courses at 21–30 hours is **246 hours of child time**. It is **not** 246 hours of
+Ten courses at 21–42 hours is **264 hours of child time**. It is **not** 246 hours of
 authoring, and the sibling repo already has the write-up of what happens when somebody
 tries to make it so. The hours come from:
 
@@ -43,7 +43,7 @@ the cheapest hours in the product and the only ones that leave a family an objec
 | 7 | The Indian Year (festivals) | 21 | 4–10 | 7 | no | 75% |
 | 8 | Songs and Sounds | 21 | 4–9 | 7 | no | 75% |
 | 9 | Vigyan | 24 | 8–12 | 8 | yes | 50% |
-| 10 | Arjuna's Questions (the Gita) | 24 | 9–12 | 8 | yes | 25% |
+| 10 | Arjuna's Questions (the Gita) | **42** | 9–12 | **14** | yes | 40% |
 
 Hours are **modules × 3** by construction — four lessons and a project come to three hours —
 and `check-paath.js` enforces it. A course that claims 30 hours and holds seven modules is
@@ -87,7 +87,10 @@ screen — never a plausible line.
 
 **The Gita course is built on the five Gita verses this app actually has** — 2.47, 2.63,
 6.5, 6.17 and 12.13 — and says so on its own front page. `verses` fails the build if it
-cites any other.
+cites any other. It is fourteen parts and 42 hours, and part 13 is *"What this course does
+not teach you"*: it tells a nine-year-old outright that they have met five verses of seven
+hundred, and why there is no eighteen-chapter map here. Full write-up and the sourcing
+worklist in [21-gita.md](21-gita.md).
 
 ### Nothing sensitive ships unreviewed
 
@@ -120,7 +123,7 @@ by design — Bengali, Gujarati, Kannada, Marathi, Tamil, Telugu and Urdu are da
 
 ## 6. What the checks hold
 
-Twelve, in two kinds. **Structure**, read straight off the data, catches rot that only
+Fourteen, in two kinds. **Structure**, read straight off the data, catches rot that only
 appears on the one page that holds it. **Behaviour**, driven through the real app, catches
 rules that get "simplified" by someone who finds them annoying.
 
@@ -138,6 +141,8 @@ rules that get "simplified" by someone who finds them annoying.
 | `keyboard` | every control is a real `<button>` |
 | `touch` | nothing under 32px, no sideways scroll on a phone |
 | `readable` | no card, header or part is see-through |
+| `pack` | the take-home pack matches the course, and printing drops the chrome |
+| `script` | every verse is set in its own script, never Sanskrit by default |
 
 Four were watched to fail first, each naming the exact fault: a broken hours claim
 (*"neeti-course claims 30h but holds 8 modules"*), a dead reference
@@ -149,6 +154,21 @@ for review"*), and the day rule.
 through an otherwise opaque card, on exactly the five premium courses and no others. The
 lock is said in words now. **Somebody deciding whether to buy a course has to be able to
 read it.**
+
+## 6a. The take-home pack
+
+**A course that only exists on a screen is a course a family cannot do at the table.** Every
+course has a printable pack at `#/paathp/<course>`: verse cards with their attribution
+printed on them (a sheet of paper cannot be tapped for a source), a question to ask at the
+table and something to do at home for each part, every project brief with ruled space, and
+the reviewer notice where there is one. `@media print` drops the site bar, the nav, the page
+artwork and every button that does nothing on paper.
+
+It is generated from the course, so it cannot disagree with the screen, and it **counts its
+own verse cards** — the Gita pack's description used to claim "five verse cards in
+Devanagari" while seven rendered in three scripts, because part 9 cites a Thirukkural and a
+Dhammapada verse deliberately. A number written by hand beside a number produced by code
+disagrees eventually.
 
 ## 7. What is deliberately not done
 

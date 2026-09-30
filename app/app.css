@@ -316,6 +316,31 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .badge.itihaas { color: #2a5b9e; background: #eaf1fb; border-color: #c9dcf2; }
 .badge.aaj     { color: #1a7a54; background: #e7f6ef; border-color: #bfe6d5; }
 
+/* ------------------------------------------------------------- the page head
+   A PAGE HEAD IS A LINE, NOT A LECTURE. Every pillar used to open with a full .card —
+   an h1, a paragraph of what-this-is, and often a second muted paragraph of house rules.
+   tools/check-fold.js measured what that costs on a 900px screen with a 130px sticky bar:
+   Moral Science put its first value 472px down, Bhasha its first pack 364px down,
+   Paathshala its first course 507px down. The first screenful is 770px, so a third to two
+   thirds of it was explanation — and a preamble is the one thing nobody reads, a child
+   least of all.
+
+   So the head is a rule and a line, and what used to be the second paragraph moves to
+   .pfoot at the bottom of the page, where a grown-up who wants it will go looking. The
+   content starts in the first screenful. */
+.phead { padding: 0 0 12px; margin: 0 0 16px; border-bottom: 2px solid var(--text); }
+.phead h1 { font-size: clamp(25px, 3.6vw, 36px); margin: 0 0 3px; line-height: 1.06; }
+.phead .mono { display: block; margin: 0 0 7px; }
+.phead p { margin: 0; color: var(--text2); font-size: 14.5px; line-height: 1.55; max-width: 64ch; }
+.phead .row { margin-top: 10px; }
+@media (max-width: 560px) { .phead { padding-bottom: 9px; margin-bottom: 12px; } }
+
+/* the house rules, the pitch, the small print — kept, moved to the foot */
+.pfoot { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
+  font-size: 12.5px; line-height: 1.6; color: var(--muted); max-width: 76ch; }
+.pfoot b { color: var(--text2); }
+.pfoot .badge { margin-top: 8px; }
+
 /* --------------------------------------------------------------- landing */
 .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: var(--space-2xl); align-items: center; padding: var(--space-2xl) 0; }
 @media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
@@ -903,6 +928,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* The callout sits on the map, anchored to the state it belongs to. Parking the facts in a
    panel below turns looking at a map into reading a table underneath one. */
 .mapwrap { position: relative; width: 100%; }
+/* Home's pinned ask: an ordinary full-width card that happens to be a button. It was
+   written as `.callout` and inherited the map popup's absolute positioning below. */
+.card.ask { display: block; }
+.card.ask:hover { border-color: var(--accent); }
+
 .callout {
   position: absolute; z-index: 3; transform: translate(-50%, calc(-100% - 16px));
   width: min(262px, 76vw); padding: var(--space-md) var(--space-lg) var(--space-lg); text-align: left;

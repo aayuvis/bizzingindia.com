@@ -754,7 +754,11 @@
          family's language is chosen the app cannot lean anyone's way, so the
          ask rides the top of Home — once answered it disappears for good. */
       !S.tongue
-        ? '<button class="card callout" data-act="go" data-v="tongue" style="width:100%;text-align:left;margin-bottom:var(--space-lg)">' +
+        /* NOT `.callout` — that class belongs to the map's popup, which is
+           position:absolute and translated up and left, so this full-width banner was
+           being pulled under the sticky bar and half off the left edge of Home. Found by
+           tools/check-fold.js measuring where Home's first door starts: -67px. */
+        ? '<button class="card ask" data-act="go" data-v="tongue" style="width:100%;text-align:left;margin-bottom:var(--space-lg)">' +
           '<div class="row" style="align-items:center;flex-wrap:nowrap;gap:12px">' + icon('script', 24) +
           '<span style="flex:1"><b>Your family’s language</b>' +
           '<span class="tiny muted" style="display:block">Tell us once — the stories, the words and the map lean your way.</span></span>' +
@@ -3406,17 +3410,17 @@
         ? neetiRow('game', 'festival', 'lamp', 'Festival Frenzy',
           'Twelve festivals, one year — match each to its month', '#F0703C') : '');
 
-    return '<div class="card"><h1>Moral Science</h1>' +
-      '<div class="mono" style="margin-bottom:8px">neeti · नीति — the art of living well</div>' +
-      '<p>' + esc(K.intro) + '</p>' +
-      '<p class="tiny muted">Cards pay sikke. Beads are different: you get one when you ' +
-      '<b>do</b> something, never when you read about it, and nobody checks.</p></div>' +
+    return '<div class="phead"><h1>Moral Science</h1>' +
+      '<span class="mono" lang="hi">neeti · नीति — the art of living well</span>' +
+      '<p>' + esc(K.intro) + '</p></div>' +
       (beads ? V.malaStrip() : '') +
       '<div class="grid g2" style="align-items:start">' +
       neetiHub('Learn', 'Where these ideas are kept, and how they are said.', '#7C5CFF', learn) +
       neetiHub('Practise', 'The twelve values, the hard cases, and the question you take home.', '#13A892', practise) +
       '</div>' +
-      neetiHub('Meet', 'People who steered by one of these, and a game.', '#F0703C', meet);
+      neetiHub('Meet', 'People who steered by one of these, and a game.', '#F0703C', meet) +
+      '<p class="pfoot">Cards pay sikke. Beads are different: you get one when you ' +
+      '<b>do</b> something, never when you read about it, and nobody checks.</p>';
   };
 
   /* THE VALUE DECK — a card per value, and the currency comes from doing them */
@@ -3785,10 +3789,12 @@
   V.bhasha = function () {
     if (!window.IND_SCRIPTS || !window.IND_PACKS) return '<div class="card"><h1>Bhasha</h1><p>The language engine has not loaded.</p></div>';
     var packs = window.IND_PACKS;
-    return '<div class="card"><h1>Bhasha</h1>' +
-      '<p>Not one language — a platform. Hindi and Punjabi run on the <b>same engine</b>, because almost every ' +
-      'Indian script works the same way underneath. Adding Gujarati or Tamil is a data file, not a rewrite.</p>' +
-      '<span class="badge">Premium in the real product</span></div>' +
+    /* The paragraph that used to sit here — "not one language, a platform" — is a pitch
+       aimed at a grown-up, and it was standing between a child and their own script. It
+       is at the foot of this page now, whole. */
+    return '<div class="phead"><h1>Bhasha</h1>' +
+      '<span class="mono">भाषा · the languages of India</span>' +
+      '<p>Pick your family\u2019s script and start. Every pack runs the same eight rungs.</p></div>' +
       /* the family's language leads; everything else follows in file order */
       (function () {
         var keys = Object.keys(packs), t = tongue();
@@ -3823,9 +3829,16 @@
       /* The drills used to be duplicated here as a "Khel" block. Khel is its own
          tab in the bar now, and the same four stalls listed in two places made the
          bar look like it was lying about where the games live. One home. */
-      '<div class="card flat tiny"><b>Note.</b> The Hindi and Punjabi audio here is synthesised, as a placeholder. ' +
-      'Per <code>docs/09</code> it must be replaced with human voice before launch — children imitate these sounds, ' +
-      'and TTS teaches errors a native-speaker parent hears instantly.</div>';
+      /* Both of these used to be above the packs: a platform pitch written for a grown-up
+         and a build note written for us. Neither is what a child opened this tab for. */
+      '<div class="pfoot"><p style="margin:0 0 8px"><b>Not one language — a platform.</b> ' +
+      'Hindi and Punjabi run on the same engine, because almost every Indian script works ' +
+      'the same way underneath. Adding Gujarati or Tamil is a data file, not a rewrite.</p>' +
+      '<p style="margin:0"><b>Note.</b> The Hindi and Punjabi audio here is synthesised, as a ' +
+      'placeholder. Per <code>docs/09</code> it must be replaced with human voice before ' +
+      'launch — children imitate these sounds, and TTS teaches errors a native-speaker ' +
+      'parent hears instantly.</p>' +
+      '<span class="badge">Premium in the real product</span></div>';
   };
 
   /* ------------------------------------------------------------- THE QUIZ
@@ -5091,10 +5104,10 @@
     }
     /* nomenclature rule: the tab's word is the pillar's name; the Mela keeps its
        proper name as the subtitle, the way the river does under Itihaas */
-    var out = '<div class="card"><h1 style="margin:0">Khel</h1>' +
-      '<div class="mono">The Mela — the fairground</div>' +
-      '<p style="margin:10px 0 0">Some stalls are as old as ' +
-      'India, some are drills wearing a costume — every one plays with fingers and with keys.</p></div>';
+    var out = '<div class="phead"><h1>Khel</h1>' +
+      '<span class="mono">The Mela — the fairground</span>' +
+      '<p>Some stalls are as old as India, some are drills wearing a costume — every one ' +
+      'plays with fingers and with keys.</p></div>';
     /* THE HERO STALL. Sabhyata is the fair's big wheel — it gets the top of the
        page as a full-width living banner: the Kashi diorama with drifting mist,
        a cart crossing, an explorer waiting, lamps breathing. One tap plays. */
@@ -5329,6 +5342,140 @@
      the real gate is server-authoritative and does not exist yet (docs/07), so a premium
      course shows the lock and sends the grown-up to the Parents area. */
   var paathReady = false;
+  /* ------------------------------------------- what Paathshala is allowed to ask for
+     A course is an ORDER TO MEET THE CORPUS IN, not a second copy of it, so its lesson
+     screens link out. The first version of those links read `story: pt.talkative-tortoise →`
+     — a database row shown to an eight-year-old, with no picture, in a tab that owns 686
+     paintings. The host already holds every lookup and every art manifest, so it answers
+     on the engine's behalf and the engine keeps none of the host's globals.
+
+     Returning null is a first-class answer: a Bhasha exercise COUNT has no title and no
+     painting, and the engine renders that differently rather than inventing a label.
+     Nothing here derives a picture through more than one hop from the thing the lesson
+     actually names, because a painting that illustrates a guess is the uncredited texture
+     docs/05 forbids. */
+  /* a verse is set in its own script or not at all — docs/05, and check-paath's `script` */
+  var SHLOK_LANG = { Sanskrit: 'sa', Tamil: 'ta', Pali: '', Hindi: 'hi' };
+
+  /* WHICH SCRIPT A STRING IS IN, MEASURED FROM THE STRING. A festival carries `script`
+     but no language code, so ਲੋਹੜੀ arrives with nothing to tag it with and lands in the
+     Latin body face — the decorative-squiggle failure app.css §SCRIPTS is written against.
+     The script is its own evidence: one Unicode block, one lang tag, no guessing and
+     nothing to keep in step by hand. A string with no Indic codepoint returns '', which
+     is the honest answer for Pali (this corpus prints it in roman with diacritics, and
+     `collection.script` says so) and for anything already Latin. */
+  var BLOCKS = [[0x900, 0x97f, 'hi'], [0x980, 0x9ff, 'bn'], [0xa00, 0xa7f, 'pa'],
+                [0xa80, 0xaff, 'gu'], [0xb00, 0xb7f, 'or'], [0xb80, 0xbff, 'ta'],
+                [0xc00, 0xc7f, 'te'], [0xc80, 0xcff, 'kn'], [0xd00, 0xd7f, 'ml'],
+                [0x600, 0x6ff, 'ur']];
+  function scriptLang(s) {
+    var t = String(s || ''), out = '';
+    for (var i = 0; i < t.length && !out; i++) {
+      var c = t.codePointAt(i);
+      for (var j = 0; j < BLOCKS.length; j++)
+        if (c >= BLOCKS[j][0] && c <= BLOCKS[j][1]) { out = BLOCKS[j][2]; break; }
+    }
+    return out;
+  }
+
+  /* ------------------------------------------- what Paathshala is allowed to ask for
+     A course is an ORDER TO MEET THE CORPUS IN, not a second copy of it, so its lesson
+     screens link out. The first version of those links read `story: pt.talkative-tortoise →`
+     — a database row shown to an eight-year-old, with no picture, in a tab that owns 686
+     paintings. The host already holds every lookup and every art manifest, so it answers
+     on the engine's behalf and the engine keeps none of the host's globals.
+
+     Returning null is a first-class answer: a Bhasha exercise COUNT has no title and no
+     painting, and the engine renders that differently rather than inventing a label.
+
+     THE PICTURE IS NEVER MORE THAN ONE HOP from a field the data itself states, and it
+     goes through the host's own art helpers — `eraArt` above carries the reason (a state
+     painting has a tractor in it, and a tractor on the Vedic age costs the pillar its
+     authority). A painting chosen to illustrate a guess is the uncredited texture docs/05
+     forbids, so where there is no honest picture the chip is typographic and says so by
+     being typographic. */
+  function paathLook(kind, id) {
+    var name = null, sub = '', src = null, script = '', lang = '', cap = '', face = '';
+    function find(list, k) {
+      var f = null; (list || []).forEach(function (x) { if (x[k || 'id'] === id) f = x; }); return f;
+    }
+    if (kind === 'st') {
+      var s = find(allStories());
+      if (!s) return null;
+      name = s.title; sub = s.collection || ''; src = storyArt(id);
+      cap = src ? s.title : '';
+    } else if (kind === 'sh') {
+      /* a shlok reference is a single verse, or the whole collection */
+      var v = find((window.IND_SHLOK || {}).verses);
+      var coll = find((window.IND_SHLOK || {}).collections);
+      if (v) {
+        var vc = null;
+        ((window.IND_SHLOK || {}).collections || []).forEach(function (x) { if (x.id === v.collection) vc = x; });
+        name = v.source ? String(v.source).split(/[—·]/)[0].trim() : id;
+        sub = v.meaning_kid ? String(v.meaning_kid) : '';
+        script = v.text_original ? String(v.text_original).split('\n')[0] : '';
+        lang = vc ? (SHLOK_LANG[vc.language] || '') : '';
+      } else if (coll) {
+        name = coll.name; sub = coll.blurb || ''; lang = SHLOK_LANG[coll.language] || '';
+      } else return null;
+    } else if (kind === 'ge') {
+      var g = find((window.IND_GEET || {}).songs) || find((window.IND_GEET || {}).bhajans);
+      if (!g) return null;
+      name = g.title; sub = g.en || g.region || ''; script = g.script || '';
+      lang = SHLOK_LANG[g.lang] || scriptLang(script);
+    } else if (kind === 'ut') {
+      var f = find((window.IND_UTSAV || {}).festivals);
+      if (!f) return null;
+      name = f.name; sub = (f.months || []).join(' · '); script = f.script || '';
+      lang = scriptLang(script);
+    } else if (kind === 'ri') {
+      var t = find((window.IND_RISHTEY || {}).terms);
+      if (!t) return null;
+      name = t.en; sub = t.roman || ''; script = t.hi || ''; lang = 'hi';
+    } else if (kind === 'it') {
+      /* an era, or one of the people standing inside it */
+      var I = (window.IND_ITIHAAS || {}).eras || [], e = find(I), fig = null, holder = null;
+      if (!e) I.forEach(function (x) {
+        (x.figures || []).forEach(function (y) { if (y.id === id) { fig = y; holder = x; } });
+      });
+      if (e) {
+        name = e.title; sub = e.when || ''; src = eraArt(e);
+        cap = src ? e.title + ' — ' + e.when : '';
+      } else if (fig) {
+        /* A PERSON IS DRAWN, NOT PHOTOGRAPHED. Figures have no plate — their likeness is
+           the app's own avatar set, and `face` hands the engine that drawing so a chip
+           for the Buddha is not a photograph of somewhere he is presumed to have walked. */
+        name = fig.name; sub = holder.title || ''; face = art(fig.id, 56);
+      } else return null;
+    } else if (kind === 'va') {
+      var val = find((window.IND_NEETI || {}).values);
+      if (!val) return null;
+      name = val.en; sub = val.roman || ''; script = val.term || ''; lang = 'hi';
+      /* one hop: the lesson named the value, and the value names this story */
+      if (val.stories && val.stories.length) {
+        src = storyArt(val.stories[0]);
+        if (src) { var vs = null; allStories().forEach(function (x) { if (x.id === val.stories[0]) vs = x; }); cap = vs ? vs.title : ''; }
+      }
+    } else if (kind === 'dh') {
+      var d = find((window.IND_DHARMA || {}).faiths);
+      if (!d) return null;
+      name = d.name; sub = d.tag || '';
+      if (d.stories && d.stories.length) {
+        src = storyArt(d.stories[0]);
+        if (src) { var ds = null; allStories().forEach(function (x) { if (x.id === d.stories[0]) ds = x; }); cap = ds ? ds.title : ''; }
+      }
+    } else if (kind === 'mb') {
+      /* Mahabharata episodes are numbered, not id'd, and card 0 is the episode's plate */
+      var n = Number(id), ep = null;
+      ((window.IND_EPIC_MAHABHARATA || {}).episodes || []).forEach(function (x) { if (x.n === n) ep = x; });
+      if (!ep) return null;
+      name = ep.title; sub = ep.book || ''; src = epicArt('mahabharata', n, 0);
+      cap = src ? ep.title : '';
+    } else return null;
+    return { name: name || String(id), sub: sub, art: src, face: face,
+             script: script, lang: lang, cap: cap };
+  }
+
   function paathUI() {
     if (!window.IND_PAATH_UI || !window.IND_PAATH) return null;
     if (!paathReady) {
@@ -5336,6 +5483,7 @@
       window.IND_PAATH_UI.init({
         state: S.paath,
         save: save, go: go, toast: toast, icon: icon, esc: esc,
+        look: paathLook,
         owns: function (cid) { return (S.own.packs || []).indexOf('paath.' + cid) >= 0; }
       });
       paathReady = true;

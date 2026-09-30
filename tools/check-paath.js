@@ -230,6 +230,69 @@ async function boot(browser, port) {
   return { p, errs };
 }
 
+check('voice', 'nothing on screen is a note to ourselves', async ({ C }) => {
+  /* A screenshot of the Gita course showed a parent this, in full:
+     "THIS COURSE DOES NOT PUBLISH WITHOUT A NAMED REVIEWER from within the tradition.
+      docs/05 §6 — doctrinal content is for a human author with a named reviewer…
+      docs/21-gita.md carries the worklist for sourcing more."
+     Every word of that is true and none of it was written for the person reading it: a
+     doc path, a section sign, a rule addressed to whoever maintains the repo, and half a
+     sentence in capitals. The RULE it carries has to stay — those parts do not publish —
+     but a notice nobody can read is not a notice, it is a wall.
+
+     So every string this file puts in front of a family is checked for the three shapes a
+     note to ourselves takes. Comments in the source are untouched; this reads the built
+     data, which is exactly what reaches the screen and the printed pack. */
+  const bad = [];
+  const SHOUT = /\b[A-Z][A-Z' ]{14,}\b/;            /* a run of capitals, not an acronym */
+  const DOC = /\bdocs?\/[\w.-]+|§\s*\d/;             /* a path or a section reference */
+  const JARGON = /\bTODO\b|\bFIXME\b|\bdata-[a-z]+\.js\b|\.md\b|\bmodule \d/i;
+  const seen = (where, t) => {
+    if (typeof t !== 'string' || t.length < 12) return;
+    if (SHOUT.test(t)) bad.push(`${where} shouts: "${t.match(SHOUT)[0].trim()}"`);
+    if (DOC.test(t)) bad.push(`${where} cites the repo: "${t.match(DOC)[0]}"`);
+    if (JARGON.test(t)) bad.push(`${where} is written for us: "${t.match(JARGON)[0]}"`);
+  };
+  let n = 0;
+  C.P.courses.forEach(c => {
+    ['name', 'sub', 'blurb', 'why', 'note', 'takeHome', 'coverAlt'].forEach(k => {
+      if (c[k]) { n++; seen(`${c.id}.${k}`, c[k]); }
+    });
+    (c.needsReview || []).forEach((t, i) => { n++; seen(`${c.id}.needsReview[${i}]`, t); });
+    (c.sources || []).forEach(() => n++);   /* a source is a citation: it may name a book */
+    (c.assignments || []).forEach(a => { n++; seen(`${c.id}.assignment`, a.brief); });
+    c.modules.forEach(m => {
+      ['name', 'objective', 'needsReview', 'talk', 'home'].forEach(k => {
+        if (m[k]) { n++; seen(`${c.id}/${m.id}.${k}`, m[k]); }
+      });
+      if (m.project) { n++; seen(`${c.id}/${m.id}.project`, m.project.brief);
+                       seen(`${c.id}/${m.id}.made`, m.project.made); }
+      m.lessons.forEach(l => { n++; seen(`${c.id}/${m.id}.lesson`, l.n); seen(`${c.id}/${m.id}.lesson.o`, l.o); });
+    });
+  });
+  if (n < 100) throw new Error(`only ${n} strings read — this check would pass on an empty file`);
+  if (bad.length) throw new Error(`${bad.length} of ${n}: ` + bad.slice(0, 5).join('; '));
+});
+
+check('covers', 'every plate is a real picture with a caption', async ({ C }) => {
+  /* docs/05: a folk art tradition is credited, and nothing is uncredited texture. A cover
+     is the largest thing on the screen, so a cover that 404s leaves the biggest hole in
+     the app and a cover with no alt line is a picture nobody has to account for. Both are
+     read off the disk rather than off the data, because the data is the claim and the
+     file is the fact. */
+  const bad = [];
+  C.P.courses.forEach(c => {
+    if (!c.cover) { bad.push(`${c.id} has no cover`); return; }
+    if (!fs.existsSync(path.join(APP, c.cover)))
+      bad.push(`${c.id}'s cover ${c.cover} is not on disk`);
+    if (!c.coverAlt || c.coverAlt.length < 8)
+      bad.push(`${c.id}'s cover has no alt line — an uncredited picture (docs/05)`);
+  });
+  if (!C.P.courses.length) throw new Error('no courses — this check would pass on an empty file');
+  if (bad.length) throw new Error(bad.join('; '));
+});
+
+
 check('opens', 'the tab opens and every course is on it', async ({ p, C }) => {
   const r = await p.evaluate(() => ({
     cards: document.querySelectorAll('.pa-card').length,
@@ -417,27 +480,139 @@ check('keyboard', 'every control is reachable and pressable without a mouse', as
     throw new Error('controls that are not buttons: ' + r.notButtons.join(', '));
 });
 
-check('readable', 'a locked course is still readable', async ({ p }) => {
-  /* The first version said "premium" by putting opacity .72 on the whole card. That dims
-     the text along with everything else and lets the page's artwork show through a card
-     that is otherwise opaque -- which is what a screenshot showed, on exactly the five
-     premium courses and on no others. Somebody deciding whether to buy a course has to be
-     able to read it. The lock is said in words now. */
+check('readable', 'a locked course is said in words, never by fading', async ({ p }) => {
+  /* HISTORY, AND WHY THIS CHECK IS PHRASED AS AN OUTCOME NOW. The first version of the hub
+     said "premium" by putting opacity .72 on the whole card, which dims the text along with
+     everything else — a screenshot found it, on exactly the five premium courses and on no
+     others. The first version of THIS CHECK then demanded an opaque background colour on
+     every card, and that is a MECHANISM, not the promise: it fired the day the hub became
+     an atlas, where a plate is divided by a hairline rule and has no box at all. A check
+     written against a mechanism goes off when the mechanism is legitimately replaced, and
+     the temptation is then to loosen it. So it measures what a person would actually
+     complain about:
+
+       1. nothing is faded — no element inside a plate is under full opacity
+       2. a locked plate's title is the same colour as an unlocked plate's
+       3. the lock is stated in words
+       4. every title contrasts with what is ACTUALLY behind it, box or no box
+
+     Somebody deciding whether to buy a course has to be able to read it. */
   const bad = await p.evaluate(() => {
     const out = [];
-    /* the header too: text on bare page artwork is unreadable, and it is the first
-       thing on the screen */
-    document.querySelectorAll('.pa-card,.pa-head,.pa-mod').forEach(el => {
-      const cs = getComputedStyle(el);
-      if (parseFloat(cs.opacity) < 0.95)
-        out.push((el.getAttribute('data-id') || '?') + ' is at opacity ' + cs.opacity);
-      const bg = cs.backgroundColor.match(/[\d.]+/g) || [];
-      if (bg.length === 4 && parseFloat(bg[3]) < 0.95)
-        out.push((el.getAttribute('data-id') || '?') + ' has a see-through background');
+    /* the contrast of a colour against the first opaque thing behind it */
+    const rgb = s => (String(s).match(/[\d.]+/g) || []).map(Number);
+    const lum = c => {
+      const f = c.slice(0, 3).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); });
+      return .2126 * f[0] + .7152 * f[1] + .0722 * f[2];
+    };
+    /* the nearest ancestor that actually PAINTS something opaque behind this text, and
+       whether the view painted it or the page did */
+    const backdrop = el => {
+      for (let n = el; n; n = n.parentElement) {
+        const c = rgb(getComputedStyle(n).backgroundColor);
+        if (c.length >= 3 && (c.length < 4 || c[3] > .95))
+          return { c, on: n, page: n === document.body || n === document.documentElement };
+      }
+      return { c: [255, 255, 255], on: null, page: true };
+    };
+    const ratio = (a, b) => { const x = lum(a), y = lum(b);
+      return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+
+    /* 1 — nothing anywhere in a plate, part or masthead is faded */
+    document.querySelectorAll('.pa-card,.pa-card *,.pa-mast,.pa-mast *,.pa-mod,.pa-mod *')
+      .forEach(el => {
+        if (parseFloat(getComputedStyle(el).opacity) < 0.95)
+          out.push((el.closest('[data-id]') || el).getAttribute('data-id') + '/' +
+            el.className + ' is faded');
+      });
+
+    /* 2 and 3 — the lock is a sentence, not a filter on the words */
+    const cards = [...document.querySelectorAll('.pa-card')];
+    if (cards.length < 2) out.push('fewer than two plates — this check would prove nothing');
+    const titleColour = c => getComputedStyle(c.querySelector('.pa-body b')).color;
+    const free = cards.filter(c => !c.classList.contains('pa-lock'));
+    const shut = cards.filter(c => c.classList.contains('pa-lock'));
+    if (!shut.length) out.push('no locked plate on the page — this check would prove nothing');
+    shut.forEach(c => {
+      const id = c.getAttribute('data-id');
+      if (free.length && titleColour(c) !== titleColour(free[0]))
+        out.push(id + "'s title is a different colour from an unlocked course's");
+      if (!/unlock/i.test(c.textContent)) out.push(id + ' does not say it is locked in words');
+    });
+
+    /* 4 — every plate title reads against what is ACTUALLY behind it, and the surface it
+       reads against is one this view painted. A screenshot found the reason: the atlas
+       had no surface of its own, so ten titles sat on the page's world artwork and a
+       bazaar mural ran through "My India". A contrast test alone cannot see that — body's
+       background COLOUR is a perfectly readable cream, and the mural is a background
+       IMAGE painted over it. So the test is where the surface comes from, not only how
+       light it is. */
+    cards.forEach(c => {
+      const b = c.querySelector('.pa-body b');
+      const d = backdrop(b);
+      const id = c.getAttribute('data-id');
+      if (d.page) out.push(id + "'s title sits on the page itself, where the world " +
+        'artwork is — it has no surface of its own');
+      const r = ratio(rgb(getComputedStyle(b).color), d.c);
+      if (r < 4.5) out.push(id + "'s title is at " + r.toFixed(1) + ':1 against what is behind it');
     });
     return out;
   });
-  if (bad.length) throw new Error(bad.join('; '));
+  if (bad.length) throw new Error(bad.slice(0, 8).join('; '));
+});
+
+check('labels', 'a child is never shown a database key', async ({ p }) => {
+  /* The first lesson screen read `story: pt.talkative-tortoise →` — a row id, shown to an
+     eight-year-old, in a tab that owns 686 paintings. `api.look` in app.js now resolves
+     every reference to the thing's real title, its own script with the right lang on it,
+     and its own painting where there is an honest one.
+
+     This renders EVERY lesson of every course through the real view function, strips the
+     markup, and looks for the ids in what is left — so an id in a `data-arg` attribute,
+     where it belongs, is fine and an id in front of a child is not. 352 lessons is one
+     pass of string work, and it is the whole surface rather than a sample. */
+  const r = await p.evaluate(() => {
+    const P = window.IND_PAATH, U = window.IND_PAATH_UI;
+    const box = document.createElement('div');
+    const bad = [];
+    let refs = 0, lessons = 0, pics = 0;
+    P.courses.forEach(c => c.modules.forEach(m => m.lessons.forEach(l => {
+      const ids = [];
+      Object.entries(l.use || {}).forEach(([k, v]) => {
+        if (Array.isArray(v)) v.forEach(id => ids.push(String(id)));
+      });
+      if (!ids.length) return;
+      lessons++; refs += ids.length;
+      box.innerHTML = U.lesson(c.id + '|' + m.id + '|' + l.n);
+      pics += box.querySelectorAll('.pa-usefig').length;
+      const words = box.textContent;
+      /* An id is often a slug of the very title it resolves to — the song `poshampa` is
+         called "Poshampa bhai poshampa", and this check found it on its first run. That
+         is the title doing its job, not a key on screen. So the fault is an id that
+         appears while the thing's own NAME does not contain it. */
+      const flat = x => String(x).toLowerCase().replace(/[^a-z0-9]/g, '');
+      ids.forEach(id => {
+        /* a one- or two-character id could appear inside an ordinary word; every id in
+           this corpus is longer than that, and a short one would need a different test */
+        if (id.length <= 3 || words.indexOf(id) < 0) return;
+        /* and it has to be a title that CONTAINS the slug, not a title that IS the slug —
+           otherwise a chip that went back to printing the row id would let itself off */
+        const named = [...box.querySelectorAll('.pa-use b, .pa-use i')].some(b => {
+          const t = flat(b.textContent);
+          return t.indexOf(flat(id)) >= 0 && t.length > flat(id).length;
+        });
+        if (!named) bad.push(`${c.id}/${m.id} shows the id "${id}" as text`);
+      });
+    })));
+    return { bad, refs, lessons, pics };
+  });
+  if (!r.refs) throw new Error('no references rendered — this check would pass on an empty file');
+  if (r.bad.length)
+    throw new Error(`${r.bad.length} raw ids on screen: ` + r.bad.slice(0, 6).join('; '));
+  /* and the lesson screens must actually be showing pictures, not only better words */
+  if (r.pics < r.refs * 0.2)
+    throw new Error(`only ${r.pics} of ${r.refs} references render a picture — ` +
+      'this app owns 686 paintings and the first version used none of them');
 });
 
 check('touch', 'a phone can hit everything', async ({ p }) => {
@@ -468,7 +643,7 @@ async function main() {
     ? process.argv[process.argv.indexOf('--only') + 1] : null;
   const C = corpus();
   const needsBrowser = CHECKS.some(c => (!only || c.id === only) &&
-    ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script'].includes(c.id));
+    ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script', 'labels'].includes(c.id));
 
   let server = null, browser = null, port = 0;
   if (needsBrowser) {
@@ -481,7 +656,7 @@ async function main() {
   let pass = 0, fail = 0;
   for (const c of CHECKS) {
     if (only && c.id !== only) continue;
-    const browserCheck = ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script'].includes(c.id);
+    const browserCheck = ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script', 'labels'].includes(c.id);
     let ctx = { C };
     if (browserCheck) ctx = Object.assign({ C }, await boot(browser, port));
     try {

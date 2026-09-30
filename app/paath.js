@@ -108,61 +108,190 @@
      host is the only thing that knows, and it does not know authoritatively yet. */
   function locked(c) { return !!c.premium && !api.owns(c.id); }
 
-  /* ------------------------------------------------------------------ the styles */
+  /* ------------------------------------------------------------------ the look */
+  /* AN ATLAS, NOT A LIST OF CARDS. The first version was ten grey boxes of text, and it
+     looked like a settings screen for a thing that is actually a shelf of illustrated
+     books. This app owns 686 epic paintings, 399 photographs of places, 344 story plates
+     and a map — it was absurd to render a course library with none of it.
+     So: every course is a PLATE. A cover image, a plate number set in the display face,
+     a title, a standfirst, and a hairline rule under it. The grammar is a reference work:
+     big numerals, small-caps labels, generous margins, one accent per course, and rules
+     rather than boxes wherever a rule will do.
+     The covers are real files already in the repo and every one is named in the data with
+     an alt line, because an uncredited picture is the thing docs/05 forbids. */
   var CSS = [
-    '.pa-wrap{display:flex;flex-direction:column;gap:14px}',
-    /* the header sits on a card like everything else. Without one it lands straight on
-       the page's own artwork and the railway lines run through the text -- which a
-       screenshot showed and no structural check could. */
-    '.pa-head{background:var(--card);border:1px solid var(--line);' +
-      'border-radius:var(--radius-lg);padding:14px 16px}',
-    '.pa-head h2{margin:0 0 4px}',
-    '.pa-lead{color:var(--muted);margin:0 0 6px;max-width:62ch}',
-    '.pa-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}',
-    '.pa-card{display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--line);' +
-      'background:var(--card);border-radius:var(--radius-lg);padding:14px;cursor:pointer;width:100%}',
-    '.pa-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}',
-    '.pa-card b{font:800 16px/1.2 var(--display,Georgia,serif)}',
-    '.pa-card .pa-sub{font-size:12px;color:var(--muted)}',
-    '.pa-card p{margin:2px 0 0;font-size:13px;color:var(--text2)}',
-    '.pa-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px}',
-    '.pa-pill{font:700 11px/1 var(--body);padding:4px 8px;border-radius:999px;background:var(--ground2);color:var(--muted)}',
-    '.pa-pill.on{background:var(--accent-soft);color:var(--accent)}',
-    '.pa-bar{height:6px;border-radius:999px;background:var(--ground2);overflow:hidden;margin-top:8px}',
-    '.pa-bar i{display:block;height:100%;background:var(--accent);border-radius:999px}',
-    '.pa-mods{display:flex;flex-direction:column;gap:10px}',
-    '.pa-mod{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--card);padding:14px}',
-    '.pa-mod h4{margin:0 0 2px;font:800 15px/1.25 var(--display,Georgia,serif)}',
-    '.pa-obj{margin:0 0 8px;font-size:12.5px;color:var(--muted)}',
-    '.pa-obj b{color:var(--text)}',
-    '.pa-less{display:flex;flex-direction:column;gap:4px;margin:8px 0 0}',
-    '.pa-l{display:flex;gap:8px;align-items:center;text-align:left;width:100%;border:0;cursor:pointer;' +
-      'background:var(--ground2);border-radius:10px;padding:8px 11px;min-height:40px}',
-    '.pa-l:focus-visible{outline:2px solid var(--accent);outline-offset:2px}',
-    '.pa-l .k{font:800 10px/1 var(--body);letter-spacing:.06em;padding:3px 6px;border-radius:5px;' +
-      'background:var(--card);color:var(--muted);flex:none}',
-    '.pa-l.done .k{background:var(--accent-soft);color:var(--accent)}',
-    '.pa-l span{flex:1;font:700 13px/1.3 var(--body)}',
-    '.pa-l i{font-style:normal;font-size:11px;color:var(--muted);flex:none}',
-    '.pa-proj{margin-top:10px;border:1px dashed var(--line);border-radius:12px;padding:12px;background:var(--ground2)}',
-    '.pa-proj h5{margin:0 0 4px;font:800 13px/1.2 var(--body)}',
-    '.pa-proj p{margin:0 0 8px;font-size:13px;color:var(--text2)}',
-    '.pa-made{font-size:12px;color:var(--muted);margin:0 0 8px}',
-    '.pa-lesson{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--card);padding:16px}',
-    '.pa-uses{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}',
-    '.pa-use{font:700 12px/1 var(--body);padding:7px 10px;border-radius:999px;border:1px solid var(--line);' +
-      'background:var(--ground2);cursor:pointer;min-height:34px}',
-    '.pa-note{width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:10px;' +
-      'font:400 14px/1.5 var(--body);background:var(--card);color:var(--text);resize:vertical}',
-    '.pa-warn{border:1px solid var(--line);border-left:4px solid #6f6880;background:#eceaf0;' +
-      'border-radius:10px;padding:11px 13px;margin:10px 0;font-size:13px;color:var(--text)}',
-    '.pa-warn b{display:block;margin-bottom:3px}',
-    /* A LOCK IS NOT A FADE. Dimming the whole card to say "premium" dims its text with
-       it and lets the page's artwork through an otherwise opaque card -- which is what
-       a screenshot showed, on exactly the five premium courses and no others. The lock
-       is said in words on the pill instead, and the card stays as readable as the ones
-       beside it. Somebody deciding whether to buy a course needs to be able to read it. */
-    '.pa-lock b{color:var(--text2)}',
+    '.pa-wrap{display:flex;flex-direction:column;gap:0}',
+    /* PAPER. The first atlas draft had no surface of its own, so ten plates and their
+       titles sat straight on the page's world artwork — a bazaar mural ran through "My
+       India" and the rows nearest the bunting read lighter than the rest. Every other
+       view in this app sits on a `.card` for exactly this reason. An atlas is printed on
+       paper anyway, so the surface is the design rather than a patch on it. */
+    '.pa-paper{background:var(--card);border:1px solid var(--line);' +
+      'border-radius:var(--radius-xl,20px);padding:26px 28px;box-shadow:var(--shadow)}',
+    '@media (max-width:620px){.pa-paper{padding:16px 13px;border-radius:14px}}',
+
+    /* ---------- the masthead ---------- */
+    /* THE TALLY GOES BESIDE THE TITLE, NOT UNDER IT. Measured with tools/check-fold.js:
+       the first course plate started 507px down a 770px screenful, because the masthead
+       was five stacked blocks — kicker, title, standfirst, tally, and a paragraph of
+       house rules written for a parent. The rules are at the foot now, where a parent
+       will look, and the tally rides in the empty right half the standfirst leaves. */
+    '.pa-mast{padding:0 0 12px;border-bottom:2px solid var(--text);margin-bottom:16px}',
+    '.pa-mast.flush{border-bottom-width:1px;border-color:var(--line);padding:0 0 12px}',
+    '@media (min-width:820px){' +
+      '.pa-mast{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:32px;align-items:end}' +
+      '.pa-mast>.pa-kick,.pa-mast>h2,.pa-mast>.pa-lead{grid-column:1}' +
+      '.pa-mast>.pa-tally{grid-column:2;grid-row:1/span 3;align-self:end;margin:0;' +
+        'justify-content:flex-end}}',
+    '.pa-kick{font:800 11px/1.4 var(--body);letter-spacing:.18em;text-transform:uppercase;' +
+      'color:var(--muted);margin:0 0 8px}',
+    '.pa-mast h2{font:800 clamp(30px,5vw,46px)/1.02 var(--display,Georgia,serif);' +
+      'margin:0 0 8px;letter-spacing:-.015em}',
+    '.pa-lead{color:var(--text2);margin:0;max-width:58ch;font-size:15px;line-height:1.6}',
+    '.pa-lede2{color:var(--muted);margin:12px 0 0;max-width:62ch;font-size:12.5px;line-height:1.6}',
+    '.pa-tally{display:flex;gap:20px;flex-wrap:wrap;margin:16px 0 0;padding:0;list-style:none}',
+    '.pa-tally li{font:800 10.5px/1.3 var(--body);letter-spacing:.13em;text-transform:uppercase;' +
+      'color:var(--muted)}',
+    '.pa-tally b{display:block;font:800 22px/1.1 var(--display,Georgia,serif);color:var(--text);' +
+      'letter-spacing:-.01em;text-transform:none;margin-bottom:2px}',
+
+    /* ---------- a course plate ---------- */
+    /* Rules, not boxes. Ten bordered cards in a grid is a settings screen; ten plates
+       separated by a hairline is a contents page, and the pictures do the dividing. */
+    '.pa-plates{display:flex;flex-direction:column;gap:0}',
+    '.pa-card{display:grid;grid-template-columns:200px 1fr;gap:22px;align-items:start;' +
+      'width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);' +
+      'background:none;padding:22px 6px;cursor:pointer;position:relative;font:inherit;color:inherit}',
+    '.pa-card:first-child{padding-top:6px}',
+    '.pa-card:hover{background:var(--ground2)}',
+    '.pa-card:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}',
+    '.pa-fig{display:block;position:relative;aspect-ratio:4/3;border-radius:3px;overflow:hidden;' +
+      'background:var(--ground2);box-shadow:0 1px 3px rgba(30,20,64,.18)}',
+    '.pa-fig img{width:100%;height:100%;object-fit:cover;display:block}',
+    '.pa-no{position:absolute;left:0;top:0;background:var(--text);color:var(--card);' +
+      'font:800 10px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;padding:6px 9px}',
+    '.pa-body{display:block;min-width:0}',
+    '.pa-body b{display:block;font:800 clamp(20px,2.5vw,26px)/1.12 var(--display,Georgia,serif);' +
+      'letter-spacing:-.015em;margin:0 0 6px}',
+    '.pa-sub{display:block;font:800 10.5px/1.3 var(--body);letter-spacing:.14em;' +
+      'text-transform:uppercase;color:var(--accent);margin:0 0 5px}',
+    '.pa-t{display:block;margin:0;font-size:14px;line-height:1.55;color:var(--text2);max-width:58ch}',
+    '.pa-meta{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:11px}',
+    '.pa-pill{font:700 11px/1.3 var(--body);letter-spacing:.07em;text-transform:uppercase;' +
+      'color:var(--muted);display:inline-flex;align-items:center;gap:4px}',
+    '.pa-pill.on{color:var(--accent)}',
+    '.pa-pill.lock{color:var(--text2)}',
+    '.pa-pill svg{flex:none}',
+    '.pa-badge{font:800 10.5px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;' +
+      'padding:5px 9px;border-radius:999px;border:1px solid var(--line2);color:var(--text2);' +
+      'background:var(--card2)}',
+    '.pa-badge.katha,.pa-badge.dharma{color:#a4671a;background:#fdf3e2;border-color:#f0dcb8}',
+    '.pa-badge.itihaas{color:#2a5b9e;background:#eaf1fb;border-color:#c9dcf2}',
+    '.pa-badge.aaj{color:#1a7a54;background:#e7f6ef;border-color:#bfe6d5}',
+    '.pa-bar{display:block;height:2px;background:var(--line);margin-top:12px;max-width:240px}',
+    '.pa-bar.wide{max-width:none;margin-top:16px}',
+    '.pa-bar i{display:block;height:100%;background:var(--accent)}',
+    '@media (max-width:620px){' +
+      '.pa-card{grid-template-columns:104px 1fr;gap:14px;padding:16px 2px}' +
+      '.pa-fig{aspect-ratio:1/1}' +
+      '.pa-no{font-size:8.5px;padding:4px 6px;letter-spacing:.1em}' +
+      '.pa-tally{gap:14px}.pa-tally b{font-size:18px}}',
+
+    /* ---------- the chapter opener ---------- */
+    '.pa-hero{position:relative;border-radius:4px;overflow:hidden;margin:0 0 10px;' +
+      'background:var(--ground2);min-height:clamp(168px,21vw,238px);display:flex;align-items:flex-end}',
+    '.pa-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}',
+    '.pa-scrim{position:relative;width:100%;padding:36px 22px 18px;' +
+      'background:linear-gradient(to top,rgba(20,13,34,.94) 0%,rgba(20,13,34,.74) 46%,rgba(20,13,34,0) 100%);' +
+      'color:#fff}',
+    '.pa-scrim h2{font:800 clamp(27px,4.6vw,42px)/1.04 var(--display,Georgia,serif);' +
+      'margin:0 0 6px;letter-spacing:-.02em;color:#fff}',
+    '.pa-scrim .pa-kick{color:rgba(255,255,255,.72);margin-bottom:6px}',
+    '.pa-scrim .pa-sub{color:#f3c98b;margin:0 0 8px}',
+    '.pa-scrim p{margin:0;max-width:58ch;font-size:14px;line-height:1.55;color:rgba(255,255,255,.92)}',
+    '.pa-credit{font:700 10.5px/1.4 var(--body);color:var(--muted);margin:0 0 20px;' +
+      'text-align:right;letter-spacing:.04em}',
+
+    /* ---------- the parts ---------- */
+    '.pa-secthead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;' +
+      'margin:28px 0 2px;border-bottom:2px solid var(--text);padding-bottom:7px}',
+    '.pa-secthead h3{font:800 17px/1.1 var(--display,Georgia,serif);margin:0}',
+    '.pa-secthead span{font:800 10.5px/1.3 var(--body);letter-spacing:.13em;' +
+      'text-transform:uppercase;color:var(--muted);flex:none}',
+    '.pa-mods{display:flex;flex-direction:column;gap:0}',
+    '.pa-mod{display:grid;grid-template-columns:58px 1fr;gap:16px;' +
+      'border-bottom:1px solid var(--line);padding:20px 2px}',
+    '.pa-modno{font:800 34px/.95 var(--display,Georgia,serif);color:var(--line2);' +
+      'text-align:right;font-variant-numeric:lining-nums}',
+    '.pa-mod.learned .pa-modno{color:var(--accent)}',
+    '.pa-modbody{min-width:0}',
+    '.pa-mod h4{margin:0 0 4px;font:800 18px/1.2 var(--display,Georgia,serif)}',
+    '.pa-obj{margin:0 0 12px;font-size:13px;line-height:1.5;color:var(--muted)}',
+    '.pa-obj b{color:var(--text);font-weight:700}',
+    '.pa-less{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}',
+    '.pa-l{display:inline-flex;gap:8px;align-items:center;text-align:left;' +
+      'border:1px solid var(--line);cursor:pointer;background:var(--card);border-radius:3px;' +
+      'padding:8px 11px;min-height:38px;font:inherit;color:inherit}',
+    '.pa-l:hover{border-color:var(--accent);background:var(--accent-soft)}',
+    '.pa-l:focus-visible{outline:2px solid var(--accent);outline-offset:1px}',
+    '.pa-l .k{font:800 9px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;' +
+      'color:var(--muted);flex:none}',
+    /* a check is the only lesson that can write to the record, so it is marked */
+    '.pa-l.c{border-left:3px solid var(--accent2)}',
+    '.pa-l.done .k{color:var(--accent)}',
+    '.pa-l.done{border-color:var(--accent-soft);background:var(--accent-soft)}',
+    '.pa-l span:not(.k){font:700 12.5px/1.2 var(--body)}',
+    '.pa-l i{font-style:normal;font-size:10.5px;color:var(--muted)}',
+    '.pa-proj{border-left:3px solid var(--accent2);padding:2px 0 2px 14px;margin:12px 0 0}',
+    '.pa-proj h5{margin:0 0 4px;font:800 10px/1 var(--body);letter-spacing:.14em;' +
+      'text-transform:uppercase;color:var(--muted)}',
+    '.pa-proj b{display:block;font:800 15px/1.25 var(--display,Georgia,serif);margin:0 0 5px}',
+    '.pa-proj p{margin:0 0 8px;font-size:13px;line-height:1.55;color:var(--text2)}',
+    '.pa-made{font-size:11.5px;color:var(--muted);margin:0 0 9px;font-style:italic}',
+    '@media (max-width:620px){.pa-mod{grid-template-columns:34px 1fr;gap:11px;padding:16px 2px}' +
+      '.pa-modno{font-size:23px}.pa-scrim{padding:34px 15px 17px}}',
+
+    /* ---------- a lesson ---------- */
+    '.pa-lesson{border-top:2px solid var(--text);padding:16px 0 0;margin-top:2px}',
+    '.pa-lesson h2{font:800 clamp(25px,3.8vw,36px)/1.08 var(--display,Georgia,serif);' +
+      'margin:0 0 6px;letter-spacing:-.02em}',
+    '.pa-lesson .pa-lead{margin-top:16px}',
+    '.pa-next{margin:22px 0 0;padding-top:14px;border-top:1px solid var(--line)}',
+
+    /* ---------- a corpus chip ---------- */
+    /* THE THING, NOT ITS ROW ID. A chip with an honest painting is `lit` and leads with
+       it; one without is typographic and leads with the thing's own script. Either way
+       the child reads a title, never a key. */
+    '.pa-uses{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));' +
+      'gap:10px;margin:14px 0 0}',
+    '.pa-use{display:grid;grid-template-columns:1fr;gap:0;text-align:left;font:inherit;' +
+      'color:inherit;border:1px solid var(--line);background:var(--card);border-radius:4px;' +
+      'cursor:pointer;overflow:hidden;min-height:44px;padding:0}',
+    '.pa-use:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(30,20,64,.10)}',
+    '.pa-use:focus-visible{outline:2px solid var(--accent);outline-offset:1px}',
+    '.pa-usefig{display:block;aspect-ratio:16/9;overflow:hidden;background:var(--ground2);' +
+      'border-bottom:1px solid var(--line)}',
+    '.pa-usefig img{width:100%;height:100%;object-fit:cover;display:block}',
+    '.pa-usefig.drawn{aspect-ratio:auto;display:flex;align-items:center;justify-content:center;' +
+      'padding:10px 0;background:var(--accent-soft)}',
+    '.pa-usetxt{display:block;padding:10px 12px 11px}',
+    '.pa-usekind{display:block;font:800 9.5px/1 var(--body);letter-spacing:.15em;' +
+      'text-transform:uppercase;color:var(--accent);margin:0 0 5px}',
+    '.pa-use b{display:block;font:800 14.5px/1.3 var(--display,Georgia,serif);margin:0 0 3px}',
+    '.pa-use i{display:block;font-style:normal;font-size:11.5px;line-height:1.45;color:var(--muted)}',
+
+    '.pa-warn{border-left:4px solid #6f6880;background:#eceaf0;border-radius:0 6px 6px 0;' +
+      'padding:12px 14px;margin:14px 0;font-size:13px;line-height:1.55;color:var(--text)}',
+    '.pa-warn b{display:block;margin-bottom:3px;font:800 12px/1.3 var(--body);' +
+      'letter-spacing:.05em;text-transform:uppercase}',
+    '.pa-colophon{margin:14px 0 0;font-size:12px;line-height:1.65;color:var(--muted);' +
+      'max-width:74ch;padding-left:0;list-style:none}',
+    'ul.pa-colophon li{margin-bottom:6px;padding-left:14px;position:relative}',
+    'ul.pa-colophon li:before{content:"—";position:absolute;left:0;color:var(--line2)}',
+    /* A LOCK IS NOT A FADE. Dimming the whole plate dims its text with it and lets the
+       page artwork through; the lock is said in words on the meta line instead. */
+    '.pa-lock .pa-fig{filter:saturate(.55)}',
+
     '@media (prefers-reduced-motion: reduce){.pa-bar i{transition:none}}',
 
     /* ============================ THE TAKE-HOME PACK ============================
@@ -171,24 +300,26 @@
        dinner, something to do at home, and every project brief with room to write on.
        It is one page, built to be printed or saved as a PDF, and it carries its own
        attribution because a sheet of paper has no tooltip. */
-    '.pk-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}',
-    '.pk{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px}',
-    '.pk h1{font:800 26px/1.15 var(--display,Georgia,serif);margin:0 0 4px}',
-    '.pk h2{font:800 18px/1.2 var(--display,Georgia,serif);margin:22px 0 6px;' +
-      'border-top:1px solid var(--line);padding-top:14px}',
-    '.pk h3{font:800 14px/1.25 var(--body);margin:14px 0 4px}',
-    '.pk p{margin:0 0 8px;font-size:13.5px;line-height:1.6}',
+    '.pk-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 16px}',
+    '.pk{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:26px}',
+    '.pk h1{font:800 30px/1.08 var(--display,Georgia,serif);margin:0 0 6px;letter-spacing:-.015em}',
+    '.pk h2{font:800 17px/1.2 var(--display,Georgia,serif);margin:24px 0 8px;' +
+      'border-bottom:2px solid var(--text);padding-bottom:6px}',
+    '.pk h3{font:800 14.5px/1.25 var(--display,Georgia,serif);margin:16px 0 4px}',
+    '.pk p{margin:0 0 8px;font-size:13.5px;line-height:1.62}',
     '.pk .pk-lead{color:var(--muted)}',
-    '.pk-verse{border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 10px;' +
+    '.pk-verse{border:1px solid var(--line);border-radius:3px;padding:16px;margin:0 0 12px;' +
       'background:var(--ground2);break-inside:avoid}',
-    '.pk-sa{font-size:19px;white-space:pre-line;margin:0 0 6px}',
-    '.pk-tr{font-style:italic;color:var(--text2);white-space:pre-line;margin:0 0 6px;font-size:13px}',
-    '.pk-at{font-size:11.5px;color:var(--muted);margin:6px 0 0}',
-    '.pk-mod{break-inside:avoid;margin:0 0 6px}',
-    '.pk-q{border-left:4px solid var(--accent2);padding:6px 0 6px 11px;margin:6px 0}',
-    '.pk-q b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}',
+    '.pk-sa{font-size:19px;white-space:pre-line;margin:0 0 8px}',
+    '.pk-tr{font-style:italic;color:var(--text2);white-space:pre-line;margin:0 0 8px;font-size:13px}',
+    '.pk-at{font-size:11.5px;color:var(--muted);margin:8px 0 0}',
+    '.pk-mod{break-inside:avoid;margin:0 0 8px}',
+    '.pk-q{border-left:3px solid var(--accent2);padding:6px 0 6px 12px;margin:8px 0}',
+    '.pk-q b{display:block;font:800 10.5px/1 var(--body);letter-spacing:.11em;' +
+      'text-transform:uppercase;color:var(--muted);margin-bottom:3px}',
     '.pk-rule{border-bottom:1px solid var(--line);height:26px}',
-    '.pk-foot{margin-top:20px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}',
+    '.pk-foot{margin-top:22px;font-size:11.5px;color:var(--muted);' +
+      'border-top:1px solid var(--line);padding-top:10px}',
 
     /* PRINTING. Everything that is screen furniture goes: the site bar, the bottom nav,
        the page artwork, the back link and the buttons that do nothing on paper. What is
@@ -215,115 +346,259 @@
 
   /* what the child sees on a lesson that points at a piece of the corpus. These are
      buttons because the corpus is where the teaching actually lives — the course is an
-     order to meet it in, not a second copy of it. */
-  var USE_LABEL = { st: 'story', sh: 'verse', ge: 'song', ut: 'festival', ri: 'relative',
-                    it: 'era', va: 'value', dh: 'faith' };
+     order to meet it in, not a second copy of it.
+
+     THE CHIP SHOWS THE THING, NOT ITS ROW ID. The first version read
+     `story: pt.talkative-tortoise →`, which is a database key shown to an eight-year-old
+     in a tab that owns 686 paintings. `api.look` (app.js) hands back the real title, the
+     thing's own script with the right lang on it, and its own painting where there is an
+     honest one. Where there is no painting the chip is typographic — a plate that
+     illustrates a guess is the uncredited texture docs/05 forbids. */
+  var USE_LABEL = { st: 'Story', sh: 'Verse', ge: 'Song', ut: 'Festival', ri: 'Relative',
+                    it: 'Era', va: 'Value', dh: 'Faith', mb: 'Mahabharata' };
   var USE_VIEW  = { st: 'story', sh: 'shlok', ge: 'song', ut: 'festival', ri: 'rishtey',
-                    it: 'era', va: 'value', dh: 'faith' };
+                    it: 'era', va: 'value', dh: 'faith', mb: 'epic' };
+
+  function look(kind, id) {
+    return (api.look ? api.look(kind, id) : null) || null;
+  }
+
+  /* ONE PAINTING, ONE PLACE ON A SCREEN. A value and a faith can honestly derive the same
+     plate — ahimsa and Jainism both point at the elephant — and the first lesson screen
+     showed that painting twice, side by side, which reads as a bug whatever the data says.
+     `taken` is the set already spent on this screen; a chip that would repeat one goes
+     typographic instead. Direct references claim theirs first (see `uses`), because a
+     story's own painting has the better claim on it than a value that points at it. */
+  function chip(kind, id, taken) {
+    var r = look(kind, id);
+    var view = USE_VIEW[kind] || 'home', label = USE_LABEL[kind] || kind;
+    var head = r ? (r.script || r.name) : String(id);
+    var lang = r && r.script && r.lang ? ' lang="' + r.lang + '"' : '';
+    /* the second line is the name when the script took the first, else the standfirst */
+    var second = r ? (r.script ? r.name : r.sub) : '';
+    var src = r && r.art && !(taken && taken[r.art]) ? r.art : null;
+    if (src && taken) taken[src] = 1;
+    var fig = src
+      ? '<span class="pa-usefig"><img src="' + esc(src) + '" alt="" loading="lazy" ' +
+        'width="120" height="90"></span>'
+      : (r && r.face ? '<span class="pa-usefig drawn">' + r.face + '</span>' : '');
+    return '<button class="pa-use' + (fig ? ' lit' : '') + '" data-act="go" data-v="' + view +
+      '" data-arg="' + esc(id) + '">' + fig +
+      '<span class="pa-usetxt"><span class="pa-usekind">' + esc(label) + '</span>' +
+      '<b' + lang + '>' + esc(head) + '</b>' +
+      (second ? '<i>' + esc(String(second).slice(0, 84)) + '</i>' : '') +
+      '</span></button>';
+  }
+
+  /* a reference whose painting IS the thing, rather than one hop from it */
+  var DIRECT = { st: 1, mb: 1, it: 1 };
 
   function uses(l) {
-    var out = [];
-    Object.keys(l.use || {}).forEach(function (k) {
+    var out = [], taken = {};
+    /* two passes, so a direct reference gets its own painting before a derived one can
+       spend it — the order the author happened to write the keys in is not a claim */
+    var keys = Object.keys(l.use || {});
+    keys.sort(function (a, b) { return (DIRECT[b] ? 1 : 0) - (DIRECT[a] ? 1 : 0); });
+    keys.forEach(function (k) {
       var v = l.use[k];
-      if (k === 'bh') { out.push('<button class="pa-use" data-act="go" data-v="bhasha">' +
-        v + ' Bhasha exercises →</button>'); return; }
-      if (k === 'sa') { out.push('<button class="pa-use" data-act="go" data-v="khel">' +
-        'Open Sabhyata →</button>'); return; }
+      /* bh and sa are a count and a flag, not ids — there is nothing to look up */
+      if (k === 'bh') { out.push({ k: k, html: '<button class="pa-use" data-act="go" data-v="bhasha">' +
+        '<span class="pa-usetxt"><span class="pa-usekind">Bhasha</span>' +
+        '<b>' + v + ' exercises</b><i>in the language pillar</i></span></button>' }); return; }
+      if (k === 'sa') { out.push({ k: k, html: '<button class="pa-use" data-act="go" data-v="khel">' +
+        '<span class="pa-usetxt"><span class="pa-usekind">Sabhyata</span>' +
+        '<b>Build a civilisation</b><i>in Khel</i></span></button>' }); return; }
       if (!Array.isArray(v)) return;
-      v.forEach(function (id) {
-        out.push('<button class="pa-use" data-act="go" data-v="' + (USE_VIEW[k] || 'home') +
-          '" data-arg="' + esc(id) + '">' + esc(USE_LABEL[k] || k) + ': ' + esc(id) + ' →</button>');
-      });
+      v.forEach(function (id) { out.push({ k: k, html: chip(k, id, taken) }); });
     });
-    return out.length ? '<div class="pa-uses">' + out.join('') + '</div>' : '';
+    /* put them back in the order the lesson wrote them, now that the art is decided */
+    out.sort(function (a, b) { return keys.indexOf(a.k) - keys.indexOf(b.k); });
+    out = out.map(function (x) { return x.html; });
+    if (!out.length) return '';
+    return '<div class="pa-secthead"><h3>What this part uses</h3>' +
+      '<span>' + out.length + (out.length === 1 ? ' place' : ' places') + '</span></div>' +
+      '<div class="pa-uses">' + out.join('') + '</div>';
+  }
+
+  /* ---------------------------------------------------------------------- the library */
+  /* EVERY NUMBER ON THIS PAGE IS COUNTED HERE, NOT TYPED. Four write-ups in this repo have
+     run ahead of the code — "item 23", "55 checks", "five verse cards" — and each time the
+     number was the thing a person had written by hand beside code that had moved on. */
+  var ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII',
+               'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX'];
+  function roman(n) { return ROMAN[n] || String(n); }
+
+  function library() {
+    var t = { hours: 0, mods: 0, lessons: 0, projects: 0, objectives: 0, mastered: 0, made: 0 };
+    P.courses.forEach(function (c) {
+      var s = stats(c);
+      t.hours += c.hours; t.mods += c.modules.length; t.lessons += s.lessons;
+      t.projects += s.projects; t.objectives += s.objectives;
+      t.mastered += s.mastered; t.made += s.made;
+    });
+    return t;
+  }
+
+  function badge(c) {
+    var B = { katha: '🪔 Katha', itihaas: '📜 Itihaas', aaj: '🧭 Aaj', dharma: '🪔 Dharma' };
+    return c.badge ? '<span class="pa-badge ' + esc(c.badge) + '">' +
+      esc(B[c.badge] || c.badge) + '</span>' : '';
   }
 
   function hub() {
     styles();
-    var cards = P.courses.map(function (c) {
+    var t = library();
+    var plates = P.courses.map(function (c, i) {
       var s = stats(c), lk = locked(c);
       return '<button class="pa-card' + (lk ? ' pa-lock' : '') + '" data-pa="course" data-id="' +
-        esc(c.id) + '" aria-label="' + esc(c.name) + ' — ' + c.hours + ' hours">' +
-        '<b>' + esc(c.name) + '</b>' +
-        '<span class="pa-sub">' + esc(c.sub) + '</span>' +
-        '<p>' + esc(c.blurb) + '</p>' +
-        '<div class="pa-meta">' +
-          '<span class="pa-pill">' + c.hours + ' hours</span>' +
-          '<span class="pa-pill">ages ' + c.ages[0] + '–' + c.ages[1] + '</span>' +
-          '<span class="pa-pill">' + c.modules.length + ' parts</span>' +
-          (lk ? '<span class="pa-pill">grown-ups unlock this</span>' : '') +
-          (s.mastered ? '<span class="pa-pill on">' + s.mastered + ' of ' + s.objectives + ' learned</span>' : '') +
-        '</div>' +
-        '<div class="pa-bar"><i style="width:' + s.pct + '%"></i></div>' +
-        '</button>';
+        esc(c.id) + '" aria-label="' + esc(c.name) + ' — ' + c.hours + ' hours, ' +
+        c.modules.length + ' parts, ages ' + c.ages[0] + ' to ' + c.ages[1] + '">' +
+        '<span class="pa-fig">' +
+          (c.cover ? '<img src="' + esc(c.cover) + '" alt="' + esc(c.coverAlt || '') +
+            '" loading="lazy" width="336" height="252">' : '') +
+          '<span class="pa-no">Plate ' + roman(i + 1) + '</span>' +
+        '</span>' +
+        '<span class="pa-body">' +
+          '<span class="pa-sub">' + esc(c.sub) + '</span>' +
+          '<b>' + esc(c.name) + '</b>' +
+          '<span class="pa-t">' + esc(c.blurb) + '</span>' +
+          '<span class="pa-meta">' +
+            badge(c) +
+            '<span class="pa-pill">' + c.hours + ' hours</span>' +
+            '<span class="pa-pill">' + c.modules.length + ' parts</span>' +
+            '<span class="pa-pill">ages ' + c.ages[0] + '–' + c.ages[1] + '</span>' +
+            (lk ? '<span class="pa-pill lock">' + api.icon('lock', 13) +
+                  ' a grown-up unlocks this</span>' : '') +
+            (s.mastered ? '<span class="pa-pill on">' + s.mastered + ' of ' + s.objectives +
+                          ' learned</span>' : '') +
+          '</span>' +
+          /* a bar at nought is a line that says nothing; it appears when it has news */
+          (s.pct ? '<span class="pa-bar"><i style="width:' + s.pct + '%"></i></span>' : '') +
+        '</span></button>';
     }).join('');
-    return '<div class="pa-wrap"><div class="pa-head">' +
-      '<h2>Paathshala</h2>' +
-      '<p class="pa-lead">' + esc(P.intro) + '</p>' +
-      '<p class="pa-lead" style="font-size:12.5px">' + esc(P.parentNote) + '</p>' +
-      '</div><div class="pa-grid">' + cards + '</div></div>';
+    return '<div class="pa-wrap"><div class="pa-paper">' +
+      '<div class="pa-mast">' +
+        '<p class="pa-kick">Bizzing India · <span lang="hi">पाठशाला</span></p>' +
+        '<h2>Paathshala</h2>' +
+        '<p class="pa-lead">' + esc(P.intro) + '</p>' +
+        '<ul class="pa-tally">' +
+          '<li><b>' + P.courses.length + '</b>courses</li>' +
+          '<li><b>' + t.hours + '</b>hours</li>' +
+          '<li><b>' + t.mods + '</b>parts</li>' +
+          '<li><b>' + t.projects + '</b>things to make</li>' +
+          (t.mastered ? '<li><b>' + t.mastered + ' of ' + t.objectives + '</b>learned</li>' : '') +
+          (t.made ? '<li><b>' + t.made + '</b>made</li>' : '') +
+        '</ul>' +
+      '</div>' +
+      '<div class="pa-plates">' + plates + '</div>' +
+      /* for the grown-up, at the foot, where a grown-up looks — it used to stand between
+         a child and the courses, four lines high */
+      '<div class="pa-colophon"><p style="margin:0 0 7px">' + esc(P.parentNote) + '</p>' +
+      '<p style="margin:0">Every plate above is a painting or a photograph already in ' +
+      'this app, of something the course actually teaches. Nothing here was made to ' +
+      'decorate a page.</p></div>' +
+      '</div></div>';
   }
 
+  /* ----------------------------------------------------------------- one course */
   function coursePage(id) {
     styles();
     var c = get(id); if (!c) return hub();
-    var r = course(c.id), s = stats(c);
-    var warn = '';
-    if (c.needsReview && c.needsReview.length) {
-      warn = '<div class="pa-warn"><b>Parts of this course are still being checked by a person.</b>' +
-        c.needsReview.map(function (x) { return esc(x); }).join(' ') + '</div>';
-    }
+    var r = course(c.id), s = stats(c), lk = locked(c);
+    var i0 = 0; P.courses.forEach(function (x, i) { if (x.id === c.id) i0 = i; });
+
+    var warn = (c.needsReview && c.needsReview.length)
+      ? '<div class="pa-warn"><b>Parts of this course are still being checked by a person.</b>' +
+        c.needsReview.map(function (x) { return esc(x); }).join(' ') + '</div>' : '';
+
     var mods = c.modules.map(function (m, i) {
       var mr = r.m[m.id] || {};
       var lessons = m.lessons.map(function (l) {
         var done = !!r.seen[lid(m, l)];
-        var K = l.k === 't' ? 'LEARN' : l.k === 'p' ? 'PRACTISE' : 'CHECK';
-        return '<button class="pa-l' + (done ? ' done' : '') + '" data-pa="lesson" data-id="' +
+        var K = l.k === 't' ? 'Learn' : l.k === 'p' ? 'Practise' : 'Check';
+        return '<button class="pa-l ' + l.k + (done ? ' done' : '') + '" data-pa="lesson" data-id="' +
           esc(c.id) + '" data-m="' + esc(m.id) + '" data-l="' + esc(l.n) + '">' +
-          '<span class="k">' + K + '</span><span>' + esc(l.n) + '</span><i>' + l.m + ' min</i></button>';
+          '<span class="k">' + K + '</span>' +
+          '<span>' + esc(l.n) + '</span><i>' + l.m + ' min</i></button>';
       }).join('');
       var made = !!r.made[m.project.id];
-      return '<div class="pa-mod">' +
-        '<h4>' + (i + 1) + '. ' + esc(m.name) + '</h4>' +
-        '<p class="pa-obj">After this you can <b>' + esc(m.objective) + '</b>.' +
-          (mr.on ? ' <span class="pa-pill on">learned</span>' : '') + '</p>' +
-        (m.needsReview ? '<div class="pa-warn"><b>A person is still checking this part.</b>' +
-          esc(m.needsReview) + '</div>' : '') +
-        (m.needsVerse ? '<div class="pa-warn"><b>A verse for this part is still being sourced.</b>' +
-          'This app only shows verses it can attribute. Nothing here is guessed.</div>' : '') +
-        '<div class="pa-less">' + lessons + '</div>' +
-        '<div class="pa-proj"><h5>Project · ' + esc(m.project.name) + ' · ' + m.project.m + ' min</h5>' +
-        '<p>' + esc(m.project.brief) + '</p>' +
-        '<p class="pa-made">You will have made: ' + esc(m.project.made) + '</p>' +
-        '<button class="btn' + (made ? '' : ' primary') + '" data-pa="made" data-id="' + esc(c.id) +
-        '" data-p="' + esc(m.project.id) + '">' + (made ? 'Made it ✓ — undo' : 'I made it') + '</button>' +
+      return '<div class="pa-mod' + (mr.on ? ' learned' : '') + '">' +
+        '<div class="pa-modno">' + (i + 1) + '</div>' +
+        '<div class="pa-modbody">' +
+          '<h4>' + esc(m.name) + '</h4>' +
+          '<p class="pa-obj">After this part you can <b>' + esc(m.objective) + '</b>.' +
+            (mr.on ? ' <span class="pa-pill on">learned</span>' : '') + '</p>' +
+          (m.needsReview ? '<div class="pa-warn"><b>A person is still checking this part.</b>' +
+            esc(m.needsReview) + '</div>' : '') +
+          (m.needsVerse ? '<div class="pa-warn"><b>A verse for this part is still being ' +
+            'sourced.</b>This app only shows verses it can attribute. Nothing here is guessed.' +
+            '</div>' : '') +
+          '<div class="pa-less">' + lessons + '</div>' +
+          '<div class="pa-proj"><h5>Project · ' + m.project.m + ' min</h5>' +
+          '<b>' + esc(m.project.name) + '</b>' +
+          '<p>' + esc(m.project.brief) + '</p>' +
+          '<p class="pa-made">You will have made: ' + esc(m.project.made) + '</p>' +
+          '<button class="btn' + (made ? '' : ' primary') + '" data-pa="made" data-id="' +
+            esc(c.id) + '" data-p="' + esc(m.project.id) + '">' +
+            (made ? 'Made it ✓ — undo' : 'I made it') + '</button>' +
+          '</div>' +
         '</div></div>';
     }).join('');
+
     var asg = (c.assignments || []).map(function (a) {
-      return '<div class="pa-proj"><h5>' + esc(a.name) + (a.family ? ' · with your family' : '') +
-        '</h5><p>' + esc(a.brief) + '</p></div>';
+      return '<div class="pa-proj"><h5>' + esc(a.name) +
+        (a.family ? ' · with your family' : '') + '</h5><p>' + esc(a.brief) + '</p></div>';
     }).join('');
+
     return '<div class="pa-wrap">' +
       '<button class="backlink" data-pa="hub">' + api.icon('back', 18) + ' Paathshala</button>' +
-      '<div class="pa-head"><h2>' + esc(c.name) + '</h2>' +
-      '<p class="pa-lead">' + esc(c.why) + '</p>' +
-      (c.note ? '<p class="pa-lead" style="font-size:12.5px">' + esc(c.note) + '</p>' : '') +
-      '<div class="pa-meta"><span class="pa-pill">' + c.hours + ' hours</span>' +
-      '<span class="pa-pill">ages ' + c.ages[0] + '–' + c.ages[1] + '</span>' +
-      '<span class="pa-pill' + (s.mastered ? ' on' : '') + '">' + s.mastered + ' of ' +
-        s.objectives + ' learned</span>' +
-      '<span class="pa-pill">' + s.made + ' of ' + s.projects + ' projects made</span></div>' +
-      '<div class="pa-bar"><i style="width:' + s.pct + '%"></i></div>' +
-      '<div class="pk-tools" style="margin-top:12px"><button class="btn" data-pa="pack" data-id="' +
-        esc(c.id) + '">Take-home pack — print it</button></div></div>' +
+      /* THE CHAPTER OPENER. A reference work does not start a chapter with a settings
+         panel; it starts with a plate and a title over it. */
+      '<div class="pa-hero">' +
+        (c.cover ? '<img src="' + esc(c.cover) + '" alt="' + esc(c.coverAlt || '') + '">' : '') +
+        '<div class="pa-scrim">' +
+          '<p class="pa-kick">Plate ' + roman(i0 + 1) + ' · Paathshala</p>' +
+          '<h2>' + esc(c.name) + '</h2>' +
+          '<span class="pa-sub">' + esc(c.sub) + '</span>' +
+          '<p>' + esc(c.why) + '</p>' +
+        '</div>' +
+      '</div>' +
+      /* docs/05: never uncredited texture. The plate says what it is, every time. */
+      (c.coverAlt ? '<p class="pa-credit">Plate: ' + esc(c.coverAlt) + '</p>' : '') +
+      '<div class="pa-paper">' +
+      '<div class="pa-mast flush">' +
+        '<ul class="pa-tally">' +
+          '<li><b>' + c.hours + '</b>hours</li>' +
+          '<li><b>' + c.modules.length + '</b>parts</li>' +
+          '<li><b>' + s.lessons + '</b>lessons</li>' +
+          '<li><b>' + s.mastered + ' of ' + s.objectives + '</b>learned</li>' +
+          '<li><b>' + s.made + ' of ' + s.projects + '</b>made</li>' +
+          '<li><b>' + c.ages[0] + '–' + c.ages[1] + '</b>years old</li>' +
+        '</ul>' +
+        (s.pct ? '<div class="pa-bar wide"><i style="width:' + s.pct + '%"></i></div>' : '') +
+        '<div class="pa-meta">' + badge(c) +
+          (lk ? '<span class="pa-pill lock">' + api.icon('lock', 13) +
+                ' a grown-up unlocks this</span>' : '') +
+          '<button class="btn" data-pa="pack" data-id="' + esc(c.id) + '">' +
+            api.icon('print', 16) + ' Take-home pack</button>' +
+        '</div>' +
+      '</div>' +
       warn +
+      '<div class="pa-secthead"><h3>The parts</h3><span>' + c.modules.length +
+        ' · three hours each</span></div>' +
       '<div class="pa-mods">' + mods + '</div>' +
-      (asg ? '<h3>Every week, with your family</h3>' + asg : '') +
-      '<h3>Where this comes from</h3><ul>' +
+      (asg ? '<div class="pa-secthead"><h3>Every week, with your family</h3><span>' +
+        (c.assignments || []).length + '</span></div>' + asg : '') +
+      '<div class="pa-secthead"><h3>Where this comes from</h3><span>' +
+        (c.sources || []).length + ' sources</span></div>' +
+      '<ul class="pa-colophon">' +
         (c.sources || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') +
-      '</ul></div>';
+      '</ul>' +
+      (c.note ? '<p class="pa-colophon">' + esc(c.note) + '</p>' : '') +
+      '</div></div>';
   }
 
+  /* ----------------------------------------------------------------- one lesson */
   function lessonPage(cid, mid, name) {
     styles();
     var c = get(cid), m = modOf(c, mid);
@@ -331,34 +606,47 @@
     m.lessons.forEach(function (x) { if (x.n === name) l = x; });
     if (!l) return coursePage(cid);
     ledger.open(cid, lid(m, l));
+    var mi = 0; c.modules.forEach(function (x, i) { if (x.id === m.id) mi = i; });
+    var li = 0; m.lessons.forEach(function (x, i) { if (x.n === l.n) li = i; });
     var K = l.k === 't' ? 'Learn' : l.k === 'p' ? 'Practise' : 'Check';
     var body;
     if (l.k === 'c') {
       var r = course(cid), taught = 0;
-      m.lessons.forEach(function (x) { if (x.k !== 'c' && r.seen[lid(m, x)]) taught = Math.max(taught, r.seen[lid(m, x)]); });
+      m.lessons.forEach(function (x) {
+        if (x.k !== 'c' && r.seen[lid(m, x)]) taught = Math.max(taught, r.seen[lid(m, x)]);
+      });
       var same = taught === today(), none = !taught;
-      body = '<p>This is the check for <b>' + esc(m.objective) + '</b>.</p>' +
+      body = '<p class="pa-lead">This is the check for <b>' + esc(m.objective) + '</b>.</p>' +
         (none ? '<div class="pa-warn"><b>Do the learning parts first.</b>A check before the ' +
                  'teaching is just a guess, and it will not count.</div>'
               : same ? '<div class="pa-warn"><b>You learned this today.</b>Doing the check now ' +
                        'is good practice, but it will not count as learned. Come back tomorrow ' +
                        'or later in the week and it will — remembering an hour later is ' +
                        'attention, remembering a week later is learning.</div>'
-              : '<p>You learned this on an earlier day, so this one counts.</p>') +
-        '<button class="btn primary" data-pa="pass" data-id="' + esc(cid) + '" data-m="' +
+              : '<p class="pa-lead">You learned this on an earlier day, so this one counts.</p>') +
+        '<button class="btn primary lg" data-pa="pass" data-id="' + esc(cid) + '" data-m="' +
           esc(mid) + '"' + (none ? ' disabled' : '') + '>I can do it</button>';
     } else {
-      body = '<p>' + esc(l.o ? 'By the end: ' + l.o + '.' : '') + '</p>' +
-        '<p class="pa-lead">Everything this part uses is below — open each one, then come back.</p>' +
+      body = (l.o ? '<p class="pa-lead">By the end of this you can <b>' + esc(l.o) +
+              '</b>.</p>' : '') +
+        '<p class="pa-lede2">Everything this part uses is below. Open each one, then come ' +
+        'back — the course is the order to meet them in, not a second copy of them.</p>' +
         uses(l);
     }
+    var next = m.lessons[li + 1];
     return '<div class="pa-wrap">' +
       '<button class="backlink" data-pa="course" data-id="' + esc(cid) + '">' +
         api.icon('back', 18) + ' ' + esc(c.name) + '</button>' +
-      '<div class="pa-lesson"><span class="pa-pill">' + K + ' · ' + l.m + ' min</span>' +
-      '<h2 style="margin:8px 0 4px">' + esc(l.n) + '</h2>' +
-      '<p class="pa-lead">Part ' + esc(m.name) + '</p>' +
-      body + '</div></div>';
+      '<div class="pa-paper"><div class="pa-lesson">' +
+        '<p class="pa-kick">' + esc(c.name) + ' · Part ' + (mi + 1) + ' · ' + esc(m.name) + '</p>' +
+        '<h2>' + esc(l.n) + '</h2>' +
+        '<span class="pa-sub">' + K + ' · ' + l.m + ' minutes · lesson ' + (li + 1) +
+          ' of ' + m.lessons.length + '</span>' +
+        body +
+        (next ? '<div class="pa-next"><button class="btn" data-pa="lesson" data-id="' + esc(cid) +
+          '" data-m="' + esc(mid) + '" data-l="' + esc(next.n) + '">Next · ' +
+          esc(next.n) + ' →</button></div>' : '') +
+      '</div></div></div>';
   }
 
   /* -------------------------------------------------------------- the take-home pack */

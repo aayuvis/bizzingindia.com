@@ -279,3 +279,77 @@ The options:
 whenever you want it — the engine and packs are already separable, and the account is shared
 with Bizzing Bee from day one. Deciding the brand now costs focus and buys nothing; deciding
 it after Punjabi ships costs nothing and is informed by real data.
+
+---
+
+## The path, walked — rung → unit → lesson
+
+**A rung is not a lesson.** The eight rungs are the right ladder, and the same in every
+language, which is the point of this engine. But each was a single pool: Sunna held 93 words,
+Shabd held **507**, and a child saw *"Shabd · 2 new words · Go"* with no idea where they were
+inside it or how far there was to go. Weeks of work showed as **0 / 8**.
+
+So a rung is walked the way every language app that works has converged on:
+
+| | Hindi example | where it comes from |
+|---|---|---|
+| **rung** | Shabd — *reads, understands and writes common words* | the stage, unchanged |
+| **unit** | Family (29 words) | a word's `theme` in the lexicon · a letter's `group` in the script module · a sentence's grammar `point` |
+| **lesson** | Family · lesson 3 of 8 | four new things — **one sitting**, because `MAX_INTRO` is four |
+
+**Nothing is authored.** 232 Hindi lessons come out of data that already existed, in the
+data's own order. For the letters that order is the **varnamala** — the vowels, then the
+क row, the च row, the ट row, the त row, the प row — which is how Devanagari has been taught
+for a very long time and not something this engine decided. Sentence units are named by
+what they teach (*"Saying something IS"*, *"Words have a gender"*), never *"Sentences, part 3"*.
+A lesson of one — seventeen greetings in fours left फिर मिलेंगे alone — folds back into the
+lesson before it.
+
+**A lesson teaches its own four, and review still comes back inside it.** `session()` takes
+`opts.only`: what is **new** comes only from the lesson's keys, while review stays rung-wide.
+A lesson that only ever drilled its own four would be a flashcard deck; yesterday's words
+returning inside today's lesson is the spacing the SRS is for.
+
+**A lesson is done because the cards say so** — every one of its things met and answered right
+once (box ≥ 1). Derived from the SRS record on every render, never stored: a second flag saying
+"done" is a second thing that can disagree with the first.
+
+### What the child sees
+
+- **The next lesson, and exactly what is in it** — *Greetings · lesson 1 of 4* with नमस्ते हाँ
+  नहीं अच्छा shown before anything is pressed. A button that says "Go" and nothing else is a
+  button nobody knows the cost of.
+- **Where they are, on every beat** — *Sunna · Greetings · lesson 1 of 4* and *New 1 of 4*, so
+  the introductions read as a set rather than an interruption.
+- **The trail** — the rung being walked, opened into its units, the current unit a column of
+  lesson discs each showing its four things in the script. Done is filled, the next is ringed.
+  Everything ahead is plain rather than locked: the order is a recommendation, and a child who
+  wants the food words first may.
+- **The finish** — what was met, in the script, and the next lesson by name. A lesson that went
+  badly says so kindly and offers the same four again, rather than pretending.
+
+The page has the same grammar as Paathshala — a plate with the title over it, a tally, rules
+under the section heads, numerals in the display face — so moving between the two tabs does
+not feel like changing apps.
+
+### Held by `tools/check-bhasha-path.js`
+
+| check | holds |
+|---|---|
+| `covers` | every rung is walked whole — nothing lost, nothing in two lessons |
+| `sizes` | a lesson is a sitting — never one thing, never more than a sitting holds |
+| `varnamala` | the letters follow the script module's own rows, in its order |
+| `grammar-units` | a sentence unit is named for what it teaches |
+| `own-four` | **a lesson introduces only its own things, and review still comes back** |
+| `done-derived` | a lesson is done because the cards say so, and a box-0 card does not count |
+| `next-says` | the next lesson previews what it teaches before it starts |
+| `where` | every beat of a lesson says which lesson it is |
+| `advances` | finishing a lesson moves the next-lesson card on |
+| `touch` | a phone can hit every disc and nothing scrolls sideways |
+
+`own-four` was worthless as first written, and it is worth saying why. It tested lesson 2
+straight after lesson 1 — and lesson 2's words are simply the next four unseen in list order,
+so it passed with the narrowing ripped out. It tests lesson 3 **with lesson 2 still unseen**
+now, because the trail lets a child tap ahead, and it was watched to fail two ways: with no
+narrowing (*"lesson 3 introduced … — lesson 2's words, in order, not its own"*) and with the
+whole rung filtered down to the lesson (*"nothing from lesson 1 came back — no spacing"*).

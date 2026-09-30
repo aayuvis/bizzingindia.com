@@ -3328,6 +3328,134 @@ function pinTypeFor(u, types, k) {
   return legal[k % legal.length];
 }
 
+/* ======================================================== THE PATH, WALKED =====
+   A RUNG IS NOT A LESSON. The eight rungs are the right ladder — the same in every
+   language, which is the point of the engine — but each one was a single pool: Sunna
+   held 93 words, Shabd held 507, and a child saw "Shabd · 2 new words · Go" with no idea
+   where they were inside it or how far there was to go. Weeks of work showed as 0 / 8.
+
+   So a rung is walked as UNITS and a unit as LESSONS, the shape every language app that
+   works has converged on:
+
+       rung     Shabd                          the outcome, as before
+       unit     Family  (29 words)             a theme, or a row of the alphabet
+       lesson   Family · 3 of 8                four new things — one sitting
+
+   A lesson is FOUR because MAX_INTRO is four: one lesson is one session, and finishing
+   one is something a child can see happen every five minutes.
+
+   Nothing here is authored. The units come out of the data that already exists — a
+   word's `theme` from the lexicon, a letter's `group` from the script module — and
+   the order is the data's own. For the letters that order is the varnamala: the vowels,
+   then the क row, the च row, the ट row, the त row, the प row, which is how Devanagari
+   has been taught for a very long time and is not something this file decided. */
+var LESSON_N = MAX_INTRO;
+
+/* the name a row of the alphabet goes by: its first letter, the way a teacher says it */
+var ROW_NAME = { svar: 'The vowels', velar: 'The क row', palatal: 'The च row',
+                 retroflex: 'The ट row', dental: 'The त row', labial: 'The प row',
+                 semivowel: 'य र ल व', sibilant: 'श ष स ह' };
+
+function chunk(list, n) {
+  var out = [], i;
+  for (i = 0; i < list.length; i += n) out.push(list.slice(i, i + n));
+  return out;
+}
+
+/* unitsOfPath(pack, stage) -> [{ id, title, icon, lessons: [{ id, n, of, keys, items }] }] */
+function pathUnits(pack, stage) {
+  var units = unitsOf(pack, stage), groups = [], byId = {}, i, u, g;
+  var script = resolveScript(pack);
+  var add = function (gid, title, icon, unit) {
+    if (!byId[gid]) { byId[gid] = { id: gid, title: title, icon: icon || '', list: [] }; groups.push(byId[gid]); }
+    byId[gid].list.push(unit);
+  };
+
+  if (stage.id === 's0' || stage.id === 's3') {
+    /* words, by the lexicon's own theme, in the pack's own theme order */
+    var theme = {}, order = {};
+    (pack.lexicon || []).forEach(function (w) { theme[w.word] = w.theme; });
+    (pack.themes || []).forEach(function (t, k) { order[t.id] = k; });
+    var th = {};
+    (pack.themes || []).forEach(function (t) { th[t.id] = t; });
+    units.slice().sort(function (a, b) {
+      var ta = order[theme[a.item]], tb = order[theme[b.item]];
+      ta = ta === undefined ? 99 : ta; tb = tb === undefined ? 99 : tb;
+      return ta - tb || a.idx - b.idx;
+    }).forEach(function (x) {
+      var t = th[theme[x.item]] || { id: 'more', en: 'More words', icon: '' };
+      add(t.id, t.en, t.icon, x);
+    });
+  } else if ((stage.id === 's1' || stage.id === 's7') && script) {
+    /* letters, in the varnamala's own rows */
+    var row = {};
+    (script.vowels || []).forEach(function (v) { row[v.char] = v.group || 'svar'; });
+    (script.consonants || []).forEach(function (c) { row[c.char] = c.group; });
+    units.forEach(function (x) {
+      var r = row[x.item] || 'more';
+      add(r, ROW_NAME[r] || 'More letters', '', x);
+    });
+  } else if (stage.id === 's4') {
+    /* SENTENCES, BY WHAT THEY TEACH. Every sentence carries the grammar point it
+       practises, and the grammar bank already names each one in words a child can read
+       — "Saying something IS", "Words have a gender". So a Vakya unit is a thing you
+       are learning to do, in the order the sentences first reach it, rather than
+       "Sentences, part 3". */
+    var gname = {};
+    (grammarBank(pack) || []).forEach(function (gp) { gname[gp.id] = gp.en; });
+    units.forEach(function (x) {
+      var pt = (x.item && x.item.point) || 'more';
+      add(pt, gname[pt] || 'More sentences', '', x);
+    });
+  } else if (stage.id === 's2') {
+    units.forEach(function (x) { add('signs', 'The vowel signs \u00B7 \u092E\u093E\u0924\u094D\u0930\u093E', '', x); });
+  } else {
+    /* everything else in its own authored order, in units of four lessons */
+    var noun = (STAGE_NOUN[stage.id] || ['thing', 'things'])[1];
+    chunk(units, LESSON_N * 4).forEach(function (part, k) {
+      part.forEach(function (x) { add('u' + (k + 1), cap(noun) + ', part ' + (k + 1), '', x); });
+    });
+  }
+
+  return groups.map(function (gr) {
+    var ls = chunk(gr.list, LESSON_N);
+    /* A LESSON OF ONE IS NOT A LESSON. Seventeen greetings in fours left फिर मिलेंगे on its
+       own as lesson five — a whole sitting for one phrase. A tail of one folds back into
+       the lesson before it, which then holds five; the session still introduces four and
+       the fifth arrives as the next sitting's first, which is the planner's job anyway. */
+    if (ls.length > 1 && ls[ls.length - 1].length < 2) {
+      var tail = ls.pop();
+      ls[ls.length - 1] = ls[ls.length - 1].concat(tail);
+    }
+    return {
+      id: stage.id + '.' + gr.id, title: gr.title, icon: gr.icon, size: gr.list.length,
+      lessons: ls.map(function (l, k) {
+        return { id: stage.id + '.' + gr.id + '.' + (k + 1), n: k + 1, of: ls.length,
+                 keys: l.map(function (x) { return x.key; }),
+                 items: l.map(function (x) { return x.item; }) };
+      })
+    };
+  });
+}
+function cap(s) { return String(s).charAt(0).toUpperCase() + String(s).slice(1); }
+
+/* A LESSON IS DONE when every one of its things has been met and answered right at
+   least once — a card in box 1 or above. Derived from the SRS record, never stored:
+   a second flag saying "done" is a second thing that can disagree with the first. */
+function lessonDone(lesson, srs) {
+  srs = srs || {};
+  for (var i = 0; i < lesson.keys.length; i++) {
+    var c = srs[lesson.keys[i]];
+    if (!c || srsBox(c) < 1) return false;
+  }
+  return lesson.keys.length > 0;
+}
+function lessonStarted(lesson, srs) {
+  srs = srs || {};
+  for (var i = 0; i < lesson.keys.length; i++) if (srs[lesson.keys[i]]) return true;
+  return false;
+}
+
 function sessionSay(stage, newN, midN, reviewN) {
   var noun = STAGE_NOUN[stage.id] || ['thing', 'things'];
   var bits = [];
@@ -3375,6 +3503,15 @@ function session(packId, stageId, st, opts) {
              say: 'Six questions, full difficulty. Five right opens it.' };
   }
 
+  /* A LESSON narrows what is NEW to its own four things. Review is left rung-wide on
+     purpose: yesterday's words coming back inside today's lesson is the spacing the SRS
+     is for, and a lesson that only ever drilled its own four would be a flashcard deck. */
+  var only = null;
+  if (opts.only && opts.only.length) {
+    only = {};
+    for (i = 0; i < opts.only.length; i++) only[opts.only[i]] = 1;
+  }
+
   /* split the ramp by what the cards say */
   var unseen = [], learning = [], byKey = {};
   for (i = 0; i < units.length; i++) {
@@ -3417,7 +3554,15 @@ function session(packId, stageId, st, opts) {
   var depth = (stage.id === 's0' || stage.id === 's3')
     ? Math.max(24, Math.ceil(units.length * band / 5)) : units.length;
   var inReach = [];
-  for (i = 0; i < unseen.length; i++) { if (unseen[i].idx < depth) inReach.push(unseen[i]); }
+  for (i = 0; i < unseen.length; i++) {
+    /* a lesson the child CHOSE is in reach by definition — the band gate is for the
+       planner guessing what comes next, not for overruling a tap */
+    if (only) { if (only[unseen[i].key]) inReach.push(unseen[i]); }
+    else if (unseen[i].idx < depth) inReach.push(unseen[i]);
+  }
+  /* a lesson brings all of its unseen things, up to the four a sitting holds — unless
+     the window says the child is struggling, in which case it is review, and says so */
+  if (only && inReach.length && !(w.n >= 8 && w.acc < 0.70)) newN = inReach.length;
   newN = Math.min(newN, MAX_INTRO, inReach.length);
 
   /* INTRODUCE — the first unseen items IN LIST ORDER, each taught then
@@ -3645,6 +3790,14 @@ W.IND_BHASHA = {
   nextQuestion: nextQuestion,
   srsItems: srsItems,
   session: session,        /* the planned lesson arc (Phase 1) */
+  /* the path as a child walks it: rung -> unit -> lesson (see THE PATH, WALKED) */
+  path: function (packId, stageId) {
+    var p = resolvePack(packId); if (!p) return [];
+    var st = stageOf(p, stageId); return st ? pathUnits(p, st) : [];
+  },
+  lessonDone: lessonDone,
+  lessonStarted: lessonStarted,
+  LESSON_N: LESSON_N,
   replayMiss: replayMiss,  /* a missed item comes back in the same session */
   bandStep: bandStep,      /* climb fast, fall slow */
   readiness: readiness,    /* per-stage new/learning/review/mastered counts */

@@ -212,10 +212,14 @@
   /* one avatar chip. Rarity is paused (see avatars.js), so no tier label; the
      act is a parameter because onboarding picks directly while the Me page
      opens the companion's card first. */
-  function chip(id, size, act) {
+  /* `sel` is which id counts as chosen. It defaults to the saved buddy, but onboarding
+     passes its own — otherwise the pick-one screen opens with the DEFAULT buddy already
+     ringed, which reads as a question that has been answered for you. */
+  function chip(id, size, act, sel) {
     var r = window.IND_RARITY_OF ? window.IND_RARITY_OF(id) : 'free';
     var meta = (window.IND_RARITY || {})[r] || {};
-    return '<button class="avchip' + (S.buddy === id ? ' on' : '') + '" data-rar="' + r +
+    var on = (sel === undefined ? S.buddy : sel) === id;
+    return '<button class="avchip' + (on ? ' on' : '') + '" data-rar="' + r +
       '" data-act="' + (act || 'pick') + '" data-id="' + id + '" title="' + esc(meta.label || '') + '">' +
       art(id, size) +
       '<span>' + esc((window.IND_AVATAR_NAMES || {})[id] || id) + '</span>' +
@@ -619,73 +623,184 @@
   };
 
   /* ------------------------------------------------------------- ONBOARDING */
-  /* Picking a chip re-renders the whole form, so the typed name is carried
-     across renders by hand — otherwise choosing your buddy erased your name. */
-  var obName = '';
-  /* PLACEMENT (Phase 2, docs/09 §3): the three questions that route Bhasha —
-     does anyone speak it at home, does the child answer back, in which
-     language. The third reuses the tongue picker above and is skipped when a
-     tongue is already chosen. Heritage = spoken at home; the ear is ahead of
-     the eye and the child starts at the script, not at listening. */
-  var obPlace = { home: null, back: null };
-  function placeChips(q, opts) {
-    return '<div class="row" style="margin-top:10px">' + opts.map(function (o) {
-      return '<button class="pill' + (obPlace[q] === o[0] ? ' on' : '') + '" data-act="place" data-q="' +
-        q + '" data-v="' + o[0] + '">' + o[1] + '</button>';
-    }).join('') + '</div>';
+  /* ONE QUESTION AT A TIME, ASKED BY SOMEBODY.
+     ==================================================================================
+     The first version was a single scrolling form: a name box, an age slider, the
+     language chips, a placement box that grew two more questions inside itself, and then
+     EVERY avatar pack — a hundred and sixteen faces, seven headings, on the screen a
+     family sees before they have seen the app. A form that long is not a welcome, it is
+     a registration, and the only honest thing to do with it is answer it badly and get
+     to the thing.
+
+     This is Bizzing Finance's shape instead, because it works: one question per screen,
+     ASKED BY A CHARACTER rather than printed as a label, and every answer says out loud
+     what it changes — "no debt and no market before they are taught" is a better
+     explanation of an age band than the number is. Two things are added here that the
+     sibling does without: dots, because this flow is six steps rather than three, and a
+     Back button, because a parent who mistypes an eight-year-old's name should not have
+     to start the app over.
+
+     WHAT IS OFFERED IS DELIBERATELY SMALL. Five companions, not a hundred and sixteen.
+     Two worlds, not fifteen. Everything else is two taps away on the Me page and the
+     screen says so — a first choice between five is a choice, and a first choice between
+     a hundred and sixteen is a wall. */
+  var ob = { step: 0, name: '', age: 0, buddy: null, world: null,
+             place: { home: null, back: null } };
+
+  /* THE STARTING FIVE. Four Panchatantra animals and Ganesha — and the mix is the point,
+     not an accident of what was to hand. The wall behind this holds gods, saints and
+     real people across four traditions, and a welcome screen that is mostly deities
+     tells a Jain, Muslim, Sikh or Christian family whose app this is before they have
+     read a word. A companion is a buddy, not a declaration. The animals belong to
+     nobody, every one of them turns up in a story this app actually tells, and the whole
+     shelf is one tap away on the Me page from the first minute.
+     These five are also all free on day one (economy.js: `panch` is free, `devas` is
+     never purchasable), so nothing here can be tapped and refused. */
+  var OB_BUDDIES = ['pt_tortoise', 'pt_monkey', 'pt_crow', 'pt_mouse', 'ganesha'];
+
+  /* TWO WORLDS, AND THEY ARE THE TWO FURTHEST APART — a real street in Old Delhi and a
+     painting tradition from Mithila. Three are free (economy.js), but a choice between
+     three streets is not a choice; a choice between a place and a craft shows what a
+     world IS here. The other thirteen are on the Me page with their prices on them. */
+  var OB_WORLDS = ['delhi6', 'madhubani'];
+
+  /* age bands, and each one says what it changes rather than what it is */
+  var OB_AGES = [
+    [6,  '4 to 7',   'Big pictures, read aloud, nothing to type. The map plays, it does not quiz.'],
+    [9,  '8 to 9',   'The map, the quizzes and the script. Stories get their harder half.'],
+    [11, '10 to 12', 'Everything, including the parts of India’s history that are hard.']
+  ];
+
+  /* the companion asks it. A label is a form; a character asking is a conversation, and
+     a four-year-old can tell the difference across a room. */
+  function obSay(who, mood, html) {
+    return '<div class="obsay">' + mascot(who, mood, 66) +
+      '<div class="obbub">' + html + '</div></div>';
   }
+
+  /* THE TYPED NAME SURVIVES EVERY RE-RENDER, not just the ones somebody remembered.
+     Picking any chip rebuilds the screen, and the first version of the old form lost the
+     name the moment you chose a buddy. Two belts: a delegated `input` listener that
+     mirrors the box into `ob` as it is typed (Bizzing Finance's `R.fields`), and this,
+     read just before any handler that re-renders. Either alone has failed once. */
+  function obKeep() {
+    var n = $('#nm');
+    if (n) ob.name = n.value.trim();
+  }
+
+  function obSteps() {
+    /* the placement step only exists when a language was named — asking whether anyone
+       speaks "all of them" at home is not a question */
+    var s = ['name', 'age', 'tongue'];
+    if (S.tongue) s.push('place');
+    return s.concat(['buddy', 'world']);
+  }
+
+  function obDots(i, n) {
+    var out = '';
+    for (var k = 0; k < n; k++) out += '<i class="' + (k <= i ? 'on' : '') + '"></i>';
+    return '<div class="dots obdots">' + out + '</div>';
+  }
+
+  function obOpt(act, arg, title, sub) {
+    return '<button class="opt obopt" data-act="' + act + '" data-v="' + esc(String(arg)) + '">' +
+      '<b>' + title + '</b><span>' + sub + '</span></button>';
+  }
+
   V.onboard = function () {
-    var packs = window.IND_AVATAR_PACKS || [];
-    var tg = tongue();
-    return '<div class="wrap" style="max-width:640px">' +
-      '<div class="dots center" style="justify-content:center;margin-bottom:18px"><i class="on"></i><i></i></div>' +
-      '<div class="card" style="padding:var(--space-2xl)">' +
-        '<h1>Who’s exploring?</h1>' +
-        '<p>Set up your traveller. Nothing here leaves this device.</p>' +
-        '<label class="tiny" style="font-weight:700">Name</label>' +
-        '<input id="nm" class="opt" style="margin:6px 0 18px" placeholder="Their name" value="' + esc(obName) + '" />' +
-        '<label class="tiny" style="font-weight:700">Age · <b id="ageOut">' + S.age + '</b></label>' +
-        '<input id="ageIn" type="range" min="4" max="12" value="' + S.age + '" style="width:100%;margin:10px 0 6px" />' +
-        '<p class="tiny muted">4–7 gets big pictures and no reading. 8–12 gets the map, quizzes and script.</p>' +
-        '<h3 style="margin-top:22px">What does your family speak at home?</h3>' +
-        '<p class="tiny muted" style="margin:4px 0 0">Your family’s places rise to the top of the ' +
-        'shelf, your state glows on the map, and the grandparent words become your own. Nothing is ' +
-        'hidden either way — skip it or change it whenever you like.</p>' +
-        tongueChips() +
-        /* The placement is its own block, not three more headings in a long
-           form: it is the one answer that changes where the child starts, so
-           it is framed as a step and it says out loud what it decided. */
-        '<div class="placebox">' +
-          '<div class="mono">Where the language starts</div>' +
-          '<h3 style="margin:6px 0 0">Does anyone speak ' + (tg ? esc(tg.en) : 'it') + ' at home?</h3>' +
-          '<p class="tiny muted" style="margin:4px 0 0">A child who already understands the spoken ' +
-          'words does not need to be taught what they mean — they need to read them.</p>' +
-          placeChips('home', [['yes', 'Yes'], ['no', 'Not really']]) +
-          (obPlace.home === 'yes'
-            ? '<h3 style="margin:18px 0 0">Does your child answer back?</h3>' +
-              placeChips('back', [['yes', 'Yes'], ['some', 'A little'], ['no', 'Not yet']]) +
-              (!S.tongue
-                ? '<h3 style="margin:18px 0 0">In which language?</h3>' + tongueChips()
-                : '')
+    var steps = obSteps();
+    var i = Math.min(ob.step, steps.length - 1);
+    var step = steps[i], tg = tongue(), body;
+
+    if (step === 'name') {
+      body = obSay('gattu', 'happy',
+          '<b>Namaste. I am Gattu.</b><p>I remember every single thing about this country, ' +
+          'and I have been waiting for somebody to show it to. What should I call you?</p>') +
+        '<div class="card obcard">' +
+          '<label class="tiny" style="font-weight:700" for="nm">Name</label>' +
+          '<input id="nm" class="opt" style="margin:6px 0 16px" placeholder="Their name" ' +
+            'value="' + esc(ob.name) + '" autocomplete="off" />' +
+          '<button class="btn lg block" data-act="obnext">Next →</button>' +
+          '<p class="tiny muted" style="margin:12px 0 0">Nothing you type here leaves this ' +
+          'device. No email, no photograph, no account.</p>' +
+        '</div>';
+
+    } else if (step === 'age') {
+      body = obSay('gattu', null,
+          'Good to meet you, <b>' + esc(ob.name || 'yatri') + '</b>. How old are you? ' +
+          'It changes what the app shows — the hard parts of India’s history wait ' +
+          'until they are asked for.') +
+        '<div class="card obcard">' +
+          OB_AGES.map(function (a) { return obOpt('obage', a[0], a[1], a[2]); }).join('') +
+        '</div>';
+
+    } else if (step === 'tongue') {
+      body = obSay('mithu', null,
+          'What does your family speak at home?<p>Your family’s places rise to the top ' +
+          'of the shelf, your state glows on the map, and the grandparent words become your ' +
+          'own. Skip it or change it whenever you like — nothing is hidden either way.</p>') +
+        '<div class="card obcard">' + tongueChips() +
+          '<button class="btn lg block" style="margin-top:18px" data-act="obnext">' +
+          (S.tongue ? 'Next →' : 'All of India, evenly →') + '</button>' +
+        '</div>';
+
+    } else if (step === 'place') {
+      body = obSay('mithu', null,
+          'Does anyone speak <b>' + (tg ? esc(tg.en) : 'it') + '</b> at home?' +
+          '<p>A child who already understands the spoken words does not need to be taught ' +
+          'what they mean — they need to read them. This decides where ' +
+          (tg ? esc(tg.en) : 'the language') + ' starts.</p>') +
+        '<div class="card obcard">' +
+          obOpt('obplace', 'home:yes', 'Yes, it is spoken here',
+            'Then it starts at the <b>script</b> — the ear is already ahead of the eye.') +
+          obOpt('obplace', 'home:no', 'Not really',
+            'Then it starts with the <b>ear</b> — sounds and meanings first, letters right after.') +
+          (ob.place.home === 'yes'
+            ? '<h3 style="margin:18px 0 6px">And does your child answer back?</h3>' +
+              obOpt('obplace', 'back:yes', 'Yes', 'Speaking is there; reading is the work.') +
+              obOpt('obplace', 'back:some', 'A little', 'Understands more than they say.') +
+              obOpt('obplace', 'back:no', 'Not yet', 'Hears it every day, answers in English.')
             : '') +
-          /* the routing, said plainly the moment it is decided */
-          (obPlace.home
-            ? '<p class="placeout">' + (obPlace.home === 'yes'
-                ? 'Then ' + (tg ? esc(tg.en) : 'the language') + ' starts at the <b>script</b> — the ear is ' +
-                  'already ahead of the eye. Listening stays there to test out of.'
-                : 'Then it starts with the <b>ear</b> — sounds and meanings first, letters right after.') +
-              '</p>'
-            : '') +
-        '</div>' +
-        '<h3 style="margin-top:22px">Pick who travels with you</h3>' +
-        packs.map(function (p) {
-          return '<div class="tiny muted" style="margin:14px 0 8px;font-weight:700">' + esc(p.name) + '</div>' +
-            '<div class="grid g4">' + p.ids.map(function (id) {
-              return chip(id, 76);
-            }).join('') + '</div>';
-        }).join('') +
-        '<button class="btn lg block" style="margin-top:24px" data-act="start">Start the yatra →</button>' +
-      '</div></div>';
+        '</div>';
+
+    } else if (step === 'buddy') {
+      body = obSay('gattu', null,
+          'Who travels with you?<p>Five to start with. There are a hundred and eleven ' +
+          'more — gods, saints, the epic casts and real Indians — on your own page from ' +
+          'the first minute, and you can change your mind any day.</p>') +
+        '<div class="card obcard">' +
+          '<div class="grid g4 obgrid">' +
+            OB_BUDDIES.map(function (id) { return chip(id, 84, 'obbuddy', ob.buddy); }).join('') +
+          '</div>' +
+        '</div>';
+
+    } else {
+      body = obSay('gattu', 'happy',
+          'Last one. What should it all look like?<p>A world repaints the whole app — a ' +
+          'real street, a real craft — and names where it comes from. Thirteen more are on ' +
+          'your page, and every one of them changes at night.</p>') +
+        '<div class="card obcard">' +
+          '<div class="grid g2">' + OB_WORLDS.map(function (id) {
+            var w = (window.IND_WORLDS && window.IND_WORLDS.get(id)) || null;
+            if (!w) return '';
+            return '<button class="tile' + (ob.world === w.id ? ' on' : '') +
+              '" data-act="obworld" data-w="' + w.id + '">' +
+              (w.tile ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>' : '') +
+              '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3></div>' +
+              '<div class="mono">' + esc(w.region) + '</div>' +
+              '<p class="tiny" style="margin:8px 0 0">' + esc(w.note) + '</p></button>';
+          }).join('') + '</div>' +
+          '<button class="btn lg block" style="margin-top:18px" data-act="start">' +
+            'Start the yatra →</button>' +
+        '</div>';
+    }
+
+    return '<div class="wrap obwrap">' +
+      obDots(i, steps.length) +
+      '<div class="obhead"><span class="mono">Step ' + (i + 1) + ' of ' + steps.length + '</span>' +
+        (i ? '<button class="backlink obback" data-act="obback">' + icon('back', 16) +
+             ' Back</button>' : '') + '</div>' +
+      body + '</div>';
   };
 
   /* -------------------------------------------------------------- DASHBOARD */
@@ -5486,6 +5601,14 @@
         look: paathLook,
         owns: function (cid) { return (S.own.packs || []).indexOf('paath.' + cid) >= 0; }
       });
+      /* The workshop keeps what a child made, so it gets the same store and the same
+         save — one profile, one write path. It never touches the mastery record: that
+         is paath.js's `ledger()` and nothing else, which is why karya.js has no handle
+         on it to touch. */
+      if (window.IND_KARYA) window.IND_KARYA.init({
+        state: function () { return S.paath; },
+        save: save, esc: esc, icon: icon, toast: toast
+      });
       paathReady = true;
     }
     return window.IND_PAATH_UI;
@@ -5499,6 +5622,23 @@
     var U = paathUI();
     if (!U) return V.paath();
     return U.lesson(arg);
+  };
+  /* which project the workshop is showing, resolved from the route rather than kept in a
+     second place that can disagree with it */
+  function karyaProject() {
+    var a = String(view.arg || '').split('|'), PP = window.IND_PAATH;
+    if (!PP || a.length < 2) return null;
+    var c = null, p = null;
+    PP.courses.forEach(function (x) { if (x.id === a[0]) c = x; });
+    if (c) c.modules.forEach(function (m) { if (m.project.id === a[1]) p = m.project; });
+    return p;
+  }
+
+  /* the workshop — the half of a project that happens on this screen */
+  V.paathk = function (arg) {
+    var U = paathUI();
+    if (!U) return V.paath();
+    return U.karya(arg);
   };
   /* the printable take-home pack — the half of a course that leaves the screen */
   V.paathp = function (arg) {
@@ -5911,6 +6051,7 @@
       case 'paath':  h = V.paath(view.arg); break;
       case 'paathl': h = V.paathl(view.arg); break;
       case 'paathp': h = V.paathp(view.arg); break;
+      case 'paathk': h = V.paathk(view.arg); break;
       case 'me': h = V.me(); break;
       default: h = V.home();
     }
@@ -5950,6 +6091,10 @@
        gets the same care a game does: torn down on EVERY render — navigation
        included — and remounted only when a trace question is on screen. */
     if (traceOff) { try { traceOff(); } catch (err) {} traceOff = null; }
+    /* the workshop's canvas, same contract: mounted after the paint, torn down first */
+    if (karyaOff) { try { karyaOff(); } catch (err) {} karyaOff = null; }
+    if (view.name === 'paathk' && window.IND_PAATH_UI && window.IND_PAATH_UI.mount)
+      karyaOff = window.IND_PAATH_UI.mount(view.arg);
     if (view.name === 'pack' && quiz.q && quiz.q.type === 'trace' &&
         window.IND_LIKHNA && $('#tInk')) {
       traceOff = window.IND_LIKHNA.mount(quiz.q.letter);
@@ -6011,6 +6156,7 @@
   /* a running game owns document-level key handlers and timers */
   var gameTeardown = null;
   var traceOff = null;      /* teardown for the mounted Likhna tracing canvas */
+  var karyaOff = null;      /* the same, for the one the workshop mounts */
   function killGame() {
     if (!gameTeardown) return;
     try { if (typeof gameTeardown === 'function') gameTeardown(); else if (gameTeardown.destroy) gameTeardown.destroy(); } catch (e) {}
@@ -6035,6 +6181,15 @@
     /* PAATHSHALA FIRST. Its controls carry data-pa rather than data-act so the course
        engine owns its own verbs and this dispatcher does not grow ten more branches.
        It returns true when it handled the click; everything else falls through. */
+    /* THE WORKSHOP'S OWN CONTROLS, asked before those. karya.js answers for the keypad,
+       the order list and the check buttons, and it never routes — it changes what is on
+       the board and the host repaints. It goes first because a `data-ka` sitting inside
+       a `data-pa` card would otherwise navigate away mid-keystroke. */
+    var ka = e.target.closest('[data-ka]');
+    if (ka && window.IND_KARYA && view.name === 'paathk') {
+      var kp = karyaProject();
+      if (kp && window.IND_KARYA.act(ka.getAttribute('data-ka'), ka, kp)) return render();
+    }
     var pa = e.target.closest('[data-pa]');
     if (pa && window.IND_PAATH_UI &&
         window.IND_PAATH_UI.act(pa.getAttribute('data-pa'), pa)) return;
@@ -6336,27 +6491,42 @@
     }
     if (a === 'say')    return speak(t.getAttribute('data-k'),
                                      t.getAttribute('data-t'), t.getAttribute('data-l'));
-    if (a === 'pick')   {
-      if (view.name === 'onboard') { var nmKeep = $('#nm'); if (nmKeep) obName = nmKeep.value; }
-      S.buddy = t.getAttribute('data-id'); save(); return render();
+    if (a === 'pick')   { S.buddy = t.getAttribute('data-id'); save(); return render(); }
+
+    /* ---------------------------------------------------------------- onboarding
+       One handler per question, and every one of them ADVANCES. A step that answers
+       itself and then waits for a Next button is a form with extra taps in it.
+       `obKeep` exists because picking anything re-renders the screen, and the first
+       version of this flow lost the typed name the moment a chip was touched. */
+    if (a === 'obnext') {
+      obKeep();
+      if (obSteps()[ob.step] === 'name' && !ob.name) { toast('Type a name first'); return; }
+      ob.step++; return render();
     }
-    /* a placement chip: carry the typed name and the age slider across the
-       re-render, same care the tongue chips take */
-    if (a === 'place') {
-      if (view.name === 'onboard') {
-        var nmP = $('#nm'); if (nmP) obName = nmP.value;
-        var agP = $('#ageIn'); if (agP) S.age = +agP.value;
-      }
-      obPlace[t.getAttribute('data-q')] = t.getAttribute('data-v');
+    if (a === 'obback') { obKeep(); if (ob.step) ob.step--; return render(); }
+    if (a === 'obage')  { ob.age = +t.getAttribute('data-v'); ob.step++; return render(); }
+    if (a === 'obplace') {
+      var pv = String(t.getAttribute('data-v')).split(':');
+      ob.place[pv[0]] = pv[1];
+      /* "not really" is a complete answer; "yes" asks one more thing in place */
+      if (pv[0] === 'back' || (pv[0] === 'home' && pv[1] !== 'yes')) ob.step++;
       return render();
     }
+    if (a === 'obbuddy') { ob.buddy = t.getAttribute('data-id'); S.buddy = ob.buddy;
+                           save(); ob.step++; return render(); }
+    if (a === 'obworld') { ob.world = t.getAttribute('data-w'); S.world = ob.world;
+                           save(); return render(); }
+
     if (a === 'settongue') {
-      if (view.name === 'onboard') { var nmKeep2 = $('#nm'); if (nmKeep2) obName = nmKeep2.value; }
+      obKeep();
       S.tongue = t.getAttribute('data-id') || null; save();
       var tg = tongue();
       toast(tg ? tg.en + ' it is — ask ' + kinTerm('nani') + '.' : 'All of India, evenly.');
       /* the topbar chip shows the tongue, and chrome() is cached — rebuild it */
       if ($('.topbar')) document.getElementById('app').innerHTML = chrome();
+      /* during onboarding this IS the answer to the question on screen, so it moves on.
+         Naming a language adds the placement step behind it — obSteps() recomputes. */
+      if (view.name === 'onboard' && obSteps()[ob.step] === 'tongue') ob.step++;
       return render();
     }
     /* BUYING A WORLD. One place that spends, so no view can go negative, and the
@@ -6438,14 +6608,15 @@
       return render();
     }
     if (a === 'start')  {
-      var nm = $('#nm'), ag = $('#ageIn');
-      S.name = (nm && nm.value.trim()) || 'Yatri';
-      S.age = ag ? +ag.value : 8;
+      obKeep();
+      S.name = ob.name || 'Yatri';
+      S.age = ob.age || 8;
       S.mode = S.age <= 7 ? 'chhote' : 'bade';
       S.goal = S.age <= 7 ? 2 : 3;
       /* the placement answers travel with the profile; ensureLang() reads
          them the first time each pack is opened (Phase 2, docs/09 §3) */
-      if (obPlace.home) S.placement = { home: obPlace.home, back: obPlace.back, lang: S.tongue || null };
+      if (ob.place.home) S.placement = { home: ob.place.home, back: ob.place.back,
+                                         lang: S.tongue || null };
       S.started = today(); save(); return go('home');
     }
     if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); toast('Sound ' + (soundOn ? 'on' : 'off')); paintChrome(); return render(); }
@@ -6632,8 +6803,9 @@
     }
   });
 
+  /* the onboarding name box, mirrored as it is typed — see obKeep() */
   document.addEventListener('input', function (e) {
-    if (e.target && e.target.id === 'ageIn') { var o = $('#ageOut'); if (o) o.textContent = e.target.value; }
+    if (e.target && e.target.id === 'nm') ob.name = e.target.value.trim();
   });
   /* SWIPE THE DECK. A card popup on a phone is a thing you flick, and a child
      will try it before they find the arrows. Bound once on the document and

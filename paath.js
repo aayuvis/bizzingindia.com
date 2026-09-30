@@ -251,6 +251,38 @@
     '@media (max-width:620px){.pa-mod{grid-template-columns:34px 1fr;gap:11px;padding:16px 2px}' +
       '.pa-modno{font-size:23px}.pa-scrim{padding:34px 15px 17px}}',
 
+    /* ---------- the three stages of a part ---------- */
+    /* LEARN IT, TEST YOURSELF, MAKE SOMETHING — numbered, because the order is the
+       method and it used to be invisible: four chips in a row and a brief underneath.
+       A shut stage is not dimmed, it is CLOSED and says what opens it; dimming a
+       paragraph is the readable rule broken, and dimming a lock is how a child decides
+       the app is broken rather than that they have not got there yet. */
+    '.pa-stage{border-top:1px solid var(--line);padding:13px 0 0;margin:12px 0 0}',
+    '.pa-stage:first-of-type{border-top:0;padding-top:0;margin-top:2px}',
+    '.pa-stagehead{display:flex;align-items:baseline;gap:9px;margin:0 0 9px}',
+    '.pa-sno{flex:none;width:19px;height:19px;border-radius:50%;background:var(--text);' +
+      'color:var(--card);font:800 11px/19px var(--body);text-align:center}',
+    '.pa-stage.shut .pa-sno{background:var(--line2);color:var(--card)}',
+    '.pa-stagehead b{font:800 13px/1.2 var(--body);letter-spacing:.02em}',
+    '.pa-stagehead span{font:700 10.5px/1.3 var(--body);letter-spacing:.1em;' +
+      'text-transform:uppercase;color:var(--muted)}',
+    '.pa-note{margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}',
+    '.pa-note.ok{color:var(--accent)}',
+    '.pa-shutsay{margin:0;font-size:12.5px;line-height:1.55;color:var(--text2);' +
+      'display:flex;gap:7px;align-items:flex-start}',
+    '.pa-shutsay svg{flex:none;margin-top:2px}',
+    '.pa-pname{display:block;font:800 15px/1.25 var(--display,Georgia,serif);margin:12px 0 5px}',
+
+    /* the door into the workshop — the one thing on a part that is done in the app */
+    '.pa-open{display:block;width:100%;text-align:left;border:1px solid var(--accent);' +
+      'background:var(--accent-soft);border-radius:4px;padding:11px 13px;cursor:pointer;' +
+      'font:inherit;color:inherit;margin:0 0 4px}',
+    '.pa-open:hover{background:var(--card);box-shadow:0 2px 10px rgba(30,20,64,.10)}',
+    '.pa-open:focus-visible{outline:2px solid var(--accent);outline-offset:1px}',
+    '.pa-open b{display:block;font:800 14.5px/1.3 var(--display,Georgia,serif);margin:2px 0 2px}',
+    '.pa-open i{display:block;font-style:normal;font-size:11.5px;color:var(--muted)}',
+    '.pa-open .pa-pill{margin-top:6px}',
+
     /* ---------- a lesson ---------- */
     '.pa-lesson{border-top:2px solid var(--text);padding:16px 0 0;margin-top:2px}',
     '.pa-lesson h2{font:800 clamp(25px,3.8vw,36px)/1.08 var(--display,Georgia,serif);' +
@@ -293,6 +325,61 @@
     '.pa-lock .pa-fig{filter:saturate(.55)}',
 
     '@media (prefers-reduced-motion: reduce){.pa-bar i{transition:none}}',
+
+    /* ============================== THE WORKSHOP ==============================
+       The board a project is actually done on. The keypad is this SCRIPT'S own letters,
+       so it is wide and it has to stay tappable on a phone — every key is at least 38px
+       and the rows wrap rather than scroll, because a keyboard you have to scroll is a
+       keyboard with letters you never find. */
+    '.ky{margin:18px 0 8px}',
+    '.kyhead{margin:0 0 12px}',
+    '.kyhead .mono{display:block;margin:0 0 3px}',
+    '.kyhead h3{font:800 18px/1.2 var(--display,Georgia,serif);margin:0 0 5px}',
+    '.kyhead p{margin:0;font-size:13px;line-height:1.55;color:var(--text2);max-width:58ch}',
+    '.kyclue{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 10px;' +
+      'font:800 15px/1.3 var(--display,Georgia,serif)}',
+    '.kyclue span{font:700 12px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;' +
+      'color:var(--muted)}',
+    '.kybox{min-height:74px;border:1.5px solid var(--line2);border-radius:6px;' +
+      'background:var(--card2);padding:14px 16px;font-size:34px;line-height:1.5;' +
+      'display:flex;align-items:center;flex-wrap:wrap;word-break:break-word}',
+    '.kycaret{display:inline-block;width:2px;height:30px;background:var(--accent);' +
+      'animation:kyblink 1s steps(2) infinite}',
+    '@keyframes kyblink{50%{opacity:0}}',
+    '@media (prefers-reduced-motion:reduce){.kycaret{animation:none}}',
+    '.kykeys{display:flex;flex-direction:column;gap:6px;margin:12px 0 0}',
+    '.kyrow{display:flex;flex-wrap:wrap;gap:5px}',
+    '.kykey{min-width:40px;min-height:40px;padding:4px 8px;border:1px solid var(--line);' +
+      'border-radius:5px;background:var(--card);cursor:pointer;font-size:19px;line-height:1.35}',
+    '.kykey:hover{border-color:var(--accent);background:var(--accent-soft)}',
+    '.kykey:focus-visible{outline:2px solid var(--accent);outline-offset:1px}',
+    '.kykey:disabled{opacity:.45;cursor:not-allowed}',
+    /* the sign row is what the abugida model is about, so it is marked as its own thing */
+    '.kyrow.km .kykey{background:var(--accent-soft);border-color:var(--accent-soft)}',
+    '.kyrow2{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 8px}',
+
+    /* what the app decided, and WHICH of the two things it decided */
+    '.kysay{border-left:4px solid var(--accent2);background:var(--ground2);' +
+      'border-radius:0 6px 6px 0;padding:12px 14px;margin:14px 0 0}',
+    '.kysay.good{border-left-color:var(--accent)}',
+    '.kysay b{display:block;font:800 15px/1.25 var(--display,Georgia,serif);margin:0 0 4px}',
+    '.kysay p{margin:0;font-size:13px;line-height:1.55;color:var(--text2)}',
+    /* THE HONEST LINE. Not a footnote — it is the answer to "how was this marked", and a
+       child told "correct" about their own name deserves to be told by what. */
+    '.kysay .kyhow{margin:8px 0 0;font-size:11.5px;line-height:1.5;color:var(--muted);' +
+      'font-style:italic}',
+
+    /* putting things in order */
+    '.kyorder{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}',
+    '.kyorder li{display:flex;align-items:center;gap:11px;border:1px solid var(--line);' +
+      'border-radius:5px;background:var(--card);padding:9px 11px}',
+    '.kyno{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);' +
+      'color:var(--accent);font:800 12px/24px var(--body);text-align:center}',
+    '.kytxt{flex:1;min-width:0;font-size:13.5px;line-height:1.4}',
+    '.kymv{flex:none;display:flex;gap:4px}',
+    '.kymv .btn{min-width:38px;min-height:38px;padding:0}',
+    '@media (max-width:560px){.kybox{font-size:28px;min-height:62px;padding:11px 12px}' +
+      '.kykey{min-width:38px;min-height:38px;font-size:17px}}',
 
     /* ============================ THE TAKE-HOME PACK ============================
        A course that only exists on a screen is a course a family cannot do at the table.
@@ -424,9 +511,11 @@
   /* EVERY NUMBER ON THIS PAGE IS COUNTED HERE, NOT TYPED. Four write-ups in this repo have
      run ahead of the code — "item 23", "55 checks", "five verse cards" — and each time the
      number was the thing a person had written by hand beside code that had moved on. */
-  var ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII',
-               'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX'];
-  function roman(n) { return ROMAN[n] || String(n); }
+  /* THEY ARE COURSES, NOT PLATES. "Plate" is what a printer calls a picture in a
+     reference book, and using it here was the atlas idea worn as a costume: a nine-year
+     -old opening a tab called Paathshala sees ten COURSES. The layout borrowed from an
+     atlas was right; the vocabulary was not, and a name nobody outside the room uses is
+     a name that makes the reader feel outside the room. */
 
   function library() {
     var t = { hours: 0, mods: 0, lessons: 0, projects: 0, objectives: 0, mastered: 0, made: 0 };
@@ -456,7 +545,7 @@
         '<span class="pa-fig">' +
           (c.cover ? '<img src="' + esc(c.cover) + '" alt="' + esc(c.coverAlt || '') +
             '" loading="lazy" width="336" height="252">' : '') +
-          '<span class="pa-no">Plate ' + roman(i + 1) + '</span>' +
+          '<span class="pa-no">Course ' + (i + 1) + '</span>' +
         '</span>' +
         '<span class="pa-body">' +
           '<span class="pa-sub">' + esc(c.sub) + '</span>' +
@@ -511,37 +600,93 @@
       ? '<div class="pa-warn"><b>Parts of this course are still being checked by a person.</b>' +
         c.needsReview.map(function (x) { return esc(x); }).join(' ') + '</div>' : '';
 
+    /* ------------------------------------------------------------------ a part
+       TEACH, THEN TEST, THEN MAKE — and the screen says so, because the order IS the
+       method. It used to be four chips in a row with a brief underneath and an "I made
+       it" button that was tappable on a course nobody had opened: a self-certification
+       standing in for both the test and the project.
+
+       Now the part is three numbered stages. The test is its own stage, not a chip in a
+       row of four. And the project DOES NOT OPEN until the test is passed — you cannot
+       make the thing before you have shown you can do the thing. */
     var mods = c.modules.map(function (m, i) {
       var mr = r.m[m.id] || {};
-      var lessons = m.lessons.map(function (l) {
+      var teach = [], test = null;
+      m.lessons.forEach(function (l) { if (l.k === 'c') test = l; else teach.push(l); });
+
+      var chip = function (l) {
         var done = !!r.seen[lid(m, l)];
-        var K = l.k === 't' ? 'Learn' : l.k === 'p' ? 'Practise' : 'Check';
         return '<button class="pa-l ' + l.k + (done ? ' done' : '') + '" data-pa="lesson" data-id="' +
           esc(c.id) + '" data-m="' + esc(m.id) + '" data-l="' + esc(l.n) + '">' +
-          '<span class="k">' + K + '</span>' +
+          '<span class="k">' + (l.k === 't' ? 'Learn' : 'Practise') + '</span>' +
           '<span>' + esc(l.n) + '</span><i>' + l.m + ' min</i></button>';
-      }).join('');
-      var made = !!r.made[m.project.id];
-      return '<div class="pa-mod' + (mr.on ? ' learned' : '') + '">' +
+      };
+
+      /* the test is passed when the mastery record says so — which is `ledger()`'s
+         answer, not this view's, and it carries the day rule with it */
+      var passed = !!mr.on, tried = !!mr.tries;
+      var P = m.project, made = !!r.made[P.id];
+      var K = W.IND_KARYA, work = K && K.has(P) ? K.rec(P.id) : null;
+
+      var stage = function (n, name, sub, open, inner) {
+        return '<div class="pa-stage' + (open ? '' : ' shut') + '">' +
+          '<div class="pa-stagehead"><span class="pa-sno">' + n + '</span>' +
+          '<b>' + name + '</b><span>' + sub + '</span></div>' +
+          '<div class="pa-stagebody">' + inner + '</div></div>';
+      };
+
+      return '<div class="pa-mod' + (passed ? ' learned' : '') + '">' +
         '<div class="pa-modno">' + (i + 1) + '</div>' +
         '<div class="pa-modbody">' +
           '<h4>' + esc(m.name) + '</h4>' +
           '<p class="pa-obj">After this part you can <b>' + esc(m.objective) + '</b>.' +
-            (mr.on ? ' <span class="pa-pill on">learned</span>' : '') + '</p>' +
+            (passed ? ' <span class="pa-pill on">learned</span>' : '') + '</p>' +
           (m.needsReview ? '<div class="pa-warn"><b>A person is still checking this part.</b>' +
             esc(m.needsReview) + '</div>' : '') +
           (m.needsVerse ? '<div class="pa-warn"><b>A verse for this part is still being ' +
             'sourced.</b>This app only shows verses it can attribute. Nothing here is guessed.' +
             '</div>' : '') +
-          '<div class="pa-less">' + lessons + '</div>' +
-          '<div class="pa-proj"><h5>Project · ' + m.project.m + ' min</h5>' +
-          '<b>' + esc(m.project.name) + '</b>' +
-          '<p>' + esc(m.project.brief) + '</p>' +
-          '<p class="pa-made">You will have made: ' + esc(m.project.made) + '</p>' +
-          '<button class="btn' + (made ? '' : ' primary') + '" data-pa="made" data-id="' +
-            esc(c.id) + '" data-p="' + esc(m.project.id) + '">' +
-            (made ? 'Made it ✓ — undo' : 'I made it') + '</button>' +
-          '</div>' +
+
+          stage(1, 'Learn it', teach.length + ' lessons · ' +
+            teach.reduce(function (a, l) { return a + l.m; }, 0) + ' min', true,
+            '<div class="pa-less">' + teach.map(chip).join('') + '</div>') +
+
+          (test ? stage(2, 'Test yourself', test.m + ' min · another day', true,
+            '<button class="pa-l c' + (passed ? ' done' : '') + '" data-pa="lesson" data-id="' +
+              esc(c.id) + '" data-m="' + esc(m.id) + '" data-l="' + esc(test.n) + '">' +
+              '<span class="k">Test</span><span>' + esc(test.n) + '</span>' +
+              '<i>' + test.m + ' min</i></button>' +
+            (passed ? '<p class="pa-note ok">Passed on a later day than you learned it, ' +
+                      'so it counted.</p>'
+                    : tried ? '<p class="pa-note">Tried, on the same day it was taught — ' +
+                              'that is practice. Come back another day.</p>'
+                            : '')) : '') +
+
+          stage(3, 'Make something', P.m + ' min', passed,
+            (passed
+              ? (K && K.has(P)
+                  ? '<button class="pa-open" data-pa="karya" data-id="' + esc(c.id) +
+                    '" data-p="' + esc(P.id) + '">' +
+                    '<span class="pa-usekind">Workshop</span>' +
+                    '<b>' + esc(P.task.title || P.name) + '</b>' +
+                    '<i>Do it here first, then on paper</i>' +
+                    (work ? '<span class="pa-pill on">' +
+                      (work.by === 'app' ? 'marked' : 'kept') + '</span>' : '') +
+                    '</button>'
+                  : '') +
+                '<b class="pa-pname">' + esc(P.name) + '</b>' +
+                '<p>' + esc(P.brief) + '</p>' +
+                '<p class="pa-made">You will have made: ' + esc(P.made) + '</p>' +
+                '<button class="btn' + (made ? '' : ' primary') + '" data-pa="made" data-id="' +
+                  esc(c.id) + '" data-p="' + esc(P.id) + '">' +
+                  (made ? 'Made it ✓ — undo' : 'I made it, on paper') + '</button>'
+              /* A LOCK THAT SAYS WHY. The project is the reward for the test, not a
+                 second way round it, and the screen names the door rather than dimming
+                 the words — the same rule the hub's premium lock follows. */
+              : '<p class="pa-shutsay">' + api.icon('lock', 15) + ' <b>' + esc(P.name) +
+                '</b> opens when you pass the test. Making the thing is how you keep what ' +
+                'you learned — it is not a way round showing that you learned it.</p>')) +
+
         '</div></div>';
     }).join('');
 
@@ -557,14 +702,15 @@
       '<div class="pa-hero">' +
         (c.cover ? '<img src="' + esc(c.cover) + '" alt="' + esc(c.coverAlt || '') + '">' : '') +
         '<div class="pa-scrim">' +
-          '<p class="pa-kick">Plate ' + roman(i0 + 1) + ' · Paathshala</p>' +
+          '<p class="pa-kick">Course ' + (i0 + 1) + ' of ' + P.courses.length +
+            ' · Paathshala</p>' +
           '<h2>' + esc(c.name) + '</h2>' +
           '<span class="pa-sub">' + esc(c.sub) + '</span>' +
           '<p>' + esc(c.why) + '</p>' +
         '</div>' +
       '</div>' +
       /* docs/05: never uncredited texture. The plate says what it is, every time. */
-      (c.coverAlt ? '<p class="pa-credit">Plate: ' + esc(c.coverAlt) + '</p>' : '') +
+      (c.coverAlt ? '<p class="pa-credit">Picture: ' + esc(c.coverAlt) + '</p>' : '') +
       '<div class="pa-paper">' +
       '<div class="pa-mast flush">' +
         '<ul class="pa-tally">' +
@@ -646,6 +792,51 @@
         (next ? '<div class="pa-next"><button class="btn" data-pa="lesson" data-id="' + esc(cid) +
           '" data-m="' + esc(mid) + '" data-l="' + esc(next.n) + '">Next · ' +
           esc(next.n) + ' →</button></div>' : '') +
+      '</div></div></div>';
+  }
+
+  /* ------------------------------------------------------------------ the workshop */
+  /* One project, done here. The screen is karya.js's; this is the frame round it — where
+     you came from, what the project is, and, under the tool, the OTHER half: the thing
+     to go and do on paper. The paper half is never marked by anything, and it says so
+     rather than wearing a tick box. */
+  function karyaPage(cid, pid) {
+    styles();
+    var c = get(cid); if (!c) return hub();
+    var m = null;
+    c.modules.forEach(function (x) { if (x.project.id === pid) m = x; });
+    if (!m) return coursePage(cid);
+    var K = W.IND_KARYA;
+    var P = m.project, mi = 0;
+    c.modules.forEach(function (x, i) { if (x.id === m.id) mi = i; });
+    var work = K ? K.rec(P.id) : null;
+    var r = course(cid), made = !!r.made[P.id];
+
+    return '<div class="pa-wrap">' +
+      '<button class="backlink" data-pa="course" data-id="' + esc(cid) + '">' +
+        api.icon('back', 18) + ' ' + esc(c.name) + '</button>' +
+      '<div class="pa-paper"><div class="pa-lesson">' +
+        '<p class="pa-kick">' + esc(c.name) + ' · Part ' + (mi + 1) + ' · ' + esc(m.name) + '</p>' +
+        '<h2>' + esc(P.name) + '</h2>' +
+        '<span class="pa-sub">Project · ' + P.m + ' minutes</span>' +
+        (K && K.has(P)
+          ? '<div class="ky">' + K.render(P) + '</div>'
+          : '') +
+        /* THE OTHER HALF, and the honest line about it */
+        '<div class="pa-secthead"><h3>Then, away from the screen</h3><span>on paper</span></div>' +
+        '<p class="pa-lead">' + esc(P.brief) + '</p>' +
+        '<p class="pa-made">You will have made: ' + esc(P.made) + '</p>' +
+        '<button class="btn' + (made ? '' : ' primary') + '" data-pa="made" data-id="' +
+          esc(cid) + '" data-p="' + esc(P.id) + '">' +
+          (made ? 'Made it ✓ — undo' : 'I made it, on paper') + '</button>' +
+        '<p class="pa-note">Nothing marks the paper half, and nothing is going to. No ' +
+        'photograph of it leaves this device, no program grades your handwriting, and it ' +
+        'does not count towards what the app says you have learned — that is what the ' +
+        'test is for. It goes on your shelf because it is yours.</p>' +
+        (work ? '<p class="pa-note ok">' +
+          (work.by === 'app'
+            ? 'The app marked the workshop half of this one.'
+            : 'The workshop half is kept, not marked — see what it said above.') + '</p>' : '') +
       '</div></div></div>';
   }
 
@@ -762,6 +953,14 @@
       return true;
     }
     if (a === 'pack')  { api.go('paathp', el.getAttribute('data-id')); return true; }
+    if (a === 'karya') {
+      var kc = el.getAttribute('data-id'), kp = el.getAttribute('data-p');
+      var KC = get(kc), KP = null;
+      if (KC) KC.modules.forEach(function (x) { if (x.project.id === kp) KP = x.project; });
+      if (KP && W.IND_KARYA) W.IND_KARYA.open(KP);
+      api.go('paathk', kc + '|' + kp);
+      return true;
+    }
     if (a === 'print') { W.print(); return true; }
     if (a === 'made') {
       var cid = el.getAttribute('data-id'), pid = el.getAttribute('data-p');
@@ -793,6 +992,22 @@
     hub: hub,
     course: coursePage,
     pack: packPage,
+    karya: function (arg) {
+      var a = String(arg || '').split('|');
+      return karyaPage(a[0], a[1]);
+    },
+    /* the tracing canvas owns window-level pointer listeners, so the host mounts it
+       after the render and tears it down on the way out — the same contract the Bhasha
+       quiz has with likhna.js */
+    mount: function (arg) {
+      var a = String(arg || '').split('|'), c = get(a[0]), K = W.IND_KARYA;
+      if (!c || !K) return null;
+      var p = null;
+      c.modules.forEach(function (x) { if (x.project.id === a[1]) p = x.project; });
+      return p ? K.mount(p) : null;
+    },
+    /* what the grown-up's page may show of the workshop: two lists, never one */
+    shelf: function () { return W.IND_KARYA ? W.IND_KARYA.shelf(P.courses) : { marked: [], kept: [] }; },
     lesson: function (arg) {
       var p = String(arg || '').split('|');
       return lessonPage(p[0], p[1], p.slice(2).join('|'));

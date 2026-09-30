@@ -1122,6 +1122,53 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .opt.right { border-color: var(--good); background: #e7f6ef; color: #15694a; }
 .opt.wrong { border-color: var(--bad); background: #fdeceb; color: #8f2f2b; }
 
+/* ------------------------------------------------------------- onboarding
+   ONE QUESTION AT A TIME, ASKED BY SOMEBODY. The old first run was a single scrolling
+   form — a name, an age slider, the language chips, a placement box that grew two more
+   questions inside itself, and then a hundred and sixteen avatars under seven headings.
+   Bizzing Finance's shape instead: a narrow column, a character asking in a speech
+   bubble, and one card of answers under it, each saying what it changes. */
+.obwrap { max-width: 560px; padding-top: 5vh; }
+.obhead { display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin: 14px 0 16px; }
+.obhead .mono { margin: 0; }
+/* A BACK LINK IS A TAP TARGET. This was 57x25 on a phone — under the 32px floor the
+   rest of the app holds itself to — and it is the control a grown-up reaches for after
+   mistyping an eight-year-old's name. check-onboard.js `touch` found it. */
+.obback { padding: 8px 2px; min-height: 40px; }
+.obdots { max-width: none; justify-content: center; margin-top: 8px; }
+
+/* the character asks it — a label is a form, a character asking is a conversation */
+.obsay { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.obsay > :first-child { flex: none; }
+.obbub {
+  position: relative; flex: 1; min-width: 0;
+  background: var(--card); border: 1px solid var(--line2);
+  border-radius: 4px var(--radius-lg) var(--radius-lg) var(--radius-lg);
+  padding: var(--space-lg); box-shadow: var(--shadow);
+  font-size: 15px; line-height: 1.55;
+}
+.obbub b { font-family: var(--display); font-size: 17px; }
+.obbub p { margin: 6px 0 0; color: var(--text2); font-size: 13.5px; line-height: 1.55; }
+
+.obcard { padding: var(--space-xl); }
+.obopt { margin-bottom: 10px; }
+.obopt b { display: block; font-family: var(--display); font-size: 16px; margin-bottom: 2px; }
+.obopt span { display: block; font-size: 12.5px; line-height: 1.45; color: var(--muted); font-weight: 500; }
+.obopt:hover span { color: inherit; }
+/* five faces, not a hundred and sixteen — so they get room rather than a dense wall.
+   Five explicit columns, because auto-fit wrapped them 4 + 1 and a row of four over a
+   lonely fifth reads as a mistake rather than a set. */
+.obgrid { grid-template-columns: repeat(5, 1fr); gap: var(--space-sm); }
+@media (max-width: 620px) { .obgrid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 380px) { .obgrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) {
+  .obwrap { padding-top: 2vh; }
+  .obsay { gap: 9px; }
+  .obbub { padding: var(--space-md); font-size: 14.5px; }
+  .obcard { padding: var(--space-lg) var(--space-md); }
+}
+
 .dots { max-width: 720px; margin-left: auto; margin-right: auto; display: flex; gap: 5px; }
 .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line2); }
 .dots i.on { background: var(--accent); }

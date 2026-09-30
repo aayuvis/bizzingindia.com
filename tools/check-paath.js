@@ -302,7 +302,11 @@ check('tasks', 'every workshop task is one the app can actually run', async ({ C
   if (!sc) throw new Error('the Devanagari script module did not load');
   const glyphs = new Set([].concat(sc.consonants || [], sc.vowels || [])
     .map(x => x.char || x));
-  const KINDS = new Set(['write', 'writeOwn', 'trace', 'order']);
+  const KINDS = new Set(['write', 'writeOwn', 'trace', 'order', 'match']);
+  /* the Hindi lexicon: a `write` target is a word the app can spell because the app
+     already holds it, never one typed in to fill a task */
+  const lexicon = new Set(((global.window.IND_PACKS || {}).hi || {}).lexicon
+    ? global.window.IND_PACKS.hi.lexicon.map(x => x.word) : []);
   const bad = [];
   let n = 0;
   C.P.courses.forEach(c => c.modules.forEach(m => {
@@ -316,17 +320,38 @@ check('tasks', 'every workshop task is one the app can actually run', async ({ C
       if (!t.target) bad.push(`${where} is a write task with nothing to write`);
       else if (![...t.target].every(ch => ch.codePointAt(0) >= 0x0900 && ch.codePointAt(0) <= 0x097F))
         bad.push(`${where}'s target is not all Devanagari — the keypad cannot type it`);
+      /* docs/05: Devanagari is set correctly or not at all. A spelling typed from memory
+         is how a matra goes missing, so the target must be a word the lexicon holds. */
+      else if (lexicon.size && !lexicon.has(t.target))
+        bad.push(`${where}'s target "${t.target}" is not in the Hindi lexicon — it was typed, not looked up`);
+    }
+    if (t.k === 'match') {
+      if (!t.pairs || t.pairs.length < 3) { bad.push(`${where} is a match task with fewer than three pairs`); return; }
+      /* AMBIGUITY. Two identical prompts cannot be told apart, and two identical answers
+         turned up once already (two episodes in Adi Parva) — the checker compares by
+         value now, but a board with a repeated answer is still a worse question. */
+      const L = t.pairs.map(x => x[0]), Rr = t.pairs.map(x => x[1]);
+      if (new Set(L).size !== L.length) bad.push(`${where} repeats a prompt`);
+      if (new Set(Rr).size !== Rr.length) bad.push(`${where} repeats an answer: ${Rr.filter((x, i) => Rr.indexOf(x) !== i).join(', ')}`);
+      t.pairs.forEach(x => { if (!x[0] || !x[1]) bad.push(`${where} has an empty side in a pair`); });
     }
     if (t.k === 'trace' && !glyphs.has(t.letter))
       bad.push(`${where} traces "${t.letter}", which is not in the script table`);
     if (t.k === 'order') {
       if (!t.items || !t.answer) { bad.push(`${where} is an order task with no answer`); return; }
+      if (new Set(t.answer).size !== t.answer.length) bad.push(`${where} has the same item twice`);
       if (t.items.length !== t.answer.length) bad.push(`${where}'s answer is a different length`);
       const items = new Set(t.items);
       t.answer.forEach(a => { if (!items.has(a)) bad.push(`${where}'s answer has "${a}", which is not on its list`); });
     }
   }));
   if (!n) throw new Error('no workshop tasks at all — this check would pass on an empty file');
+  /* every course, not just the two it started in */
+  C.P.courses.forEach(c => {
+    const k = c.modules.filter(m => m.project.task).length;
+    if (k < Math.ceil(c.modules.length / 2))
+      bad.push(`${c.id} has workshop work on ${k} of ${c.modules.length} parts — under half`);
+  });
   if (bad.length) throw new Error(bad.join('; '));
 });
 
@@ -798,6 +823,41 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
     throw new Error(`a word the app holds was recorded as "${known.rec.by}" — it marked it, so it should say so`);
   if (known.m !== before)
     throw new Error('a marked project wrote to the mastery record — that is still the test’s job');
+
+  /* AND IN PROGRESS IS NEITHER. A match board half paired has a record — it has to, or
+     the pairs would vanish on the next render — but it has no verdict, and the first
+     version of the status line read "no verdict" as "kept". The page claimed a thing had
+     been kept that the child had not finished. */
+  await p.evaluate(() => {
+    const S = JSON.parse(localStorage.getItem('bi_v1'));
+    S.paath.c['rishtey-course'] = { at: 20260901, seen: {}, made: {}, note: {},
+      m: { r1: { on: 20260920, tries: 1 } } };
+    S.paath.w = S.paath.w || {};
+    S.paath.w.r1p = { pairs: { 0: 0 }, by: null, on: 0, task: 'match' };
+    localStorage.setItem('bi_v1', JSON.stringify(S));
+  });
+  await p.reload({ waitUntil: 'networkidle' });
+  await p.waitForTimeout(600);
+  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('.pa-card[data-id="rishtey-course"]').click());
+  await p.waitForTimeout(600);
+  const pill = await p.evaluate(() => {
+    const d = document.querySelector('.pa-open[data-p="r1p"]');
+    return d ? (d.querySelector('.pa-pill') || {}).textContent || '' : '(no door)';
+  });
+  if (/kept|marked/.test(pill))
+    throw new Error(`a half-finished board is labelled "${pill}" on the course page`);
+  await p.evaluate(() => document.querySelector('.pa-open[data-p="r1p"]').click());
+  await p.waitForTimeout(600);
+  const line = await p.evaluate(() => [...document.querySelectorAll('.pa-note')]
+    .map(n => n.textContent).join(' | '));
+  if (/kept, not marked|marked the workshop/.test(line))
+    throw new Error('a half-finished board is reported as ' +
+      (/kept/.test(line) ? '"kept"' : '"marked"') + ' before Check was ever pressed');
+  const shelf = await p.evaluate(() => window.IND_PAATH_UI.shelf());
+  if ([...shelf.marked, ...shelf.kept].some(x => x.project && /first branch/i.test(x.project)))
+    throw new Error('a half-finished board is on the grown-up’s shelf');
 });
 
 check('touch', 'a phone can hit everything', async ({ p }) => {

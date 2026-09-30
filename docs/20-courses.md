@@ -234,7 +234,7 @@ A child told *"correct!"* about their own name, by a program that does not know 
 has been lied to. `honest` fails if a submission the app could not decide is ever recorded
 as `by: 'app'`, and if anything in the workshop writes to the mastery record.
 
-### The four task kinds
+### The five task kinds
 
 | kind | what the child does | who decides |
 |---|---|---|
@@ -242,6 +242,52 @@ as `by: 'app'`, and if anything in the workshop writes to the mastery record.
 | `writeOwn` | type something only they know | the app checks the **script**, and says so |
 | `trace` | form the letter on the canvas | `likhna.js`, on coverage and spill |
 | `order` | put four things in order | the app, completely |
+| `match` | pair each prompt with its own | the app, completely — **by value, never by position** |
+
+**All 88 projects have one.** Every course has a workshop half on every part.
+
+### Every fact in a task is looked up, never typed
+
+[`tools/gen-paath-tasks.js`](../tools/gen-paath-tasks.js) writes them. The copy is authored;
+the **facts are read off the corpus at generation time** — a festival's months from
+`data-utsav`, an era's span from `data-itihaas`, a capital and a state's name from
+`data-geo`, a river's states in the order it reaches them, an epic book's name, and every
+Devanagari spelling from the Hindi lexicon. A task file is forty short strings that each
+look right, which is exactly where "never write history from memory" breaks. A generator
+cannot misremember a matra.
+
+It refused a dozen words on its first run — *khana*, *sach*, *raja*, *geet* — because the
+lexicon does not hold them, and the fix was to use words it does. It also has to **prove
+its own rewrite before it touches disk**: the new file is parsed and the courses, modules,
+projects and task kinds counted, and a mismatch is refused. That exists because the first
+version's strip regex silently deleted nine modules in memory; it never reached disk only
+because the run failed for another reason first.
+
+### What reading them back caught
+
+The first draft of the 88 was checked by reading every one, and six were wrong in ways no
+schema would notice:
+
+- **A size ranking with no single answer** — a stepwell against a stupa. Rani ki Vav is
+  longer than Sanchi's stupa is wide; a small stupa is smaller than either. A task that can
+  mark a right child wrong is worse than no task.
+- **Two readings of the Gita put "in order"**, on the course `docs/21` says must represent
+  the disagreement fairly. It is a `writeOwn` now: the child writes the one they find more
+  convincing, and nothing marks it.
+- **A monsoon-onset order typed from memory.** True, as it happens — and that is the trap.
+  It is the Ganga's states in the order the river reaches them now, out of `data-geo`.
+- **A language paired with a capital**, under a title about states.
+- **Raw book keys** — `bala`, `adi` — where the epic data carries "Bala Kanda".
+- **Faith labels typed** where the festival record already holds them.
+
+And the hardened `tasks` check found two more on its first run: **Punjab and Haryana share
+Chandigarh**, so a capitals board had two identical prompts; and **Onam and Nuakhai both
+fall in August or September**, so a harvest board had two identical answers. The checker
+now compares pairs by value, and `tasks` refuses a repeated prompt or answer outright.
+
+**In progress is neither marked nor kept.** A half-paired board has a record — it must, or
+the pairs vanish on the next render — but no verdict, and the first status line read "no
+verdict" as "kept". `honest` now fails on that too.
 
 **A project with no task is a perfectly good project.** A letter hunt round the kitchen is
 not a screen, and the course page renders that as paper only rather than inventing one.

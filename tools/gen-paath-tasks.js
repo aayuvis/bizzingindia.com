@@ -24,6 +24,13 @@ global.window = global.window || {};
 const W = global.window;
 
 /* ------------------------------------------------------------------ the corpus */
+/* WHAT A TASK IS ABOUT. Every accessor below records the corpus object it read, and the
+   task keeps that list as `about` — so the course atlas can give each part a painting of
+   the thing its own task is built on (a Ramayana episode, a state, a festival's state)
+   out of the same lookup that produced the facts, rather than a picture chosen apart
+   from them. */
+let touched = [];
+const touch = ref => { if (touched.indexOf(ref) < 0) touched.push(ref); };
 const lex = {};
 (W.IND_PACKS.hi.lexicon || []).forEach(x => { lex[x.roman] = x; });
 const word = r => {
@@ -34,43 +41,51 @@ const word = r => {
 const era = id => {
   const e = (W.IND_ITIHAAS.eras || []).find(x => x.id === id);
   if (!e) throw new Error(`no era "${id}"`);
+  touch('it:' + id);
   return e;
 };
 const fest = id => {
   const f = (W.IND_UTSAV.festivals || []).find(x => x.id === id);
   if (!f) throw new Error(`no festival "${id}"`);
+  touch('ut:' + id);
   return f;
 };
 const kin = id => {
   const k = (W.IND_RISHTEY.terms || []).find(x => x.id === id);
   if (!k) throw new Error(`no kinship term "${id}"`);
+  touch('ri:' + id);
   return k;
 };
 const val = id => {
   const v = (W.IND_NEETI.values || []).find(x => x.id === id);
   if (!v) throw new Error(`no value "${id}"`);
+  touch('va:' + id);
   return v;
 };
 const song = id => {
   const g = (W.IND_GEET.songs || []).concat(W.IND_GEET.bhajans || []).find(x => x.id === id);
   if (!g) throw new Error(`no song "${id}"`);
+  touch('ge:' + id);
   return g;
 };
 const ep = (which, n) => {
   const list = which === 'r' ? W.IND_EPIC_RAMAYANA.episodes : W.IND_EPIC_MAHABHARATA.episodes;
   const e = (list || []).find(x => x.n === n);
   if (!e) throw new Error(`no ${which} episode ${n}`);
+  touch((which === 'r' ? 'ra:' : 'mb:') + n);
   return e;
 };
 const state = code => {
   const s = W.IND_STATES[code];
   if (!s) throw new Error(`no state "${code}"`);
+  touch('state:' + code);
   return s;
 };
 /* a state's NAME comes from the geo data; data-states.js carries only the code */
 const stName = code => {
   const g = W.IND_GEO.states[code];
   if (!g || !g.name) throw new Error(`no name for state "${code}" in data-geo.js`);
+  touch('state:' + code);
   return g.name;
 };
 const river = id => {
@@ -105,14 +120,15 @@ const songWord = (sid, roman) => {
 /* ------------------------------------------------------------------ the tasks */
 /* Keyed by project id. The copy is authored; every fact comes from above. */
 const T = {};
+const about = () => { const a = touched.slice(); touched = []; return a; };
 const write = (pid, roman, title, say) => {
   const w = word(roman);
-  T[pid] = { k: 'write', title, say, target: w.word, roman: w.roman, clue: w.en };
+  T[pid] = { k: 'write', title, say, target: w.word, roman: w.roman, clue: w.en, about: about() };
 };
-const trace = (pid, ch, title, say) => { letter(ch); T[pid] = { k: 'trace', letter: ch, title, say }; };
-const own = (pid, title, clue, say) => { T[pid] = { k: 'writeOwn', title, clue, say }; };
-const order = (pid, title, say, items) => { T[pid] = { k: 'order', title, say, items: items.slice(), answer: items.slice() }; };
-const match = (pid, title, say, pairs) => { T[pid] = { k: 'match', title, say, pairs }; };
+const trace = (pid, ch, title, say) => { letter(ch); T[pid] = { k: 'trace', letter: ch, title, say, about: about() }; };
+const own = (pid, title, clue, say) => { T[pid] = { k: 'writeOwn', title, clue, say, about: about() }; };
+const order = (pid, title, say, items) => { T[pid] = { k: 'order', title, say, items: items.slice(), answer: items.slice(), about: about() }; };
+const match = (pid, title, say, pairs) => { T[pid] = { k: 'match', title, say, pairs, about: about() }; };
 
 /* ===== 1. HINDI, FROM ZERO — the script is the whole point, so it is typed and traced */
 own('h1p', 'Write your name here first', 'Your own name, in Devanagari',
@@ -451,6 +467,9 @@ function taskLit(t, indent) {
   }
   if (t.pairs) {
     body += ',\n' + pad + '        pairs: [' + t.pairs.map(p => pairLit(p)).join(',\n' + pad + '                ') + ']';
+  }
+  if (t.about && t.about.length) {
+    body += ',\n' + pad + '        about: [' + t.about.map(x => JSON.stringify(x)).join(', ') + ']';
   }
   return body + ' },';
 }

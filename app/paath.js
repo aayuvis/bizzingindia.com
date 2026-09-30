@@ -283,6 +283,168 @@
     '.pa-open i{display:block;font-style:normal;font-size:11.5px;color:var(--muted)}',
     '.pa-open .pa-pill{margin-top:6px}',
 
+    /* ============================== THE COURSE ATLAS ==============================
+       Bizzing Finance's Money Atlas (app/styles/app.css .aboard/.apin/.act/.rail/.stop),
+       which is Bizzing Bee's Word Atlas: the same sizes, the same gold for what is
+       walked, the same companion on the pin you are standing at. --ja is the course's
+       own colour, the way each Finance world carries its tint. */
+    '.pa-atitle{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;' +
+      'flex-wrap:wrap;margin:0 0 12px}',
+    '.pa-atitle h2{font:800 clamp(24px,3.6vw,34px)/1.08 var(--display,Georgia,serif);margin:0;' +
+      'letter-spacing:-.015em}',
+    '.pa-atools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}',
+    '.pa-tpill{display:inline-flex;align-items:center;gap:5px;font:700 11.5px/1 var(--body);' +
+      'padding:8px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);' +
+      'color:var(--text2);min-height:32px}',
+    '.pa-tpill.act{cursor:pointer;color:var(--accent);border-color:var(--accent)}',
+    '.pa-tpill.act:hover{background:var(--accent-soft)}',
+
+    /* the board */
+    '.pa-boardwrap{border-radius:22px;overflow-x:auto;overflow-y:hidden;' +
+      'box-shadow:0 2px 6px rgba(12,30,34,.08),0 14px 34px rgba(12,30,34,.14);' +
+      '-webkit-overflow-scrolling:touch;scrollbar-width:thin}',
+    '.pa-board{position:relative;background:var(--ground2)}',
+    /* the board's own painting ONLY — `.pa-board img` also caught the companion on the
+       pin you are standing at and stretched it across the whole pin */
+    '.pa-board>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}',
+    /* the painting is a place, not a background to read over — so the veil only deepens
+       it enough for white pins to hold, and leaves the picture a picture */
+    '.pa-boardveil{position:absolute;inset:0;background:' +
+      'radial-gradient(ellipse at center,rgba(20,13,34,.12) 0%,rgba(20,13,34,.46) 100%)}',
+    '.pa-route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;' +
+      'filter:drop-shadow(0 1px 3px rgba(24,14,4,.55))}',
+    '.pa-pin{position:absolute;transform:translate(-50%,-50%);display:grid;justify-items:center;' +
+      'gap:5px;z-index:2;font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}',
+    '.pa-pin:focus-visible .pa-dot{outline:3px solid #FFD24D;outline-offset:3px}',
+    '.pa-dot{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;' +
+      'background:rgba(22,30,34,.6);border:2px solid rgba(255,255,255,.82);' +
+      'box-shadow:0 4px 12px rgba(10,20,24,.45);color:#fff;overflow:hidden;' +
+      'font:800 15px/1 var(--display,Georgia,serif)}',
+    '.pa-dot img,.pa-dot svg{width:36px;height:36px;display:block}',
+    '.pa-pin.cur{z-index:3}',
+    '.pa-pin.cur .pa-dot{width:56px;height:56px;border-color:#fff;' +
+      'background:linear-gradient(160deg,var(--ja),color-mix(in srgb,var(--ja) 55%,#1a2a2e));' +
+      'box-shadow:0 0 0 5px color-mix(in srgb,var(--ja) 35%,transparent),0 6px 16px rgba(10,20,24,.5)}',
+    '.pa-pin.cur .pa-dot img,.pa-pin.cur .pa-dot svg{width:46px;height:46px}',
+    '.pa-pin.done .pa-dot{background:linear-gradient(160deg,#FFD24D,#C8791B);color:#4A2E00;border-color:#FFE9A8}',
+    '.pa-pin.part .pa-dot{border-color:#FFD24D}',
+    '.pa-chip{display:grid;background:rgba(14,24,28,.8);color:#fff;border-radius:12px;padding:5px 10px;' +
+      'text-align:center;border:1px solid rgba(255,255,255,.18);max-width:132px}',
+    '.pa-chip b{font:800 12px/1.2 var(--display,Georgia,serif);display:-webkit-box;' +
+      '-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
+    '.pa-chip i{font-style:normal;font-size:10.5px;opacity:.85;font-weight:700;margin-top:1px}',
+    '.pa-pin.cur .pa-chip{border-color:color-mix(in srgb,var(--ja) 70%,#fff)}',
+    '.pa-pin:hover .pa-chip{background:rgba(14,24,28,.94)}',
+    /* on paper, like everything else that is read — the mural runs under this line */
+    '.pa-here{margin:10px 0 0;padding:10px 14px;font-size:13px;color:var(--muted);' +
+      'background:var(--card);border:1px solid var(--line);border-radius:14px}',
+    '.pa-here b{color:var(--text)}',
+    '.pa-herecred{display:block;margin-top:4px;font:700 10.5px/1.4 var(--body);color:var(--muted);' +
+      'letter-spacing:.03em}',
+    '.pa-atlas .pa-here{margin-bottom:16px}',
+    '@media (max-width:620px){.pa-chip{max-width:108px;padding:4px 7px}.pa-chip b{font-size:11px}' +
+      '.pa-dot{width:38px;height:38px}.pa-pin.cur .pa-dot{width:48px;height:48px}' +
+      '.pa-pin.cur .pa-dot img,.pa-pin.cur .pa-dot svg{width:40px;height:40px}}',
+
+    /* a part: the painted banner */
+    '.pa-act{position:relative;border-radius:18px;overflow:hidden;background:var(--card);margin:0 0 8px;' +
+      'box-shadow:0 0 0 1px var(--line),0 2px 6px rgba(12,30,34,.04),0 14px 34px rgba(12,30,34,.06)}',
+    '.pa-act.here{box-shadow:0 0 0 2px color-mix(in srgb,var(--ja) 65%,var(--line)),0 14px 34px rgba(12,30,34,.10)}',
+    '.pa-actban{position:relative;display:block;width:100%;height:86px;border:0;padding:0;' +
+      'cursor:pointer;text-align:left;font:inherit;' +
+      'background:var(--plate) center 38%/cover no-repeat;' +
+      'background-color:color-mix(in srgb,var(--ja) 40%,#1a2a2e)}',
+    '.pa-act.open .pa-actban{height:132px}',
+    /* THE WORDS BANNER. The course's colour, deepened, with the part's own words set
+       large and pale in their own script on the right — the lang attribute picks the
+       real face, so Devanagari keeps its shirorekha and Tamil stays Tamil. */
+    '.pa-actban.words{background:linear-gradient(120deg,color-mix(in srgb,var(--ja) 88%,#1a1030),' +
+      'color-mix(in srgb,var(--ja) 55%,#140c24))}',
+    '.pa-actwords{position:absolute;right:84px;top:0;bottom:0;display:flex;align-items:center;gap:22px;' +
+      'color:rgba(255,255,255,.26);font-size:34px;line-height:1.7;white-space:nowrap;overflow:hidden;' +
+      'max-width:62%;justify-content:flex-end;pointer-events:none}',
+    '.pa-act.open .pa-actwords{font-size:42px}',
+    '.pa-actwords.num{font:800 86px/1 var(--display,Georgia,serif);color:rgba(255,255,255,.16);' +
+      'letter-spacing:-.04em}',
+    '.pa-act.open .pa-actwords.num{font-size:112px}',
+    '.pa-actban.words .pa-actscrim{background:linear-gradient(90deg,rgba(14,22,26,.34) 0%,rgba(14,22,26,0) 55%)}',
+    '@media (max-width:620px){.pa-actwords{right:64px;font-size:26px;gap:14px;max-width:55%}}',
+    '.pa-actban:focus-visible{outline:3px solid #FFD24D;outline-offset:-3px}',
+    '.pa-actscrim{position:absolute;inset:0;background:linear-gradient(180deg,' +
+      'rgba(14,22,26,.20) 0%,rgba(14,22,26,.30) 45%,rgba(14,22,26,.82) 100%)}',
+    '.pa-actrow{position:absolute;left:16px;right:16px;bottom:12px;display:flex;align-items:flex-end;gap:12px}',
+    '.pa-actno{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;' +
+      'background:rgba(255,255,255,.92);color:var(--text);font:800 17px/1 var(--display,Georgia,serif);' +
+      'box-shadow:0 3px 8px rgba(0,0,0,.35)}',
+    '.pa-act.here .pa-actno{background:var(--ja);color:#fff}',
+    '.pa-acttext{flex:1;min-width:0;display:grid}',
+    '.pa-acttext b{font:800 18px/1.15 var(--display,Georgia,serif);color:#fff;' +
+      'text-shadow:0 2px 8px rgba(0,0,0,.6)}',
+    '.pa-acttext i{font-style:normal;font:700 11.5px/1.3 var(--body);color:rgba(255,255,255,.9);' +
+      'text-shadow:0 1px 4px rgba(0,0,0,.6);margin-top:3px;letter-spacing:.02em}',
+    '.pa-ring{position:relative;display:inline-grid;place-items:center;flex:none}',
+    '.pa-ring svg{position:absolute;inset:0;width:100%;height:100%}',
+    '.pa-ring b{position:relative;font:800 11px/1 var(--display,Georgia,serif);color:#fff;' +
+      'text-shadow:0 1px 3px rgba(0,0,0,.6)}',
+
+    /* the rail */
+    '.pa-railwrap{padding:14px 16px 16px}',
+    '.pa-railwrap .pa-obj{margin:0 0 10px;font-size:13px}',
+    '.pa-rail{position:relative}',
+    '.pa-railline{position:absolute;left:17px;top:24px;bottom:24px;width:2px;border-radius:2px;background:var(--line)}',
+    '.pa-railline span{position:absolute;left:0;right:0;top:0;border-radius:2px;' +
+      'background:linear-gradient(180deg,#FFD24D,#E0922E);box-shadow:0 0 8px rgba(240,180,41,.45)}',
+    '.pa-stop{position:relative;display:block;width:100%;text-align:left;padding:10px 12px 10px 52px;' +
+      'margin:0 0 2px;border-radius:14px;font:inherit;color:inherit;background:transparent;border:0;' +
+      'cursor:pointer;min-height:44px}',
+    '.pa-stop:hover{background:var(--ground2)}',
+    '.pa-stop:focus-visible{outline:2px solid var(--accent);outline-offset:1px}',
+    'div.pa-stop{cursor:default}',
+    'div.pa-stop:hover{background:transparent}',
+    '.pa-stop.cur{padding:15px 16px 15px 52px;margin:4px 0 10px;cursor:pointer;' +
+      'background:linear-gradient(150deg,color-mix(in srgb,var(--ja) 14%,var(--card)),var(--card) 62%);' +
+      'box-shadow:0 0 0 1px color-mix(in srgb,var(--ja) 45%,var(--line)),0 6px 18px rgba(12,30,34,.12)}',
+    'div.pa-stop.cur:hover{background:linear-gradient(150deg,color-mix(in srgb,var(--ja) 14%,var(--card)),var(--card) 62%)}',
+    '.pa-med{position:absolute;left:0;top:12px;width:36px;height:36px;border-radius:50%;display:grid;' +
+      'place-items:center;z-index:2;font:800 14px/1 var(--display,Georgia,serif);background:var(--card);' +
+      'border:1.5px solid var(--line2);color:var(--muted);overflow:hidden}',
+    '.pa-stop.cur .pa-med{top:16px}',
+    '.pa-med img,.pa-med svg{width:30px;height:30px;display:block}',
+    '.pa-med.passed{background:linear-gradient(160deg,#FFD24D,#E0922E);color:#4A2E00;border:0;' +
+      'box-shadow:0 2px 6px rgba(200,121,27,.34);font-size:16px}',
+    '.pa-med.cur{background:linear-gradient(160deg,var(--ja),color-mix(in srgb,var(--ja) 55%,#1a2a2e));' +
+      'border:0;box-shadow:0 0 0 4px color-mix(in srgb,var(--ja) 24%,transparent),0 3px 9px rgba(26,18,54,.28)}',
+    '.pa-med.chk{border-style:dashed}',
+    '.pa-med.locked{background:var(--ground2)}',
+    '.pa-stbody{display:grid;gap:2px;min-width:0}',
+    '.pa-sttag{font:800 10px/1.3 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}',
+    '.pa-stop.cur .pa-sttag{color:var(--ja)}',
+    '.pa-sttitle{font:600 15px/1.25 var(--display,Georgia,serif)}',
+    '.pa-stop.cur .pa-sttitle{font-weight:800;font-size:17px}',
+    '.pa-stop.passed .pa-sttitle{font-weight:700}',
+    '.pa-stop.locked .pa-sttitle{color:var(--text2)}',
+    '.pa-stblurb{font-size:12.5px;line-height:1.5;margin-top:5px;color:var(--text2);max-width:56ch}',
+    '.pa-stgo{display:inline-flex;align-items:center;margin-top:11px;padding:10px 18px;border-radius:999px;' +
+      'background:var(--accent);color:#fff;font:800 13.5px/1 var(--body);justify-self:start}',
+    '.pa-strow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}',
+    '.pa-go{display:inline-flex;align-items:center;padding:10px 16px;border-radius:999px;min-height:40px;' +
+      'background:var(--accent);color:#fff;font:800 13px/1 var(--body);border:0;cursor:pointer}',
+    '.pa-go.ghost{background:var(--card);color:var(--text);box-shadow:0 0 0 1px var(--line2)}',
+    '.pa-go:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}',
+
+    /* ON PAPER. The first atlas left this on the page itself, and the bazaar mural ran
+       through "Why this course" — the same fault the hub had before it got .pa-paper. */
+    '.pa-afoot{margin:18px 0 0;padding:16px 20px;border:1px solid var(--line);border-radius:18px;' +
+      'background:var(--card);box-shadow:var(--shadow);' +
+      'font-size:12.5px;line-height:1.6;color:var(--muted)}',
+    '.pa-afoot p{margin:0 0 8px}',
+    '.pa-afoot b{color:var(--text2)}',
+    '.pa-afoot ul{margin:0;padding-left:18px}',
+    '@media (max-width:620px){' +
+      '.pa-actban{height:80px}.pa-act.open .pa-actban{height:116px}' +
+      '.pa-acttext b{font-size:16px}.pa-railwrap{padding:12px 10px 14px}' +
+      '.pa-atitle{align-items:flex-start}}',
+
     /* ---------- a lesson ---------- */
     '.pa-lesson{border-top:2px solid var(--text);padding:16px 0 0;margin-top:2px}',
     '.pa-lesson h2{font:800 clamp(25px,3.8vw,36px)/1.08 var(--display,Georgia,serif);' +
@@ -614,160 +776,337 @@
   }
 
   /* ----------------------------------------------------------------- one course */
+  /* ================================================================ THE COURSE ATLAS
+     A COURSE IS A MAP YOU WALK. That is what "atlas" means in the family, and this page
+     spent three versions not knowing it: first as grey boxes, then as a reference book —
+     numerals, rules, a wall of stages for every part at once. Bizzing Bee's Word Atlas
+     and Bizzing Finance's Money Atlas (app/src/atlas.js) are the model, and this is
+     their grammar exactly:
+
+       THE BOARD   the course's own painting, with its parts as pins on a dotted route.
+                   The walked part of the route is gold, and the pin you are standing at
+                   wears your companion's face.
+       A PART      a painted banner with a ring round how much of it is walked.
+       THE RAIL    the part's stops — learn, practise, test, make — on one line that
+                   fills gold behind you. The stop you are at is open and says Continue;
+                   what is ahead recedes; nothing behind you ever fades.
+
+     ONLY THE PART BEING WALKED IS OPEN. The last version rendered every stage of every
+     part — fourteen of them, three stages each — and read as a form. A child sees the
+     board, the part they are on, and the others as banners to tap. Every state on this
+     page is read from the course record; the frontier is the first stop not yet done,
+     in the course's own order, and nothing here stores its own idea of progress. */
+
+  var openPart = {};          /* per course: the part a child tapped open, if they did */
+
+  /* every stop of a course, in walking order, with its state read off the record */
+  function stopsOf(c) {
+    var r = course(c.id), out = [];
+    c.modules.forEach(function (m, mi) {
+      var passed = !!(r.m[m.id] || {}).on, tried = !!(r.m[m.id] || {}).tries;
+      m.lessons.forEach(function (l) {
+        if (l.k === 'c') {
+          out.push({ kind: 'test', m: m, mi: mi, l: l, done: passed, tried: tried });
+        } else {
+          out.push({ kind: l.k === 't' ? 'learn' : 'practise', m: m, mi: mi, l: l,
+                     done: !!r.seen[lid(m, l)] });
+        }
+      });
+      out.push({ kind: 'make', m: m, mi: mi, done: !!r.made[m.project.id],
+                 locked: !passed, work: W.IND_KARYA && W.IND_KARYA.has(m.project)
+                   ? W.IND_KARYA.rec(m.project.id) : null });
+    });
+    var fr = -1;
+    out.forEach(function (s, i) { s.i = i; if (fr < 0 && !s.done) fr = i; });
+    /* A LOCKED PROJECT IS NOT WHERE YOU ARE STANDING. If the first thing not done is a
+       project whose test has not passed, the frontier is the test — the thing that
+       actually opens next — not a door the child cannot go through. */
+    if (fr >= 0 && out[fr].kind === 'make' && out[fr].locked) {
+      for (var k = fr - 1; k >= 0; k--) if (out[k].kind === 'test' && out[k].mi === out[fr].mi) { fr = k; break; }
+    }
+    out.forEach(function (s, i) { s.cur = i === fr; });
+    return { list: out, frontier: fr };
+  }
+  function partStat(st, mi) {
+    var ns = st.list.filter(function (s) { return s.mi === mi; });
+    var done = ns.filter(function (s) { return s.done; }).length;
+    return { total: ns.length, done: done, here: ns.some(function (s) { return s.cur; }),
+             cleared: done === ns.length };
+  }
+
+  /* A PART'S PICTURE is the painting of something that part actually teaches — the
+     first story, episode, era or value its lessons point at that has one — and the
+     course's own cover when none does. Never an unrelated painting chosen to look nice. */
+  /* ONE PICTURE PER PART, AND NEVER THE SAME ONE TWICE. The first atlas gave most parts
+     the course cover — Epics, Utsav, Rishtey and Geet had one picture for every part —
+     because a part's lessons often point at nothing with a painting. So a part's
+     candidates are, in order:
+
+       1. what its lessons point at, and every painted card of it (`look().alts`)
+       2. what its own workshop task is built from (`task.about`, written by
+          tools/gen-paath-tasks.js out of the same lookup that produced the facts) —
+          a Ramayana episode, the states a river runs through, where a festival is kept
+       3. and where there is still no painting nobody has used: THE PART'S OWN WORDS, in
+          their own script, on the course's colour. दादा दादी on a Rishtey banner, the
+          rhyme's words on a Geet one. It is graphical and it is the content — a borrowed
+          picture would be decoration, which docs/05 calls uncredited texture.
+
+     The board already shows the cover, so no banner repeats it. */
+  function partArts(c) {
+    var used = {}, out = [];
+    if (c.cover) used[c.cover] = 1;
+    c.modules.forEach(function (m) {
+      var refs = [];
+      m.lessons.forEach(function (l) {
+        Object.keys(l.use || {}).forEach(function (k) {
+          if (Array.isArray(l.use[k])) l.use[k].forEach(function (id) { refs.push([k, id]); });
+        });
+      });
+      var T0 = m.project && m.project.task;
+      ((T0 && T0.about) || []).forEach(function (ref) {
+        var i = ref.indexOf(':');
+        if (i > 0) refs.push([ref.slice(0, i), ref.slice(i + 1)]);
+      });
+      var cands = [], words = [];
+      refs.forEach(function (rf) {
+        var x = look(rf[0], rf[1]);
+        if (!x) return;
+        if (x.art) cands.push({ src: x.art, cap: x.cap || x.name });
+        (x.alts || []).forEach(function (a) { cands.push({ src: a, cap: x.cap || x.name }); });
+        if (x.script && words.length < 4 && words.every(function (w) { return w.t !== x.script; }))
+          words.push({ t: x.script, lang: x.lang || '' });
+      });
+      /* the task's own Devanagari counts as the part's words too */
+      if (T0 && words.length < 4) {
+        [T0.target, T0.letter].concat((T0.pairs || []).map(function (pr) { return pr[0]; }))
+          .forEach(function (t) {
+            if (t && /[ऀ-ॿ]/.test(t) && words.length < 4 &&
+                words.every(function (w) { return w.t !== t; })) words.push({ t: t, lang: 'hi' });
+          });
+      }
+      var pick = null;
+      for (var i = 0; i < cands.length && !pick; i++) if (!used[cands[i].src]) pick = cands[i];
+      if (pick) { used[pick.src] = 1; out.push(pick); }
+      else out.push({ src: null, words: words, cap: '' });
+    });
+    return out;
+  }
+  function partArt(c, m) {
+    var arts = partArts(c), i = c.modules.indexOf(m);
+    return arts[i] || { src: null, words: [] };
+  }
+
+  function face(n) { return api.face ? api.face(n) : ''; }
+
+  /* the ring round a part's banner — Finance's, drawn the same way */
+  function ring(done, total, size, col) {
+    var R = (size - 6) / 2, C = 2 * Math.PI * R, pct = total ? done / total : 0;
+    return '<span class="pa-ring" style="width:' + size + 'px;height:' + size + 'px">' +
+      '<svg viewBox="0 0 ' + size + ' ' + size + '" aria-hidden="true">' +
+      '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + R + '" fill="rgba(10,20,24,.34)" ' +
+        'stroke="rgba(255,255,255,.3)" stroke-width="3"/>' +
+      '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + R + '" fill="none" stroke="' + col + '" ' +
+        'stroke-width="3.4" stroke-linecap="round" stroke-dasharray="' + (C * pct).toFixed(1) + ' ' +
+        C.toFixed(1) + '" transform="rotate(-90 ' + size / 2 + ' ' + size / 2 + ')"/></svg>' +
+      '<b>' + done + '/' + total + '</b></span>';
+  }
+
+  /* THE BOARD. The covers are paintings, not maps, so the route is DRAWN on them rather
+     than measured off a painted road the way Finance's is — and it is a snake, row by
+     row, like a board game, because that reads at a glance and holds seven parts or
+     fourteen without a single pin crowding another. */
+  function board(c, st) {
+    /* ON A PHONE THE SNAKE FOLDS TIGHTER — three to a row, taller rows — rather than
+       scrolling sideways. The first version kept five columns and forced the board to
+       560px inside a scroller, which crushed the rows together and, worse, put the pin
+       you are standing at off the right edge of the screen: the one thing on the board
+       a child most needs to see was the one thing they could not. */
+    var narrow = (W.innerWidth || 1024) < 620;
+    var n = c.modules.length, cols = narrow ? 3 : (n <= 8 ? 4 : 5), rows = Math.ceil(n / cols);
+    var gap = narrow ? 190 : 150, Wd = narrow ? 600 : 900;
+    var H = (narrow ? 118 : 120) + (rows - 1) * gap + (narrow ? 110 : 110);
+    var pins = c.modules.map(function (m, i) {
+      var row = Math.floor(i / cols), col = i % cols;
+      if (row % 2) col = cols - 1 - col;                     /* the snake turns */
+      var inRow = Math.min(cols, n - row * cols);
+      /* a short last row sits under the columns it continues from, not squashed left */
+      var span = (cols - 1) || 1;
+      var x = narrow ? 17 + col * (66 / span) : 11 + col * (78 / span);
+      var y = ((narrow ? 118 : 120) + row * gap) / H * 100;
+      return { m: m, i: i, x: x, y: y };
+    });
+    var curI = -1;
+    pins.forEach(function (p) { if (partStat(st, p.i).here) curI = p.i; });
+    var d = pins.map(function (p, i) { return (i ? 'L' : 'M') + p.x.toFixed(1) + ' ' + p.y.toFixed(1); }).join(' ');
+    var walked = curI > 0 ? pins.slice(0, curI + 1).map(function (p, i) {
+      return (i ? 'L' : 'M') + p.x.toFixed(1) + ' ' + p.y.toFixed(1); }).join(' ') : '';
+    var route = '<svg class="pa-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+      '<path d="' + d + '" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="1" ' +
+        'stroke-dasharray="1.4 2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+      (walked ? '<path d="' + walked + '" fill="none" stroke="#FFD24D" stroke-width="3" ' +
+        'stroke-linecap="round" vector-effect="non-scaling-stroke"/>' : '') + '</svg>';
+    var cells = pins.map(function (p) {
+      var ps = partStat(st, p.i);
+      var state = ps.cleared ? 'done' : ps.here ? 'cur' : ps.done ? 'part' : 'ahead';
+      return '<button class="pa-pin ' + state + '" data-pa="part" data-id="' + esc(c.id) +
+        '" data-m="' + esc(p.m.id) + '" style="left:' + p.x.toFixed(1) + '%;top:' + p.y.toFixed(1) + '%" ' +
+        'aria-label="Part ' + (p.i + 1) + ': ' + esc(p.m.name) + ', ' + ps.done + ' of ' + ps.total + ' stops">' +
+        '<span class="pa-dot">' + (state === 'cur' && face(34) ? face(34)
+          : '<b>' + (state === 'done' ? '★' : (p.i + 1)) + '</b>') + '</span>' +
+        '<span class="pa-chip"><b>' + esc(p.m.name) + '</b><i>' + ps.done + '/' + ps.total + '</i></span>' +
+        '</button>';
+    }).join('');
+    return '<div class="pa-boardwrap"><div class="pa-board" style="aspect-ratio:' + Wd + '/' + H + '">' +
+      '<img src="' + esc(c.cover) + '" alt="' + esc(c.coverAlt || '') + '">' +
+      '<span class="pa-boardveil"></span>' + route + cells + '</div></div>';
+  }
+
+  /* one stop on a part's rail */
+  function stopRow(c, s) {
+    var P0 = s.m.project, kind = s.done ? 'passed' : s.cur ? 'cur' : s.locked ? 'locked' : 'open';
+    var med = kind === 'passed' ? '<span class="pa-med passed">✓</span>'
+      : kind === 'cur' ? '<span class="pa-med cur">' + (face(30) || '●') + '</span>'
+      : kind === 'locked' ? '<span class="pa-med locked">' + api.icon('lock', 13) + '</span>'
+      : '<span class="pa-med' + (s.kind === 'test' ? ' chk' : '') + '">' +
+          (s.kind === 'test' ? '◆' : s.kind === 'make' ? '✎' : '·') + '</span>';
+    var LBL = { learn: 'Learn', practise: 'Practise', test: 'Test', make: 'Make' };
+
+    if (s.kind === 'make') {
+      var inner = '<span class="pa-sttag">' + LBL.make + ' · ' + P0.m + ' min</span>' +
+        '<span class="pa-sttitle">' + esc(P0.name) + '</span>';
+      if (s.locked) {
+        /* a lock that says what opens it — never a dimmed paragraph */
+        return '<div class="pa-stop locked">' + med + '<span class="pa-stbody">' + inner +
+          '<span class="pa-stblurb">Opens when you pass the test above.</span></span></div>';
+      }
+      var hasWork = W.IND_KARYA && W.IND_KARYA.has(P0);
+      return '<div class="pa-stop ' + kind + '">' + med + '<span class="pa-stbody">' + inner +
+        (s.cur ? '<span class="pa-stblurb">' + esc(P0.brief) + '</span>' : '') +
+        '<span class="pa-strow">' +
+          (hasWork ? '<button class="pa-go" data-pa="karya" data-id="' + esc(c.id) + '" data-p="' +
+            esc(P0.id) + '">' + esc(P0.task.title || 'Do it here first') + ' →</button>' : '') +
+          '<button class="pa-go ' + (hasWork ? 'ghost' : '') + '" data-pa="made" data-id="' +
+            esc(c.id) + '" data-p="' + esc(P0.id) + '">' +
+            (s.done ? 'Made it ✓ — undo' : 'I made it, on paper') + '</button>' +
+          (s.work && s.work.by ? '<span class="pa-pill on">' +
+            (s.work.by === 'app' ? 'marked' : 'kept') + '</span>' : '') +
+        '</span></span></div>';
+    }
+
+    var L = s.l;
+    return '<button class="pa-stop ' + kind + (s.kind === 'test' ? ' chk' : '') +
+      '" data-pa="lesson" data-id="' + esc(c.id) + '" data-m="' + esc(s.m.id) + '" data-l="' + esc(L.n) + '">' +
+      med + '<span class="pa-stbody">' +
+        '<span class="pa-sttag">' + LBL[s.kind] + ' · ' + L.m + ' min' +
+          (s.kind === 'test' ? ' · on another day' : '') + '</span>' +
+        '<span class="pa-sttitle">' + esc(L.n) + '</span>' +
+        (s.cur && L.o ? '<span class="pa-stblurb">By the end you can ' + esc(L.o) + '.</span>' : '') +
+        (s.kind === 'test' && s.tried && !s.done
+          ? '<span class="pa-stblurb">Tried on the day it was taught — that is practice. ' +
+            'Come back another day and it counts.</span>' : '') +
+        (s.cur ? '<span class="pa-stgo">Continue →</span>' : '') +
+      '</span></button>';
+  }
+
+  /* one part: its painted banner, and — only if it is the open one — its rail */
+  function partSection(c, st, mi, open) {
+    var m = c.modules[mi], ps = partStat(st, mi), art = partArt(c, m);
+    var ns = st.list.filter(function (s) { return s.mi === mi; });
+    var status = ps.here ? 'you are here' : ps.cleared ? 'cleared' : ps.done ? 'in progress' : 'ahead';
+    var pct = ns.length ? Math.round(ps.done / ns.length * 100) : 0;
+    return '<section class="pa-act' + (ps.here ? ' here' : '') + (open ? ' open' : '') +
+      '" id="pa-part-' + esc(m.id) + '">' +
+      '<button class="pa-actban' + (art.src ? '' : ' words') + '" data-pa="part" data-id="' +
+        esc(c.id) + '" data-m="' + esc(m.id) + '" aria-expanded="' + open + '"' +
+        (art.src ? ' style="--plate:url(\'' + esc(art.src) + '\')"' : '') +
+        (art.cap ? ' title="Picture: ' + esc(art.cap) + '"' : '') + '>' +
+        /* no painting nobody has used: the part's own words, in their own script — and
+           where a part has no words either, its numeral, set large, the atlas's own
+           device (Finance marks its worlds I to V the same way) */
+        (!art.src
+          ? (art.words && art.words.length
+              ? '<span class="pa-actwords" aria-hidden="true">' + art.words.map(function (w) {
+                  return '<span' + (w.lang ? ' lang="' + esc(w.lang) + '"' : '') + '>' + esc(w.t) + '</span>';
+                }).join('') + '</span>'
+              : '<span class="pa-actwords num" aria-hidden="true"><span>' +
+                  (mi + 1 < 10 ? '0' : '') + (mi + 1) + '</span></span>')
+          : '') +
+        '<span class="pa-actscrim"></span>' +
+        '<span class="pa-actrow">' +
+          '<span class="pa-actno">' + (ps.cleared ? '★' : (mi + 1)) + '</span>' +
+          '<span class="pa-acttext"><b>' + esc(m.name) + '</b>' +
+            '<i>Part ' + (mi + 1) + ' of ' + c.modules.length + ' · ' + status + '</i></span>' +
+          ring(ps.done, ps.total, 46, ps.cleared ? '#7BD3A1' : '#FFD24D') +
+        '</span></button>' +
+      (open
+        ? '<div class="pa-railwrap">' +
+            '<p class="pa-obj">After this part you can <b>' + esc(m.objective) + '</b>.</p>' +
+            (m.needsReview ? '<div class="pa-warn"><b>A person is still checking this part.</b>' +
+              esc(m.needsReview) + '</div>' : '') +
+            (m.needsVerse ? '<div class="pa-warn"><b>A verse for this part is still being ' +
+              'sourced.</b>This app only shows verses it can attribute. Nothing here is guessed.' +
+              '</div>' : '') +
+            '<div class="pa-rail"><span class="pa-railline" aria-hidden="true"><span style="height:' +
+              pct + '%"></span></span>' + ns.map(function (s) { return stopRow(c, s); }).join('') +
+            '</div></div>'
+        : '') +
+      '</section>';
+  }
+
   function coursePage(id) {
     styles();
     var c = get(id); if (!c) return hub();
-    var r = course(c.id), s = stats(c), lk = locked(c);
+    var st = stopsOf(c), s = stats(c), lk = locked(c);
     var i0 = 0; P.courses.forEach(function (x, i) { if (x.id === c.id) i0 = i; });
+    var cur = st.frontier >= 0 ? st.list[st.frontier] : null;
+    /* which part is open: the one the child tapped, else the one they are standing in */
+    var open = openPart[c.id] != null ? openPart[c.id] : (cur ? cur.mi : 0);
+    var walkedStops = st.list.filter(function (x) { return x.done; }).length;
 
     var warn = (c.needsReview && c.needsReview.length)
       ? '<div class="pa-warn"><b>Parts of this course are still being checked by a person.</b>' +
         c.needsReview.map(function (x) { return esc(x); }).join(' ') + '</div>' : '';
 
-    /* ------------------------------------------------------------------ a part
-       TEACH, THEN TEST, THEN MAKE — and the screen says so, because the order IS the
-       method. It used to be four chips in a row with a brief underneath and an "I made
-       it" button that was tappable on a course nobody had opened: a self-certification
-       standing in for both the test and the project.
-
-       Now the part is three numbered stages. The test is its own stage, not a chip in a
-       row of four. And the project DOES NOT OPEN until the test is passed — you cannot
-       make the thing before you have shown you can do the thing. */
-    var mods = c.modules.map(function (m, i) {
-      var mr = r.m[m.id] || {};
-      var teach = [], test = null;
-      m.lessons.forEach(function (l) { if (l.k === 'c') test = l; else teach.push(l); });
-
-      var chip = function (l) {
-        var done = !!r.seen[lid(m, l)];
-        return '<button class="pa-l ' + l.k + (done ? ' done' : '') + '" data-pa="lesson" data-id="' +
-          esc(c.id) + '" data-m="' + esc(m.id) + '" data-l="' + esc(l.n) + '">' +
-          '<span class="k">' + (l.k === 't' ? 'Learn' : 'Practise') + '</span>' +
-          '<span>' + esc(l.n) + '</span><i>' + l.m + ' min</i></button>';
-      };
-
-      /* the test is passed when the mastery record says so — which is `ledger()`'s
-         answer, not this view's, and it carries the day rule with it */
-      var passed = !!mr.on, tried = !!mr.tries;
-      var P = m.project, made = !!r.made[P.id];
-      var K = W.IND_KARYA, work = K && K.has(P) ? K.rec(P.id) : null;
-
-      var stage = function (n, name, sub, open, inner) {
-        return '<div class="pa-stage' + (open ? '' : ' shut') + '">' +
-          '<div class="pa-stagehead"><span class="pa-sno">' + n + '</span>' +
-          '<b>' + name + '</b><span>' + sub + '</span></div>' +
-          '<div class="pa-stagebody">' + inner + '</div></div>';
-      };
-
-      return '<div class="pa-mod' + (passed ? ' learned' : '') + '">' +
-        '<div class="pa-modno">' + (i + 1) + '</div>' +
-        '<div class="pa-modbody">' +
-          '<h4>' + esc(m.name) + '</h4>' +
-          '<p class="pa-obj">After this part you can <b>' + esc(m.objective) + '</b>.' +
-            (passed ? ' <span class="pa-pill on">learned</span>' : '') + '</p>' +
-          (m.needsReview ? '<div class="pa-warn"><b>A person is still checking this part.</b>' +
-            esc(m.needsReview) + '</div>' : '') +
-          (m.needsVerse ? '<div class="pa-warn"><b>A verse for this part is still being ' +
-            'sourced.</b>This app only shows verses it can attribute. Nothing here is guessed.' +
-            '</div>' : '') +
-
-          stage(1, 'Learn it', teach.length + ' lessons · ' +
-            teach.reduce(function (a, l) { return a + l.m; }, 0) + ' min', true,
-            '<div class="pa-less">' + teach.map(chip).join('') + '</div>') +
-
-          (test ? stage(2, 'Test yourself', test.m + ' min · another day', true,
-            '<button class="pa-l c' + (passed ? ' done' : '') + '" data-pa="lesson" data-id="' +
-              esc(c.id) + '" data-m="' + esc(m.id) + '" data-l="' + esc(test.n) + '">' +
-              '<span class="k">Test</span><span>' + esc(test.n) + '</span>' +
-              '<i>' + test.m + ' min</i></button>' +
-            (passed ? '<p class="pa-note ok">Passed on a later day than you learned it, ' +
-                      'so it counted.</p>'
-                    : tried ? '<p class="pa-note">Tried, on the same day it was taught — ' +
-                              'that is practice. Come back another day.</p>'
-                            : '')) : '') +
-
-          stage(3, 'Make something', P.m + ' min', passed,
-            (passed
-              ? (K && K.has(P)
-                  ? '<button class="pa-open" data-pa="karya" data-id="' + esc(c.id) +
-                    '" data-p="' + esc(P.id) + '">' +
-                    '<span class="pa-usekind">Workshop</span>' +
-                    '<b>' + esc(P.task.title || P.name) + '</b>' +
-                    '<i>Do it here first, then on paper</i>' +
-                    /* only a VERDICT gets a label. A board half paired is in progress,
-                       and calling it "kept" claims a thing the app never decided. */
-                    (work && work.by ? '<span class="pa-pill on">' +
-                      (work.by === 'app' ? 'marked' : 'kept') + '</span>' : '') +
-                    '</button>'
-                  : '') +
-                '<b class="pa-pname">' + esc(P.name) + '</b>' +
-                '<p>' + esc(P.brief) + '</p>' +
-                '<p class="pa-made">You will have made: ' + esc(P.made) + '</p>' +
-                '<button class="btn' + (made ? '' : ' primary') + '" data-pa="made" data-id="' +
-                  esc(c.id) + '" data-p="' + esc(P.id) + '">' +
-                  (made ? 'Made it ✓ — undo' : 'I made it, on paper') + '</button>'
-              /* A LOCK THAT SAYS WHY. The project is the reward for the test, not a
-                 second way round it, and the screen names the door rather than dimming
-                 the words — the same rule the hub's premium lock follows. */
-              : '<p class="pa-shutsay">' + api.icon('lock', 15) + ' <b>' + esc(P.name) +
-                '</b> opens when you pass the test. Making the thing is how you keep what ' +
-                'you learned — it is not a way round showing that you learned it.</p>')) +
-
-        '</div></div>';
-    }).join('');
-
-    var asg = (c.assignments || []).map(function (a) {
-      return '<div class="pa-proj"><h5>' + esc(a.name) +
-        (a.family ? ' · with your family' : '') + '</h5><p>' + esc(a.brief) + '</p></div>';
-    }).join('');
-
-    return '<div class="pa-wrap">' +
+    return '<div class="pa-wrap pa-atlas" style="--ja:' + esc(c.colour || '#8E6AC8') + '">' +
       '<button class="backlink" data-pa="hub">' + api.icon('back', 18) + ' Paathshala</button>' +
-      /* THE CHAPTER OPENER. A reference work does not start a chapter with a settings
-         panel; it starts with a plate and a title over it. */
-      '<div class="pa-hero">' +
-        (c.cover ? '<img src="' + esc(c.cover) + '" alt="' + esc(c.coverAlt || '') + '">' : '') +
-        '<div class="pa-scrim">' +
-          '<p class="pa-kick">Course ' + (i0 + 1) + ' of ' + P.courses.length +
-            ' · Paathshala</p>' +
-          '<h2>' + esc(c.name) + '</h2>' +
-          '<span class="pa-sub">' + esc(c.sub) + '</span>' +
-          '<p>' + esc(c.why) + '</p>' +
-        '</div>' +
-      '</div>' +
-      /* docs/05: never uncredited texture. The plate says what it is, every time. */
-      (c.coverAlt ? '<p class="pa-credit">Picture: ' + esc(c.coverAlt) + '</p>' : '') +
-      '<div class="pa-paper">' +
-      '<div class="pa-mast flush">' +
-        '<ul class="pa-tally">' +
-          '<li><b>' + c.hours + '</b>hours</li>' +
-          '<li><b>' + c.modules.length + '</b>parts</li>' +
-          '<li><b>' + s.lessons + '</b>lessons</li>' +
-          '<li><b>' + s.mastered + ' of ' + s.objectives + '</b>learned</li>' +
-          '<li><b>' + s.made + ' of ' + s.projects + '</b>made</li>' +
-          '<li><b>' + c.ages[0] + '–' + c.ages[1] + '</b>years old</li>' +
-        '</ul>' +
-        (s.pct ? '<div class="pa-bar wide"><i style="width:' + s.pct + '%"></i></div>' : '') +
-        '<div class="pa-meta">' + badge(c) +
-          (lk ? '<span class="pa-pill lock">' + api.icon('lock', 13) +
-                ' a grown-up unlocks this</span>' : '') +
-          '<button class="btn" data-pa="pack" data-id="' + esc(c.id) + '">' +
-            api.icon('print', 16) + ' Take-home pack</button>' +
-        '</div>' +
-      '</div>' +
+
+      /* the title sits above the board, as Finance's does — the board is all map */
+      '<div class="pa-atitle">' +
+        '<div><p class="pa-kick">Course ' + (i0 + 1) + ' of ' + P.courses.length + ' · ' +
+          esc(c.sub) + '</p>' +
+        '<h2>' + esc(c.name) + '</h2></div>' +
+        '<div class="pa-atools">' +
+          '<span class="pa-tpill">' + walkedStops + ' of ' + st.list.length + ' stops</span>' +
+          '<span class="pa-tpill">' + s.mastered + ' of ' + s.objectives + ' learned</span>' +
+          badge(c) +
+          (lk ? '<span class="pa-tpill lock">' + api.icon('lock', 12) + ' a grown-up unlocks this</span>' : '') +
+          '<button class="pa-tpill act" data-pa="pack" data-id="' + esc(c.id) + '">' +
+            api.icon('print', 13) + ' Take-home pack</button>' +
+        '</div></div>' +
+
+      board(c, st) +
+      /* the here-line and the picture's credit share one sheet of paper — the credit
+         used to sit under it on the mural, in 10px, which is a credit nobody can read */
+      '<p class="pa-here">Tap a part to walk it. ' +
+        (cur ? 'You are standing at <b>' + esc(cur.kind === 'make' ? cur.m.project.name : cur.l.n) +
+               '</b>, in part ' + (cur.mi + 1) + '.'
+             : 'Every stop on this course is walked.') +
+        (c.coverAlt ? '<span class="pa-herecred">Picture: ' + esc(c.coverAlt) + '</span>' : '') +
+      '</p>' +
+
       warn +
-      '<div class="pa-secthead"><h3>The parts</h3><span>' + c.modules.length +
-        ' · three hours each</span></div>' +
-      '<div class="pa-mods">' + mods + '</div>' +
-      (asg ? '<div class="pa-secthead"><h3>Every week, with your family</h3><span>' +
-        (c.assignments || []).length + '</span></div>' + asg : '') +
-      '<div class="pa-secthead"><h3>Where this comes from</h3><span>' +
-        (c.sources || []).length + ' sources</span></div>' +
-      '<ul class="pa-colophon">' +
-        (c.sources || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') +
-      '</ul>' +
-      (c.note ? '<p class="pa-colophon">' + esc(c.note) + '</p>' : '') +
-      '</div></div>';
+      c.modules.map(function (m, mi) { return partSection(c, st, mi, mi === open); }).join('') +
+
+      /* the why, the note and the sources — for the grown-up, at the foot */
+      '<div class="pa-afoot">' +
+        '<p><b>Why this course.</b> ' + esc(c.why) + '</p>' +
+        (c.note ? '<p>' + esc(c.note) + '</p>' : '') +
+        ((c.assignments || []).length ? '<p><b>Every week, with your family.</b> ' +
+          c.assignments.map(function (a) { return esc(a.name) + ' — ' + esc(a.brief); }).join(' ') + '</p>' : '') +
+        '<p><b>Where this comes from.</b></p><ul>' +
+          (c.sources || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') +
+        '</ul></div>' +
+    '</div>';
   }
 
   /* ----------------------------------------------------------------- one lesson */
@@ -980,6 +1319,22 @@
       return true;
     }
     if (a === 'pack')  { api.go('paathp', el.getAttribute('data-id')); return true; }
+    /* a pin or a banner: open that part's rail, and bring it into view */
+    if (a === 'part') {
+      var pc = el.getAttribute('data-id'), pm = el.getAttribute('data-m');
+      var PC = get(pc); if (!PC) return true;
+      var mi = 0; PC.modules.forEach(function (x, i) { if (x.id === pm) mi = i; });
+      var wasOpen = D.getElementById('pa-part-' + pm) &&
+        D.getElementById('pa-part-' + pm).classList.contains('open');
+      /* tapping the open banner closes it; a pin always opens */
+      openPart[pc] = (wasOpen && el.classList.contains('pa-actban')) ? -1 : mi;
+      api.go('paath', pc);
+      setTimeout(function () {
+        var t = D.getElementById('pa-part-' + pm);
+        if (t && t.scrollIntoView) t.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }, 30);
+      return true;
+    }
     if (a === 'karya') {
       var kc = el.getAttribute('data-id'), kp = el.getAttribute('data-p');
       var KC = get(kc), KP = null;

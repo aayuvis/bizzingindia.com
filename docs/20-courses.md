@@ -123,7 +123,7 @@ by design — Bengali, Gujarati, Kannada, Marathi, Tamil, Telugu and Urdu are da
 
 ## 6. What the checks hold
 
-Twenty-one, in two kinds. **Structure**, read straight off the data, catches rot that only
+Twenty-three, in two kinds. **Structure**, read straight off the data, catches rot that only
 appears on the one page that holds it. **Behaviour**, driven through the real app, catches
 rules that get "simplified" by someone who finds them annoying.
 
@@ -150,6 +150,8 @@ rules that get "simplified" by someone who finds them annoying.
 | `script-rule` | the orthography rule refuses the beginner mistakes and passes a real name |
 | `gate` | the project does not open before the test is passed |
 | `honest` | **the app never claims to have marked what it cannot mark** |
+| `atlas` | every course is a board you walk — a pin per part, the companion on the one you are at, one part open |
+| `pictures` | every part has its own picture or its own words; no painting twice in a course |
 
 Four were watched to fail first, each naming the exact fault: a broken hours claim
 (*"neeti-course claims 30h but holds 8 modules"*), a dead reference
@@ -161,6 +163,60 @@ for review"*), and the day rule.
 through an otherwise opaque card, on exactly the five premium courses and no others. The
 lock is said in words now. **Somebody deciding whether to buy a course has to be able to
 read it.**
+
+## 4a. A course is a map you walk
+
+**"Atlas" means one thing in this family**, and the course page spent three versions not
+knowing it — first grey boxes, then a reference book of numerals and rules with every stage
+of every part laid out at once. It is Bizzing Bee's **Word Atlas** and Bizzing Finance's
+**Money Atlas** (`app/src/atlas.js` there), and the course page is that grammar now, exactly:
+
+| | what it is | what it holds |
+|---|---|---|
+| **the board** | the course's own painting, the parts as pins on a dotted route | the walked part of the route **gold**; the pin you are at **wears your companion** |
+| **a part** | a painted banner with a ring round how much of it is walked | *you are here · cleared · ahead* |
+| **the rail** | the part's stops on one line that fills gold behind you | Learn · Practise · Test (dashed, "on another day") · Make (locked until the test) |
+
+**Only the part being walked is open.** The Gita course has fourteen parts; the last version
+rendered all fourteen with three stages each and read as a form. The board shows where you
+are, the part you are in is open on its rail with its current stop saying *Continue*, and the
+rest are banners to tap. Every state is read from the course record — the frontier is the
+first stop not done, and a locked project is never "where you are": the test in front of it is.
+
+**The route is drawn, not measured.** Finance measures its pins off a painted road; these
+covers are paintings, not maps, so the route is a snake, row by row like a board game —
+five or four to a row on a wide screen, **three on a phone, never a sideways scroll**. The
+first phone version kept five columns inside a scroller and put the pin you were standing at
+off the right edge of the screen: the one thing a child most needs to see.
+
+### One picture per part, and never the same one twice
+
+The first atlas gave most parts the course cover — **Epics, Utsav, Rishtey and Geet had one
+picture for every part**, because their lessons point at little that has a painting. A part's
+picture is now, in order:
+
+1. a painting of what its lessons point at — and every painted card of it (`look().alts`:
+   Mahabharata episode 26 has thirteen, and the Gita course builds nine parts on it)
+2. a painting of what its **own workshop task is built from** — `task.about`, written by
+   `tools/gen-paath-tasks.js` out of the same lookup that produced the facts: a Ramayana
+   episode, the states a river runs through, where a festival is kept
+3. where there is still none nobody has used, **the part's own words in their own script**
+   on the course's colour — दादा दादी on a Rishtey banner, the rhyme's own words on a Geet
+   one, and a family that chose Tamil sees தாத்தா — or, with no words either, its numeral, the
+   atlas's own device
+
+The board's picture is never repeated on a banner. Two one-hop links are **looked up, not
+typed**: a festival is painted by the states it names (`f.states`), and a verse by the episode
+whose own text names its collection — which, for the Gita, is one episode of the Mahabharata,
+and for the Thirukkural and the Dhammapada is none, so they get none.
+
+Before: most parts showing the cover. After: **no painting repeated in any course**, Epics 8
+distinct (was 1), Utsav 7 (was 1), Gita 12 (was 8).
+
+`atlas` and `pictures` in `check-paath.js` hold it, walking all ten courses, and were watched to
+fail four ways: the companion stretched across its pin by a board-wide `img` rule (the bug the
+first atlas shipped with), every rail opened at once, the dedupe removed, and the numeral
+fallback removed.
 
 ## 5a. A part is three stages, and the project is the last one
 

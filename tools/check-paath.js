@@ -370,10 +370,14 @@ check('opens', 'the tab opens and every course is on it', async ({ p, C }) => {
     return null;
   });
   await p.waitForTimeout(500);
-  const m = await p.evaluate(() => ({ mods: document.querySelectorAll('.pa-mod').length,
-                                      lessons: document.querySelectorAll('.pa-l').length }));
-  if (m.mods !== 8) throw new Error(`the Neeti course shows ${m.mods} parts, not 8`);
-  if (m.lessons !== 32) throw new Error(`it shows ${m.lessons} lessons, not 32`);
+  const m = await p.evaluate(() => ({ pins: document.querySelectorAll('.pa-pin').length,
+    banners: document.querySelectorAll('.pa-act').length,
+    open: document.querySelectorAll('.pa-act.open').length,
+    lessons: document.querySelectorAll('.pa-act.open .pa-stop[data-pa="lesson"]').length }));
+  if (m.pins !== 8) throw new Error(`the Neeti board shows ${m.pins} pins, not 8`);
+  if (m.banners !== 8) throw new Error(`it shows ${m.banners} parts, not 8`);
+  if (m.open !== 1) throw new Error(`${m.open} parts are open at once — the atlas opens one`);
+  if (m.lessons !== 4) throw new Error(`the open part shows ${m.lessons} lessons, not 4`);
 });
 
 check('dayrule', 'a check taken the same day is practice, not learning', async ({ p }) => {
@@ -385,14 +389,14 @@ check('dayrule', 'a check taken the same day is practice, not learning', async (
   await p.waitForTimeout(400);
   /* teach today, check today */
   await p.evaluate(() => {
-    const ls = [...document.querySelectorAll('.pa-mod')][0].querySelectorAll('.pa-l');
+    const ls = document.querySelectorAll('#pa-part-n1 .pa-stop[data-pa="lesson"]');
     ls[0].click();
   });
   await p.waitForTimeout(400);
   await p.evaluate(() => document.querySelector('[data-pa="course"]').click());
   await p.waitForTimeout(400);
   await p.evaluate(() => {
-    const ls = [...document.querySelectorAll('.pa-mod')][0].querySelectorAll('.pa-l');
+    const ls = document.querySelectorAll('#pa-part-n1 .pa-stop[data-pa="lesson"]');
     ls[ls.length - 1].click();
   });
   await p.waitForTimeout(400);
@@ -423,7 +427,7 @@ check('dayrule', 'a check taken the same day is practice, not learning', async (
   await p.evaluate(() => document.querySelector('.pa-card[data-id="neeti-course"]').click());
   await p.waitForTimeout(400);
   await p.evaluate(() => {
-    const ls = [...document.querySelectorAll('.pa-mod')][0].querySelectorAll('.pa-l');
+    const ls = document.querySelectorAll('#pa-part-n1 .pa-stop[data-pa="lesson"]');
     ls[ls.length - 1].click();
   });
   await p.waitForTimeout(400);
@@ -722,13 +726,13 @@ check('gate', 'the project does not open before the test is passed', async ({ p 
   await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
   await p.waitForTimeout(600);
   const shut = await p.evaluate(() => ({
-    stages: document.querySelectorAll('.pa-stage').length,
-    closed: document.querySelectorAll('.pa-stage.shut').length,
+    stages: document.querySelectorAll('.pa-act.open .pa-stop').length,
+    closed: document.querySelectorAll('.pa-act.open .pa-stop.locked').length,
     made: document.querySelectorAll('[data-pa="made"]').length,
-    doors: document.querySelectorAll('.pa-open').length,
-    says: !!document.querySelector('.pa-shutsay')
+    doors: document.querySelectorAll('[data-pa="karya"]').length,
+    says: /opens when you pass/i.test((document.querySelector('.pa-act.open .pa-stop.locked') || {}).textContent || '')
   }));
-  if (!shut.stages) throw new Error('the part has no stages at all');
+  if (!shut.stages) throw new Error('the open part has no stops at all');
   if (!shut.closed) throw new Error('nothing is shut on a course that has never been opened');
   if (shut.made) throw new Error(`"I made it" is tappable on ${shut.made} parts nobody has passed`);
   if (shut.doors) throw new Error('the workshop opens before the test is passed');
@@ -750,7 +754,7 @@ check('gate', 'the project does not open before the test is passed', async ({ p 
   await p.waitForTimeout(700);
   const open = await p.evaluate(() => ({
     made: document.querySelectorAll('[data-pa="made"]').length,
-    doors: document.querySelectorAll('.pa-open').length
+    doors: document.querySelectorAll('[data-pa="karya"]').length
   }));
   if (open.made !== 1) throw new Error(`passing one test opened ${open.made} projects, not one`);
   if (open.doors !== 1) throw new Error(`passing one test opened ${open.doors} workshops, not one`);
@@ -782,7 +786,7 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   });
 
   /* the one the app CANNOT mark — a name only the child knows */
-  await p.evaluate(() => document.querySelector('.pa-open[data-p="h1p"]').click());
+  await p.evaluate(() => document.querySelector('[data-pa="karya"][data-p="h1p"]').click());
   await p.waitForTimeout(600);
   for (const ch of ['आ', 'य', 'ु', 'ष'])
     await p.evaluate(c => document.querySelector(`.kykey[data-c="${c}"]`).click(), ch);
@@ -806,7 +810,10 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   /* and the one it CAN mark */
   await p.evaluate(() => document.querySelector('.backlink').click());
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('.pa-open[data-p="h3p"]').click());
+  /* part 3 is not the open one — a child reaches it from its pin on the board */
+  await p.evaluate(() => document.querySelector('.pa-pin[data-m="h3"]').click());
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('[data-pa="karya"][data-p="h3p"]').click());
   await p.waitForTimeout(600);
   for (const ch of ['द', 'ू', 'ध'])
     await p.evaluate(c => document.querySelector(`.kykey[data-c="${c}"]`).click(), ch);
@@ -843,12 +850,13 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   await p.evaluate(() => document.querySelector('.pa-card[data-id="rishtey-course"]').click());
   await p.waitForTimeout(600);
   const pill = await p.evaluate(() => {
-    const d = document.querySelector('.pa-open[data-p="r1p"]');
-    return d ? (d.querySelector('.pa-pill') || {}).textContent || '' : '(no door)';
+    const d = document.querySelector('[data-pa="karya"][data-p="r1p"]');
+    const row = d ? d.closest('.pa-strow') : null;
+    return row ? (row.querySelector('.pa-pill') || {}).textContent || '' : '(no door)';
   });
   if (/kept|marked/.test(pill))
     throw new Error(`a half-finished board is labelled "${pill}" on the course page`);
-  await p.evaluate(() => document.querySelector('.pa-open[data-p="r1p"]').click());
+  await p.evaluate(() => document.querySelector('[data-pa="karya"][data-p="r1p"]').click());
   await p.waitForTimeout(600);
   const line = await p.evaluate(() => [...document.querySelectorAll('.pa-note')]
     .map(n => n.textContent).join(' | '));
@@ -858,6 +866,98 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   const shelf = await p.evaluate(() => window.IND_PAATH_UI.shelf());
   if ([...shelf.marked, ...shelf.kept].some(x => x.project && /first branch/i.test(x.project)))
     throw new Error('a half-finished board is on the grown-up’s shelf');
+});
+
+check('atlas', 'every course is a map you walk', async ({ p, C }) => {
+  /* "Atlas" in this family means Bizzing Bee's Word Atlas and Bizzing Finance's Money
+     Atlas: a painted board with the parts as pins on a route, the walked part gold, the
+     pin you are standing at wearing your companion, and one part open on its rail. The
+     course page spent three versions not being that. This walks every course. */
+  const bad = [];
+  /* three parts done on one course, so the walked route has something to show */
+  await p.evaluate(() => {
+    const S = JSON.parse(localStorage.getItem('bi_v1'));
+    const c = window.IND_PAATH.courses.find(x => x.id === 'epics-course');
+    const lid = (m, l) => m.id + '.' + l.n.slice(0, 18);
+    const seen = {}, made = {}, mm = {};
+    c.modules.slice(0, 3).forEach(m => {
+      m.lessons.forEach(l => { seen[lid(m, l)] = 20260901; });
+      mm[m.id] = { on: 20260910, tries: 1 }; made[m.project.id] = 20260911;
+    });
+    S.paath = S.paath || { v: 1, c: {} };
+    S.paath.c['epics-course'] = { at: 20260901, seen, made, note: {}, m: mm };
+    localStorage.setItem('bi_v1', JSON.stringify(S));
+  });
+  await p.reload({ waitUntil: 'networkidle' });
+  await p.waitForTimeout(600);
+  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.waitForTimeout(400);
+  for (const c of C.P.courses) {
+    const back = await p.$('.backlink[data-pa="hub"]');
+    if (back) { await back.click(); await p.waitForTimeout(200); }
+    await p.evaluate(id => document.querySelector(`.pa-card[data-id="${id}"]`).click(), c.id);
+    await p.waitForTimeout(400);
+    const r = await p.evaluate(() => ({
+      board: !!document.querySelector('.pa-board > img'),
+      pins: document.querySelectorAll('.pa-pin').length,
+      cur: document.querySelectorAll('.pa-pin.cur').length,
+      face: !!document.querySelector('.pa-pin.cur .pa-dot img, .pa-pin.cur .pa-dot svg'),
+      /* the companion must sit INSIDE its pin — the first atlas stretched it across the
+         whole pin because a board-wide `img` rule caught it too */
+      faceFits: (() => { const f = document.querySelector('.pa-pin.cur .pa-dot img, .pa-pin.cur .pa-dot svg');
+        const d = document.querySelector('.pa-pin.cur .pa-dot');
+        if (!f || !d) return true;
+        const a = f.getBoundingClientRect(), b = d.getBoundingClientRect();
+        return a.width <= b.width + 1 && a.left >= b.left - 1 && a.right <= b.right + 1; })(),
+      route: !!document.querySelector('.pa-route path'),
+      walked: document.querySelectorAll('.pa-route path').length,
+      open: document.querySelectorAll('.pa-act.open').length,
+      openIsHere: !!document.querySelector('.pa-act.open.here'),
+      curStop: document.querySelectorAll('.pa-act.open .pa-stop.cur').length
+    }));
+    const n = c.modules.length;
+    if (!r.board) bad.push(`${c.id} has no painted board`);
+    if (r.pins !== n) bad.push(`${c.id} has ${r.pins} pins for ${n} parts`);
+    if (r.cur !== 1) bad.push(`${c.id} has ${r.cur} pins marked "you are here"`);
+    if (!r.face) bad.push(`${c.id}: the pin you are at does not wear your companion`);
+    if (!r.faceFits) bad.push(`${c.id}: the companion spills out of its pin`);
+    if (!r.route) bad.push(`${c.id} has no route between its pins`);
+    if (r.open !== 1) bad.push(`${c.id} opens ${r.open} parts at once`);
+    if (!r.openIsHere) bad.push(`${c.id} opens a part other than the one you are in`);
+    if (r.curStop !== 1) bad.push(`${c.id}: the open part has ${r.curStop} current stops`);
+    if (c.id === 'epics-course' && r.walked < 2) bad.push('three parts walked and no gold on the route');
+  }
+  if (bad.length) throw new Error(bad.slice(0, 6).join('; '));
+});
+
+check('pictures', 'every part has its own picture, or its own words — never a repeat', async ({ p, C }) => {
+  /* The first atlas gave most parts the course cover: Epics, Utsav, Rishtey and Geet had
+     ONE picture for every part. A part now takes a painting of what its lessons or its
+     own task are built from that no earlier part has used, and where there is none, its
+     own words in their own script, or its numeral. This holds all three halves: no
+     painting twice in a course, the board's picture never on a banner, and no banner
+     that is only a flat colour. */
+  const bad = [];
+  for (const c of C.P.courses) {
+    const back = await p.$('.backlink[data-pa="hub"]');
+    if (back) { await back.click(); await p.waitForTimeout(200); }
+    await p.evaluate(id => document.querySelector(`.pa-card[data-id="${id}"]`).click(), c.id);
+    await p.waitForTimeout(400);
+    const r = await p.evaluate(() => {
+      const bans = [...document.querySelectorAll('.pa-actban')];
+      const src = bans.filter(b => !b.classList.contains('words'))
+        .map(b => (b.getAttribute('style') || '').replace(/.*url\('?([^')]+)'?\).*/, '$1'));
+      const board = (document.querySelector('.pa-board > img') || {}).getAttribute
+        ? document.querySelector('.pa-board > img').getAttribute('src') : null;
+      const bare = bans.filter(b => b.classList.contains('words') && !b.querySelector('.pa-actwords span')).length;
+      return { src, board, bare };
+    });
+    const dup = r.src.filter((x, i) => r.src.indexOf(x) !== i);
+    if (dup.length) bad.push(`${c.id} shows ${dup[0].split('/').pop()} on two parts`);
+    if (r.board && r.src.indexOf(r.board) >= 0) bad.push(`${c.id} repeats the board's picture on a banner`);
+    if (r.bare) bad.push(`${c.id} has ${r.bare} banner(s) that are only a flat colour`);
+  }
+  if (bad.length) throw new Error(bad.slice(0, 6).join('; '));
 });
 
 check('touch', 'a phone can hit everything', async ({ p }) => {
@@ -889,7 +989,7 @@ async function main() {
   const C = corpus();
   const needsBrowser = CHECKS.some(c => (!only || c.id === only) &&
     ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script',
-     'labels', 'script-rule', 'gate', 'honest'].includes(c.id));
+     'labels', 'script-rule', 'gate', 'honest', 'atlas', 'pictures'].includes(c.id));
 
   let server = null, browser = null, port = 0;
   if (needsBrowser) {
@@ -903,7 +1003,7 @@ async function main() {
   for (const c of CHECKS) {
     if (only && c.id !== only) continue;
     const browserCheck = ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script',
-     'labels', 'script-rule', 'gate', 'honest'].includes(c.id);
+     'labels', 'script-rule', 'gate', 'honest', 'atlas', 'pictures'].includes(c.id);
     let ctx = { C };
     if (browserCheck) ctx = Object.assign({ C }, await boot(browser, port));
     try {

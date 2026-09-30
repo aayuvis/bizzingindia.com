@@ -5691,7 +5691,7 @@
      forbids, so where there is no honest picture the chip is typographic and says so by
      being typographic. */
   function paathLook(kind, id) {
-    var name = null, sub = '', src = null, script = '', lang = '', cap = '', face = '';
+    var name = null, sub = '', src = null, script = '', lang = '', cap = '', face = '', alts = [];
     function find(list, k) {
       var f = null; (list || []).forEach(function (x) { if (x[k || 'id'] === id) f = x; }); return f;
     }
@@ -5711,6 +5711,26 @@
         sub = v.meaning_kid ? String(v.meaning_kid) : '';
         script = v.text_original ? String(v.text_original).split('\n')[0] : '';
         lang = vc ? (SHLOK_LANG[vc.language] || '') : '';
+        /* A verse has no painting. But if the epic data retells the scene its collection
+           comes from, the paintings of that scene are honestly of it. Which episode is
+           FOUND — the one whose own text names the collection — never typed in here. For
+           the Gita that is one episode of the Mahabharata; the Thirukkural and the
+           Dhammapada are named in no episode, so they get none. */
+        if (vc) {
+          /* the collection's own short name — the last word of it: "Bhagavad Gita" is
+             found as "Gita", "Thirukkural" as itself. An episode that names it retells it. */
+          var nm = String(vc.name || '').split(/\s+/).pop();
+          ((window.IND_EPIC_MAHABHARATA || {}).episodes || []).forEach(function (ep2) {
+            if (src || !nm || nm.length < 4) return;
+            if (new RegExp('\\b' + nm + '\\b').test(JSON.stringify(ep2))) {
+              for (var ci = 0; ci < ((ep2.cards || []).length || 0); ci++) {
+                var ea = epicArt('mahabharata', ep2.n, ci);
+                if (ea) { if (!src) src = ea; else alts.push(ea); }
+              }
+              cap = ep2.title;
+            }
+          });
+        }
       } else if (coll) {
         name = coll.name; sub = coll.blurb || ''; lang = SHLOK_LANG[coll.language] || '';
       } else return null;
@@ -5724,10 +5744,25 @@
       if (!f) return null;
       name = f.name; sub = (f.months || []).join(' · '); script = f.script || '';
       lang = scriptLang(script);
+      /* A festival has no painting of its own, but it names the states it is kept in,
+         and each of those has one — one hop, from a field the festival states. State
+         paintings are deliberately modern (see eraArt), which is right here: a festival
+         is 🧭 Aaj, how it lives today. */
+      (f.states || []).forEach(function (code) { var sa = stateArt(code); if (sa) alts.push(sa); });
+      if (alts.length) { src = alts.shift(); cap = f.name; }
     } else if (kind === 'ri') {
       var t = find((window.IND_RISHTEY || {}).terms);
       if (!t) return null;
       name = t.en; sub = t.roman || ''; script = t.hi || ''; lang = 'hi';
+      /* NEVER HINDI BY DEFAULT WHEN THE FAMILY SAID OTHERWISE. Every kinship term carries
+         its Punjabi, Tamil, Bengali, Gujarati and Telugu forms, and a family that chose
+         Tamil should see தாத்தா on its Rishtey banners, not दादा — docs/05 §8. The form is
+         stored as "script roman", so the script is its first word. */
+      var tgR = tongue();
+      if (tgR && tgR.lang && t.also && t.also[tgR.lang]) {
+        script = String(t.also[tgR.lang]).split(' ')[0];
+        lang = tgR.lang;
+      }
     } else if (kind === 'it') {
       /* an era, or one of the people standing inside it */
       var I = (window.IND_ITIHAAS || {}).eras || [], e = find(I), fig = null, holder = null;
@@ -5760,6 +5795,22 @@
         src = storyArt(d.stories[0]);
         if (src) { var ds = null; allStories().forEach(function (x) { if (x.id === d.stories[0]) ds = x; }); cap = ds ? ds.title : ''; }
       }
+    } else if (kind === 'ra') {
+      /* Ramayana episodes, numbered like the Mahabharata's, each card painted */
+      var rn = Number(id), rep = null;
+      ((window.IND_EPIC_RAMAYANA || {}).episodes || []).forEach(function (x) { if (x.n === rn) rep = x; });
+      if (!rep) return null;
+      name = rep.title; sub = rep.book || ''; src = epicArt('ramayana', rn, 0);
+      cap = src ? rep.title : '';
+      for (var rc = 1; rc < ((rep.cards || []).length || 0); rc++) {
+        var ra2 = epicArt('ramayana', rn, rc);
+        if (ra2) alts.push(ra2);
+      }
+    } else if (kind === 'state') {
+      /* a state, by the name the geography data gives it, and its own painting */
+      var gs = ((window.IND_GEO || {}).states || {})[id];
+      if (!gs) return null;
+      name = gs.name; sub = gs.capital || ''; src = stateArt(id); cap = src ? gs.name : '';
     } else if (kind === 'mb') {
       /* Mahabharata episodes are numbered, not id'd, and card 0 is the episode's plate */
       var n = Number(id), ep = null;
@@ -5767,8 +5818,14 @@
       if (!ep) return null;
       name = ep.title; sub = ep.book || ''; src = epicArt('mahabharata', n, 0);
       cap = src ? ep.title : '';
+      /* the episode's other painted cards, for a page that needs more than one picture
+         of the same episode — the Gita course builds several parts on episode 26 */
+      for (var ac = 1; ac < ((ep.cards || []).length || 0); ac++) {
+        var alt = epicArt('mahabharata', n, ac);
+        if (alt) alts.push(alt);
+      }
     } else return null;
-    return { name: name || String(id), sub: sub, art: src, face: face,
+    return { name: name || String(id), sub: sub, art: src, face: face, alts: alts,
              script: script, lang: lang, cap: cap };
   }
 
@@ -5780,6 +5837,9 @@
         state: S.paath,
         save: save, go: go, toast: toast, icon: icon, esc: esc,
         look: paathLook,
+        /* the child's own companion, for the pin they are standing at — the one piece
+           of the atlas that is theirs rather than the course's */
+        face: function (n) { return art(S.buddy || 'pt_tortoise', n); },
         owns: function (cid) { return (S.own.packs || []).indexOf('paath.' + cid) >= 0; }
       });
       /* The workshop keeps what a child made, so it gets the same store and the same

@@ -63,7 +63,8 @@
     write:    1,    /* type a word the course holds — the app has the answer */
     writeOwn: 1,    /* type something only you know — the app checks the SCRIPT */
     trace:    1,    /* form the letter, measured against its own ink */
-    order:    1     /* put them in the right order */
+    order:    1,    /* put them in the right order */
+    match:    1     /* pair each one with its own */
   };
 
   /* ------------------------------------------------------------------ the record */
@@ -176,8 +177,23 @@
   /* ------------------------------------------------------------------ the screen */
   var typed = '';       /* what is in the box right now; the record holds what was kept */
   var said = null;      /* the last verdict, so it survives the re-render that shows it */
+  var sel = null;       /* which prompt is waiting for its pair */
 
-  function open(p) { typed = (rec(p.id) || {}).text || ''; said = null; }
+  /* Ordered by a hash of the id, so the board is the same every time a child opens it —
+     a set that reshuffles on every render is a set nobody can think about — and never the
+     order it was authored in. */
+  function shuffle(list, seed) {
+    var h = 0, i;
+    for (i = 0; i < String(seed).length; i++) h = (h * 31 + String(seed).charCodeAt(i)) >>> 0;
+    var out = list.slice();
+    for (i = out.length - 1; i > 0; i--) {
+      h = (h * 1103515245 + 12345) >>> 0;
+      var j = h % (i + 1), sw = out[i]; out[i] = out[j]; out[j] = sw;
+    }
+    return out;
+  }
+
+  function open(p) { typed = (rec(p.id) || {}).text || ''; said = null; sel = null; }
 
   function render(p) {
     var t = p.task, r = rec(p.id) || null;
@@ -210,6 +226,41 @@
         }).join('') + '</ol>' +
         '<div class="kyrow2"><button class="btn primary" data-ka="checkorder">Check the order</button></div>' +
         verdict();
+    }
+
+    if (t.k === 'match') {
+      /* PAIR EACH ONE WITH ITS OWN. Tap a prompt, then tap its answer — two taps, both
+         of them real buttons, so a finger and a Tab key do the same thing.
+         THE RIGHT COLUMN IS SHUFFLED FROM THE PROJECT ID, never left in the order it was
+         authored in. Authoring pairs by hand puts the answer opposite its prompt, and
+         position leaks the answer as surely as the text does — the sibling app learned
+         that with 11 of 12 correct answers in slot B. */
+      var made = (r && r.pairs) || {};
+      var rights = shuffle(t.pairs.map(function (x, k) { return k; }), p.id);
+      return head +
+        '<div class="kymatch">' +
+          '<ul class="kycol">' + t.pairs.map(function (x, k) {
+            var got = made[k];
+            return '<li><button class="kyp' + (sel === k ? ' on' : '') + (got != null ? ' set' : '') +
+              '" data-ka="pickleft" data-i="' + k + '">' +
+              '<span class="kypq">' + esc(x[0]) + '</span>' +
+              (got != null ? '<span class="kypa">' + esc(t.pairs[got][1]) + '</span>'
+                           : '<span class="kypa dim">tap, then tap its pair</span>') +
+              '</button></li>';
+          }).join('') + '</ul>' +
+          '<ul class="kycol right">' + rights.map(function (k) {
+            var taken = Object.keys(made).some(function (q) { return made[q] === k; });
+            return '<li><button class="kya' + (taken ? ' used' : '') + '" data-ka="pickright" ' +
+              'data-i="' + k + '"' + (taken ? ' disabled' : '') + '>' +
+              esc(t.pairs[k][1]) + '</button></li>';
+          }).join('') + '</ul>' +
+        '</div>' +
+        '<div class="kyrow2">' +
+          '<button class="btn ghost sm" data-ka="unpair"' +
+            (Object.keys(made).length ? '' : ' disabled') + '>Start again</button>' +
+          '<button class="btn primary" data-ka="checkmatch"' +
+            (Object.keys(made).length === t.pairs.length ? '' : ' disabled') + '>Check</button>' +
+        '</div>' + verdict();
     }
 
     /* write and writeOwn share the board; they differ only in what is checked */
@@ -291,6 +342,43 @@
       return true;
     }
 
+    if (a === 'pickleft') {
+      var li = +el.getAttribute('data-i');
+      var rr = rec(p.id) || {}, mp = rr.pairs || {};
+      /* tapping one that is already paired takes it apart again */
+      if (mp[li] != null) { delete mp[li]; put(p.id, { pairs: mp, by: null, on: 0, task: t.k }); sel = null; }
+      else sel = (sel === li ? null : li);
+      said = null;
+      return true;
+    }
+    if (a === 'pickright') {
+      if (sel == null) { api.toast('Tap one on the left first.'); return true; }
+      var ri = +el.getAttribute('data-i');
+      var r3 = rec(p.id) || {}, mp3 = r3.pairs || {};
+      mp3[sel] = ri; sel = null; said = null;
+      put(p.id, { pairs: mp3, by: null, on: 0, task: t.k });
+      return true;
+    }
+    if (a === 'unpair') { put(p.id, { pairs: {}, by: null, on: 0, task: t.k }); sel = null; said = null; return true; }
+    if (a === 'checkmatch') {
+      /* BY VALUE, NOT BY POSITION. Two prompts can honestly share an answer — two
+         episodes in the same book — and comparing indices would mark a child wrong for
+         pairing them the other way round, which is not wrong. The generator avoids
+         duplicates anyway and the `tasks` check refuses them; this is the belt. */
+      var r4 = rec(p.id) || {}, mp4 = r4.pairs || {}, right = 0;
+      t.pairs.forEach(function (x, k) {
+        if (mp4[k] != null && t.pairs[mp4[k]][1] === x[1]) right++;
+      });
+      var all = right === t.pairs.length;
+      said = all
+        ? { ok: true, head: 'Every one of them.', body: '',
+            how: 'The course holds these pairs, so the app checked every one.' }
+        : { ok: false, head: right + ' of ' + t.pairs.length + ' are paired right.',
+            body: 'Tap a pair to take it apart, and look again.',
+            how: 'The course holds these pairs, so the app checked every one.' };
+      if (all) put(p.id, { pairs: mp4, by: 'app', on: today(), task: t.k });
+      return true;
+    }
     if (a === 'up' || a === 'down') {
       var r = rec(p.id) || {};
       var list = r.order || t.items.slice();
@@ -352,7 +440,8 @@
     (courses || []).forEach(function (c) {
       c.modules.forEach(function (m) {
         var r = (st.w || {})[m.project.id];
-        if (!r) return;
+        /* in progress is not a submission — a half-paired board has no `by` yet */
+        if (!r || !r.by) return;
         var row = { course: c.name, part: m.name, project: m.project.name,
                     on: r.on, text: r.text || null, task: r.task };
         (r.by === 'app' ? out.marked : out.kept).push(row);

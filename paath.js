@@ -369,6 +369,30 @@
     '.kysay .kyhow{margin:8px 0 0;font-size:11.5px;line-height:1.5;color:var(--muted);' +
       'font-style:italic}',
 
+    /* pairing — two columns, prompts on the left, answers on the right */
+    '.kymatch{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 0}',
+    '.kycol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}',
+    '.kyp,.kya{display:block;width:100%;text-align:left;font:inherit;color:inherit;' +
+      'border:1px solid var(--line);border-radius:5px;background:var(--card);' +
+      'padding:9px 11px;cursor:pointer;min-height:44px}',
+    '.kyp:hover,.kya:hover{border-color:var(--accent)}',
+    '.kyp:focus-visible,.kya:focus-visible{outline:2px solid var(--accent);outline-offset:1px}',
+    /* the one waiting for its pair is unmistakable — a child has to know what the next
+       tap will do */
+    '.kyp.on{border-color:var(--accent);background:var(--accent-soft);' +
+      'box-shadow:0 0 0 2px var(--accent) inset}',
+    '.kyp.set{border-color:var(--accent-soft)}',
+    '.kypq{display:block;font:800 15px/1.3 var(--display,Georgia,serif)}',
+    '.kypa{display:block;margin-top:3px;font-size:12px;color:var(--accent);font-weight:700}',
+    '.kypa.dim{color:var(--muted);font-weight:500}',
+    '.kya{font-size:13.5px;line-height:1.35}',
+    /* a used answer SAYS it is used rather than fading out — a faded button reads as a
+       broken one to a six-year-old */
+    '.kya.used{background:var(--ground2);color:var(--muted);text-decoration:line-through;' +
+      'text-decoration-color:var(--line2);cursor:default}',
+    '@media (max-width:560px){.kymatch{grid-template-columns:1fr}' +
+      '.kycol.right{border-top:1px dashed var(--line2);padding-top:10px}}',
+
     /* putting things in order */
     '.kyorder{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}',
     '.kyorder li{display:flex;align-items:center;gap:11px;border:1px solid var(--line);' +
@@ -670,7 +694,9 @@
                     '<span class="pa-usekind">Workshop</span>' +
                     '<b>' + esc(P.task.title || P.name) + '</b>' +
                     '<i>Do it here first, then on paper</i>' +
-                    (work ? '<span class="pa-pill on">' +
+                    /* only a VERDICT gets a label. A board half paired is in progress,
+                       and calling it "kept" claims a thing the app never decided. */
+                    (work && work.by ? '<span class="pa-pill on">' +
                       (work.by === 'app' ? 'marked' : 'kept') + '</span>' : '') +
                     '</button>'
                   : '') +
@@ -833,7 +859,8 @@
         'photograph of it leaves this device, no program grades your handwriting, and it ' +
         'does not count towards what the app says you have learned — that is what the ' +
         'test is for. It goes on your shelf because it is yours.</p>' +
-        (work ? '<p class="pa-note ok">' +
+        /* a status line only once there is a verdict to report — see the pill above */
+        (work && work.by ? '<p class="pa-note ok">' +
           (work.by === 'app'
             ? 'The app marked the workshop half of this one.'
             : 'The workshop half is kept, not marked — see what it said above.') + '</p>' : '') +

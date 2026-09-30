@@ -3978,7 +3978,10 @@
                 arc, pi the pointer into its specs, over marks the arc spent;
                 mode 'lesson' or 'testout'; offer is a locked stage showing its
                 test-out card. */
-             plan: null, pi: 0, over: false, mode: 'lesson', offer: null };
+             plan: null, pi: 0, over: false, mode: 'lesson', offer: null,
+             /* the lesson being walked, so every beat can say where it is — and the
+                unit the child has opened on the path, if they opened one */
+             lesson: null, openUnit: null };
   }
   var quiz = quizReset(null);
   function isBuild(type) { return type === 'wordBuild' || type === 'sentenceBuild' || type === 'conjunctSplit'; }
@@ -4045,14 +4048,81 @@
         srs: ensureLang(quiz.packId).srs });
     if (quiz.q) speak(quiz.q.audio, quiz.q.say, packLang());
   }
-  function startSession(sid, mode) {
+  function startSession(sid, mode, lesson) {
     if (!sid) return;
     var rec = ensureLang(quiz.packId);
     quiz.stage = sid; quiz.mode = mode || 'lesson';
     quiz.offer = null; quiz.over = false; quiz.done = 0; quiz.right = 0; quiz.pi = 0;
+    /* a lesson narrows what is NEW to its own four things; review stays rung-wide */
+    quiz.lesson = (quiz.mode === 'lesson' && lesson) ? lesson : null;
     quiz.plan = window.IND_BHASHA.session(quiz.packId, sid, rec,
-      { now: Date.now(), testout: quiz.mode === 'testout' });
+      { now: Date.now(), testout: quiz.mode === 'testout',
+        only: quiz.lesson ? quiz.lesson.keys : null });
     planStep();
+  }
+
+  /* ------------------------------------------------------------------ THE PATH
+     rung -> unit -> lesson, with every lesson's state read off the SRS record. Nothing
+     here is stored: a lesson is done when each of its things has been met and answered
+     right once (IND_BHASHA.lessonDone), and that is a fact about the cards, not a flag
+     that could disagree with them. */
+  function bPath(id) {
+    var p = window.IND_PACKS[id], B = window.IND_BHASHA, rec = ensureLang(id);
+    var stages = p.stages || [], out = [];
+    stages.forEach(function (s, i) {
+      var units = (B && B.path) ? B.path(id, s.id) : [];
+      var total = 0, done = 0;
+      units.forEach(function (u) {
+        u.stageId = s.id;
+        u.lessons.forEach(function (l) {
+          l.done = B.lessonDone(l, rec.srs);
+          l.started = !l.done && B.lessonStarted(l, rec.srs);
+          l.unit = u; l.stage = s;
+          total++; if (l.done) done++;
+        });
+        u.done = u.lessons.filter(function (l) { return l.done; }).length;
+      });
+      out.push({ stage: s, i: i, units: units, total: total, done: done,
+                 unlocked: stageUnlocked(id, i, stages), mastered: stageMastered(id, s) });
+    });
+    return out;
+  }
+  /* the ONE next lesson: the first not-done lesson in the first open rung that is not
+     mastered. If every lesson in that rung is met but it is not yet mastered, the next
+     thing is REVIEW of that rung — said as such, never dressed up as a new lesson. */
+  function bNext(path) {
+    for (var i = 0; i < path.length; i++) {
+      var r = path[i];
+      if (!r.unlocked || r.mastered) continue;
+      for (var u = 0; u < r.units.length; u++)
+        for (var l = 0; l < r.units[u].lessons.length; l++)
+          if (!r.units[u].lessons[l].done) return { lesson: r.units[u].lessons[l], rung: r };
+      return { review: true, rung: r };
+    }
+    return null;
+  }
+  function bLesson(path, lid) {
+    var hit = null;
+    path.forEach(function (r) { r.units.forEach(function (u) { u.lessons.forEach(function (l) {
+      if (l.id === lid) hit = l; }); }); });
+    return hit;
+  }
+  /* the short form of a thing, for a preview: a word or letter as itself, a sentence
+     by its first few words, a reply by the child's own line */
+  function previewOf(it) {
+    if (it == null) return '';
+    if (typeof it === 'string') return it;
+    if (Array.isArray(it)) return previewOf(it[1] || it[0]);
+    if (it.reply) return previewOf(it.reply);
+    var t = it.hi || it.char || it.word || '';
+    var w = String(t).split(' ');
+    return w.length > 3 ? w.slice(0, 3).join(' ') + '…' : t;
+  }
+
+  /* what a lesson hands the session: enough to say where the child is, and its keys */
+  function lessonRef(l) {
+    return { id: l.id, n: l.n, of: l.of, keys: l.keys, items: l.items,
+             unit: l.unit.title, stage: l.stage.name };
   }
   function specNow() {
     return (quiz.plan && quiz.plan.specs && quiz.pi < quiz.plan.specs.length)
@@ -4393,6 +4463,32 @@
           : '<div class="card"><h2 style="margin:0">Not this time — and that is fine</h2>' +
             '<p class="tiny">' + quiz.right + ' of ' + quiz.done + '. The stage will open the ordinary ' +
             'way, and the six questions are always here.</p></div>';
+      } else if (quiz.lesson) {
+        /* THE LESSON, FINISHED — what you met, in the script, and the next one by name.
+           Whether it counts as done is the SRS record's call (every one of its four
+           answered right at least once), so a lesson that went badly says so kindly
+           and offers the same four again rather than pretending. */
+        var fin = bLesson(bPath(id), quiz.lesson.id), nxt2 = bNext(bPath(id));
+        var met = fin && fin.done;
+        overCard = '<div class="bh-done' + (met ? ' ok' : '') + '">' +
+          '<p class="bh-kick dark">' + esc(quiz.lesson.unit) + ' · lesson ' + quiz.lesson.n +
+            ' of ' + quiz.lesson.of + '</p>' +
+          '<h2>' + (met ? 'Shabash — lesson done' : 'Nearly — once more') + '</h2>' +
+          '<p class="bh-met deva" lang="' + esc(id) + '">' + quiz.lesson.items.map(function (it) {
+            return '<span>' + esc(previewOf(it)) + '</span>'; }).join('') + '</p>' +
+          '<p class="tiny">' + quiz.right + ' right of ' + quiz.done + '. ' +
+            (met ? 'All four are yours now — they will come back in a day or two, which is how ' +
+                   'they stay.'
+                 : 'One of these has not been answered right yet. The same four again will do it.') +
+          '</p>' +
+          '<div class="row">' +
+            (met && nxt2 && nxt2.lesson
+              ? '<button class="btn primary" data-act="blesson" data-l="' + esc(nxt2.lesson.id) + '">' +
+                'Next: ' + esc(nxt2.lesson.unit.title) + ' ' + nxt2.lesson.n + ' →</button>'
+              : '<button class="btn primary" data-act="blesson" data-l="' + esc(quiz.lesson.id) + '">' +
+                'The same four again</button>') +
+            '<button class="btn ghost" data-act="bclose">Back to the path</button>' +
+          '</div></div>';
       } else {
         overCard = '<div class="card tint"><h2 style="margin:0">Shabash — session done</h2>' +
           '<p class="tiny">' + quiz.right + ' right of ' + quiz.done + '. Every answer moved one of your ' +
@@ -4401,70 +4497,138 @@
       }
     }
 
-    /* CARRY ON says what the planned session will actually do — "2 new
-       letters, then your review" — because the plan already exists. */
-    var plan = nxt ? window.IND_BHASHA.session(id, nxt.id, rec, { now: Date.now() }) : null;
+    /* ------------------------------------------------------------ THE PATH, WALKED
+       The eight rungs used to be eight lines of text and one "Carry on" button, and
+       each rung was a pool — Shabd held 507 words and said "2 new words · Go". A child
+       could not see where they were inside it, and weeks of work showed as 0 / 8.
+
+       It is the shape every language app that works has converged on now: a rung is
+       walked as UNITS (a theme, or a row of the alphabet) and a unit as LESSONS of four
+       new things, one sitting each. The next lesson is always one tap away and says
+       what it will teach, in the script, before you start. Everything below is read
+       off the SRS record — nothing here stores its own idea of progress. */
+    var path = bPath(id), nx = bNext(path);
+    var allL = 0, doneL = 0;
+    path.forEach(function (r) { allL += r.total; doneL += r.done; });
+    var here = nx ? nx.rung : null;
+
+    /* the chapter opener — a plate and a title over it, like every other pillar */
+    var opener =
+      '<div class="bh-hero">' +
+        '<img src="art/banner/bhasha.jpg" alt="The script, written large">' +
+        '<div class="bh-scrim">' +
+          '<p class="bh-kick">Bhasha · ' + esc(p.name.en) + ' · ' + esc(sc.name) + '</p>' +
+          '<h1 class="deva" lang="' + esc(id) + '">' + esc(p.name.native) + '</h1>' +
+          '<ul class="bh-tally">' +
+            '<li><b>' + doneL + '</b>of ' + allL + ' lessons</li>' +
+            '<li><b>' + doneN + '</b>of ' + stages.length + ' rungs mastered</li>' +
+            '<li><b>' + esc(BAND_LABELS[Math.max(0, Math.min(4, (rec.band || 1) - 1))]) +
+              '</b>where you are</li>' +
+          '</ul>' +
+        '</div>' +
+      '</div>' +
+      '<p class="bh-credit">Picture: the script, written large</p>';
+
+    /* THE NEXT LESSON, and exactly what is in it — the four things it will teach,
+       in the script, before the child has pressed anything. A button that says "Go"
+       and nothing else is a button nobody knows the cost of. */
+    var nextCard = '';
+    if (nx && nx.lesson) {
+      var L = nx.lesson;
+      nextCard = '<button class="bh-next" data-act="blesson" data-l="' + esc(L.id) + '">' +
+        '<span class="bh-nextart">' + mascot('gattu', 'happy', 62) + '</span>' +
+        '<span class="bh-nextbody">' +
+          '<span class="bh-kick dark">' + (L.started ? 'Carry on' : 'Your next lesson') +
+            ' · rung ' + (nx.rung.i + 1) + ', ' + esc(nx.rung.stage.name) + '</span>' +
+          '<b>' + esc(L.unit.title) + ' <i>lesson ' + L.n + ' of ' + L.of + '</i></b>' +
+          '<span class="bh-preview">' + L.items.map(function (it) {
+            return '<span class="deva" lang="' + esc(id) + '">' + esc(previewOf(it)) + '</span>';
+          }).join('') + '</span>' +
+          '<span class="bh-nextsay">Four new things — each one shown and heard before you are ' +
+            'asked about it. About five minutes.</span>' +
+        '</span>' +
+        '<span class="btn primary">' + icon('play', 18) + ' Start</span></button>';
+    } else if (nx && nx.review) {
+      nextCard = '<button class="bh-next" data-act="quiz" data-s="' + esc(nx.rung.stage.id) + '">' +
+        '<span class="bh-nextart">' + mascot('gattu', 'happy', 62) + '</span>' +
+        '<span class="bh-nextbody">' +
+          '<span class="bh-kick dark">Every lesson in ' + esc(nx.rung.stage.name) + ' is met</span>' +
+          '<b>Review, until it sticks</b>' +
+          '<span class="bh-nextsay">Nothing new — the words you have met, coming back until they ' +
+          'stay. The next rung opens when this one is mastered, or you can test out of it.</span>' +
+        '</span>' +
+        '<span class="btn primary">' + icon('play', 18) + ' Review</span></button>';
+    }
+
+    var rungs = path.map(function (r) {
+      var s = r.stage, i = r.i;
+      var isHere = here && here.stage.id === s.id;
+      var head = '<div class="bh-rhead">' +
+        '<span class="bh-rno">' + (r.mastered ? '✓' : (i + 1)) + '</span>' +
+        '<span class="bh-rtitle"><b>' + esc(s.name) + '</b>' +
+          '<span>' + esc(s.outcome || '') + '</span></span>' +
+        (r.unlocked ? '<span class="bh-rcount">' + r.done + ' / ' + r.total + '</span>' : '') +
+        '</div>';
+
+      if (!r.unlocked) {
+        /* locked LOOKS locked and says the way through — never a wall (docs/09) */
+        return '<div class="bh-rung shut">' + head +
+          '<p class="bh-shutsay">' + icon('lock', 14) + ' Opens after ' + esc(path[i - 1].stage.name) +
+          ' — <button class="bh-tot" data-act="testout" data-s="' + esc(s.id) + '">or test out' +
+          '</button></p></div>';
+      }
+      if (!isHere) {
+        /* an open rung that is not the one being walked: one line and a way in */
+        return '<div class="bh-rung' + (r.mastered ? ' done' : '') + '">' + head +
+          '<div class="bh-units mini">' + r.units.map(function (u) {
+            return '<button class="bh-uchip' + (u.done === u.lessons.length ? ' full' : '') +
+              '" data-act="bunit" data-u="' + esc(u.id) + '">' +
+              (u.icon ? '<span>' + u.icon + '</span>' : '') + esc(u.title) +
+              ' <i>' + u.done + '/' + u.lessons.length + '</i></button>';
+          }).join('') + '</div></div>';
+      }
+
+      /* THE RUNG BEING WALKED: its units, and the open one as a trail of lessons */
+      var openU = quiz.openUnit;
+      var cur = nx && nx.lesson ? nx.lesson.unit.id : null;
+      return '<div class="bh-rung here">' + head +
+        (i === 0 && rec.path === 'heritage' && !r.mastered
+          ? '<button class="totmini" data-act="testout" data-s="' + esc(s.id) + '">' +
+            'Ears ahead of eyes? Test out of ' + esc(s.name) + ' →</button>' : '') +
+        r.units.map(function (u) {
+          var open = (openU ? openU === u.id : cur === u.id);
+          var uhead = '<button class="bh-uhead' + (open ? ' open' : '') + '" data-act="bunit" ' +
+            'data-u="' + esc(u.id) + '" aria-expanded="' + open + '">' +
+            (u.icon ? '<span class="bh-uicon">' + u.icon + '</span>' : '') +
+            '<b>' + esc(u.title) + '</b>' +
+            '<span class="bh-ubar"><i style="width:' +
+              Math.round(u.done / u.lessons.length * 100) + '%"></i></span>' +
+            '<span class="bh-ucount">' + u.done + ' of ' + u.lessons.length + '</span></button>';
+          if (!open) return '<div class="bh-unit">' + uhead + '</div>';
+          return '<div class="bh-unit open">' + uhead +
+            '<ol class="bh-trail">' + u.lessons.map(function (l) {
+              var isNext = nx && nx.lesson && nx.lesson.id === l.id;
+              var st = l.done ? 'done' : isNext ? 'next' : l.started ? 'started' : 'ahead';
+              return '<li class="bh-step ' + st + '">' +
+                '<button class="bh-node" data-act="blesson" data-l="' + esc(l.id) + '" ' +
+                  'aria-label="' + esc(u.title) + ', lesson ' + l.n + ' of ' + l.of +
+                  (l.done ? ', done' : isNext ? ', next' : '') + '">' +
+                  '<span class="bh-disc">' + (l.done ? '✓' : l.n) + '</span>' +
+                  '<span class="bh-lwords deva" lang="' + esc(id) + '">' +
+                    l.items.map(function (it) { return esc(previewOf(it)); }).join(' · ') +
+                  '</span>' +
+                '</button></li>';
+            }).join('') + '</ol></div>';
+        }).join('') + '</div>';
+    }).join('');
 
     return '<button class="backlink" data-act="go" data-v="bhasha">' + icon('back', 18) + ' Bhasha</button>' +
-
-      '<div class="card"><div class="spread">' +
-        '<div><h1 class="deva" style="margin:0">' + esc(p.name.native) + '</h1>' +
-        '<div class="mono">' + esc(p.name.en) + ' · ' + esc(sc.name) + '</div></div>' +
-        '<span class="pill stat" style="flex:none">' + doneN + ' / ' + stages.length + '</span></div>' +
-        '<div class="meter" style="margin-top:14px"><i style="width:' +
-          Math.round(doneN / Math.max(1, stages.length) * 100) + '%"></i></div></div>' +
-
-      offerCard + overCard +
-
-      /* The one obvious thing to do next — and what it will do. */
-      (nxt ? '<button class="card nextup" data-act="quiz" data-s="' + esc(nxt.id) + '">' +
-        '<div class="row" style="flex-wrap:nowrap;align-items:center">' +
-        mascot('gattu', 'happy', 64) +
-        '<div style="flex:1;text-align:left"><div class="mono">Carry on with</div>' +
-        '<h2 style="margin:2px 0 4px">' + esc(nxt.name) + '</h2>' +
-        '<p class="tiny" style="margin:0">' + esc(plan && plan.say ? plan.say : (nxt.outcome || '')) + '</p></div>' +
-        '<span class="btn">' + icon('play', 18) + ' Go</span></div></button>' : '') +
-
-      '<div class="card"><h3 style="margin:0 0 4px">The path</h3>' +
-        '<p class="tiny muted">The same eight rungs in every language — that is the point of ' +
-        'the engine.</p>' +
-        /* The band lives WITH the path, because the path is what it paces: it
-           caps how much new arrives per sitting and how deep into the ramp
-           that new comes from. Worn as a place on a journey — never a grade,
-           never a number on screen. */
-        '<div class="bandrow"><span class="mono">where you are</span>' +
-        '<span class="pill stat bandlbl">' +
-        esc(BAND_LABELS[Math.max(0, Math.min(4, (rec.band || 1) - 1))]) + '</span></div>' +
-        '<div class="path">' + stages.map(function (s, i) {
-          var done = stageMastered(id, s);
-          var unlocked = stageUnlocked(id, i, stages);
-          var pct = stagePct(id, s.id);
-          var chips = readinessChips(window.IND_BHASHA.readiness(id, s.id, rec.srs));
-          if (!unlocked) {
-            /* locked LOOKS locked but stays tappable — into the test-out offer */
-            return '<button class="pnode locked" data-act="testout" data-s="' + esc(s.id) + '">' +
-              '<span class="pdisc">' + icon('lock', 14) + '</span>' +
-              '<span class="pbody"><b>' + esc(s.name) + '</b>' +
-              '<span class="tiny muted">' + esc(s.outcome || '') + '</span>' +
-              /* quiet, not loud: a locked rung should not out-shout the open
-                 one above it. The only accented word is the way through. */
-              '<span class="tiny muted">Opens after ' + esc(stages[i - 1].name) +
-              ' — <b class="totlink">or test out</b></span>' + chips + '</span></button>';
-          }
-          var state = done ? 'done' : (s.id === nxt.id ? 'now' : 'ahead');
-          var node = '<button class="pnode ' + state + '" data-act="quiz" data-s="' + esc(s.id) + '">' +
-            '<span class="pdisc">' + (done ? '✓' : (i + 1)) + '</span>' +
-            '<span class="pbody"><b>' + esc(s.name) + '</b>' +
-            '<span class="tiny muted">' + esc(s.outcome || '') + '</span>' +
-            (pct > 0 && pct < 100 ? '<span class="meter sm"><i style="width:' + pct + '%"></i></span>' : '') +
-            chips + '</span></button>';
-          /* the heritage child starts at the script; s0 stays skippable */
-          if (i === 0 && rec.path === 'heritage' && !done) {
-            node += '<button class="totmini" data-act="testout" data-s="' + esc(s.id) + '">' +
-              'Ears ahead of eyes? Test out of ' + esc(s.name) + ' →</button>';
-          }
-          return node;
-        }).join('') + '</div></div>' +
+      opener + offerCard + overCard + nextCard +
+      '<div class="bh-path">' +
+        '<div class="bh-secthead"><h3>The path</h3>' +
+        '<span>The same eight rungs in every language</span></div>' +
+        rungs +
+      '</div>' +
 
       /* The THREE references, behind their own doors — a chart is not a lesson, and
          neither is a dictionary or a grammar. All three are here to be looked things up
@@ -4909,7 +5073,24 @@
         : specs[i].kind === 'practice' ? 'a-prac' : 'a-dr';
       out += '<i class="' + k + (i < quiz.pi ? ' done' : (i === quiz.pi ? ' at' : '')) + '"></i>';
     }
-    return '<div class="arcbar" role="img" aria-label="beat ' + (quiz.pi + 1) +
+    /* WHERE YOU ARE, on every single beat. A child three questions into a lesson should
+       be able to say which lesson it is and how much is left without leaving it — the
+       bar says how much, this says which. And a new thing says which new thing it is,
+       "new word 2 of 4", so the introductions read as a set rather than an interruption. */
+    var L = quiz.lesson, where = '';
+    if (L) {
+      var intros = 0, introAt = 0;
+      specs.forEach(function (sp, k) {
+        if (sp.kind === 'introduce') { intros++; if (k <= quiz.pi) introAt = intros; }
+      });
+      var sp0 = specs[quiz.pi] || {};
+      where = '<div class="bh-where"><span>' + esc(L.stage) + ' · ' + esc(L.unit) +
+        ' · lesson ' + L.n + ' of ' + L.of + '</span>' +
+        (sp0.kind === 'introduce' && intros
+          ? '<b>New ' + (intros === 1 ? '' : introAt + ' of ' + intros) + '</b>'
+          : sp0.kind === 'review' ? '<b>From before</b>' : '<b>Practice</b>') + '</div>';
+    }
+    return where + '<div class="arcbar" role="img" aria-label="beat ' + (quiz.pi + 1) +
       ' of ' + specs.length + ' in this session">' + out + '</div>' + practiceBanner();
   }
 
@@ -6716,6 +6897,19 @@
       startSession(t.getAttribute('data-s') || quiz.stage, 'lesson');
       return render();
     }
+    /* a lesson off the path: its rung, narrowed to its own four things */
+    if (a === 'blesson') {
+      var bl = bLesson(bPath(quiz.packId), t.getAttribute('data-l'));
+      if (!bl) return;
+      startSession(bl.stage.id, 'lesson', lessonRef(bl));
+      return render();
+    }
+    /* open or close a unit on the path; a unit in another rung opens that rung too */
+    if (a === 'bunit') {
+      var bu = t.getAttribute('data-u');
+      quiz.openUnit = quiz.openUnit === bu ? '__none' : bu;
+      return render();
+    }
     /* the introduce beat's acknowledge: the item now has a card (box 0, due
        straight away) so the planner counts it met — then on with the drill */
     if (a === 'gotit') {
@@ -6738,6 +6932,7 @@
     /* a locked stage was tapped: open the test-out offer (never a wall) */
     if (a === 'testout') { quiz.offer = t.getAttribute('data-s'); quiz.over = false; return render(); }
     if (a === 'totclose') { quiz.offer = null; return render(); }
+    if (a === 'bclose')   { quiz.over = false; quiz.lesson = null; return render(); }
     if (a === 'totstart') {
       startSession(t.getAttribute('data-s'), 'testout');
       return render();

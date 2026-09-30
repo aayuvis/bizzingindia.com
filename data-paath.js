@@ -258,7 +258,8 @@ window.IND_PAATH = {
                             ["चाचा", "Father's YOUNGER brother"],
                             ["बुआ", "Father's sister"],
                             ["मामा", "Mother's brother"],
-                            ["मौसी", "Mother's sister"]] },
+                            ["मौसी", "Mother's sister"]],
+                    about: ["ri:dada", "ri:nani", "ri:chacha", "ri:bua", "ri:mama", "ri:mausi"] },
             brief: 'Ask five questions in Hindi to a grandparent or an elder, and record the ' +
                    'answers. Ask about when they were your age. You will not understand all ' +
                    'of it. Keep the recording anyway.',
@@ -324,7 +325,8 @@ window.IND_PAATH = {
                             ["करुणा", "Compassion"],
                             ["सेवा", "Service"],
                             ["साहस", "Courage"],
-                            ["क्षमा", "Forgiveness"]] },
+                            ["क्षमा", "Forgiveness"]],
+                    about: ["va:ahimsa", "va:satya", "va:karuna", "va:seva", "va:sahas", "va:kshama"] },
             brief: 'Seven days. Each day, one thing you did not do that you would normally ' +
                    'have done — a word you did not say, a creature you moved instead. Write ' +
                    'one line a day. Seven lines is the whole project.',
@@ -345,7 +347,8 @@ window.IND_PAATH = {
                             ["विद्या", "Loving to learn"],
                             ["कृतज्ञता", "Gratitude"],
                             ["नम्रता", "Humility"],
-                            ["वचन", "Keeping your word"]] },
+                            ["वचन", "Keeping your word"]],
+                    about: ["va:dhairya", "va:buddhi", "va:vidya", "va:kritagyata", "va:namrata", "va:vachan"] },
             brief: 'There is something small you have let someone believe that is not quite ' +
                    'true. Go and correct it. Then write down what happened — including if it ' +
                    'went badly.',
@@ -381,7 +384,8 @@ window.IND_PAATH = {
                     pairs: [["Seva", "Service"],
                             ["Namrata", "Humility"],
                             ["Dhairya", "Patience & keeping on"],
-                            ["Kritagyata", "Gratitude"]] },
+                            ["Kritagyata", "Gratitude"]],
+                    about: ["va:seva", "va:namrata", "va:dhairya", "va:kritagyata"] },
             brief: 'Find a job in your house that somebody does every day without being ' +
                    'thanked. Do it for a week. Do not announce it. See how long it takes ' +
                    'anyone to notice.',
@@ -415,7 +419,8 @@ window.IND_PAATH = {
                     pairs: [["सत्य", "Truth"],
                             ["करुणा", "Compassion"],
                             ["वचन", "Keeping your word"],
-                            ["क्षमा", "Forgiveness"]] },
+                            ["क्षमा", "Forgiveness"]],
+                    about: ["va:satya", "va:karuna", "va:vachan", "va:kshama"] },
             brief: 'One small thing you have been putting off because it is uncomfortable — ' +
                    'an apology, a question, a phone call. Do it this week. Write what you ' +
                    'expected and what actually happened.',
@@ -497,7 +502,8 @@ window.IND_PAATH = {
                     pairs: [["दादा", "Father's father"],
                             ["दादी", "Father's mother"],
                             ["नाना", "Mother's father"],
-                            ["नानी", "Mother's mother"]] },
+                            ["नानी", "Mother's mother"]],
+                    about: ["ri:dada", "ri:dadi", "ri:nana", "ri:nani"] },
             brief: 'Draw your four grandparents with the right word under each. Ask someone ' +
                    'to check it. Getting it wrong at this stage is normal and is the reason ' +
                    'for the project.',
@@ -518,7 +524,8 @@ window.IND_PAATH = {
                             ["चाचा", "Father's YOUNGER brother"],
                             ["चाची", "Chacha's wife"],
                             ["बुआ", "Father's sister"],
-                            ["फूफा", "Bua's husband"]] },
+                            ["फूफा", "Bua's husband"]],
+                    about: ["ri:taya", "ri:tai", "ri:chacha", "ri:chachi", "ri:bua", "ri:phupha"] },
             brief: 'Add your father\'s brothers and sisters to the tree, with the right word ' +
                    'for each. If you do not know who is older, this is the project: go and ' +
                    'ask.',
@@ -537,7 +544,8 @@ window.IND_PAATH = {
                     pairs: [["मामा", "Mother's brother"],
                             ["मामी", "Mama's wife"],
                             ["मौसी", "Mother's sister"],
-                            ["मौसा", "Mausi's husband"]] },
+                            ["मौसा", "Mausi's husband"]],
+                    about: ["ri:mama", "ri:mami", "ri:mausi", "ri:mausa"] },
             brief: 'Add your mother\'s brothers and sisters. Your tree now has two sides and ' +
                    'they use different words. Say one sentence out loud about why.',
             made: 'both sides, correctly named' } },
@@ -555,7 +563,8 @@ window.IND_PAATH = {
                     pairs: [["भैया", "Elder brother"],
                             ["दीदी", "Elder sister"],
                             ["ताऊ", "Father's ELDER brother"],
-                            ["चाचा", "Father's YOUNGER brother"]] },
+                            ["चाचा", "Father's YOUNGER brother"]],
+                    about: ["ri:bhaiya", "ri:didi", "ri:taya", "ri:chacha"] },
             brief: 'Every cousin you have, with the right word. Send it to one of them and ' +
                    'ask if you got theirs right.',
             made: 'a cousin map somebody else checked' } },
@@ -590,7 +599,8 @@ window.IND_PAATH = {
                     pairs: [["नाना", "Mother's father"],
                             ["नानी", "Mother's mother"],
                             ["मामा", "Mother's brother"],
-                            ["मामी", "Mama's wife"]] },
+                            ["मामी", "Mama's wife"]],
+                    about: ["ri:nana", "ri:nani", "ri:mama", "ri:mami"] },
             brief: 'Phone one relative you do not usually speak to. Greet them properly. Ask ' +
                    'them two real questions. Ten minutes is plenty.',
             made: 'one phone call that surprised somebody' } },
@@ -664,7 +674,8 @@ window.IND_PAATH = {
                     answer: ["The First Cities",
                              "The Songs Before Writing",
                              "The Emperor Who Was Sorry",
-                             "Zero, Stars and Poems"] },
+                             "Zero, Stars and Poems"],
+                    about: ["it:harappa", "it:vedic", "it:maurya", "it:gupta"] },
             brief: 'Play the first age of Sabhyata. Get a city to level three. Then write ' +
                    'three sentences on what you built first and why — and whether the real ' +
                    'Harappans would have agreed.',
@@ -683,7 +694,8 @@ window.IND_PAATH = {
                     pairs: [["The First Cities", "about 3300–1300 BCE"],
                             ["The Age of Big Questions", "about 600–300 BCE"],
                             ["The Emperor Who Was Sorry", "322–185 BCE"],
-                            ["Zero, Stars and Poems", "about 320–550 CE"]] },
+                            ["Zero, Stars and Poems", "about 320–550 CE"]],
+                    about: ["it:harappa", "it:buddha-age", "it:maurya", "it:gupta"] },
             brief: 'With one other person, take one question both traditions answered and ' +
                    'argue it out — each of you from the inside of your side, fairly. Ten ' +
                    'minutes. No winner.',
@@ -706,7 +718,8 @@ window.IND_PAATH = {
                     answer: ["Zero, Stars and Poems",
                              "The Kings of the Sea",
                              "Domes, Gardens and Miniatures",
-                             "Forts, Horses and the Gurus"] },
+                             "Forts, Horses and the Gurus"],
+                    about: ["it:gupta", "it:chola", "it:sultanate-mughal", "it:marathas-sikhs"] },
             brief: 'Write an edict for your own household — the rules you would carve in ' +
                    'stone and be judged by two thousand years later. Put it somewhere it can ' +
                    'be seen.',
@@ -725,7 +738,8 @@ window.IND_PAATH = {
                     pairs: [["The Kings of the Sea", "about 850–1250 CE"],
                             ["Mountains Made by Hand", "about 600–1300 CE"],
                             ["Domes, Gardens and Miniatures", "1206–1857"],
-                            ["Forts, Horses and the Gurus", "about 1600–1850"]] },
+                            ["Forts, Horses and the Gurus", "about 1600–1850"]],
+                    about: ["it:chola", "it:temple-builders", "it:sultanate-mughal", "it:marathas-sikhs"] },
             brief: 'Work out the circumference of a circle the way it was done then, with ' +
                    'string and a ruler. Compare your answer to pi. Write down how close you ' +
                    'got.',
@@ -756,7 +770,8 @@ window.IND_PAATH = {
                              "Zero, Stars and Poems",
                              "The Kings of the Sea",
                              "Domes, Gardens and Miniatures",
-                             "Forts, Horses and the Gurus"] },
+                             "Forts, Horses and the Gurus"],
+                    about: ["it:harappa", "it:vedic", "it:buddha-age", "it:maurya", "it:gupta", "it:chola", "it:sultanate-mughal", "it:marathas-sikhs"] },
             brief: 'Trace one Chola voyage on a map, from the Coromandel coast to wherever it ' +
                    'reached. Mark what was carried each way.',
             made: 'a trade route with cargo on it' } },
@@ -774,7 +789,8 @@ window.IND_PAATH = {
                     pairs: [["about 1500–500 BCE", "The Songs Before Writing"],
                             ["about 300 BCE–1600 CE", "Ships, Bronze and Stone"],
                             ["1757–1947", "When India Was Ruled From Somewhere Else"],
-                            ["1947 to now", "A Country Writing Its Own Rules"]] },
+                            ["1947 to now", "A Country Writing Its Own Rules"]],
+                    about: ["it:vedic", "it:souths", "it:colonial", "it:modern"] },
             brief: 'Find ten words your family uses for food and work out where each came ' +
                    'from — Persian, Arabic, Portuguese, Sanskrit, English. Most kitchens hold ' +
                    'four languages.',
@@ -797,7 +813,8 @@ window.IND_PAATH = {
                     answer: ["When India Was Ruled From Somewhere Else",
                              "Winning It Back",
                              "A Country Writing Its Own Rules",
-                             "The Takeoff"] },
+                             "The Takeoff"],
+                    about: ["it:colonial", "it:freedom", "it:modern", "it:naya-bharat"] },
             brief: 'Make a model fort — cardboard, mud, anything — on a slope. Then explain ' +
                    'why attacking it uphill is a bad idea. That explanation is the project.',
             made: 'a fort and the reason it works' } },
@@ -836,7 +853,8 @@ window.IND_PAATH = {
                             "A Country Writing Its Own Rules"],
                     answer: ["When India Was Ruled From Somewhere Else",
                              "Winning It Back",
-                             "A Country Writing Its Own Rules"] },
+                             "A Country Writing Its Own Rules"],
+                    about: ["it:colonial", "it:freedom", "it:modern"] },
             brief: 'Find one person in the freedom movement who is not on any poster. Write ' +
                    'half a page on what they did. Say where you found it.',
             made: 'a name, with a source' } },
@@ -894,7 +912,8 @@ window.IND_PAATH = {
                     pairs: [["Jaipur", "Rajasthan"],
                             ["Chennai", "Tamil Nadu"],
                             ["Kolkata", "West Bengal"],
-                            ["Thiruvananthapuram", "Kerala"]] },
+                            ["Thiruvananthapuram", "Kerala"]],
+                    about: ["state:RJ", "state:TN", "state:WB", "state:KL"] },
             brief: 'Draw India from memory. Then compare it with the real one and mark what ' +
                    'you got wrong. The wrong bits are the interesting part.',
             made: 'your India, and the corrections' } },
@@ -916,7 +935,8 @@ window.IND_PAATH = {
                     answer: ["Uttarakhand",
                              "Uttar Pradesh",
                              "Bihar",
-                             "West Bengal"] },
+                             "West Bengal"],
+                    about: ["state:UK", "state:UP", "state:BR", "state:WB"] },
             brief: 'Pick a river. Follow it from where it starts to where it ends, naming ' +
                    'every state and three cities. Say what it is used for on the way.',
             made: 'one river, end to end' } },
@@ -949,7 +969,8 @@ window.IND_PAATH = {
                     pairs: [["Lucknow", "Uttar Pradesh"],
                             ["Chandigarh", "Punjab"],
                             ["Shimla", "Himachal Pradesh"],
-                            ["Dehradun", "Uttarakhand"]] },
+                            ["Dehradun", "Uttarakhand"]],
+                    about: ["state:UP", "state:PB", "state:HP", "state:UK"] },
             brief: 'Pick one northern state. One page: where it is, what grows, what is ' +
                    'spoken, one festival, one dish, one person. Sources at the bottom.',
             made: 'a state, properly researched' } },
@@ -967,7 +988,8 @@ window.IND_PAATH = {
                     pairs: [["Tamil", "Tamil Nadu"],
                             ["Malayalam", "Kerala"],
                             ["Kannada", "Karnataka"],
-                            ["Telugu", "Andhra Pradesh"]] },
+                            ["Telugu", "Andhra Pradesh"]],
+                    about: ["state:TN", "state:KL", "state:KA", "state:AP"] },
             brief: 'Same as before, one southern state. If your family is from the south, ' +
                    'pick one that is not yours.',
             made: 'a second state, and a wider map' } },
@@ -985,7 +1007,8 @@ window.IND_PAATH = {
                     pairs: [["Dispur", "Assam"],
                             ["Shillong", "Meghalaya"],
                             ["Kohima", "Nagaland"],
-                            ["Aizawl", "Mizoram"]] },
+                            ["Aizawl", "Mizoram"]],
+                    about: ["state:AS", "state:ML", "state:NL", "state:MZ"] },
             brief: 'Pick the north-eastern state you knew least about. Find one festival, ' +
                    'one food and one living person from there. Say where you found each.',
             made: 'a place you could not have named a month ago' } },
@@ -1046,7 +1069,8 @@ window.IND_PAATH = {
                     answer: ["The King Who Wanted Sons",
                              "The Sage Who Asked for a Boy",
                              "The Stone That Was Waiting",
-                             "The Bow Nobody Could Lift"] },
+                             "The Bow Nobody Could Lift"],
+                    about: ["ra:1", "ra:2", "ra:3", "ra:4"] },
             brief: 'Ask three relatives to tell you the same scene. Write down where their ' +
                    'versions differ. They will disagree, and none of them is wrong.',
             made: 'three versions of one scene, from your own family' } },
@@ -1068,7 +1092,8 @@ window.IND_PAATH = {
                     answer: ["The Night Before the Crown",
                              "Two Old Promises",
                              "I Am Coming With You",
-                             "Bharata and the Sandals"] },
+                             "Bharata and the Sandals"],
+                    about: ["ra:5", "ra:6", "ra:7", "ra:8"] },
             brief: 'Write half a page defending Kaikeyi as well as you possibly can. You do ' +
                    'not have to believe it. You have to make it good.',
             made: 'the best case for someone you were told was wrong' } },
@@ -1086,7 +1111,8 @@ window.IND_PAATH = {
                     pairs: [["The King Who Wanted Sons", "Bala Kanda"],
                             ["The Night Before the Crown", "Ayodhya Kanda"],
                             ["The Years in the Forest", "Aranya Kanda"],
-                            ["The Berries Shabari Kept", "Kishkindha Kanda"]] },
+                            ["The Berries Shabari Kept", "Kishkindha Kanda"]],
+                    about: ["ra:1", "ra:5", "ra:9", "ra:13"] },
             brief: 'Draw the route — Ayodhya to Lanka — with the main stops. Many of these ' +
                    'places are real and you can find them. Mark which are and which are not.',
             made: 'a route map with the real places marked' } },
@@ -1108,7 +1134,8 @@ window.IND_PAATH = {
                     answer: ["The Poet Who Needed a Scribe",
                              "The River Who Married a King",
                              "The Terrible Promise",
-                             "The Boy in the Basket"] },
+                             "The Boy in the Basket"],
+                    about: ["mb:1", "mb:2", "mb:3", "mb:4"] },
             brief: 'With whoever will join in, act out one scene — costumes optional, a ' +
                    'narrator required. Record it on a phone. Three minutes.',
             made: 'a recording of a scene you performed',
@@ -1131,7 +1158,8 @@ window.IND_PAATH = {
                     answer: ["The Boy in the Basket",
                              "A Hundred and Five Cousins",
                              "The Cousins Who Could Not Be Friends",
-                             "The Ring in the Well"] },
+                             "The Ring in the Well"],
+                    about: ["mb:4", "mb:5", "mb:6", "mb:7"] },
             brief: 'Some tellings end differently. Write the ending you think the story ' +
                    'deserves, and one paragraph on why you changed it.',
             made: 'your own ending, and your reasons' } },
@@ -1149,7 +1177,8 @@ window.IND_PAATH = {
                     pairs: [["The Poet Who Needed a Scribe", "Adi Parva"],
                             ["The Hall With Floors Like Water", "Sabha Parva"],
                             ["The Longest Argument in the Forest", "Vana Parva"],
-                            ["Both Cousins Come Asking", "Udyoga Parva"]] },
+                            ["Both Cousins Come Asking", "Udyoga Parva"]],
+                    about: ["mb:1", "mb:12", "mb:16", "mb:22"] },
             brief: 'Draw it. All of it. Use the same kinship words you learned in Rishtey — ' +
                    'they are the right ones and they make the quarrel make sense.',
             made: 'the most complicated family tree you will ever draw' } },
@@ -1188,7 +1217,8 @@ window.IND_PAATH = {
                     answer: ["The Years in the Forest",
                              "Shurpanakha",
                              "The Golden Deer",
-                             "Jatayu"] },
+                             "Jatayu"],
+                    about: ["ra:9", "ra:10", "ra:11", "ra:12"] },
             brief: 'List who is alive at the end of the Mahabharata. It is a short list. ' +
                    'Write two sentences on what that is saying.',
             made: 'a very short list, and what it means' } },
@@ -1210,7 +1240,8 @@ window.IND_PAATH = {
                     answer: ["Ekalavya",
                              "The Young Man at the Gate",
                              "The House Made of Lac",
-                             "The Fish in the Water"] },
+                             "The Fish in the Water"],
+                    about: ["mb:8", "mb:9", "mb:10", "mb:11"] },
             brief: 'Write down one real choice you have faced where both options were ' +
                    'somewhat wrong. Say which epic would recognise it.',
             made: 'your own life, in the same shape as the epics' } },
@@ -1268,7 +1299,8 @@ window.IND_PAATH = {
                     pairs: [["Lohri", "January"],
                             ["Holi", "February or March"],
                             ["Diwali · Deepavali", "October or November"],
-                            ["Onam", "August or September"]] },
+                            ["Onam", "August or September"]],
+                    about: ["ut:lohri", "ut:holi", "ut:diwali", "ut:onam"] },
             brief: 'Draw a circle for the year and put twenty festivals on it in the right ' +
                    'place. Mark which ones your family actually keeps.',
             made: 'a year with your family marked on it' } },
@@ -1286,7 +1318,8 @@ window.IND_PAATH = {
                     pairs: [["Eid-ul-Fitr", "Muslim"],
                             ["Guru Nanak Gurpurab", "Sikh"],
                             ["Mahavir Jayanti", "Jain"],
-                            ["Buddha Purnima", "Buddhist"]] },
+                            ["Buddha Purnima", "Buddhist"]],
+                    about: ["ut:eid-ul-fitr", "ut:guru-nanak-gurpurab", "ut:mahavir-jayanti", "ut:buddha-purnima"] },
             brief: 'Make one dish from a harvest festival that is not your family\'s — ' +
                    'pongal, pitha, til laddoo. Cook it with a grown-up. Eat it.',
             made: 'a dish from somebody else\'s festival' } },
@@ -1308,7 +1341,8 @@ window.IND_PAATH = {
                     answer: ["Lohri",
                              "Holi",
                              "Raksha Bandhan",
-                             "Diwali · Deepavali"] },
+                             "Diwali · Deepavali"],
+                    about: ["ut:lohri", "ut:holi", "ut:raksha-bandhan", "ut:diwali"] },
             brief: 'Find out how four different Indian communities greet each other at their ' +
                    'new year. Learn to say all four. Use one on the day.',
             made: 'four greetings, used on the right day' } },
@@ -1326,7 +1360,8 @@ window.IND_PAATH = {
                     pairs: [["Pongal", "January"],
                             ["Baisakhi · Vaisakhi", "April"],
                             ["Onam", "August or September"],
-                            ["Wangala", "October or November or December"]] },
+                            ["Wangala", "October or November or December"]],
+                    about: ["ut:pongal", "ut:baisakhi", "ut:onam", "ut:wangala"] },
             brief: 'Make one by hand and send it to a cousin — including a cousin you have ' +
                    'never met. Post costs very little and arriving is the whole thing.',
             made: 'something posted to a relative' } },
@@ -1344,7 +1379,8 @@ window.IND_PAATH = {
                     pairs: [["Chapchar Kut", "March"],
                             ["Wangala", "October or November or December"],
                             ["Bihu", "January or April or October"],
-                            ["Losar", "December or January or February or March"]] },
+                            ["Losar", "December or January or February or March"]],
+                    about: ["ut:chapchar-kut", "ut:wangala", "ut:bihu", "ut:losar"] },
             brief: 'Take charge of one of the five days at home. Decide what happens, tell ' +
                    'everyone, and run it. A grown-up may help but you are in charge.',
             made: 'a day of a festival that you ran' } },
@@ -1366,7 +1402,8 @@ window.IND_PAATH = {
                     answer: ["Ganesh Chaturthi",
                              "Navratri",
                              "Vijayadashami · Dussehra",
-                             "Diwali · Deepavali"] },
+                             "Diwali · Deepavali"],
+                    about: ["ut:ganesh-chaturthi", "ut:navratri", "ut:vijayadashami", "ut:diwali"] },
             brief: 'Go to a festival your family does not keep, or if you cannot, ask ' +
                    'somebody who does keep it to tell you how their house does it. Write down ' +
                    'what surprised you.',
@@ -1423,7 +1460,8 @@ window.IND_PAATH = {
                     pairs: [["मछली", "fish"],
                             ["जल", "water — the older, more formal word"],
                             ["रानी", "queen"],
-                            ["जीवन", "life"]] },
+                            ["जीवन", "life"]],
+                    about: ["ge:machhli-jal-ki-rani"] },
             brief: 'Sing one rhyme to a baby or a small child. If there is no baby, sing it ' +
                    'to a grown-up, who will pretend to mind and will not.',
             made: 'the first time you passed one on' } },
@@ -1457,7 +1495,8 @@ window.IND_PAATH = {
                     say: "Four words from Chanda mama door ke. Pair each with what it means.",
                     pairs: [["चंदा", "moon"],
                             ["मामा", "your mother’s brother — never a generic uncle"],
-                            ["दूर", "far away"]] },
+                            ["दूर", "far away"]],
+                    about: ["ge:chanda-mama-door-ke"] },
             brief: 'Ask your mother, father or grandparent which lullaby was sung to YOU. ' +
                    'Learn it. Record them singing it if they will.',
             made: 'the song that was sung over you, in their voice',
@@ -1508,7 +1547,8 @@ window.IND_PAATH = {
                     pairs: [["Machhli jal ki rani hai", "a fish"],
                             ["Chanda mama door ke", "the moon"],
                             ["Hathi raja kahan chale", "an elephant"],
-                            ["Nani teri morni ko mor le gaye", "a peahen"]] },
+                            ["Nani teri morni ko mor le gaye", "a peahen"]],
+                    about: ["ge:machhli-jal-ki-rani", "ge:chanda-mama-door-ke", "ge:hathi-raja-kahan-chale", "ge:nani-teri-morni"] },
             brief: 'Next time there are children at your house, you run the games. Two ' +
                    'singing games, start to finish. You are in charge.',
             made: 'a room of children you organised' } },
@@ -1586,7 +1626,8 @@ window.IND_PAATH = {
                     pairs: [["The First Cities", "about 3300–1300 BCE"],
                             ["The Songs Before Writing", "about 1500–500 BCE"],
                             ["Zero, Stars and Poems", "about 320–550 CE"],
-                            ["The Kings of the Sea", "about 850–1250 CE"]] },
+                            ["The Kings of the Sea", "about 850–1250 CE"]],
+                    about: ["it:harappa", "it:vedic", "it:gupta", "it:chola"] },
             brief: 'Use a stick and its shadow to work out the height of a building or a ' +
                    'tree. Then check it another way. Write down both numbers, including if ' +
                    'they disagree.',
@@ -1609,7 +1650,8 @@ window.IND_PAATH = {
                     answer: ["The First Cities",
                              "The Age of Big Questions",
                              "Zero, Stars and Poems",
-                             "The Kings of the Sea"] },
+                             "The Kings of the Sea"],
+                    about: ["it:harappa", "it:buddha-age", "it:gupta", "it:chola"] },
             brief: 'Four nails: dry, wet, salty water, and oiled. Leave them a week. ' +
                    'Photograph each day. Then say which condition the pillar is closest to.',
             made: 'a week of photographs and a conclusion' } },
@@ -1653,7 +1695,8 @@ window.IND_PAATH = {
                     answer: ["The First Cities",
                              "The Emperor Who Was Sorry",
                              "Mountains Made by Hand",
-                             "Domes, Gardens and Miniatures"] },
+                             "Domes, Gardens and Miniatures"],
+                    about: ["it:harappa", "it:maurya", "it:temple-builders", "it:sultanate-mughal"] },
             brief: 'Build a corbelled arch from blocks or books that holds its own weight. ' +
                    'It will fall several times. Photograph the one that stands.',
             made: 'an arch that stands, after the ones that did not' } },
@@ -1673,7 +1716,8 @@ window.IND_PAATH = {
                             "The Takeoff"],
                     answer: ["Winning It Back",
                              "A Country Writing Its Own Rules",
-                             "The Takeoff"] },
+                             "The Takeoff"],
+                    about: ["it:freedom", "it:modern", "it:naya-bharat"] },
             brief: 'Build a bottle rocket — water and air, outside, with a grown-up. Change ' +
                    'ONE thing between launches and measure the difference. That is the ' +
                    'experiment; the launch is just the fun.',
@@ -1785,7 +1829,8 @@ window.IND_PAATH = {
                             "The Fall of Bhishma"],
                     answer: ["The Night Before",
                              "A Talk Between Friends",
-                             "The Fall of Bhishma"] },
+                             "The Fall of Bhishma"],
+                    about: ["mb:25", "mb:26", "mb:27"] },
             brief: 'Draw the two armies with the chariot stopped between them. Put the names ' +
                    'you know on both sides. You will find you know people on each.',
             made: 'a battlefield with your own labels on it' } },
@@ -1825,7 +1870,8 @@ window.IND_PAATH = {
                     pairs: [["दादा", "Father's father"],
                             ["चाचा", "Father's YOUNGER brother"],
                             ["भैया", "Elder brother"],
-                            ["मामा", "Mother's brother"]] },
+                            ["मामा", "Mother's brother"]],
+                    about: ["ri:dada", "ri:chacha", "ri:bhaiya", "ri:mama"] },
             brief: 'Draw the Kuru family with the right kinship word under every name, and ' +
                    'colour which side each stood on. The quarrel makes sense once you can ' +
                    'see it.',
@@ -1940,7 +1986,8 @@ window.IND_PAATH = {
                     pairs: [["करुणा", "Compassion"],
                             ["क्षमा", "Forgiveness"],
                             ["नम्रता", "Humility"],
-                            ["सत्य", "Truth"]] },
+                            ["सत्य", "Truth"]],
+                    about: ["va:karuna", "va:kshama", "va:namrata", "va:satya"] },
             brief: 'Write half a page about someone you actually know who has one of these ' +
                    'qualities, with the thing they did that proves it. Then give it to them.',
             made: 'something you gave to a person about themselves',

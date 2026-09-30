@@ -108,7 +108,17 @@ window.IND_PAATH = {
             { k: 't', n: 'The first ten letters', m: 25, o: 'read क through ञ aloud', use: { bh: 20 } },
             { k: 'p', n: 'Sound to shape', m: 20, o: 'match ten sounds to ten letters', use: { bh: 30 } },
             { k: 'c', n: 'A week later', m: 15, o: 'do it again cold, on a different screen', use: { bh: 20 } } ],
+          /* THE WORKSHOP HALF. The app cannot know how a child's name is spelled, and
+             it is not going to guess — but it can decide whether what they typed is
+             well-formed Devanagari, which is the mistake a beginner actually makes and
+             the thing this part teaches. It says which of the two it checked. karya.js
+             §HOW A SUBMISSION IS CHECKED. */
           project: { id: 'h1p', name: 'Your name, written properly', m: 95,
+            task: { k: 'writeOwn', title: 'Write your name here first',
+                    clue: 'Your own name, in Devanagari',
+                    say: 'Use the letters below — they are the Devanagari board, not a ' +
+                         'phone keyboard, because a consonant and then a sign hung on it ' +
+                         'IS how the writing works. Then write it on paper.' },
             brief: 'Write your own name in Devanagari, big, on paper. Get the line on top ' +
                    'unbroken and running the whole way. Then write one more name — somebody ' +
                    'in your house who will be pleased to see it.',
@@ -121,6 +131,10 @@ window.IND_PAATH = {
             { k: 'p', n: 'The whole board', m: 20, o: 'read all thirty-three in any order', use: { bh: 40 } },
             { k: 'c', n: 'Cold read', m: 15, o: 'read a row you have not been shown today', use: { bh: 20 } } ],
           project: { id: 'h2p', name: 'A letter hunt at home', m: 95,
+            task: { k: 'trace', letter: 'क', title: 'Form the letter first',
+                    say: 'Trace it until the shape is yours, then go and find it in the ' +
+                         'kitchen. The canvas measures the FORM of the letter — it does ' +
+                         'not know the order the strokes should go in, and it says so.' },
             brief: 'Find five things in your house with Hindi writing on them — a packet, a ' +
                    'bag of rice, a calendar, a book. Photograph or copy out one letter from ' +
                    'each and say which it is.',
@@ -133,6 +147,10 @@ window.IND_PAATH = {
             { k: 'p', n: 'Build the word', m: 20, o: 'spell twenty spoken words', use: { bh: 40 } },
             { k: 'c', n: 'Say it, spell it', m: 15, o: 'spell words nobody has drilled today', use: { bh: 20 } } ],
           project: { id: 'h3p', name: 'The shopping list', m: 95,
+            task: { k: 'write', title: 'One word first', target: 'दूध', roman: 'doodh',
+                    clue: 'milk',
+                    say: 'The course holds this one, so the app can mark it properly. ' +
+                         'Get it right here, then write the whole list on paper.' },
             brief: 'Write a real shopping list in Hindi — six things your family actually ' +
                    'buys. Take it to the shop, or to whoever does the shopping, and read it ' +
                    'to them.',
@@ -494,6 +512,17 @@ window.IND_PAATH = {
             { k: 'p', n: 'What did they have', m: 20, o: 'sort ten claims into proved and guessed', use: { it: ['harappa'] } },
             { k: 'c', n: 'Build one', m: 15, o: 'lay out a city and justify the order', use: { sa: true } } ],
           project: { id: 'i1p', name: 'Run Dholavira', m: 95,
+            task: { k: 'order', title: 'Put the four in order first',
+                    say: 'Oldest at the top. The course holds this order, so the app ' +
+                         'marks it — and then you go and play the age you just placed.',
+                    items: ['The first cities of the Indus',
+                            'The Vedic age',
+                            'The Mauryas and Ashoka',
+                            'The Guptas'],
+                    answer: ['The first cities of the Indus',
+                             'The Vedic age',
+                             'The Mauryas and Ashoka',
+                             'The Guptas'] },
             brief: 'Play the first age of Sabhyata. Get a city to level three. Then write ' +
                    'three sentences on what you built first and why — and whether the real ' +
                    'Harappans would have agreed.',

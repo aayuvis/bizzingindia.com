@@ -17,6 +17,7 @@ const { chromium } = require('playwright');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { skipOnboarding } = require('./lib/onboard');
 
 const ROOT = path.join(__dirname, '..', 'app');
 const TYPES = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css',
@@ -58,9 +59,7 @@ async function boot(browser, port) {
   p.on('pageerror', e => errs.push('pageerror: ' + e.message));
   p.on('console', m => { if (m.type() === 'error') errs.push('console: ' + m.text()); });
   await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(() => {});
-  const nm = await p.$('#nm');
-  if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(400);
   await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(900);

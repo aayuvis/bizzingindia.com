@@ -123,7 +123,7 @@ by design — Bengali, Gujarati, Kannada, Marathi, Tamil, Telugu and Urdu are da
 
 ## 6. What the checks hold
 
-Fourteen, in two kinds. **Structure**, read straight off the data, catches rot that only
+Twenty-one, in two kinds. **Structure**, read straight off the data, catches rot that only
 appears on the one page that holds it. **Behaviour**, driven through the real app, catches
 rules that get "simplified" by someone who finds them annoying.
 
@@ -143,6 +143,13 @@ rules that get "simplified" by someone who finds them annoying.
 | `readable` | no card, header or part is see-through |
 | `pack` | the take-home pack matches the course, and printing drops the chrome |
 | `script` | every verse is set in its own script, never Sanskrit by default |
+| `voice` | nothing on a family's screen is a note to ourselves — no shouting, no doc path |
+| `covers` | every course's picture is on disk and has an alt line (docs/05) |
+| `labels` | every reference of every lesson renders a title, never a database key |
+| `tasks` | every workshop task is one the app can actually run |
+| `script-rule` | the orthography rule refuses the beginner mistakes and passes a real name |
+| `gate` | the project does not open before the test is passed |
+| `honest` | **the app never claims to have marked what it cannot mark** |
 
 Four were watched to fail first, each naming the exact fault: a broken hours claim
 (*"neeti-course claims 30h but holds 8 modules"*), a dead reference
@@ -154,6 +161,95 @@ for review"*), and the day rule.
 through an otherwise opaque card, on exactly the five premium courses and no others. The
 lock is said in words now. **Somebody deciding whether to buy a course has to be able to
 read it.**
+
+## 5a. A part is three stages, and the project is the last one
+
+**Teach, then test, then make.** A part used to render as four chips in a row with a
+project brief underneath, and the project's "I made it" button was tappable on a course
+nobody had opened — a self-certification standing in for both the test and the project.
+
+Now a part is three numbered stages, and the order is on the screen because the order *is*
+the method:
+
+| | | |
+|---|---|---|
+| **1 Learn it** | the teaching and practice lessons | open from the start |
+| **2 Test yourself** | the check, on its own, on a later day | open from the start |
+| **3 Make something** | the workshop and the paper half | **opens when the test passes** |
+
+The third stage is not dimmed, it is **closed and says what opens it**: *"Making the thing
+is how you keep what you learned — it is not a way round showing that you learned it."*
+Dimming a paragraph is the `readable` rule broken; dimming a lock is how a child decides
+the app is broken rather than that they have not got there yet.
+
+`gate` holds it, and was watched to fail both ways: nothing shut on a fresh course, and
+one passed test opening exactly one project rather than ten.
+
+## 5b. Doing the project in the app — and how a submission is checked with no AI
+
+[`app/karya.js`](../app/karya.js). **कार्य — the work.** A brief nobody can do on the screen
+and nobody can check is a homework sheet with a tick box. So a project has two halves, and
+they are different *kinds* of thing:
+
+- **The workshop** — done here, with a real tool, and **marked by the app**.
+- **The paper** — done away from the screen, kept, and **never marked by anything**.
+
+The tool is not new: the Devanagari keypad is the one the Bhasha engine's `produce`
+exercise uses — **this script's own consonants and matras, never a system IME**, because a
+system keyboard hides the abugida structure the course is trying to teach — and the tracing
+canvas is `likhna.js`, which has measured coverage and spill since stage 7.
+
+### The question this answers
+
+*How is a submission checked with no model behind it?* By stopping asking one question and
+asking two.
+
+**1. What a computer can actually check, it checks completely, and it counts.** A typed
+word against a word the course holds. A traced letter against the glyph's own ink. Four
+ages in the right order. None of this needs a model; it needs the answer, and a course that
+cites its corpus already has the answer.
+
+**2. What it cannot check, it does not pretend to.** Nobody marks a photograph of a child's
+handwriting without a model, and nothing here is going to send a child's handwriting
+anywhere — `CLAUDE.md`: no child photo, no free text off the device, ever. So the paper half
+is **kept, not scored**. It goes on the shelf, the grown-up's page lists it, and the mastery
+record never hears about it. `ledger()` in `paath.js` stays the only door, and `karya.js`
+has no handle on it to touch.
+
+**3. The interesting middle — an answer only the child knows.** *"Write your own name in
+Devanagari"* is the most-wanted project in the whole course layer, and this app cannot know
+whether आयुष is spelled right. It can know whether it is **well-formed Devanagari**: every
+vowel sign hung on a consonant, every halant between two letters, no mark floating on
+nothing. That is the abugida model stage 2 teaches, it is the mistake a beginner actually
+makes, and a script rule decides it exactly.
+
+**The screen says which of the two it did**, in those words:
+
+> **Kept.** Every sign is hung on a letter and every halant has something on both sides.
+> That part is right.
+> *The app checked the WRITING, not the word — it cannot know how your name is spelled.
+> Show it to somebody at home who does.*
+
+A child told *"correct!"* about their own name, by a program that does not know their name,
+has been lied to. `honest` fails if a submission the app could not decide is ever recorded
+as `by: 'app'`, and if anything in the workshop writes to the mastery record.
+
+### The four task kinds
+
+| kind | what the child does | who decides |
+|---|---|---|
+| `write` | type a word the course holds | the app, completely |
+| `writeOwn` | type something only they know | the app checks the **script**, and says so |
+| `trace` | form the letter on the canvas | `likhna.js`, on coverage and spill |
+| `order` | put four things in order | the app, completely |
+
+**A project with no task is a perfectly good project.** A letter hunt round the kitchen is
+not a screen, and the course page renders that as paper only rather than inventing one.
+
+`tasks` fails on a trace naming a letter the script table does not hold, an order whose
+answer is not its own items, or a write target the keypad cannot type. `script-rule` drives
+the orthography rule with seven mistakes that must be refused and five real names that must
+pass — it was watched to fail in both directions, which is the half people skip.
 
 ## 6a. The take-home pack
 

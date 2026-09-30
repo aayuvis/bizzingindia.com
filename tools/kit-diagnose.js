@@ -1,6 +1,7 @@
 /* Draw each placed piece's TRUE footprint diamond over the board, so the gap
    between art, shadow and cell is measurable rather than argued about. */
 const { chromium } = require('playwright');
+const { skipOnboarding } = require('./lib/onboard');
 const tap = (p, sel) => p.evaluate(sel => { const el=document.querySelector(sel); if(!el) return false;
   for (const t of ['pointerdown','mousedown','pointerup','mouseup','click']) el.dispatchEvent(new MouseEvent(t,{bubbles:true,cancelable:true})); return true; }, sel);
 const pick = async (p, pid) => {
@@ -26,8 +27,7 @@ const put = async (p, cx, cy) => p.evaluate(([cx,cy]) => {
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
   const p = await b.newPage({ viewport: { width: 1340, height: 1100 }, deviceScaleFactor: 2 });
   await p.goto('http://localhost:8150/', { waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(()=>{});
-  const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(400);
   await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(700);

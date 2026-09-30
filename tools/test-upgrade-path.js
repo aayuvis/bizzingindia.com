@@ -17,6 +17,7 @@
  */
 const { chromium } = require('playwright');
 const fs = require('fs');
+const { skipOnboarding } = require('./lib/onboard');
 let fails = 0;
 const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x !== undefined ? '  [' + x + ']' : '')); if (!ok) fails++; };
 const use = v => { try { fs.unlinkSync('/tmp/serve'); } catch (e) {} fs.symlinkSync(v, '/tmp/serve'); };
@@ -82,9 +83,7 @@ const alive = () => new Promise(r2 => {
   });
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(1500);
-  await p.click('[data-act="begin"]').catch(()=>{});
-  await p.waitForTimeout(250);
-  const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(450);
   await p.click('.navtab[data-v="khel"]').catch(()=>{}); await p.waitForTimeout(350);
   await p.click('.ghero').catch(()=>{}); await p.waitForTimeout(900);

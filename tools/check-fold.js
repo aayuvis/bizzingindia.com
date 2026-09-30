@@ -16,6 +16,7 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const { skipOnboarding } = require('./lib/onboard');
 
 const APP = path.join(__dirname, '..', 'app');
 const TYPES = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css',
@@ -58,9 +59,7 @@ const BUDGET = 280;
 async function boot(browser, port, w, h) {
   const p = await browser.newPage({ viewport: { width: w, height: h } });
   await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(() => {});
-  const nm = await p.$('#nm');
-  if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(500);
   return p;
 }

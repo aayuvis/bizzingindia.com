@@ -1,5 +1,6 @@
 /* The builder: a city from zero. */
 const { chromium } = require('playwright');
+const { skipOnboarding } = require('./lib/onboard');
 let fails = 0;
 const check = (n, ok, x) => { console.log((ok?'PASS':'FAIL')+'  '+n+(x!==undefined?'  ['+x+']':'')); if(!ok) fails++; };
 const openShelf = async (p) => { if (!(await p.$('.sab-drawer'))) { await p.evaluate(() => { const h=document.querySelector('.sab-dhandle'); if(h) h.dispatchEvent(new MouseEvent('click',{bubbles:true})); }); await p.waitForTimeout(260); } };
@@ -89,8 +90,7 @@ async function place(p, cx, cy) {
   const errs = [];
   p.on('pageerror', e => errs.push(e.message));
   await p.goto('http://localhost:8150/', { waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(()=>{});
-  const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(400);
   await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(700);

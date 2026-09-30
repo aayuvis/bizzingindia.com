@@ -8,6 +8,7 @@
    Measured as a fraction of the BOARD, which is the only frame of reference
    that means anything here. */
 const { chromium } = require('playwright');
+const { skipOnboarding } = require('./lib/onboard');
 let fails = 0;
 const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x !== undefined ? '  [' + x + ']' : '')); if (!ok) fails++; };
 
@@ -30,9 +31,7 @@ const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x
       quizAt: {}, quizN: 0, kingdoms: {}, lastraid: 0, explorers: [] }));
   });
   await p.reload({ waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(()=>{});
-  await p.waitForTimeout(150);
-  const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(350);
   await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(650);

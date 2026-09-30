@@ -10,6 +10,7 @@
  * that is the part most likely to be wrong.
  */
 const { chromium } = require('playwright');
+const { skipOnboarding } = require('./lib/onboard');
 let fails = 0;
 const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x !== undefined ? '  [' + x + ']' : '')); if (!ok) fails++; };
 const VIEWS = [['phone', 390, 844], ['desktop', 1440, 900]];
@@ -33,9 +34,7 @@ async function boot(b, v) {
       quizAt: {}, quizN: 0, kingdoms: {}, lastraid: 0, explorers: [] }));
   });
   await p.reload({ waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(()=>{});
-  await p.waitForTimeout(200);
-  const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(450);
   await p.click('.navtab[data-v="khel"]').catch(()=>{}); await p.waitForTimeout(350);
   await p.click('.ghero').catch(()=>{}); await p.waitForTimeout(900);

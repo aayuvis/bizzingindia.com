@@ -5,6 +5,7 @@
    point. Draws the piece footprints over the board too, so the picture and the
    numbers can be checked against each other. */
 const { chromium } = require('playwright');
+const { skipOnboarding } = require('./lib/onboard');
 (async () => {
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
   const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
@@ -41,9 +42,7 @@ const { chromium } = require('playwright');
       quizAt: {}, quizN: 0, kingdoms: {}, lastraid: 0, explorers: [] }));
   });
   await p.reload({ waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(()=>{});
-  await p.waitForTimeout(150);
-  const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(350);
   await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(650);

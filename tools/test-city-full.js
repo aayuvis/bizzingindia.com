@@ -5,6 +5,7 @@
    really is on top of the app's own bar), that it opens leaned in and looking
    at something, and that where you are looking survives a repaint. */
 const { chromium } = require('playwright');
+const { skipOnboarding } = require('./lib/onboard');
 let fails = 0;
 const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x !== undefined ? '  [' + x + ']' : '')); if (!ok) fails++; };
 const VIEWS = [['phone', 390, 844], ['desktop', 1440, 900]];
@@ -27,9 +28,7 @@ async function boot(b, v) {
       quizAt: {}, quizN: 0, kingdoms: {}, lastraid: 0, explorers: [] }));
   });
   await p.reload({ waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(()=>{});
-  await p.waitForTimeout(150);
-  const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(350);
   await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(650);

@@ -104,8 +104,24 @@ Gita module specifically. Four rules bind anyone touching them:
   derives each card's language from its collection. Setting Thirukkural in a Devanagari
   face is the `docs/05` script rule broken, and `script` in check-paath.js holds it.
 
+- **A part is three stages, and the third one is locked.** Learn it, test yourself, make
+  something — and the project does not open until the test passes. Making the thing is how
+  a child keeps what they learned; it is not a way round showing that they learned it.
+- **The app never claims to have marked what it cannot mark.** A project has a workshop
+  half done in the app (`app/karya.js`) and a paper half done away from it. What a rule can
+  decide — a word the course holds, a traced letter, four things in order — is decided
+  completely and counts. What it cannot decide is **kept, never scored**: no photograph of a
+  child's handwriting leaves the device and no program grades it. And for the one in the
+  middle — *write your own name*, which this app cannot spell-check — it checks the
+  **script** (every vowel sign hung on a consonant, every halant between two letters) and
+  says on screen which of the two it did. A child told "correct" about their own name by a
+  program that does not know their name has been lied to.
+- **Nothing in the workshop touches the mastery record.** `ledger()` in `app/paath.js` is
+  still the only door, and `karya.js` has no handle on it.
+
 `tools/check-paath.js` holds all of it — hours = modules × 3, every corpus reference
-resolves, nothing sensitive claims to be finished.
+resolves, nothing sensitive claims to be finished, the project is gated, and the app's
+claim about how it marked a thing matches what it actually did.
 
 ## Architecture (planned)
 

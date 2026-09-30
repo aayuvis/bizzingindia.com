@@ -11,6 +11,7 @@ const { chromium } = require('playwright');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { skipOnboarding } = require('./lib/onboard');
 
 const ROOT = path.join(__dirname, '..', 'app');
 const OUT = process.argv[2] || path.join(__dirname, '..', '.shots');
@@ -35,9 +36,7 @@ const VIEWS = [{ n: 'phone', w: 390, h: 844 }, { n: 'tablet', w: 820, h: 1180 },
 async function boot(browser, port, v) {
   const p = await browser.newPage({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 2 });
   await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(() => {});
-  const nm = await p.$('#nm');
-  if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(400);
   await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(900);

@@ -8,6 +8,7 @@
  * for every age, forever.
  */
 const { chromium } = require('playwright');
+const { skipOnboarding } = require('./lib/onboard');
 let fails = 0;
 const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x !== undefined ? '  [' + x + ']' : '')); if (!ok) fails++; };
 (async () => {
@@ -16,9 +17,7 @@ const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x
     const p = await b.newPage({ viewport: { width: w, height: h }, hasTouch: true });
     const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('http://localhost:8150/', { waitUntil: 'networkidle' });
-    await p.click('[data-act="begin"]').catch(()=>{});
-    await p.waitForTimeout(250);
-    const nm = await p.$('#nm'); if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
     await p.waitForTimeout(500);
     /* on a phone the nav collapses and India hides behind "More" */
     await p.evaluate(() => {

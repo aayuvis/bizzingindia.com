@@ -18,6 +18,7 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const { skipOnboarding } = require('./lib/onboard');
 
 const APP = path.join(__dirname, '..', 'app');
 const TYPES = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css',
@@ -221,9 +222,7 @@ async function boot(browser, port) {
   p.on('pageerror', e => errs.push('pageerror: ' + e.message));
   p.on('console', m => { if (m.type() === 'error') errs.push('console: ' + m.text()); });
   await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
-  await p.click('[data-act="begin"]').catch(() => {});
-  const nm = await p.$('#nm');
-  if (nm) { await nm.fill('Asha'); await p.click('[data-act="start"]'); }
+  await skipOnboarding(p);
   await p.waitForTimeout(500);
   await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
   await p.waitForTimeout(600);
@@ -289,6 +288,45 @@ check('covers', 'every plate is a real picture with a caption', async ({ C }) =>
       bad.push(`${c.id}'s cover has no alt line — an uncredited picture (docs/05)`);
   });
   if (!C.P.courses.length) throw new Error('no courses — this check would pass on an empty file');
+  if (bad.length) throw new Error(bad.join('; '));
+});
+
+
+check('tasks', 'every workshop task is one the app can actually run', async ({ C }) => {
+  /* A task that names a letter the script table does not hold, or an order whose answer
+     is not its own items, renders an empty board — and only on the one project that
+     holds it, which is the rot a data file grows quietly. Read off the data. */
+  global.window = global.window || {};
+  require(path.join(APP, 'bhasha.js'));
+  const sc = (global.window.IND_SCRIPTS || {}).devanagari;
+  if (!sc) throw new Error('the Devanagari script module did not load');
+  const glyphs = new Set([].concat(sc.consonants || [], sc.vowels || [])
+    .map(x => x.char || x));
+  const KINDS = new Set(['write', 'writeOwn', 'trace', 'order']);
+  const bad = [];
+  let n = 0;
+  C.P.courses.forEach(c => c.modules.forEach(m => {
+    const t = m.project.task;
+    if (!t) return;
+    n++;
+    const where = `${c.id}/${m.project.id}`;
+    if (!KINDS.has(t.k)) { bad.push(`${where} is kind "${t.k}", which nothing renders`); return; }
+    if (!t.title) bad.push(`${where} has no title, so the workshop opens unnamed`);
+    if (t.k === 'write') {
+      if (!t.target) bad.push(`${where} is a write task with nothing to write`);
+      else if (![...t.target].every(ch => ch.codePointAt(0) >= 0x0900 && ch.codePointAt(0) <= 0x097F))
+        bad.push(`${where}'s target is not all Devanagari — the keypad cannot type it`);
+    }
+    if (t.k === 'trace' && !glyphs.has(t.letter))
+      bad.push(`${where} traces "${t.letter}", which is not in the script table`);
+    if (t.k === 'order') {
+      if (!t.items || !t.answer) { bad.push(`${where} is an order task with no answer`); return; }
+      if (t.items.length !== t.answer.length) bad.push(`${where}'s answer is a different length`);
+      const items = new Set(t.items);
+      t.answer.forEach(a => { if (!items.has(a)) bad.push(`${where}'s answer has "${a}", which is not on its list`); });
+    }
+  }));
+  if (!n) throw new Error('no workshop tasks at all — this check would pass on an empty file');
   if (bad.length) throw new Error(bad.join('; '));
 });
 
@@ -615,6 +653,153 @@ check('labels', 'a child is never shown a database key', async ({ p }) => {
       'this app owns 686 paintings and the first version used none of them');
 });
 
+check('script-rule', 'the orthography rule catches the beginner mistakes and lets a name through',
+  async ({ p }) => {
+  /* The one genuinely interesting check in the app: the workshop cannot know how a
+     child's name is spelled, so it decides whether what they typed is well-formed
+     Devanagari instead — a vowel sign hung on a letter, a halant between two of them.
+     That rule is doing real work, so it is tested with real strings rather than trusted.
+     Driven through the page because that is where it runs. */
+  const r = await p.evaluate(() => {
+    const K = window.IND_KARYA;
+    if (!K) return { missing: true };
+    const bad = [];
+    /* these must be REFUSED, and each is a mistake a beginner really makes */
+    [['ा', 'a vowel sign on its own'],
+     ['आा', 'a vowel sign hung on a vowel letter'],
+     ['काि', 'two vowel signs on one letter'],
+     ['क्', 'a word ending on a halant'],
+     ['्क', 'a halant with nothing in front of it'],
+     ['Asha', 'Latin letters'],
+     ['   ', 'nothing at all']].forEach(([s, why]) => {
+      if (!K.badDevanagari(s)) bad.push(`let through: ${why}`);
+    });
+    /* and these must PASS — real names and words, written correctly */
+    ['आयुष',            /* आयुष */
+     'मीरा',            /* मीरा */
+     'अर्जुन',/* अर्जुन — a real halant, mid-word */
+     'राम कृष्ण', /* two words */
+     'हिन्दी' /* हिन्दी */
+    ].forEach(s => {
+      const no = K.badDevanagari(s);
+      if (no) bad.push(`refused "${s}": ${no}`);
+    });
+    return { bad };
+  });
+  if (r.missing) throw new Error('karya.js did not load');
+  if (r.bad.length) throw new Error(r.bad.join('; '));
+});
+
+check('gate', 'the project does not open before the test is passed', async ({ p }) => {
+  /* "I made it" used to be tappable on a course nobody had opened — a self-certification
+     standing in for both the test and the project. Making the thing is how you keep what
+     you learned; it is not a way round showing that you learned it. */
+  await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
+  await p.waitForTimeout(600);
+  const shut = await p.evaluate(() => ({
+    stages: document.querySelectorAll('.pa-stage').length,
+    closed: document.querySelectorAll('.pa-stage.shut').length,
+    made: document.querySelectorAll('[data-pa="made"]').length,
+    doors: document.querySelectorAll('.pa-open').length,
+    says: !!document.querySelector('.pa-shutsay')
+  }));
+  if (!shut.stages) throw new Error('the part has no stages at all');
+  if (!shut.closed) throw new Error('nothing is shut on a course that has never been opened');
+  if (shut.made) throw new Error(`"I made it" is tappable on ${shut.made} parts nobody has passed`);
+  if (shut.doors) throw new Error('the workshop opens before the test is passed');
+  if (!shut.says) throw new Error('the shut stage does not say what opens it');
+
+  /* now pass one, the honest way the record allows, and watch it open */
+  await p.evaluate(() => {
+    const S = JSON.parse(localStorage.getItem('bi_v1'));
+    S.paath = S.paath || { v: 1, c: {} };
+    S.paath.c['hindi-zero'] = { at: 20260901, seen: {}, made: {}, note: {},
+      m: { h1: { on: 20260920, tries: 1 } } };
+    localStorage.setItem('bi_v1', JSON.stringify(S));
+  });
+  await p.reload({ waitUntil: 'networkidle' });
+  await p.waitForTimeout(700);
+  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
+  await p.waitForTimeout(700);
+  const open = await p.evaluate(() => ({
+    made: document.querySelectorAll('[data-pa="made"]').length,
+    doors: document.querySelectorAll('.pa-open').length
+  }));
+  if (open.made !== 1) throw new Error(`passing one test opened ${open.made} projects, not one`);
+  if (open.doors !== 1) throw new Error(`passing one test opened ${open.doors} workshops, not one`);
+});
+
+check('honest', 'the app never claims to have marked what it cannot mark', async ({ p }) => {
+  /* THE WHOLE POINT OF karya.js. A submission it decided by a rule is `by: "app"`. One it
+     is only holding is `by: "kept"`, and the difference has to survive into the record,
+     because the grown-up's page reads it to decide which list a thing goes in.
+     And neither of them may reach the mastery record — `ledger()` in paath.js is the only
+     door, and a project is not evidence of learning however good it is. */
+  await p.evaluate(() => {
+    const S = JSON.parse(localStorage.getItem('bi_v1'));
+    S.paath = S.paath || { v: 1, c: {} };
+    S.paath.c['hindi-zero'] = { at: 20260901, seen: {}, made: {}, note: {},
+      m: { h1: { on: 20260920, tries: 1 }, h3: { on: 20260921, tries: 1 } } };
+    localStorage.setItem('bi_v1', JSON.stringify(S));
+  });
+  await p.reload({ waitUntil: 'networkidle' });
+  await p.waitForTimeout(700);
+  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
+  await p.waitForTimeout(600);
+
+  const before = await p.evaluate(() => {
+    const S = JSON.parse(localStorage.getItem('bi_v1'));
+    return JSON.stringify(S.paath.c['hindi-zero'].m);
+  });
+
+  /* the one the app CANNOT mark — a name only the child knows */
+  await p.evaluate(() => document.querySelector('.pa-open[data-p="h1p"]').click());
+  await p.waitForTimeout(600);
+  for (const ch of ['आ', 'य', 'ु', 'ष'])
+    await p.evaluate(c => document.querySelector(`.kykey[data-c="${c}"]`).click(), ch);
+  await p.waitForTimeout(200);
+  await p.evaluate(() => document.querySelector('[data-ka="checkown"]').click());
+  await p.waitForTimeout(500);
+  const own = await p.evaluate(() => {
+    const S = JSON.parse(localStorage.getItem('bi_v1'));
+    return { rec: (S.paath.w || {}).h1p || null,
+             said: (document.querySelector('.kysay') || {}).textContent || '',
+             m: JSON.stringify(S.paath.c['hindi-zero'].m) };
+  });
+  if (!own.rec) throw new Error('the workshop kept nothing');
+  if (own.rec.by !== 'kept')
+    throw new Error(`a name the app cannot check was recorded as "${own.rec.by}" — it claimed to mark it`);
+  if (!/not the word|cannot know/i.test(own.said))
+    throw new Error('the screen does not say that it checked the writing rather than the word');
+  if (own.m !== before)
+    throw new Error('a project wrote to the mastery record — ledger() is meant to be the only door');
+
+  /* and the one it CAN mark */
+  await p.evaluate(() => document.querySelector('.backlink').click());
+  await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('.pa-open[data-p="h3p"]').click());
+  await p.waitForTimeout(600);
+  for (const ch of ['द', 'ू', 'ध'])
+    await p.evaluate(c => document.querySelector(`.kykey[data-c="${c}"]`).click(), ch);
+  await p.waitForTimeout(200);
+  await p.evaluate(() => document.querySelector('[data-ka="check"]').click());
+  await p.waitForTimeout(500);
+  const known = await p.evaluate(() => {
+    const S = JSON.parse(localStorage.getItem('bi_v1'));
+    return { rec: (S.paath.w || {}).h3p || null,
+             m: JSON.stringify(S.paath.c['hindi-zero'].m) };
+  });
+  if (!known.rec) throw new Error('a word the app holds was not recorded when it was typed right');
+  if (known.rec.by !== 'app')
+    throw new Error(`a word the app holds was recorded as "${known.rec.by}" — it marked it, so it should say so`);
+  if (known.m !== before)
+    throw new Error('a marked project wrote to the mastery record — that is still the test’s job');
+});
+
 check('touch', 'a phone can hit everything', async ({ p }) => {
   await p.setViewportSize({ width: 390, height: 844 });
   await p.waitForTimeout(400);
@@ -643,7 +828,8 @@ async function main() {
     ? process.argv[process.argv.indexOf('--only') + 1] : null;
   const C = corpus();
   const needsBrowser = CHECKS.some(c => (!only || c.id === only) &&
-    ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script', 'labels'].includes(c.id));
+    ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script',
+     'labels', 'script-rule', 'gate', 'honest'].includes(c.id));
 
   let server = null, browser = null, port = 0;
   if (needsBrowser) {
@@ -656,7 +842,8 @@ async function main() {
   let pass = 0, fail = 0;
   for (const c of CHECKS) {
     if (only && c.id !== only) continue;
-    const browserCheck = ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script', 'labels'].includes(c.id);
+    const browserCheck = ['opens', 'dayrule', 'report', 'keyboard', 'touch', 'readable', 'pack', 'script',
+     'labels', 'script-rule', 'gate', 'honest'].includes(c.id);
     let ctx = { C };
     if (browserCheck) ctx = Object.assign({ C }, await boot(browser, port));
     try {

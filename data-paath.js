@@ -90,6 +90,7 @@ window.IND_PAATH = {
     {
       id: 'hindi-zero', name: 'Hindi, from Zero', sub: 'Sounds to conversation',
       hours: 30, ages: [5, 12], badge: 'aaj', icon: 'script', colour: '#3D7DF0',
+      cover: 'art/banner/bhasha.jpg', coverAlt: 'The script, written large',
       premium: true, ready: 85,
       blurb: 'Start at the sound a letter makes and finish able to hold a short conversation ' +
              'with someone who has been waiting to have it with you.',
@@ -235,6 +236,7 @@ window.IND_PAATH = {
     {
       id: 'neeti-course', name: 'Neeti — Moral Science', sub: 'Twelve values, four traditions',
       hours: 24, ages: [6, 12], badge: 'katha', icon: 'star', colour: '#E4A11B',
+      cover: 'art/story/jt-banyan-deer.jpg', coverAlt: 'The banyan deer, from the Jataka',
       premium: false, ready: 70,
       blurb: 'The values your parents got from stories, taught the way they got them — one ' +
              'value, several traditions, and something to actually do about it this week.',
@@ -357,15 +359,16 @@ window.IND_PAATH = {
     {
       id: 'rishtey-course', name: 'Rishtey', sub: 'Who everyone is, and how to talk to them',
       hours: 21, ages: [4, 10], badge: 'aaj', icon: 'parent', colour: '#C0567E',
+      cover: 'art/story/it-jijabai-stories.jpg', coverAlt: 'Jijabai telling the stories',
       premium: false, ready: 60,
       blurb: 'English has "uncle". Indian families have eleven of them, and each one tells ' +
              'you exactly whose brother he is and which side he came from.',
-      why: 'docs/11 says build this first, and that nobody has done it. A diaspora child ' +
-           'who cannot name the relationship cannot enter the conversation — and the ' +
-           'conversation is where everything else in this app came from.',
-      note: 'Every term is given in several languages, because a Tamil child and a Bengali ' +
-            'child are not learning the same word for the same person, and pretending ' +
-            'otherwise is the failure docs/05 §8 exists to stop.',
+      why: 'A child who cannot name the relationship cannot enter the conversation — and ' +
+           'the conversation is where everything else in this app came from. Nobody else ' +
+           'teaches this, and it is the first thing a family abroad loses.',
+      note: 'Every term is given in several languages, because a Tamil child and a ' +
+            'Bengali child are not learning the same word for the same person, and this ' +
+            'app never pretends one of them is the Indian one.',
       modules: [
         { id: 'r1', name: 'The two sides of a family', hours: 3,
           objective: 'say whether someone is from your mother\'s side or your father\'s',
@@ -465,6 +468,7 @@ window.IND_PAATH = {
     {
       id: 'itihaas-course', name: 'The Story of India', sub: 'Harappa to now',
       hours: 30, ages: [8, 12], badge: 'itihaas', icon: 'chart', colour: '#7A6BD8',
+      cover: 'art/sabhyata/dholavira.jpg', coverAlt: 'Dholavira, in the first age',
       premium: true, ready: 55,
       blurb: 'Five thousand years, told as what the evidence actually shows — with a city ' +
              'of your own to run while you learn how cities worked.',
@@ -474,10 +478,13 @@ window.IND_PAATH = {
       note: 'This is the course where the editorial rules bite hardest. Everything here is ' +
             'badged Itihaas, which means sources[] on every claim. Where the evidence is ' +
             'contested the lesson says so rather than picking a side.',
-      needsReview: ['Module 8 (colonial rule) and module 9 (freedom and Partition) are ' +
-                    'drafted but will not publish without a named historian reviewing them. ' +
-                    'docs/05 §6 — Partition, communal conflict and colonial violence are for ' +
-                    'a human author with a named reviewer.'],
+      /* WRITTEN FOR THE FAMILY READING IT. These used to be notes to ourselves, with a
+         doc reference in them and half the sentence in capitals, printed on a parent's
+         screen and on the paper pack. The rule they carry is unchanged — the parts do
+         not publish — but a notice nobody can read is not a notice. */
+      needsReview: ['Two parts are not finished. Part 8, colonial rule, and part 9, ' +
+                    'freedom and Partition, are written — but a named historian has to ' +
+                    'read them before they are published here.'],
       modules: [
         { id: 'i1', name: 'The first cities', hours: 3,
           objective: 'say three things Harappan cities had that surprise people',
@@ -563,7 +570,7 @@ window.IND_PAATH = {
             made: 'a fort and the reason it works' } },
         { id: 'i8', name: 'Company and Crown', hours: 3,
           objective: 'explain how a trading company ended up governing',
-          needsReview: 'colonial economics and violence — named reviewer required',
+          needsReview: 'A named historian has not read this yet, so it is not finished.',
           lessons: [
             { k: 't', n: 'A company with an army', m: 25, o: 'say how a trader got soldiers', use: { it: ['colonial'] } },
             { k: 't', n: 'What left the country', m: 25, o: 'name what was taken and how it was counted', use: { it: ['colonial'] } },
@@ -575,7 +582,7 @@ window.IND_PAATH = {
             made: 'one commodity, followed all the way' } },
         { id: 'i9', name: 'Freedom', hours: 3,
           objective: 'explain that there was more than one way people fought for it',
-          needsReview: 'Partition — named reviewer required before publish',
+          needsReview: 'A named historian has not read this yet, so it is not finished.',
           lessons: [
             { k: 't', n: 'More than one road', m: 25, o: 'name three different approaches', use: { it: ['gandhi', 'bhagat', 'ambedkar'] } },
             { k: 't', n: 'The women', m: 25, o: 'name four and what each did', use: { it: ['lakshmibai', 'sarojini'] } },
@@ -612,13 +619,14 @@ window.IND_PAATH = {
     {
       id: 'bhugol-course', name: 'My India', sub: 'Every state, and why it is like that',
       hours: 21, ages: [6, 12], badge: 'itihaas', icon: 'map', colour: '#2F9E6E',
+      cover: 'art/banner/map.jpg', coverAlt: 'The map of India',
       premium: false, ready: 80,
       blurb: 'Not a list of capitals. Why the food changes when the rain changes, and why ' +
              'the rivers decided where everybody lives.',
       why: 'Geography is the one subject where a diaspora child is genuinely behind — they ' +
            'have never been rained on by a monsoon or seen the Deccan out of a train window.',
-      note: 'Boundaries here are the Survey of India depiction everywhere, for every user. ' +
-            'No boundary is ever animated, gamified or moved as a reward. docs/05.',
+      note: 'Boundaries here are the Survey of India depiction, everywhere, for every ' +
+            'user. No boundary is ever animated, gamified, or moved as a reward.',
       modules: [
         { id: 'b1', name: 'The shape of the place', hours: 3,
           objective: 'draw India from memory with the big features in roughly the right place',
@@ -711,6 +719,7 @@ window.IND_PAATH = {
     {
       id: 'epics-course', name: 'The Two Epics', sub: 'Ramayana and Mahabharata, as literature',
       hours: 30, ages: [7, 12], badge: 'katha', icon: 'tree', colour: '#D2691E',
+      cover: 'art/epic/ramayana-1-0.jpg', coverAlt: 'From the Ramayana',
       premium: true, ready: 85,
       blurb: 'The two long ones, read properly — including the awkward bits, and including ' +
              'the fact that there is no single version of either.',
@@ -846,6 +855,7 @@ window.IND_PAATH = {
     {
       id: 'utsav-course', name: 'The Indian Year', sub: 'Thirty-eight festivals, every faith',
       hours: 21, ages: [4, 10], badge: 'aaj', icon: 'star', colour: '#E4572E',
+      cover: 'art/story/fk-garba-lamp.jpg', coverAlt: 'A garba lamp',
       premium: false, ready: 75,
       blurb: 'A year of festivals — and the reason each one is when it is, which is almost ' +
              'always the harvest, the moon, or somebody arriving.',
@@ -947,6 +957,7 @@ window.IND_PAATH = {
     {
       id: 'geet-course', name: 'Songs and Sounds', sub: 'The rhymes everybody\'s mother sang',
       hours: 21, ages: [4, 9], badge: 'katha', icon: 'sound', colour: '#4FBF8B',
+      cover: 'art/story/jt-guttila-veena.jpg', coverAlt: 'Guttila and the veena',
       premium: false, ready: 75,
       blurb: 'Ninety-one songs, tongue twisters and counting rhymes — the ones that get into ' +
              'a child before they can read and stay for sixty years.',
@@ -1048,6 +1059,7 @@ window.IND_PAATH = {
     {
       id: 'vigyan-course', name: 'Vigyan', sub: 'Indian science, done not read',
       hours: 24, ages: [8, 12], badge: 'itihaas', icon: 'chart', colour: '#1F8A9E',
+      cover: 'art/story/sci-aryabhata.jpg', coverAlt: 'Aryabhata',
       premium: true, ready: 50,
       blurb: 'Zero, surgery, metallurgy, rockets — and every module ends with you actually ' +
              'building or measuring the thing.',
@@ -1056,8 +1068,9 @@ window.IND_PAATH = {
       note: 'Every claim here is badged Itihaas and carries its source. Where a popular claim ' +
             'is not well evidenced, the lesson says so — a course about evidence that is ' +
             'careless with evidence teaches the opposite of what it says.',
-      needsReview: ['Module 8 touches contested claims about ancient technology. A reviewer ' +
-                    'with a history-of-science background must sign it before publish.'],
+      needsReview: ['Part 8 is not finished. It touches claims about ancient technology ' +
+                    'that grown-ups still argue about, so somebody who works in the history ' +
+                    'of science has to read it before it is published here.'],
       modules: [
         { id: 'v1', name: 'Zero', hours: 3,
           objective: 'explain why a symbol for nothing was hard to invent',
@@ -1141,7 +1154,7 @@ window.IND_PAATH = {
             share: true } },
         { id: 'v8', name: 'How to know what is true', hours: 3,
           objective: 'tell a sourced claim from a confident one',
-          needsReview: 'contested claims about ancient technology — reviewer required',
+          needsReview: 'A historian of science has not read this yet, so it is not finished.',
           lessons: [
             { k: 't', n: 'Where a fact comes from', m: 25, o: 'name three kinds of source', use: {} },
             { k: 't', n: 'Claims that got ahead of the evidence', m: 25, o: 'give an example and say what is actually known', use: {} },
@@ -1179,6 +1192,7 @@ window.IND_PAATH = {
     {
       id: 'gita-course', name: 'Arjuna\'s Questions', sub: 'The Gita, as the questions a boy asks',
       hours: 42, ages: [9, 12], badge: 'dharma', icon: 'star', colour: '#8E6AC8',
+      cover: 'art/epic/mahabharata-26-3.jpg', coverAlt: 'The chariot between the armies',
       premium: true, ready: 40,
       blurb: 'A soldier puts his bow down between two armies and says he cannot do it. What ' +
              'his friend says back is the longest argument in Indian literature about doing ' +
@@ -1199,14 +1213,13 @@ window.IND_PAATH = {
       takeHome: 'verse cards with transliteration and attribution, a question to ask at the ' +
                 'table for every part, something to do at home for every part, and every ' +
                 'project brief with room to write on.',
-      needsReview: ['THIS COURSE DOES NOT PUBLISH WITHOUT A NAMED REVIEWER from within the ' +
-                    'tradition. docs/05 §6 — doctrinal content is for a human author with a ' +
-                    'named reviewer, and nothing here is an exception.',
-                    'ONLY FIVE GITA VERSES EXIST SOURCED IN THIS APP (2.47, 2.63, 6.5, 6.17, ' +
-                    '12.13) out of seven hundred. Part 13 tells the child this outright. ' +
-                    'Nothing in this file quotes, paraphrases-as-quotation or reconstructs a ' +
-                    'verse, and no chapter is named that this app cannot attribute. ' +
-                    'docs/21-gita.md carries the worklist for sourcing more.'],
+      needsReview: ['This course is not finished. A course about a text that people hold ' +
+                    'sacred is not published here until somebody from inside that tradition ' +
+                    'has read it and put their name to it, and nobody has yet.',
+                    'It is built on the five verses of the Gita this app can attribute — ' +
+                    '2.47, 2.63, 6.5, 6.17 and 12.13 — out of seven hundred, and part 13 ' +
+                    'tells your child that outright. Nothing here is a verse written from ' +
+                    'memory, and no chapter is named that this app cannot source.'],
       modules: [
         { id: 'q1', name: 'The war this interrupts', hours: 3,
           objective: 'say what is about to happen when the chariot stops',

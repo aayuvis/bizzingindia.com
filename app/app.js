@@ -5806,12 +5806,29 @@
         var ra2 = epicArt('ramayana', rn, rc);
         if (ra2) alts.push(ra2);
       }
+    } else if (kind === 'bg') {
+      /* a place on the map (data-bhugol.js, NCERT-sourced), and its own painting */
+      var bgf = null; (((window.IND_BHUGOL || {}).features) || []).forEach(function (x) { if (x.id === id) bgf = x; });
+      if (!bgf) return null;
+      name = bgf.n; sub = bgf.t || '';
+      src = (window.IND_BHUGOL_ART || []).indexOf(id) >= 0 ? 'art/bhugol/' + id + '.jpg' : null;
+      cap = src ? bgf.n : '';
     } else if (kind === 'state') {
       /* a state, by the name the geography data gives it, and its own painting */
       var gs = ((window.IND_GEO || {}).states || {})[id];
       if (!gs) return null;
       name = gs.name; sub = gs.capital || ''; src = stateArt(id); cap = src ? gs.name : '';
-    } else if (kind === 'mb') {
+    } else if (kind === 'na') {
+      /* an Ask-Nani question, addressed in the family's own word for the grandparent.
+         The Hindi line is shown only to a Hindi-speaking family: data-nani.js agrees its
+         verbs with the person asked, and a Tamil child is asking Paati, not Nani. */
+      var nq = null; (((window.IND_NANI || {}).questions) || []).forEach(function (x) { if (x.id === id) nq = x; });
+      if (!nq) return null;
+      var tg = tongue();
+      name = kinEn(nq);
+      sub = nq.to === 'any' ? 'Ask anyone at home' : 'Ask ' + kinTerm(nq.to);
+      if (!tg || tg.id === 'hi') { script = nq.hi; lang = nq.lang || 'hi'; }
+        } else if (kind === 'mb') {
       /* Mahabharata episodes are numbered, not id'd, and card 0 is the episode's plate */
       var n = Number(id), ep = null;
       ((window.IND_EPIC_MAHABHARATA || {}).episodes || []).forEach(function (x) { if (x.n === n) ep = x; });
@@ -5837,6 +5854,7 @@
         state: S.paath,
         save: save, go: go, toast: toast, icon: icon, esc: esc,
         look: paathLook,
+        card: paathCard,
         /* the child's own companion, for the pin they are standing at — the one piece
            of the atlas that is theirs rather than the course's */
         face: function (n) { return art(S.buddy || 'pt_tortoise', n); },
@@ -5864,6 +5882,118 @@
     if (!U) return V.paath();
     return U.lesson(arg);
   };
+  /* ------------------------------------------------- one corpus object, as a lesson card
+     THE LESSON PLAYS ITS CONTENT; IT DOES NOT SEND YOU AWAY TO FIND IT. A Paathshala stop
+     used to be a menu of links into other tabs, and a parent clicking through found 47 of
+     them ended on "Not found." — a historical figure sent to a page that only knows eras,
+     an epic episode handed to a page that wants an epic's name — and 74 stops with nothing
+     in them at all. tools/qc-paath.js walks every link now.
+
+     So the host hands the course engine everything a card needs, read straight off the
+     corpus: the picture, the thing in its own script, a few sentences of what it is, its
+     sound, and — as the one optional way out — a deep link that is known to land. The
+     body text is always the corpus's own words (a story's hook, an era's kid line, a
+     verse's child-level meaning), never written here. */
+  function paathCard(kind, id) {
+    var L = paathLook(kind, id);
+    if (!L) return null;
+    var c = { kind: kind, title: L.name, sub: L.sub, art: L.art, face: L.face, script: L.script,
+              lang: L.lang, body: '', audio: '', deep: null, extra: '' };
+    var find = function (list) { var f = null; (list || []).forEach(function (x) { if (x.id === id) f = x; }); return f; };
+    if (kind === 'st') {
+      var s = find(allStories());
+      c.body = (s && (s.hook || s.moral)) || '';
+      c.sub = s && s.place ? s.place : '';
+      c.deep = { v: 'story', arg: id, label: 'Read the whole story' };
+    } else if (kind === 'it') {
+      var eras = (window.IND_ITIHAAS || {}).eras || [], era = null, fig = null, holder = null;
+      eras.forEach(function (e) { if (e.id === id) era = e;
+        (e.figures || []).forEach(function (f) { if (f.id === id) { fig = f; holder = e; } }); });
+      if (era) { c.body = era.kid || era.hook || ''; c.art = eraArt(era); c.deep = { v: 'era', arg: era.id, label: 'Walk this age' }; }
+      /* A PERSON LIVES IN AN ERA — the link goes to the era they stand in, which is the
+         page that holds them. Sending the person's id to the era page was 30 dead ends. */
+      if (fig) { c.body = fig.line || ''; c.sub = holder.title + ' · ' + holder.when;
+                 c.face = art(fig.id, 96); c.art = null;
+                 c.deep = { v: 'era', arg: holder.id, label: 'Meet them in ' + holder.title }; }
+    } else if (kind === 'mb' || kind === 'ra') {
+      var E = kind === 'mb' ? window.IND_EPIC_MAHABHARATA : window.IND_EPIC_RAMAYANA, ep = null;
+      ((E || {}).episodes || []).forEach(function (x) { if (x.n === Number(id)) ep = x; });
+      c.body = (ep && ep.hook) || '';
+      var bk = null; ((E || {}).books || []).forEach(function (b) { if (ep && b.id === ep.book) bk = b; });
+      c.sub = bk ? bk.name : '';           /* the kind label already says which epic */
+      /* an EPISODE opens the episode deck, by the epic's own id and its number — the old
+         link handed the epic page a bare number, which was 10 more dead ends */
+      c.deep = { act: 'episode', id: kind === 'mb' ? 'mahabharata' : 'ramayana', n: Number(id),
+                 label: 'Watch the episode' };
+    } else if (kind === 'sh') {
+      var v = find((window.IND_SHLOK || {}).verses);
+      if (v) {
+        c.script = v.text_original || c.script; c.extra = v.translit || '';
+        c.body = v.meaning_kid || ''; c.audio = v.audio || '';
+        c.sub = v.source || c.sub;
+      }
+      c.deep = { v: 'shlok', label: 'Every verse on the shelf' };
+    } else if (kind === 'ge') {
+      var g = find(((window.IND_GEET || {}).songs || []).concat((window.IND_GEET || {}).bhajans || []));
+      c.body = (g && g.kid) || ''; c.audio = (g && g.audio) || '';
+      c.extra = g && g.words ? g.words.slice(0, 4).map(function (w) { return w.term + ' — ' + w.en; }).join(' · ') : '';
+      c.deep = { v: 'song', arg: id, label: 'Sing it' };
+    } else if (kind === 'ut') {
+      var f = find((window.IND_UTSAV || {}).festivals);
+      c.body = (f && f.kid) || '';
+      c.deep = { v: 'festival', arg: id, label: 'The whole festival' };
+    } else if (kind === 'va') {
+      var val = find((window.IND_NEETI || {}).values);
+      c.body = (val && val.kid) || '';
+      c.deep = { v: 'value', arg: id, label: 'The value card' };
+    } else if (kind === 'dh') {
+      var d = find((window.IND_DHARMA || {}).faiths);
+      c.body = (d && d.blurb) || '';
+      c.deep = { v: 'faith', arg: id, label: 'From the inside' };
+    } else if (kind === 'ri') {
+      /* the WORD is what this card teaches, so it is the heading — in the family's own
+         language where they chose one — and the English is the explanation under it */
+      var t = find((window.IND_RISHTEY || {}).terms);
+      var tgK = tongue(), said = t ? t.roman : '';
+      if (t && tgK && tgK.lang && t.also && t.also[tgK.lang])
+        said = String(t.also[tgK.lang]).split(' ').slice(1).join(' ') || said;
+      if (said) c.title = said.charAt(0).toUpperCase() + said.slice(1);
+      c.sub = t ? t.en : '';
+      c.body = t ? (t.side === 'p' ? 'On your father’s side.' : t.side === 'm'
+        ? 'On your mother’s side.' : '') : '';
+      /* the same person in the family's other languages, from the term's own record */
+      if (t && t.also) c.extra = Object.keys(t.also).map(function (k) { return t.also[k]; }).join(' · ');
+      c.deep = { v: 'rishtey', label: 'The whole family tree' };
+    } else if (kind === 'bg') {
+      /* a place on the map — NCERT-sourced (data-bhugol.js), each with its own painting */
+      var bf = null; (((window.IND_BHUGOL || {}).features) || []).forEach(function (x) { if (x.id === id) bf = x; });
+      c.body = (bf && bf.f) || '';
+      var ty = bf && ((window.IND_BHUGOL || {}).types || {})[bf.t];
+      var gs = bf && ((window.IND_GEO || {}).states || {})[bf.st];
+      c.sub = (ty ? ty.n : '') + (gs ? ' · ' + gs.name : '');
+      c.deep = bf && bf.st ? { v: 'state', arg: bf.st, label: 'Open ' + (gs ? gs.name : 'the state') } : null;
+    } else if (kind === 'na') {
+      var q2 = null; (((window.IND_NANI || {}).questions) || []).forEach(function (x) { if (x.id === id) q2 = x; });
+      c.plate = { t: q2 && q2.to !== 'any' ? kinTerm(q2.to) : '?' };
+      c.extra = L.script && q2 ? q2.roman : '';
+      c.body = q2 && q2.follow ? 'If the answer is short, ask: ' + q2.follow : '';
+      c.deep = { v: 'nani', label: 'Ask it, and keep the answer' };
+        } else if (kind === 'state') {
+      var g2 = ((window.IND_GEO || {}).states || {})[id];
+      c.body = (g2 && g2.fact) || '';
+      c.sub = g2 ? 'Capital: ' + g2.capital : '';
+      var sd = (window.IND_STATES || {})[id];
+      if (sd && sd.languages && sd.languages.length)
+        c.extra = 'Spoken: ' + sd.languages.slice(0, 3).join(', ');
+      c.deep = { v: 'state', arg: id, label: 'Open ' + (g2 ? g2.name : 'the state') };
+    }
+    /* "Hear it" only where there is something to hear. The songs are human voice or
+       nothing (V.song says so), and a button that plays silence teaches a child that
+       the button is broken — 51 of them did, before the QC walk pressed them. */
+    if (c.audio && !hasVoice(c.audio) && !(window.IND_VOICE_HUMAN && window.IND_VOICE_HUMAN[c.audio])) c.audio = '';
+    return c;
+  }
+
   /* which project the workshop is showing, resolved from the route rather than kept in a
      second place that can disagree with it */
   function karyaProject() {
@@ -6320,7 +6450,9 @@
                   game: 'khel', mela: 'khel', play: 'khel', rishtey: 'khel', rishquiz: 'khel',
                   nani: 'stories', shelf: 'stories', invite: 'stories', kahani: 'stories',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
-                  worlds: 'me', tongue: 'home', avcard: 'me' };
+                  worlds: 'me', tongue: 'home', avcard: 'me',
+                  /* a stop, a workshop and a take-home pack are all inside Paathshala */
+                  paathl: 'paath', paathk: 'paath', paathp: 'paath' };
     var cur = alias[view.name] || view.name;
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);

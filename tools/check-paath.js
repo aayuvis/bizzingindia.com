@@ -46,7 +46,8 @@ function corpus() {
   global.window = global.window || {};
   const need = ['data-shlok.js', 'data-neeti.js', 'data-dharma.js', 'data-utsav.js',
                 'data-rishtey.js', 'data-itihaas.js', 'data-geet.js',
-                'data-epic-mahabharata.js', 'data-paath.js'];
+                'data-epic-mahabharata.js', 'data-epic-ramayana.js', 'data-bhugol.js',
+                'data-geo.js', 'data-nani.js', 'data-paath.js'];
   need.forEach(f => require(path.join(APP, f)));
   const W = global.window;
   /* stories live across a dozen files and two epics; scrape their ids textually rather
@@ -76,6 +77,11 @@ function corpus() {
     /* Mahabharata episodes are numbered, not id'd, so `mb` holds numbers. The Gita
        course leans on episode 26, which is the conversation retold without quoting it. */
     mb: new Set(arr(W.IND_EPIC_MAHABHARATA, 'episodes').map(e => e.n)),
+    ra: new Set(arr(W.IND_EPIC_RAMAYANA, 'episodes').map(e => e.n)),
+    /* a place on the map (NCERT-sourced), a state by its map code, an Ask-Nani question */
+    bg: new Set(arr(W.IND_BHUGOL, 'features').map(f => f.id)),
+    state: new Set(Object.keys((W.IND_GEO || {}).states || {})),
+    na: new Set(arr(W.IND_NANI, 'questions').map(q => q.id)),
   };
 }
 
@@ -393,7 +399,7 @@ check('dayrule', 'a check taken the same day is practice, not learning', async (
     ls[0].click();
   });
   await p.waitForTimeout(400);
-  await p.evaluate(() => document.querySelector('[data-pa="course"]').click());
+  await p.evaluate(() => document.querySelector('.pl-x').click());   /* back to the map */
   await p.waitForTimeout(400);
   await p.evaluate(() => {
     const ls = document.querySelectorAll('#pa-part-n1 .pa-stop[data-pa="lesson"]');
@@ -630,19 +636,19 @@ check('readable', 'a locked course is said in words, never by fading', async ({ 
 
 check('labels', 'a child is never shown a database key', async ({ p }) => {
   /* The first lesson screen read `story: pt.talkative-tortoise →` — a row id, shown to an
-     eight-year-old, in a tab that owns 686 paintings. `api.look` in app.js now resolves
+     eight-year-old, in a tab that owns 686 paintings. `api.card` in app.js now resolves
      every reference to the thing's real title, its own script with the right lang on it,
      and its own painting where there is an honest one.
 
-     This renders EVERY lesson of every course through the real view function, strips the
-     markup, and looks for the ids in what is left — so an id in a `data-arg` attribute,
-     where it belongs, is fine and an id in front of a child is not. 352 lessons is one
-     pass of string work, and it is the whole surface rather than a sample. */
+     A stop plays one card at a time now, so this asks the engine for EVERY card a stop
+     can show (U.cards) and every practice question, strips the markup, and looks for the
+     ids in what is left — an id in a `data-arg` attribute, where it belongs, is fine and
+     an id in front of a child is not. */
   const r = await p.evaluate(() => {
     const P = window.IND_PAATH, U = window.IND_PAATH_UI;
     const box = document.createElement('div');
     const bad = [];
-    let refs = 0, lessons = 0, pics = 0;
+    let refs = 0, lessons = 0, pics = 0, cards = 0;
     P.courses.forEach(c => c.modules.forEach(m => m.lessons.forEach(l => {
       const ids = [];
       Object.entries(l.use || {}).forEach(([k, v]) => {
@@ -650,35 +656,42 @@ check('labels', 'a child is never shown a database key', async ({ p }) => {
       });
       if (!ids.length) return;
       lessons++; refs += ids.length;
-      box.innerHTML = U.lesson(c.id + '|' + m.id + '|' + l.n);
-      pics += box.querySelectorAll('.pa-usefig').length;
-      const words = box.textContent;
-      /* An id is often a slug of the very title it resolves to — the song `poshampa` is
-         called "Poshampa bhai poshampa", and this check found it on its first run. That
-         is the title doing its job, not a key on screen. So the fault is an id that
-         appears while the thing's own NAME does not contain it. */
-      const flat = x => String(x).toLowerCase().replace(/[^a-z0-9]/g, '');
-      ids.forEach(id => {
-        /* a one- or two-character id could appear inside an ordinary word; every id in
-           this corpus is longer than that, and a short one would need a different test */
-        if (id.length <= 3 || words.indexOf(id) < 0) return;
-        /* and it has to be a title that CONTAINS the slug, not a title that IS the slug —
-           otherwise a chip that went back to printing the row id would let itself off */
-        const named = [...box.querySelectorAll('.pa-use b, .pa-use i')].some(b => {
-          const t = flat(b.textContent);
-          return t.indexOf(flat(id)) >= 0 && t.length > flat(id).length;
+      const all = U.cards(c.id + '|' + m.id + '|' + l.n);
+      if (!all) { bad.push(`${c.id}/${m.id} "${l.n}" renders no cards`); return; }
+      const html = all.cards.concat(all.asks.map(a => a.html));
+      cards += html.length;
+      html.forEach(h => {
+        box.innerHTML = h;
+        if (box.querySelector('.pl-plate[style*="background-image"], .pl-plate.face')) pics++;
+        const words = box.textContent;
+        /* An id is often a slug of the very title it resolves to — the song `poshampa` is
+           called "Poshampa bhai poshampa". That is the title doing its job. So the fault is
+           an id on screen while the card's own heading does not contain it as part of a
+           longer name — a heading that IS the slug would let itself off. */
+        const flat = x => String(x).toLowerCase().replace(/[^a-z0-9]/g, '');
+        const rawHead = ((box.querySelector('h3') || {}).textContent || '').trim();
+        const head = flat(rawHead);
+        ids.forEach(id => {
+          /* a whole token, not a substring: "Chandragupta" is not the key `gupta`, and
+             "scholars" is not the key `chola` */
+          const esc = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          if (id.length <= 3 || !new RegExp('(^|[^A-Za-z0-9])' + esc + '($|[^A-Za-z0-9])').test(words)) return;
+          if (head.indexOf(flat(id)) >= 0 && head.length > flat(id).length) return;
+          /* a kinship word's id IS the word — `dada` is Dada. Set as a word (its own case)
+             it is the lesson; printed raw, exactly as the key, it is the old bug */
+          if (head === flat(id) && rawHead !== id) return;
+          bad.push(`${c.id}/${m.id} shows the id "${id}" as text`);
         });
-        if (!named) bad.push(`${c.id}/${m.id} shows the id "${id}" as text`);
       });
     })));
-    return { bad, refs, lessons, pics };
+    return { bad, refs, lessons, pics, cards };
   });
   if (!r.refs) throw new Error('no references rendered — this check would pass on an empty file');
   if (r.bad.length)
     throw new Error(`${r.bad.length} raw ids on screen: ` + r.bad.slice(0, 6).join('; '));
-  /* and the lesson screens must actually be showing pictures, not only better words */
-  if (r.pics < r.refs * 0.2)
-    throw new Error(`only ${r.pics} of ${r.refs} references render a picture — ` +
+  /* and the cards must actually be showing pictures, not only better words */
+  if (r.pics < r.cards * 0.5)
+    throw new Error(`only ${r.pics} of ${r.cards} cards show a picture — ` +
       'this app owns 686 paintings and the first version used none of them');
 });
 

@@ -476,34 +476,41 @@ async function main() {
     if (!stages.length) { deadEnds.push(`pack ${packId} has no stages`); continue; }
     for (const sid of stages) {
       where = `winnability ${packId}/${sid}`;
-      // enter through the real doors: Bhasha page -> pack tile (resets the quiz) -> stage node
+      // enter through the real doors: Bhasha page -> pack tile (resets the quiz) -> the rung.
+      // The path is rungs of units of lessons now (docs/09): a rung is entered through its
+      // lessons, and the whole-rung session is the Review / Another-round door. A LOCKED rung
+      // says so and offers its test-out (`.bh-tot`), which must unlock it.
       await page.evaluate(() => window.BI.go('bhasha'));
       await page.evaluate(p => { const b = document.querySelector(`[data-act="pack"][data-id="${p}"]`); if (b) b.click(); }, packId);
-      let opened = await page.evaluate(s => {
-        const b = document.querySelector(`[data-act="quiz"][data-s="${s}"]`); if (b) { b.click(); return true; } return false;
-      }, sid);
+      const locked = await page.evaluate(s => !!document.querySelector(`.bh-tot[data-act="testout"][data-s="${s}"]`), sid);
 
       // A LOCKED stage is still never a wall (Phase 2): the node must open the test-out
       // offer, and passing its six questions must unlock the stage for the ordinary walk.
-      if (!opened) {
+      if (locked) {
         where = `winnability ${packId}/${sid} (test-out)`;
-        const offered = await page.evaluate(s => {
-          const b = document.querySelector(`[data-act="testout"][data-s="${s}"]`); if (b) { b.click(); return true; } return false;
-        }, sid);
-        if (!offered) { deadEnds.push(`${where}: stage has neither a lesson nor a test-out button`); continue; }
+        await page.evaluate(s => document.querySelector(`.bh-tot[data-act="testout"][data-s="${s}"]`).click(), sid);
         const started = await page.evaluate(s => {
           const b = document.querySelector(`[data-act="totstart"][data-s="${s}"]`); if (b) { b.click(); return true; } return false;
         }, sid);
         if (!started) { deadEnds.push(`${where}: the offer card has no start button`); continue; }
         if (!await driveQuestions(6)) continue;
-        // six right of six unlocks: back through the pack page into the stage proper
+        // six right of six unlocks: back through the pack page, and the rung must be open
         where = `winnability ${packId}/${sid}`;
+        await page.evaluate(() => window.BI.go('bhasha'));
         await page.evaluate(p => { const b = document.querySelector(`[data-act="pack"][data-id="${p}"]`); if (b) b.click(); }, packId);
-        opened = await page.evaluate(s => {
-          const b = document.querySelector(`[data-act="quiz"][data-s="${s}"]`); if (b) { b.click(); return true; } return false;
-        }, sid);
-        if (!opened) { deadEnds.push(`${where}: passed the test-out but the stage stayed locked`); continue; }
+        const still = await page.evaluate(s => !!document.querySelector(`.bh-tot[data-act="testout"][data-s="${s}"]`), sid);
+        if (still) { deadEnds.push(`${where}: passed the test-out but the stage stayed locked`); continue; }
       }
+      // an open rung must offer a way in on its page — a lesson, a unit, or Review
+      const wayIn = await page.evaluate(() => !!document.querySelector('[data-act="blesson"], [data-act="bunit"], [data-act="quiz"]'));
+      if (!wayIn) { deadEnds.push(`${where}: an open rung with no way in`); continue; }
+      // and the whole rung, played as one session through the Review door, must be winnable
+      await page.evaluate(s => {
+        let b = document.querySelector(`[data-act="quiz"][data-s="${s}"]`);
+        if (!b) { b = document.createElement('button'); b.setAttribute('data-act', 'quiz'); b.setAttribute('data-s', s);
+                  document.querySelector('#main').appendChild(b); }
+        b.click();
+      }, sid);
 
       await driveQuestions(PER_STAGE);
     }

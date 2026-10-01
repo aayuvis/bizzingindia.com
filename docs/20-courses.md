@@ -8,7 +8,7 @@ app already holds. Built in [`app/data-paath.js`](../app/data-paath.js) (the cou
 ## 1. Why a course layer, when there is already a corpus
 
 Because **a corpus is not a curriculum**. This app holds 375 stories, 2,820 Hindi passages,
-91 songs, 46 sourced verses, 38 festivals, 34 historical anchors, 26 kinship terms, 12
+64 songs, 42 sourced verses, 38 festivals, 34 historical anchors, 26 kinship terms, 12
 values, four faiths, two epics and every state. A child can wander in it for a year and a
 parent still cannot answer *"what has she learned?"*
 
@@ -131,7 +131,7 @@ rules that get "simplified" by someone who finds them annoying.
 |---|---|
 | `shape` | hours = modules × 3; every course has a badge, an age band and sources |
 | `one-check` | every part ends with exactly one check, and has teaching before it |
-| `refs` | all 272 corpus references resolve — a dead one renders an empty screen |
+| `refs` | all 571 corpus references resolve — a dead one renders an empty screen |
 | `verses` | no course cites a verse this app cannot attribute |
 | `review` | nothing sensitive claims to be finished |
 | `projects` | every part leaves something behind, with a real brief |
@@ -145,7 +145,7 @@ rules that get "simplified" by someone who finds them annoying.
 | `script` | every verse is set in its own script, never Sanskrit by default |
 | `voice` | nothing on a family's screen is a note to ourselves — no shouting, no doc path |
 | `covers` | every course's picture is on disk and has an alt line (docs/05) |
-| `labels` | every reference of every lesson renders a title, never a database key |
+| `labels` | every card and every practice question of every stop renders a title, never a database key |
 | `tasks` | every workshop task is one the app can actually run |
 | `script-rule` | the orthography rule refuses the beginner mistakes and passes a real name |
 | `gate` | the project does not open before the test is passed |
@@ -368,6 +368,61 @@ Devanagari" while seven rendered in three scripts, because part 9 cites a Thiruk
 Dhammapada verse deliberately. A number written by hand beside a number produced by code
 disagrees eventually.
 
+## 4b. A stop is a run of cards — and every one of them has been clicked
+
+A parent reported: *"when I start clicking on Paathshala modules it ends with nothing
+found."* Every check above was green at the time. They proved references **resolved in the
+data**; none of them followed a link to the screen it opened. So `tools/qc-paath.js` does what
+the parent did — opens every stop of every course in a real browser, walks it to the end the
+way a child would, answers every practice question, takes the *Next* button at the end of each
+stop, and follows every link once — and records what is **on the screen**, not what the data
+says should be.
+
+Its first run: **47 links that ended in "Not found"** (every person in the history course,
+whose link handed a person's id to the page for an era; every epic episode, whose link
+handed a bare number to the epic page) and **74 stops with nothing in them at all** — most of
+Bhugol, Epics, Vigyan and Geet. Now: 352 stops, ~590 cards, ~150 practice questions, 174
+distinct links, ~1,500 clicks — **0 dead ends, 0 empty stops, 0 silent buttons, 0 page
+errors.** Three stops are honestly held (below).
+
+**A stop plays in place, one card at a time** — the Duolingo shape, the Bee/Finance frame:
+
+| | what it is |
+|---|---|
+| **the goal** | rides above the first card — *by the end you can…* — rather than costing a screen of its own |
+| **a card** | the thing's own painting (or face, or its word in its own script), its title, the corpus's own words about it, and one optional way out — *watch the episode*, *open Kerala*, *meet them in The Kings of the Sea* |
+| **done** | how it went, and **Next: the following stop** one tap away, whatever kind it is |
+
+Every card is built by the host from the corpus (`api.card` → `paathCard` in app.js); none of
+its words are written in the engine. **A practise stop is practice, not a slideshow**: with
+three or more pictured things it plays as a round — the picture, a clue, three names, then the
+card as the answer. The answer is never on screen (a clue that contains a word of the name is
+dropped; `qc-paath` caught 50 of 51 when the clue was sabotaged to print it), and the right
+answer's slot comes from a hash, never authoring order. None of it touches the mastery record.
+Keys: **1–3** answer, **Enter / →** go on, **←** back, **Esc** to the map.
+
+**What filling the 74 found**, all fixed at the source rather than papered over:
+
+- **The corpus has no tongue twisters.** The Geet course and its blurb said it did. Part 5 is
+  *Fast rhymes* now, built on the counting and clapping rhymes the app actually holds, across
+  five languages.
+- **South India has five states**, not four (Telangana, 2014). Part 5 of Bhugol said four.
+- **"64 songs", not 91; 42 sourced verses, not 46.** The numbers on the course and in this doc
+  were wrong.
+- **"Mysore, and the first war rockets"** had nothing sourced behind it. It is *Thumba, and the
+  first Indian rocket* now, on Vikram Sarabhai's story; Mysore needs a sourced story first.
+- **Sushruta (Vigyan part 4)** is a contested history-of-science claim with nothing in the
+  corpus. It carries `needsReview` like part 8, and its stops say a person is still checking
+  them instead of being filled with something nobody checked.
+- **Songs and verses have no recordings yet** (the song page says *human voice or nothing*).
+  51 "Hear it" buttons played silence. They appear now only where a clip exists.
+- **The people of the Rishtey course talk to their grandparents through Ask-Nani**: the course's
+  "what to ask someone old" stops now carry the app's own Ask-Nani questions, in the family's
+  word for the grandparent, with the Hindi line shown only to a Hindi-speaking family.
+
+`node tools/qc-paath.js` exits non-zero on any dead end, empty stop, wrong destination, answer
+on screen, silent button or page error. Run it before shipping anything that touches a course.
+
 ## 7. What is deliberately not done
 
 - **Entitlements are a label, not a gate.** `premium` shows a lock and sends the grown-up
@@ -387,5 +442,10 @@ disagrees eventually.
 3. **Run the Hindi course end to end with a real child** before building the second one.
    It is the deepest corpus and the likeliest to convert; whatever it teaches about pacing
    applies to the other nine.
-4. **The same ladder on a second language.** Bengali or Tamil, to prove the claim in §5
+4. **A sourced story for the Mysore rockets**, and a reviewer for Vigyan parts 4 and 8.
+5. **Record the songs.** Human voice or nothing; the player hides *Hear it* until there is one.
+6. **Give the app URL routes.** `go()` swaps the view in memory, so a phone's Back button
+   leaves the app instead of going back a card. The QC walk drives the engine directly for the
+   same reason.
+7. **The same ladder on a second language.** Bengali or Tamil, to prove the claim in §5
    that it is a data file and not a rewrite.

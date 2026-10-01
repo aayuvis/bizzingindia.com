@@ -200,7 +200,7 @@
     /* ---------- the chapter opener ---------- */
     '.pa-hero{position:relative;border-radius:4px;overflow:hidden;margin:0 0 10px;' +
       'background:var(--ground2);min-height:clamp(168px,21vw,238px);display:flex;align-items:flex-end}',
-    '.pa-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}',
+    '.pa-hero img{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover}',
     '.pa-scrim{position:relative;width:100%;padding:36px 22px 18px;' +
       'background:linear-gradient(to top,rgba(20,13,34,.94) 0%,rgba(20,13,34,.74) 46%,rgba(20,13,34,0) 100%);' +
       'color:#fff}',
@@ -306,12 +306,12 @@
     '.pa-board{position:relative;background:var(--ground2)}',
     /* the board's own painting ONLY — `.pa-board img` also caught the companion on the
        pin you are standing at and stretched it across the whole pin */
-    '.pa-board>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}',
+    '.pa-board>img{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;display:block}',
     /* the painting is a place, not a background to read over — so the veil only deepens
        it enough for white pins to hold, and leaves the picture a picture */
-    '.pa-boardveil{position:absolute;inset:0;background:' +
+    '.pa-boardveil{position:absolute;top:0;right:0;bottom:0;left:0;background:' +
       'radial-gradient(ellipse at center,rgba(20,13,34,.12) 0%,rgba(20,13,34,.46) 100%)}',
-    '.pa-route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;' +
+    '.pa-route{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;' +
       'filter:drop-shadow(0 1px 3px rgba(24,14,4,.55))}',
     '.pa-pin{position:absolute;transform:translate(-50%,-50%);display:grid;justify-items:center;' +
       'gap:5px;z-index:2;font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}',
@@ -370,7 +370,7 @@
     '.pa-actban.words .pa-actscrim{background:linear-gradient(90deg,rgba(14,22,26,.34) 0%,rgba(14,22,26,0) 55%)}',
     '@media (max-width:620px){.pa-actwords{right:64px;font-size:26px;gap:14px;max-width:55%}}',
     '.pa-actban:focus-visible{outline:3px solid #FFD24D;outline-offset:-3px}',
-    '.pa-actscrim{position:absolute;inset:0;background:linear-gradient(180deg,' +
+    '.pa-actscrim{position:absolute;top:0;right:0;bottom:0;left:0;background:linear-gradient(180deg,' +
       'rgba(14,22,26,.20) 0%,rgba(14,22,26,.30) 45%,rgba(14,22,26,.82) 100%)}',
     '.pa-actrow{position:absolute;left:16px;right:16px;bottom:12px;display:flex;align-items:flex-end;gap:12px}',
     '.pa-actno{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;' +
@@ -383,7 +383,7 @@
     '.pa-acttext i{font-style:normal;font:700 11.5px/1.3 var(--body);color:rgba(255,255,255,.9);' +
       'text-shadow:0 1px 4px rgba(0,0,0,.6);margin-top:3px;letter-spacing:.02em}',
     '.pa-ring{position:relative;display:inline-grid;place-items:center;flex:none}',
-    '.pa-ring svg{position:absolute;inset:0;width:100%;height:100%}',
+    '.pa-ring svg{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%}',
     '.pa-ring b{position:relative;font:800 11px/1 var(--display,Georgia,serif);color:#fff;' +
       'text-shadow:0 1px 3px rgba(0,0,0,.6)}',
 
@@ -444,6 +444,85 @@
       '.pa-actban{height:80px}.pa-act.open .pa-actban{height:116px}' +
       '.pa-acttext b{font-size:16px}.pa-railwrap{padding:12px 10px 14px}' +
       '.pa-atitle{align-items:flex-start}}',
+
+    /* ============================== THE LESSON PLAYER ==============================
+       One card at a time, a big picture, the thing in its own script, Next. The frame is
+       narrow on purpose — a card is something you look at, not a page you scan. */
+    '.pa-wrap.pl{max-width:720px;margin:0 auto}',
+    /* the head sits on paper: under it is the painted bazaar, and a breadcrumb set
+       straight on the bunting could not be read */
+    '.pl-head{display:flex;align-items:center;gap:10px 12px;margin:0 0 12px;flex-wrap:wrap;padding:8px 12px 10px;' +
+      'border-radius:18px;background:color-mix(in srgb,var(--card) 94%,transparent);box-shadow:0 1px 0 var(--line),0 6px 18px rgba(30,20,64,.06)}',
+    '.pl-x{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);' +
+      'background:var(--card);display:grid;place-items:center;cursor:pointer;color:var(--text2)}',
+    '.pl-x:hover{border-color:var(--accent);color:var(--accent)}',
+    '.pl-where{font:800 10.5px/1.3 var(--body);letter-spacing:.13em;text-transform:uppercase;' +
+      'color:var(--muted);flex:1;min-width:0}',
+    '.pl-segs{display:flex;gap:4px;width:100%}',
+    '.pl-segs i{flex:1;height:6px;border-radius:6px;background:var(--line)}',
+    '.pl-segs i.done{background:var(--ja)}',
+    '.pl-segs i.on{background:linear-gradient(90deg,var(--ja),#FFD24D)}',
+    '.pl-card{background:var(--card);border-radius:22px;overflow:hidden;' +
+      'box-shadow:0 0 0 1px var(--line),0 14px 34px rgba(12,30,34,.10)}',
+    '.pl-plate{height:clamp(190px,34vw,300px);background:var(--ground2) center/cover no-repeat}',
+    '.pl-plate.tall{height:clamp(210px,40vw,340px)}',
+    '.pl-plate.face{display:grid;place-items:center;' +
+      'background:linear-gradient(150deg,color-mix(in srgb,var(--ja) 30%,var(--card)),var(--card))}',
+    '.pl-plate.face img,.pl-plate.face svg{width:140px;height:140px}',
+    '.pl-plate.words{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:18px;' +
+      'padding:20px;color:#fff;font-size:clamp(34px,7vw,54px);line-height:1.7;text-align:center;' +
+      'background:linear-gradient(130deg,color-mix(in srgb,var(--ja) 90%,#1a1030),color-mix(in srgb,var(--ja) 55%,#140c24))}',
+    '.pl-body{padding:20px 22px 22px}',
+    '.pl-body.center{text-align:center}',
+    '.pl-kind{margin:0 0 6px;font:800 10.5px/1.3 var(--body);letter-spacing:.13em;text-transform:uppercase;color:var(--ja)}',
+    '.pl-body h2{font:800 clamp(24px,4vw,32px)/1.12 var(--display,Georgia,serif);margin:0 0 10px;letter-spacing:-.015em}',
+    '.pl-body h3{font:800 clamp(22px,3.6vw,28px)/1.15 var(--display,Georgia,serif);margin:0 0 8px}',
+    '.pl-goal{margin:0 0 10px;font-size:15px;line-height:1.55;color:var(--text2)}',
+    '.pl-goal b{color:var(--text)}',
+    '.pl-script{margin:0 0 6px;font-size:26px;line-height:1.75;color:var(--text);white-space:pre-line}',
+    '.pl-extra{margin:0 0 10px;font-size:13px;font-style:italic;color:var(--muted);white-space:pre-line}',
+    '.pl-text{margin:0 0 6px;font-size:16px;line-height:1.6;color:var(--text2)}',
+    '.pl-text.muted{font-size:13.5px;color:var(--muted)}',
+    '.pl-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}',
+    '.pl-acts.center{justify-content:center}',
+    '.pl-hear,.pl-deep{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:10px 16px;' +
+      'border-radius:999px;font:800 13px/1 var(--body);cursor:pointer;border:0}',
+    '.pl-hear{background:var(--ja);color:#fff}',
+    '.pl-deep{background:var(--card);color:var(--text);box-shadow:0 0 0 1px var(--line2)}',
+    '.pl-deep:hover{box-shadow:0 0 0 1px var(--accent);color:var(--accent)}',
+    /* the way on stays under the thumb: sticky, above the phone's tab bar */
+    '.pl-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:14px 0 0;' +
+      'position:sticky;bottom:12px;z-index:5}',
+    '@media (max-width:700px){.pl-nav{bottom:calc(76px + env(safe-area-inset-bottom))}}',
+    '.pl-card.ask .pl-plate{height:clamp(170px,26vw,240px)}',
+    '.pl-plate.words:not(.tall){height:clamp(110px,20vw,160px)}',
+    '.pl-nav .btn.primary{min-width:160px;justify-content:center}',
+    '.pl-tick{width:76px;height:76px;margin:6px auto 12px;border-radius:50%;display:grid;place-items:center;' +
+      'font:800 38px/1 var(--display,Georgia,serif);color:#4A2E00;' +
+      'background:linear-gradient(160deg,#FFD24D,#E0922E);box-shadow:0 6px 18px rgba(200,121,27,.35)}',
+    '.pl-card.done .pl-body{padding:28px 22px 26px}',
+    /* the stop's goal, riding above its first card instead of costing a screen */
+    '.pl-goalbar{display:flex;flex-direction:column;gap:2px;margin:0 0 12px;padding:12px 16px;border-radius:16px;' +
+      'background:color-mix(in srgb,var(--ja) 10%,var(--card));border:1px solid color-mix(in srgb,var(--ja) 28%,transparent)}',
+    '.pl-goalbar b{font:800 17px/1.25 var(--display,Georgia,serif)}',
+    '.pl-goalbar span{font-size:13.5px;line-height:1.45;color:var(--text2)}',
+    /* a practice question: the picture, a clue, three names */
+    '.pl-clue{margin:0 0 4px;font-size:14px;color:var(--muted)}',
+    '.pl-opts{display:grid;gap:10px;margin-top:14px}',
+    '.pl-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:12px 16px;text-align:left;' +
+      'border-radius:16px;border:2px solid var(--line2);background:var(--card);color:var(--text);' +
+      'font:700 16px/1.3 var(--body);cursor:pointer;box-shadow:0 3px 0 var(--line2)}',
+    '.pl-opt:hover,.pl-opt:focus-visible{border-color:var(--ja);outline:none}',
+    '.pl-opt:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line2)}',
+    '.pl-opt kbd{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;' +
+      'font:800 12px/1 var(--body);color:var(--muted);border:1px solid var(--line2);background:var(--ground2)}',
+    '.pl-verdict{margin:0 0 4px;font:800 13px/1.3 var(--body);letter-spacing:.08em;text-transform:uppercase}',
+    '.pl-card.ask.right{box-shadow:0 0 0 3px #2F9E6E}',
+    '.pl-card.ask.right .pl-verdict{color:#2F9E6E}',
+    '.pl-card.ask.wrong{box-shadow:0 0 0 3px #D9822B}',
+    '.pl-card.ask.wrong .pl-verdict{color:#B5651D}',
+    '@media (max-width:620px){.pl-body{padding:16px 15px 18px}.pl-text{font-size:15px}' +
+      '.pl-nav .btn.primary{flex:1}}',
 
     /* ---------- a lesson ---------- */
     '.pa-lesson{border-top:2px solid var(--text);padding:16px 0 0;margin-top:2px}',
@@ -1110,54 +1189,333 @@
   }
 
   /* ----------------------------------------------------------------- one lesson */
+  /* ================================================================ THE LESSON PLAYER
+     A STOP PLAYS. It used to be a menu: a lesson page listing links into other tabs,
+     which a child opened one at a time and came back from — and a parent clicking through
+     found 47 of those links ended on "Not found." and 74 stops had no links at all.
+     tools/qc-paath.js is the walk that found it.
+
+     So a stop is a short run of cards now, played right here, the Duolingo shape:
+
+       intro      the part's picture, the stop's name, what you can do by the end
+       a card     per thing the stop teaches — its painting, the thing in its own script,
+                  the corpus's own words about it, its sound — one at a time, with Next
+       done       and the NEXT STOP, one tap away, whatever kind it is
+
+     Every card is rendered from the corpus by the host (api.card); none of its words are
+     written here. The one way out of a card — "read the whole story", "watch the
+     episode" — is optional, and is a link the QC walk has followed and seen land. */
+
+  var playAt = {};       /* lesson key -> which card is showing */
+
+  function cardsOf(c, m, l) {
+    var out = [], seen = {};
+    Object.keys(l.use || {}).forEach(function (k) {
+      var v = l.use[k];
+      if (k === 'bh') { out.push({ kind: 'bh', n: v }); return; }
+      if (k === 'sa') { out.push({ kind: 'sa' }); return; }
+      if (!Array.isArray(v)) return;
+      v.forEach(function (id) {
+        if (seen[k + ':' + id]) return;
+        seen[k + ':' + id] = 1;
+        var card = api.card ? api.card(k, id) : null;
+        if (card) out.push(card);
+      });
+    });
+    return out;
+  }
+
+  function deepBtn(d) {
+    if (!d) return '';
+    if (d.act === 'episode')
+      return '<button class="pl-deep" data-act="episode" data-id="' + esc(d.id) + '" data-n="' + d.n + '">' +
+        esc(d.label) + ' →</button>';
+    return '<button class="pl-deep" data-act="go" data-v="' + esc(d.v) + '"' +
+      (d.arg ? ' data-arg="' + esc(d.arg) + '"' : '') + '>' + esc(d.label) + ' →</button>';
+  }
+
+  var KIND_LABEL = { st: 'A story', it: 'History', mb: 'The Mahabharata', ra: 'The Ramayana',
+                     sh: 'A verse', ge: 'A song', ut: 'A festival', va: 'A value', dh: 'A faith',
+                     ri: 'A family word', bg: 'A place', state: 'A state', na: 'Ask at home' };
+
+  function cardHTML(cd, c) {
+    if (cd.kind === 'bh') {
+      return '<div class="pl-card plain"><div class="pl-plate words"><span lang="hi">अ आ इ</span></div>' +
+        '<div class="pl-body"><p class="pl-kind">Practise</p><h3>' + cd.n + ' Bhasha exercises</h3>' +
+        '<p>This stop is practised in Bhasha, the language pillar — the same letters and words, ' +
+        'drilled until they are easy.</p>' +
+        '<button class="pl-deep" data-act="go" data-v="bhasha">Open Bhasha →</button></div></div>';
+    }
+    if (cd.kind === 'sa') {
+      return '<div class="pl-card"><div class="pl-plate" style="background-image:url(\'art/sabhyata/dholavira.jpg\')"></div>' +
+        '<div class="pl-body"><p class="pl-kind">Play</p><h3>Build a city in Sabhyata</h3>' +
+        '<p>This stop is played: grow the first cities and see what a city needs.</p>' +
+        '<button class="pl-deep" data-act="go" data-v="khel">Open Sabhyata →</button></div></div>';
+    }
+    var plate = plateOf(cd);
+    var showScript = cd.script && (cd.art || cd.face || cd.plate) && cd.script !== cd.title;
+    return '<div class="pl-card">' + plate +
+      '<div class="pl-body">' +
+        '<p class="pl-kind">' + esc(KIND_LABEL[cd.kind] || '') + (cd.sub ? ' · ' + esc(cd.sub) : '') + '</p>' +
+        '<h3>' + esc(cd.title) + '</h3>' +
+        (showScript || (cd.kind === 'sh' && cd.script)
+          ? '<p class="pl-script"' + (cd.lang ? ' lang="' + esc(cd.lang) + '"' : '') + '>' + esc(cd.script) + '</p>' : '') +
+        (cd.extra ? '<p class="pl-extra">' + esc(cd.extra) + '</p>' : '') +
+        (cd.body ? '<p class="pl-text">' + esc(cd.body) + '</p>' : '') +
+        '<div class="pl-acts">' +
+          (cd.audio ? '<button class="pl-hear" data-act="say" data-k="' + esc(cd.audio) + '">' +
+            api.icon('sound', 16) + ' Hear it</button>' : '') +
+          deepBtn(cd.deep) +
+        '</div>' +
+      '</div></div>';
+  }
+
+  /* the stop after this one, in the course's own walking order */
+  function nextStop(c, m, l) {
+    var st = stopsOf(c), here = -1;
+    st.list.forEach(function (s, i) { if (s.m.id === m.id && s.l && s.l.n === l.n) here = i; });
+    return here >= 0 ? st.list[here + 1] || null : null;
+  }
+  function stopBtn(c, s, cls, label) {
+    if (!s) return '';
+    if (s.kind === 'make') {
+      if (s.locked) return '<button class="' + cls + '" data-pa="part" data-id="' + esc(c.id) + '" data-m="' +
+        esc(s.m.id) + '">' + label + ' — back to the map</button>';
+      return W.IND_KARYA && W.IND_KARYA.has(s.m.project)
+        ? '<button class="' + cls + '" data-pa="karya" data-id="' + esc(c.id) + '" data-p="' + esc(s.m.project.id) + '">' +
+          label + ': ' + esc(s.m.project.name) + ' →</button>'
+        : '<button class="' + cls + '" data-pa="part" data-id="' + esc(c.id) + '" data-m="' + esc(s.m.id) + '">' +
+          label + ': ' + esc(s.m.project.name) + ' →</button>';
+    }
+    return '<button class="' + cls + '" data-pa="lesson" data-id="' + esc(c.id) + '" data-m="' + esc(s.m.id) +
+      '" data-l="' + esc(s.l.n) + '">' + label + ': ' + esc(s.l.n) + ' →</button>';
+  }
+
+  /* ------------------------------------------------------------------ practice rounds */
+  /* A PRACTISE STOP IS PRACTICE, NOT A SLIDESHOW. Paging through ten river paintings is
+     looking; being shown one and asked which it is, is practice. So a practise stop with
+     three or more pictured things plays as a round: the picture, a clue, three names, and
+     then the card's own words as the answer. Nothing here touches the mastery record —
+     ledger() is still the only door, and a practise round is not it.
+
+     Two rules from the family hold it honest:
+       - NEVER LEAK THE ANSWER. A card whose plate would print its own name, or whose clue
+         contains a word of its name, is not asked about, or is asked without the clue.
+       - POSITION NEVER LEAKS EITHER. The right answer's slot comes from a hash of the stop
+         and the question, not from authoring order (Finance found 11 of 12 answers in
+         slot B the first time anyone counted). */
+  var picked = {};       /* lesson key + '#' + question -> the option index tapped */
+  var ASK = { st: 'Which story is this?', it: 'Which is this?', mb: 'Which episode is this?',
+              ra: 'Which episode is this?', ge: 'Which song is this?', ut: 'Which festival is this?',
+              bg: 'Which place is this?', state: 'Which state is this?', sh: 'Which verse is this?',
+              dh: 'Which faith is this?', va: 'Which value is this?', ri: 'Who is this?' };
+  var PLAIN = /^(the|and|of|at|in|on|river|lake|falls|national|park|hills|range|valley|plateau|desert|coast|delta|source|glacier|who|a|an|to)$/i;
+  function hashOf(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function nameWords(t) {
+    return String(t || '').toLowerCase().replace(/[^a-zऀ-෿ ]/g, ' ').split(/\s+/)
+      .filter(function (w) { return w.length >= 4 && !PLAIN.test(w); });
+  }
+  function leaks(text, title) {
+    var low = String(text || '').toLowerCase();
+    return nameWords(title).some(function (w) { return low.indexOf(w) >= 0; });
+  }
+  /* a card can be asked about only if its picture is a picture */
+  function askable(cd) { return cd && cd.title && (cd.art || cd.face) && ASK[cd.kind]; }
+  function clueOf(cd) {
+    var c = cd.kind === 'state' ? cd.sub : cd.kind === 'bg' ? cd.sub : (cd.sub || '');
+    return c && !leaks(c, cd.title) ? c : '';
+  }
+  function roundOf(cards, key) {
+    var names = {}, pool = cards.filter(function (cd) {
+      if (!askable(cd) || names[cd.title]) return false;
+      return (names[cd.title] = true);
+    });
+    if (pool.length < 3) return null;           /* three different names, or it is not a question */
+    return pool.slice(0, 8).map(function (cd, i) {
+      var others = pool.filter(function (x) { return x !== cd; });
+      var h = hashOf(key + '#' + i);
+      var a = others[h % others.length], b = others[(h >>> 8) % others.length];
+      if (b === a) b = others[(others.indexOf(a) + 1) % others.length];
+      var opts = [cd.title, a.title, b.title];
+      var slot = (h >>> 16) % 3;                       /* where the right one sits */
+      var tmp = opts[slot]; opts[slot] = opts[0]; opts[0] = tmp;
+      return { card: cd, opts: opts, right: slot };
+    });
+  }
+  function plateOf(cd, tall) {
+    var t = tall ? ' tall' : '';
+    if (cd.art) return '<div class="pl-plate' + t + '" style="background-image:url(\'' + esc(cd.art) + '\')"></div>';
+    if (cd.face) return '<div class="pl-plate face' + t + '">' + cd.face + '</div>';
+    if (cd.plate) return '<div class="pl-plate words' + t + '"><span' + (cd.plate.lang ? ' lang="' + esc(cd.plate.lang) + '"' : '') +
+      '>' + esc(cd.plate.t) + '</span></div>';
+    if (cd.script) return '<div class="pl-plate words' + t + '"><span' + (cd.lang ? ' lang="' + esc(cd.lang) + '"' : '') + '>' +
+      esc(String(cd.script).split('\n')[0]) + '</span></div>';
+    return '<div class="pl-plate words' + t + '"><span>' + esc(cd.title) + '</span></div>';
+  }
+  function askHTML(q, key, i) {
+    var pk = key + '#' + i, got = picked[pk];
+    var cd = q.card, clue = clueOf(cd);
+    if (got === undefined) {
+      return '<div class="pl-card ask">' + plateOf(cd) +
+        '<div class="pl-body"><p class="pl-kind">Practise · ' + (i + 1) + '</p>' +
+        '<h3>' + esc(ASK[cd.kind]) + '</h3>' +
+        (clue ? '<p class="pl-clue">' + esc(clue) + '</p>' : '') +
+        '<div class="pl-opts" role="group" aria-label="Three answers">' +
+          q.opts.map(function (o, j) {
+            return '<button class="pl-opt" data-pa="ppick" data-k="' + esc(key) + '" data-q="' + i +
+              '" data-o="' + j + '"><kbd>' + (j + 1) + '</kbd>' + esc(o) + '</button>';
+          }).join('') +
+        '</div></div></div>';
+    }
+    var ok = got === q.right;
+    return '<div class="pl-card ask ' + (ok ? 'right' : 'wrong') + '">' + plateOf(cd) +
+      '<div class="pl-body"><p class="pl-verdict">' + (ok ? '✓ Yes' : 'Not that one — it is') + '</p>' +
+      '<h3>' + esc(cd.title) + '</h3>' +
+      (cd.body ? '<p class="pl-text">' + esc(cd.body) + '</p>' : '') +
+      '<div class="pl-acts">' + deepBtn(cd.deep) + '</div></div></div>';
+  }
+
   function lessonPage(cid, mid, name) {
     styles();
-    var c = get(cid), m = modOf(c, mid);
+    var c = get(cid), m = c && modOf(c, mid);
     var l = null;
-    m.lessons.forEach(function (x) { if (x.n === name) l = x; });
+    if (m) m.lessons.forEach(function (x) { if (x.n === name) l = x; });
     if (!l) return coursePage(cid);
     ledger.open(cid, lid(m, l));
-    var mi = 0; c.modules.forEach(function (x, i) { if (x.id === m.id) mi = i; });
-    var li = 0; m.lessons.forEach(function (x, i) { if (x.n === l.n) li = i; });
-    var K = l.k === 't' ? 'Learn' : l.k === 'p' ? 'Practise' : 'Check';
-    var body;
+    var mi = c.modules.indexOf(m);
+    var key = cid + '|' + mid + '|' + name;
+    var art = partArt(c, m);
+    var K = l.k === 't' ? 'Learn' : l.k === 'p' ? 'Practise' : 'Test';
+    var nx = nextStop(c, m, l);
+    var frame = '<div class="pa-wrap pl" style="--ja:' + esc(c.colour || '#8E6AC8') + '" data-k="' + esc(key) + '">';
+
+    var head = '<div class="pl-head">' +
+      '<button class="pl-x" data-pa="part" data-id="' + esc(cid) + '" data-m="' + esc(mid) + '" ' +
+        'aria-label="Back to the map">' + api.icon('back', 18) + '</button>' +
+      '<span class="pl-where">' + esc(c.name) + ' · part ' + (mi + 1) + ' · ' + K + '</span>';
+
+    /* THE TEST keeps its own screen — the day rule lives there — inside the same frame */
     if (l.k === 'c') {
       var r = course(cid), taught = 0;
       m.lessons.forEach(function (x) {
         if (x.k !== 'c' && r.seen[lid(m, x)]) taught = Math.max(taught, r.seen[lid(m, x)]);
       });
       var same = taught === today(), none = !taught;
-      body = '<p class="pa-lead">This is the check for <b>' + esc(m.objective) + '</b>.</p>' +
-        (none ? '<div class="pa-warn"><b>Do the learning parts first.</b>A check before the ' +
-                 'teaching is just a guess, and it will not count.</div>'
-              : same ? '<div class="pa-warn"><b>You learned this today.</b>Doing the check now ' +
-                       'is good practice, but it will not count as learned. Come back tomorrow ' +
-                       'or later in the week and it will — remembering an hour later is ' +
-                       'attention, remembering a week later is learning.</div>'
-              : '<p class="pa-lead">You learned this on an earlier day, so this one counts.</p>') +
-        '<button class="btn primary lg" data-pa="pass" data-id="' + esc(cid) + '" data-m="' +
-          esc(mid) + '"' + (none ? ' disabled' : '') + '>I can do it</button>';
-    } else {
-      body = (l.o ? '<p class="pa-lead">By the end of this you can <b>' + esc(l.o) +
-              '</b>.</p>' : '') +
-        '<p class="pa-lede2">Everything this part uses is below. Open each one, then come ' +
-        'back — the course is the order to meet them in, not a second copy of them.</p>' +
-        uses(l);
+      return frame + head + '</div>' +
+        '<div class="pl-card">' +
+          (art.src ? '<div class="pl-plate" style="background-image:url(\'' + esc(art.src) + '\')"></div>' : '') +
+          '<div class="pl-body"><p class="pl-kind">Test · ' + l.m + ' min</p>' +
+          '<h3>' + esc(l.n) + '</h3>' +
+          '<p class="pl-text">This is the test for <b>' + esc(m.objective) + '</b>.</p>' +
+          (none ? '<div class="pa-warn"><b>Do the learning parts first.</b>A test before the ' +
+                   'teaching is just a guess, and it will not count.</div>'
+                : same ? '<div class="pa-warn"><b>You learned this today.</b>Doing the test now ' +
+                         'is good practice, but it will not count as learned. Come back tomorrow ' +
+                         'or later in the week and it will — remembering an hour later is ' +
+                         'attention, remembering a week later is learning.</div>'
+                : '<p class="pl-text">You learned this on an earlier day, so this one counts.</p>') +
+          '<div class="pl-acts"><button class="btn primary lg" data-pa="pass" data-id="' + esc(cid) +
+            '" data-m="' + esc(mid) + '"' + (none ? ' disabled' : '') + '>I can do it</button></div>' +
+          '</div></div></div>';
     }
-    var next = m.lessons[li + 1];
-    return '<div class="pa-wrap">' +
-      '<button class="backlink" data-pa="course" data-id="' + esc(cid) + '">' +
-        api.icon('back', 18) + ' ' + esc(c.name) + '</button>' +
-      '<div class="pa-paper"><div class="pa-lesson">' +
-        '<p class="pa-kick">' + esc(c.name) + ' · Part ' + (mi + 1) + ' · ' + esc(m.name) + '</p>' +
-        '<h2>' + esc(l.n) + '</h2>' +
-        '<span class="pa-sub">' + K + ' · ' + l.m + ' minutes · lesson ' + (li + 1) +
-          ' of ' + m.lessons.length + '</span>' +
-        body +
-        (next ? '<div class="pa-next"><button class="btn" data-pa="lesson" data-id="' + esc(cid) +
-          '" data-m="' + esc(mid) + '" data-l="' + esc(next.n) + '">Next · ' +
-          esc(next.n) + ' →</button></div>' : '') +
-      '</div></div></div>';
+
+    var cards = cardsOf(c, m, l);
+    var round = l.k === 'p' ? roundOf(cards, key) : null;
+    var steps = round ? round.length : cards.length;
+    var total = Math.max(1, steps) + 1;                  /* the things, then done */
+    var at = Math.max(0, Math.min(total - 1, playAt[key] || 0));
+    var segs = '';
+    for (var i = 0; i < total; i++) segs += '<i class="' + (i < at ? 'done' : i === at ? 'on' : '') + '"></i>';
+    /* the stop's goal rides above the first card rather than costing a screen of its own */
+    var goal = at === 0 && steps ? '<div class="pl-goalbar"><b>' + esc(l.n) + '</b>' +
+      (l.o ? '<span>By the end you can ' + esc(l.o) + '.</span>' : '') + '</div>' : '';
+
+    var body, waiting = false;
+    if (!steps) {
+      /* nothing in the corpus for this stop yet. Say which kind of nothing it is. */
+      body = '<div class="pl-card">' + (art.src ? plateOf({ title: l.n, art: art.src }, true) : '') +
+        '<div class="pl-body"><p class="pl-kind">' + K + ' · ' + l.m + ' min</p>' +
+        '<h3>' + esc(l.n) + '</h3>' +
+        (l.o ? '<p class="pl-goal">By the end you can <b>' + esc(l.o) + '</b>.</p>' : '') +
+        (m.needsReview
+          ? '<div class="pa-warn"><b>A person is still checking this part.</b>' + esc(m.needsReview) +
+            ' Nothing goes here until they have, so this stop is honest-empty rather than ' +
+            'filled with something nobody checked.</div>'
+          : '<p class="pl-text">This one is done out loud: talk it through with a grown-up, ' +
+            'then carry on.</p>') +
+        '</div></div>';
+    } else if (at < steps) {
+      if (round) { body = askHTML(round[at], key, at); waiting = picked[key + '#' + at] === undefined; }
+      else body = cardHTML(cards[at], c);
+    } else {
+      /* done — and the next stop, one tap away */
+      var score = 0;
+      if (round) round.forEach(function (q, j) { if (picked[key + '#' + j] === q.right) score++; });
+      body = '<div class="pl-card done">' +
+        '<div class="pl-body center">' +
+          '<div class="pl-tick">✓</div>' +
+          '<h2>' + esc(l.n) + ' — done</h2>' +
+          '<p class="pl-text">' +
+            (round ? 'You got <b>' + score + ' of ' + round.length + '</b>. ' +
+                     (score < round.length ? 'Practice is for the ones you miss — come back and they get easier. ' : '')
+                   : cards.length ? 'You met ' + cards.length + ' new ' + (cards.length === 1 ? 'thing' : 'things') + '. ' : '') +
+            (l.o ? 'Can you ' + esc(l.o) + '? Say it to somebody.' : '') + '</p>' +
+          '<div class="pl-acts center">' +
+            stopBtn(c, nx, 'btn primary lg', 'Next') +
+            '<button class="btn ghost" data-pa="part" data-id="' + esc(cid) + '" data-m="' + esc(mid) + '">' +
+              'Back to the map</button>' +
+          '</div>' +
+        '</div></div>';
+    }
+
+    return frame + head + '<span class="pl-segs" aria-label="step ' + (at + 1) + ' of ' + total + '">' + segs + '</span></div>' +
+      goal + body +
+      (at < total - 1 && !waiting
+        ? '<div class="pl-nav">' +
+            (at > 0 ? '<button class="btn ghost" data-pa="pprev" data-k="' + esc(key) + '">← Back</button>'
+                    : '<span></span>') +
+            '<button class="btn primary lg" data-pa="pnext" data-k="' + esc(key) + '">' +
+              (at === total - 2 ? 'Finish' : round ? 'Continue' : 'Next') + ' →</button>' +
+          '</div>'
+        : '') +
+      '</div>';
+  }
+
+  /* every card a stop can show, as HTML — for the checks, which have to see all of them
+     and not only the one on screen */
+  function lessonCards(cid, mid, name) {
+    var c = get(cid), m = c && modOf(c, mid), l = null;
+    if (m) m.lessons.forEach(function (x) { if (x.n === name) l = x; });
+    if (!l) return null;
+    var key = cid + '|' + mid + '|' + name, cards = cardsOf(c, m, l);
+    var round = l.k === 'p' ? roundOf(cards, key) : null;
+    return { cards: cards.map(function (cd) { return cardHTML(cd, c); }),
+             asks: round ? round.map(function (q, i) {
+               var keep = picked[key + '#' + i]; delete picked[key + '#' + i];
+               var h = askHTML(q, key, i);
+               if (keep !== undefined) picked[key + '#' + i] = keep;
+               return { html: h, answer: q.card.title, opts: q.opts, right: q.right };
+             }) : [] };
+  }
+
+  /* the player's keys — every step can be walked without a mouse: 1-3 answer, Enter or →
+     goes on, ← goes back, Esc returns to the map */
+  var keysOn = false;
+  function keys() {
+    if (keysOn) return; keysOn = true;
+    D.addEventListener('keydown', function (e) {
+      var w = D.querySelector('.pa-wrap.pl');
+      if (!w || (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) return;
+      var b = null;
+      if (/^[1-3]$/.test(e.key)) b = w.querySelectorAll('.pl-opt')[Number(e.key) - 1];
+      else if (e.key === 'Enter' || e.key === 'ArrowRight') {
+        if (D.activeElement && D.activeElement.tagName === 'BUTTON' && e.key === 'Enter') return;
+        b = w.querySelector('[data-pa="pnext"]') || w.querySelector('.pl-card.done .btn.primary');
+      }
+      else if (e.key === 'ArrowLeft') b = w.querySelector('[data-pa="pprev"]');
+      else if (e.key === 'Escape') b = w.querySelector('.pl-x');
+      if (b && !b.disabled) { e.preventDefault(); b.click(); }
+    });
   }
 
   /* ------------------------------------------------------------------ the workshop */
@@ -1314,8 +1672,24 @@
     if (a === 'hub')    { api.go('paath'); return true; }
     if (a === 'course') { api.go('paath', el.getAttribute('data-id')); return true; }
     if (a === 'lesson') {
-      api.go('paathl', el.getAttribute('data-id') + '|' + el.getAttribute('data-m') +
-                       '|' + el.getAttribute('data-l'));
+      var lk = el.getAttribute('data-id') + '|' + el.getAttribute('data-m') + '|' + el.getAttribute('data-l');
+      playAt[lk] = 0;                                  /* a stop always starts at its first card */
+      Object.keys(picked).forEach(function (x) { if (x.indexOf(lk + '#') === 0) delete picked[x]; });
+      api.go('paathl', lk);
+      W.scrollTo && W.scrollTo(0, 0);
+      return true;
+    }
+    if (a === 'ppick') {
+      var qk = el.getAttribute('data-k'), qi = el.getAttribute('data-q');
+      if (picked[qk + '#' + qi] === undefined) picked[qk + '#' + qi] = Number(el.getAttribute('data-o'));
+      api.go('paathl', qk);
+      return true;
+    }
+    if (a === 'pnext' || a === 'pprev') {
+      var pk = el.getAttribute('data-k');
+      playAt[pk] = Math.max(0, (playAt[pk] || 0) + (a === 'pnext' ? 1 : -1));
+      api.go('paathl', pk);
+      W.scrollTo && W.scrollTo(0, 0);
       return true;
     }
     if (a === 'pack')  { api.go('paathp', el.getAttribute('data-id')); return true; }
@@ -1392,7 +1766,12 @@
     shelf: function () { return W.IND_KARYA ? W.IND_KARYA.shelf(P.courses) : { marked: [], kept: [] }; },
     lesson: function (arg) {
       var p = String(arg || '').split('|');
+      keys();
       return lessonPage(p[0], p[1], p.slice(2).join('|'));
+    },
+    cards: function (arg) {
+      var p = String(arg || '').split('|');
+      return lessonCards(p[0], p[1], p.slice(2).join('|'));
     },
     act: act,
     /* what the grown-ups page is allowed to show: objectives, never minutes */

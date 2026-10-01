@@ -1,7 +1,7 @@
 /* Bizzing India — Paathshala: the courses.
 
    WHY A COURSE LAYER AT ALL, when the app already holds 375 stories, 2,820 Hindi
-   passages, 91 songs, 46 sourced verses, 38 festivals and two epics: because a corpus
+   passages, 64 songs, 42 sourced verses, 38 festivals and two epics: because a corpus
    is not a curriculum. A child can wander this app for a year and a parent still cannot
    answer "what has she learned?". A course answers that, and it answers it the way
    Bizzing Finance's docs/05 says to — objectives, prerequisites, and ASSESSMENT KEPT
@@ -63,6 +63,9 @@
               ge  song ids (data-geet.js)           ut  festival ids (data-utsav.js)
               ri  kinship ids (data-rishtey.js)     it  era ids (data-itihaas.js)
               va  value ids (data-neeti.js)         dh  faith ids (data-dharma.js)
+              mb  Mahabharata episode numbers       ra  Ramayana episode numbers
+              bg  places (data-bhugol.js)           state  map codes (data-geo.js)
+              na  Ask-Nani questions (data-nani.js)
               bh  a count of Bhasha passages        sa  opens Sabhyata
 
    Every id in `use` is checked against the real corpus by tools/check-paath.js. A lesson
@@ -104,7 +107,7 @@ window.IND_PAATH = {
         { id: 'h1', name: 'The shape of the sound', hours: 3,
           objective: 'hear a Hindi sound and point to the letter that makes it',
           lessons: [
-            { k: 't', n: 'Why the line on top', m: 25, o: 'name the shirorekha and say what it joins', use: {} },
+            { k: 't', n: 'Why the line on top', m: 25, o: 'name the shirorekha and say what it joins', use: { bh: 10 } },
             { k: 't', n: 'The first ten letters', m: 25, o: 'read क through ञ aloud', use: { bh: 20 } },
             { k: 'p', n: 'Sound to shape', m: 20, o: 'match ten sounds to ten letters', use: { bh: 30 } },
             { k: 'c', n: 'A week later', m: 15, o: 'do it again cold, on a different screen', use: { bh: 20 } } ],
@@ -589,7 +592,7 @@ window.IND_PAATH = {
           objective: 'greet and address an elder the way your family expects',
           lessons: [
             { k: 't', n: 'Aap, always', m: 25, o: 'use the respectful form', use: { bh: 20 } },
-            { k: 't', n: 'What to ask someone old', m: 25, o: 'ask three questions worth asking', use: {} },
+            { k: 't', n: 'What to ask someone old', m: 25, o: 'ask three questions worth asking', use: { na: ['q.wanted-to-be', 'q.afraid-of', 'q.mothers-saying', 'q.learned-before-ten'] } },
             { k: 'p', n: 'Four exchanges', m: 20, o: 'run four openings', use: { bh: 20 } },
             { k: 'c', n: 'On the phone', m: 15, o: 'open a phone call properly', use: {} } ],
           project: { id: 'r6p', name: 'The phone call', m: 95,
@@ -607,8 +610,8 @@ window.IND_PAATH = {
         { id: 'r7', name: 'The whole tree', hours: 3,
           objective: 'explain your family to somebody who has never met them',
           lessons: [
-            { k: 't', n: 'Where everyone came from', m: 25, o: 'name the places your family is from', use: {} },
-            { k: 't', n: 'The one everyone tells stories about', m: 25, o: 'retell one family story', use: {} },
+            { k: 't', n: 'Where everyone came from', m: 25, o: 'name the places your family is from', use: { na: ['q.window', 'q.nearest-water', 'q.school-name', 'q.first-sea'] } },
+            { k: 't', n: 'The one everyone tells stories about', m: 25, o: 'retell one family story', use: { na: ['q.family-story', 'q.father-as-child', 'q.naughtiest'] } },
             { k: 'p', n: 'Walk the tree', m: 20, o: 'go from you to any relative naming each step', use: { ri: ['dada', 'nana', 'chacha', 'mama', 'bua', 'mausi'] } },
             { k: 'c', n: 'Explain it to a stranger', m: 15, o: 'describe your family in two minutes', use: {} } ],
           project: { id: 'r7p', name: 'The family tree, finished', m: 95,
@@ -901,9 +904,9 @@ window.IND_PAATH = {
         { id: 'b1', name: 'The shape of the place', hours: 3,
           objective: 'draw India from memory with the big features in roughly the right place',
           lessons: [
-            { k: 't', n: 'Mountains at the top, sea on three sides', m: 25, o: 'explain what that does to the weather', use: {} },
-            { k: 't', n: 'The Deccan', m: 25, o: 'say what a plateau is and why it is dry', use: {} },
-            { k: 'p', n: 'Place the features', m: 20, o: 'put ten features on a blank map', use: {} },
+            { k: 't', n: 'Mountains at the top, sea on three sides', m: 25, o: 'explain what that does to the weather', use: { bg: ['kangchenjunga-sk', 'gangotri-glacier-uk', 'western-ghats-sahyadri-mh', 'konkan-coast-mh', 'sundarbans-wb'] } },
+            { k: 't', n: 'The Deccan', m: 25, o: 'say what a plateau is and why it is dry', use: { bg: ['vindhya-range-mp', 'deccan-plateau-tg', 'western-ghats-sahyadri-mh', 'chotanagpur-plateau-jh'] } },
+            { k: 'p', n: 'Place the features', m: 20, o: 'put ten features on a blank map', use: { bg: ['kangchenjunga-sk', 'thar-desert-rj', 'great-rann-of-kutch-gj', 'deccan-plateau-tg', 'sundarbans-wb', 'chilika-lake-or', 'nilgiris-tn', 'brahmaputra-as', 'aravalli-range-rj', 'narmada-river-mp'] } },
             { k: 'c', n: 'From memory', m: 15, o: 'draw it without the map in front of you', use: {} } ],
           project: { id: 'b1p', name: 'The map from memory', m: 95,
             task: { k: "match",
@@ -920,9 +923,9 @@ window.IND_PAATH = {
         { id: 'b2', name: 'The rivers decided everything', hours: 3,
           objective: 'say why a city is where it is',
           lessons: [
-            { k: 't', n: 'Where the water goes', m: 25, o: 'trace five big rivers', use: {} },
+            { k: 't', n: 'Where the water goes', m: 25, o: 'trace five big rivers', use: { bg: ['gangotri-glacier-uk', 'ganga-at-patna-br', 'brahmaputra-as', 'narmada-river-mp', 'godavari-delta-ap', 'kaveri-delta-tn'] } },
             { k: 't', n: 'Why cities sit on rivers', m: 25, o: 'give three reasons', use: { it: ['harappa'] } },
-            { k: 'p', n: 'Which river', m: 20, o: 'match ten cities to their river', use: {} },
+            { k: 'p', n: 'Which river', m: 20, o: 'match ten cities to their river', use: { bg: ['yamuna-up-up', 'ganga-at-patna-br', 'gomti-river-up', 'hooghly-river-wb', 'indus-river-la', 'tungabhadra-ka', 'krishna-ap-ap', 'godavari-at-bhadrachalam-tg'] } },
             { k: 'c', n: 'A city you have not been taught', m: 15, o: 'predict its river', use: {} } ],
           project: { id: 'b2p', name: 'Follow one river', m: 95,
             task: { k: "order",
@@ -943,9 +946,9 @@ window.IND_PAATH = {
         { id: 'b3', name: 'The monsoon', hours: 3,
           objective: 'explain why the rain arrives when it does',
           lessons: [
-            { k: 't', n: 'The wind turns around', m: 25, o: 'explain the reversal', use: {} },
-            { k: 't', n: 'What a late monsoon does', m: 25, o: 'name three consequences', use: {} },
-            { k: 'p', n: 'Wet or dry', m: 20, o: 'predict rainfall from position', use: {} },
+            { k: 't', n: 'The wind turns around', m: 25, o: 'explain the reversal', use: { bg: ['western-ghats-sahyadri-mh', 'sohra-cherrapunji-ml', 'mawsynram-ml'] } },
+            { k: 't', n: 'What a late monsoon does', m: 25, o: 'name three consequences', use: { ge: ['ye-re-ye-re-pausa', 'aav-re-varsad'], bg: ['great-rann-of-kutch-gj', 'son-beel-as', 'kabartal-wetland-br'] } },
+            { k: 'p', n: 'Wet or dry', m: 20, o: 'predict rainfall from position', use: { bg: ['mawsynram-ml', 'thar-desert-rj', 'western-ghats-sahyadri-mh', 'spiti-valley-hp', 'vembanad-lake-kl', 'great-rann-of-kutch-gj'] } },
             { k: 'c', n: 'Explain it to someone', m: 15, o: 'teach the monsoon in two minutes', use: {} } ],
           project: { id: 'b3p', name: 'A month of weather', m: 95,
             task: { k: "writeOwn",
@@ -958,9 +961,9 @@ window.IND_PAATH = {
         { id: 'b4', name: 'The north', hours: 3,
           objective: 'say what the northern states share and where they differ',
           lessons: [
-            { k: 't', n: 'The plain', m: 25, o: 'explain why it feeds so many people', use: {} },
-            { k: 't', n: 'The mountain states', m: 25, o: 'name them and say what is different', use: {} },
-            { k: 'p', n: 'Place the states', m: 20, o: 'place all northern states', use: {} },
+            { k: 't', n: 'The plain', m: 25, o: 'explain why it feeds so many people', use: { bg: ['sutlej-plains-pb', 'yamuna-haryana-hr', 'ganga-at-patna-br', 'kabartal-wetland-br'] } },
+            { k: 't', n: 'The mountain states', m: 25, o: 'name them and say what is different', use: { state: ['JK', 'LA', 'HP', 'UK'] } },
+            { k: 'p', n: 'Place the states', m: 20, o: 'place all northern states', use: { state: ['JK', 'LA', 'HP', 'PB', 'HR', 'DL', 'UK', 'UP', 'BR'] } },
             { k: 'c', n: 'Cold placement', m: 15, o: 'do it a week later', use: {} } ],
           project: { id: 'b4p', name: 'A state dossier', m: 95,
             task: { k: "match",
@@ -975,11 +978,11 @@ window.IND_PAATH = {
                    'spoken, one festival, one dish, one person. Sources at the bottom.',
             made: 'a state, properly researched' } },
         { id: 'b5', name: 'The south', hours: 3,
-          objective: 'name the four southern states and one thing each is known for',
+          objective: 'name the five southern states and one thing each is known for',
           lessons: [
-            { k: 't', n: 'Four states, four languages', m: 25, o: 'match language to state', use: {} },
-            { k: 't', n: 'Coast, ghats, plateau', m: 25, o: 'explain the three bands', use: {} },
-            { k: 'p', n: 'Place and name', m: 20, o: 'place all four with capitals', use: {} },
+            { k: 't', n: 'Five states, four languages', m: 25, o: 'match language to state, and say which two share one', use: { state: ['TN', 'KL', 'KA', 'AP', 'TG'] } },
+            { k: 't', n: 'Coast, ghats, plateau', m: 25, o: 'explain the three bands', use: { bg: ['kovalam-kl', 'nilgiris-tn', 'eravikulam-kl', 'deccan-plateau-tg', 'jog-falls-ka'] } },
+            { k: 'p', n: 'Place and name', m: 20, o: 'place all five with capitals', use: { state: ['TN', 'KL', 'KA', 'AP', 'TG'] } },
             { k: 'c', n: 'Which is which', m: 15, o: 'identify from a description', use: {} } ],
           project: { id: 'b5p', name: 'A southern dossier', m: 95,
             task: { k: "match",
@@ -996,9 +999,9 @@ window.IND_PAATH = {
         { id: 'b6', name: 'The east and the north-east', hours: 3,
           objective: 'name the north-eastern states, which most people cannot',
           lessons: [
-            { k: 't', n: 'The eight', m: 25, o: 'name all eight', use: {} },
-            { k: 't', n: 'The wettest place on earth', m: 25, o: 'say where and why', use: {} },
-            { k: 'p', n: 'The hard eight', m: 20, o: 'place them correctly', use: {} },
+            { k: 't', n: 'The eight', m: 25, o: 'name all eight', use: { state: ['AR', 'AS', 'MN', 'ML', 'MZ', 'NL', 'SK', 'TR'] } },
+            { k: 't', n: 'The wettest place on earth', m: 25, o: 'say where and why', use: { bg: ['mawsynram-ml', 'sohra-cherrapunji-ml', 'living-root-bridges-ml'] } },
+            { k: 'p', n: 'The hard eight', m: 20, o: 'place them correctly', use: { state: ['AR', 'AS', 'MN', 'ML', 'MZ', 'NL', 'SK', 'TR'] } },
             { k: 'c', n: 'A week later', m: 15, o: 'still name all eight', use: {} } ],
           project: { id: 'b6p', name: 'The state nobody names', m: 95,
             task: { k: "match",
@@ -1015,9 +1018,9 @@ window.IND_PAATH = {
         { id: 'b7', name: 'The west, and the whole thing', hours: 3,
           objective: 'place every state and say one true thing about each',
           lessons: [
-            { k: 't', n: 'Desert and coast together', m: 25, o: 'explain the contrast', use: {} },
+            { k: 't', n: 'Desert and coast together', m: 25, o: 'explain the contrast', use: { bg: ['thar-desert-rj', 'great-rann-of-kutch-gj', 'konkan-coast-mh', 'dudhsagar-falls-ga'] } },
             { k: 't', n: 'Where the ports are', m: 25, o: 'say why trade went west', use: { it: ['harappa'] } },
-            { k: 'p', n: 'All of them', m: 20, o: 'place every state', use: {} },
+            { k: 'p', n: 'All of them', m: 20, o: 'place every state', use: { state: ['RJ', 'GJ', 'MH', 'GA', 'MP', 'CT', 'JH', 'OR', 'WB'] } },
             { k: 'c', n: 'The long check', m: 15, o: 'every state, cold', use: {} } ],
           project: { id: 'b7p', name: 'Where your family is from', m: 95,
             task: { k: "writeOwn",
@@ -1054,9 +1057,9 @@ window.IND_PAATH = {
         { id: 'e1', name: 'Why there is no one Ramayana', hours: 3,
           objective: 'name three tellings and one way they differ',
           lessons: [
-            { k: 't', n: 'Three hundred Ramayanas', m: 25, o: 'say why more than one exists', use: {} },
-            { k: 't', n: 'The same scene, two tellings', m: 25, o: 'compare one episode across two', use: {} },
-            { k: 'p', n: 'Which telling', m: 20, o: 'identify a telling from a detail', use: {} },
+            { k: 't', n: 'Three hundred Ramayanas', m: 25, o: 'say why more than one exists', use: { ra: [24, 10] } },
+            { k: 't', n: 'The same scene, two tellings', m: 25, o: 'compare one episode across two', use: { ra: [3, 14] } },
+            { k: 'p', n: 'Which telling', m: 20, o: 'identify a telling from a detail', use: { ra: [3, 10, 14, 20, 23] } },
             { k: 'c', n: 'Cold compare', m: 15, o: 'compare a scene you have not been shown', use: {} } ],
           project: { id: 'e1p', name: 'Ask which one your family knows', m: 95,
             task: { k: "order",
@@ -1078,7 +1081,7 @@ window.IND_PAATH = {
           objective: 'explain why Rama goes, in terms of the promise rather than the villain',
           lessons: [
             { k: 't', n: 'The boon called in', m: 25, o: 'explain what Kaikeyi is owed', use: { va: ['vachan'] } },
-            { k: 't', n: 'Nobody here is simple', m: 25, o: 'give one sympathetic reading of Kaikeyi', use: {} },
+            { k: 't', n: 'Nobody here is simple', m: 25, o: 'give one sympathetic reading of Kaikeyi', use: { ra: [5, 6] } },
             { k: 'p', n: 'Who owes what', m: 20, o: 'map the obligations', use: { va: ['vachan'] } },
             { k: 'c', n: 'Argue the other side', m: 15, o: 'defend the character you dislike', use: {} } ],
           project: { id: 'e2p', name: 'Kaikeyi\'s case', m: 95,
@@ -1100,9 +1103,9 @@ window.IND_PAATH = {
         { id: 'e3', name: 'The forest', hours: 3,
           objective: 'retell the middle of the Ramayana in the right order',
           lessons: [
-            { k: 't', n: 'Fourteen years', m: 25, o: 'say what exile actually involved', use: {} },
-            { k: 't', n: 'Shurpanakha, and what follows', m: 25, o: 'say honestly what happens and what it starts', use: {} },
-            { k: 'p', n: 'Order the forest', m: 20, o: 'sequence twelve events', use: {} },
+            { k: 't', n: 'Fourteen years', m: 25, o: 'say what exile actually involved', use: { ra: [7, 8, 9] } },
+            { k: 't', n: 'Shurpanakha, and what follows', m: 25, o: 'say honestly what happens and what it starts', use: { ra: [10, 11, 12] } },
+            { k: 'p', n: 'Order the forest', m: 20, o: 'sequence twelve events', use: { ra: [9, 10, 11, 12, 13, 14] } },
             { k: 'c', n: 'Retell it', m: 15, o: 'tell the middle in five minutes', use: {} } ],
           project: { id: 'e3p', name: 'Map the exile', m: 95,
             task: { k: "match",
@@ -1119,9 +1122,9 @@ window.IND_PAATH = {
         { id: 'e4', name: 'Hanuman', hours: 3,
           objective: 'say what Hanuman is for in the story, beyond the leaping',
           lessons: [
-            { k: 't', n: 'The one who is sent', m: 25, o: 'explain the role of a messenger', use: {} },
-            { k: 't', n: 'Not knowing your own strength', m: 25, o: 'say what the forgetting is about', use: {} },
-            { k: 'p', n: 'Whose line', m: 20, o: 'attribute ten lines', use: {} },
+            { k: 't', n: 'The one who is sent', m: 25, o: 'explain the role of a messenger', use: { ra: [15, 17] } },
+            { k: 't', n: 'Not knowing your own strength', m: 25, o: 'say what the forgetting is about', use: { ra: [16] } },
+            { k: 'p', n: 'Whose line', m: 20, o: 'attribute ten lines', use: { ra: [16, 17, 18, 19] } },
             { k: 'c', n: 'A new scene', m: 15, o: 'predict how he would act', use: {} } ],
           project: { id: 'e4p', name: 'Stage the leap', m: 95,
             task: { k: "order",
@@ -1143,9 +1146,9 @@ window.IND_PAATH = {
         { id: 'e5', name: 'Lanka, and coming home', hours: 3,
           objective: 'say what the ending costs, including the part that is uncomfortable',
           lessons: [
-            { k: 't', n: 'Ravana is not stupid', m: 25, o: 'name three things he is good at', use: {} },
-            { k: 't', n: 'The homecoming, and after', m: 25, o: 'say what happens to Sita and why people argue about it', use: {} },
-            { k: 'p', n: 'Order the end', m: 20, o: 'sequence the final act', use: {} },
+            { k: 't', n: 'Ravana is not stupid', m: 25, o: 'name three things he is good at', use: { ra: [19, 22] } },
+            { k: 't', n: 'The homecoming, and after', m: 25, o: 'say what happens to Sita and why people argue about it', use: { ra: [23, 24] } },
+            { k: 'p', n: 'Order the end', m: 20, o: 'sequence the final act', use: { ra: [19, 20, 21, 22, 23] } },
             { k: 'c', n: 'The whole arc', m: 15, o: 'tell the Ramayana in ten minutes', use: {} } ],
           project: { id: 'e5p', name: 'Write the ending you would give it', m: 95,
             task: { k: "order",
@@ -1167,7 +1170,7 @@ window.IND_PAATH = {
           objective: 'explain the quarrel the Mahabharata is actually about',
           lessons: [
             { k: 't', n: 'Who is who', m: 25, o: 'lay out the family', use: { ri: ['chacha', 'taya', 'bhaiya'] } },
-            { k: 't', n: 'The dice game', m: 25, o: 'say what is lost and in what order', use: {} },
+            { k: 't', n: 'The dice game', m: 25, o: 'say what is lost and in what order', use: { mb: [13, 14, 15] } },
             { k: 'p', n: 'The family tree', m: 20, o: 'build the Kuru tree', use: { ri: ['dada', 'chacha', 'bhaiya'] } },
             { k: 'c', n: 'Cold', m: 15, o: 'rebuild it a week later', use: {} } ],
           project: { id: 'e6p', name: 'The Kuru family tree', m: 95,
@@ -1185,9 +1188,9 @@ window.IND_PAATH = {
         { id: 'e7', name: 'Nobody is only good', hours: 3,
           objective: 'name one wrong thing done by a character you were told is good',
           lessons: [
-            { k: 't', n: 'Karna', m: 25, o: 'say why he is the hardest one', use: {} },
-            { k: 't', n: 'The teachers who fail', m: 25, o: 'say what Drona does to Eklavya', use: {} },
-            { k: 'p', n: 'Good, bad, or neither', m: 20, o: 'judge ten acts, not people', use: {} },
+            { k: 't', n: 'Karna', m: 25, o: 'say why he is the hardest one', use: { mb: [9, 18, 24, 30] } },
+            { k: 't', n: 'The teachers who fail', m: 25, o: 'say what Drona does to Eklavya', use: { mb: [8] } },
+            { k: 'p', n: 'Good, bad, or neither', m: 20, o: 'judge ten acts, not people', use: { mb: [8, 13, 27, 29, 30] } },
             { k: 'c', n: 'Your own reckoning', m: 15, o: 'rank four characters and defend it', use: {} } ],
           project: { id: 'e7p', name: 'Put someone on trial', m: 95,
             task: { k: "write",
@@ -1202,9 +1205,9 @@ window.IND_PAATH = {
         { id: 'e8', name: 'The war', hours: 3,
           objective: 'say what the epic thinks about its own war',
           lessons: [
-            { k: 't', n: 'Eighteen days', m: 25, o: 'name the turning points', use: {} },
-            { k: 't', n: 'The rules, and the breaking of them', m: 25, o: 'name three rules broken and by whom', use: {} },
-            { k: 'p', n: 'Order the war', m: 20, o: 'sequence the eighteen days', use: {} },
+            { k: 't', n: 'Eighteen days', m: 25, o: 'name the turning points', use: { mb: [25, 27, 28, 31] } },
+            { k: 't', n: 'The rules, and the breaking of them', m: 25, o: 'name three rules broken and by whom', use: { mb: [25, 28, 29, 30] } },
+            { k: 'p', n: 'Order the war', m: 20, o: 'sequence the eighteen days', use: { mb: [25, 27, 28, 29, 30, 31] } },
             { k: 'c', n: 'Who won what', m: 15, o: 'say what winning cost', use: {} } ],
           project: { id: 'e8p', name: 'Count the cost', m: 95,
             task: { k: "order",
@@ -1225,9 +1228,9 @@ window.IND_PAATH = {
         { id: 'e9', name: 'What the epics are for', hours: 3,
           objective: 'say what each epic is arguing about',
           lessons: [
-            { k: 't', n: 'One asks what a good man is', m: 25, o: 'state the Ramayana\'s question', use: {} },
-            { k: 't', n: 'The other asks what to do when everyone is wrong', m: 25, o: 'state the Mahabharata\'s question', use: {} },
-            { k: 'p', n: 'Which epic', m: 20, o: 'attribute ten dilemmas', use: {} },
+            { k: 't', n: 'One asks what a good man is', m: 25, o: 'state the Ramayana\'s question', use: { ra: [8, 22] } },
+            { k: 't', n: 'The other asks what to do when everyone is wrong', m: 25, o: 'state the Mahabharata\'s question', use: { mb: [14, 29, 33] } },
+            { k: 'p', n: 'Which epic', m: 20, o: 'attribute ten dilemmas', use: { ra: [6, 8, 22], mb: [14, 23, 33] } },
             { k: 'c', n: 'A dilemma of your own', m: 15, o: 'bring one and say which epic it belongs to', use: {} } ],
           project: { id: 'e9p', name: 'Your own dilemma', m: 95,
             task: { k: "order",
@@ -1248,9 +1251,9 @@ window.IND_PAATH = {
         { id: 'e10', name: 'Telling it yourself', hours: 3,
           objective: 'tell a whole episode well enough that someone listens',
           lessons: [
-            { k: 't', n: 'How a teller holds a room', m: 25, o: 'name three things good tellers do', use: {} },
-            { k: 't', n: 'Where to stop', m: 25, o: 'find the right place to end', use: {} },
-            { k: 'p', n: 'Tell three', m: 20, o: 'tell three short episodes', use: {} },
+            { k: 't', n: 'How a teller holds a room', m: 25, o: 'name three things good tellers do', use: { mb: [1], ra: [16] } },
+            { k: 't', n: 'Where to stop', m: 25, o: 'find the right place to end', use: { ra: [23, 24] } },
+            { k: 'p', n: 'Tell three', m: 20, o: 'tell three short episodes', use: { ra: [20], mb: [7, 11] } },
             { k: 'c', n: 'To a real audience', m: 15, o: 'tell one to someone who has not asked', use: {} } ],
           project: { id: 'e10p', name: 'Become the teller', m: 95,
             task: { k: "writeOwn",
@@ -1411,8 +1414,8 @@ window.IND_PAATH = {
         { id: 'u7', name: 'Your own year', hours: 3,
           objective: 'run a festival, properly, for your household',
           lessons: [
-            { k: 't', n: 'What a festival needs', m: 25, o: 'name the parts: food, people, a reason', use: {} },
-            { k: 't', n: 'Keeping it far from home', m: 25, o: 'say what changes in the diaspora', use: {} },
+            { k: 't', n: 'What a festival needs', m: 25, o: 'name the parts: food, people, a reason', use: { na: ['q.festival-job', 'q.once-a-year-sweet', 'q.festival-morning-smell'] } },
+            { k: 't', n: 'Keeping it far from home', m: 25, o: 'say what changes in the diaspora', use: { ut: ['chhath'], na: ['q.festival-sound'] } },
             { k: 'p', n: 'The whole year', m: 20, o: 'place all thirty-eight', use: { ut: ['lohri', 'holi', 'onam', 'diwali', 'eid-ul-fitr', 'christmas-india'] } },
             { k: 'c', n: 'The long check', m: 15, o: 'the full year, cold', use: {} } ],
           project: { id: 'u7p', name: 'The family festival calendar', m: 95,
@@ -1439,7 +1442,7 @@ window.IND_PAATH = {
       hours: 21, ages: [4, 9], badge: 'katha', icon: 'sound', colour: '#4FBF8B',
       cover: 'art/story/jt-guttila-veena.jpg', coverAlt: 'Guttila and the veena',
       premium: false, ready: 75,
-      blurb: 'Ninety-one songs, tongue twisters and counting rhymes — the ones that get into ' +
+      blurb: 'Sixty-four songs, lullabies and counting rhymes in a dozen languages — the ones that get into ' +
              'a child before they can read and stay for sixty years.',
       why: 'Song is how language enters a small child, and it is the single thing diaspora ' +
            'parents report losing first. You cannot teach a lullaby from a worksheet.',
@@ -1486,7 +1489,7 @@ window.IND_PAATH = {
           objective: 'sing one lullaby slowly enough to actually settle somebody',
           lessons: [
             { k: 't', n: 'Lalla lalla lori', m: 25, o: 'sing it at lullaby speed', use: { ge: ['lalla-lalla-lori'] } },
-            { k: 't', n: 'What a lullaby is doing', m: 25, o: 'say why they are all slow', use: {} },
+            { k: 't', n: 'What a lullaby is doing', m: 25, o: 'say why they are all slow', use: { ge: ['aararo-aariraro', 'omanathinkal-kidavo', 'khoka-ghumalo', 'gujarati-halardu'] } },
             { k: 'p', n: 'Slow it down', m: 20, o: 'sing the same song at three speeds', use: { ge: ['lalla-lalla-lori'] } },
             { k: 'c', n: 'From memory, slowly', m: 15, o: 'sing one right through', use: {} } ],
           project: { id: 'g3p', name: 'Ask for the one you were sung', m: 95,
@@ -1516,14 +1519,14 @@ window.IND_PAATH = {
             brief: 'The thirsty crow drops pebbles to raise the water. Do it — a jar, some ' +
                    'water, some stones. Measure how far it rises. The song was right.',
             made: 'a song, proved with a measuring jug' } },
-        { id: 'g5', name: 'Tongue twisters', hours: 3,
-          objective: 'say three twisters fast without falling over',
+        { id: 'g5', name: 'Fast rhymes', hours: 3,
+          objective: 'say three counting rhymes fast without falling over',
           lessons: [
-            { k: 't', n: 'Why they are hard', m: 25, o: 'say which sounds fight each other', use: {} },
-            { k: 't', n: 'Three to learn', m: 25, o: 'say three cleanly at slow speed', use: {} },
-            { k: 'p', n: 'Faster each time', m: 20, o: 'get through one at speed', use: {} },
+            { k: 't', n: 'Why they are hard', m: 25, o: 'say which sounds fight each other', use: { ge: ['akkad-bakkad', 'atkan-chatkan'] } },
+            { k: 't', n: 'Three to learn', m: 25, o: 'say three cleanly at slow speed', use: { ge: ['akkad-bakkad', 'adgulam-madgulam', 'telugu-counting-rhyme'] } },
+            { k: 'p', n: 'Faster each time', m: 20, o: 'get through one at speed', use: { ge: ['chal-mere-ghode', 'tai-tai-tai', 'kikli-kaleer-di'] } },
             { k: 'c', n: 'Under pressure', m: 15, o: 'do it in front of somebody', use: {} } ],
-          project: { id: 'g5p', name: 'The twister contest', m: 95,
+          project: { id: 'g5p', name: 'The fast-rhyme contest', m: 95,
             task: { k: "write",
                     title: "Write the word first",
                     clue: "to sing; a song",
@@ -1556,8 +1559,8 @@ window.IND_PAATH = {
           objective: 'sing one song in your family\'s language',
           lessons: [
             { k: 't', n: 'The same song, four languages', m: 25, o: 'hear one rhyme across languages', use: { ge: ['chanda-mama-door-ke'] } },
-            { k: 't', n: 'What your house sings', m: 25, o: 'name a song only your family sings', use: {} },
-            { k: 'p', n: 'Learn it properly', m: 20, o: 'get the words right', use: {} },
+            { k: 't', n: 'What your house sings', m: 25, o: 'name a song only your family sings', use: { na: ['q.song-you-know', 'q.lullaby', 'q.wedding-song'] } },
+            { k: 'p', n: 'Learn it properly', m: 20, o: 'get the words right', use: { ge: ['nila-nila-odi-va', 'chandamama-raave', 'aay-aay-chand-mama', 'odia-chanda-mamu'] } },
             { k: 'c', n: 'Sing it to them', m: 15, o: 'sing it back to whoever taught you', use: {} } ],
           project: { id: 'g7p', name: 'The family songbook', m: 95,
             task: { k: "writeOwn",
@@ -1574,7 +1577,7 @@ window.IND_PAATH = {
         { id: 'ga1', name: 'One song a week in the car', family: true,
           brief: 'One song a week, sung in the car or at bath time. Rotate who picks.' }
       ],
-      sources: ['data-geet.js — 91 songs, rhymes and twisters with recorded voices',
+      sources: ['data-geet.js — 54 songs and 10 bhajans, with recorded voices',
                 'data-tongue.js — the mother-tongue list this course leans on']
     },
 
@@ -1591,16 +1594,16 @@ window.IND_PAATH = {
       note: 'Every claim here is badged Itihaas and carries its source. Where a popular claim ' +
             'is not well evidenced, the lesson says so — a course about evidence that is ' +
             'careless with evidence teaches the opposite of what it says.',
-      needsReview: ['Part 8 is not finished. It touches claims about ancient technology ' +
+      needsReview: ['Parts 4 and 8 are not finished. They touch claims about ancient technology ' +
                     'that grown-ups still argue about, so somebody who works in the history ' +
-                    'of science has to read it before it is published here.'],
+                    'of science has to read them before they are published here.'],
       modules: [
         { id: 'v1', name: 'Zero', hours: 3,
           objective: 'explain why a symbol for nothing was hard to invent',
           lessons: [
             { k: 't', n: 'Counting without it', m: 25, o: 'try arithmetic in Roman numerals', use: { it: ['gupta'] } },
             { k: 't', n: 'Place value', m: 25, o: 'explain what the position does', use: { it: ['aryabhata'] } },
-            { k: 'p', n: 'Do it the hard way', m: 20, o: 'multiply without zero', use: {} },
+            { k: 'p', n: 'Do it the hard way', m: 20, o: 'multiply without zero', use: { st: ['sci-aryabhata'] } },
             { k: 'c', n: 'Explain it', m: 15, o: 'teach place value to somebody younger', use: {} } ],
           project: { id: 'v1p', name: 'Multiply like a Roman', m: 95,
             task: { k: "write",
@@ -1616,8 +1619,8 @@ window.IND_PAATH = {
           objective: 'measure something you cannot reach',
           lessons: [
             { k: 't', n: 'Aryabhata\'s claim', m: 25, o: 'say what he said and how he could tell', use: { it: ['aryabhata'] } },
-            { k: 't', n: 'Shadows as instruments', m: 25, o: 'explain how a shadow gives a height', use: {} },
-            { k: 'p', n: 'Similar triangles', m: 20, o: 'work a height from a shadow', use: {} },
+            { k: 't', n: 'Shadows as instruments', m: 25, o: 'explain how a shadow gives a height', use: { st: ['it.konark-chariot'] } },
+            { k: 'p', n: 'Similar triangles', m: 20, o: 'work a height from a shadow', use: { st: ['it.konark-chariot', 'sci-aryabhata'] } },
             { k: 'c', n: 'Something new', m: 15, o: 'measure a thing nobody set for you', use: {} } ],
           project: { id: 'v2p', name: 'Measure a building with a stick', m: 95,
             task: { k: "match",
@@ -1637,7 +1640,7 @@ window.IND_PAATH = {
           lessons: [
             { k: 't', n: 'The pillar', m: 25, o: 'say what it is and how old', use: { st: ['fk.iron-pillar'] } },
             { k: 't', n: 'Why iron rusts, and why that one does less', m: 25, o: 'give the chemical reason', use: { st: ['fk.iron-pillar'] } },
-            { k: 'p', n: 'Rust conditions', m: 20, o: 'predict which nail rusts first', use: {} },
+            { k: 'p', n: 'Rust conditions', m: 20, o: 'predict which nail rusts first', use: { st: ['fk.iron-pillar'], it: ['gupta'] } },
             { k: 'c', n: 'Explain the pillar', m: 15, o: 'explain it without hand-waving', use: {} } ],
           project: { id: 'v3p', name: 'The rust experiment', m: 95,
             task: { k: "order",
@@ -1657,6 +1660,7 @@ window.IND_PAATH = {
             made: 'a week of photographs and a conclusion' } },
         { id: 'v4', name: 'Surgery, long ago', hours: 3,
           objective: 'say what Sushruta described, and what the evidence for it is',
+          needsReview: 'A historian of science has not read this yet, so it is not finished.',
           lessons: [
             { k: 't', n: 'The compendium', m: 25, o: 'say what the text is and when it is dated', use: {} },
             { k: 't', n: 'What can be proved', m: 25, o: 'separate the text from the practice', use: {} },
@@ -1682,7 +1686,7 @@ window.IND_PAATH = {
           lessons: [
             { k: 't', n: 'Corbels and arches', m: 25, o: 'tell them apart', use: { it: ['temple-builders'] } },
             { k: 't', n: 'Water architecture', m: 25, o: 'say what a stepwell solves', use: { it: ['harappa'] } },
-            { k: 'p', n: 'Which will stand', m: 20, o: 'predict which structure holds', use: {} },
+            { k: 'p', n: 'Which will stand', m: 20, o: 'predict which structure holds', use: { it: ['temple-builders', 'sultanate-mughal', 'harappa'] } },
             { k: 'c', n: 'Build one', m: 15, o: 'build a corbelled arch that stands', use: {} } ],
           project: { id: 'v5p', name: 'Build an arch', m: 95,
             task: { k: "order",
@@ -1703,9 +1707,9 @@ window.IND_PAATH = {
         { id: 'v6', name: 'Rockets', hours: 3,
           objective: 'explain what makes a rocket go up',
           lessons: [
-            { k: 't', n: 'Mysore, and the first war rockets', m: 25, o: 'say what was new about them', use: {} },
+            { k: 't', n: 'Thumba, and the first Indian rocket', m: 25, o: 'say where India’s space programme began', use: { st: ['sci-sarabhai'] } },
             { k: 't', n: 'Kalam and the space programme', m: 25, o: 'name three Indian missions', use: { it: ['kalam', 'kalpana'] } },
-            { k: 'p', n: 'Action and reaction', m: 20, o: 'explain thrust properly', use: {} },
+            { k: 'p', n: 'Action and reaction', m: 20, o: 'explain thrust properly', use: { st: ['sci-tessy', 'sci-kalam'] } },
             { k: 'c', n: 'Predict a flight', m: 15, o: 'say which design flies further and why', use: {} } ],
           project: { id: 'v6p', name: 'Launch something', m: 95,
             task: { k: "order",
@@ -1726,8 +1730,8 @@ window.IND_PAATH = {
           objective: 'name three living Indian scientists and what they work on',
           lessons: [
             { k: 't', n: 'Not all of them are men', m: 25, o: 'name four women in Indian science', use: { it: ['kalpana'] } },
-            { k: 't', n: 'What a scientist actually does all day', m: 25, o: 'describe the boring 90%', use: {} },
-            { k: 'p', n: 'Match the field', m: 20, o: 'match ten people to their work', use: {} },
+            { k: 't', n: 'What a scientist actually does all day', m: 25, o: 'describe the boring 90%', use: { st: ['sci-salimali', 'sci-annamani', 'sci-janaki'] } },
+            { k: 'p', n: 'Match the field', m: 20, o: 'match ten people to their work', use: { st: ['sci-raman', 'sci-jcbose', 'sci-ramanujan', 'sci-bhabha', 'sci-swaminathan', 'sci-tessy'] } },
             { k: 'c', n: 'Find one yourself', m: 15, o: 'find a scientist nobody told you about', use: {} } ],
           project: { id: 'v7p', name: 'Write to a scientist', m: 95,
             task: { k: "writeOwn",
@@ -1742,9 +1746,9 @@ window.IND_PAATH = {
           objective: 'tell a sourced claim from a confident one',
           needsReview: 'A historian of science has not read this yet, so it is not finished.',
           lessons: [
-            { k: 't', n: 'Where a fact comes from', m: 25, o: 'name three kinds of source', use: {} },
-            { k: 't', n: 'Claims that got ahead of the evidence', m: 25, o: 'give an example and say what is actually known', use: {} },
-            { k: 'p', n: 'Sort twenty claims', m: 20, o: 'grade twenty by evidence', use: {} },
+            { k: 't', n: 'Where a fact comes from', m: 25, o: 'name three kinds of source', use: { st: ['fk.iron-pillar'], it: ['maurya', 'aryabhata'] } },
+            { k: 't', n: 'Claims that got ahead of the evidence', m: 25, o: 'give an example and say what is actually known', use: { it: ['harappa'] } },
+            { k: 'p', n: 'Sort twenty claims', m: 20, o: 'grade twenty by evidence', use: { it: ['harappa', 'maurya', 'gupta'], st: ['fk.iron-pillar', 'sci-aryabhata'] } },
             { k: 'c', n: 'The long check', m: 15, o: 'everything, cold', use: {} } ],
           project: { id: 'v8p', name: 'The science fair entry', m: 95,
             task: { k: "writeOwn",
@@ -1841,7 +1845,7 @@ window.IND_PAATH = {
           lessons: [
             { k: 't', n: 'He looks along the other side', m: 25, o: 'say what he sees that he had not seen', use: { mb: [26] } },
             { k: 't', n: 'This is not cowardice', m: 25, o: 'explain the difference', use: { mb: [26] } },
-            { k: 'p', n: 'Frightened or unwilling', m: 20, o: 'tell them apart in ten cases', use: {} },
+            { k: 'p', n: 'Frightened or unwilling', m: 20, o: 'tell them apart in ten cases', use: { mb: [21, 26] } },
             { k: 'c', n: 'State the problem', m: 15, o: 'state the dilemma in your own words', use: {} } ],
           project: { id: 'q2p', name: 'Your own impossible choice', m: 95,
             task: { k: "write",
@@ -2018,7 +2022,7 @@ window.IND_PAATH = {
           lessons: [
             { k: 't', n: 'A battlefield, or a person', m: 25, o: 'state both readings', use: { mb: [26] } },
             { k: 't', n: 'It has carried both for centuries', m: 25, o: 'say why neither killed the other', use: { mb: [26], sh: ['gita'] } },
-            { k: 'p', n: 'Whose reading', m: 20, o: 'attribute five readings', use: {} },
+            { k: 'p', n: 'Whose reading', m: 20, o: 'attribute five readings', use: { sh: ['gita-2-47', 'gita-6-5'] } },
             { k: 'c', n: 'Your own reading', m: 15, o: 'say which you find most honest and why', use: {} } ],
           project: { id: 'q11p', name: 'Ask three people', m: 95,
             task: { k: "writeOwn",

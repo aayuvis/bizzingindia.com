@@ -118,6 +118,10 @@ Gita module specifically. Four rules bind anyone touching them:
   program that does not know their name has been lied to.
 - **Nothing in the workshop touches the mastery record.** `ledger()` in `app/paath.js` is
   still the only door, and `karya.js` has no handle on it.
+- **A reference that resolves is not a link that works.** Every check was green while 47
+  links ended in "Not found" and 74 stops were empty. `tools/qc-paath.js` clicks through
+  every stop, question and link in a real browser and must exit 0. A stop with nothing in
+  the corpus to show is held for a reviewer and says so — never filled from memory.
 
 `tools/check-paath.js` holds all of it — hours = modules × 3, every corpus reference
 resolves, nothing sensitive claims to be finished, the project is gated, and the app's

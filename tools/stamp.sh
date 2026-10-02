@@ -25,6 +25,7 @@ sed -i -E "s/^var SW_BUILD = '[^']*';/var SW_BUILD = '${STAMP}';/" app/sw.js
 
 # The offline shell and the pack sizes follow the stamp: the service worker's core
 # list carries the fresh ?v= urls, and the advertised megabytes stay the truth.
+node tools/gen-shell-index.js
 node tools/gen-sw-precache.js
 node tools/gen-pack-manifest.js >/dev/null
 echo "stamped ?v=${STAMP}"

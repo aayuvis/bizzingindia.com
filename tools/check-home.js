@@ -142,6 +142,8 @@ check('onenext', 'Continue and #/continue open the same next thing, every time',
 });
 
 check('progress', 'rank, a bar and the map\'s own place count sit next to Continue', async ({ p }) => {
+  /* Home draws before the map group loads (docs/27); its count must still be the MAP's */
+  await p.evaluate(() => window.IND_LOAD && window.IND_LOAD(['map']));
   const m = await p.evaluate(() => {
     const w = document.querySelector('.hm-where'), c = document.querySelector('.contcard');
     const total = Object.keys((window.IND_MAP && window.IND_MAP.paths) || {}).length;

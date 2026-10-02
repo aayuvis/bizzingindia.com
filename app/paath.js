@@ -144,7 +144,7 @@
       '.pa-mast>.pa-tally{grid-column:2;grid-row:1/span 3;align-self:end;margin:0;' +
         'justify-content:flex-end}}',
     '.pa-kick{font:800 11px/1.4 var(--body);letter-spacing:.18em;text-transform:uppercase;' +
-      'color:var(--muted);margin:0 0 8px}',
+      'color:var(--text2);margin:0 0 8px}',
     '.pa-mast h2{font:800 clamp(30px,5vw,46px)/1.02 var(--display,Georgia,serif);' +
       'margin:0 0 8px;letter-spacing:-.015em}',
     '.pa-lead{color:var(--text2);margin:0;max-width:58ch;font-size:15px;line-height:1.6}',
@@ -185,7 +185,7 @@
     '.pa-badge{font:800 10.5px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;' +
       'padding:5px 9px;border-radius:999px;border:1px solid var(--line2);color:var(--text2);' +
       'background:var(--card2)}',
-    '.pa-badge.katha,.pa-badge.dharma{color:#a4671a;background:#fdf3e2;border-color:#f0dcb8}',
+    '.pa-badge.katha,.pa-badge.dharma{color:#7f4f10;background:#fdf3e2;border-color:#f0dcb8}',
     '.pa-badge.itihaas{color:#2a5b9e;background:#eaf1fb;border-color:#c9dcf2}',
     '.pa-badge.aaj{color:#1a7a54;background:#e7f6ef;border-color:#bfe6d5}',
     '.pa-bar{display:block;height:2px;background:var(--line);margin-top:12px;max-width:240px}',
@@ -206,7 +206,7 @@
       'color:#fff}',
     '.pa-scrim h2{font:800 clamp(27px,4.6vw,42px)/1.04 var(--display,Georgia,serif);' +
       'margin:0 0 6px;letter-spacing:-.02em;color:#fff}',
-    '.pa-scrim .pa-kick{color:rgba(255,255,255,.72);margin-bottom:6px}',
+    '.pa-scrim .pa-kick{color:rgba(255,255,255,.92);margin-bottom:6px;text-shadow:0 1px 3px rgba(0,0,0,.7)}',
     '.pa-scrim .pa-sub{color:#f3c98b;margin:0 0 8px}',
     '.pa-scrim p{margin:0;max-width:58ch;font-size:14px;line-height:1.55;color:rgba(255,255,255,.92)}',
     '.pa-credit{font:700 10.5px/1.4 var(--body);color:var(--muted);margin:0 0 20px;' +
@@ -288,8 +288,10 @@
        which is Bizzing Bee's Word Atlas: the same sizes, the same gold for what is
        walked, the same companion on the pin you are standing at. --ja is the course's
        own colour, the way each Finance world carries its tint. */
+    /* on paper, like every title in the app: on a world's backdrop its kicker read at 2:1 */
     '.pa-atitle{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;' +
-      'flex-wrap:wrap;margin:0 0 12px}',
+      'flex-wrap:wrap;margin:0 0 12px;padding:12px 16px;background:var(--card);' +
+      'border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}',
     '.pa-atitle h2{font:800 clamp(24px,3.6vw,34px)/1.08 var(--display,Georgia,serif);margin:0;' +
       'letter-spacing:-.015em}',
     '.pa-atools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}',
@@ -374,12 +376,14 @@
       'rgba(14,22,26,.20) 0%,rgba(14,22,26,.30) 45%,rgba(14,22,26,.82) 100%)}',
     '.pa-actrow{position:absolute;left:16px;right:16px;bottom:12px;display:flex;align-items:flex-end;gap:12px}',
     '.pa-actno{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;' +
-      'background:rgba(255,255,255,.92);color:var(--text);font:800 17px/1 var(--display,Georgia,serif);' +
+      'background:rgba(255,255,255,.92);color:#1d1a16;font:800 17px/1 var(--display,Georgia,serif);' +
       'box-shadow:0 3px 8px rgba(0,0,0,.35)}',
-    '.pa-act.here .pa-actno{background:var(--ja);color:#fff}',
+    /* the part you are on: a white disc ringed in the course colour — white on a light
+       course colour read at 2:1 (FIX-INDIA L5) */
+    '.pa-act.here .pa-actno{background:#fff;color:#1d1a16;box-shadow:0 0 0 3px var(--ja),0 3px 8px rgba(0,0,0,.35)}',
     '.pa-acttext{flex:1;min-width:0;display:grid}',
     '.pa-acttext b{font:800 18px/1.15 var(--display,Georgia,serif);color:#fff;' +
-      'text-shadow:0 2px 8px rgba(0,0,0,.6)}',
+      'text-shadow:0 1px 3px rgba(0,0,0,.85),0 2px 10px rgba(0,0,0,.6)}',
     '.pa-acttext i{font-style:normal;font:700 11.5px/1.3 var(--body);color:rgba(255,255,255,.9);' +
       'text-shadow:0 1px 4px rgba(0,0,0,.6);margin-top:3px;letter-spacing:.02em}',
     '.pa-ring{position:relative;display:inline-grid;place-items:center;flex:none}',
@@ -418,7 +422,7 @@
     '.pa-med.locked{background:var(--ground2)}',
     '.pa-stbody{display:grid;gap:2px;min-width:0}',
     '.pa-sttag{font:800 10px/1.3 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}',
-    '.pa-stop.cur .pa-sttag{color:var(--ja)}',
+    '.pa-stop.cur .pa-sttag{color:color-mix(in srgb,var(--ja) 55%,#000)}',
     '.pa-sttitle{font:600 15px/1.25 var(--display,Georgia,serif)}',
     '.pa-stop.cur .pa-sttitle{font-weight:800;font-size:17px}',
     '.pa-stop.passed .pa-sttitle{font-weight:700}',
@@ -1805,9 +1809,14 @@
     /* what the grown-ups page is allowed to show: objectives, never minutes */
     report: function () {
       return P.courses.map(function (c) {
-        var s = stats(c);
-        return { id: c.id, name: c.name, mastered: s.mastered, of: s.objectives, made: s.made };
-      }).filter(function (x) { return x.mastered || x.made; });
+        var s = stats(c), r = st.c[c.id] || { m: {} }, sp = st.c[c.id] ? stopsOf(c) : null, done = 0;
+        if (sp) sp.list.forEach(function (x) { if (x.done) done++; });
+        return { id: c.id, name: c.name, mastered: s.mastered, of: s.objectives, made: s.made,
+                 /* steps along the path, and each objective learned with the DAY its evidence came */
+                 stops: { done: done, of: sp ? sp.list.length : 0 },
+                 learned: c.modules.filter(function (m) { return (r.m[m.id] || {}).on; })
+                   .map(function (m) { return { what: m.objective || m.name, part: m.name, on: r.m[m.id].on }; }) };
+      }).filter(function (x) { return x.mastered || x.made || x.stops.done; });
     }
   };
 })(window, document);

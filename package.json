@@ -1,5 +1,10 @@
 {
   "devDependencies": {
     "playwright": "^1.62.1"
+  },
+  "scripts": {
+    "test": "bash tools/test.sh",
+    "test:full": "bash tools/test.sh --full",
+    "gate": "bash tools/gate.sh"
   }
 }

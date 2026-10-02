@@ -264,7 +264,7 @@
     Store.saveProfile(P);
     return P;
   }
-  var S = (window.IND_DEMO ? seedDemo() : null) || Store.loadProfile() || {
+  var S = Store.loadProfile() || {
     schemaVersion: 2, name: '', age: 8, mode: 'bade',
     tongue: null,                 /* mother-tongue id from data-tongue.js; null = lean nowhere */
     buddy: 'ganesha', world: 'delhi6',
@@ -308,6 +308,9 @@
      coins cannot move it, because none of them is in the count. */
   var RANK_AT = [0, 1, 3, 6, 10, 15, 21, 28];
   function mastered() {
+    /* the courses and the language engine are route groups now (loader.js): until they
+       are here, the count is the one last measured with them (S.grown, kept by checkGrowth) */
+    if (!window.IND_PAATH_UI || !window.IND_BHASHA || !window.IND_PACKS) return (S.grown && S.grown.m) || 0;
     var n = 0;
     try {
       var U = paathUI();
@@ -526,7 +529,18 @@
   /* Stories arrive one file at a time and the library only ever grows, so each source is
      folded in defensively — a file that has not loaded yet costs an empty array, not a
      crash. Add the next batch here and everywhere downstream picks it up. */
+  /* Until the `content` group has loaded (loader.js), the first screen reads the shell
+     index: one light row per story — id, title, hook, place, how many scenes — in the
+     same order, so the daily pick and Continue name the same story either way. */
+  var lightStories = null;
   function allStories() {
+    if (!window.IND_STORIES && window.IND_INDEX) {
+      if (!lightStories) lightStories = window.IND_INDEX.stories.map(function (r) {
+        return { id: r[0], title: r[1], hook: r[2], place: r[3] ? [r[3]] : [], collection: r[4],
+                 scenes: new Array(r[5]), minutes: r[6], badge: r[7], light: true };
+      });
+      return lightStories;
+    }
     return (window.IND_STORIES || [])
       .concat(window.IND_STORIES_REGIONAL || [])
       .concat(window.IND_STORIES_MORE || [])
@@ -620,7 +634,12 @@
      with what was last seen — once each, and never on the way down */
   function checkGrowth() {
     setTimeout(checkMedals, 0);
-    var g = S.grown || (S.grown = { m: 0, l: 0 }), m = mastered(), l = level(), out = { m: 0, l: false };
+    var out = { m: 0, l: false };
+    if (!window.IND_PAATH_UI || !window.IND_BHASHA || !window.IND_PACKS) return out;
+    /* growth is measured from the first time it CAN be measured: what a child already had
+       before this build is not news, and announcing it as new would be the feed's first lie */
+    if (!S.grown) { S.grown = { m: mastered(), l: level() }; save(); return out; }
+    var g = S.grown, m = mastered(), l = level();
     if (m > g.m) { out.m = m - g.m; milestone('mastery', m + ' thing' + (m === 1 ? '' : 's') + ' mastered'); g.m = m; }
     if (l > g.l) { out.l = true; milestone('band', 'Rank: ' + RANKS[l]); g.l = l; }
     if (out.m || out.l) save();
@@ -895,8 +914,8 @@
      undersells the thing and nobody notices. */
   V.landing = function () {
     var nStories = (allStories() || []).length;
-    var nPlaces = Object.keys((window.IND_MAP && window.IND_MAP.paths) || {}).length;
-    var nPacks = Object.keys(window.IND_PACKS || {}).length;
+    var nPlaces = nPlaces_();
+    var nPacks = Object.keys(window.IND_PACKS || {}).length || ((window.IND_INDEX && window.IND_INDEX.packs) || []).length;
     var nWorlds = ((window.IND_WORLDS && window.IND_WORLDS.list) || []).length;
     /* the same daily pick Home's Continue offers a new child (storyOfDay) */
     var pick = storyOfDay();
@@ -1326,8 +1345,10 @@
   function waysIn() {
     var heard = Object.keys(S.read).length, P = window.IND_PACKS || {};
     var started = Object.keys(S.lang || {}).filter(function (k) { return P[k] && (S.lang[k].correct || 0) > 0; }).length;
-    var U = paathUI(), courses = U ? (window.IND_PAATH.courses || []).length : 0;
-    var games = (window.IND_GAMES || []).length;
+    var X = window.IND_INDEX || {};
+    var courses = window.IND_PAATH ? (window.IND_PAATH.courses || []).length : (X.courses || []).length;
+    var games = (window.IND_GAMES || []).length || X.games || 0;
+    if (!Object.keys(P).length && X.packs) X.packs.forEach(function (r) { P[r[0]] = { name: { en: r[1] } }; });
     var vals = window.IND_NEETI ? window.IND_NEETI.values.length : 0;
     var W5 = [
       ['stories', 'tree', 'Stories', heard + ' of ' + allStories().length + ' heard'],
@@ -1964,9 +1985,9 @@
          there for anyone listening rather than looking, and the age's page
          carries them in full. */
       '<span class="tmrail"></span>' + dots +
-      '<span class="tmtick" style="left:3%">3300 BCE</span>' +
+      '<span class="tmtick tm-l" style="left:1.5%">3300 BCE</span>' +
       '<span class="tmtick" style="left:' + (3 + (0 - y0) / (y1 - y0) * 94).toFixed(1) + '%">year 0</span>' +
-      '<span class="tmtick" style="left:97%">today</span>' +
+      '<span class="tmtick tm-r" style="left:98.5%">today</span>' +
       '</div>';
   }
   function timeLens(id) {
@@ -2134,7 +2155,8 @@
        documented gaps — must still have names. A raw code on screen ("Today, from TG")
        reads as a bug because it is one. */
     var PENDING = { TG: 'Telangana', LA: 'Ladakh' };
-    return (G && G.states[c] && G.states[c].name) || PENDING[c] || c;
+    var X = window.IND_INDEX && window.IND_INDEX.names;
+    return (G && G.states[c] && G.states[c].name) || (X && X[c]) || PENDING[c] || c;
   }
 
   /* The facts on the callout. Deliberately the things a child repeats to someone else — the
@@ -2266,7 +2288,9 @@
     var labels = codes.map(function (c) {
       var a = M.anchors[c], b = bb[c];
       if (!a || !b || b[2] < 44 || b[3] < 26) return '';
-      return '<text class="tlab' + (S.lit[c] ? ' lit' : '') + '" x="' + a[0] + '" y="' + a[1] +
+      /* `big`: room for a name at phone size — on a phone only those keep a label, set large
+         enough to read (the rest are a tap away and carry a <title>) */
+      return '<text class="tlab' + (S.lit[c] ? ' lit' : '') + (b[2] >= 120 && b[3] >= 80 ? ' big' : '') + '" x="' + a[0] + '" y="' + a[1] +
         '">' + esc(stateName(c)) + '</text>';
     }).join('');
 
@@ -2603,8 +2627,8 @@
 
   function storyShelf(title, note, list, favs) {
     if (!list.length) return '';
-    return '<h3 style="margin:26px 0 4px">' + esc(title) + '</h3>' +
-      (note ? '<p class="tiny muted" style="margin:0 0 12px">' + esc(note) + '</p>' : '') +
+    return '<div class="shelfhead"><h3>' + esc(title) + '</h3>' +
+      (note ? '<p class="tiny">' + esc(note) + '</p>' : '') + '</div>' +
       '<div class="rail">' + list.map(function (x) { return storyCard(x, favs); }).join('') + '</div>';
   }
   function storyCard(x, favs) {
@@ -2715,9 +2739,8 @@
       shelf('Again', 'The ones you loved. A story is not used up.', loved) +
 
       /* the eight painted doors */
-      '<h3 style="margin:26px 0 4px">The shelves</h3>' +
-      '<p class="tiny muted" style="margin:0 0 12px">Eight rooms, every story in one of them. ' +
-      'Step in anywhere.</p>' +
+      '<div class="shelfhead"><h3>The shelves</h3>' +
+      '<p class="tiny">Eight rooms, every story in one of them. Step in anywhere.</p></div>' +
       '<div class="grid g2 doors">' + STORY_THEMES.map(function (t) {
         var list = themeStories(t, all);
         if (!list.length) return '';
@@ -3899,11 +3922,11 @@
       '<span style="flex:1 1 auto;min-width:0">' +
       '<b style="display:block;font-family:var(--display);font-size:15px">' + esc(label) + '</b>' +
       '<span class="tiny muted" style="display:block;margin-top:1px">' + esc(sub) + '</span></span>' +
-      '<span style="flex:0 0 auto;font-weight:800;color:' + (col || 'var(--accent)') + '">→</span></button>';
+      '<span aria-hidden="true" style="flex:0 0 auto;font-weight:800;color:' + (col || 'var(--accent)') + '">→</span></button>';
   }
   function neetiHub(title, intro, col, inner) {
     return '<section class="card" style="border-color:color-mix(in srgb,' + col + ' 34%,var(--line))">' +
-      '<div class="mono" style="color:' + col + '">' + esc(title) + '</div>' +
+      '<div class="mono" style="color:color-mix(in srgb,' + col + ' 58%,#000)">' + esc(title) + '</div>' +
       '<p class="tiny muted" style="margin:2px 0 11px">' + esc(intro) + '</p>' + inner + '</section>';
   }
 
@@ -4307,7 +4330,7 @@
                     : '<span class="badge price">🪙 ' + price + '</span>')) + '</div>' +
           '<div class="mono">' + esc(w.region) + '</div>' +
           '<p class="tiny" style="margin:8px 0 0">' + esc(w.note) + '</p>' +
-          (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent);font-weight:700">' +
+          (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent-ink,var(--accent));font-weight:700">' +
             (E && E.canAfford(S, price) ? 'Tap to open it with your coins'
                                         : 'Keep learning — ' + (price - coins()) + ' more coins') + '</p>') +
           '</button>';
@@ -5011,7 +5034,7 @@
       var s = r.stage, i = r.i;
       var isHere = here && here.stage.id === s.id;
       var head = '<div class="bh-rhead">' +
-        '<span class="bh-rno">' + (r.mastered ? '✓' : (i + 1)) + '</span>' +
+        '<span class="bh-rno" aria-hidden="true">' + (r.mastered ? '✓' : (i + 1)) + '</span>' +
         '<span class="bh-rtitle"><b>' + esc(s.name) + '</b>' +
           '<span>' + esc(s.outcome || '') + '</span></span>' +
         (r.unlocked ? '<span class="bh-rcount">' + r.done + ' / ' + r.total + '</span>' : '') +
@@ -5873,8 +5896,8 @@
     MELA_GROUPS.forEach(function (grp) {
       var list = grp[2].map(function (id) { used[id] = 1; return byId[id]; }).filter(Boolean);
       if (!list.length) return;
-      out += '<h3 style="margin:26px 0 4px">' + grp[0] + '</h3>' +
-        '<p class="tiny muted" style="margin:0 0 12px">' + grp[1] + '</p>' +
+      out += '<div class="shelfhead"><h3>' + grp[0] + '</h3>' +
+        '<p class="tiny">' + grp[1] + '</p></div>' +
         '<div class="grid g3 gshelf">' + list.map(cover).join('') + '</div>';
     });
     var rest = G.filter(function (g) { return !used[g.id] && !g.hide; });
@@ -6555,7 +6578,7 @@
                 : (open ? '<span class="badge">alive</span>'
                         : '<span class="badge price">🪙 ' + price + '</span>')) + '</div>' +
               '<div class="mono">' + esc(w.region) + '</div>' +
-              (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent);font-weight:700">' +
+              (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent-ink,var(--accent));font-weight:700">' +
                 (E && E.canAfford(S, price) ? 'Tap to open it'
                                             : (price - coins()) + ' more coins') + '</p>') +
               '</button>';
@@ -6615,25 +6638,103 @@
     if (pinHash(entered) === S.pin) { grownOpen = true; return render(); }
     toast('Not that one'); render();
   }
+  /* THE REPORT CARD, in the family's three measures (standard §7; FIX-INDIA M1, M2) — the
+     same everywhere so the Hive can merge them:
+       TIME      active minutes, from bizzing.activity — labelled as time, never as learning
+       PROGRESS  steps along the path: stories, places, course stops, language lessons
+       MASTERY   what the child can now do, from evidence, each with the day it was shown
+     window.IND_REPORT() returns the same object for the Hive to read. */
+  function ymdLocal(d) { var p2 = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function dayOf(n) { n = String(n || ''); return /^\d{8}$/.test(n) ? n.slice(0, 4) + '-' + n.slice(4, 6) + '-' + n.slice(6) : n; }
+  function minutesOf(name, days) {
+    var rows = [];
+    try { rows = (JSON.parse(Store.famGet('bizzing.activity') || '{}').s) || []; } catch (e) { rows = []; }
+    var from = ymdLocal(new Date(Date.now() - (days - 1) * 864e5)), who = String(name || '').trim(), m = 0, seen = {};
+    rows.forEach(function (r) { if (r.a === 'india' && r.who === who && r.d >= from && r.m > 0) { m += r.m; seen[r.d] = 1; } });
+    return { minutes: m, days: Object.keys(seen).length };
+  }
+  function reportOf() {
+    var U = null, rows = [];
+    try { U = paathUI(); if (U) rows = U.report() || []; } catch (e) { rows = []; }
+    var P = window.IND_PACKS || {}, langs = [], rungs = [];
+    Object.keys(P).forEach(function (id) {
+      if (!S.lang || !S.lang[id] || !window.IND_BHASHA) return;
+      var path = bPath(id), all = 0, dn = 0;
+      path.forEach(function (r) {
+        all += r.total; dn += r.done;
+        if (r.mastered) {
+          var key = id + ':' + r.stage.id, ev = S.evOn || (S.evOn = {});
+          if (!ev[key]) ev[key] = today();
+          rungs.push({ what: r.stage.outcome || r.stage.name, where: (P[id].name ? P[id].name.en : id) + ' · ' + r.stage.name, on: ev[key] });
+        }
+      });
+      if (dn) langs.push({ name: P[id].name ? P[id].name.en : id, done: dn, of: all });
+    });
+    var w = minutesOf(S.name, 7), mo = minutesOf(S.name, 28);
+    return {
+      app: 'india', child: S.name || '', at: today(),
+      time: { week: w.minutes, weekDays: w.days, month: mo.minutes },
+      progress: { stories: [Object.keys(S.read || {}).length, allStories().length],
+                  places: [Object.keys(S.lit || {}).length, nPlaces()],
+                  courses: rows.map(function (r) { return { name: r.name, done: r.stops.done, of: r.stops.of }; }),
+                  languages: langs },
+      mastery: [].concat(
+        rows.reduce(function (acc, r) { return acc.concat(r.learned.map(function (x) {
+          return { what: x.what, where: r.name + ' · ' + x.part, on: dayOf(x.on) }; })); }, []),
+        rungs),
+      medals: MEDALS.filter(function (m) { return (S.medals || {})[m.id]; }).map(function (m) { return { name: m.name, on: S.medals[m.id] }; }),
+      courses: rows
+    };
+  }
+  window.IND_REPORT = function () { return window.IND_DEMO ? null : reportOf(); };
   function reportCard() {
-    var U = window.IND_PAATH_UI, rows = [];
-    try { if (U && paathUI()) rows = U.report() || []; } catch (e) { rows = []; }
-    var lit = Object.keys(S.lit || {}).length, read = Object.keys(S.read || {}).length;
-    return '<div class="card"><h3 style="margin-top:0">What ' + esc(S.name || 'your child') + ' can do now</h3>' +
-      '<p class="tiny muted" style="margin-top:0">From evidence, never from minutes. A course objective counts only ' +
-        'when it was checked on a later day than it was taught.</p>' +
-      (rows.length
-        ? '<ul class="reportlist">' + rows.map(function (r) {
-            return '<li><b>' + esc(r.name) + '</b> — ' + r.mastered + ' of ' + r.of + ' objectives learned' +
-              (r.made ? ', ' + r.made + ' made' : '') + '</li>';
-          }).join('') + '</ul>'
-        : '<p>No course objective is learned yet. The first one counts when a test is passed on a ' +
-          'later day than its lesson.</p>') +
-      '<div class="row" style="margin-top:8px">' +
-        '<span class="pill stat">' + read + ' stories finished</span>' +
-        '<span class="pill stat">' + lit + ' places lit on the map</span>' +
-        (window.IND_PACKS ? '<button class="pill" data-act="go" data-v="bhasha">Bhasha: how it is going \u2192</button>' : '') +
-      '</div></div>';
+    var R = reportOf(), nm = esc(S.name || 'your child');
+    var bar = function (a, b) { return '<div class="meter"><i style="width:' + Math.round(a / Math.max(1, b) * 100) + '%"></i></div>'; };
+    return '<div class="reportgrid">' +
+      /* TIME — said for what it is */
+      '<div class="card rc-time"><span class="mono">Time</span><h3>This week</h3>' +
+        '<p class="rc-big">' + R.time.week + '<small> active min</small></p>' +
+        '<p class="tiny muted">on ' + R.time.weekDays + ' day' + (R.time.weekDays === 1 ? '' : 's') + ' · ' + R.time.month +
+          ' in the last four weeks. Active means in use, not just open. Time is not learning — it is here so ' +
+          'you can see the shape of the week.</p></div>' +
+      /* PROGRESS — steps along the path */
+      '<div class="card rc-progress"><span class="mono">Progress</span><h3>Along the path</h3>' +
+        '<div class="rc-row"><span>Stories finished</span><b>' + R.progress.stories[0] + ' / ' + R.progress.stories[1] + '</b></div>' +
+        '<div class="rc-row"><span>Places lit</span><b>' + R.progress.places[0] + ' / ' + R.progress.places[1] + '</b></div>' +
+        bar(R.progress.places[0], R.progress.places[1]) +
+        R.progress.courses.map(function (c) {
+          return '<div class="rc-row"><span>' + esc(c.name) + '</span><b>stop ' + c.done + ' / ' + c.of + '</b></div>' + bar(c.done, c.of);
+        }).join('') +
+        R.progress.languages.map(function (l) {
+          return '<div class="rc-row"><span>' + esc(l.name) + '</span><b>' + l.done + ' / ' + l.of + ' lessons</b></div>' + bar(l.done, l.of);
+        }).join('') + '</div>' +
+      /* MASTERY — what the child can now do, with the day of the evidence */
+      '<div class="card rc-mastery"><span class="mono">Mastery</span><h3>What ' + nm + ' can do now</h3>' +
+        '<p class="tiny muted" style="margin-top:0">From evidence. A course objective counts only when its test was passed ' +
+          'on a later day than its lesson; a language rung when its words keep coming back right.</p>' +
+        (R.mastery.length
+          ? '<ul class="reportlist">' + R.mastery.map(function (x) {
+              return '<li><b>' + esc(x.what) + '</b><span class="tiny muted">' + esc(x.where) + ' · shown ' + esc(x.on) + '</span></li>';
+            }).join('') + '</ul>'
+          : '<p>Nothing is mastered yet. The first course objective counts when its test is passed on a later day ' +
+            'than its lesson; the first language rung when its words keep coming back right.</p>') +
+        (R.courses.length ? '<p class="tiny muted">' + R.courses.map(function (r) {
+            return esc(r.name) + ': ' + r.mastered + ' of ' + r.of + ' objectives' + (r.made ? ', ' + r.made + ' made' : '');
+          }).join(' · ') + '</p>' : '') +
+        (R.medals.length ? '<p class="tiny">Medals: ' + R.medals.map(function (m) { return esc(m.name); }).join(' · ') + '</p>' : '') +
+        (window.IND_PACKS ? '<button class="pill" data-act="go" data-v="bhasha">Bhasha: the full picture →</button>' : '') +
+      '</div></div>' +
+      /* the household at a glance */
+      (Store.kids().length > 1
+        ? '<div class="card"><h3 style="margin-top:0">The household this week</h3><div class="kidlist">' +
+          Store.kids().map(function (k) {
+            var pr = Store.loadProfile(k.id) || {}, t2 = minutesOf(k.name, 7);
+            return '<div class="kidrow">' + art(k.buddy, 36) + '<b>' + esc(k.name || 'Not set up yet') + '</b>' +
+              '<span class="tiny">' + t2.minutes + ' active min · ' + (((pr.grown || {}).m) || 0) + ' mastered' +
+              (k.active ? '' : ' (as of their last visit)') + '</span></div>';
+          }).join('') + '</div></div>'
+        : '');
   }
   V.grown = function () {
     if (!grownOpen) return pinScreen();
@@ -6994,6 +7095,7 @@
     }
   }
 
+  var lastLoad = null;          /* the load a gated render is waiting on (BI.go returns it) */
   function render() {
     var r = document.documentElement;
     r.setAttribute('data-world', S.world);
@@ -7002,6 +7104,10 @@
 
     if (!S.started) {
       /* a guest reading tonight's story from the landing page, before any setup */
+      if (view.name === 'story' && view.arg && missingOf(STORYG).length) {
+        lastLoad = window.IND_LOAD(missingOf(STORYG)).then(render);
+        return;
+      }
       if (view.name === 'story' && view.arg) {
         root.innerHTML = '<header class="guestbar"><span class="brand">Bizzing <em>India</em></span>' +
           '<span class="tiny muted gb-note">Reading as a guest — nothing is set up yet</span>' +
@@ -7021,6 +7127,19 @@
     paintChrome();
 
     var m = $('#main'), h;
+    /* a screen whose groups are not here yet says so, loads them, and paints */
+    var miss = missingOf(needsOf(view.name));
+    if (miss.length) {
+      var v0 = view;
+      m.innerHTML = '<div class="card loadcard" role="status"><span class="ldots" aria-hidden="true"><i></i><i></i><i></i></span>' +
+        '<b>Opening it…</b><span class="tiny muted">The first time takes a moment; after that it is on this device.</span></div>';
+      lastLoad = window.IND_LOAD(miss).then(function () { if (view === v0) render(); },
+        function () { if (view === v0) m.innerHTML = '<div class="card"><h2>This part could not load</h2>' +
+          '<p>It may be the connection. Once it has loaded once it works offline.</p>' +
+          '<button class="btn" data-act="go" data-v="' + esc(v0.name) + '">Try again</button></div>'; });
+      return;
+    }
+    lastLoad = null;
     switch (view.name) {
       case 'map': h = V.map(); break;
       case 'state': h = V.state(view.arg); break;
@@ -7108,6 +7227,9 @@
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
     });
+    /* on a phone the map, Moral Science and You live behind More: More says you are there */
+    var nmore = document.querySelector('.navmore');
+    if (nmore) nmore.classList.toggle('active', cur === 'map' || cur === 'neeti' || cur === 'me' || cur === 'grown');
     if (view.name === 'game') mountGame(view.arg);
     placeCallout();
 
@@ -7241,6 +7363,11 @@
     var r = fromState ? { n: e.state.n, a: e.state.a } : parseHash(location.hash);
     if (!r || !S.started) return;
     var cont = r.n === 'continue';
+    if (cont && missingOf(['content', 'voice', 'map', 'bhasha', 'paath']).length) {
+      window.IND_LOAD(['content', 'voice', 'map', 'bhasha', 'paath']).then(function () {
+        window.dispatchEvent(new PopStateEvent('popstate', { state: e.state })); });
+      return;
+    }
     if (cont) r = continueTarget();     /* primed already: prepView would undo it */
     if (!known(r.n)) r = { n: 'home', a: null };
     if (!cont) prepView(r.n, r.a);
@@ -7267,6 +7394,30 @@
      reads its own record: the course frontier from paath.js, the Bhasha lesson from the
      SRS path, the story's scene from where the child stopped. Nothing here stores its
      own idea of progress. */
+  /* ===================================================== WHAT EACH SCREEN NEEDS
+     The corpus loads per route (loader.js; FIX-INDIA N2). A screen names the groups it
+     draws from; anything not listed here waits for all of them, which is always safe. */
+  var ALLG = ['content', 'voice', 'map', 'bhasha', 'paath', 'games', 'packs'];
+  var STORYG = ['content', 'voice'], MAPG = ['map', 'content', 'voice'], LANGG = ['bhasha', 'voice'];
+  var NEEDS = {
+    home: [], me: [], worlds: [], onboard: [],
+    story: STORYG, stories: STORYG, kahani: STORYG, epics: STORYG, epic: STORYG, episode: STORYG,
+    nani: STORYG, shelf: STORYG, invite: STORYG, shlok: STORYG, verses: STORYG,
+    map: MAPG, state: MAPG, learn: MAPG, itihaas: MAPG, era: MAPG,
+    bhasha: LANGG, pack: LANGG, chart: LANGG, vyakaran: LANGG, progress: LANGG, kosh: LANGG, wordcard: LANGG,
+    tongue: LANGG, aaj: ['content', 'voice', 'bhasha'],
+    paath: ['paath', 'content', 'voice', 'map', 'bhasha'], paathl: ['paath', 'content', 'voice', 'map', 'bhasha'],
+    paathk: ['paath', 'content', 'voice', 'map', 'bhasha'], paathp: ['paath', 'content', 'voice', 'map', 'bhasha'],
+    grown: ['paath', 'content', 'voice', 'map', 'bhasha', 'packs']
+  };
+  function needsOf(n) { return NEEDS[n] || ALLG; }
+  function missingOf(gs) { return window.IND_HAS ? gs.filter(function (g) { return !window.IND_HAS(g); }) : []; }
+  /* run fn now if its groups are here, or once they are; the promise is for the test handle */
+  function withGroups(gs, fn) {
+    var miss = missingOf(gs);
+    if (!miss.length) { fn(); return Promise.resolve(); }
+    return window.IND_LOAD(miss).then(fn, function (e) { toast('That part of the app could not load — are you offline?'); });
+  }
   function storyById(id) { return allStories().filter(function (x) { return x.id === id; })[0] || null; }
   function storyOfDay() {
     var st = allStories(), n = st.length;
@@ -7275,7 +7426,11 @@
     for (var k = 0; k < n; k++) { var s = st[(at + k) % n]; if (!S.read[s.id]) return s; }
     return st[at];
   }
-  function nPlaces() { return Object.keys((window.IND_MAP && window.IND_MAP.paths) || {}).length || 36; }
+  function nPlaces_() { return nPlaces(); }
+  function nPlaces() {
+    return Object.keys((window.IND_MAP && window.IND_MAP.paths) || {}).length ||
+      (window.IND_INDEX && window.IND_INDEX.places) || 36;
+  }
   function nextStep() {
     var R = S.resume || {}, cands = [];
     if (R.story && R.story.id && !S.read[R.story.id]) {
@@ -7289,25 +7444,42 @@
           go: { n: 'story', a: so.id } });
       }
     }
+    /* a course or a language thread whose engine has not loaded yet (loader.js) is drawn
+       from the summary kept the last time it was computed; Continue recomputes it fresh */
+    var cached = function (src, kind) {
+      return src && src.step ? { at: src.at || 0, kind: kind, id: src.id, cached: true,
+        kick: src.step.kick, title: src.step.title, sub: src.step.sub, art: src.step.art,
+        n: src.step.n, of: src.step.of, meter: src.step.meter, go: src.step.go } : null;
+    };
+    var keep = function (src, c) {
+      var sum = { kick: c.kick, title: c.title, sub: c.sub, art: c.art, n: c.n, of: c.of, meter: c.meter, go: c.go };
+      if (JSON.stringify(src.step || null) !== JSON.stringify(sum)) { src.step = sum; save(); }
+    };
     var U = R.paath && R.paath.id ? paathUI() : null;
     var pn = U && U.next ? U.next(R.paath.id) : null;
-    if (pn) cands.push({ at: R.paath.at || 0, kind: 'paath', id: pn.id, pn: pn,
-      kick: 'Paathshala · ' + pn.name, title: pn.label, sub: pn.part,
-      art: pn.cover, n: pn.n, of: pn.of, meter: 'Stop ' + (pn.n + 1) + ' of ' + pn.of,
-      go: pn.route });
+    if (pn) {
+      var cp = { at: R.paath.at || 0, kind: 'paath', id: pn.id, pn: pn,
+        kick: 'Paathshala · ' + pn.name, title: pn.label, sub: pn.part,
+        art: pn.cover, n: pn.n, of: pn.of, meter: 'Stop ' + (pn.n + 1) + ' of ' + pn.of,
+        go: pn.route };
+      cands.push(cp); keep(R.paath, cp);
+    } else if (R.paath && R.paath.id && !U && cached(R.paath, 'paath')) cands.push(cached(R.paath, 'paath'));
+    if (R.pack && R.pack.id && !(window.IND_PACKS && window.IND_BHASHA) && cached(R.pack, 'bhasha'))
+      cands.push(cached(R.pack, 'bhasha'));
     if (R.pack && R.pack.id && window.IND_PACKS && window.IND_PACKS[R.pack.id] && window.IND_BHASHA) {
       var pid = R.pack.id, pk = window.IND_PACKS[pid], path = bPath(pid), nx = bNext(path);
       var all = 0, dn = 0;
       path.forEach(function (r) { all += r.total; dn += r.done; });
-      if (nx) cands.push({ at: R.pack.at || 0, kind: 'bhasha', id: pid, nx: nx,
+      if (nx) cands.push(keepB({ at: R.pack.at || 0, kind: 'bhasha', id: pid, nx: nx,
         kick: 'Bhasha · ' + (pk.name ? pk.name.en : pid),
         title: nx.lesson ? nx.lesson.unit.title + ' · lesson ' + nx.lesson.n + ' of ' + nx.lesson.of
                          : 'Review ' + nx.rung.stage.name + ', until it sticks',
         sub: nx.lesson ? 'Four new things, each shown and heard before you are asked. About five minutes.'
                        : 'Nothing new — the words you have met, coming back until they stay.',
         art: 'art/banner/bhasha.jpg', n: dn, of: all || 1,
-        meter: dn + ' of ' + all + ' lessons', go: { n: 'pack', a: pid } });
+        meter: dn + ' of ' + all + ' lessons', go: { n: 'pack', a: pid } }));
     }
+    function keepB(c) { keep(R.pack, c); return c; }
     if (cands.length) {
       cands.sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
       return cands[0];
@@ -7341,12 +7513,23 @@
       else startSession(stp.nx.rung.stage.id, 'lesson');
     }
   }
+  /* the landing's "Read it": tonight's story, before any setup (FIX-INDIA A3) */
+  function guestStory(gid) {
+    var gs = storyById(gid);
+    if (!gs) { view = { name: 'onboard' }; return render(); }
+    S.resume = { story: { id: gid, at: Date.now(), i: 0 } };
+    play = { story: null, i: 0, answered: false }; view = { name: 'story', arg: gid };
+    render(); window.scrollTo(0, 0); sayScene(gs, 0);
+  }
   /* the Continue button itself */
   function runStep() {
-    var stp = nextStep();
-    primeStep(stp);
-    go(stp.go.n, stp.go.a);
-    if (stp.kind === 'story') { var s = storyById(stp.id); if (s) sayScene(s, stp.i || 0); }
+    var first = nextStep();
+    return withGroups(needsOf(first.go.n), function () {
+      var stp = nextStep();                 /* fresh, now that its engine is here */
+      primeStep(stp);
+      go(stp.go.n, stp.go.a);
+      if (stp.kind === 'story') { var s = storyById(stp.id); if (s) sayScene(s, stp.i || 0); }
+    });
   }
 
   /* the games that teach — every one scored on the learning decision (standard §10) */
@@ -7440,7 +7623,6 @@
 
     if (a === 'begin')  { view = { name: 'onboard' }; return render(); }
     if (a === 'cont')   return runStep();
-    if (a === 'aajgo')  { if (!aajState()) aajStart(); return go('aaj'); }
     if (a === 'aajstep') {
       var AJ = aajState(); if (!AJ) return go('aaj');
       if (t.getAttribute('data-s') === '0' && AJ.story) {
@@ -7482,13 +7664,10 @@
     if (a === 'celok')  { var cel = $('#celebrate'); if (cel) cel.remove(); setTimeout(showCelebration, 250); return; }
     if (a === 'gfhow')  { t.classList.toggle('folded'); t.setAttribute('aria-expanded', t.classList.contains('folded') ? 'false' : 'true'); return; }
     if (a === 'guest')  {
-      var gid = t.getAttribute('data-id'), gs = storyById(gid);
-      if (!gs) { view = { name: 'onboard' }; return render(); }
-      S.resume = { story: { id: gid, at: Date.now(), i: 0 } };
-      play = { story: null, i: 0, answered: false }; view = { name: 'story', arg: gid };
-      render(); window.scrollTo(0, 0); sayScene(gs, 0);
-      return;
+      return withGroups(STORYG, function () { guestStory(t.getAttribute('data-id')); });
     }
+    if (a === 'aajgo')  { return withGroups(needsOf('aaj'), function () { if (!aajState()) aajStart(); go('aaj'); }); }
+
     /* data-arg is optional and was added for Paathshala, whose lessons link straight
        into a story, a verse or an era. Absent everywhere else, so undefined. */
     if (a === 'go')     return go(t.getAttribute('data-v'), t.getAttribute('data-arg') || undefined);
@@ -7732,11 +7911,12 @@
     }
     if (a === 'story') {
       var id = t.getAttribute('data-id');
-      S.resume = S.resume || {}; S.resume.story = { id: id, at: Date.now() }; save();
-      play = { story: null, i: 0, answered: false }; go('story', id);
-      var s = allStories().filter(function (x) { return x.id === id; })[0];
-      if (s) sayScene(s, 0);
-      return;
+      return withGroups(STORYG, function () {
+        S.resume = S.resume || {}; S.resume.story = { id: id, at: Date.now() }; save();
+        play = { story: null, i: 0, answered: false }; go('story', id);
+        var s = allStories().filter(function (x) { return x.id === id; })[0];
+        if (s) sayScene(s, 0);
+      });
     }
     if (a === 'next') {
       play.i++; play.answered = false;
@@ -7774,9 +7954,10 @@
     }
     if (a === 'again') {
       var aid = t.getAttribute('data-id');
-      play = { story: null, i: 0, answered: false };
-      go('story', aid); sayScene(allStories().filter(function (x) { return x.id === aid; })[0], 0);
-      return;
+      return withGroups(STORYG, function () {
+        play = { story: null, i: 0, answered: false };
+        go('story', aid); sayScene(allStories().filter(function (x) { return x.id === aid; })[0], 0);
+      });
     }
     if (a === 'love') {
       S.favs = S.favs || {};
@@ -7784,8 +7965,8 @@
       if (S.favs[lid]) { delete S.favs[lid]; } else { S.favs[lid] = today(); toast('Kept. It will be waiting.'); }
       save(); return render();
     }
-    if (a === 'say')    return speak(t.getAttribute('data-k'),
-                                     t.getAttribute('data-t'), t.getAttribute('data-l'));
+    if (a === 'say')    return withGroups(['voice'], function () {
+                          speak(t.getAttribute('data-k'), t.getAttribute('data-t'), t.getAttribute('data-l')); });
     if (a === 'pick')   { S.buddy = t.getAttribute('data-id'); save(); return render(); }
 
     /* ---------------------------------------------------------------- onboarding
@@ -7937,7 +8118,7 @@
          them the first time each pack is opened (Phase 2, docs/09 §3) */
       if (ob.place.home) S.placement = { home: ob.place.home, back: ob.place.back,
                                          lang: S.tongue || null };
-      S.started = today(); save();
+      S.started = today(); S.grown = S.grown || { m: 0, l: 0 }; save();
       var hh = Store.house(); if (hh.adding) { hh.adding = null; Store.saveHouse(hh); }
       startActivity();
       return go('home');
@@ -8279,12 +8460,32 @@
     }
   });
 
+  /* BOOT WAITS ONLY FOR WHAT THE FIRST SCREEN NEEDS (FIX-INDIA N2). Home needs nothing
+     beyond the shell; a link into a story needs the stories; the Hive's #/continue needs
+     whatever the next thing turns out to be; the demo is built from the real corpus, so it
+     waits for all of it. Then the rest is warmed in the background. */
   document.addEventListener('DOMContentLoaded', function () {
+    var first = [];
+    if (window.IND_DEMO) first = ALLG;
+    else {
+      var rs0 = null, hr0 = parseHash(location.hash);
+      try { rs0 = JSON.parse(sessionStorage.getItem('bi_resume') || 'null'); } catch (e) {}
+      var n0 = (rs0 && rs0.n) || (hr0 && S.started && hr0.n) || (S.started ? 'home' : 'landing');
+      first = n0 === 'continue' ? ['content', 'voice', 'map', 'bhasha', 'paath'] : (n0 === 'landing' ? [] : needsOf(n0));
+    }
+    var go1 = function () {
+      boot();
+      if (window.IND_WARM) window.IND_WARM(S.started ? ['content', 'voice', 'map', 'bhasha', 'paath', 'games', 'packs']
+                                                     : ['content', 'voice'], 1500);
+    };
+    var miss0 = missingOf(first);
+    if (miss0.length) window.IND_LOAD(miss0).then(go1, go1); else go1();
+  });
+  function boot() {
+    /* the sample child is built from the real corpus, now that it is here */
+    if (window.IND_DEMO) { S = seedDemo(); lightStories = null; }
     healWorld();
     startActivity();
-    /* growth is measured from here: what a child had already mastered before this build is
-       not news, and announcing it as new would be the first lie the feed told */
-    if (S.started && !S.grown) { S.grown = { m: mastered(), l: level() }; save(); }
     /* the sample child's shelf is already earned: nothing to celebrate on a demo's first screen */
     if (window.IND_DEMO && !S.medals) {
       var de = evidence(); S.medals = {};
@@ -8385,7 +8586,8 @@
     setInterval(checkUpdate, 3 * 60 * 1000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) checkUpdate(); });
 
-    window.BI = { S: S, go: go, render: render, Store: Store,
+    window.BI = { go: function (n, a) { go(n, a); return lastLoad || Promise.resolve(); }, render: render, Store: Store,
+                  ready: function () { return lastLoad || Promise.resolve(); },
                   /* test handles for tools/check-rewards.js: the real functions, not copies */
                   earn: earn, mastered: mastered, level: level, coins: coins, goodDays: goodDays,
                   /* tools/check-motivation.js: the frame every game gets, and the medals' rules */
@@ -8395,6 +8597,7 @@
                   /* read-only view of the live quiz for tools/verify.js's
                      no-dead-ends walk — a getter because `quiz` is reassigned */
                   quizState: function () { return quiz; } };
+    Object.defineProperty(window.BI, 'S', { get: function () { return S; } });
 
     /* ---- THE CHARACTER SEAMS the games hang from ----
        IND_ART_SRC: the arcade has asked for this since its first commit and it
@@ -8417,11 +8620,21 @@
         if ((P[i].ids || []).concat(P[i].arch || []).indexOf(id) >= 0) return P[i].shelf || 'tales';
       return 'tales';
     };
+    /* when the engines that hold mastery arrive, measure it: a child upgrading to this build
+       has no cached rank yet, and Home should not show them a lower one than they have */
+    var measured = false;
+    window.addEventListener('ind-group', function () {
+      if (measured || !S.started || !window.IND_HAS('bhasha') || !window.IND_HAS('paath')) return;
+      measured = true;
+      var before = level();
+      checkGrowth();
+      if (view.name === 'home' && (level() !== before || !(S.resume && (S.resume.paath || {}).step))) render();
+    });
     window.addEventListener('ind-reward', function (e) {
       var d = (e && e.detail) || {};
       var n = Math.round(+d.n || 0);
       /* a game's mid-run reward is one right answer's worth, whatever it asked for */
       if (n > 0) { earn('answer', d.why || 'well played'); markToday(); }
     });
-  });
+  }
 })();

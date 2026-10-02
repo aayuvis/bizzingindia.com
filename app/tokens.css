@@ -24,10 +24,11 @@
 
   --text:#1e1440;           /* near-black indigo */
   --text2:#4a3f70;
-  --muted:#7b719c;
+  --muted:#62588a;         /* ≥ 4.9:1 on the ground and the cards (FIX-INDIA L5) */
 
   --accent:#5b3fd6;         /* the primary — deep indigo-violet */
   --accent-soft: rgba(91,63,214,.10);
+  --accent-ink:#4a2fc4;     /* the accent as TEXT: AA on every surface (FIX-INDIA L5) */
   --accent2:#e9a13b;        /* marigold — India's warmth */
   --accent3:#d94f3d;        /* vermilion */
   --good:#1fa971;

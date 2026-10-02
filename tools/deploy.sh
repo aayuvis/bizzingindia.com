@@ -30,6 +30,11 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+
+# THE GATE (FIX-INDIA N3): nothing ships that has not passed tools/test.sh on exactly
+# HEAD's app/ and tools/. A red test is a reason not to publish, not a warning.
+bash tools/gate.sh || { echo "deploy: refused."; exit 1; }
+
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 MSG=${1:-"Deploy $(git log -1 --format=%s)"}
 

@@ -103,6 +103,9 @@ async function main() {
     window.BI.S.age = window.BI.S.age || 8;
     window.BI.render();
   });
+  /* the corpus loads per route now (loader.js; docs/27): the walk checks every template, so it
+     needs every group before it can ask which ids exist */
+  await page.evaluate(() => window.IND_LOAD && window.IND_LOAD(window.IND_GROUPS()));
 
   const targets = [];
   for (const v of NO_ARG) targets.push([v, undefined]);

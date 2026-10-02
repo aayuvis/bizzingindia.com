@@ -1,0 +1,28 @@
+# The gate, on every push (FIX-INDIA N3; family standard §15; docs/27).
+#
+# tools/test.sh runs the engine tests and the browser checks, desktop and phone — the same
+# script deploy.sh insists has passed on exactly what it publishes. Here it runs on GitHub's
+# own Chromium, so a red check is visible on the commit as well as refused at deploy.
+# The narration and art are not needed by any check, so the checkout skips LFS-sized media.
+name: Tests
+
+on:
+  push:
+    branches:
+      - claude/bizzingindia-github-pages-8qsv38
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: bash tools/test.sh

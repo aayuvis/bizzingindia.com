@@ -66,6 +66,9 @@ check('luck', 'no game of luck or dexterity pays', async ({ p }) => {
 });
 
 check('rank', 'rank moves on mastery, never on coins', async ({ p }) => {
+  /* the engines that hold mastery load with their screens now (docs/27): a child earning a
+     rung has them; so must the check */
+  await p.evaluate(() => window.IND_LOAD && window.IND_LOAD(['bhasha', 'paath', 'content', 'map']));
   const r = await p.evaluate(() => {
     const B = window.BI;
     const l0 = B.level(), m0 = B.mastered();

@@ -54,6 +54,29 @@
     return s;
   }
   function rgba(h, a) { var c = hx(h); return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
+  /* WCAG contrast, and the lightest mix of `a` toward `b` that still reads on every surface
+     it sits on (FIX-INDIA L5). --muted used to be a fixed 58% mix toward the ground, which
+     put every "tiny muted" line in the app at about 3:1 — below AA in all five worlds. */
+  function lumH(h) { var c = hx(h); return c.reduce(function (s, v, i) { v /= 255;
+    v = v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); return s + v * [0.2126, 0.7152, 0.0722][i]; }, 0); }
+  function ratio(x, y) { var A = lumH(x), B = lumH(y); return (Math.max(A, B) + 0.05) / (Math.min(A, B) + 0.05); }
+  /* the accent, as TEXT: the smallest step toward `b` that reads on every surface */
+  function inked(a, b, on, min) {
+    for (var t = 0; t <= 1; t += 0.04) {
+      var c = mix(a, b, t), ok = true;
+      for (var i = 0; i < on.length; i++) if (ratio(c, on[i]) < min) { ok = false; break; }
+      if (ok) return c;
+    }
+    return b;
+  }
+  function legible(a, b, t, on, min) {
+    for (; t > 0; t -= 0.02) {
+      var c = mix(a, b, t), ok = true;
+      for (var i = 0; i < on.length; i++) if (ratio(c, on[i]) < min) { ok = false; break; }
+      if (ok) return c;
+    }
+    return a;
+  }
   function hashN(s, m) { var h = 0, i; for (i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 100000; return h % m; }
   /* hashed negative animation-delay so nothing on the page ever pulses in sync */
   function dly(seed, spreadMs) { return (-(hashN(seed, spreadMs) / 1000)).toFixed(2) + 's'; }
@@ -217,6 +240,9 @@
     for (i = 0; i < W.length; i++) {
       w = W[i]; t = w.t; n = w.n;
       var sel = ':root[data-world="' + w.id + '"]';
+      /* every surface a line of text can sit on, day and night */
+      var DAYON = [t.surface, mix(t.surface, t.ground, 0.5), t.ground, mix(t.ground, '#ffffff', 0.5)];
+      var NIGHTON = [n.card, mix(n.card, n.ground, 0.5), n.ground, mix(n.ground, '#ffffff', 0.06), mix(n.card, '#ffffff', 0.14)];
       /* art tokens — day */
       css += sel + '{--wa-ground:' + t.ground + ';--wa-surface:' + t.surface + ';--wa-ink:' + t.ink +
         ';--wa-accent:' + t.accent + ';--wa-accent2:' + t.accent2 + ';--wa-festive:' + t.festive + ';}\n';
@@ -236,8 +262,9 @@
         '--ground:' + t.ground + ';--ground2:' + mix(t.ground, '#ffffff', 0.5) + ';' +
         '--dot:' + rgba(t.accent, 0.26) + ';--card:' + t.surface + ';' +
         '--card2:' + mix(t.surface, t.ground, 0.5) + ';--text:' + t.ink + ';' +
-        '--text2:' + mix(t.ink, t.ground, 0.34) + ';--muted:' + mix(t.ink, t.ground, 0.58) + ';' +
+        '--text2:' + legible(t.ink, t.ground, 0.34, DAYON, 6) + ';--muted:' + legible(t.ink, t.ground, 0.58, DAYON, 5.4) + ';' +
         '--accent:' + t.accent + ';--accent-soft:' + rgba(t.accent, 0.1) + ';' +
+        '--accent-ink:' + inked(t.accent, t.ink, DAYON.concat([mix(t.surface, t.accent, 0.12)]), 4.8) + ';' +
         '--accent2:' + t.accent2 + ';--accent3:' + t.festive + ';--festive:' + t.festive + ';' +
         '--line:' + rgba(t.ink, 0.12) + ';--line2:' + rgba(t.ink, 0.2) + ';}\n';
       /* app tokens — night. Text stays near-white (contrast is not negotiable);
@@ -247,8 +274,9 @@
         '--dot:' + rgba(n.accent, 0.12) + ';--card:' + n.card + ';' +
         '--card2:' + mix(n.card, n.ground, 0.5) + ';--mist:' + mix(n.card, '#ffffff', 0.14) + ';' +
         '--text:' + mix('#ffffff', n.ground, 0.05) + ';' +
-        '--text2:' + mix('#ffffff', n.ground, 0.26) + ';--muted:' + mix('#ffffff', n.ground, 0.44) + ';' +
+        '--text2:' + legible('#ffffff', n.ground, 0.26, NIGHTON, 7) + ';--muted:' + legible('#ffffff', n.ground, 0.44, NIGHTON, 5.4) + ';' +
         '--accent:' + n.accent + ';--accent-soft:' + rgba(n.accent, 0.16) + ';' +
+        '--accent-ink:' + inked(n.accent, '#ffffff', NIGHTON.concat([mix(n.card, n.accent, 0.18)]), 4.8) + ';' +
         '--accent2:' + n.accent2 + ';--accent3:' + n.festive + ';--festive:' + n.festive + ';' +
         '--line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.18);}\n';
     }

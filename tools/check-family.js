@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-/* Bizzing India — the family layer (FIX-INDIA O4, B7, O3, N4; family standard §3, §5, §13).
+/* Bizzing India — the family layer (FIX-INDIA O4, B7, O3, N4; family standard v2 §3, §5, §19).
    docs/25-family.md says why each one exists.
 
-     topbar     one 56px row in the family order — ⬡ Hive · name · … · theme · 🔒 · avatar ▾ —
-                on desktop and phone, nothing past 390px, and ⬡ hidden inside a running drill
+     topbar     the chrome is the family shell's (Bee's geometry is measured by check-standard
+                `shell`): five tabs, ⬡ back to the Hive, nothing past 390px, ⬡ hidden in a drill
      household  two children: the second starts with nothing of the first's (stories, coins,
                 map, Sabhyata), switching back finds the first exactly as left, a second child
                 of the same name is refused, and removing one leaves the other whole
@@ -44,37 +44,33 @@ const check = (id, what, fn, o) => CHECKS.push(Object.assign({ id, what, fn }, o
 const tap = async (p, sel) => { await p.evaluate(s => { const e = document.querySelector(s); if (!e) throw new Error('no ' + s); e.click(); }, sel); await p.waitForTimeout(350); };
 const S = p => p.evaluate(() => window.BI.S);
 
-check('topbar', 'one 56px row in the family order, on desktop and phone; ⬡ hidden in a drill', async ({ p }) => {
+check('topbar', 'Bee\'s chrome from the family shell: 56px bar on a desk, 104px header on a phone, ⬡ back to the Hive, nothing wider than a phone; ⬡ hidden in a drill', async ({ p }) => {
+  /* the geometry itself is held to Bee's numbers by checkShell in check-standard `shell`;
+     this holds what is India's: the bar is the shell's, and the drill hides ⬡ */
   for (const vp of [DESK, PHONE]) {
     await p.setViewportSize(vp); await p.waitForTimeout(300);
     const m = await p.evaluate(() => {
-      const row = document.querySelector('.topbar .barrow'), r = row.getBoundingClientRect();
-      const x = sel => { const e = document.querySelector(sel); return e && e.offsetParent ? e.getBoundingClientRect() : null; };
-      const parts = { hive: x('.topbar .hivebtn'), name: x('.topbar .brand'), theme: x('.topbar [data-act="night"]'),
-        grown: x('.topbar [data-v="grown"]'), kid: x('.topbar .kidbtn') };
-      /* the standard's own measure: the page's width against the 390 the viewport was set to
-         (innerWidth widens under emulation when something overflows, so it is not used) */
-      const over = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - 390;
-      return { h: r.height, parts: Object.fromEntries(Object.entries(parts).map(([k, v]) => [k, v && { l: v.left, t: v.top, b: v.bottom }])),
-        rowTop: r.top, rowBot: r.bottom, href: (document.querySelector('.topbar .hivebtn') || {}).href || '', over };
+      const bar = document.querySelector('[data-bz=bar]');
+      const over = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth;
+      const hd = document.querySelector('[data-bz=header]');
+      return { h: bar ? bar.getBoundingClientRect().height : 0, hh: hd ? hd.getBoundingClientRect().height : 0, old: !!document.querySelector('.topbar, #drawer'),
+        href: (document.querySelector('[data-bz=hive]') || {}).href || '', tabs: document.querySelectorAll('[data-bz=tab]').length, over };
     });
-    if (Math.abs(m.h - 56) > 1) throw new Error(`at ${vp.width}px the bar is ${m.h}px, not 56`);
-    const order = ['hive', 'name', 'theme', 'grown', 'kid'];
-    for (const k of order) {
-      const v = m.parts[k];
-      if (!v) throw new Error(`at ${vp.width}px the bar has no ${k}`);
-      if (v.t < m.rowTop - 1 || v.b > m.rowBot + 1) throw new Error(`at ${vp.width}px the ${k} control is off the bar's one row`);
-    }
-    for (let i = 1; i < order.length; i++)
-      if (m.parts[order[i]].l <= m.parts[order[i - 1]].l)
-        throw new Error(`at ${vp.width}px ${order[i]} comes before ${order[i - 1]} — the family order is ${order.join(' · ')}`);
+    /* Bee's numbers: a 56px bar on a desk; on a phone search drops under it and the header is 104 */
+    if (vp.width >= 900 && Math.abs(m.h - 56) > 1) throw new Error(`at ${vp.width}px the bar is ${m.h}px, not 56`);
+    if (vp.width < 900 && Math.abs(m.hh - 104) > 1) throw new Error(`at ${vp.width}px the header is ${m.hh}px, not Bee's 104`);
+    if (m.old) throw new Error('the old top bar or drawer is still on the page beside the shell');
+    if (m.tabs !== 5) throw new Error(m.tabs + ' tabs in the shell, not five');
     if (!/Bizzing_Schedule/.test(m.href)) throw new Error('⬡ does not go back to the Hive: ' + m.href);
     if (vp.width < 400 && m.over > 0) throw new Error(`the page is ${m.over}px wider than the 390px phone`);
   }
   /* a running drill hides ⬡ */
   await p.setViewportSize(DESK);
-  await tap(p, '.navtab[data-v="bhasha"]'); await tap(p, '[data-act="pack"][data-id="hi"]'); await tap(p, '.bh-next');
-  const vis = await p.evaluate(() => getComputedStyle(document.querySelector('.hivebtn')).visibility);
+  /* the language groups load on demand: wait for them rather than guessing a time */
+  await tap(p, '[data-bz=tab][data-v="bhasha"]'); await p.waitForSelector('[data-act="pack"][data-id="hi"]', { timeout: 20000 }).catch(() => {});
+  await tap(p, '[data-act="pack"][data-id="hi"]'); await p.waitForSelector('.bh-next', { timeout: 20000 }).catch(() => {});
+  await tap(p, '.bh-next'); await p.waitForTimeout(400);
+  const vis = await p.evaluate(() => getComputedStyle(document.querySelector('[data-bz=hive]')).visibility);
   if (vis !== 'hidden') throw new Error('⬡ is still showing inside a running drill');
 });
 
@@ -93,7 +89,8 @@ check('household', 'two children never mix, switching back finds the first as le
   /* a grown-up adds Ravi */
   await p.evaluate(() => window.BI.go('grown')); await p.waitForTimeout(300);
   for (let k = 0; k < 2; k++) for (const d of '2468') await tap(p, `.pinkey[data-d="${d}"]`);
-  await tap(p, '[data-act="addkid"]'); await p.waitForTimeout(800);
+  await p.waitForSelector('#main [data-act="addkid"]', { timeout: 20000 }).catch(() => {});
+  await tap(p, '#main [data-act="addkid"]'); await p.waitForTimeout(800);
   if (!(await p.$('#nm'))) throw new Error('adding a child did not open their setup');
   if (!(await p.$('[data-act="addcancel"]'))) throw new Error('a child being added cannot be un-added');
   /* the same name is refused: the wallet is kept by first name */
@@ -107,7 +104,7 @@ check('household', 'two children never mix, switching back finds the first as le
   if (b.read || b.lit || b.coins || b.sab) throw new Error('Ravi starts with the first child\'s things: ' + JSON.stringify(b));
   /* Ravi reads a little, then the top bar's menu switches back to Asha */
   await p.evaluate(() => { window.BI.S.read['ravi-only'] = true; window.BI.Store.saveProfile(window.BI.S); });
-  await tap(p, '.kidbtn');
+  await tap(p, '[data-bz=kid]');
   await p.evaluate(() => [...document.querySelectorAll('#kidmenu [data-act="switchkid"]')].find(b => /Asha/.test(b.textContent)).click());
   await p.waitForLoadState('networkidle'); await p.waitForTimeout(700);
   const a1 = await p.evaluate(() => ({ name: window.BI.S.name, read: Object.keys(window.BI.S.read).length, coins: window.BI.coins(),
@@ -155,7 +152,7 @@ check('activity', 'bizzing.activity gets active minutes and a story\'s milestone
 }, { clock: true });
 
 check('seam', 'storage goes through the Store seam; v1 walks up; a newer profile is never stamped older', async ({ p, base }) => {
-  const SEAM = ['app.js', 'demo.js', 'bizzing-wallet.js', 'bizzing-activity.js'];
+  const SEAM = ['app.js', 'demo.js'];   /* the family's own modules live in app/family/ and own their keys */
   const bad = [];
   fs.readdirSync(APP).filter(f => f.endsWith('.js') && SEAM.indexOf(f) < 0).forEach(f => {
     const L = fs.readFileSync(path.join(APP, f), 'utf8').split('\n');

@@ -30,7 +30,7 @@ async function boot(b, v) {
   await p.reload({ waitUntil: 'networkidle' });
   await skipOnboarding(p);
   await p.waitForTimeout(350);
-  await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
+  await p.click('[data-bz=tab][data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(650);
   await shut(p);
   return { p, errs };
@@ -97,7 +97,7 @@ const view = p => p.evaluate(() => {
       if (wrap) [...wrap.children].forEach(c => { if (c !== sc) below += c.offsetHeight; });
       if (host) [...host.children].forEach(c => { if (c !== wrap && c !== sc) below += c.offsetHeight; });
       /* is the app's own sticky bar painting over the city? */
-      const bar = document.querySelector('.topbar');
+      const bar = document.querySelector('[data-bz=header]');
       const mid = document.elementFromPoint(Math.round(innerWidth / 2), 30);
       return { w: Math.round(r.width), h: Math.round(r.height), top: Math.round(r.top),
                full: sc.classList.contains('full'),

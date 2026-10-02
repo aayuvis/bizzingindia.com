@@ -44,21 +44,21 @@ function serve() {
 const CHECKS = [];
 const check = (id, what, fn) => CHECKS.push({ id, what, fn });
 const where = p => p.evaluate(() => ({ url: location.href, hash: location.hash,
-  view: (document.querySelector('.navtab.active') || {}).getAttribute ? document.querySelector('.navtab.active').getAttribute('data-v') : null,
+  view: (document.querySelector('[data-bz=tab][aria-current="page"]') || {}).getAttribute ? document.querySelector('[data-bz=tab][aria-current="page"]').getAttribute('data-v') : null,
   app: !!document.getElementById('app') }));
 
 check('back', 'Back never leaves the app, and a shared link opens its screen', async ({ p, base }) => {
   /* the audit's own walk: into the map, then a state, then Back, Back, Back */
-  await p.evaluate(() => document.querySelector('.navtab[data-v="map"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="map"]').click());
   await p.waitForTimeout(400);
   const onMap = await where(p);
   if (onMap.hash !== '#/map') throw new Error(`the map has no route of its own (hash "${onMap.hash}")`);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="stories"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(400);
   await p.goBack(); await p.waitForTimeout(400);
   const back1 = await where(p);
   if (!back1.url.startsWith(base) || back1.hash !== '#/map')
-    throw new Error(`Back from the stories did not return to the map (landed on ${back1.url})`);
+    throw new Error(`Back from Paathshala did not return to the map (landed on ${back1.url})`);
   await p.goBack(); await p.waitForTimeout(400);
   const back2 = await where(p);
   if (!back2.url.startsWith(base) || !back2.app)
@@ -67,11 +67,24 @@ check('back', 'Back never leaves the app, and a shared link opens its screen', a
   await p.goto(base + '#/stories', { waitUntil: 'networkidle' });
   await p.waitForTimeout(500);
   const linked = await where(p);
-  if (linked.view !== 'stories') throw new Error(`#/stories opened ${linked.view || 'nothing'}`);
+  /* the story shelves live inside Paathshala now (FIX-INDIA C1), so that tab lights */
+  if (!/#\/stories$/.test(linked.hash) || linked.view !== 'paath') throw new Error(`#/stories opened ${linked.hash} under ${linked.view || 'nothing'}`);
   await p.goBack(); await p.waitForTimeout(500);
   const out = await where(p);
   if (!out.url.startsWith(base) || !out.app)
     throw new Error(`Back from a linked screen left the app (landed on ${out.url})`);
+  /* HOME IS THE ROOT (FIX-INDIA §1): the audit's "repeated Back from Home landed on #/neeti".
+     Out to Moral Science and the map, Home again — and Back, Back, Back stays on Home. */
+  await p.goto(base + '#/home', { waitUntil: 'networkidle' }); await p.waitForTimeout(400);
+  await p.evaluate(() => window.BI.go('neeti')); await p.waitForTimeout(400);
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="map"]').click()); await p.waitForTimeout(400);
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="home"]').click()); await p.waitForTimeout(500);
+  for (let i = 0; i < 3; i++) {
+    await p.goBack().catch(() => {}); await p.waitForTimeout(450);
+    const h = await where(p);
+    if (!h.url.startsWith(base) || h.hash !== '#/home' || h.view !== 'home')
+      throw new Error(`Back ${i + 1} from Home landed on ${h.url} (tab ${h.view})`);
+  }
 });
 
 check('continue', '#/continue opens the one next thing', async ({ p, base }) => {

@@ -29,7 +29,7 @@ const put = async (p, cx, cy) => p.evaluate(([cx,cy]) => {
   await p.goto('http://localhost:8150/', { waitUntil: 'networkidle' });
   await skipOnboarding(p);
   await p.waitForTimeout(400);
-  await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
+  await p.click('[data-bz=tab][data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(700);
   const over = await p.$('#sab-ovhost .sab-btn'); if (over) { await over.click(); await p.waitForTimeout(250); }
   await p.evaluate(() => { const g=window.__SABG(); g.res.anna=900; g.res.kala=900; g.res.katha=900; });

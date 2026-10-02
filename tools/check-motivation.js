@@ -47,6 +47,8 @@ const tap = async (p, sel) => { await p.evaluate(s => { const e = document.query
 const played = p => p.evaluate(() => (window.IND_SFX ? window.IND_SFX.played.slice() : []));
 const clearPlayed = p => p.evaluate(() => { if (window.IND_SFX) window.IND_SFX.played.length = 0; });
 async function finishStory(p) {
+  /* the stories load on demand (docs/27): wait for the reader rather than guessing a time */
+  await p.waitForSelector('[data-act="next"], [data-act="answer"], [data-act="again"]', { timeout: 20000 }).catch(() => {});
   for (let i = 0; i < 40; i++) {
     if (await p.$('[data-act="again"]')) return;
     const ans = await p.$('[data-act="answer"]');
@@ -58,7 +60,7 @@ async function finishStory(p) {
 
 check('sfx', 'right and wrong sound different, and the one mute silences both', async ({ p }) => {
   await p.mouse.click(5, 5);                    /* a real tap arms audio, as a child's would */
-  await tap(p, '.navtab[data-v="bhasha"]'); await tap(p, '[data-act="pack"][data-id="hi"]'); await tap(p, '.bh-next');
+  await tap(p, '[data-bz=tab][data-v="bhasha"]'); await tap(p, '[data-act="pack"][data-id="hi"]'); await tap(p, '.bh-next');
   const ans = async right => {
     for (let k = 0; k < 8; k++) {
       const z = await p.evaluate(() => { const q = window.BI.quizState().q; return q ? { intro: q.type === 'introduce', i: q.answerIndex } : null; });
@@ -78,7 +80,8 @@ check('sfx', 'right and wrong sound different, and the one mute silences both', 
   const r = await played(p);
   if (r.indexOf('right') < 0) throw new Error('a right answer made no sound: ' + JSON.stringify(r));
   /* the one mute, in the child's menu */
-  await tap(p, '.kidbtn'); await tap(p, '#kidmenu [data-act="sound"]');
+  /* the one mute is one tap from ☰ (standard v2 §11) */
+  await tap(p, '[data-bz=menu]'); await tap(p, '[data-bz=drawer] [data-bz-act=sound]');
   await p.waitForTimeout(1200); await clearPlayed(p);
   await ans(false);
   const m = await played(p);
@@ -127,7 +130,7 @@ check('games', 'every game: a title card with a folding how-to; Gyanpati sounds 
   if (!/What you practised/.test(end.practised)) throw new Error('the end card does not say what was practised');
   const rights = pl.filter(x => x === 'right').length;
   if (rights < answers) throw new Error(`${answers} answers, ${rights} right sounds`);
-  if (pl.indexOf('win') < 0) throw new Error('the finish made no sound');
+  if (pl.indexOf('win') < 0 && pl.indexOf('finish') < 0) throw new Error('the finish made no sound');
   if (motions < answers) throw new Error(`${answers} answers, ${motions} motions`);
 }, { reduced: true });
 
@@ -175,7 +178,7 @@ check('medals', 'a story earns a medal, celebrated once; self-report earns none;
 });
 
 check('aaj', 'Aaj ka: a story, a lesson, a look back, and a card that names what was done', async ({ p }) => {
-  await tap(p, '.hm-three [data-act="aajgo"]');
+  await tap(p, '[data-bz=tip]');
   if (!(await p.$('.aajsteps'))) throw new Error('the Aaj ka tile does not open the session');
   await tap(p, '[data-act="aajstep"][data-s="0"]');
   const title = await p.evaluate(() => window.BI.S.aaj.story);
@@ -200,7 +203,7 @@ check('aaj', 'Aaj ka: a story, a lesson, a look back, and a card that names what
   if (d.txt.indexOf(st) < 0) throw new Error('the finish card does not name the story');
   if (!d.met.length || !d.met.every(m => d.txt.indexOf(m) >= 0)) throw new Error('the finish card does not name what was met');
   await tap(p, '.aajdone [data-act="go"]');
-  const tile = await p.evaluate(() => (document.querySelector('.aajtile') || {}).textContent || '');
+  const tile = await p.evaluate(() => (document.querySelector('[data-bz=tip]') || {}).textContent || '');
   if (!/Done for today/.test(tile)) throw new Error('Home does not say today\'s five minutes are done');
 });
 

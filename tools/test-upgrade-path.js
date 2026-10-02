@@ -85,7 +85,7 @@ const alive = () => new Promise(r2 => {
   await p.waitForTimeout(1500);
   await skipOnboarding(p);
   await p.waitForTimeout(450);
-  await p.click('.navtab[data-v="khel"]').catch(()=>{}); await p.waitForTimeout(350);
+  await p.click('[data-bz=tab][data-v="khel"]').catch(()=>{}); await p.waitForTimeout(350);
   await p.click('.ghero').catch(()=>{}); await p.waitForTimeout(900);
   const shut = async () => { for (let i=0;i<6;i++){const bt=await p.$('#sab-ovhost [data-sab-act="ovclose"], #sab-ovhost .sab-btn'); if(!bt)return; await bt.click({timeout:1200}).catch(()=>{}); await p.waitForTimeout(180);} };
   await shut();

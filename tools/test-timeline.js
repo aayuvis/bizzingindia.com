@@ -21,14 +21,14 @@ const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x
     await p.waitForTimeout(500);
     /* on a phone the nav collapses and India hides behind "More" */
     await p.evaluate(() => {
-      const t = document.querySelector('.navtab[data-v="map"]');
+      const t = document.querySelector('[data-bz=tab][data-v="map"]');
       if (t && t.offsetParent !== null) { t.click(); return; }
       const more = [...document.querySelectorAll('.navtab')].find(x => /More/.test(x.textContent));
       if (more) more.click();
     });
     await p.waitForTimeout(500);
     await p.evaluate(() => {
-      const t = document.querySelector('.navtab[data-v="map"], [data-v="map"]');
+      const t = document.querySelector('[data-bz=tab][data-v="map"], [data-v="map"]');
       if (t) t.click();
     });
     await p.waitForTimeout(1100);

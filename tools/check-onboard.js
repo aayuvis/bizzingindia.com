@@ -105,7 +105,7 @@ check('steps', 'one question per screen, and every answer moves on', async ({ p 
   await ask();
   await tap(p, '[data-act="obplace"][data-v="home:no"]', 'the placement question');
   await ask();
-  await tap(p, '[data-act="obbuddy"][data-id="pt_crow"]', 'the companions');
+  await tap(p, '[data-act="obbuddy"][data-id="royal_elephant"]', 'the companions');
   await ask();
   const uniq = new Set(seen);
   if (uniq.size !== seen.length)
@@ -175,15 +175,12 @@ check('small', 'the first choice is five companions and two worlds, not the whol
     .map(b => b.getAttribute('data-id')));
   if (buddies.length !== 5) throw new Error(`${buddies.length} companions offered, not five`);
   const shut = await p.evaluate(ids => {
-    const E = window.IND_ECONOMY, P = window.IND_AVATAR_PACKS || [];
-    const S = { own: { packs: [], worlds: [] } };
-    return ids.filter(id => {
-      const pack = P.find(x => x.ids.indexOf(id) >= 0);
-      return pack && E && !E.packOpen(S, pack.id);
-    });
+    /* a brand-new child owns nothing: every companion offered must be a family Common (§8) */
+    const E = window.IND_ECONOMY, S = { name: 'Nobody', own: { avatars: [], worlds: [] } };
+    return ids.filter(id => !E || E.stateOf(S, id).state !== 'owned');
   }, buddies);
   if (shut.length) throw new Error('offered but locked on day one: ' + shut.join(', '));
-  await tap(p, '[data-act="obbuddy"][data-id="pt_mouse"]', 'the companions');
+  await tap(p, '[data-act="obbuddy"][data-id="ganesha"]', 'the companions');
   const worlds = await p.evaluate(() => [...document.querySelectorAll('[data-act="obworld"]')]
     .map(b => b.getAttribute('data-w')));
   if (worlds.length !== 2) throw new Error(`${worlds.length} worlds offered, not two`);
@@ -222,9 +219,9 @@ check('commit', 'every answer reaches the profile, and nothing else does', async
 check('landed', 'it ends inside the app, not on another screen of setup', async ({ p }) => {
   await walk(p, {});
   const r = await p.evaluate(() => ({
-    bar: !!document.querySelector('.topbar'),
+    bar: !!document.querySelector('[data-bz=header]'),
     onb: !!document.querySelector('.obbub'),
-    tab: (document.querySelector(".navtab.active") || {}).textContent || ""
+    tab: (document.querySelector('[data-bz=tab][aria-current="page"]') || {}).textContent || ""
   }));
   if (r.onb) throw new Error('still onboarding after Start');
   if (!r.bar) throw new Error('the app shell did not build');

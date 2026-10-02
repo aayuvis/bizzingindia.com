@@ -64,16 +64,17 @@ The short version:
   evidence, never coins. Nothing is random (no draws — a child chooses at a printed price).
   No streak counts — "good days this week". A wrong answer holds until Continue.
   `tools/check-rewards.js` holds all of it.
-- **Home is the family anatomy, and Continue is one function** (docs/24): greeting with the
-  ring and the word of the hour · ONE Continue card with the only filled button · today's
-  three · ≤ 6 ways in. `nextStep()` decides the next thing for Continue *and* `#/continue`;
+- **Home is Bee's three rows, and Continue is one function** (docs/24, docs/29): `home()` from
+  `family/bizzing-shell.js` — greeting · ring · word of the hour / ONE Continue · the map / tip ·
+  quote — and a footer, nothing else. `nextStep()` decides the next thing for Continue *and* `#/continue`;
   never add a second "next". `?demo` runs in `demo.js`'s in-memory sandbox and never touches
   the real household. `tools/check-home.js` holds all of it.
 - **A household, not a device** (docs/25): `Store.kidKey()` decides whose key a thing is — the
   first child keeps the old keys, later ones get `.<id>`. Switching child reloads the page.
-  Only the seam files touch `localStorage`; engines use `window.IND_STORE`. The top bar is the
-  family's (standard v2 §3): ⬡ · ☰ · peacock + name · … · search · coin · theme · 🔒 · avatar ▾, 56px,
-  one row; five tabs Home · India · Paathshala · Bhasha · Play; everything else lives in ☰. `bizzing.activity` gets
+  Only the seam files touch `localStorage`; engines use `window.IND_STORE`. The chrome is
+  Bee's, from `family/bizzing-shell.js` (never restyle its geometry; colours via `--bz-*` only):
+  five tabs Home · India · Paathshala · Bhasha · Play; everything else lives in ☰. `checkShell`
+  must return [] (check-standard `shell`). `bizzing.activity` gets
   active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
 - **Medals, sound and the game frame** (docs/26): medals only from what the app saw, each
   celebrated once; the host gives every game a how-to, sound, motion and "what you practised";
@@ -162,7 +163,8 @@ resolves, nothing sensitive claims to be finished, the project is gated, and the
 claim about how it marked a thing matches what it actually did.
 
 - **The family's shared code is copied, never edited** (docs/29): `app/family/` holds
-  Bizzing_Schedule's `bizzing-wallet.js`, `bizzing-activity.js`, `bizzing-avatars.js` and `.css`
+  Bizzing_Schedule's `bizzing-wallet.js`, `bizzing-activity.js`, `bizzing-avatars.js` and `.css`,
+  `bizzing-shell.js` and `.css` (and `tools/lib/shell-check.mjs`)
   byte for byte; `family/bridge.js` hands them to the classic scripts. Avatars are the family's
   96 = 12 × 8 at 2/3/2/1 (`avatar-catalogue.js`, validated in `check-standard`); worlds 1–2 are
   free and the rest open with the family plan or 240 coins. Music is composed in code

@@ -51,7 +51,7 @@ function collect() {
   const parse = c => { const m = String(c).match(/rgba?\(([^)]+)\)/); if (!m) return null;
     const v = m[1].split(',').map(x => parseFloat(x)); return { r: v[0], g: v[1], b: v[2], a: v.length > 3 ? v[3] : 1 }; };
   const items = [];
-  for (const el of document.querySelectorAll('.topbar *, #main *')) {
+  for (const el of document.querySelectorAll('[data-bz=header] *, [data-bz=tabbar] *, #main *')) {
     if (!el.childNodes.length || ![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
     if (el.closest('svg, [aria-hidden="true"], .worldfrieze, button[disabled], .sr-only, #celebrate')) continue;
     const cs = getComputedStyle(el);
@@ -137,7 +137,7 @@ async function measureView(p) {
       await p.evaluate(([w, mode]) => {
         window.BI.S.world = w;
         const isNight = document.documentElement.getAttribute('data-mode') === 'night';
-        if ((mode === 'night') !== isNight) document.querySelector('.topbar [data-act="night"]').click();
+        if ((mode === 'night') !== isNight) document.querySelector('[data-bz=theme]').click();
         window.BI.render();
       }, [w, mode]);
       for (const [v, a] of VIEWS) {

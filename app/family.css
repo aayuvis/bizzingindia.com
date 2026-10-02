@@ -84,7 +84,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex]:focus-vis
   .topbar .nav .navtab.active { color: var(--accent-ink, var(--accent)); }
   .topbar .nav .navtab.active::before { background: var(--accent); }
   .topbar .nav .navtab.active .ic { color: #fff; fill: currentColor; fill-opacity: .2; }
-  #main { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 }
 
 /* --------------------------------------------------------------- the ☰ drawer (§3) */
@@ -343,3 +342,36 @@ html[data-hidden] *, html[data-hidden] *::before, html[data-hidden] *::after { a
   .iconbtn { min-width: 44px; }
   #main a[href], #main [data-act="wcard"], #main .krow, #main .kosh button { min-height: 44px; }
 }
+
+/* ---------------------------------------------------------------- THE SHELL'S COLOURS (owner, 2 Oct)
+   family/bizzing-shell.css is Bee's geometry, untouched; India only gives it colours, through the
+   --bz-* tokens, from whichever world is on — so every world, by day and by night, dresses the
+   same measured chrome. */
+:root, html[data-bz-dark] {
+  --bz-accent: var(--accent); --bz-ink: var(--text); --bz-muted: var(--muted); --bz-line: var(--line);
+  --bz-card: var(--card);
+  --bz-hdr: color-mix(in srgb, var(--ground2) 86%, transparent);
+  --bz-tabbar: color-mix(in srgb, var(--card) 95%, transparent);
+}
+:root { --bz-accent-ink: #fff; }
+html[data-bz-dark] { --bz-accent-ink: var(--ground); }
+/* India's ring, inside the shell's ring tile */
+.ind-ring { display: flex; gap: 16px; align-items: center; }
+.ind-ring .goring { flex: none; width: 96px; height: 96px; transform: none; }
+.ind-ring .goring .bg { fill: none; stroke: var(--line2); stroke-width: 14; }
+.ind-ring .goring .fg { fill: none; stroke: var(--accent2); stroke-width: 14; stroke-linecap: round; }
+.ind-ring .goring text { transform: none; text-anchor: middle; dominant-baseline: central; font: 800 22px 'Fraunces', serif; fill: var(--text); }
+.ind-ringt { font: 800 20px 'Fraunces', serif; }
+.ind-ring p { margin: 6px 0 0; font-size: 13.5px; color: var(--text2); }
+.ind-ring .ind-ringgoal { font-weight: 700; }
+.hivechip { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); bottom: 90px; padding: 8px 14px; border-radius: 99px;
+  background: var(--card); color: var(--text); border: 1px solid var(--line2); box-shadow: var(--shadow); font: 700 13px var(--body); text-decoration: none; }
+
+/* paper takes the family chrome away, as it did India's own bar */
+@media print { [data-bz=header], [data-bz=tabbar], [data-bz=drawer], [data-bz=scrim], .demobar, .hivechip { display: none !important; } }
+
+/* Home's footer line sits on the world's painting: give it a card of its own (colour only — the
+   shell's geometry is untouched) so every world reads at AA, day and night */
+.bz-foot .ind-foot { display: inline-block; background: var(--card); color: var(--text2); border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 14px; line-height: 1.6; }
+.bz-foot .ind-foot a { color: var(--accent); }

@@ -152,7 +152,7 @@ async function openPack(browser, port, w, h) {
   p.on('pageerror', e => errs.push('pageerror: ' + e.message));
   await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
   await skipOnboarding(p);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="bhasha"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="bhasha"]').click());
   await p.waitForTimeout(500);
   await p.evaluate(() => [...document.querySelectorAll('[data-act="pack"]')]
     .find(e => e.getAttribute('data-id') === 'hi').click());
@@ -207,7 +207,7 @@ check('advances', 'finishing a lesson moves the next-lesson card on', async ({ b
   }, L1.keys);
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(600);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="bhasha"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="bhasha"]').click());
   await p.waitForTimeout(400);
   await p.evaluate(() => [...document.querySelectorAll('[data-act="pack"]')]
     .find(e => e.getAttribute('data-id') === 'hi').click());

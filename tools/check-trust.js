@@ -44,16 +44,16 @@ function serve() {
 const CHECKS = [];
 const check = (id, what, fn) => CHECKS.push({ id, what, fn });
 const where = p => p.evaluate(() => ({ url: location.href, hash: location.hash,
-  view: (document.querySelector('.navtab.active') || {}).getAttribute ? document.querySelector('.navtab.active').getAttribute('data-v') : null,
+  view: (document.querySelector('[data-bz=tab][aria-current="page"]') || {}).getAttribute ? document.querySelector('[data-bz=tab][aria-current="page"]').getAttribute('data-v') : null,
   app: !!document.getElementById('app') }));
 
 check('back', 'Back never leaves the app, and a shared link opens its screen', async ({ p, base }) => {
   /* the audit's own walk: into the map, then a state, then Back, Back, Back */
-  await p.evaluate(() => document.querySelector('.navtab[data-v="map"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="map"]').click());
   await p.waitForTimeout(400);
   const onMap = await where(p);
   if (onMap.hash !== '#/map') throw new Error(`the map has no route of its own (hash "${onMap.hash}")`);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(400);
   await p.goBack(); await p.waitForTimeout(400);
   const back1 = await where(p);
@@ -77,8 +77,8 @@ check('back', 'Back never leaves the app, and a shared link opens its screen', a
      Out to Moral Science and the map, Home again — and Back, Back, Back stays on Home. */
   await p.goto(base + '#/home', { waitUntil: 'networkidle' }); await p.waitForTimeout(400);
   await p.evaluate(() => window.BI.go('neeti')); await p.waitForTimeout(400);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="map"]').click()); await p.waitForTimeout(400);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="home"]').click()); await p.waitForTimeout(500);
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="map"]').click()); await p.waitForTimeout(400);
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="home"]').click()); await p.waitForTimeout(500);
   for (let i = 0; i < 3; i++) {
     await p.goBack().catch(() => {}); await p.waitForTimeout(450);
     const h = await where(p);

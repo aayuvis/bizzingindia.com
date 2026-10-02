@@ -2,8 +2,8 @@
 /* Bizzing India — the family layer (FIX-INDIA O4, B7, O3, N4; family standard v2 §3, §5, §19).
    docs/25-family.md says why each one exists.
 
-     topbar     one 56px row in the family order — ⬡ Hive · ☰ · name · … · search · coin · theme · 🔒 · avatar ▾ —
-                on desktop and phone, nothing past 390px, and ⬡ hidden inside a running drill
+     topbar     the chrome is the family shell's (Bee's geometry is measured by check-standard
+                `shell`): five tabs, ⬡ back to the Hive, nothing past 390px, ⬡ hidden in a drill
      household  two children: the second starts with nothing of the first's (stories, coins,
                 map, Sabhyata), switching back finds the first exactly as left, a second child
                 of the same name is refused, and removing one leaves the other whole
@@ -44,44 +44,33 @@ const check = (id, what, fn, o) => CHECKS.push(Object.assign({ id, what, fn }, o
 const tap = async (p, sel) => { await p.evaluate(s => { const e = document.querySelector(s); if (!e) throw new Error('no ' + s); e.click(); }, sel); await p.waitForTimeout(350); };
 const S = p => p.evaluate(() => window.BI.S);
 
-check('topbar', 'one 56px row in the family order, on desktop and phone; ⬡ hidden in a drill', async ({ p }) => {
+check('topbar', 'Bee\'s chrome from the family shell: 56px bar on a desk, 104px header on a phone, ⬡ back to the Hive, nothing wider than a phone; ⬡ hidden in a drill', async ({ p }) => {
+  /* the geometry itself is held to Bee's numbers by checkShell in check-standard `shell`;
+     this holds what is India's: the bar is the shell's, and the drill hides ⬡ */
   for (const vp of [DESK, PHONE]) {
     await p.setViewportSize(vp); await p.waitForTimeout(300);
     const m = await p.evaluate(() => {
-      const row = document.querySelector('.topbar .barrow'), r = row.getBoundingClientRect();
-      const x = sel => { const e = document.querySelector(sel); return e && e.offsetParent ? e.getBoundingClientRect() : null; };
-      const parts = { hive: x('.topbar .hivebtn'), menu: x('.topbar .menubtn'), name: x('.topbar .brand'),
-        search: x('.topbar [data-v="search"]'), coin: x('.topbar .coinchip'), theme: x('.topbar [data-act="night"]'),
-        grown: x('.topbar [data-v="grown"]'), kid: x('.topbar .kidbtn') };
-      /* the standard's own measure: the page's width against the 390 the viewport was set to
-         (innerWidth widens under emulation when something overflows, so it is not used) */
-      const over = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - 390;
-      return { h: r.height, parts: Object.fromEntries(Object.entries(parts).map(([k, v]) => [k, v && { l: v.left, t: v.top, b: v.bottom }])),
-        rowTop: r.top, rowBot: r.bottom, href: (document.querySelector('.topbar .hivebtn') || {}).href || '', over };
+      const bar = document.querySelector('[data-bz=bar]');
+      const over = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth;
+      const hd = document.querySelector('[data-bz=header]');
+      return { h: bar ? bar.getBoundingClientRect().height : 0, hh: hd ? hd.getBoundingClientRect().height : 0, old: !!document.querySelector('.topbar, #drawer'),
+        href: (document.querySelector('[data-bz=hive]') || {}).href || '', tabs: document.querySelectorAll('[data-bz=tab]').length, over };
     });
-    if (Math.abs(m.h - 56) > 1) throw new Error(`at ${vp.width}px the bar is ${m.h}px, not 56`);
-    /* family standard v2 §3: [⬡ Hive] [☰] [mascot + Bizzing India] … [search] [coin] [theme] [🔒] [avatar ▾];
-       on a phone search, theme and 🔒 move into ☰ */
-    const order = vp.width >= 900 ? ['hive', 'menu', 'name', 'search', 'coin', 'theme', 'grown', 'kid']
-                                  : ['hive', 'menu', 'name', 'coin', 'kid'];
-    for (const k of order) {
-      const v = m.parts[k];
-      if (!v) throw new Error(`at ${vp.width}px the bar has no ${k}`);
-      if (v.t < m.rowTop - 1 || v.b > m.rowBot + 1) throw new Error(`at ${vp.width}px the ${k} control is off the bar's one row`);
-    }
-    for (let i = 1; i < order.length; i++)
-      if (m.parts[order[i]].l <= m.parts[order[i - 1]].l)
-        throw new Error(`at ${vp.width}px ${order[i]} comes before ${order[i - 1]} — the family order is ${order.join(' · ')}`);
+    /* Bee's numbers: a 56px bar on a desk; on a phone search drops under it and the header is 104 */
+    if (vp.width >= 900 && Math.abs(m.h - 56) > 1) throw new Error(`at ${vp.width}px the bar is ${m.h}px, not 56`);
+    if (vp.width < 900 && Math.abs(m.hh - 104) > 1) throw new Error(`at ${vp.width}px the header is ${m.hh}px, not Bee's 104`);
+    if (m.old) throw new Error('the old top bar or drawer is still on the page beside the shell');
+    if (m.tabs !== 5) throw new Error(m.tabs + ' tabs in the shell, not five');
     if (!/Bizzing_Schedule/.test(m.href)) throw new Error('⬡ does not go back to the Hive: ' + m.href);
     if (vp.width < 400 && m.over > 0) throw new Error(`the page is ${m.over}px wider than the 390px phone`);
   }
   /* a running drill hides ⬡ */
   await p.setViewportSize(DESK);
   /* the language groups load on demand: wait for them rather than guessing a time */
-  await tap(p, '.navtab[data-v="bhasha"]'); await p.waitForSelector('[data-act="pack"][data-id="hi"]', { timeout: 20000 }).catch(() => {});
+  await tap(p, '[data-bz=tab][data-v="bhasha"]'); await p.waitForSelector('[data-act="pack"][data-id="hi"]', { timeout: 20000 }).catch(() => {});
   await tap(p, '[data-act="pack"][data-id="hi"]'); await p.waitForSelector('.bh-next', { timeout: 20000 }).catch(() => {});
-  await tap(p, '.bh-next');
-  const vis = await p.evaluate(() => getComputedStyle(document.querySelector('.hivebtn')).visibility);
+  await tap(p, '.bh-next'); await p.waitForTimeout(400);
+  const vis = await p.evaluate(() => getComputedStyle(document.querySelector('[data-bz=hive]')).visibility);
   if (vis !== 'hidden') throw new Error('⬡ is still showing inside a running drill');
 });
 
@@ -115,7 +104,7 @@ check('household', 'two children never mix, switching back finds the first as le
   if (b.read || b.lit || b.coins || b.sab) throw new Error('Ravi starts with the first child\'s things: ' + JSON.stringify(b));
   /* Ravi reads a little, then the top bar's menu switches back to Asha */
   await p.evaluate(() => { window.BI.S.read['ravi-only'] = true; window.BI.Store.saveProfile(window.BI.S); });
-  await tap(p, '.kidbtn');
+  await tap(p, '[data-bz=kid]');
   await p.evaluate(() => [...document.querySelectorAll('#kidmenu [data-act="switchkid"]')].find(b => /Asha/.test(b.textContent)).click());
   await p.waitForLoadState('networkidle'); await p.waitForTimeout(700);
   const a1 = await p.evaluate(() => ({ name: window.BI.S.name, read: Object.keys(window.BI.S.read).length, coins: window.BI.coins(),

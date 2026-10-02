@@ -2581,7 +2581,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
     box-shadow:0 -6px 22px rgba(30,20,64,.10)}
   .navtab{flex-direction:column;gap:3px;font-size:10.5px;padding:5px 10px;border-radius:12px}
   .navtab .ic,.navtab svg{width:20px;height:20px}
-  #main{padding-bottom:92px}
 }
 #navmoresheet{position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;background:color-mix(in srgb,var(--ground) 45%,transparent)}
 #navmoresheet .nm-in{position:absolute;left:10px;right:10px;

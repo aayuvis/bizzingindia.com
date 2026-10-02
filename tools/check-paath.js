@@ -230,7 +230,7 @@ async function boot(browser, port) {
   await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
   await skipOnboarding(p);
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(600);
   return { p, errs };
 }
@@ -428,7 +428,7 @@ check('dayrule', 'a check taken the same day is practice, not learning', async (
     location.reload();
   });
   await p.waitForTimeout(1600);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
   await p.evaluate(() => document.querySelector('.pa-card[data-id="neeti-course"]').click());
   await p.waitForTimeout(400);
@@ -480,7 +480,7 @@ check('pack', 'a course leaves the screen', async ({ p, C }) => {
   await p.waitForTimeout(300);
   const pr = await p.evaluate(() => {
     const gone = n => { const e = document.querySelector(n); return !e || getComputedStyle(e).display === 'none'; };
-    return { topbar: gone('.topbar'), tools: gone('.pk-tools'), art: gone('.wa-layer'),
+    return { topbar: gone('[data-bz=header]') && gone('[data-bz=tabbar]'), tools: gone('.pk-tools'), art: gone('.wa-layer'),
              pack: getComputedStyle(document.querySelector('.pk')).display !== 'none' };
   });
   await p.emulateMedia({ media: 'screen' });
@@ -541,7 +541,7 @@ check('keyboard', 'every control is reachable and pressable without a mouse', as
   /* Inherited from Bizzing Bee and non-negotiable: keyboard AND touch. Real <button>
      elements give both for free, which is why they are used throughout — this makes sure
      nobody has replaced one with a clickable div. */
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(400);
   const r = await p.evaluate(() => {
     const ctl = [...document.querySelectorAll('[data-pa]')];
@@ -761,7 +761,7 @@ check('gate', 'the project does not open before the test is passed', async ({ p 
   });
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(700);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
   await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
   await p.waitForTimeout(700);
@@ -788,7 +788,7 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   });
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(700);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
   await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
   await p.waitForTimeout(600);
@@ -858,7 +858,7 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   });
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(600);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
   await p.evaluate(() => document.querySelector('.pa-card[data-id="rishtey-course"]').click());
   await p.waitForTimeout(600);
@@ -903,7 +903,7 @@ check('atlas', 'every course is a map you walk', async ({ p, C }) => {
   });
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(600);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(400);
   for (const c of C.P.courses) {
     const back = await p.$('.backlink[data-pa="hub"]');
@@ -976,7 +976,7 @@ check('pictures', 'every part has its own picture, or its own words — never a 
 check('touch', 'a phone can hit everything', async ({ p }) => {
   await p.setViewportSize({ width: 390, height: 844 });
   await p.waitForTimeout(400);
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
   await p.evaluate(() => document.querySelector('.pa-card').click());
   await p.waitForTimeout(500);

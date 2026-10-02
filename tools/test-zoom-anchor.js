@@ -33,7 +33,7 @@ const check = (n, ok, x) => { console.log((ok ? 'PASS' : 'FAIL') + '  ' + n + (x
   await p.reload({ waitUntil: 'networkidle' });
   await skipOnboarding(p);
   await p.waitForTimeout(350);
-  await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
+  await p.click('[data-bz=tab][data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(650);
   const shut = async () => { for (let i=0;i<5;i++){const bt=await p.$('#sab-ovhost .sab-btn'); if(!bt)return; await bt.click().catch(()=>{}); await p.waitForTimeout(170);} };
   await shut();

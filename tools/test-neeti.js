@@ -20,14 +20,8 @@ async function boot(b, w, h) {
   return { p, errs };
 }
 const goNeeti = async p => {
-  await p.evaluate(() => {
-    const t = document.querySelector('.navtab[data-v="neeti"]');
-    if (t && t.offsetParent !== null) { t.click(); return; }
-    const more = [...document.querySelectorAll('.navtab')].find(x => /More/.test(x.textContent));
-    if (more) more.click();
-  });
-  await p.waitForTimeout(450);
-  await p.evaluate(() => { const t = document.querySelector('[data-v="neeti"]'); if (t) t.click(); });
+  /* Moral Science is a door in Paathshala and a row in ☰ (standard v2 §4) */
+  await p.evaluate(() => window.BI.go('neeti'));
   await p.waitForTimeout(800);
 };
 const rows = p => p.evaluate(() => [...document.querySelectorAll('.tile')].map(t => ({

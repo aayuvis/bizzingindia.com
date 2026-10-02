@@ -219,9 +219,9 @@ check('commit', 'every answer reaches the profile, and nothing else does', async
 check('landed', 'it ends inside the app, not on another screen of setup', async ({ p }) => {
   await walk(p, {});
   const r = await p.evaluate(() => ({
-    bar: !!document.querySelector('.topbar'),
+    bar: !!document.querySelector('[data-bz=header]'),
     onb: !!document.querySelector('.obbub'),
-    tab: (document.querySelector(".navtab.active") || {}).textContent || ""
+    tab: (document.querySelector('[data-bz=tab][aria-current="page"]') || {}).textContent || ""
   }));
   if (r.onb) throw new Error('still onboarding after Start');
   if (!r.bar) throw new Error('the app shell did not build');

@@ -631,7 +631,12 @@
     return n;
   }
   function coins() { return window.IND_ECONOMY ? window.IND_ECONOMY.coins(S) : 0; }
-  function paintCoins() { var el = $('#kauriCount'); if (el) el.textContent = coins(); }
+  /* the shell's coin chip follows every earning at once, not at the next render */
+  function paintCoins() {
+    var n = coins(), el = $('#kauriCount'); if (el) el.textContent = n;
+    var c = $('[data-bz=coins]');
+    if (c) { var sp = c.querySelector('span'); if (sp) sp.textContent = n; c.setAttribute('aria-label', n + ' Bizzing coins — your coin history'); }
+  }
   /* GOOD DAYS THIS WEEK, never a run of days (standard §8). A day off costs nothing. */
   function goodDays() {
     var cut = new Date(Date.now() - 6 * 864e5).toISOString().slice(0, 10), seen = {};
@@ -1258,146 +1263,71 @@
   V.home = function () {
     var lit = Object.keys(S.lit).length, places = nPlaces();
     var lv = level(), mN = mastered();
-    var pct = lv >= RANKS.length - 1 ? 100
-      : Math.min(100, Math.round((mN - RANK_AT[lv]) / Math.max(1, RANK_AT[lv + 1] - RANK_AT[lv]) * 100));
     var hour = new Date().getHours();
-    var greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    /* the word of the hour arrives in the family's language when one is chosen;
-       the Hindi set keeps its recorded voice, the others speak through the device */
+    var greet = hour < 12 ? 'Good morning,' : hour < 17 ? 'Good afternoon,' : 'Good evening,';
+    /* the word of the hour arrives in the family's language when one is chosen */
     var tg = tongue();
     var Wd = (tg && tg.words && tg.words.length) ? tg.words : SHABD;
     var w = Wd[hour % Wd.length], q = SUBHASHITA[hour % SUBHASHITA.length];
     var wLang = (tg && tg.words) ? tg.lang : 'hi';
     var stp = nextStep();
-    var K = window.IND_NEETI;
-    var todayValue = K ? K.values[Math.floor(Date.now() / 86400000) % K.values.length] : null;
-    var deedDone = todayValue && (S.mala || []).some(function (b) {
-      return b.v === todayValue.id && b.on === today();
-    });
     var ringN = (S.todayOn === today()) ? (S.todayCount || 0) : 0;
-    var goal = S.goal || 3, ringDone = ringN >= goal, C = 2 * Math.PI * 26;
+    var goal = S.goal || 3, ringDone = ringN >= goal, C = 2 * Math.PI * 44;
+    var A = (window.IND_AVATAR_BY_ID || {})[S.buddy];
+    var aj = aajState();
 
-    /* HOME, IN THE FAMILY'S ANATOMY (family standard §2; FIX-INDIA B1–B3). It was nine
-       blocks — greeting, ring, resume tiles, two journeys, Ask Nani, a subhashita, three
-       "on now" tiles, the yatra and the mala — and on a phone the only way in, "Start —
-       hear a story", sat below the fold under the deed button. Now, in this order:
-
-         1  a greeting that says something true about what the child did last,
-            beside the day's ring and the word of the hour;
-         2  ONE Continue card — the single next step, from nextStep(), the same function
-            #/continue uses, with the ONLY filled button on the screen; and next to it,
-            where the child is: their rank and the map;
-         3  today's three — small, optional, nothing lost for skipping;
-         4  five ways in.
-
-       The yatra and the mala moved to the child's own page (the avatar, top right). */
-    return '<div class="hm">' +
-
-      /* 1 — THE GREETING. The companion, tappable: it opens the deck. */
-      '<div class="card notch hm-greet">' +
-        '<button class="buddybtn" data-act="deck" aria-label="Your companions">' + art(S.buddy, 216) + '</button>' +
-        '<div class="hm-hi"><div class="tiny muted">' + greet + ',' +
-          (goodDays() ? ' <span style="white-space:nowrap">· 🪔 ' + goodDays() + ' good day' +
-            (goodDays() === 1 ? '' : 's') + ' this week</span>' : '') + '</div>' +
-        '<h2>' + esc(S.name || 'Yatri') + (window.IND_DEMO ? ' <span class="pill sample">Sample</span>' : '') + '</h2>' +
-        '<div class="bubble">' + esc(helloLine()) + '</div></div></div>' +
-
-      /* the day's ring: DEEDS — a story finished, a lesson, a game, the day's deed —
-         never pages read (docs/10 §3.5). The target is the family's, in S.goal. */
-      '<div class="card hm-ring">' +
-        '<svg class="goring" viewBox="0 0 64 64" aria-hidden="true">' +
-          '<circle cx="32" cy="32" r="26" class="bg"/>' +
-          '<circle cx="32" cy="32" r="26" class="fg" stroke-dasharray="' + C.toFixed(1) +
-            '" stroke-dashoffset="' + (C * (1 - Math.min(1, ringN / goal))).toFixed(1) + '"/>' +
-          '<text x="32" y="31">' + Math.min(ringN, 99) + '/' + goal + '</text>' +
-          '<text x="32" y="43" class="sub">today</text></svg>' +
-        '<div><b>' + (ringDone ? 'Ring closed — shabash!' : 'Today’s ring') + '</b>' +
-        '<p class="tiny muted">' + (ringDone ? 'Everything from here is extra shine.'
-          : 'A story, a lesson, a game or the day’s deed — each one fills a notch.') + '</p>' +
-        /* the day's target is set by a grown-up, behind the PIN (standard §5, §15; FIX-INDIA Q4) */
-        '<p class="tiny muted goalnote">' + goal + ' a day — a grown-up sets this.</p></div></div>' +
-
-      '<div class="card hm-word"><span class="mono">Word of the hour</span>' +
-        '<p lang="' + esc(wLang) + '" class="hm-w">' + esc(w[0]) + '</p>' +
-        '<p class="tiny muted">/ ' + esc(w[1]) + ' / · ' + esc(w[2]) + '</p>' +
-        '<button class="pill" data-act="say" data-k="' + esc(w[3] || '') + '" data-t="' + esc(w[0]) +
-        '" data-l="' + esc(wLang) + '-IN">' + icon('sound', 16) + ' hear it</button></div>' +
-
-      /* 2 — ONE CONTINUE. The painted card, the single next step, the only filled button. */
-      '<div class="card contcard">' +
-        '<div class="cc-art"' + (stp.art ? ' style="background-image:url(' + stp.art + ')"' : '') + '>' +
-          (stp.art ? '' : mascot('mithu', 'talk', 96)) + '</div>' +
-        '<div class="cc-body"><span class="mono">' + esc(stp.kick) + '</span>' +
-        '<h2>' + esc(stp.title) + '</h2>' +
-        (stp.sub ? '<p class="tiny">' + esc(stp.sub) + '</p>' : '') +
-        '<div class="cc-prog"><div class="meter"><i style="width:' +
-          Math.round(Math.min(1, (stp.n || 0) / Math.max(1, stp.of || 1)) * 100) + '%"></i></div>' +
-          '<span class="tiny muted">' + esc(stp.meter || '') + '</span></div>' +
-        '<button class="btn lg" data-act="cont">' + icon('play', 18) + ' Continue</button></div></div>' +
-
-      /* where the child is: rank by evidence, and the map — next to Continue (B3) */
-      '<div class="card hm-where">' +
-        '<div class="hw-map" style="background-image:url(art/banner/map.jpg)">' +
-          '<span class="tag">' + lit + ' of ' + places + ' places remembered</span></div>' +
-        '<div class="hw-body">' +
-        '<div class="spread"><span class="mono">Your rank</span><b class="hw-rank">' + esc(rank()) + '</b></div>' +
-        '<div class="meter"><i style="width:' + pct + '%"></i></div>' +
-        '<p class="tiny muted">' + (lv < RANKS.length - 1
-          ? (RANK_AT[lv + 1] - mN) + ' more thing' + (RANK_AT[lv + 1] - mN === 1 ? '' : 's') +
-            ' mastered to <b>' + esc(RANKS[lv + 1]) + '</b> — a course test passed on a later day, or a Bhasha rung.'
-          : 'You are at the top of the ladder.') + '</p>' +
-        '<div class="spread"><span class="mono">India</span><span class="tiny muted">' + lit + ' / ' + places + '</span></div>' +
-        '<div class="meter"><i style="width:' + Math.round(lit / places * 100) + '%"></i></div>' +
-        '<button class="btn ghost" data-act="go" data-v="map">' + icon('map', 16) + ' Open the map</button>' +
-        '</div></div>' +
-    '</div>' +
-
-      /* the family's language, until it is chosen: the stories, words and map lean its way */
-      (!S.tongue
-        ? '<button class="card ask hm-tongue" data-act="go" data-v="tongue">' + icon('script', 22) +
-          '<span><b>Your family’s language</b>' +
-          '<span class="tiny muted">Tell us once — the stories, the words and the map lean your way.</span></span>' +
-          '<span class="pill stat">Choose →</span></button>'
-        : '') +
-
-      /* SOMETHING WORTH SAVING FOR (FIX-INDIA K10): the Legendary of the child's first open
-         world whose learning they can reach, or the next world — with how far the coins are.
-         A goal, never a deadline: no countdown, no "you will lose". */
-      savingFor() +
-
-      /* 3 — TODAY'S THREE. Optional; nothing is lost for skipping one. */
-      '<div class="hm-head"><h3>Today’s three</h3><span class="tiny muted">Nothing is lost for skipping.</span></div>' +
-      '<div class="grid g3 hm-three">' +
-        (function () {
-          var A = aajState(), done = !!(A && A.end);
-          return '<button class="tile hm-t aajtile" data-act="aajgo"><span class="mono">Aaj ka · five minutes</span>' +
-            '<b>' + (done ? 'Done for today ✓' : 'A story, four new words, a look back') + '</b>' +
-            '<p class="tiny">' + (done ? 'Anything more is extra. Tomorrow there is another five.'
-              : A ? 'You are part-way — carry on where you stopped.' : 'Starts and ends cleanly. Nothing is lost for skipping.') +
-            '</p></button>';
-        })() +
-        (todayValue
-          ? '<div class="tile hm-t"><span class="mono">Do one</span>' +
-            '<b>' + esc(todayValue.roman) + ' — ' + esc(todayValue.en) + '</b>' +
-            '<p class="tiny">' + esc(todayValue.doit) + '</p>' +
-            (deedDone ? '<span class="pill stat">A bead on your mala ✓</span>'
-                      : '<button class="pill" data-act="deed" data-id="' + todayValue.id + '">I did it</button>') +
-            '</div>'
-          : '') +
-        (naniWeek()
-          ? (function () {
-              var nq = naniWeek();
-              return '<button class="tile hm-t" data-act="go" data-v="nani"><span class="mono">Ask at home</span>' +
-                '<b>' + esc(kinEn(nq)) + '</b>' +
-                '<p class="tiny muted">This week, ask ' + esc(kinTerm(nq.to)) + '.</p></button>';
-            })()
-          : '<div class="tile hm-t"><span class="mono">Subhashita of the hour</span>' +
-              '<p class="hm-q">“' + esc(q[0]) + '”</p><p class="tiny muted">— ' + esc(q[1]) + '</p></div>') +
-      '</div>' +
-
-      /* 4 — WAYS IN. Five, each saying something true today. */
-      '<div class="ways">' + waysIn() + '</div>';
+    /* HOME IS BEE'S THREE ROWS AND A FOOTER (owner, 2 Oct 2026; family standard §6), drawn by
+       family/bizzing-shell.js home(), with India's own words in every slot:
+         row 1  the greeting (the child's companion and a line about what they did last) ·
+                the day's ring, with the rank as "Your level" · the word of the hour;
+         row 2  ONE Continue — nextStep(), the same function #/continue uses — and the long
+                journey, the map, with an outline button;
+         row 3  Aaj ka's five minutes as the tip · the subhashita of the hour.
+       What used to sit here as extra tiles — the ways in, the deed, ask-at-home, the language
+       ask — lives in its own tab or in ☰; the footer keeps one line for each that matters. */
+    var ring = '<div class="ind-ring"><svg class="goring" width="110" height="110" viewBox="0 0 110 110" aria-hidden="true">' +
+        '<circle cx="55" cy="55" r="44" class="bg"/>' +
+        '<circle cx="55" cy="55" r="44" class="fg" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' +
+          (C * (1 - Math.min(1, ringN / goal))).toFixed(1) + '" transform="rotate(-90 55 55)"/>' +
+        '<text x="55" y="55">' + Math.min(ringN, 99) + '/' + goal + '</text></svg>' +
+      '<div><b class="ind-ringt">' + (ringDone ? 'Ring closed — shabash!' : 'Today’s ring') + '</b>' +
+        '<p>' + (ringDone ? 'Everything from here is extra shine.' : 'A story, a lesson, a game or the day’s deed — each one fills a notch.') + '</p>' +
+        '<p class="ind-ringgoal">' + goal + ' a day · ' + goodDays() + ' good day' + (goodDays() === 1 ? '' : 's') + ' this week</p></div></div>';
+    var homeHTML = window.IND_SHELL.home({
+      greet: { mascot: A ? A.art : 'art/logo.png', hello: greet, name: (S.name || 'Yatri') + (window.IND_DEMO ? ' · sample' : ''), line: helloLine() },
+      ring: { html: ring, foot: { kicker: 'Your level', title: rank() + (lv < RANKS.length - 1 ? ' · ' + (RANK_AT[lv + 1] - mN) + ' to ' + RANKS[lv + 1] : ''), href: '#/me' } },
+      hour: { kicker: 'Word of the hour', title: w[0], sub: '/ ' + w[1] + ' / · ' + w[2], icon: 'clock',
+              href: (window.IND_PACKS && window.IND_PACKS[wLang] && lexWord(window.IND_PACKS[wLang], w[0]))
+                ? '#/wordcard/' + encodeURIComponent(wLang + ':' + w[0]) : '#/bhasha' },
+      next: { plate: stp.art || 'art/banner/stories.jpg', chip: stp.meter || '', kicker: stp.kick, title: stp.title, sub: stp.sub || '',
+              href: '#/continue', cta: 'Continue', icon: 'path',
+              progress: { pct: Math.round(Math.min(1, (stp.n || 0) / Math.max(1, stp.of || 1)) * 100), label: stp.meter || '' } },
+      second: { plate: 'art/banner/map.jpg', chip: lit + ' of ' + places + ' places', kicker: 'Your journey across India',
+                title: 'The map of India', sub: 'Every story you finish lifts the mist off the place it came from.',
+                href: '#/map', cta: 'Open the map', ctaIcon: 'map', progress: { pct: Math.round(lit / Math.max(1, places) * 100) } },
+      tip: { kicker: 'Aaj ka · five minutes', href: '#/aaj',
+             text: aj && aj.end ? 'Done for today — anything more is extra, and tomorrow there is another five.'
+                 : aj ? 'You are part-way through today’s five minutes — carry on where you stopped.'
+                      : 'A story, four new words and a look back. It starts and ends cleanly; nothing is lost for skipping.' },
+      quote: { kicker: 'Subhashita of the hour', text: q[0], who: q[1], href: '#/shlok' },
+      foot: homeFoot()
+    });
+    return homeHTML;
   };
+  /* the footer: one line each for what used to be extra tiles, and the way to the rest */
+  function homeFoot() {
+    var bits = [];
+    if (!S.tongue) bits.push('<a href="#/tongue">Your family’s language — tell us once</a>');
+    /* the one thing the child is saving for (FIX-INDIA K10), with its price and how far the coins are */
+    var sf = savingFor(), sv = sf.match(/<b>([^<]*)<\/b>/), pr = sf.match(/(\d+) coins/),
+        to = sf.match(/data-v="([^"]*)" data-arg="([^"]*)"/);
+    if (sv && pr) bits.push('<a class="ind-save" href="#/' + (to ? to[1] + '/' + to[2] : 'shop') + '">Saving for ' + sv[1] + ' — ' +
+      Math.min(coins(), +pr[1]) + ' of ' + pr[1] + ' coins</a>');
+    bits.push('<a href="#/neeti">Today’s deed</a>');
+    bits.push('<a href="#/privacy">Privacy</a>');
+    /* on its own card: the footer sits on the world's painting, which no colour can be read on */
+    return '<span class="ind-foot">' + bits.join(' · ') + '</span>';
+  }
 
   /* the greeting's line: about the last thing the child actually did, when it was this week */
   function helloLine() {
@@ -6265,7 +6195,7 @@
      After every paint, an element that holds Indic text and is not already tagged with the
      right language gets it, and the :lang() rules in app.css do the rest. Marathi and Hindi
      share Devanagari and Mukta, so 'hi' standing for both is right here. */
-  var TAG_SEL = '.deva, .glyph, .wcs, .opt, .wcword, .kw, [data-script]';
+  var TAG_SEL = '.deva, .glyph, .wcs, .opt, .wcword, .kw, [data-script], .bz-hour h3, .sres b';
   function tagScripts(root) {
     if (!root || !root.querySelectorAll) return;
     var els = root.querySelectorAll(TAG_SEL), i, el, lg, have;
@@ -7197,73 +7127,14 @@
         (retryArg != null ? ' data-arg="' + esc(retryArg) + '"' : '') + '>Try again</button></div>';
   }
 
-  /* ---- THE ☰ DRAWER (standard §3): left, 300px, over a scrim; Esc, the scrim or × close
-     it; focus is trapped inside while it is open. The order is the family's, in every app:
-     My page · Shop · Collection · Medals · (India's own four) · Settings · Grown-ups 🔒 ·
-     Help · Privacy · Back to the Hive. Anything that is not a main tab lives here. */
-  var drawerFrom = null;
-  function drawerHTML() {
-    var row = function (v, ic, label, extra) {
-      return '<button class="dr-row" data-act="go" data-v="' + v + '">' + icon(ic, 22) + '<span>' + label + '</span>' +
-        (extra || '') + '</button>';
-    };
-    return '<div class="dr-scrim" data-act="drawerclose"></div>' +
-      '<nav class="dr-in" role="dialog" aria-modal="true" aria-label="Menu">' +
-        '<div class="dr-head"><span class="dr-brand">' + peacock('wave', 36) + '<b>Bizzing <em>India</em></b></span>' +
-          '<button class="iconbtn" data-act="drawerclose" aria-label="Close the menu">' + icon('close', 20) + '</button></div>' +
-        /* on a phone the bar folds search, theme and the grown-ups' lock in here (standard §3) */
-        '<div class="dr-quick">' +
-          '<button class="dr-chip dr-phone" data-act="go" data-v="search">' + icon('search', 18) + '<span>Search</span></button>' +
-          '<button class="dr-chip dr-phone" data-act="night" aria-pressed="' + night + '">' + icon(night ? 'sun' : 'moon', 18) +
-            '<span>' + (night ? 'Day' : 'Night') + '</span></button>' +
-          /* read-in-Hindi: India's own, global, with per-story content */
-          '<button class="dr-chip" data-act="hindi" aria-pressed="' + !!S.hindi + '"><span class="deva" lang="hi" aria-hidden="true">अ</span>' +
-            '<span>Hindi too: ' + (S.hindi ? 'on' : 'off') + '</span></button>' +
-          /* THE ONE MUTE, one tap from ☰ (standard §11) */
-          '<button class="dr-chip" data-act="sound" aria-pressed="' + !soundOn + '">' + icon(soundOn ? 'sound' : 'mute', 18) +
-            '<span>' + (soundOn ? 'Sound on' : 'Muted') + '</span></button>' +
-        '</div>' +
-        row('me', 'star', 'My page') +
-        row('shop', 'bag', 'Shop') +
-        row('collection', 'cards', 'Collection', '<i>' + collectionCount() + ' of 96</i>') +
-        row('medals', 'medal', 'Medals') +
-        '<hr>' +
-        row('stories', 'tree', esc(tellerTitle())) +
-        row('neeti', 'lamp', 'Moral Science') +
-        row('epics', 'book', 'The Epics') +
-        row('tongue', 'script', 'Family language', '<i>' + esc(tongue() ? tongue().en : 'choose') + '</i>') +
-        '<hr>' +
-        row('settings', 'gear', 'Settings') +
-        row('grown', 'lock', 'Grown-ups') +
-        row('help', 'help', 'Help') +
-        row('privacy', 'shield', 'Privacy') +
-        '<a class="dr-row" href="https://aayuvis.github.io/Bizzing_Schedule/">' + icon('hive', 22) + '<span>Back to the Hive</span></a>' +
-      '</nav>';
-  }
-  function openDrawer() {
-    if ($('#drawer')) return;
-    drawerFrom = document.activeElement;
-    var d = document.createElement('div');
-    d.id = 'drawer'; d.innerHTML = drawerHTML();
-    document.body.appendChild(d);
-    document.body.classList.add('drawer-open');
-    var b = $('.menubtn'); if (b) b.setAttribute('aria-expanded', 'true');
-    var f = d.querySelector('.dr-in [data-act="drawerclose"]'); if (f) f.focus();
-  }
-  function closeDrawer() {
-    var d = $('#drawer'); if (!d) return;
-    d.remove(); document.body.classList.remove('drawer-open');
-    var b = $('.menubtn'); if (b) b.setAttribute('aria-expanded', 'false');
-    if (drawerFrom && drawerFrom.focus && document.body.contains(drawerFrom)) drawerFrom.focus();
-    drawerFrom = null;
-  }
-  /* Esc closes the drawer and the sheets; Tab stays inside whichever is open */
+  /* The ☰ drawer is the family shell's (family/bizzing-shell.js), wired by bindShell. */
+  /* Esc closes the sheets; Tab stays inside whichever is open */
   document.addEventListener('keydown', function (e) {
-    var open = $('#drawer .dr-in') || $('#walletsheet .ws-in') || $('#kidmenu .km-in');
+    var open = $('#walletsheet .ws-in') || $('#kidmenu .km-in');
     if (!open) return;
     if (e.key === 'Escape') {
       e.preventDefault();
-      if ($('#drawer')) closeDrawer(); else if ($('#walletsheet')) closeWallet(); else closeKidMenu();
+      if ($('#walletsheet')) closeWallet(); else closeKidMenu();
       return;
     }
     if (e.key !== 'Tab') return;
@@ -7342,7 +7213,7 @@
     document.body.appendChild(d);
     var f = d.querySelector('.ws-in [data-act="walletclose"]'); if (f) f.focus();
   }
-  function closeWallet() { var d = $('#walletsheet'); if (d) d.remove(); var c = $('.coinchip'); if (c) c.focus(); }
+  function closeWallet() { var d = $('#walletsheet'); if (d) d.remove(); var c = $('[data-bz=coins]') || $('.coinchip'); if (c) c.focus(); }
 
   /* ---- the collection count, for the drawer and the Collection page */
   function collectionCount() {
@@ -7566,7 +7437,7 @@
     var P = window.IND_PACKS || {};
     Object.keys(P).forEach(function (pid) {
       (P[pid].lexicon || []).forEach(function (w) {
-        add('Word', w.word, (w.roman ? w.roman + ' · ' : '') + (w.en || w.meaning || ''), 'wordcard', pid + '|' + w.word, (w.en || '') + ' ' + (w.roman || ''));
+        add('Word', w.word, (w.roman ? w.roman + ' · ' : '') + (w.en || w.meaning || ''), 'wordcard', pid + ':' + w.word, (w.en || '') + ' ' + (w.roman || ''));
       });
     });
     (window.IND_AVATARS || []).forEach(function (a) { add(a.real ? 'Person' : 'Card', a.name, a.about || '', 'avcard', a.id); });
@@ -7750,47 +7621,74 @@
       '</div></div>';
   }
 
+  /* THE FAMILY CHROME IS BEE'S, MEASURED (owner, 2 Oct 2026). family/bizzing-shell.js draws the
+     top bar (⬡ ☰ peacock+wordmark … search | coins theme 🔒 avatar ▾), the tab row, the phone
+     tab bar and the ☰ drawer in the family order, at Bee's exact geometry; India only fills it
+     in — its words, its peacock, the child's face, its five tabs and its own four drawer rows.
+     tools/lib/shell-check.mjs holds it to Bee's numbers. The chrome is rebuilt whenever one of
+     the things it shows changes (shellKey), so nothing in it freezes at boot. */
+  var TAB_ICON = { home: 'home', map: 'map', paath: 'learn', bhasha: 'pen', khel: 'play' };
+  function shellOpts() {
+    var A = (window.IND_AVATAR_BY_ID || {})[S.buddy];
+    var face = A ? A.art : 'art/' + S.buddy + '.png';
+    return {
+      app: 'india', name: 'India', mascot: 'art/logo.png', coins: coins(), dark: !!night,
+      kid: { name: S.name || '', avatar: face },
+      search: 'Search stories, states, words…', query: view.name === 'search' ? (view.arg || '') : '',
+      inRun: (view.name === 'pack' && !!quiz.q) || view.name === 'game',
+      tabs: TABS.map(function (t) { return { id: t[0], label: t[1], icon: TAB_ICON[t[0]] || 'star', href: '#/' + t[0] }; }),
+      active: activeTab(),
+      drawer: {
+        sub: 'Rank: ' + rank() + (window.IND_DEMO ? ' · sample child' : ''),
+        routes: { me: '#/me', shop: '#/shop', collection: '#/collection', medals: '#/medals', settings: '#/settings',
+                  grownups: '#/grown', help: '#/help', privacy: '#/privacy' },
+        app: [
+          { icon: 'book', label: tellerTitle(), sub: 'the story shelves, read aloud', href: '#/stories' },
+          { icon: 'lamp', label: 'Moral Science', sub: 'values, faiths, festivals and the day’s deed', href: '#/neeti' },
+          { icon: 'star', label: 'The Epics', sub: 'the Ramayana and the Mahabharata, night by night', href: '#/epics' },
+          { icon: 'globe', label: 'Family language', sub: tongue() ? tongue().en : 'tell us once, and everything leans your way', href: '#/tongue' }
+        ]
+      }
+    };
+  }
+  function shellKey() {
+    var o = shellOpts();
+    return JSON.stringify([o.coins, o.dark, o.kid, o.inRun, o.active, o.drawer.sub, o.drawer.app[0].label, o.drawer.app[3].sub, o.query, !!window.IND_DEMO]);
+  }
+  var lastShell = '';
   function chrome() {
+    var o = shellOpts();
+    o.content = '';
     return (window.IND_DEMO
         ? '<div class="demobar" role="note"><b>Sample child.</b> A demo with a few weeks of made-up ' +
           'progress — nothing here is saved, and nothing is shared. <a href="' + esc(location.pathname) +
           '">Leave the sample</a></div>' : '') +
-      /* THE FAMILY TOP BAR (family standard §3), the same 56px row in every Bizzing app:
-         [⬡ Hive] [☰] [peacock + Bizzing India] … [search] [coin chip] [theme] [🔒] [avatar ▾].
-         On a phone it keeps ⬡ ☰ logo … coin · avatar; search, theme and 🔒 move into ☰. */
-      '<header class="topbar"><div class="barrow">' +
-      '<a class="hivebtn" href="https://aayuvis.github.io/Bizzing_Schedule/" aria-label="Back to the Bizzing Hive" title="The Bizzing Hive">' +
-        icon('hive', 22) + '</a>' +
-      '<button class="iconbtn menubtn" data-act="drawer" aria-haspopup="dialog" aria-expanded="false" aria-label="Menu">' + icon('menu', 22) + '</button>' +
-      '<button class="brand" data-act="go" data-v="home" aria-label="Bizzing India — home">' +
-        '<img src="art/logo.png" alt="" width="28" height="28">' +
-        '<span class="bz-word">Bizzing</span> <em>India</em></button>' +
-      /* the world's frieze: decorative, between the name and the controls */
-      (window.IND_WORLDS && window.IND_WORLDS.frieze
-        ? '<span class="worldfrieze" id="worldfrieze">' + window.IND_WORLDS.frieze(S.world) + '</span>'
-        : '') +
-      '<span class="barctl">' +
-      /* ?from=hive: one chip back to the family's day (family standard §19) */
-      (fromHive ? '<a class="pill hivechip" href="https://aayuvis.github.io/Bizzing_Schedule/">← my day</a>' : '') +
-      '<button class="searchpill bar-desk" data-act="go" data-v="search" aria-label="Search">' + icon('search', 18) + '<span>Search</span></button>' +
-      '<button class="pill coinchip" data-act="wallet" aria-label="Bizzing coins: ' + coins() + ' — where they came from" title="Bizzing coins">' +
-        coinSvg(20) + '<span id="kauriCount">' + coins() + '</span></button>' +
-      /* theme: the icon shows where the tap GOES — a moon means "make it night" */
-      '<button class="iconbtn bar-desk" data-act="night" aria-pressed="' + (night ? 'true' : 'false') + '"' +
-      ' aria-label="' + (night ? 'Switch to day' : 'Switch to night') + '">' +
-      icon(night ? 'sun' : 'moon', 20) + '</button>' +
-      '<button class="iconbtn bar-desk" data-act="go" data-v="grown" aria-label="Grown-ups (behind a PIN)" title="Grown-ups">' +
-      icon('lock', 19) + '</button>' +
-      /* the child — and the switch to a brother or sister (standard §3) */
-      '<button class="kidbtn" data-act="kidmenu" aria-haspopup="true" aria-expanded="false" ' +
-      'aria-label="' + esc((S.name || 'You') + ' — who is playing') + '">' +
-      '<span class="kidav' + (S.frame ? ' framed fr-' + esc(S.frame) : '') + '">' + art(S.buddy, 36) + '</span>' + icon('drop', 14) + '</button>' +
-      '</span>' +
-      '</div><nav class="nav" aria-label="Main">' + TABS.map(function (t) {
-        return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 24) +
-          '<span>' + esc(t[1]) + '</span></button>';
-      }).join('') +
-      '</nav></header><main class="wrap" id="main"></main>';
+      (fromHive ? '<a class="hivechip" href="https://aayuvis.github.io/Bizzing_Schedule/">← back to my day</a>' : '') +
+      window.IND_SHELL.shell(o);
+  }
+  /* the shell's own buttons, wired once (bindShell delegates, so it survives every re-render) */
+  var shellBound = false;
+  function bindChrome() {
+    if (shellBound || !window.IND_SHELL) return;
+    shellBound = true;
+    window.IND_SHELL.bindShell({
+      onTheme: function () { night = !night; Store.saveDevice('night', night); setDev('theme', night ? 'dark' : 'light'); render(); },
+      onLock: function () { go('grown'); },
+      onKid: function () { if ($('#kidmenu')) closeKidMenu(); else openKidMenu(); },
+      onCoins: function () { openWallet(); },
+      onSearch: function (q) { go('search', q || ''); },
+      onSound: function () { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); applyLook(); musicNow(); toast(soundOn ? 'Sound on' : 'Muted'); }
+    });
+  }
+  function activeTab() {
+    var alias = { state: 'map', mon: 'map', learn: 'map', era: 'map', itihaas: 'map',
+                  stories: 'paath', story: 'paath', kahani: 'paath', nani: 'paath', shelf: 'paath', invite: 'paath', epics: 'paath', epic: 'paath', episode: 'paath',
+                  neeti: 'paath', dharma: 'paath', faith: 'paath', utsav: 'paath', festival: 'paath', gully: 'paath', gullygame: 'paath', geet: 'paath', song: 'paath',
+                  value: 'paath', shlok: 'paath', verses: 'paath', paathl: 'paath', paathk: 'paath', paathp: 'paath',
+                  pack: 'bhasha', chart: 'bhasha', kosh: 'bhasha', wordcard: 'bhasha', vyakaran: 'bhasha', progress: 'bhasha',
+                  game: 'khel', mela: 'khel', play: 'khel', rishtey: 'khel', rishquiz: 'khel' };
+    var c = alias[view.name] || view.name;
+    return ['home', 'map', 'paath', 'bhasha', 'khel'].indexOf(c) >= 0 ? c : '';
   }
 
   /* chrome() is built once and then left alone, so the two toggles that live in
@@ -7824,47 +7722,16 @@
     m.id = 'kidmenu'; m.innerHTML = kidMenuHTML();
     m.addEventListener('click', function (e) { if (e.target === m) closeKidMenu(); });
     document.body.appendChild(m);
-    var b = $('.kidbtn'); if (b) b.setAttribute('aria-expanded', 'true');
+    var b = $('[data-bz=kid]'); if (b) b.setAttribute('aria-expanded', 'true');
     var f = m.querySelector('.km-row.on') || m.querySelector('.km-row'); if (f) f.focus();
   }
   function closeKidMenu() {
     var m = $('#kidmenu'); if (m) m.remove();
-    var b = $('.kidbtn'); if (b) b.setAttribute('aria-expanded', 'false');
+    var b = $('[data-bz=kid]'); if (b) b.setAttribute('aria-expanded', 'false');
   }
+  /* the shell is rebuilt when anything it shows changes (shellKey); the kid menu is India's own */
   function paintChrome() {
     var km = $('#kidmenu'); if (km) km.innerHTML = kidMenuHTML();
-    var dr = $('#drawer'); if (dr) { var foc = document.activeElement && document.activeElement.getAttribute('data-act');
-      dr.innerHTML = drawerHTML(); var back = foc && dr.querySelector('[data-act="' + foc + '"]'); if (back) back.focus(); }
-    var cc = $('.topbar .coinchip'); if (cc) cc.setAttribute('aria-label', 'Bizzing coins: ' + coins() + ' — where they came from');
-    var kc = $('#kauriCount'); if (kc) kc.textContent = coins();
-    var kva = $('.kidav'); if (kva) kva.className = 'kidav' + (S.frame ? ' framed fr-' + S.frame : '');
-    /* the bar is built once: the child's face in it follows a change of companion */
-    var kv = $('.kidav'); if (kv && kv.getAttribute('data-b') !== S.buddy) { kv.innerHTML = art(S.buddy, 36); kv.setAttribute('data-b', S.buddy); }
-    /* ⬡ is hidden only inside a running drill (standard §3) */
-    document.body.classList.toggle('drilling', (view.name === 'pack' && !!quiz.q) || view.name === 'game');
-    var s = document.querySelector('.topbar [data-act="sound"]');
-    if (s) {
-      s.classList.toggle('off', !soundOn);
-      s.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
-    }
-    var h = document.querySelector('.topbar [data-act="hindi"]');
-    if (h) {
-      h.classList.toggle('on', !!S.hindi);
-      h.setAttribute('aria-pressed', S.hindi ? 'true' : 'false');
-    }
-    var n = document.querySelector('.topbar [data-act="night"]');
-    if (n) {
-      n.innerHTML = icon(night ? 'sun' : 'moon', 20);
-      n.setAttribute('aria-pressed', night ? 'true' : 'false');
-      n.setAttribute('aria-label', night ? 'Switch to day' : 'Switch to night');
-    }
-    /* The world's emblem lives in the bar, and the bar is built ONCE — so without this
-       the emblem stayed on whichever world the app booted in and never changed again.
-       Every screenshot I took of six different worlds showed the Taj. */
-    var wm = $('#worldfrieze');
-    if (wm && window.IND_WORLDS && window.IND_WORLDS.frieze) {
-      wm.innerHTML = window.IND_WORLDS.frieze(S.world);
-    }
   }
 
   var lastLoad = null;          /* the load a gated render is waiting on (BI.go returns it) */
@@ -7891,7 +7758,17 @@
       root.innerHTML = (view.name === 'onboard') ? '<div id="main">' + V.onboard() + '</div>' : V.landing();
       return;
     }
-    if (!$('.topbar')) root.innerHTML = chrome();
+    bindChrome();
+    var sk = shellKey();
+    if (!$('[data-bz=header]') || sk !== lastShell) {
+      var keep = $('#main') ? $('#main').innerHTML : '';
+      root.innerHTML = chrome(); lastShell = sk;
+      if (keep && $('#main')) $('#main').innerHTML = keep;
+      /* the tabs say which screen they open, for the browser checks */
+      Array.prototype.forEach.call(document.querySelectorAll('[data-bz=tab], [data-bz=tabbar] a'), function (a) {
+        a.setAttribute('data-v', (a.getAttribute('href') || '').replace('#/', ''));
+      });
+    }
     /* The bar is built ONCE, so anything in it that depends on state has to be repainted
        on every render or it silently freezes at whatever it was when the app booted. The
        world emblem did exactly that: six different worlds, six screenshots, all showing
@@ -7976,6 +7853,8 @@
       default: h = V.home();
     }
     m.innerHTML = aajBar() + h + deckModal();
+    /* Home's Continue is the one next step, played (narration and all), not just a link */
+    if (view.name === 'home') { var cb = m.querySelector('[data-bz=continue]'); if (cb) cb.setAttribute('data-act', 'cont'); }
     /* Stepping with the arrows walks across pack boundaries, and the pill row is
        a sideways scroller — without this the pill for the pack you are now in
        is off the right edge and the row looks stuck on "Gods & Teachers". */
@@ -8065,7 +7944,7 @@
        innerHeight and quietly eats the last 64 pixels of it. Measuring against
        innerHeight instead of against the nav is the mistake that hid the story reader's
        button, and it would hide this bubble the same way. */
-    var nav = $('.topbar .nav');
+    var nav = $('[data-bz=tabbar]');
     var navTop = window.innerHeight;
     if (nav) {
       var nr = nav.getBoundingClientRect();
@@ -8434,6 +8313,17 @@
 
   /* =============================================================== DISPATCH */
   document.addEventListener('click', function (e) {
+    /* THE SHELL'S LINKS ARE THE APP'S ROUTES. A tab, a drawer row or a home tile is an <a href="#/…">;
+       taken here and through go(), so it keeps the trail Back walks (Home stays the root). */
+    var ln = e.target.closest && e.target.closest('a[href^="#/"]');
+    if (ln && !ln.hasAttribute('data-act') && !e.defaultPrevented && !e.metaKey && !e.ctrlKey && S.started) {
+      var hr = parseHash(ln.getAttribute('href'));
+      if (hr && (known(hr.n) || hr.n === 'continue')) {
+        e.preventDefault();
+        if (hr.n === 'continue') { runStep(); return; }
+        go(hr.n, hr.a == null ? undefined : hr.a); return;
+      }
+    }
     /* PAATHSHALA FIRST. Its controls carry data-pa rather than data-act so the course
        engine owns its own verbs and this dispatcher does not grow ten more branches.
        It returns true when it handled the click; everything else falls through. */
@@ -8450,17 +8340,15 @@
     if (pa && window.IND_PAATH_UI &&
         window.IND_PAATH_UI.act(pa.getAttribute('data-pa'), pa)) return;
     var t = e.target.closest('[data-act]'); if (!t) return;
+    if (t.tagName === 'A' && /^#/.test(t.getAttribute('href') || '')) e.preventDefault();
     var a = t.getAttribute('data-act');
 
     /* the ☰ drawer and the wallet close on anything chosen inside them — except the toggles,
        which repaint in place so a child can see what they changed */
-    if ($('#drawer') && a !== 'drawer' && a !== 'sound' && a !== 'night' && a !== 'hindi') closeDrawer();
     if ($('#walletsheet') && a !== 'wallet') closeWallet();
     var kmn = $('#kidmenu');
     if (kmn && a !== 'kidmenu') closeKidMenu();
     if (a === 'kidmenu') { if (kmn) closeKidMenu(); else openKidMenu(); return; }
-    if (a === 'drawer') { if ($('#drawer')) closeDrawer(); else openDrawer(); return; }
-    if (a === 'drawerclose') { closeDrawer(); return; }
     if (a === 'wallet') { openWallet(); return; }
     if (a === 'walletclose') { closeWallet(); return; }
     if (a === 'back') { if (depth > 1) history.back(); else go('home'); return; }
@@ -8886,7 +8774,6 @@
       var tg = tongue();
       toast(tg ? tg.en + ' it is — ask ' + kinTerm('nani') + '.' : 'All of India, evenly.');
       /* the topbar chip shows the tongue, and chrome() is cached — rebuild it */
-      if ($('.topbar')) document.getElementById('app').innerHTML = chrome();
       /* during onboarding this IS the answer to the question on screen, so it moves on.
          Naming a language adds the placement step behind it — obSteps() recomputes. */
       if (view.name === 'onboard' && obSteps()[ob.step] === 'tongue') ob.step++;
@@ -9325,7 +9212,8 @@
       }
     }
     if (e.key === 'Escape' && $('#celebrate')) { $('#celebrate').remove(); setTimeout(showCelebration, 250); return; }
-    if (e.key === 'Escape' && $('#kidmenu')) { closeKidMenu(); var kb = $('.kidbtn'); if (kb) kb.focus(); return; }
+    if (e.key === 'Escape' && $('#kidmenu')) { closeKidMenu(); var kb = $('[data-bz=kid]'); if (kb) kb.focus(); return; }
+    if (e.key === 'Escape' && document.querySelector('[data-bz=drawer]:not([hidden])')) return;   /* the shell closes its own drawer */
     if (e.key === 'Escape' && S.started && view.name !== 'home') go('home');
     if (e.key === 'ArrowRight' && view.name === 'story') { var n = document.querySelector('[data-act="next"]'); if (n) n.click(); }
     /* Map states are SVG <g>, which a browser will focus but will not activate on Enter the
@@ -9466,7 +9354,7 @@
     setInterval(checkUpdate, 3 * 60 * 1000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) checkUpdate(); });
 
-    window.BI = { go: function (n, a) { go(n, a); return lastLoad || Promise.resolve(); }, render: render, Store: Store,
+    window.BI = { go: function (n, a) { go(n, a); return lastLoad || Promise.resolve(); }, soundOn: function () { return soundOn; }, render: render, Store: Store,
                   ready: function () { return lastLoad || Promise.resolve(); },
                   /* test handles for tools/check-rewards.js: the real functions, not copies */
                   earn: earn, mastered: mastered, level: level, coins: coins, goodDays: goodDays,

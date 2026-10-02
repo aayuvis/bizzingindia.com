@@ -68,14 +68,14 @@ async function measure(p, v) {
   /* click the real tab — setting location.hash alone does not always route, and a check
      that silently measured the previous view would be worse than no check */
   const routed = await p.evaluate(tab => {
-    const t = document.querySelector(`.navtab[data-v="${tab}"]`);
+    const t = document.querySelector(`[data-bz=tab][data-v="${tab}"]`);
     if (!t) return false;
     t.click(); return true;
   }, v.tab);
   if (!routed) return { missing: true, why: 'no tab in the bar for ' + v.tab };
   await p.waitForTimeout(800);
   return p.evaluate(sel => {
-    const bar = document.querySelector('.topbar');
+    const bar = document.querySelector('[data-bz=header]');
     const barH = bar ? Math.round(bar.getBoundingClientRect().height) : 0;
     const el = [...document.querySelectorAll(sel)]
       .find(e => { const r = e.getBoundingClientRect(); return r.width > 4 && r.height > 4; });

@@ -27,7 +27,7 @@ async function boot(b, mut) {
   await p.reload({ waitUntil: 'networkidle' });
   await skipOnboarding(p);
   await p.waitForTimeout(350);
-  await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
+  await p.click('[data-bz=tab][data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(650);
   await shut(p);
   return { p, errs };

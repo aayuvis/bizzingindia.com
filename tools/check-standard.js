@@ -2,7 +2,8 @@
 /* Bizzing India — the family standard v2 and FIX-INDIA v2 (2 Oct 2026), held in a browser.
 
      strings     no "[object Object]" and no {placeholder} on any screen, desktop and phone;
-                 every screen has a heading and a way back (standard §16, §22; FIX-INDIA C5, N12)
+                 every screen has a heading and a way back, and none is wider than a 390px phone
+                 (standard §16, §22; FIX-INDIA C5, N12; the shell task)
      shelf       the Family Shelf and the Invite say true things: no account that does not exist
      passcodes   no pass code anywhere in the client, and nothing redeems (R7)
      rangoli     Rangoli Rush never says "8 of 6 dots"
@@ -10,8 +11,10 @@
      scripts     every script chart is set in its own face — Urdu in Nastaliq — read from the
                  fonts Chrome actually used, never a fallback (standard §9)
      drawer      ☰ opens and closes by keyboard, holds the family order, traps focus, Esc closes
-     tabs        five tabs in Bee's style and place: a row on a desk, a 64px bottom bar on a
-                 phone, Home first and the map second, no More (standard §4; FIX-INDIA C1)
+     tabs        five tabs from the family shell: a row on a desk, a bottom bar on a phone,
+                 Home first and the map second, no More, the right tab lit (standard §4; C1)
+     shell       checkShell (tools/lib/shell-check.mjs) measures the chrome and Home against
+                 Bizzing Bee's numbers, desktop and phone, light and dark: it must be []
      settings    Settings in the five sections, in order; age band and daily target behind the PIN
      emoji       zero emoji inside buttons, tabs, nav, h1–h3 and chips (standard §9)
      avatars     validate(catalogue) is [], 96 = 12 × 8 at 2/3/2/1; all 80 kept; real people
@@ -83,8 +86,9 @@ check('strings', 'no [object Object] or {placeholder} anywhere; a heading and a 
       const r = await p.evaluate(() => {
         const m = document.querySelector('#main'), t = m ? m.innerText : '';
         const hit = (t.match(/\[object Object\]|\{(child|relation|name|placeholder|[a-z_]{2,})\}/) || [])[0] || '';
-        return { hit, head: !!m.querySelector('h1, h2'), back: !!(m.querySelector('.backlink, [data-act="back"]') || document.querySelector('.topbar .navtab')) };
+        return { hit, wide: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth, head: !!m.querySelector('h1, h2') || !!m.querySelector('[data-bz=home] h3'), back: !!(m.querySelector('.backlink, [data-act="back"]') || document.querySelector('[data-bz=tab]')) };
       });
+      if (vp.width < 400 && r.wide > 0) bad.push(`${vp.width}px #/${v}${a ? '/' + a : ''} is ${r.wide}px wider than the phone`);
       if (r.hit) bad.push(`${vp.width}px #/${v}${a ? '/' + a : ''} shows "${r.hit}"`);
       if (!r.head) bad.push(`${vp.width}px #/${v}${a ? '/' + a : ''} has no heading`);
       if (!r.back) bad.push(`${vp.width}px #/${v}${a ? '/' + a : ''} has no way back`);
@@ -173,52 +177,64 @@ check('scripts', 'every script chart is set in its own face — Urdu in Nastaliq
 
 /* ------------------------------------------------------------------ drawer (§3) */
 const DRAWER_ORDER = ['me', 'shop', 'collection', 'medals', 'stories', 'neeti', 'epics', 'tongue', 'settings', 'grown', 'help', 'privacy', 'hive'];
-check('drawer', '☰ opens and closes by keyboard, in the family order, with focus held inside', async ({ p }) => {
-  await p.focus('.topbar .menubtn'); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
+const drawerOpen = p => p.evaluate(() => { const d = document.querySelector('[data-bz=drawer]'); return !!d && !d.hidden; });
+const openMenu = async p => { if (!(await drawerOpen(p))) await tap(p, '[data-bz=menu]'); };
+check('drawer', '☰ (the family shell\'s) opens by keyboard, holds the family order with India\'s four, keeps focus, Esc, the scrim and a row close it', async ({ p }) => {
+  await p.focus('[data-bz=menu]'); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
   const r = await p.evaluate(() => {
-    const d = document.querySelector('#drawer .dr-in');
-    if (!d) return null;
-    const rows = [...d.querySelectorAll('.dr-row')].map(x => x.getAttribute('data-v') || (/Bizzing_Schedule/.test(x.href || '') ? 'hive' : '?'));
-    const box = d.getBoundingClientRect();
-    return { rows, w: box.width, left: box.left, inside: d.contains(document.activeElement), modal: d.getAttribute('aria-modal'),
-      expanded: document.querySelector('.topbar .menubtn').getAttribute('aria-expanded') };
+    const d = document.querySelector('[data-bz=drawer]');
+    if (!d || d.hidden) return null;
+    const rows = [...d.querySelectorAll('a[data-bz-dr]')].map(x => {
+      const k = x.getAttribute('data-bz-dr');
+      return k === 'app' ? (x.getAttribute('href') || '').replace('#/', '') : k === 'grownups' ? 'grown' : k;
+    });
+    const broken = [...d.querySelectorAll('a[data-bz-dr]')].filter(x => x.getAttribute('data-bz-dr') !== 'hive' && !/^#\//.test(x.getAttribute('href') || '')).map(x => x.getAttribute('href'));
+    return { rows, broken, inside: d.contains(document.activeElement), modal: d.getAttribute('aria-modal'),
+      expanded: document.querySelector('[data-bz=menu]').getAttribute('aria-expanded'), sound: !!d.querySelector('[data-bz-act=sound]') };
   });
   if (!r) throw new Error('Enter on ☰ did not open the drawer');
   if (JSON.stringify(r.rows) !== JSON.stringify(DRAWER_ORDER)) throw new Error('the drawer order is ' + r.rows.join(' · '));
-  if (Math.abs(r.w - 300) > 1 || r.left > 1) throw new Error(`the drawer is ${r.w}px at ${r.left}px, not 300px on the left`);
+  if (r.broken.length) throw new Error('a drawer row goes nowhere in the app: ' + r.broken.join(', '));
   if (!r.inside) throw new Error('focus did not move into the drawer');
   if (r.expanded !== 'true') throw new Error('☰ does not say it is open');
+  if (!r.sound) throw new Error('the one mute is not in ☰');
   /* Tab from the last control comes back to the first */
   for (let i = 0; i < 30; i++) await p.keyboard.press('Tab');
-  if (!(await p.evaluate(() => document.querySelector('#drawer .dr-in').contains(document.activeElement))))
+  if (!(await p.evaluate(() => document.querySelector('[data-bz=drawer]').contains(document.activeElement))))
     throw new Error('Tab walked out of the open drawer');
+  const hash0 = await p.evaluate(() => location.hash);
   await p.keyboard.press('Escape'); await p.waitForTimeout(200);
-  const after = await p.evaluate(() => ({ open: !!document.querySelector('#drawer'), focus: document.activeElement && document.activeElement.classList.contains('menubtn') }));
-  if (after.open) throw new Error('Esc did not close the drawer');
+  const after = await p.evaluate(() => ({ focus: document.activeElement && document.activeElement.getAttribute('data-bz') === 'menu', hash: location.hash }));
+  if (await drawerOpen(p)) throw new Error('Esc did not close the drawer');
   if (!after.focus) throw new Error('focus did not return to ☰');
+  if (after.hash !== hash0) throw new Error('Esc on the drawer also left the screen: ' + hash0 + ' → ' + after.hash);
   /* the scrim closes it too, and a row navigates */
-  await tap(p, '.topbar .menubtn'); await tap(p, '#drawer .dr-scrim');
-  if (await p.$('#drawer')) throw new Error('the scrim did not close the drawer');
-  await tap(p, '.topbar .menubtn'); await tap(p, '#drawer [data-v="shop"]');
-  if (!(await p.evaluate(() => location.hash === '#/shop' && !document.querySelector('#drawer'))))
+  await openMenu(p); await tap(p, '[data-bz=scrim]');
+  if (await drawerOpen(p)) throw new Error('the scrim did not close the drawer');
+  await openMenu(p); await tap(p, '[data-bz=drawer] [data-bz-dr="shop"]');
+  await p.waitForTimeout(300);
+  if (!(await p.evaluate(() => location.hash === '#/shop')) || await drawerOpen(p))
     throw new Error('a drawer row did not open its screen and close the drawer');
+  /* the sound button in ☰ is the one mute */
+  const s0 = await p.evaluate(() => window.BI.soundOn ? window.BI.soundOn() : null);
+  await openMenu(p); await tap(p, '[data-bz=drawer] [data-bz-act=sound]');
+  const s1 = await p.evaluate(() => window.BI.soundOn ? window.BI.soundOn() : null);
+  if (s0 !== null && s0 === s1) throw new Error('the sound button in ☰ did nothing');
+  if (s0 !== null && s0 !== s1) await tap(p, '[data-bz=drawer] [data-bz-act=sound]');
+  await p.keyboard.press('Escape');
 });
 
 /* ------------------------------------------------------------------ tabs (§4) */
-check('tabs', 'five tabs, Home first and the map second: a row on a desk, a bottom bar on a phone, no More', async ({ p }) => {
+check('tabs', 'five tabs from the family shell, Home first and the map second: a row on a desk, a bottom bar on a phone, no More', async ({ p }) => {
   for (const vp of [DESK, PHONE]) {
     await p.setViewportSize(vp); await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
-      const t = [...document.querySelectorAll('.topbar .nav .navtab')].filter(x => x.offsetParent);
-      const nav = document.querySelector('.topbar .nav').getBoundingClientRect(), bar = document.querySelector('.topbar .barrow').getBoundingClientRect();
-      const act = document.querySelector('.topbar .navtab.active');
-      return { ids: t.map(x => x.getAttribute('data-v')), labels: t.map(x => x.textContent.trim()),
-        w: t.map(x => Math.round(x.getBoundingClientRect().width)), h: t.map(x => x.getBoundingClientRect().height),
-        icons: t.map(x => { const s = x.querySelector('svg'); return s ? s.getBoundingClientRect().width : 0; }),
-        font: t.length ? getComputedStyle(t[0]).fontFamily : '', weight: t.length ? getComputedStyle(t[0]).fontWeight : '',
-        navTop: nav.top, navBottom: nav.bottom, navH: nav.height, barBottom: bar.bottom, vh: innerHeight,
-        more: !!document.querySelector('.navmore:not([style*="none"])') && getComputedStyle(document.querySelector('.navmore')).display !== 'none',
-        actBg: act ? getComputedStyle(act).backgroundColor : '' };
+      const desk = innerWidth >= 900;
+      const t = [...document.querySelectorAll(desk ? '[data-bz=tabs] a' : '[data-bz=tabbar] a')].filter(x => x.offsetParent || getComputedStyle(x).position === 'fixed' || x.getBoundingClientRect().height);
+      const bar = document.querySelector('[data-bz=tabbar]').getBoundingClientRect();
+      return { desk, ids: t.map(x => x.getAttribute('data-v')), labels: t.map(x => x.textContent.trim()),
+        h: t.map(x => x.getBoundingClientRect().height), cur: t.filter(x => x.getAttribute('aria-current') === 'page').map(x => x.getAttribute('data-v')),
+        barBottom: bar.bottom, barH: bar.height, vh: innerHeight, more: [...document.querySelectorAll('a, button')].some(x => /^\s*More\s*$/.test(x.textContent) && x.offsetParent) };
     });
     if (JSON.stringify(r.ids) !== JSON.stringify(['home', 'map', 'paath', 'bhasha', 'khel']))
       throw new Error(`at ${vp.width}px the tabs are ${r.ids.join(' · ')}`);
@@ -226,21 +242,48 @@ check('tabs', 'five tabs, Home first and the map second: a row on a desk, a bott
       throw new Error(`at ${vp.width}px the tab names are ${r.labels.join(' · ')}`);
     if (r.more) throw new Error('there is a More tab');
     if (r.h.some(h => h < 44)) throw new Error(`at ${vp.width}px a tab is under 44px tall`);
-    if (r.icons.some(w => Math.abs(w - 24) > 1)) throw new Error(`at ${vp.width}px the tab icons are not 24px: ${r.icons.join(',')}`);
-    if (!/Fraunces/.test(r.font) || +r.weight < 700) throw new Error(`the tabs are set in ${r.font} ${r.weight}, not Fraunces 700`);
-    if (vp.width >= 900) {
-      if (Math.max(...r.w) - Math.min(...r.w) > 2) throw new Error('the desktop tabs are not equal widths: ' + r.w.join(','));
-      if (r.navTop < r.barBottom - 1 || r.navTop > r.barBottom + 12) throw new Error('the desktop tabs are not directly under the bar');
-    } else {
-      if (Math.abs(r.navBottom - r.vh) > 1) throw new Error('the phone tabs are not a bottom bar');
-      if (r.navH < 63) throw new Error(`the phone bar is ${r.navH}px, not 64`);
-    }
+    if (JSON.stringify(r.cur) !== '["home"]') throw new Error(`at ${vp.width}px the current tab on Home is ${JSON.stringify(r.cur)}`);
+    if (!r.desk && (Math.abs(r.barBottom - r.vh) > 1 || r.barH < 60)) throw new Error('the phone tabs are not a bottom bar');
   }
+  /* a screen under a tab lights that tab */
+  await p.setViewportSize(DESK);
+  for (const [v, a, tab] of [['stories', null, 'paath'], ['state', 'KL', 'map'], ['kosh', 'hi', 'bhasha'], ['mela', null, 'khel']]) {
+    await go(p, v, a);
+    const cur = await p.evaluate(() => (document.querySelector('[data-bz=tabs] a[aria-current="page"]') || {}).getAttribute ? document.querySelector('[data-bz=tabs] a[aria-current="page"]').getAttribute('data-v') : '');
+    if (cur !== tab) throw new Error(`#/${v} lights ${cur || 'no tab'}, not ${tab}`);
+  }
+  await go(p, 'home');
+});
+
+/* ------------------------------------------------------------------ shell (owner, 2 Oct 2026) */
+/* Home and the chrome measured against Bizzing Bee's own numbers (tools/lib/shell-check.mjs, a
+   byte-identical copy of Bizzing_Schedule's), with a child, desktop and phone, light and dark */
+check('shell', 'the top bar, tabs, ☰ and Home measure as Bizzing Bee\'s — desktop and phone, light and dark', async ({ browser, base }) => {
+  const { checkShell } = await import(require('url').pathToFileURL(path.join(__dirname, 'lib', 'shell-check.mjs')).href);
+  const out = [];
+  for (const dark of [false, true]) for (const phone of [false, true]) {
+    const ctx = await browser.newContext({ viewport: phone ? { width: 390, height: 844 } : { width: 1280, height: 800 },
+      isMobile: phone, hasTouch: phone, deviceScaleFactor: phone ? 2 : 1, serviceWorkers: 'block' });
+    const q = await ctx.newPage();
+    await q.goto(base, { waitUntil: 'networkidle' }); await skipOnboarding(q);
+    /* light with a new child's empty wallet, dark with a two-figure one: the coin chip must not move the search box */
+    if (dark) await q.evaluate(() => { for (let i = 0; i < 8; i++) window.IND_WALLET.earn('india', window.BI.S.name, 'stop'); });
+    await q.evaluate(() => window.BI.go('home'));
+    if (dark) await q.evaluate(() => document.querySelector('[data-bz=theme]').click());
+    await q.waitForTimeout(800);
+    const f = await checkShell(q, { phone });
+    const tag = (phone ? 'phone' : 'desktop') + (dark ? ' dark' : ' light');
+    console.log('      checkShell ' + tag + ': ' + JSON.stringify(f));
+    if (dark && !(await q.evaluate(() => document.documentElement.hasAttribute('data-bz-dark')))) f.push('dark mode does not set html[data-bz-dark]');
+    f.forEach(x => out.push(tag + ': ' + x));
+    await ctx.close();
+  }
+  if (out.length) throw new Error(out.join(' · '));
 });
 
 /* ------------------------------------------------------------------ settings (§5; Q4) */
 check('settings', 'Settings in five sections in the family order; age band and daily target behind the PIN', async ({ p }) => {
-  await tap(p, '.topbar .menubtn'); await tap(p, '#drawer [data-v="settings"]');
+  await openMenu(p); await tap(p, '[data-bz=drawer] [data-bz-dr="settings"]');
   const r = await p.evaluate(() => ({ secs: [...document.querySelectorAll('#main .setcard')].map(s => s.getAttribute('data-sec')),
     heads: [...document.querySelectorAll('#main .setcard h2')].map(h => h.textContent.trim()),
     head: !!document.querySelector('#main .sethead [data-act="back"]') && !!document.querySelector('#main .sethead [aria-label="Close settings"]'),
@@ -285,7 +328,7 @@ check('emoji', 'zero emoji inside controls, tabs, nav, headings and chips', asyn
   const bad = [];
   for (const [v, a] of [['home'], ['map'], ['paath'], ['bhasha'], ['khel'], ['me'], ['shop'], ['collection'], ['settings'], ['medals'], ['search', 'goa']]) {
     await go(p, v, a); await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(200);
-    await p.evaluate(() => { const b = document.querySelector('.topbar .menubtn'); if (b && !document.querySelector('#drawer')) b.click(); });
+    await openMenu(p);
     const hits = await p.evaluate(src => {
       const re = new RegExp(src, 'u'), out = [];
       document.querySelectorAll('button, [role=tab], nav, h1, h2, h3, .chip').forEach(e => {
@@ -354,7 +397,7 @@ check('shop', 'a Rare costs 120 through the wallet, a Legendary waits for its mi
   const ww = await p.evaluate(who => ({ bal: window.IND_WALLET.balance(who), open: window.IND_ECONOMY.worldOpen(window.BI.S, 'diwali') }), who);
   if (ww.bal !== 540 || !ww.open) throw new Error('opening a world: ' + JSON.stringify(ww));
   /* the coin chip opens the history, written as words, with what coins are for */
-  await tap(p, '.topbar .coinchip');
+  await tap(p, '[data-bz=coins]');
   const ws = await p.evaluate(() => { const s = document.querySelector('#walletsheet'); return s && { text: s.innerText, lines: s.querySelectorAll('.ws-list li').length }; });
   if (!ws) throw new Error('the coin chip does not open the wallet');
   if (ws.lines !== 30) throw new Error('the wallet shows ' + ws.lines + ' lines, not the last 30');
@@ -369,8 +412,11 @@ check('shop', 'a Rare costs 120 through the wallet, a Legendary waits for its mi
 
 /* ------------------------------------------------------------------ search (C4) */
 check('search', 'one search finds a story, a state, an era, a word and a festival — and opens them', async ({ p }) => {
-  await tap(p, '.topbar [data-v="search"]');
-  await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(300);
+  /* the bar's own search box: type, Enter, and the results screen opens on it */
+  await p.fill('[data-bz=search] input', 'Kerala'); await p.press('[data-bz=search] input', 'Enter');
+  await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(400);
+  if (!(await p.evaluate(() => /^#\/search\/Kerala/.test(location.hash) && !!document.querySelector('#sres .sres[data-v="state"]'))))
+    throw new Error('the bar\'s search did not open the results for "Kerala": ' + (await p.evaluate(() => location.hash)));
   const probe = await p.evaluate(() => ({
     story: (window.IND_STORIES || [])[0], era: ((window.IND_ITIHAAS || {}).eras || [])[0],
     fest: ((window.IND_UTSAV || {}).festivals || [])[0], word: ((window.IND_PACKS.hi || {}).lexicon || [])[5] }));
@@ -438,7 +484,7 @@ check('siblings', 'the avatar ▾ menu lists every child with their own face, an
     const h = window.BI.Store.house(); h.order.push('k2'); h.next = 3; window.BI.Store.saveHouse(h);
     localStorage.setItem('bi_v1.k2', JSON.stringify({ schemaVersion: 3, name: 'Kabir', buddy: 'rocket', started: '2026-09-01', own: { avatars: [], worlds: [] }, lit: {}, read: {}, lang: {} }));
   });
-  await tap(p, '.topbar .kidbtn');
+  await tap(p, '[data-bz=kid]');
   const r = await p.evaluate(() => [...document.querySelectorAll('#kidmenu [data-act="switchkid"]')].map(b => ({ t: b.textContent, img: (b.querySelector('img') || {}).getAttribute ? b.querySelector('img').getAttribute('src') : '' })));
   if (r.length !== 2) throw new Error('the menu lists ' + r.length + ' children');
   if (!/Kabir/.test(r[1].t) || !/rocket/.test(r[1].img)) throw new Error('the second child is not shown with their own face: ' + JSON.stringify(r[1]));
@@ -531,7 +577,7 @@ check('mistakes', 'a missed word offers a hint that removes one wrong answer, an
 check('extras', 'saving for a Legendary on Home; the child on the map; certificates; painted covers; 512px art; nothing taken away', async ({ p, base }) => {
   await p.evaluate(() => window.IND_LOAD(['games']));
   await go(p, 'home');
-  const goal = await p.evaluate(() => { const g = document.querySelector('#main .hm-goal'); return g && g.innerText; });
+  const goal = await p.evaluate(() => { const g = document.querySelector('#main [data-bz=home] .ind-save'); return g && g.innerText; });
   if (!goal || !/Saving for/i.test(goal) || !/500|240/.test(goal)) throw new Error('Home has nothing to save for: ' + goal);
   await go(p, 'map'); await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(300);
   const pin = await p.evaluate(() => { const y = document.querySelector('#main .mapyou img'); return y && y.getAttribute('src'); });
@@ -583,7 +629,7 @@ check('extras', 'saving for a Legendary on Home; the child on the map; certifica
       await p.goto(base, { waitUntil: 'networkidle' });
       await skipOnboarding(p);
       await p.waitForTimeout(300);
-      await c.fn({ p, ctx, base });
+      await c.fn({ p, ctx, base, browser });
       if (errs.length) throw new Error('page error: ' + errs[0]);
       console.log(`  ok   ${c.id.padEnd(10)} ${c.what}`); pass++;
     } catch (e) {

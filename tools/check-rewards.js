@@ -46,7 +46,7 @@ check('coins', 'only the standard events pay, at the standard amounts, under the
                    number: B.earn(12), login: B.earn('login'), dice: B.earn('dice') };
     let lid = 0; for (let i = 0; i < 40; i++) lid += B.earn('mastery');
     const today = W.ledger(who).filter(x => x.a === 'india' && x.n > 0 && x.why !== 'migrated').reduce((a, x) => a + x.n, 0);
-    return { paid, before, after: W.balance(who), today, shown: +document.getElementById('kauriCount').textContent };
+    return { paid, before, after: W.balance(who), today, shown: +document.querySelector('[data-bz=coins] span').textContent };
   });
   const want = { answer: 1, stop: 5, contest: 10, mastery: 20, number: 0, login: 0, dice: 0 };
   for (const k in want) if (r.paid[k] !== want[k]) throw new Error(`"${k}" paid ${r.paid[k]}, the standard says ${want[k]}`);

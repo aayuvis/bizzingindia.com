@@ -27,7 +27,7 @@ async function boot(b, v) {
   await p.goto('http://localhost:8150/', { waitUntil: 'networkidle' });
   await skipOnboarding(p);
   await p.waitForTimeout(400);
-  await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
+  await p.click('[data-bz=tab][data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(700);
   const ov = await p.$('#sab-ovhost .sab-btn'); if (ov) { await ov.click(); await p.waitForTimeout(250); }
   await p.evaluate(() => { const g=window.__SABG(); g.res.anna=500; g.res.kala=500; g.res.katha=500; });

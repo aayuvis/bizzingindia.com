@@ -53,7 +53,7 @@ const DEAD = /not found|not loaded|nothing found|no such|has not loaded|did not 
   await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
   await skipOnboarding(p);
   /* the course engine is initialised the first time its tab opens */
-  await p.evaluate(() => document.querySelector('.navtab[data-v="paath"]').click());
+  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(400);
 
   const courses = await p.evaluate(() => window.IND_PAATH.courses.map(c => ({

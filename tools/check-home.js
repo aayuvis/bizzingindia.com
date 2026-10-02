@@ -2,9 +2,8 @@
 /* Bizzing India — Home, in the family's anatomy (FIX-INDIA B1, B2, B3, A3, A5; family
    standard §2, §4, §14). docs/24-home.md says why each one exists.
 
-     anatomy   Home is the five parts in order — greeting (with the ring and the word of the
-               hour beside it), ONE Continue card, today's three, and at most six ways in —
-               and nothing else
+     anatomy   Home is Bee's three rows from family/bizzing-shell.js — greeting · ring · word
+               of the hour / ONE Continue · the map / tip · quote — and a footer, nothing else
      primary   exactly one filled primary button on Home, and it is Continue — desktop and phone
      fold      on a 390×844 phone the Continue button is fully on screen, above the tab bar
      onenext   Continue and #/continue are one function: for a new child, a story left
@@ -48,34 +47,28 @@ const DESK = { width: 1280, height: 860 }, PHONE = { width: 390, height: 844 };
 const CHECKS = [];
 const check = (id, what, fn, o) => CHECKS.push(Object.assign({ id, what, fn }, o || {}));
 const tap = async (p, sel) => { await p.evaluate(s => { const e = document.querySelector(s); if (!e) throw new Error('no ' + s); e.click(); }, sel); await p.waitForTimeout(350); };
-const home = async p => { await tap(p, '.navtab[data-v="home"]'); };
+const home = async p => { await tap(p, '[data-bz=tab][data-v="home"]'); };
 const profile = p => p.evaluate(() => JSON.parse(localStorage.getItem('bi_v1') || 'null'));
-const filled = p => p.evaluate(() => [...document.querySelectorAll('#main .btn')]
-  .filter(b => !b.classList.contains('ghost') && getComputedStyle(b).display !== 'none')
+const filled = p => p.evaluate(() => [...document.querySelectorAll('#main .btn, #main .bz-btn')]
+  .filter(b => !b.classList.contains('ghost') && !b.classList.contains('out') && getComputedStyle(b).display !== 'none')
   .map(b => (b.getAttribute('data-act') || '') + ':' + b.textContent.trim()));
 
-check('anatomy', 'Home is greeting · one Continue · today\'s three · ≤ 6 ways in, and nothing else', async ({ p }) => {
+check('anatomy', 'Home is Bee\'s three rows — greeting · ring · word of the hour / Continue · the map / tip · quote — and a footer, nothing else', async ({ p }) => {
   const a = await p.evaluate(() => {
-    const m = document.getElementById('main');
-    const top = [...m.children].filter(x => x.offsetParent !== null || getComputedStyle(x).display !== 'none');
-    return {
-      top: top.map(x => x.className.split(' ')[0] || x.tagName),
-      greet: !!m.querySelector('.hm .hm-greet .bubble'), ring: !!m.querySelector('.hm .hm-ring .goring'),
-      word: !!m.querySelector('.hm .hm-word'), cont: m.querySelectorAll('.contcard').length,
-      three: m.querySelectorAll('.hm-three > *').length, ways: m.querySelectorAll('.ways > *').length
-    };
+    const m = document.getElementById('main'), h = m.querySelector('[data-bz=home]');
+    const kids = sel => h ? [...h.querySelectorAll(sel)].map(x => x.getAttribute('data-bz')) : [];
+    return { top: [...m.children].map(x => x.getAttribute('data-bz') || x.className || x.tagName),
+      home: h ? [...h.children].map(x => x.getAttribute('data-bz') || x.className) : [],
+      r1: kids('[data-bz=r1] > *'), r2: kids('[data-bz=r2] > *'), r3: kids('[data-bz=r3] > *'),
+      ring: !!m.querySelector('[data-bz=ring] .goring'), cont: m.querySelectorAll('[data-bz=continue][data-act="cont"]').length };
   });
-  if (!a.greet || !a.ring || !a.word) throw new Error('the greeting row is missing a part: ' + JSON.stringify(a));
-  if (a.cont !== 1) throw new Error(a.cont + ' Continue cards on Home — there must be exactly one');
-  if (a.three < 1 || a.three > 3) throw new Error('today\'s three has ' + a.three + ' cards');
-  if (a.ways < 1 || a.ways > 6) throw new Error(a.ways + ' ways in — the standard allows six at most');
-  const allowed = ['hm', 'card', 'hm-head', 'grid', 'ways', 'deckwrap', 'DIV'];
-  const extra = a.top.filter(c => allowed.indexOf(c) < 0);
-  /* a `card` at the top level may only be the language ask, or the one thing the child is
-     saving for (FIX-INDIA K10 — an outline card, never a second Continue) */
-  const cards = await p.evaluate(() => [...document.getElementById('main').children]
-    .filter(x => x.classList.contains('card') && !x.classList.contains('hm-tongue') && !x.classList.contains('hm-goal')).length);
-  if (extra.length || cards) throw new Error('Home carries blocks outside the anatomy: ' + JSON.stringify(a.top));
+  if (JSON.stringify(a.top) !== '["home"]') throw new Error('Home carries blocks outside Bee\'s home: ' + JSON.stringify(a.top));
+  if (JSON.stringify(a.home) !== '["r1","r2","r3","bz-foot"]') throw new Error('Home is not three rows and a footer: ' + JSON.stringify(a.home));
+  if (JSON.stringify(a.r1) !== '["greet","ring","hour"]') throw new Error('row 1 is not greeting · ring · word of the hour: ' + JSON.stringify(a.r1));
+  if (JSON.stringify(a.r2) !== '["next","second"]') throw new Error('row 2 is not Continue · the second journey: ' + JSON.stringify(a.r2));
+  if (JSON.stringify(a.r3) !== '["tip","quote"]') throw new Error('row 3 is not tip · quote: ' + JSON.stringify(a.r3));
+  if (!a.ring) throw new Error('the ring tile has no ring');
+  if (a.cont !== 1) throw new Error(a.cont + ' Continue buttons on Home — there must be exactly one');
 });
 
 check('primary', 'exactly one filled primary button on Home — Continue — on desktop and phone', async ({ p }) => {
@@ -90,7 +83,7 @@ check('primary', 'exactly one filled primary button on Home — Continue — on 
 check('fold', 'at 390×844 the Continue button is on screen, above the tab bar', async ({ p }) => {
   const m = await p.evaluate(() => {
     const b = document.querySelector('#main [data-act="cont"]').getBoundingClientRect();
-    const nav = document.querySelector('.nav'), ns = nav && getComputedStyle(nav);
+    const nav = document.querySelector('[data-bz=tabbar]'), ns = nav && getComputedStyle(nav);
     const navTop = nav && ns.position === 'fixed' ? nav.getBoundingClientRect().top : innerHeight;
     return { top: b.top, bottom: b.bottom, navTop, vh: innerHeight };
   });
@@ -130,7 +123,7 @@ check('onenext', 'Continue and #/continue open the same next thing, every time',
   const mid = await bothDoors(p, ctx, base, 'a story left part-way');
   if (mid.dots !== left) throw new Error(`the story was left on scene ${left} and Continue opened scene ${mid.dots}`);
   /* a language lesson, started more recently, is the next thing now — and it opens under way */
-  await tap(p, '.navtab[data-v="bhasha"]');
+  await tap(p, '[data-bz=tab][data-v="bhasha"]');
   await tap(p, '[data-act="pack"][data-id="hi"]');
   await tap(p, '.bh-next');
   const lang = await bothDoors(p, ctx, base, 'a language lesson');
@@ -142,20 +135,21 @@ check('onenext', 'Continue and #/continue open the same next thing, every time',
   if (!/^#\/paathl\//.test(course.hash)) throw new Error('Continue did not open the course stop: ' + course.hash);
 });
 
-check('progress', 'rank, a bar and the map\'s own place count sit next to Continue', async ({ p }) => {
+check('progress', 'rank, a bar and the map\'s own place count sit on Home, the map beside Continue', async ({ p }) => {
   /* Home draws before the map group loads (docs/27); its count must still be the MAP's */
   await p.evaluate(() => window.IND_LOAD && window.IND_LOAD(['map']));
   const m = await p.evaluate(() => {
-    const w = document.querySelector('.hm-where'), c = document.querySelector('.contcard');
+    const w = document.querySelector('[data-bz=second]'), c = document.querySelector('[data-bz=next]'), r = document.querySelector('[data-bz=ring]');
     const total = Object.keys((window.IND_MAP && window.IND_MAP.paths) || {}).length;
     const wr = w && w.getBoundingClientRect(), cr = c && c.getBoundingClientRect();
-    return { has: !!w, text: w ? w.textContent : '', total, meters: w ? w.querySelectorAll('.meter').length : 0,
+    return { has: !!w, text: w ? w.textContent : '', rank: r ? r.textContent : '', total,
+             meters: document.querySelectorAll('[data-bz=r2] .bz-prog').length,
              beside: !!(wr && cr && Math.abs(wr.top - cr.top) < 4 && wr.left > cr.right - 2) };
   });
-  if (!m.has) throw new Error('no "where you are" card on Home');
-  if (!m.beside) throw new Error('"where you are" is not beside the Continue card');
-  if (!/Shishya|Vidyarthi|Sadhak|Khoji|Pandit|Vidwan|Acharya|Rishi/.test(m.text)) throw new Error('no rank shown beside Continue');
-  if (m.meters < 2) throw new Error('rank and map need a bar each; found ' + m.meters);
+  if (!m.has) throw new Error('no map journey on Home');
+  if (!m.beside) throw new Error('the map is not beside the Continue card');
+  if (!/Shishya|Vidyarthi|Sadhak|Khoji|Pandit|Vidwan|Acharya|Rishi/.test(m.rank)) throw new Error('no rank shown in the ring tile');
+  if (m.meters < 2) throw new Error('Continue and the map need a bar each; found ' + m.meters);
   if (m.text.indexOf('of ' + m.total + ' places') < 0) throw new Error(`the place count is not the map's ${m.total}: "${m.text.slice(0, 80)}"`);
 }, { vp: DESK });
 
@@ -195,7 +189,7 @@ check('demo', '?demo is a labelled sample with progress, and the real household 
   if (!before.bi_v1) throw new Error('the harness has no real child to protect');
   await p.goto(base + '?demo', { waitUntil: 'networkidle' }); await p.waitForTimeout(500);
   const d = await p.evaluate(() => ({ bar: (document.querySelector('.demobar') || {}).textContent || '',
-    pill: !!document.querySelector('.hm-greet .sample'), name: (document.querySelector('.hm-hi h2') || {}).textContent || '',
+    pill: /sample/.test((document.querySelector('[data-bz=greet] strong') || {}).textContent || ''), name: (document.querySelector('[data-bz=greet] strong') || {}).textContent || '',
     coins: window.BI ? window.BI.coins() : 0, rank: window.BI ? window.BI.level() : 0,
     heard: Object.keys((JSON.parse(localStorage.getItem('bi_v1')) || {}).read || {}).length,
     days: window.BI ? window.BI.goodDays() : 0 }));
@@ -209,8 +203,8 @@ check('demo', '?demo is a labelled sample with progress, and the real household 
   const after = await p.evaluate(() => { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); o[k] = localStorage.getItem(k); } return o; });
   const changed = Object.keys(Object.assign({}, before, after)).filter(k => k !== 'bi_device' && before[k] !== after[k]);
   if (changed.length) throw new Error('the demo touched the real household: ' + changed.join(', '));
-  const real = await p.evaluate(() => (document.querySelector('.hm-hi h2') || {}).textContent || '');
-  if (/Meera|Sample/.test(real)) throw new Error('the real app now shows the sample child');
+  const real = await p.evaluate(() => (document.querySelector('[data-bz=greet] strong') || {}).textContent || '');
+  if (/Meera|· sample/.test(real)) throw new Error('the real app now shows the sample child');
 });
 
 (async () => {

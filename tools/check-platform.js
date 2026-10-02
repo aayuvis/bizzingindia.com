@@ -155,7 +155,7 @@ check('phone', 'at 390 × 844: nothing wider than the phone, thumb-high 44px tab
   }
   await p.evaluate(() => window.BI.go('map')); await p.waitForTimeout(500);
   const m = await p.evaluate(() => {
-    const nav = document.querySelector('.nav'), tabs = [...nav.querySelectorAll('.navtab')].filter(t => t.offsetParent);
+    const nav = document.querySelector('[data-bz=tabbar]'), tabs = [...nav.querySelectorAll('a')].filter(t => t.offsetParent);
     const labels = [...document.querySelectorAll('#main svg text.tlab')].filter(t => getComputedStyle(t).display !== 'none' && t.getBoundingClientRect().height);
     const tl = document.querySelector('.tmtick.tm-l'), tr = document.querySelector('.tmtick.tm-r');
     return { fixed: getComputedStyle(nav).position, navTop: nav.getBoundingClientRect().top, vh: innerHeight,

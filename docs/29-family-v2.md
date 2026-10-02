@@ -23,9 +23,20 @@ and each one was watched to fail by breaking the thing it holds.
 - **Shared code** (`app/family/`): the wallet, the activity feed, the avatar engine and its CSS,
   copied byte for byte from Bizzing_Schedule; `family/bridge.js` hands them to the classic
   scripts before boot. The India ports are deleted.
-- **Top bar and ☰** (§3): `⬡ · ☰ · peacock + Bizzing India · … · search · coin · theme · 🔒 · avatar ▾`,
-  56px; on a phone search, theme and 🔒 fold into ☰. The drawer is 300px on the left, traps focus,
-  closes with Esc, the scrim or ×, in the family order (`drawer`, `check-family topbar`).
+- **Top bar, tabs, ☰ and Home are Bee's, measured** (owner, 2 Oct 2026): `family/bizzing-shell.js`
+  and `.css` are Bizzing_Schedule's drop-in, byte for byte. `shell()` draws the bar
+  (⬡ · ☰ · peacock + Bizzing India · … · search | coins · theme · 🔒 · avatar ▾), the tab row, the
+  phone tab bar and the drawer in the family order with India's four rows (the story shelves, Moral
+  Science, the Epics, Family language); `home()` draws Bee's three rows — greeting · today's ring
+  with the rank as "Your level" · word of the hour / Continue · the map / Aaj ka · the subhashita —
+  and a footer. India sets colours only through `--bz-*` (family.css). Every screen sits inside the
+  shell; a running drill passes `inRun` and ⬡ hides. The old ways-in tiles, the deed and the
+  language ask moved to their tabs, ☰ and the footer. `checkShell` (`tools/lib/shell-check.mjs`, a
+  copy) measures it against Bee's numbers on Home with a child, desktop and phone, light and dark,
+  and must be `[]` (`shell`; watched to fail with the shell's Esc handler removed). It measures
+  light with an empty wallet and dark with 40 coins, so the coin chip's width cannot move the
+  search box again (it did, 8px, before the shell gave the chip a minimum width). No screen is wider than a 390px phone
+  (`strings`, every route).
 - **Tabs** (§4): Home · India · Paathshala · Bhasha · Play. The story shelves and Moral Science
   are doors at the top of Paathshala and rows in ☰; there is no More (`tabs`).
 - **Settings** (§5): Bee's sheet, Me · Sound & music · Look · Comfort · Grown-ups 🔒. Age band and

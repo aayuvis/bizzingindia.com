@@ -18,4 +18,9 @@ import * as avatars from './bizzing-avatars.js';
 window.IND_WALLET = Object.assign({ KEY: 'bizzing.wallet' }, wallet);
 window.IND_ACTIVITY = Object.assign({}, activity);
 window.IND_AVATAR_ENGINE = Object.assign({}, avatars);
+
+/* THE SHELL (owner, 2 Oct 2026): Bizzing Bee's top bar, tabs, ☰ drawer and home grid as one
+   measured drop-in, copied byte for byte like the rest. app.js renders every screen inside it. */
+import * as shellKit from './bizzing-shell.js';
+window.IND_SHELL = Object.assign({}, shellKit);
 window.dispatchEvent(new CustomEvent('bz-family'));

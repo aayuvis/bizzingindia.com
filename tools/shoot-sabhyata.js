@@ -38,7 +38,7 @@ async function boot(browser, port, v) {
   await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
   await skipOnboarding(p);
   await p.waitForTimeout(400);
-  await p.click('.navtab[data-v="khel"]'); await p.waitForTimeout(250);
+  await p.click('[data-bz=tab][data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(900);
   const ov = await p.$('#sab-ovhost .sab-btn');
   if (ov) { await ov.click(); await p.waitForTimeout(250); }

@@ -149,18 +149,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
    left, which the lang attribute alone does not switch. */
 :lang(ur), .urdu      { font-family: var(--urdu); font-size: 1.15em; line-height: 2.1;
                         direction: rtl; unicode-bidi: isolate; }
-/* …and the same rules again at double specificity, so a component that sets its own face
-   (.glyph, .opt, a quiz tile) cannot pull a tagged word back into Mukta (FIX-INDIA §1). */
-:lang(hi):lang(hi), :lang(mr):lang(mr), :lang(sa):lang(sa) { font-family: var(--deva); }
-:lang(pa):lang(pa) { font-family: var(--gurmukhi); }
-:lang(ta):lang(ta) { font-family: var(--tamil); }
-:lang(gu):lang(gu) { font-family: var(--gujarati); }
-:lang(bn):lang(bn), :lang(as):lang(as) { font-family: var(--bengali); }
-:lang(te):lang(te) { font-family: var(--telugu); }
-:lang(kn):lang(kn) { font-family: var(--kannada); }
-:lang(ml):lang(ml) { font-family: var(--malayalam); }
-:lang(or):lang(or) { font-family: var(--odia); }
-:lang(ur):lang(ur) { font-family: var(--urdu); direction: rtl; }
 .mono { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 
 /* ---------------------------------------------------------------- shell */
@@ -2581,6 +2569,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
     box-shadow:0 -6px 22px rgba(30,20,64,.10)}
   .navtab{flex-direction:column;gap:3px;font-size:10.5px;padding:5px 10px;border-radius:12px}
   .navtab .ic,.navtab svg{width:20px;height:20px}
+  .navtab[data-v="map"],.navtab[data-v="neeti"]{display:none}
+  .navmore{display:flex}
+  #main{padding-bottom:92px}
 }
 #navmoresheet{position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;background:color-mix(in srgb,var(--ground) 45%,transparent)}
 #navmoresheet .nm-in{position:absolute;left:10px;right:10px;

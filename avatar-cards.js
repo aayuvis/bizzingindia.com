@@ -126,7 +126,7 @@
      address form or none, and this file chooses none. */
   var PACK_TITLE = {
     panch:       'of the Banyan Court',
-    darbar:      'of the Courts',
+    darbar:      'of Akbar’s Darbar',
     great:       'of the Great Indians',
     khel:        'of the Blue Turf',
     naya:        'of the First Brick',
@@ -692,11 +692,7 @@
     character: null
   };
 
-  /* Rama moved from Gods & Teachers into the Ramayana's eight (FIX-INDIA §2): he is still
-     sacred, and his card must not quietly become an 'epic' one because his pack changed. */
-  var SACRED_IDS = ['rama'];
   function kindOf(id, pack) {
-    if (SACRED_IDS.indexOf(id) >= 0) return 'sacred';
     if (pack && SACRED_PACKS.indexOf(pack.id) >= 0) return 'sacred';
     if (REAL_PEOPLE.indexOf(id) >= 0) return 'real';
     if (pack && EPIC_PACKS.indexOf(pack.id) >= 0) return 'epic';

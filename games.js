@@ -732,11 +732,7 @@
       var el = ref.stage.querySelector('[data-role="count"]');
       if (!el) return;
       var need = keys(pattern).length, got = keys(mine).length;
-      /* never "8 of 6" (FIX-INDIA §1): past the pattern's count, say how many are extra */
-      el.textContent = phase !== 'draw' ? ''
-        : got <= need ? (got + ' of ' + need + ' dots placed')
-        : (need + ' of ' + need + ' dots placed, and ' + (got - need) + ' extra — tap ' +
-           (got - need === 1 ? 'one' : 'some') + ' again to lift ' + (got - need === 1 ? 'it' : 'them'));
+      el.textContent = phase === 'draw' ? (got + ' of ' + need + ' dots placed') : '';
     }
 
     /* ------------------------------------------- the memory levels ---- */
@@ -1973,9 +1969,9 @@
     { id: 'statehunt', name: 'State Hunt', icon: 'map', minutes: 4,
       blurb: 'A capital, a fort, a rhino, a mountain. Which state is it? Six stops on a yatra across India.',
       engine: statehunt },
-    /* ON the Mela shelf AND on the festival pages (FIX-INDIA §1: it was missing from the
-       Play grid, reachable only from Utsav) */
-    { id: 'festival', name: 'Festival Frenzy', icon: 'lamp', minutes: 4,
+    /* off the Mela shelf, ON the festival pages: Moral Science and Utsav
+       carry its door — a festival game belongs beside the festivals */
+    { id: 'festival', name: 'Festival Frenzy', icon: 'lamp', minutes: 4, hide: true,
       blurb: 'Twelve festivals, one year. Match each one to its month, its home state and the reason people keep it.',
       engine: festival },
     { id: 'jataka', name: 'Jataka Jump', icon: 'book', minutes: 3,

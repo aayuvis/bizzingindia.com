@@ -3503,6 +3503,25 @@ function session(packId, stageId, st, opts) {
              say: 'Six questions, full difficulty. Five right opens it.' };
   }
 
+  /* WORDS THAT SLIPPED (FIX-INDIA F3; standard §12): a review of exactly the cards the
+     child has missed, and nothing else — each drilled twice, in two different shapes. The
+     deck only offers cards whose next review has come round, so it brings a miss back
+     after a gap rather than straight away (that is what the in-session replay is for). */
+  if (opts.review && opts.review.length) {
+    var want = {}, rv = [];
+    for (i = 0; i < opts.review.length; i++) want[opts.review[i]] = 1;
+    for (i = 0; i < units.length; i++) if (want[units[i].key]) rv.push(units[i]);
+    if (rv.length) {
+      var rs = [];
+      rv.slice(0, 6).forEach(function (uu, j) {
+        rs.push({ kind: 'drill', item: uu.item, key: uu.key, type: pinTypeFor(uu, types, j) });
+        rs.push({ kind: 'drill', item: uu.item, key: uu.key, type: pinTypeFor(uu, types, j + 1) });
+      });
+      return { specs: rs, graded: rs.length, slipped: true, newN: 0, drillN: rs.length, reviewN: rs.length,
+               say: 'The ones that slipped, back once more.' };
+    }
+  }
+
   /* A LESSON narrows what is NEW to its own four things. Review is left rung-wide on
      purpose: yesterday's words coming back inside today's lesson is the spacing the SRS
      is for, and a lesson that only ever drilled its own four would be a flashcard deck. */
@@ -3734,8 +3753,27 @@ function readiness(packId, stageId, srs) {
   return out;
 }
 
+/* THE DECK OF WHAT SLIPPED (FIX-INDIA F3): every card in a pack with a miss on its record
+   that is not yet mastered, the most-missed first, each saying whether its gap is over. */
+function slipped(packId, st, now) {
+  var pack = resolvePack(packId);
+  if (!pack) return [];
+  var srs = (st && st.srs) || {}, out = [];
+  now = now || Date.now();
+  (pack.stages || []).forEach(function (stage) {
+    unitsOf(pack, stage).forEach(function (u) {
+      var c = srs[u.key];
+      if (!c || !(c.lapses > 0) || srsBox(c) >= 4) return;
+      out.push({ stageId: stage.id, key: u.key, item: u.item, lapses: c.lapses, due: c.due || 0, ready: (c.due || 0) <= now });
+    });
+  });
+  out.sort(function (a, b) { return b.lapses - a.lapses || a.due - b.due; });
+  return out;
+}
+
 W.IND_BHASHA = {
   version: 1,
+  slipped: slipped,          /* the mistakes deck (FIX-INDIA F3) */
 
   /* data access */
   scripts: W.IND_SCRIPTS,

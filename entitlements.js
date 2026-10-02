@@ -1,11 +1,11 @@
-/* Bizzing India — the ENTITLEMENT SEAM (the Parivaar Pass).
+/* Bizzing India — the ENTITLEMENT SEAM (the family plan).
  *
  * CLAUDE.md rule: entitlements are SERVER-AUTHORITATIVE — read from the DB via
  * RLS, never a client flag. This file is the seam that rule will be honoured
  * through: every gate in the app asks IND_ENT and nothing else, so when Supabase
  * lands, has() swaps its backing store and no caller changes. Until then the
- * pass state lives on-device, deny-by-default, and the redeem codes are DEMO
- * codes for walking the product — the real check is a server round-trip.
+ * plan state lives on-device, deny-by-default, and only tester mode can set it —
+ * there are no redeem codes in client code. The real check is a server round-trip.
  *
  * WHAT IS FREE AND WHAT IS PASSED (docs/06):
  *   free  — every story read on screen, the map, the games, Hindi Bhasha,
@@ -22,9 +22,11 @@
   var W = window;
   var KEY = 'india.pass.v1';
 
-  /* demo redeem codes — replaced by a server entitlement check (Supabase RLS)
-     the day accounts exist. Kept few and unguessable enough for a demo. */
-  var DEMO_CODES = { 'PARIVAAR': 'family', 'NANI2026': 'family' };
+  /* NO PASS CODES IN THIS FILE (FIX-INDIA §1, R7; family standard §15). There used to be two
+     demo codes here, in plain text, in a file every visitor downloads — which made them not a
+     gate but a password printed on the door. A plan is granted by the family server when it
+     exists (one server for every Bizzing app, FIX-INDIA §5); until then the only way to turn
+     the family plan on is tester mode, on a device a grown-up put into tester mode. */
 
   var FREE_PACKS = { 'lang-hi': true };
 
@@ -42,27 +44,21 @@
     canDownload: function (packId) {
       return !!FREE_PACKS[packId] || this.hasPass();
     },
-    redeem: function (code) {
-      code = String(code || '').trim().toUpperCase();
-      var plan = DEMO_CODES[code];
-      if (!plan) return false;
-      try { var v = JSON.stringify({ plan: plan, code: code, at: Date.now() });
-            if (W.IND_STORE) W.IND_STORE.famSet(KEY, v); else localStorage.setItem(KEY, v); } catch (e) {}
-      return true;
+    /* The server's job. There is no server yet, so nothing redeems — and nothing in this file
+       can be typed to open anything. */
+    redeem: function () { return false; },
+    /* tester mode only (app.js checks tester() before calling): the plan a grown-up is
+       walking the product as. Never reachable from a child's screen. */
+    testerPlan: function (on) {
+      try { if (on) { var v = JSON.stringify({ plan: 'family', by: 'tester', at: Date.now() });
+                      if (W.IND_STORE) W.IND_STORE.famSet(KEY, v); else localStorage.setItem(KEY, v); }
+            else this.clear(); } catch (e) {}
     },
     clear: function () { try { if (W.IND_STORE) W.IND_STORE.famDel(KEY); else localStorage.removeItem(KEY); } catch (e) {} },
     planName: function () {
       var s = state();
-      return s && s.plan === 'family' ? 'Parivaar Pass' : null;
+      return s && s.plan === 'family' ? 'The family plan' : null;
     }
   };
 
-  /* ?pass=CODE on the URL redeems and cleans itself off the address bar —
-     for handing a working demo link to one person */
-  try {
-    var m = location.search.match(/[?&]pass=([^&]+)/);
-    if (m && W.IND_ENT.redeem(decodeURIComponent(m[1]))) {
-      history.replaceState(null, '', location.pathname + location.hash);
-    }
-  } catch (e) {}
 })();

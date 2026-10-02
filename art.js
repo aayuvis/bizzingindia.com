@@ -158,7 +158,7 @@ window.IND_MOTIF = {
 };
 
 /* ------------------------------------------------------------------- ICONS */
-/* 24px viewBox, stroke: currentColor, 1.7 weight, round caps — matches Bizzing Bee
+/* 24px viewBox, stroke: currentColor, 2px weight (family standard §9), round caps — matches Bizzing Bee
    so icons inherit text colour and re-theme for free. */
 
 window.IND_ICONS = {
@@ -184,6 +184,27 @@ window.IND_ICONS = {
   clock:   '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   /* the light/night pair — the button shows the state you would MOVE TO, which
      is what a child reads it as: the moon means "make it night" */
+  /* the three editorial badges, drawn (docs/05): Katha's diya, Itihaas's scroll, Aaj's compass */
+  diya:    '<path d="M3 13c2 4 5 6 9 6s7-2 9-6zM12 4c-1.6 2.2-1.6 4.4 0 6 1.6-1.6 1.6-3.8 0-6z"/>',
+  scroll:  '<path d="M7 4h11a2 2 0 012 2v1h-4M7 4a2 2 0 00-2 2v12a2 2 0 002 2h9a2 2 0 002-2V7M7 4a2 2 0 012 2v12M12 9h4M12 13h4"/>',
+  compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  /* the family chrome (standard §3, §9): the drawer, search, the coin, the shop */
+  home:    '<path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10"/>',
+  menu:    '<path d="M4 6h16M4 12h16M4 18h16"/>',
+  search:  '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+  close:   '<path d="M6 6l12 12M18 6L6 18"/>',
+  coin:    '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5.2"/><path d="M12 9.2v5.6"/>',
+  bag:     '<path d="M5 8h14l-1.2 12H6.2zM9 8V6.5a3 3 0 016 0V8"/>',
+  cards:   '<rect x="3" y="6" width="12" height="15" rx="2"/><path d="M8 3h11a2 2 0 012 2v12"/>',
+  medal:   '<circle cx="12" cy="15" r="5.5"/><path d="M8.5 3l3.5 6.5L15.5 3M12 12.6v4.8M9.8 15h4.4"/>',
+  help:    '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 114 2c-.9.6-1.6 1.1-1.6 2.3M12 17v.2"/>',
+  shield:  '<path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/>',
+  hive:    '<path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z"/>',
+  music:   '<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+  mute:    '<path d="M4 9v6h4l5 4V5L8 9H4zM17 9l5 6M22 9l-5 6"/>',
+  people:  '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.3c3 0 6 1.9 6 5.7"/>',
+  drop:    '<path d="M6 9l6 6 6-6"/>',
+  wallet:  '<path d="M4 7h14a2 2 0 012 2v9a2 2 0 01-2 2H4zM4 7l11-3v3M15 13.5h2"/>',
   moon:    '<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>',
   sun:     '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/>'
 };
@@ -192,6 +213,6 @@ window.IND_ICON = function (name, size) {
   var d = window.IND_ICONS[name];
   if (!d) return '';
   return '<svg class="ic" viewBox="0 0 24 24" width="' + (size || 22) + '" height="' + (size || 22) +
-    '" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+    '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     d + '</svg>';
 };

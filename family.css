@@ -375,3 +375,32 @@ html[data-bz-dark] { --bz-accent-ink: var(--ground); }
 .bz-foot .ind-foot { display: inline-block; background: var(--card); color: var(--text2); border: 1px solid var(--line);
   border-radius: 999px; padding: 6px 14px; line-height: 1.6; }
 .bz-foot .ind-foot a { color: var(--accent); }
+
+/* ---- MY FEED (docs/30): one column, 560 wide, the shell's own cards; it ends ---- */
+.fd-list { display: grid; gap: 16px; max-width: 560px; margin: 0 auto; padding-bottom: 24px; }
+.fd-card { padding: 0; overflow: hidden; outline: none; }
+.fd-card:focus-visible { box-shadow: 0 0 0 3px var(--accent); }
+.fd-art { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: var(--ground2); }
+.fd-in { padding: 16px 18px 18px; }
+.fd-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.fd-why { font-size: 13px; color: var(--text2); }
+.fd-card h3 { margin: 10px 0 6px; font: 800 20px/1.25 'Fraunces', serif; color: var(--text); }
+.fd-body { margin: 6px 0; color: var(--text); line-height: 1.55; }
+.fd-card .fd-script { margin: 8px 0 2px; font-size: 2em; line-height: 1.8; color: var(--text); overflow-wrap: anywhere; }
+.fd-card[data-kind="verse"] .fd-script, .fd-card[data-kind="festival"] .fd-script, .fd-card[data-kind="game"] .fd-script { font-size: 1.35em; }
+.fd-roman { margin: 0 0 6px; color: var(--text2); font-style: italic; overflow-wrap: anywhere; }
+.fd-src { margin: 8px 0 0; font-size: 12.5px; color: var(--text2); }
+.fd-q { margin: 8px 0; font-weight: 700; color: var(--text); }
+.fd-opts { display: grid; gap: 8px; margin: 8px 0; }
+.fd-opt { text-align: left; }
+.fd-held, .fd-after { margin: 8px 0; color: var(--text); }
+.fd-after.ok { font-weight: 700; }
+.fd-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.fd-end { text-align: center; padding: 22px 18px; }
+.fd-end .fd-row { justify-content: center; }
+/* the app's Katha chip is 4.2:1 at chip size; on a feed card it is read, so it is darkened to AA */
+.fd-card .badge.katha { color: #85520f; }
+.fd-card .badge.itihaas { color: #234f8a; }
+.fd-card .badge.aaj { color: #155f42; }
+/* a page head sits on the world's painting: its subtitle takes the ink colour, not the muted one */
+[data-bz=phead] { --bz-muted: var(--text); }

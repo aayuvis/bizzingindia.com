@@ -433,6 +433,61 @@
     '100%{transform:translate(0,0)}}</style>',
     ['#a3782f', '#4a3110']);
 
+  /* ------------------------------------------------------------ PALLANGUZHI
+     The board as it sits on a Tamil courtyard floor: a long carved wooden boat with two
+     rows of seven pits, cowries in every pit and a store at each end — and one shell
+     being sown round, hopping pit to pit. (It was a generic star placeholder: FIX-INDIA §1.) */
+  A.pallanguzhi = cover('pg',
+    '<g transform="translate(120 58)">' +
+      /* the carved board, with its grain and its two end stores */
+      '<rect x="-104" y="-34" width="208" height="68" rx="34" fill="#7a4518"/>' +
+      '<rect x="-100" y="-30" width="200" height="60" rx="30" fill="#a8652a"/>' +
+      rep(6, function (i) { return '<path d="M-90 ' + (-24 + i * 10) + 'h180" stroke="#8d5321" stroke-width="1" opacity=".55"/>'; }) +
+      '<ellipse cx="-86" cy="0" rx="11" ry="20" fill="#5b3210"/><ellipse cx="86" cy="0" rx="11" ry="20" fill="#5b3210"/>' +
+      rep(2, function (r) {
+        return rep(7, function (c) {
+          var x = -60 + c * 20, y = r ? 13 : -13;
+          var n = (c + r * 3) % 4 + 1, shells = '';
+          for (var k = 0; k < n; k++) shells += '<ellipse cx="' + (x - 3 + (k % 2) * 6) + '" cy="' + (y - 2 + Math.floor(k / 2) * 4) +
+            '" rx="2.6" ry="1.9" fill="#f6ecd6" stroke="#b79a6a" stroke-width=".6"/>';
+          return '<ellipse cx="' + x + '" cy="' + y + '" rx="8.4" ry="7.6" fill="#4e2a0c"/>' + shells;
+        });
+      }) +
+      '<ellipse cx="-86" cy="-4" rx="3" ry="2.2" fill="#f6ecd6"/><ellipse cx="-84" cy="3" rx="3" ry="2.2" fill="#f6ecd6"/>' +
+      '<ellipse cx="88" cy="1" rx="3" ry="2.2" fill="#f6ecd6"/>' +
+      /* the shell being sown */
+      '<g style="animation:pg-sow 3.2s ease-in-out infinite">' +
+        '<ellipse cx="-60" cy="-30" rx="3.6" ry="2.6" fill="#fff8e6" stroke="#b79a6a" stroke-width=".8"/></g>' +
+    '</g>' +
+    '<style>@keyframes pg-sow{0%{transform:translate(0,0)}25%{transform:translate(20px,-6px)}' +
+    '50%{transform:translate(40px,0)}75%{transform:translate(60px,-6px)}100%{transform:translate(80px,0)}}</style>',
+    ['#c28a3e', '#4a2a0c']);
+
+  /* ------------------------------------------------------------------ GUTTE
+     Five smooth stones on a swept courtyard floor, the mother stone up in the air on
+     her arc and her shadow waiting where she will land. No hand is drawn — the arc and
+     the shadow say it. */
+  A.gutte = cover('gt',
+    '<g>' +
+      '<ellipse cx="120" cy="92" rx="104" ry="20" fill="#d9c6a4" opacity=".55"/>' +
+      rep(9, function (i) { return '<path d="M' + (20 + i * 24) + ' 104q8-6 16 0" fill="none" stroke="#a88f68" stroke-width="1" opacity=".5"/>'; }) +
+      (function () {
+        var pos = [[76, 86], [102, 92], [132, 88], [158, 94]], out = '';
+        var col = ['#8a8f99', '#a39276', '#7d7466', '#9aa0a8'];
+        for (var i = 0; i < 4; i++) out += '<ellipse cx="' + pos[i][0] + '" cy="' + (pos[i][1] + 5) + '" rx="10" ry="3" fill="#000" opacity=".18"/>' +
+          '<ellipse cx="' + pos[i][0] + '" cy="' + pos[i][1] + '" rx="10" ry="8" fill="' + col[i] + '"/>' +
+          '<ellipse cx="' + (pos[i][0] - 3) + '" cy="' + (pos[i][1] - 3) + '" rx="3.6" ry="2.2" fill="#fff" opacity=".45"/>';
+        return out;
+      })() +
+      /* the arc she flies on, and her shadow */
+      '<path d="M60 84Q120 -6 184 80" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 6" opacity=".55"/>' +
+      '<ellipse cx="184" cy="96" rx="9" ry="2.6" fill="#000" opacity=".16"/>' +
+      '<g style="animation:gt-toss 2.8s ease-in-out infinite">' +
+        '<circle cx="120" cy="30" r="10" fill="#c9b79a"/><circle cx="116.5" cy="26.5" r="3.2" fill="#fff" opacity=".6"/></g>' +
+    '</g>' +
+    '<style>@keyframes gt-toss{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-12px)}}</style>',
+    ['#7f9bb0', '#384b5a']);
+
   /* --------------------------------------------------------------- PATANG */
   A.patang = cover('pt',
     '<g>' +
@@ -461,3 +516,9 @@
 
   W.IND_GAME_ART = A;
 })();
+
+/* PAINTED COVERS (FIX-INDIA G5, D4, N2): every stall on the Mela shelf has a painted plate in the
+   same storybook hand as the story paintings — the board, the stones, the stage — with no
+   people, no lettering and no map. The drawn SVG covers above stay as the fallback. */
+window.IND_GAME_PLATES = ["carrom", "festival", "gutte", "gyanpati", "jataka", "kancha", "ludo", "pallanguzhi", "rangoli", "saapsidi", "shabd", "statehunt", "triviamaster"];
+

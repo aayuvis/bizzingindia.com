@@ -19,6 +19,8 @@
     loadDevice: function (k, d) { try { var o = JSON.parse(localStorage.getItem(this.DEV) || '{}'); return (k in o) ? o[k] : d; } catch (e) { return d; } },
     saveDevice: function (k, v) { try { var o = JSON.parse(localStorage.getItem(this.DEV) || '{}'); o[k] = v; localStorage.setItem(this.DEV, JSON.stringify(o)); } catch (e) {} },
     migrate: function (b) { if (!b.schemaVersion) b.schemaVersion = 1; return b; },
+    /* the grown-ups' Erase, through the seam like everything else */
+    erase: function () { try { localStorage.removeItem(this.KEY); } catch (e) {} },
     onRemoteChange: function () {},
 
     /* BLOBS. Recorded voices do not fit in localStorage, so they go to IndexedDB — but they
@@ -2643,7 +2645,14 @@
       f.festivals.map(function (x) { return '<span class="pill stat">' + x + '</span>'; }).join('') + '</div></div>' +
 
       '<div class="card flat"><b>In many families it is different.</b> <span class="tiny">' + esc(f.variety) + '</span></div>' +
-      (f.note ? '<div class="card flat tiny"><b>A note on the pictures.</b> ' + esc(f.note) + '</div>' : '');
+      (f.note ? '<div class="card flat tiny"><b>A note on the pictures.</b> ' + esc(f.note) + '</div>' : '') +
+      /* WHERE THIS COMES FROM (CLAUDE.md rule 2, docs/05). Every faith page names what it
+         rests on — the tradition's own texts and the standard references a grown-up can
+         check — rather than asking to be taken on trust. */
+      ((f.sources || []).length
+        ? '<div class="card flat tiny"><b>Where this comes from.</b><ul class="srclist">' +
+          f.sources.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></div>'
+        : '');
   };
 
 
@@ -6067,7 +6076,98 @@
           }).join('') + '</div></div>' +
       packShop(packs);
       })() +
-      '<div class="card"><h3>Grown-ups</h3><div class="row">' +
+      /* THE GROWN-UPS' DOOR. Everything that changes the child — starting again, the
+         developer unlock, backups — used to sit open on this page. It is behind a PIN now,
+         and this is the only thing left of it here. */
+      '<div class="card growndoor"><div class="spread"><div><h3 style="margin:0">Grown-ups</h3>' +
+      '<p class="tiny muted" style="margin:4px 0 0">The report card, settings, backups and starting again — behind a PIN.</p></div>' +
+      '<button class="btn" data-act="go" data-v="grown">' + icon('lock', 18) + ' Grown-ups</button></div></div>';
+  };
+
+
+  /* ============================================================ GROWN-UPS
+     Behind a 4-digit PIN that the screen calls a deterrent, not security (family standard
+     §7): a curious tap cannot start the child again, and nothing here pretends a browser
+     can keep a determined person out. The report card says what the child can now do,
+     from evidence — never minutes. */
+  var grownOpen = false, pinBuf = '', pinFirst = null;
+  function tester() { return Store.loadDevice('tester', false) === true; }
+  function pinHash(s) { var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return 'p' + h.toString(36); }
+  function pinScreen() {
+    var setting = !S.pin;
+    var dots = ''; for (var i = 0; i < 4; i++) dots += '<i class="' + (i < pinBuf.length ? 'on' : '') + '"></i>';
+    var keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'back'];
+    return '<button class="backlink" data-act="go" data-v="me">' + icon('back', 18) + ' Back</button>' +
+      '<div class="card pincard">' +
+        '<span class="mono">' + icon('lock', 16) + ' Grown-ups</span>' +
+        '<h2>' + (setting ? (pinFirst ? 'Type it once more' : 'Choose a 4-digit PIN')
+                          : 'Type the grown-ups\u2019 PIN') + '</h2>' +
+        '<div class="pindots" aria-live="polite" aria-label="' + pinBuf.length + ' of 4 digits">' + dots + '</div>' +
+        '<div class="pinpad" role="group" aria-label="PIN keypad">' + keys.map(function (k) {
+          if (!k) return '<span></span>';
+          return k === 'back'
+            ? '<button class="pinkey" data-act="pinback" aria-label="Delete">\u232b</button>'
+            : '<button class="pinkey" data-act="pin" data-d="' + k + '">' + k + '</button>';
+        }).join('') + '</div>' +
+        '<p class="tiny muted">This PIN is a <b>deterrent, not security</b>. It keeps starting-again ' +
+          'and settings one step away from a curious tap. ' +
+          (setting ? 'It is kept only on this device.'
+                   : 'Forgotten it? Clearing this site\u2019s data in the browser resets it \u2014 and the ' +
+                     'child\u2019s progress with it, which is why it is only a deterrent.') + '</p>' +
+      '</div>';
+  }
+  function pinKey(d) {
+    if (pinBuf.length >= 4) return;
+    pinBuf += d;
+    if (pinBuf.length < 4) return render();
+    var entered = pinBuf; pinBuf = '';
+    if (!S.pin) {
+      if (!pinFirst) { pinFirst = entered; return render(); }
+      if (pinFirst !== entered) { pinFirst = null; toast('Those two did not match — choose again'); return render(); }
+      S.pin = pinHash(entered); pinFirst = null; save(); grownOpen = true; return render();
+    }
+    if (pinHash(entered) === S.pin) { grownOpen = true; return render(); }
+    toast('Not that one'); render();
+  }
+  function reportCard() {
+    var U = window.IND_PAATH_UI, rows = [];
+    try { if (U && paathUI()) rows = U.report() || []; } catch (e) { rows = []; }
+    var lit = Object.keys(S.lit || {}).length, read = Object.keys(S.read || {}).length;
+    return '<div class="card"><h3 style="margin-top:0">What ' + esc(S.name || 'your child') + ' can do now</h3>' +
+      '<p class="tiny muted" style="margin-top:0">From evidence, never from minutes. A course objective counts only ' +
+        'when it was checked on a later day than it was taught.</p>' +
+      (rows.length
+        ? '<ul class="reportlist">' + rows.map(function (r) {
+            return '<li><b>' + esc(r.name) + '</b> — ' + r.mastered + ' of ' + r.of + ' objectives learned' +
+              (r.made ? ', ' + r.made + ' made' : '') + '</li>';
+          }).join('') + '</ul>'
+        : '<p>No course objective is learned yet. The first one counts when a test is passed on a ' +
+          'later day than its lesson.</p>') +
+      '<div class="row" style="margin-top:8px">' +
+        '<span class="pill stat">' + read + ' stories finished</span>' +
+        '<span class="pill stat">' + lit + ' places lit on the map</span>' +
+        (window.IND_PACKS ? '<button class="pill" data-act="go" data-v="bhasha">Bhasha: how it is going \u2192</button>' : '') +
+      '</div></div>';
+  }
+  V.grown = function () {
+    if (!grownOpen) return pinScreen();
+    return '<button class="backlink" data-act="go" data-v="me">' + icon('back', 18) + ' Back</button>' +
+      '<div class="phead"><h1>Grown-ups</h1>' +
+        '<button class="pill" data-act="grownlock">' + icon('lock', 16) + ' Lock</button></div>' +
+      reportCard() +
+      '<div class="card"><h3 style="margin-top:0">Keep a copy</h3>' +
+        '<p class="tiny muted" style="margin-top:0">Everything stays on this device. A backup is a file you keep; ' +
+          'restoring it puts this device back exactly as it was then.</p>' +
+        '<div class="row">' +
+          '<button class="pill" data-act="backup">' + icon('print', 16) + ' Save a backup</button>' +
+          '<label class="pill">Restore from a backup<input type="file" id="restorefile" accept="application/json,.json" hidden></label>' +
+          '<button class="pill" data-act="reset">Erase and start again</button>' +
+        '</div></div>' +
+      settings_html();
+  };
+  function settings_html() {
+    return (
+      '<div class="card"><h3>Settings</h3><div class="row">' +
       '<button class="pill' + (soundOn ? ' on' : '') + '" data-act="sound">' + icon('sound', 18) + ' Sound</button>' +
       '<button class="pill' + (night ? ' on' : '') + '" data-act="night">' +
       icon(night ? 'sun' : 'moon', 18) + ' Night mode</button>' +
@@ -6096,6 +6196,10 @@
          collection that was actually a test switch. It opens the SIKKE economy only —
          worlds and avatar packs. It cannot and must not open a paid entitlement, which is
          server-side by rule (CLAUDE.md). */
+      /* TESTER MODE ONLY (family standard §7). The unlock used to sit on the child's own
+         page, one tap from opening every world and pack. It now exists only on a device
+         put into tester mode with ?tester=1, and never in front of a child otherwise. */
+      (tester() ? '' +
       '<h4 class="setlbl">Developer unlock</h4>' +
       '<div class="row"><button class="pill' + (S.dev ? ' on' : '') + '" data-act="devmode"' +
       ' aria-pressed="' + (S.dev ? 'true' : 'false') + '">' +
@@ -6103,15 +6207,17 @@
       '<p class="tiny muted" style="margin:8px 0 0">For testing. Opens every world and every ' +
       'avatar pack and stops sikke being spent, so you can walk the whole app without ' +
       'grinding for it. Nothing is bought and nothing is lost — turn it off and your real ' +
-      'sikke and your real collection are exactly as you left them.</p>' +
+      'sikke and your real collection are exactly as you left them.</p>' +      '' : '') +
+
       '<h4 class="setlbl">Take it offline</h4>' + dlRows() +
       '<h4 class="setlbl">Parivaar Pass</h4>' + passCard() +
       '<h4 class="setlbl">If something breaks</h4>' + diagCard() +
       '<p class="tiny muted" style="margin-top:12px">Build <b>' + esc(window.IND_BUILD || 'dev') + '</b>' +
       ' — if something looks wrong, quote this number so we know which version you are on.</p>' +
       '<p class="tiny muted">This demo keeps everything on this device. No account, ' +
-      'no child data leaves the browser — which is also how the real product is designed (docs/07).</p></div>';
-  };
+      'no child data leaves the browser — which is also how the real product is designed (docs/07).</p></div>'
+    );
+  }
 
   /* ---------------------------------------------------------------- TONGUE */
   /* The family-language picker. It leans, it never gates — the copy on this
@@ -6277,6 +6383,8 @@
          to the next line together. Loose in the row, the wordmark would push
          them over the edge one at a time and strand sound on a line by itself. */
       '<span class="barctl">' +
+      /* ?from=hive: one chip back to the family's day (family standard §4) */
+      (fromHive ? '<a class="pill hivechip" href="https://aayuvis.github.io/Bizzing_Schedule/">\u2190 my day</a>' : '') +
       '<span class="pill stat" title="Sikke — earned, never bought">🪙 <span id="kauriCount">' + S.sikke + '</span></span>' +
       /* the family-language chip: shows the tongue in its own script, opens the picker */
       (window.IND_TONGUE
@@ -6424,6 +6532,7 @@
       case 'paathp': h = V.paathp(view.arg); break;
       case 'paathk': h = V.paathk(view.arg); break;
       case 'me': h = V.me(); break;
+      case 'grown': h = V.grown(); break;
       default: h = V.home();
     }
     m.innerHTML = h + deckModal();
@@ -6540,14 +6649,70 @@
        born with until somebody pressed the update bar — so a parent opened a course a day
        after it was rebuilt and saw the old one, twice. Changing screen is the safe moment:
        nobody is mid-sentence, and the screen they asked for is the one they land on. */
+    if (view.name === 'grown' && n !== 'grown') { grownOpen = false; pinBuf = ''; pinFirst = null; }
     if (updateReady && n !== view.name) {
       try { sessionStorage.setItem('bi_resume', JSON.stringify({ n: n, a: a }));
             sessionStorage.setItem('bi_upd_to', updateReady); } catch (e) {}
       location.reload(); return;
     }
     stopAudio(); killGame(); view = { name: n, arg: a }; render();
+    route(true);
   }
-  var updateReady = false;
+  var updateReady = false, fromHive = false;
+  /* ===================================================== ROUTES
+     THE BACK BUTTON NEVER LEAVES THE APP (family standard §4). go() used to swap the
+     view in memory and nothing else, so a phone's Back, or a browser's, went straight
+     out of the app — from the map to about:blank, in the audit. Every screen now has a
+     hash, #/<view>/<arg>, written as a history entry, and Back walks those entries.
+     history.state carries the arg with its own type, so a number stays a number; the
+     hash is only parsed for a link typed or shared from outside. */
+  function hashOf(v) {
+    return '#/' + v.name + (v.arg != null && v.arg !== '' ? '/' + encodeURIComponent(String(v.arg)) : '');
+  }
+  function route(push) {
+    if (!S.started || !window.history || !history.pushState) return;
+    var h = hashOf(view);
+    if (location.hash === h) return;
+    try { history[push ? 'pushState' : 'replaceState']({ n: view.name, a: view.arg }, '', h); } catch (e) {}
+  }
+  var ROUTES = null;
+  function known(n) {
+    if (!ROUTES) {
+      ROUTES = { home: 1 };
+      (String(render).match(/case '([a-z0-9]+)'/g) || []).forEach(function (m) { ROUTES[m.slice(6, -1)] = 1; });
+    }
+    return !!ROUTES[n];
+  }
+  function parseHash(h) {
+    var m = String(h || '').match(/^#\/([a-z0-9]+)(?:\/(.*))?$/i);
+    if (!m) return null;
+    var a = m[2] != null ? decodeURIComponent(m[2]) : null;
+    return { n: m[1], a: a };
+  }
+  window.addEventListener('popstate', function (e) {
+    var fromState = !!(e.state && e.state.n);
+    var r = fromState ? { n: e.state.n, a: e.state.a } : parseHash(location.hash);
+    if (!r || !S.started) return;
+    if (r.n === 'continue') { r = continueTarget(); }
+    if (!known(r.n)) r = { n: 'home', a: null };
+    prepView(r.n, r.a);
+    stopAudio(); killGame(); view = { name: r.n, arg: r.a }; render();
+    /* a link typed or followed (no state of its own) takes its proper name in history */
+    if (!fromState) route(false);
+  });
+  /* a screen reached by Back, or by a link, gets the same setup its own button gives it */
+  function prepView(n, a) {
+    if (n === 'story' && !(view.name === 'story' && view.arg === a)) play = { story: null, i: 0, answered: false };
+    if (n === 'pack' && !(view.name === 'pack' && view.arg === a)) quiz = quizReset(null);
+  }
+  /* #/continue — the Hive's door, and Continue's own: the one next thing. A story left
+     part-way, then a language pack left part-way, then the story shelf. */
+  function continueTarget() {
+    var R = S.resume || {};
+    if (R.story && R.story.id && !S.read[R.story.id]) return { n: 'story', a: R.story.id };
+    if (R.pack && R.pack.id && window.IND_PACKS && window.IND_PACKS[R.pack.id]) return { n: 'pack', a: R.pack.id };
+    return { n: 'stories', a: null };
+  }
 
   function mountGame(id) {
     var g = (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0], host = $('#gamehost');
@@ -6974,7 +7139,22 @@
     /* DEVELOPER UNLOCK — for testing. Device-scoped and profile-scoped both, loud on
        screen while it is on, and it never touches a paid entitlement: it opens the
        sikke economy only. */
+    if (a === 'pin')       { pinKey(t.getAttribute('data-d')); return; }
+    if (a === 'pinback')   { pinBuf = pinBuf.slice(0, -1); return render(); }
+    if (a === 'grownlock') { grownOpen = false; return go('me'); }
+    if (a === 'backup') {
+      try {
+        var blob = new Blob([JSON.stringify(Store.loadProfile() || {}, null, 1)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob), lnk = document.createElement('a');
+        lnk.href = url; lnk.download = 'bizzing-india-backup-' + today() + '.json';
+        document.body.appendChild(lnk); lnk.click(); lnk.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        toast('Backup saved');
+      } catch (e) { toast('This browser could not save the file'); }
+      return;
+    }
     if (a === 'devmode') {
+      if (!tester()) return;
       S.dev = !S.dev; save();
       toast(S.dev ? 'Developer unlock ON — everything is open.' : 'Developer unlock off.');
       return render();
@@ -7020,7 +7200,13 @@
       toast(S.hindi ? 'Stories in Hindi and English' : 'Stories in English');
       paintChrome(); return render();
     }
-    if (a === 'reset')  { if (confirm('Clear everything on this device and start again?')) { localStorage.removeItem(Store.KEY); location.reload(); } return; }
+    if (a === 'reset')  {
+      if (view.name !== 'grown' || !grownOpen) return;     /* only from behind the PIN */
+      if (confirm('Erase everything on this device and start again? Save a backup first if you might want it.')) {
+        Store.erase(); location.reload();
+      }
+      return;
+    }
 
     /* ---- Take it offline / Pass / diagnostics (the Grown-ups' plumbing) ---- */
     if (a === 'dl') {
@@ -7320,11 +7506,51 @@
   document.addEventListener('DOMContentLoaded', function () {
     healWorld();
     /* back to the screen that was asked for when the update was taken */
+    var resumed = false;
     try {
       var rs = JSON.parse(sessionStorage.getItem('bi_resume') || 'null');
       sessionStorage.removeItem('bi_resume');
-      if (rs && rs.n && V[rs.n]) view = { name: rs.n, arg: rs.a };
+      if (rs && rs.n && known(rs.n)) { view = { name: rs.n, arg: rs.a }; resumed = true; }
     } catch (e) {}
+    /* or to the screen the link names: a shared #/state/KL, the Hive's #/continue */
+    if (!resumed && S.started) {
+      var hr = parseHash(location.hash);
+      if (hr && hr.n === 'continue') hr = continueTarget();
+      if (hr && known(hr.n)) { prepView(hr.n, hr.a); view = { name: hr.n, arg: hr.a }; }
+    }
+    /* Back from the first screen of a visit lands on Home, not outside the app */
+    if (S.started && window.history && history.replaceState && view.name !== 'home') {
+      try { history.replaceState({ n: 'home', a: null }, '', '#/home'); } catch (e) {}
+      route(true);
+    } else route(false);
+    /* TESTER MODE is a device setting, switched by ?tester=1 / ?tester=0, never a button in
+       front of a child; and without it the developer unlock is simply off */
+    var tm = location.search.match(/[?&]tester=([01])/);
+    if (tm) Store.saveDevice('tester', tm[1] === '1');
+    if (S.dev && !tester()) { S.dev = false; save(); }
+    /* restoring a backup: the file is read here, checked, and written through the seam */
+    document.addEventListener('change', function (e) {
+      if (!e.target || e.target.id !== 'restorefile' || !grownOpen) return;
+      var f = e.target.files && e.target.files[0];
+      if (!f) return;
+      var rd = new FileReader();
+      rd.onload = function () {
+        var o = null;
+        try { o = JSON.parse(rd.result); } catch (err) { o = null; }
+        if (!o || typeof o !== 'object' || !('started' in o)) { toast('That file is not a Bizzing India backup'); return; }
+        if (!confirm('Replace everything on this device with this backup?')) return;
+        Store.saveProfile(o); location.reload();
+      };
+      rd.readAsText(f);
+    });
+    /* the PIN from a keyboard as well as by touch (house rule) */
+    document.addEventListener('keydown', function (e) {
+      if (view.name !== 'grown' || grownOpen) return;
+      if (/^[0-9]$/.test(e.key)) { e.preventDefault(); pinKey(e.key); }
+      else if (e.key === 'Backspace') { e.preventDefault(); pinBuf = pinBuf.slice(0, -1); render(); }
+    });
+    /* ?from=hive: the way back to the family's day */
+    if (/[?&]from=hive\b/.test(location.search)) fromHive = true;
     render();
     // Also the handle tools/verify.js drives the app by, so the headless walk exercises the
     // real navigation rather than a parallel test path.

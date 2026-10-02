@@ -364,12 +364,17 @@
   }
   /* new medals are found after the things that can earn them; each is shown ONCE */
   var celebrating = [];
-  function checkMedals() {
+  /* `quiet`: evidence from before medals existed (a profile with no shelf yet, or mastery first
+     measured when its engine arrives) goes ON THE SHELF without a fanfare — a celebration is for
+     what was just done, never a pop-up over whatever the child is doing now */
+  function checkMedals(quiet) {
     if (!S.started) return;
+    var first = !S.medals;
     var e = evidence(), got = S.medals || (S.medals = {}), fresh = [];
     MEDALS.forEach(function (m) { if (!got[m.id] && m.ok(e)) { got[m.id] = today(); fresh.push(m); } });
-    if (!fresh.length) return;
+    if (!fresh.length) { if (first) save(); return; }
     save();
+    if (first || quiet === true) return;
     fresh.forEach(function (m) { celebrating.push(m); milestone('mastery', 'Medal: ' + m.name); });
     showCelebration();
   }
@@ -632,8 +637,8 @@
   }
   /* mastery and rank are DERIVED (mastered(), level()), so growth is noticed by comparing
      with what was last seen — once each, and never on the way down */
-  function checkGrowth() {
-    setTimeout(checkMedals, 0);
+  function checkGrowth(quiet) {
+    setTimeout(function () { checkMedals(quiet); }, 0);
     var out = { m: 0, l: false };
     if (!window.IND_PAATH_UI || !window.IND_BHASHA || !window.IND_PACKS) return out;
     /* growth is measured from the first time it CAN be measured: what a child already had
@@ -7657,7 +7662,7 @@
       AN.look.i++; AN.look.picked = null;
       if (AN.look.i >= AN.look.ids.length) {
         AN.did.look = true; AN.end = Date.now(); markToday(); sfx('win');
-        lastDid('aaj', 'Aaj ka'); setTimeout(checkMedals, 900);
+        lastDid('aaj', 'Aaj ka'); setTimeout(function () { checkMedals(); }, 900);
       }
       save(); return render();
     }
@@ -7930,7 +7935,7 @@
           lastDid('story', st.title, c ? stateName(c.replace('IN-', '')) : '');
           milestone('stop', st.title);
           sfx('win');
-          setTimeout(checkMedals, 900);
+          setTimeout(function () { checkMedals(); }, 900);
         }
         save();
       } else if (st) { sayScene(st, play.i); save(); }
@@ -8118,7 +8123,7 @@
          them the first time each pack is opened (Phase 2, docs/09 §3) */
       if (ob.place.home) S.placement = { home: ob.place.home, back: ob.place.back,
                                          lang: S.tongue || null };
-      S.started = today(); S.grown = S.grown || { m: 0, l: 0 }; save();
+      S.started = today(); S.grown = S.grown || { m: 0, l: 0 }; S.medals = S.medals || {}; save();
       var hh = Store.house(); if (hh.adding) { hh.adding = null; Store.saveHouse(hh); }
       startActivity();
       return go('home');
@@ -8627,7 +8632,7 @@
       if (measured || !S.started || !window.IND_HAS('bhasha') || !window.IND_HAS('paath')) return;
       measured = true;
       var before = level();
-      checkGrowth();
+      checkGrowth(true);
       if (view.name === 'home' && (level() !== before || !(S.resume && (S.resume.paath || {}).step))) render();
     });
     window.addEventListener('ind-reward', function (e) {

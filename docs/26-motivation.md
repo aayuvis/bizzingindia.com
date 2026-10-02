@@ -34,7 +34,10 @@ first story, ten, fifty; first place lit, ten (the brief's example), all of Indi
 rung (the brief's other example), three; a course test passed on a later day, five; a project
 the workshop marked; the rank of Sadhak. Each is **earned by something the app saw** — never by
 *"I did it"*, never by days in a row, never by coins — and **celebrated once**, then kept on the
-child's shelf with its date. The unearned ones say how to earn them.
+child's shelf with its date. The unearned ones say how to earn them. Evidence from **before**
+medals existed — an older profile, or mastery first measured when its engine loads — goes on the
+shelf **quietly**: a celebration is for what was just done, never a pop-up over whatever the child
+is doing now (the gate caught exactly that pop-up covering a course page).
 
 ## Celebration that names what was done (J1)
 

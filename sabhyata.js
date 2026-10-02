@@ -1072,6 +1072,243 @@
     '.sab-e11 #sab-terrg{filter:hue-rotate(4deg) saturate(1.12) brightness(1.02)}',
     '.sab-e12 #sab-terrg{filter:saturate(1.18) brightness(1.04)}',
 
+    /* ==================================================================
+       THE GAME WINDOW — the map is the screen, and the controls sit on it
+       ==================================================================
+       On a landscape screen the map used to be a portrait box under the app's
+       header, its bottom below the fold, beside a column of cream holding a few
+       lines. "So much space wasted; the map should be front and centre" — and the
+       references were Civ 6 and Age of Empires, and this game's own city view,
+       which already took the whole window. Now the map does too.
+
+       ONE MATERIAL, NOT SIX KINDS OF PILL. The first cut floated a dozen dark
+       rounded boxes of different heights, radii and greys, and the verdict was
+       fair: better layout, badly designed parts. Every control here is now made
+       of the same two things — lacquered teak and a brass edge — at one control
+       height (44), two radii (12 controls, 16 panels), one type ramp, and line
+       icons instead of emoji. Red is still only "press this" (Agla Saal, a
+       primary verb); brass is structure; green and amber are numbers going up and
+       things waiting.
+
+         top      a full-width beam: the way out, the age and the turn, the
+                  stores with what each makes a turn, the three books, the
+                  ages, the menu — Civ's top bar, in one row
+         left     YOUR REALM, a row a place; at the bottom, the place you chose,
+                  with its verbs as equal tiles (Civ's unit panel)
+         right    MITHU's one suggestion, the alerts stacked above the turn, and
+                  Agla Saal as a big brass-rimmed disc where End Turn lives
+         middle   India, fitted to the ground BETWEEN the columns, so at the
+                  opening view a panel lies over sea or mist, never the country
+
+       Below 900px wide, or on a portrait screen, none of this applies and the
+       page layout above is unchanged — the phone is a separate decision. */
+    'body.sab-mapfull{overflow:hidden}',
+    'body.sab-mapfull #gamehost{z-index:auto}',
+    '.sab-wrap{--teak:linear-gradient(180deg,rgba(58,37,26,.95),rgba(38,24,17,.95));--teak-flat:rgba(44,28,20,.94);' +
+      '--brass:#d4a650;--brass-soft:rgba(212,166,80,.42);--brass-faint:rgba(212,166,80,.18);' +
+      '--hud-tx:#f8f0e1;--hud-mute:rgba(248,240,225,.64);--hud-up:#a9df9e;--hud-down:#f0b49a;' +
+      '--hud-lift:inset 0 1px 0 rgba(255,255,255,.07),0 8px 22px rgba(18,9,4,.34)}',
+    /* THE CITY WEARS IT TOO. The city view was the first full-window screen in this
+       game and its controls were grey glass — the map's teak and brass beside them
+       would make two games. Every control on the city's own frame now takes the same
+       material, on every screen size, because the city is full-window on a phone too. */
+    '.sab-scene.iskit .sab-leave,.sab-scene.iskit .sab-bell,.sab-scene.iskit .sab-dhandle,' +
+      '.sab-scene.iskit .sab-grow,.sab-scene.iskit .sab-kitbar button,.sab-scene.iskit .sab-kitbar .z,' +
+      '.sab-scene.iskit .sab-calllist{background:var(--teak);border:1px solid var(--brass-soft);color:var(--hud-tx);' +
+      'box-shadow:var(--hud-lift);backdrop-filter:none}',
+    '.sab-scene.iskit .sab-leave:hover,.sab-scene.iskit .sab-bell:hover,.sab-scene.iskit .sab-dhandle:hover,' +
+      '.sab-scene.iskit .sab-kitbar button:hover{border-color:var(--brass)}',
+    '.sab-scene.iskit .sab-grow.can{background:linear-gradient(180deg,#d4552f,#a8341c);border-color:#ecc977;color:#fff}',
+    '.sab-scene.iskit .sab-grow em{color:#f3d48c}',
+    '.sab-scene.iskit .sab-grow.can em{color:#ffe2a0}',
+    '.sab-scene.iskit .sab-nameplate{background:var(--teak);border:1px solid var(--brass-soft);color:var(--hud-tx);' +
+      'box-shadow:var(--hud-lift)}',
+    '.sab-scene.iskit .sab-nameplate span{color:var(--hud-mute);opacity:1}',
+    '.sab-scene.iskit .sab-cityturn{background:var(--teak);border:1px solid var(--brass-soft);box-shadow:var(--hud-lift)}',
+    '.sab-scene.iskit .sab-cityturn .sab-chip{color:var(--hud-tx)}',
+    '.sab-scene.iskit .sab-cityturn .sab-chip small{color:var(--hud-up)}',
+    '.sab-scene.iskit .sab-cityturn .sab-act.go{border:2px solid #ecc977}',
+    '.sab-wrap.gw{position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;display:block;min-height:0;margin:0;' +
+      'background:var(--ground2);' +
+      '--teak:linear-gradient(180deg,rgba(58,37,26,.95),rgba(38,24,17,.95));--teak-flat:rgba(44,28,20,.94);' +
+      '--brass:#d4a650;--brass-soft:rgba(212,166,80,.42);--brass-faint:rgba(212,166,80,.18);' +
+      '--hud-tx:#f8f0e1;--hud-mute:rgba(248,240,225,.64);--hud-up:#a9df9e;--hud-down:#f0b49a;' +
+      '--hud-lift:inset 0 1px 0 rgba(255,255,255,.07),0 8px 22px rgba(18,9,4,.34)}',
+    '.sab-wrap.gw>.sab-stage{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;min-height:0;max-height:none;' +
+      'aspect-ratio:auto;margin:0;border:0;border-radius:0}',
+    '.sab-wrap.gw .sab-side{display:contents}',
+    /* the shared material */
+    '.sab-wrap.gw .sab-panel,.sab-wrap.gw .sab-realm,.sab-wrap.gw .sab-coach,.sab-wrap.gw .sab-tray,' +
+      '.sab-wrap.gw .sab-railrow,.sab-wrap.gw .sab-zoom,.sab-wrap.gw .sab-feed,.sab-wrap.gw .sab-more{' +
+      'background:var(--teak);border:1px solid var(--brass-soft);border-radius:16px;color:var(--hud-tx);' +
+      'box-shadow:var(--hud-lift)}',
+    '.sab-wrap.gw .sab-cap{display:block;font:800 10px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}',
+    /* ---- THE TOP BEAM ---- */
+    '.sab-wrap.gw .sab-bar{position:absolute;top:0;left:0;right:0;height:56px;z-index:6;display:flex;' +
+      'align-items:center;gap:6px;flex-wrap:nowrap;padding:0 10px;background:var(--teak);border:0;' +
+      'border-bottom:1px solid var(--brass-soft);border-radius:0;color:var(--hud-tx);' +
+      'box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 6px 18px rgba(18,9,4,.28)}',
+    '.sab-wrap.gw .sab-bar>*{flex:0 0 auto}',
+    /* hairline brass dividers between the beam's groups */
+    '.sab-wrap.gw .sab-exit,.sab-wrap.gw .sab-era+.sab-era,.sab-wrap.gw #sab-res{position:relative;margin-right:8px}',
+    '.sab-wrap.gw .sab-exit::after,.sab-wrap.gw .sab-era+.sab-era::after,.sab-wrap.gw #sab-res::after{content:"";' +
+      'position:absolute;right:-8px;top:10px;bottom:10px;width:1px;background:var(--brass-faint)}',
+    '.sab-exit,.sab-tabs{display:none}',
+    '.sab-wrap.gw .sab-exit{display:flex;align-items:center;gap:5px;height:40px;padding:0 12px 0 8px;border-radius:12px;' +
+      'border:1px solid transparent;background:none;color:var(--hud-tx);font:800 13px/1 var(--body);cursor:pointer}',
+    '.sab-wrap.gw .sab-exit:hover{border-color:var(--brass-soft);background:rgba(255,255,255,.05)}',
+    '.sab-wrap.gw .sab-era{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 6px;height:56px}',
+    '.sab-wrap.gw .sab-era b{font:800 16px/1 var(--display,Georgia,serif);color:var(--hud-tx)}',
+    '.sab-wrap.gw .sab-era span{font:700 10px/1 var(--body);letter-spacing:.12em;color:var(--brass)}',
+    '.sab-wrap.gw .sab-era+.sab-era{align-items:center;padding:0 8px}',
+    '.sab-wrap.gw .sab-era+.sab-era b{font:800 18px/1 var(--body);font-variant-numeric:tabular-nums}',
+    /* the stores: a brass coin for each, the number, and what it makes a turn */
+    '.sab-wrap.gw #sab-res{display:flex;align-items:center;gap:4px;flex:0 1 auto;flex-wrap:nowrap;min-width:0;overflow:hidden;' +
+      'background:none;border:0;padding:0}',
+    '.sab-wrap.gw #sab-res .sab-chip{gap:7px;height:40px;padding:0 10px 0 4px;background:none;color:var(--hud-tx);' +
+      'font:800 15px/1 var(--body);font-variant-numeric:tabular-nums;border-radius:12px}',
+    '.sab-wrap.gw #sab-res .sab-chip small{font:700 11px/1 var(--body);color:var(--hud-up)}',
+    '.sab-wrap.gw #sab-res .sab-chip small.neg{color:var(--hud-down)}',
+    '.sab-wrap.gw #sab-res .sab-chip small.cap{color:var(--hud-mute)}',
+    '.sab-wrap.gw #sab-res .sab-chip[data-sab-act]{cursor:pointer;min-height:40px}',
+    '.sab-wrap.gw #sab-res .sab-chip[data-sab-act]:hover{background:rgba(255,255,255,.05)}',
+    '.sab-wrap.gw #sab-res .sab-restless small{color:var(--brass)}',
+    '.sab-ri{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;flex:none;font-style:normal}',
+    '.sab-wrap.gw .sab-ri{width:28px;height:28px}',
+    '.sab-wrap.gw .sab-ri{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.18),rgba(255,255,255,0) 60%),#5a3a24;' +
+      'border:1.5px solid var(--brass);color:#f3d48c}',
+    '.sab-wrap.gw .sab-gap{display:block;flex:1 1 auto}',
+    /* the three books */
+    '.sab-wrap.gw .sab-tabs{display:flex;gap:2px}',
+    '.sab-tab{display:flex;align-items:center;gap:7px;height:40px;padding:0 12px;border:1px solid transparent;border-radius:12px;' +
+      'background:none;color:var(--hud-tx);font:800 13px/1 var(--body);cursor:pointer;white-space:nowrap}',
+    '.sab-tab svg{color:var(--brass)}',
+    '.sab-tab:hover{border-color:var(--brass-soft);background:rgba(255,255,255,.05)}',
+    '.sab-tab[aria-pressed="true"]{border-color:var(--brass);background:rgba(212,166,80,.16)}',
+    '.sab-tab:focus-visible,.sab-exit:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
+    '.sab-wrap.gw .sab-globals{flex:0 0 auto;flex-wrap:nowrap;margin-left:4px;gap:4px;align-items:center}',
+    '.sab-wrap.gw .sab-ages{height:40px;min-height:0;padding:0 10px;border-radius:12px;background:none;border:1px solid transparent}',
+    '.sab-wrap.gw .sab-ages:hover{border-color:var(--brass-soft)}',
+    '.sab-wrap.gw .sab-ages i{width:8px;height:8px;background:rgba(255,255,255,.18)}',
+    '.sab-wrap.gw .sab-ages i.g{background:var(--brass)}',
+    '.sab-wrap.gw .sab-ages i.q{background:rgba(255,255,255,.5)}',
+    '.sab-wrap.gw .sab-ages i.now{background:#fff;box-shadow:0 0 0 2px var(--accent)}',
+    '.sab-wrap.gw #sab-menu{width:40px;height:40px;min-height:0;border-radius:12px;background:none;' +
+      'border:1px solid var(--brass-soft);color:var(--hud-tx);box-shadow:none}',
+    '.sab-wrap.gw #sab-menu:hover,.sab-wrap.gw #sab-menu[aria-expanded="true"]{background:rgba(212,166,80,.16)}',
+    '.sab-wrap.gw .sab-more{position:absolute;top:60px;right:10px;width:max-content;max-width:440px;padding:8px;' +
+      'justify-content:flex-end;z-index:9}',
+    '.sab-wrap.gw .sab-more .sab-act,.sab-wrap.gw .sab-more .sab-speed{background:rgba(255,255,255,.06);' +
+      'color:var(--hud-tx);border:1px solid var(--brass-faint);box-shadow:none}',
+    /* ONE ROW, ALWAYS. What gives way first is what is also somewhere else: the ages
+       ribbon (it is The ages, under the menu), then the books' labels (the icons
+       stay), then the per-turn small print. */
+    '@media (max-width:1299px){.sab-wrap.gw .sab-ages{display:none}}',
+    '@media (max-width:1180px){.sab-wrap.gw .sab-tab span{display:none}.sab-wrap.gw .sab-tab{padding:0 10px}' +
+      '.sab-wrap.gw .sab-exit span{display:none}}',
+    '@media (max-width:1040px){.sab-wrap.gw #sab-res .sab-chip small{display:none}' +
+      '.sab-wrap.gw .sab-era span{display:none}}',
+    /* ---- AGLA SAAL: where End Turn lives, and as big ---- */
+    '.sab-wrap.gw #sab-turn{position:fixed;right:20px;bottom:20px;z-index:8;width:128px;height:128px;' +
+      'min-height:0;padding:0;border-radius:50%;justify-content:center;' +
+      'background:radial-gradient(circle at 38% 30%,#e0683f,#b8391f 58%,#8f2a15) #b8391f;color:#fff;' +
+      'border:3px solid #ecc977;' +
+      'box-shadow:0 0 0 5px rgba(38,24,17,.92),0 0 0 6px var(--brass-soft),0 14px 34px rgba(18,9,4,.45),' +
+      'inset 0 2px 0 rgba(255,255,255,.25),inset 0 -6px 14px rgba(0,0,0,.22)}',
+    '.sab-wrap.gw #sab-turn:hover{transform:translateY(-2px);filter:brightness(1.05)}',
+    '.sab-wrap.gw #sab-turn:disabled{filter:grayscale(.6);opacity:.6;transform:none}',
+    '.sab-wrap.gw #sab-turn .lbl{align-items:center;text-align:center;gap:5px;font:900 18px/1.05 var(--display,Georgia,serif);' +
+      'text-shadow:0 1px 2px rgba(0,0,0,.25)}',
+    '.sab-wrap.gw #sab-turn .lbl em{display:block;padding:3px 8px;border-radius:999px;background:rgba(38,24,17,.55);' +
+      'font:800 11px/1.1 var(--body);color:#fbe6b5;text-shadow:none}',
+    '.sab-wrap.gw #sab-next{position:fixed;right:166px;bottom:34px;z-index:8;width:54px;min-height:54px;height:54px;' +
+      'border-radius:50%;background:var(--teak);border:2px solid var(--brass);color:var(--hud-tx);box-shadow:var(--hud-lift)}',
+    '.sab-wrap.gw #sab-next:disabled{opacity:.42}',
+    '.sab-wrap.gw #sab-adv{position:fixed;right:20px;bottom:168px;z-index:8;width:128px;justify-content:center;' +
+      'border:2px solid #ecc977}',
+    /* zoom: in the board's corner on the page layout; beside the turn in the game window */
+    '.sab-zoom{position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:3}',
+    '.sab-wrap.gw .sab-zoom{position:absolute;right:232px;bottom:34px;z-index:6;display:flex;gap:0;padding:0;overflow:hidden;' +
+      'border-radius:14px}',
+    '.sab-wrap.gw .sab-zoom .sab-btn{width:46px;min-height:52px;padding:0;border:0;border-radius:0;background:none;' +
+      'color:var(--hud-tx);display:grid;place-items:center}',
+    '.sab-wrap.gw .sab-zoom .sab-btn+.sab-btn{border-left:1px solid var(--brass-faint)}',
+    '.sab-wrap.gw .sab-zoom .sab-btn:hover{background:rgba(255,255,255,.07)}',
+    /* ---- RIGHT: Mithu, then the alerts ---- */
+    '.sab-coach{display:contents}',
+    '.sab-wrap.gw .sab-coach{position:absolute;top:68px;right:10px;width:var(--gw-w,280px);z-index:5;' +
+      'display:flex;flex-direction:column;gap:0;padding:12px 12px 10px}',
+    '.sab-wrap.gw .sab-coach::before{content:"Mithu says";display:block;margin:0 2px 8px;' +
+      'font:800 10px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}',
+    '.sab-wrap.gw .sab-advise .sab-btn{display:none}',
+    '.sab-wrap.gw .sab-advisebtn{width:100%;min-height:0;padding:8px 10px;border-radius:12px;gap:9px;' +
+      'background:rgba(255,255,255,.06);border:1px solid var(--brass-faint);color:var(--hud-tx);box-shadow:none}',
+    '.sab-wrap.gw .sab-advisebtn:hover{border-color:var(--brass)}',
+    '.sab-wrap.gw .sab-advisebtn span{font:700 13px/1.4 var(--body)}',
+    '.sab-wrap.gw .sab-advisebtn em{color:var(--brass);font-size:12px}',
+    '.sab-wrap.gw .sab-guide{margin:9px 2px 0;padding:9px 0 0;border:0;border-top:1px solid var(--brass-faint);' +
+      'border-radius:0;background:none;box-shadow:none;color:var(--hud-mute);font:600 12.5px/1.45 var(--body)}',
+    '.sab-wrap.gw .sab-guide b{color:#f3d48c}',
+    '.sab-wrap.gw .sab-rail{position:absolute;right:10px;bottom:170px;width:var(--gw-w,280px);z-index:5;gap:6px;' +
+      'justify-content:flex-end}',
+    '.sab-wrap.gw .sab-railrow{display:flex;align-items:stretch;gap:0;overflow:hidden;border-radius:14px;padding:0}',
+    '.sab-wrap.gw .sab-railrow .sab-railgo{flex:1;min-height:46px;padding:8px 12px;border:0;border-left:4px solid var(--brass-soft);' +
+      'border-radius:0;background:none;color:var(--hud-tx);box-shadow:none;font:700 12.5px/1.35 var(--body)}',
+    '.sab-wrap.gw .sab-railrow .sab-railx{width:40px;min-height:46px;border:0;border-left:1px solid var(--brass-faint);' +
+      'border-radius:0;background:none;color:var(--hud-mute);box-shadow:none}',
+    '.sab-wrap.gw .sab-railrow .sab-railgo:hover,.sab-wrap.gw .sab-railrow .sab-railx:hover{background:rgba(255,255,255,.06)}',
+    /* worry is the mist's own grey-violet with weight, never red (COLOUR MEANS ONE THING) */
+    '.sab-wrap.gw .sab-railrow.p0{background:#4a4262}',
+    '.sab-wrap.gw .sab-railrow.p0 .sab-railgo{background:#4a4262;border-left-color:#cfc6e6;font-weight:800}',
+    '.sab-wrap.gw .sab-railrow.p1 .sab-railgo{border-left-color:var(--brass)}',
+    /* the news line: top centre, between the columns, gone when there is none */
+    '.sab-wrap.gw .sab-strip{position:absolute;top:68px;left:50%;transform:translateX(-50%);z-index:5;' +
+      'max-width:min(560px,calc(100% - 2 * var(--gw-p,300px) - 20px));pointer-events:none}',
+    '.sab-wrap.gw .sab-feed{padding:10px 18px;border-radius:999px;font:700 13px/1.3 var(--body);color:var(--hud-tx)}',
+    '.sab-wrap.gw .sab-feed.warm{color:var(--hud-up)}',
+    '.sab-wrap.gw .sab-feed.mist{color:#f3d48c}',
+    /* ---- LEFT: your realm ---- */
+    '.sab-wrap.gw .sab-realm{position:absolute;top:68px;left:10px;width:var(--gw-w,280px);z-index:5;gap:4px;' +
+      'max-height:calc(100% - 68px - 200px);overflow:auto;padding:12px 10px 10px;scrollbar-width:thin;' +
+      'scrollbar-color:var(--brass-soft) transparent}',
+    '.sab-wrap.gw .sab-realmhd{margin:0 4px 6px;color:var(--brass);font:800 10px/1 var(--body);letter-spacing:.16em}',
+    '.sab-wrap.gw .sab-realmrow{min-height:42px;padding:8px 10px;border-radius:11px;background:rgba(255,255,255,.05);' +
+      'border:1px solid transparent;box-shadow:none}',
+    '.sab-wrap.gw .sab-realmrow:hover{border-color:var(--brass-soft);background:rgba(255,255,255,.08)}',
+    '.sab-wrap.gw .sab-realmrow b{color:var(--hud-tx);font:800 13px/1.3 var(--body)}',
+    '.sab-wrap.gw .sab-realmrow i{color:var(--hud-mute)}',
+    '.sab-wrap.gw .sab-realmrow s{color:var(--hud-mute)}',
+    '.sab-wrap.gw .sab-realmrow.idle s{color:#f3c56c}',
+    '.sab-wrap.gw .sab-realmasleep{margin:6px 4px 0;color:var(--hud-mute);font:600 11.5px/1.4 var(--body)}',
+    /* ---- THE CHOSEN PLACE: Civ's unit panel. Its verbs are equal tiles, each an
+       icon in a brass ring with its name and its price — one shape, so the eye
+       compares the choices rather than the buttons. ---- */
+    '.sab-wrap.gw .sab-tray{position:absolute;left:10px;bottom:10px;z-index:6;flex-wrap:nowrap;align-items:stretch;gap:6px;' +
+      'max-width:calc(100% - 20px - 360px);padding:10px 10px 10px 14px;border-left:4px solid var(--brass)}',
+    '.sab-wrap.gw .sab-tray .sab-who{min-width:150px;max-width:210px;padding:2px 12px 2px 0;margin-right:4px;' +
+      'border-right:1px solid var(--brass-faint);justify-content:center;gap:4px}',
+    '.sab-wrap.gw .sab-tray .sab-who b{color:var(--hud-tx);font:800 19px/1.1 var(--display,Georgia,serif)}',
+    '.sab-wrap.gw .sab-tray .sab-who span{color:var(--hud-mute);font:600 11.5px/1.4 var(--body);letter-spacing:0}',
+    '.sab-wrap.gw .sab-tray .sab-act{flex-direction:column;justify-content:flex-start;gap:5px;width:84px;min-height:84px;' +
+      'padding:8px 4px 7px;border-radius:13px;background:rgba(255,255,255,.05);border:1px solid var(--brass-faint);' +
+      'color:var(--hud-tx);box-shadow:none;text-align:center}',
+    '.sab-wrap.gw .sab-tray .sab-act:hover:not(:disabled){border-color:var(--brass);background:rgba(255,255,255,.09);transform:translateY(-1px)}',
+    '.sab-wrap.gw .sab-tray .sab-act .sab-tico{width:38px;height:38px;border-radius:50%;background:#5a3a24;' +
+      'border:1.5px solid var(--brass);color:#f3d48c}',
+    '.sab-wrap.gw .sab-tray .sab-act .lbl{align-items:center;text-align:center;font:800 12px/1.15 var(--body);gap:2px}',
+    '.sab-wrap.gw .sab-tray .sab-act .lbl em{color:var(--hud-mute);font:700 10px/1.2 var(--body);white-space:normal}',
+    '.sab-wrap.gw .sab-tray .sab-act.go{background:linear-gradient(180deg,#d4552f,#a8341c);border-color:#ecc977;color:#fff}',
+    '.sab-wrap.gw .sab-tray .sab-act.go .sab-tico{background:rgba(255,255,255,.16);border-color:#ffe2a0;color:#fff}',
+    '.sab-wrap.gw .sab-tray .sab-act.go .lbl em{color:rgba(255,255,255,.85)}',
+    '.sab-wrap.gw .sab-tray .sab-act.sq{position:absolute;top:-12px;right:-12px;width:30px;min-height:30px;height:30px;' +
+      'padding:0;border-radius:50%;background:var(--teak-flat);border:1.5px solid var(--brass);font-size:13px}',
+    '.sab-wrap.gw .sab-tray .sab-badge{top:-5px;right:-5px}',
+    /* a book (Vidya, or a city that is not a full scene) opens under the beam */
+    '.sab-wrap.gw #sab-cityhost:not(:empty){position:absolute;top:56px;left:0;right:0;bottom:0;z-index:7;' +
+      'overflow:auto;padding:12px 16px 16px;background:var(--ground)}',
+    /* and the city scene keeps the whole window, above all of this */
+    '.sab-wrap.gw .sab-scene.iskit.full{z-index:70}',
+
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
       '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,.sab-trespot .glint,' +
@@ -1108,6 +1345,7 @@
 
     var YIELD = { kheti: 'anna', shilpa: 'kala', vidya: 'katha' };
     var ICON = { anna: '🌾', kala: '🛠️', katha: '📜' };
+    var RI = { anna: 'wheat', kala: 'hammer', katha: 'scroll' };
 
     /* ---- game state: a plain JSON snapshot, deliberately ---- */
     var G = null;
@@ -1662,6 +1900,14 @@
       shield: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',
       peace:  '<path d="M7 12l3 3 7-7M4 15c2 4 5 6 8 6s6-2 8-6"/>',
       road:   '<path d="M4 20C8 14 16 10 20 4M9 6l2 2M14 17l2 2"/>',
+      anchor: '<circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 13H3a9 9 0 0018 0h-2M8 10h8"/>',
+      list:   '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+      menu:   '<path d="M4 7h16M4 12h16M4 17h16"/>',
+      next:   '<path d="M5 12h13M13 7l5 5-5 5"/>',
+      plus:   '<path d="M12 5v14M5 12h14"/>',
+      minus:  '<path d="M5 12h14"/>',
+      whole:  '<path d="M4 11l8-7 8 7M6 10v10h12V10"/>',
+      heart:  '<path d="M12 20s-7-4.4-7-10a4 4 0 017-2.7A4 4 0 0119 10c0 5.6-7 10-7 10z"/>',
       crown:  '<path d="M4 17l1-9 4.5 4L12 5l2.5 7L19 8l1 9zM4 20h16"/>'
     };
     function ic(name, size) {
@@ -3225,9 +3471,9 @@
            holes of clear light punched around every found place and every walking
            explorer — the world is revealed by going and looking, which is the whole
            point of the explorers. The mask is rebuilt each paint; twenty circles. */
-        '<mask id="sabfog"><rect x="-200" y="-200" width="1400" height="1500" fill="#fff"/>' +
+        '<mask id="sabfog"><rect x="-3000" y="-3000" width="7000" height="7100" fill="#fff"/>' +
         '<g id="sab-fogholes"></g></mask>' +
-        '<rect id="sab-fogrect" x="-200" y="-200" width="1400" height="1500" fill="#8d93a5" opacity=".62" ' +
+        '<rect id="sab-fogrect" x="-3000" y="-3000" width="7000" height="7100" fill="#8d93a5" opacity=".62" ' +
           'mask="url(#sabfog)" pointer-events="none"/>' +
         /* Vismriti breathes: two blurred wisps drifting inside the fog's own
            mask, so the grey is weather rather than paint */
@@ -3268,7 +3514,54 @@
        shape (clamped: never wider than 2:1, never taller than portrait), so
        the land fills the full width. ALL stays portrait — whole India is a
        portrait country. Phones compute >1.1 and clamp back to 1.1: unchanged. */
+    /* THE GAME WINDOW (CSS: "THE GAME WINDOW"). On a wide landscape screen the board is
+       the whole window and the HUD floats on it in two side columns and a top strip. The
+       window then takes the stage's own shape at every zoom level, and what it FITS is
+       not the stage but the clear ground between the columns — so at the opening view
+       no panel lies on the country. */
+    var gw = false, GW_TOP = 66, GW_BOT = 24;
+    function gwSide() { return Math.round(Math.max(220, Math.min(310, (W.innerWidth || 1200) * 0.21))); }
+    function gwSet() {
+      var wrapEl = D.getElementById('sabwrap');
+      if (!wrapEl) return;
+      var iw = W.innerWidth || 0, ih = W.innerHeight || 1;
+      gw = !dead && iw >= 900 && iw / ih >= 1.15;
+      wrapEl.classList.toggle('gw', gw);
+      D.body.classList.toggle('sab-mapfull', gw);
+      var P = gwSide();
+      wrapEl.style.setProperty('--gw-p', P + 'px');
+      wrapEl.style.setProperty('--gw-w', (P - 20) + 'px');
+    }
+    function gwFit(b) {
+      var st1 = D.getElementById('sab-stage');
+      var Wd = st1 ? st1.clientWidth : 0, Ht = st1 ? st1.clientHeight : 0;
+      if (!Wd || !Ht) return;
+      var P = gwSide(), aw = Math.max(160, Wd - 2 * P), ah = Math.max(160, Ht - GW_TOP - GW_BOT);
+      var s = Math.min(aw / (b.x1 - b.x0), ah / (b.y1 - b.y0));
+      VZ.w = Wd / s; VZ.h = Ht / s;
+      VZ.x = (b.x0 + b.x1) / 2 - (P + aw / 2) / s;
+      VZ.y = (b.y0 + b.y1) / 2 - (GW_TOP + ah / 2) / s;
+    }
+    function gwZoom(at) {
+      if (zlevel === 2) { gwFit({ x0: 0, y0: 0, x1: 1000, y1: 1100 }); return; }
+      var b = revealedBox(), cx, cy, r;
+      if (zlevel === 0) {
+        cx = at ? at.x : VZ.x + VZ.w / 2; cy = at ? at.y : VZ.y + VZ.h / 2; r = 150;
+      } else {
+        /* never closer than a region is: one lamp in the Rann is not a view of India */
+        cx = (b.x0 + b.x1) / 2; cy = (b.y0 + b.y1) / 2;
+        r = Math.max(260, (b.x1 - b.x0) / 2, (b.y1 - b.y0) / 2);
+        gwFit({ x0: cx - Math.max(260, (b.x1 - b.x0) / 2), y0: cy - Math.max(260, (b.y1 - b.y0) / 2),
+                x1: cx + Math.max(260, (b.x1 - b.x0) / 2), y1: cy + Math.max(260, (b.y1 - b.y0) / 2) });
+        return;
+      }
+      gwFit({ x0: cx - r, y0: cy - r, x1: cx + r, y1: cy + r });
+    }
     function vasp() {
+      if (gw) {
+        var stg = D.getElementById('sab-stage');
+        return stg && stg.clientWidth ? stg.clientHeight / stg.clientWidth : 0.6;
+      }
       if (zlevel === 2) return 1.1;
       var st = D.getElementById('sab-stage');
       var w2 = st ? st.clientWidth : 0;
@@ -3288,6 +3581,7 @@
     }
     function zoomTo(level, at) {
       zlevel = Math.max(0, Math.min(2, level));
+      if (gw) { gwZoom(at); vzClamp(); vzApply(); return; }
       if (zlevel === 2) { VZ = { x: 0, y: 0, w: 1000, h: 1100 }; vzApply(); return; }
       var b = revealedBox();
       var cx = at ? at.x : VZ.x + VZ.w / 2, cy = at ? at.y : VZ.y + VZ.h / 2;
@@ -3320,7 +3614,11 @@
     var rsTm = null;
     function onResize() {
       clearTimeout(rsTm);
-      rsTm = setTimeout(function () { if (!dead) { vzClamp(); vzApply(); } }, 200);
+      rsTm = setTimeout(function () {
+        if (dead) return;
+        var was = gw; gwSet();
+        if (was !== gw) zoomTo(zlevel); else { vzClamp(); vzApply(); }
+      }, 200);
     }
     W.addEventListener('resize', onResize);
     var panning = null, swallowClick = false;
@@ -3399,6 +3697,21 @@
     }
     function vzClamp() {
       VZ.h = VZ.w * vasp();
+      if (gw) {
+        /* the fence, measured against the clear ground: you can pan until the edge of
+           what you have revealed reaches the edge of a column, and no further */
+        var stc = D.getElementById('sab-stage');
+        var Wc = stc ? stc.clientWidth : 0, Hc = stc ? stc.clientHeight : 0;
+        if (!Wc || !Hc) return;
+        var sc = Wc / VZ.w, Pc = gwSide();
+        var bf = zlevel === 2 ? { x0: 0, y0: 0, x1: 1000, y1: 1100 } : revealedBox();
+        var sl = Pc / sc, sr = (Wc - Pc) / sc, stp = GW_TOP / sc, sbt = (Hc - GW_BOT) / sc;
+        if (sr - sl >= bf.x1 - bf.x0) VZ.x = (bf.x0 + bf.x1) / 2 - (sl + sr) / 2;
+        else VZ.x = Math.max(bf.x0 - sl, Math.min(bf.x1 - sr, VZ.x));
+        if (sbt - stp >= bf.y1 - bf.y0) VZ.y = (bf.y0 + bf.y1) / 2 - (stp + sbt) / 2;
+        else VZ.y = Math.max(bf.y0 - stp, Math.min(bf.y1 - sbt, VZ.y));
+        return;
+      }
       /* the pan fence: at near and region the view stays over revealed land;
          only ALL roams the whole map */
       var bx = zlevel === 2 ? { x0: -60, y0: -60, x1: 1060, y1: 1160 } : revealedBox();
@@ -3476,6 +3789,10 @@
            above the map and everything else below it, exactly as before. */
         '<div class="sab-side">' +
         '<div class="sab-bar">' +
+          /* the way out, for when the game is the whole window (it is hidden otherwise:
+             the page's own back link is right above the board) */
+          '<button class="sab-exit" data-act="go" data-v="mela" aria-label="Leave Sabhyata for the Mela">' +
+            ic('back', 18) + '<span>Mela</span></button>' +
           '<div class="sab-era"><span id="sab-eradate"></span><b id="sab-eraname"></b></div>' +
           /* TIME WAS INVISIBLE. The era's dates were on screen and the turn was not,
              so nothing told a child the world had moved. Dates stay RANGES per
@@ -3487,14 +3804,22 @@
              row, the same sentence in two places on one screen. The rail keeps it,
              because the rail is where everything else that wants you already is. */
           '<span class="sab-gap"></span>' +
+          /* THE THREE BOOKS, on the strip when there is room for them — Civ keeps its
+             research and its civics one click away at the top, not under a menu */
+          '<div class="sab-tabs">' +
+            '<button class="sab-tab" data-sab-act="tabtech" id="sab-tabtech" aria-pressed="false" aria-label="Vidya">' +
+              ic('book', 18) + '<span>Vidya</span></button>' +
+            '<button class="sab-tab" data-sab-act="world" aria-label="Sea roads">' + ic('anchor', 18) + '<span>Sea roads</span></button>' +
+            '<button class="sab-tab" data-sab-act="digest" aria-label="Happenings">' + ic('list', 18) + '<span>Happenings</span></button>' +
+          '</div>' +
           '<div class="sab-globals">' +
             '<button class="sab-act txt go" id="sab-adv" hidden></button>' +
             /* THE ONLY THREE THINGS THAT EARN A PLACE ON THE LINE: what needs you,
                what is behind you, and the turn. Everything else is one tap away
                under the menu, which is what a menu is for. */
-            '<button class="sab-act sq" id="sab-next" aria-label="The next thing that needs you">⇢</button>' +
+            '<button class="sab-act sq" id="sab-next" aria-label="The next thing that needs you">' + ic('next', 22) + '</button>' +
             '<button class="sab-ages" id="sab-ages" data-sab-act="timeline" aria-label="The ages behind you"></button>' +
-            '<button class="sab-act sq" id="sab-menu" aria-expanded="false" aria-label="More">☰</button>' +
+            '<button class="sab-act sq" id="sab-menu" aria-expanded="false" aria-label="More">' + ic('menu', 20) + '</button>' +
             '<button class="sab-act txt go" id="sab-turn"></button>' +
           '</div>' +
           /* the rest, folded away: opened by the menu, closed by anything else */
@@ -3530,9 +3855,11 @@
            This answers the half of "I'm not making strategic decisions" that is not a
            systems problem: a child who cannot tell what the game wants next does
            nothing, and doing nothing looks exactly like a game with nothing in it. */
+        '<div class="sab-coach">' +
         '<div class="sab-advise"><button id="sab-advise" class="sab-advisebtn" data-sab-act="advise"></button>' +
           '<button class="sab-btn" data-sab-act="digest" aria-label="What has been happening">≣</button></div>' +
         '<p class="sab-guide" id="sab-guide"></p>' +
+        '</div>' +
         '</div>' +
         /* THE RAIL. The feed is one line and the world talks over it, so a warning, a
            quarrel and a request arriving together left two of them unseen. The rail
@@ -3542,16 +3869,17 @@
         '<div class="sab-tray" id="sab-sheet" hidden></div>' +
         '<div id="sab-cityhost"></div>' +
         '<div class="sab-stage" id="sab-stage">' + board() +
-          '<div style="position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:3">' +
-          '<button class="sab-btn" data-sab-act="zin" aria-label="Zoom in">+</button>' +
-          '<button class="sab-btn" data-sab-act="zout" aria-label="Zoom out">\u2212</button>' +
-          '<button class="sab-btn" data-sab-act="zreset" aria-label="Whole map">\u2302</button></div>' +
+          '<div class="sab-zoom">' +
+          '<button class="sab-btn" data-sab-act="zin" aria-label="Zoom in">' + ic('plus', 20) + '</button>' +
+          '<button class="sab-btn" data-sab-act="zout" aria-label="Zoom out">' + ic('minus', 20) + '</button>' +
+          '<button class="sab-btn" data-sab-act="zreset" aria-label="Whole map">' + ic('whole', 20) + '</button></div>' +
           '<div id="sab-ovhost"></div></div>' +
         '<p class="sab-help" hidden>Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
           '<b>1–4</b> fire an action (<b>4</b> steps inside the city), <b>Esc</b> cancels, <b>P</b> pauses. ' +
           'Routes keep a place safe from the mist; <b>!</b> is a quest, <b>\u26a1</b> a quarrel for your panchayat, <b>\u2605</b> the capital. ' +
           'Cities gather dust if nobody visits — and a monument, once raised, is never forgotten.</p>' +
         '</div>';
+      gwSet();
       paintAll();
     }
 
@@ -3708,11 +4036,14 @@
       var dl = (G.delta && G.delta.at === G.t) ? G.delta : null;
       D.getElementById('sab-res').innerHTML = ['anna', 'kala', 'katha'].map(function (k) {
         var d = Math.round(net[k] * 10) / 10;
-        var lid = (k === 'anna') ? ' <small>of ' + storeCap() + '</small>' : '';
+        var lid = (k === 'anna') ? ' <small class="cap">of ' + storeCap() + '</small>' : '';
         var now = Math.floor(G.res[k]);
         var moved = dl ? dl[k] : 0;
-        return '<span class="sab-chip' + (moved ? ' sab-moved' : '') + '">' + ICON[k] + ' ' + now +
-          ' <small>' + (d >= 0 ? '+' : '') + d + '/turn</small>' + lid +
+        /* a line icon in a coin, not an emoji: the bar is the one place every
+           number on screen is read from, so it gets the drawn set */
+        return '<span class="sab-chip' + (moved ? ' sab-moved' : '') + '" aria-label="' + k + '">' +
+          '<i class="sab-ri">' + ic(RI[k], 15) + '</i>' + now +
+          ' <small' + (d < 0 ? ' class="neg"' : '') + '>' + (d >= 0 ? '+' : '') + d + '/turn</small>' + lid +
           (moved ? '<b class="sab-delta' + (moved > 0 ? '' : ' down') + '">' +
             (moved > 0 ? '+' : '') + moved + '</b>' : '') + '</span>';
       }).join('') +
@@ -3722,7 +4053,7 @@
         var w = khushiWant(), h = khushiHave(), r2 = restless();
         return '<span class="sab-chip' + (r2 ? ' sab-restless' : '') + '"' +
           ' data-sab-act="khushi" title="' + esc(Object.keys(goodsReached()).join(', ') || 'nothing reached yet') + '">' +
-          '🧡 ' + h + '/' + w + ' <small>' + (r2 ? 'restless' : 'content') + '</small></span>';
+          '<i class="sab-ri">' + ic('heart', 15) + '</i>' + h + '/' + w + ' <small>' + (r2 ? 'restless' : 'content') + '</small></span>';
       })();
       var adv = D.getElementById('sab-adv');
       /* SHOWN ONLY WHEN IT CAN BE PRESSED. It used to sit there greyed for most of
@@ -4973,6 +5304,8 @@
       var stage = D.getElementById('sab-stage');
       stage.style.display = (techOpen || city) ? 'none' : '';
       hostEl.innerHTML = techOpen ? techHTML() : (city ? hostEl.innerHTML : '');
+      var tt = D.getElementById('sab-tabtech');
+      if (tt) tt.setAttribute('aria-pressed', String(!!techOpen));
       if (techOpen && !techOpened) {
         techOpened = true;
         var f = hostEl.querySelector('.sab-btn'); if (f) f.focus({ preventScroll: true });
@@ -6249,6 +6582,7 @@
       if (!actEl || actEl.id !== 'sab-menu') closeMore();
       if (actEl) {
         var a = actEl.getAttribute('data-sab-act');
+        if (a === 'tabtech') { D.getElementById('sab-tech').click(); return; }
         if (a === 'zin')  { zoomTo(zlevel - 1, sel && byId[sel] ? byId[sel] : null); return; }
         if (a === 'zout') { zoomTo(zlevel + 1); return; }
         if (a === 'zreset') { zoomTo(2); return; }
@@ -7075,17 +7409,6 @@
         if (W.IND_KIT) W.IND_KIT.fit(D);
       }, 160);
     });
-    /* crossing the phone/desktop breakpoint changes where the crew stands and
-       how much the banner says, so the city is repainted when it happens */
-    var lastNarrow = (W.innerWidth || 1024) < 700, rsz = null;
-    W.addEventListener('resize', function () {
-      clearTimeout(rsz);
-      rsz = setTimeout(function () {
-        var n = (W.innerWidth || 1024) < 700;
-        if (n !== lastNarrow) { lastNarrow = n; if (city) paintCity(); }
-        if (W.IND_KIT) W.IND_KIT.fit(D);
-      }, 160);
-    });
     host.addEventListener('pointermove', kitHover);
     host.addEventListener('pointerdown', kitPointerDown);
     host.addEventListener('pointerdown', onCallDown);
@@ -7150,6 +7473,10 @@
 
     return function teardown() {
       dead = true;
+      /* the window goes back to being a page — including when the game is left from
+         inside a full city, which used to leave the page unable to scroll */
+      D.body.classList.remove('sab-mapfull');
+      D.body.classList.remove('sab-full');
       clearInterval(timer);
       if (lifeRAF) cancelAnimationFrame(lifeRAF);
       if (G && !G.won) save(G);

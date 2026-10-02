@@ -6535,7 +6535,19 @@
     try { if (typeof gameTeardown === 'function') gameTeardown(); else if (gameTeardown.destroy) gameTeardown.destroy(); } catch (e) {}
     gameTeardown = null;
   }
-  function go(n, a) { stopAudio(); killGame(); view = { name: n, arg: a }; render(); }
+  function go(n, a) {
+    /* A NEWER BUILD IS TAKEN AT THE NEXT DOOR. A tab left open served the build it was
+       born with until somebody pressed the update bar — so a parent opened a course a day
+       after it was rebuilt and saw the old one, twice. Changing screen is the safe moment:
+       nobody is mid-sentence, and the screen they asked for is the one they land on. */
+    if (updateReady && n !== view.name) {
+      try { sessionStorage.setItem('bi_resume', JSON.stringify({ n: n, a: a }));
+            sessionStorage.setItem('bi_upd_to', updateReady); } catch (e) {}
+      location.reload(); return;
+    }
+    stopAudio(); killGame(); view = { name: n, arg: a }; render();
+  }
+  var updateReady = false;
 
   function mountGame(id) {
     var g = (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0], host = $('#gamehost');
@@ -7307,6 +7319,12 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     healWorld();
+    /* back to the screen that was asked for when the update was taken */
+    try {
+      var rs = JSON.parse(sessionStorage.getItem('bi_resume') || 'null');
+      sessionStorage.removeItem('bi_resume');
+      if (rs && rs.n && V[rs.n]) view = { name: rs.n, arg: rs.a };
+    } catch (e) {}
     render();
     // Also the handle tools/verify.js drives the app by, so the headless walk exercises the
     // real navigation rather than a parallel test path.
@@ -7317,20 +7335,31 @@
        a small bar offers one tap to reload. Never automatic — a child mid-story is not
        interrupted by a refresh. */
     var updateOffered = false;
-    setInterval(function () {
-      if (updateOffered || !window.fetch) return;
+    function checkUpdate() {
+      /* opened from a file there is no server to have a newer build, and asking is an error */
+      if (updateOffered || !window.fetch || location.protocol === 'file:') return;
       fetch('build.js?live=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text(); })
         .then(function (t) {
           var m = t.match(/IND_BUILD\s*=\s*'([^']+)'/);
           if (!m || !window.IND_BUILD || m[1] === window.IND_BUILD) return;
           updateOffered = true;
+          /* ONE automatic try per build. GitHub Pages caches for ten minutes, so a reload
+             can come back as the same old build — and without this, every door for those
+             ten minutes would reload the page again. After one try, the bar is the way. */
+          var tried = null; try { tried = sessionStorage.getItem('bi_upd_to'); } catch (e) {}
+          if (tried !== m[1]) updateReady = m[1];
           var bar = document.createElement('button');
           bar.className = 'updatebar';
           bar.textContent = 'A newer Bizzing India is ready — tap to load it';
           bar.addEventListener('click', function () { location.reload(); });
           document.body.appendChild(bar);
         }).catch(function () { /* offline is fine; the app is offline-first */ });
-    }, 3 * 60 * 1000);
+    }
+    /* soon after opening, every few minutes, and — the case that bit — the moment a tab
+       left open overnight is looked at again */
+    setTimeout(checkUpdate, 20 * 1000);
+    setInterval(checkUpdate, 3 * 60 * 1000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) checkUpdate(); });
 
     window.BI = { S: S, go: go, render: render, Store: Store,
                   allStories: allStories, epics: epics,

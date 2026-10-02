@@ -55,6 +55,12 @@ The short version:
   Bizzing Bee.
 - **Never leak the answer** in on-screen text for any quiz or Hindi drill.
 - **Entitlements are server-authoritative** — read from the DB via RLS, never a client flag.
+- **Back never leaves the app.** Every screen is a route, `#/<view>/<arg>`, written by `go()`;
+  `#/continue` opens the one next thing (the Hive's door). A new screen is routable by being
+  a `case` in `render()` — there is no second list. `tools/check-trust.js` holds it.
+- **Nothing that changes the child sits on the child's page.** Starting again, backups and
+  the report card are behind the grown-ups' PIN, which the screen calls a deterrent. The
+  developer unlock exists only in tester mode (`?tester=1`), never in front of a child.
 - **Child data is minimal by construction**: first name and an *age band*, never a birthdate,
   no child email, photo, location or free text. COPPA + GDPR-K + India's DPDP Act 2023 (which
   covers under-18s and bars behavioural tracking and targeted ads at children). No ads, ever.

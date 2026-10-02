@@ -21,6 +21,11 @@ window.IND_DHARMA = {
     /* ------------------------------------------------------------- HINDUISM */
     {
       id: 'hindu',
+      sources: [
+        'Gavin Flood, An Introduction to Hinduism (Cambridge University Press, 1996) — dharma, karma, the many paths, the Vedas, Upanishads, epics, Puranas and the Gita',
+        'Encyclopaedia Britannica, “Hinduism” — https://www.britannica.com/topic/Hinduism',
+        'The lesson: the Mahabharata’s opening book (Adi Parva) in the vulgate text; the Bhandarkar Oriental Research Institute’s Critical Edition (Pune) places the scribe episode in an appendix, because some manuscript traditions carry it and some do not — which is why it is told here as a story, badged Katha'
+      ],
       name: 'Hinduism',
       avatar: 'ganesha',
       tag: 'The oldest living tradition, and the least tidy',
@@ -60,6 +65,12 @@ window.IND_DHARMA = {
     /* ------------------------------------------------------------- BUDDHISM */
     {
       id: 'buddhist',
+      sources: [
+        'Rupert Gethin, The Foundations of Buddhism (Oxford University Press, 1998) — the Four Noble Truths, the Eightfold Path, sangha, and the Pali canon (Tipitaka)',
+        'E. B. Cowell (ed.), The Jataka, or Stories of the Buddha’s Former Births, 6 vols (Cambridge University Press, 1895–1907) — the 547 tales',
+        'The lesson: the Mahakapi Jataka, the great monkey who made his body a bridge, from the same collection',
+        'Encyclopaedia Britannica, “Buddhism” — https://www.britannica.com/topic/Buddhism'
+      ],
       name: 'Buddhism',
       avatar: 'buddha',
       tag: 'It started with a prince who could not stop asking questions',
@@ -98,6 +109,10 @@ window.IND_DHARMA = {
     /* --------------------------------------------------------------- JAINISM */
     {
       id: 'jain',
+      sources: [
+        'Paul Dundas, The Jains, 2nd ed. (Routledge, 2002) — ahimsa, anekantavada, aparigraha, the Tirthankaras, the Agamas, the Tattvartha Sutra, the Kalpa Sutra and Paryushan',
+        'Encyclopaedia Britannica, “Jainism” — https://www.britannica.com/topic/Jainism'
+      ],
       name: 'Jainism',
       avatar: 'mahavira',
       tag: 'The tradition that took not-harming further than anyone',
@@ -136,6 +151,12 @@ window.IND_DHARMA = {
     /* --------------------------------------------------------------- SIKHISM */
     {
       id: 'sikh',
+      sources: [
+        'Eleanor Nesbitt, Sikhism: A Very Short Introduction (Oxford University Press, 2005) — Ik Onkar, seva, langar, the five Ks, and the Guru Granth Sahib with the bhagats’ verses inside it',
+        'Encyclopaedia Britannica, “Sikhism” — https://www.britannica.com/topic/Sikhism',
+        'Encyclopaedia Britannica, “Golden Temple” — https://www.britannica.com/topic/Golden-Temple',
+        'The langar at Harmandir Sahib is run by the Shiromani Gurdwara Parbandhak Committee (SGPC), Amritsar'
+      ],
       name: 'Sikhi',
       avatar: 'khanda',
       tag: 'One God, one human family, and a free kitchen that never closes',

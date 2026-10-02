@@ -7677,8 +7677,8 @@
      Home first and the map second, as in every Bizzing app. The story shelves (Nani-Nana)
      and Moral Science are doors inside Paathshala and rows in ☰; there is no More tab. */
   /* six tabs (owner, 2 Oct 2026): My Feed sits second, after Home */
-  var TABS = [['home', 'Home', 'home'], ['feed', 'My Feed', 'feed'], ['map', 'India', 'map'], ['paath', 'Paathshala', 'book'],
-              ['bhasha', 'Bhasha', 'script'], ['khel', 'Play', 'game']];
+  var TABS = [['home', 'Home', 'home'], ['map', 'India', 'map'], ['paath', 'Paathshala', 'book'],
+              ['bhasha', 'Bhasha', 'script'], ['khel', 'Play', 'game'], ['feed', 'My Feed', 'feed']];   /* My Feed last (owner, 2 Oct 2026) */
 
   /* ------------------------------------------------------------- THE DECK */
   /* Tapping your companion opens the whole deck as a popup — the Bee's move.
@@ -7831,7 +7831,7 @@
                   pack: 'bhasha', chart: 'bhasha', kosh: 'bhasha', wordcard: 'bhasha', vyakaran: 'bhasha', progress: 'bhasha',
                   game: 'khel', mela: 'khel', play: 'khel', rishtey: 'khel', rishquiz: 'khel' };
     var c = alias[view.name] || view.name;
-    return ['home', 'feed', 'map', 'paath', 'bhasha', 'khel'].indexOf(c) >= 0 ? c : '';
+    return ['home', 'map', 'paath', 'bhasha', 'khel', 'feed'].indexOf(c) >= 0 ? c : '';
   }
 
   /* chrome() is built once and then left alone, so the two toggles that live in

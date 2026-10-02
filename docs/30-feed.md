@@ -16,7 +16,7 @@ holds attention. And it ends.
 | `tools/build-feed.js` | cuts the cards from the corpus (`tools/lib/corpus.js` loads it exactly as the page does) and writes `app/data-feed-index.js` plus four body groups `app/data-feed-{a,b,c,d}.js`, with `tools/lib/feed-manifest.json` |
 | `app/feed.js` | the engine: `feedFor(child, ctx)`, pure, the same file in node and the page |
 | `app.js` `V.feed` | today's session, the cards, the one question a card may ask, the finished card |
-| `#/feed` | the second tab (owner's decision), and a row in ☰ |
+| `#/feed` | the last tab, after Play (owner's decision), and a row in ☰ |
 
 The engine and the index load with the route (`lazy-feed`). A body group loads only when one of its
 cards is on today's feed, so nothing here is on the first screen (`check-platform weight`).

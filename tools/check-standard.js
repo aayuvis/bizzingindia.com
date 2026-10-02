@@ -11,7 +11,7 @@
      scripts     every script chart is set in its own face — Urdu in Nastaliq — read from the
                  fonts Chrome actually used, never a fallback (standard §9)
      drawer      ☰ opens and closes by keyboard, holds the family order, traps focus, Esc closes
-     tabs        six tabs from the family shell (My Feed second): a row on a desk, a bottom bar on a phone,
+     tabs        six tabs from the family shell (My Feed last): a row on a desk, a bottom bar on a phone,
                  Home first and the map second, no More, the right tab lit (standard §4; C1)
      shell       checkShell (tools/lib/shell-check.mjs) measures the chrome and Home against
                  Bizzing Bee's numbers, desktop and phone, light and dark: it must be []
@@ -225,7 +225,7 @@ check('drawer', '☰ (the family shell\'s) opens by keyboard, holds the family o
 });
 
 /* ------------------------------------------------------------------ tabs (§4) */
-check('tabs', 'six tabs from the family shell — Home, My Feed, then the map: a row on a desk, a bottom bar on a phone, no More', async ({ p }) => {
+check('tabs', 'six tabs from the family shell — Home, the map … Play, then My Feed last: a row on a desk, a bottom bar on a phone, no More', async ({ p }) => {
   for (const vp of [DESK, PHONE]) {
     await p.setViewportSize(vp); await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
@@ -236,9 +236,9 @@ check('tabs', 'six tabs from the family shell — Home, My Feed, then the map: a
         h: t.map(x => x.getBoundingClientRect().height), cur: t.filter(x => x.getAttribute('aria-current') === 'page').map(x => x.getAttribute('data-v')),
         barBottom: bar.bottom, barH: bar.height, vh: innerHeight, more: [...document.querySelectorAll('a, button')].some(x => /^\s*More\s*$/.test(x.textContent) && x.offsetParent) };
     });
-    if (JSON.stringify(r.ids) !== JSON.stringify(['home', 'feed', 'map', 'paath', 'bhasha', 'khel']))
+    if (JSON.stringify(r.ids) !== JSON.stringify(['home', 'map', 'paath', 'bhasha', 'khel', 'feed']))
       throw new Error(`at ${vp.width}px the tabs are ${r.ids.join(' · ')}`);
-    if (JSON.stringify(r.labels) !== JSON.stringify(['Home', 'My Feed', 'India', 'Paathshala', 'Bhasha', 'Play']))
+    if (JSON.stringify(r.labels) !== JSON.stringify(['Home', 'India', 'Paathshala', 'Bhasha', 'Play', 'My Feed']))
       throw new Error(`at ${vp.width}px the tab names are ${r.labels.join(' · ')}`);
     if (r.more) throw new Error('there is a More tab');
     if (r.h.some(h => h < 44)) throw new Error(`at ${vp.width}px a tab is under 44px tall`);

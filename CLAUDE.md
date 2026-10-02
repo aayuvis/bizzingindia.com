@@ -73,7 +73,7 @@ The short version:
   first child keeps the old keys, later ones get `.<id>`. Switching child reloads the page.
   Only the seam files touch `localStorage`; engines use `window.IND_STORE`. The chrome is
   Bee's, from `family/bizzing-shell.js` (never restyle its geometry; colours via `--bz-*` only):
-  six tabs Home · My Feed · India · Paathshala · Bhasha · Play (owner, 2 Oct 2026); everything else lives in ☰. `checkShell`
+  six tabs Home · India · Paathshala · Bhasha · Play · My Feed (owner, 2 Oct 2026: My Feed last); everything else lives in ☰. `checkShell`
   must return [] (check-standard `shell`). `bizzing.activity` gets
   active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
 - **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts its 1,000 cards

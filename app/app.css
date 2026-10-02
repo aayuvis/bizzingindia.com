@@ -294,7 +294,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .iconbtn.off::after { content: ''; position: absolute; left: 9px; right: 9px; top: 50%;
   height: 2px; border-radius: 2px; background: currentColor; transform: rotate(-38deg); }
 
-.backlink { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 8px 0 14px; font-weight: 700; }
+/* ON PAPER, NOT ON THE PAINTING. The page sits on the bazaar mural, and its bunting band
+   runs exactly where this link lands — a bare grey link on pink bunting could not be read
+   (the Paathshala course audit found it on all ten courses). */
+.backlink { display: inline-flex; align-items: center; gap: 6px; border: 0; color: var(--text2); cursor: pointer;
+  padding: 7px 14px 7px 10px; margin: 0 0 12px; font-weight: 700; border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--card) 94%, transparent); box-shadow: 0 1px 0 var(--line), 0 4px 12px rgba(30,20,64,.06); }
 .backlink:hover { color: var(--accent); }
 
 .eyebrow {

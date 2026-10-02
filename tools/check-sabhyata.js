@@ -1271,8 +1271,18 @@ check('board-fills', 'the board uses the room it is given, at every width', asyn
       if (!svg) return null;
       /* measured against the SVG, not the stage: the svg IS the room given to the map,
          and on a wide screen the stage deliberately holds a strip beside it for the rail.
-         Measuring the stage would read that strip as waste and fail correct work. */
-      const b = svg.getBoundingClientRect();
+         Measuring the stage would read that strip as waste and fail correct work.
+         IN THE GAME WINDOW the room given to the map is the clear ground between the two
+         columns and under the top beam — the columns are where the HUD lives, on purpose,
+         and the map is fitted between them. A portrait country in a landscape window is
+         bound by one axis, so it must fill THAT one: the better of the two counts. */
+      let b = svg.getBoundingClientRect();
+      const wrap = document.getElementById('sabwrap');
+      const gwMode = wrap && wrap.classList.contains('gw');
+      if (gwMode) {
+        const P = parseFloat(getComputedStyle(wrap).getPropertyValue('--gw-p')) || 0;
+        b = { left: b.left + P, top: b.top + 66, width: b.width - 2 * P, height: b.height - 66 - 24 };
+      }
       let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
       svg.querySelectorAll('path.sab-terr').forEach(el => {
         const q = el.getBoundingClientRect();
@@ -1281,15 +1291,78 @@ check('board-fills', 'the board uses the room it is given, at every width', asyn
         x1 = Math.max(x1, q.right); y1 = Math.max(y1, q.bottom);
       });
       if (x1 < x0) return null;
-      return { fw: (x1 - x0) / b.width, fh: (y1 - y0) / b.height };
+      return { fw: (x1 - x0) / b.width, fh: (y1 - y0) / b.height, gw: gwMode };
     });
     if (!r) { bad.push(`${w}x${h}: no board`); continue; }
+    if (r.gw) {
+      if (Math.max(r.fw, r.fh) < 0.85)
+        bad.push(`${w}x${h}: the map fills ${Math.round(Math.max(r.fw, r.fh) * 100)}% of the clear ground on its binding axis`);
+      continue;
+    }
     if (r.fw < 0.85) bad.push(`${w}x${h}: the map is ${Math.round(r.fw * 100)}% of the board's width`);
     if (r.fh < 0.85) bad.push(`${w}x${h}: the map is ${Math.round(r.fh * 100)}% of the board's height`);
   }
   await p.setViewportSize({ width: 1440, height: 900 });
   await p.waitForTimeout(300);
   if (bad.length) throw new Error('the board is letterboxed -- ' + bad.join('; '));
+});
+
+check('game-window', 'on a wide screen the map is the screen, and no panel sits on the country', async ({ p }) => {
+  /* "So much space wasted on the left — the map should be front and centre, with the
+     choices and buttons embedded where they belong (look at Civ 6, AoE)." The map used to
+     be a portrait box under the app's header with its bottom below the fold.
+
+     Three promises, measured at four landscape sizes:
+       1. the board is the whole window — not a box on a page
+       2. Agla Saal and the top beam are on it, inside the window
+       3. at the whole-India view, the realm, Mithu and the alerts lie beside the country,
+          never on it: the panels float over sea and mist, which is the only reason it is
+          acceptable for them to float over the map at all (the rail's own rule). */
+  const sizes = [[1920, 1080], [1440, 900], [1366, 680], [1180, 820]];
+  const bad = [];
+  for (const [w, h] of sizes) {
+    await p.setViewportSize({ width: w, height: h });
+    await p.waitForTimeout(450);
+    const r = await p.evaluate(() => {
+      const wrap = document.getElementById('sabwrap');
+      if (!wrap || !wrap.classList.contains('gw')) return { off: true };
+      /* the whole country, the way the ⌂ button shows it */
+      const z = document.querySelector('[data-sab-act="zreset"]');
+      if (z) z.click();
+      const G = window.__SABG();
+      G.warn = { id: 'dholavira', raid: 'boar', at: G.t + 5 };
+      window.__SABDO.paint();
+      const st = document.getElementById('sab-stage').getBoundingClientRect();
+      const svg = document.querySelector('#sab-stage svg');
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      svg.querySelectorAll('path.sab-terr').forEach(el => {
+        const q = el.getBoundingClientRect();
+        if (q.width < 1) return;
+        x0 = Math.min(x0, q.left); y0 = Math.min(y0, q.top); x1 = Math.max(x1, q.right); y1 = Math.max(y1, q.bottom);
+      });
+      const inWin = el => { if (!el) return false; const q = el.getBoundingClientRect();
+        return q.width > 0 && q.left >= -1 && q.top >= -1 && q.right <= innerWidth + 1 && q.bottom <= innerHeight + 1; };
+      const over = [];
+      ['.sab-realm', '.sab-coach', '#sab-rail'].forEach(sel => {
+        const el = document.querySelector(sel);
+        if (!el || el.hidden || getComputedStyle(el).display === 'none') return;
+        const q = el.getBoundingClientRect();
+        const ix = Math.min(q.right, x1) - Math.max(q.left, x0), iy = Math.min(q.bottom, y1) - Math.max(q.top, y0);
+        if (ix > 6 && iy > 6) over.push(sel + ' by ' + Math.round(ix) + 'px');
+      });
+      return { cover: (st.width * st.height) / (innerWidth * innerHeight),
+               turn: inWin(document.getElementById('sab-turn')), beam: inWin(document.querySelector('.sab-bar')),
+               over };
+    });
+    if (r.off) { bad.push(`${w}x${h}: not a game window`); continue; }
+    if (r.cover < 0.98) bad.push(`${w}x${h}: the board is ${Math.round(r.cover * 100)}% of the window`);
+    if (!r.turn) bad.push(`${w}x${h}: Agla Saal is not on the window`);
+    if (!r.beam) bad.push(`${w}x${h}: the top beam is not on the window`);
+    if (r.over.length) bad.push(`${w}x${h}: a panel sits on the country — ${r.over.join(', ')}`);
+  }
+  await p.setViewportSize({ width: 1440, height: 900 });
+  await p.waitForTimeout(400);
+  if (bad.length) throw new Error(bad.join('; '));
 });
 
 check('labels', 'a city name is the same size however far you lean in', async ({ p }) => {

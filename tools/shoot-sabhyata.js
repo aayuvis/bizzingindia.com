@@ -97,9 +97,11 @@ const panel = async (p, act) => {
         g.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true })); });
     await p.waitForTimeout(500);
     await shot('02-selected');
-    await p.click('#sab-tech').catch(() => {}); await p.waitForTimeout(700);
+    /* Vidya is a tab on the game window's strip, and behind the menu on a phone */
+    const vidya = async () => { await p.evaluate(() => { const b = document.getElementById('sab-tech'); if (b) b.click(); }); await p.waitForTimeout(700); };
+    await vidya();
     await shot('03-vidya');
-    await p.click('#sab-tech').catch(() => {}); await p.waitForTimeout(400);
+    await vidya();
     await panel(p, 'world');  await shot('04-world');
     await panel(p, 'ovclose');
     await panel(p, 'khushi'); await shot('05-khushi');

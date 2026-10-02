@@ -34,7 +34,8 @@ const rows = p => p.evaluate(() => [...document.querySelectorAll('.tile')].map(t
   act: t.getAttribute('data-act'), v: t.getAttribute('data-v'),
   text: (t.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 60)
 })));
-const sikke = p => p.evaluate(() => (window.BI && window.BI.S ? window.BI.S.sikke : null));
+/* the family wallet's balance (docs/23) — S.sikke was retired into it */
+const sikke = p => p.evaluate(() => (window.BI && window.BI.coins ? window.BI.coins() : null));
 
 (async () => {
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
@@ -73,8 +74,10 @@ const sikke = p => p.evaluate(() => (window.BI && window.BI.S ? window.BI.S.sikk
   await p.evaluate(() => { const t = document.querySelector('[data-act="carddone"]'); if (t) t.click(); });
   await p.waitForTimeout(500);
   const after = await sikke(p);
-  check('taking the card pays sikke', after > before, before + ' -> ' + after);
-  check('and it pays once', await p.evaluate(() => !document.querySelector('[data-act="carddone"]')));
+  /* the child's own word is kept and celebrated, never paid (docs/23): coins are for what
+     the app can see was learned, and taking a card is a promise, not a right answer */
+  check('taking the card pays nothing — it is the child\'s own word', after === before, before + ' -> ' + after);
+  check('and it is taken once', await p.evaluate(() => !document.querySelector('[data-act="carddone"]')));
   const beads = await p.evaluate(() => ((window.BI && window.BI.S && window.BI.S.mala) || []).length);
   check('but a card earns NO bead — beads are for doing', beads === 0, beads + ' beads');
 

@@ -58,6 +58,17 @@ The short version:
 - **Back never leaves the app.** Every screen is a route, `#/<view>/<arg>`, written by `go()`;
   `#/continue` opens the one next thing (the Hive's door). A new screen is routable by being
   a `case` in `render()` — there is no second list. `tools/check-trust.js` holds it.
+- **Coins are for learning, in the family's one wallet** (`app/bizzing-wallet.js`, docs/23):
+  `earn('answer'|'stop'|'contest'|'mastery')` at 1 · 5 · 10 · 20, ≤ 100 a day. Never for
+  time, taps, self-report, dice or luck; only a game in `TEACHES` pays. Rank counts mastery
+  evidence, never coins. Nothing is random (no draws — a child chooses at a printed price).
+  No streak counts — "good days this week". A wrong answer holds until Continue.
+  `tools/check-rewards.js` holds all of it.
+- **Home is the family anatomy, and Continue is one function** (docs/24): greeting with the
+  ring and the word of the hour · ONE Continue card with the only filled button · today's
+  three · ≤ 6 ways in. `nextStep()` decides the next thing for Continue *and* `#/continue`;
+  never add a second "next". `?demo` runs in `demo.js`'s in-memory sandbox and never touches
+  the real household. `tools/check-home.js` holds all of it.
 - **Nothing that changes the child sits on the child's page.** Starting again, backups and
   the report card are behind the grown-ups' PIN, which the screen calls a deterrent. The
   developer unlock exists only in tester mode (`?tester=1`), never in front of a child.

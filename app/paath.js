@@ -1774,6 +1774,33 @@
       return lessonCards(p[0], p[1], p.slice(2).join('|'));
     },
     act: act,
+    /* THE ONE NEXT STOP of a course, for Home's Continue and #/continue. It is the same
+       frontier the course page walks (stopsOf), so the two can never disagree; a course
+       finished, locked or not started has no next stop here and Home looks elsewhere. */
+    next: function (cid) {
+      var c = get(cid);
+      if (!c || locked(c) || !st.c[cid]) return null;
+      var s = stopsOf(c);
+      if (s.frontier < 0) return null;
+      var f = s.list[s.frontier], done = 0;
+      s.list.forEach(function (x) { if (x.done) done++; });
+      var route = f.kind === 'make'
+        ? (W.IND_KARYA && W.IND_KARYA.has(f.m.project)
+            ? { n: 'paathk', a: c.id + '|' + f.m.project.id } : { n: 'paath', a: c.id })
+        : { n: 'paathl', a: c.id + '|' + f.m.id + '|' + f.l.n };
+      return { id: c.id, name: c.name, part: f.m.name, kind: f.kind,
+               label: f.kind === 'make' ? f.m.project.name : f.l.n,
+               route: route, n: done, of: s.list.length,
+               cover: c.cover || '', coverAlt: c.coverAlt || '',
+               /* what tapping the stop's own button would set up: its first card, or
+                  the workshop opened on that project */
+               prime: function () {
+                 if (route.n === 'paathl') {
+                   playAt[route.a] = 0;
+                   Object.keys(picked).forEach(function (x) { if (x.indexOf(route.a + '#') === 0) delete picked[x]; });
+                 } else if (route.n === 'paathk' && W.IND_KARYA) W.IND_KARYA.open(f.m.project);
+               } };
+    },
     /* what the grown-ups page is allowed to show: objectives, never minutes */
     report: function () {
       return P.courses.map(function (c) {

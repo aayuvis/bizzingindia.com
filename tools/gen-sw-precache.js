@@ -40,7 +40,7 @@ for (const f of fs.readdirSync(path.join(APP, 'font'))) {
   if (!f.endsWith('.woff2')) continue;
   (/^(mukta|noto)/.test(f) ? later : urls).add('./font/' + f);
 }
-for (const u of [...urls]) if (/data-bhasha-hi-passages\.js/.test(u)) { urls.delete(u); later.add(u); }
+for (const u of [...urls]) if (/data-bhasha-hi-passages\.js|data-feed-[a-d]\.js/.test(u)) { urls.delete(u); later.add(u); }
 /* the music is lazy too: composed in code, fetched only when a child turns it on */
 if (fs.existsSync(path.join(APP, 'music', 'engine.js'))) later.add('./music/engine.js');
 /* the logo the header shows on first paint */

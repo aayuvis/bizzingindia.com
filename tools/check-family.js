@@ -3,7 +3,7 @@
    docs/25-family.md says why each one exists.
 
      topbar     the chrome is the family shell's (Bee's geometry is measured by check-standard
-                `shell`): five tabs, ⬡ back to the Hive, nothing past 390px, ⬡ hidden in a drill
+                `shell`): six tabs, ⬡ back to the Hive, nothing past 390px, ⬡ hidden in a drill
      household  two children: the second starts with nothing of the first's (stories, coins,
                 map, Sabhyata), switching back finds the first exactly as left, a second child
                 of the same name is refused, and removing one leaves the other whole
@@ -60,7 +60,7 @@ check('topbar', 'Bee\'s chrome from the family shell: 56px bar on a desk, 104px 
     if (vp.width >= 900 && Math.abs(m.h - 56) > 1) throw new Error(`at ${vp.width}px the bar is ${m.h}px, not 56`);
     if (vp.width < 900 && Math.abs(m.hh - 104) > 1) throw new Error(`at ${vp.width}px the header is ${m.hh}px, not Bee's 104`);
     if (m.old) throw new Error('the old top bar or drawer is still on the page beside the shell');
-    if (m.tabs !== 5) throw new Error(m.tabs + ' tabs in the shell, not five');
+    if (m.tabs !== 6) throw new Error(m.tabs + ' tabs in the shell, not six');
     if (!/Bizzing_Schedule/.test(m.href)) throw new Error('⬡ does not go back to the Hive: ' + m.href);
     if (vp.width < 400 && m.over > 0) throw new Error(`the page is ${m.over}px wider than the 390px phone`);
   }

@@ -73,9 +73,15 @@ The short version:
   first child keeps the old keys, later ones get `.<id>`. Switching child reloads the page.
   Only the seam files touch `localStorage`; engines use `window.IND_STORE`. The chrome is
   Bee's, from `family/bizzing-shell.js` (never restyle its geometry; colours via `--bz-*` only):
-  five tabs Home · India · Paathshala · Bhasha · Play; everything else lives in ☰. `checkShell`
+  six tabs Home · My Feed · India · Paathshala · Bhasha · Play (owner, 2 Oct 2026); everything else lives in ☰. `checkShell`
   must return [] (check-standard `shell`). `bizzing.activity` gets
   active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
+- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts its 1,000 cards
+  from the corpus (each with a `src` that must resolve, nothing needs_review or gated 11+);
+  `app/feed.js` ranks them on the device from what the child did, about twenty a session and
+  then a finished card. No likes, counts, streaks, autoplay or sound before a tap; only a right
+  answer to a card's question pays, once, as `answer`. A grown-up can switch it off behind the
+  PIN. Change the corpus → rerun `node tools/build-feed.js`. `tools/check-feed.js` holds it.
 - **Medals, sound and the game frame** (docs/26): medals only from what the app saw, each
   celebrated once; the host gives every game a how-to, sound, motion and "what you practised";
   `sfx.js` makes its sounds (no audio files) under the one mute; every lock says how to open.

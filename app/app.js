@@ -656,7 +656,14 @@
   }
   /* WHAT THE CHILD DID LAST, so the greeting can say something true about it (family
      standard §2.2: a speech bubble specific to what the child did last) */
-  function lastDid(k, t, place) { S.last = { k: k, t: String(t || ''), place: place || '', at: Date.now() }; save(); }
+  /* what the child did last, and the last few things (S.recent): My Feed reads them to say
+     "Because you read …" — kept on the child's own profile, never sent anywhere */
+  function lastDid(k, t, place, more) {
+    S.last = { k: k, t: String(t || ''), place: place || '', at: Date.now() };
+    var r = Object.assign({ k: k, t: String(t || ''), at: S.last.at }, more || {});
+    S.recent = [r].concat((S.recent || []).filter(function (x) { return !(x.k === r.k && x.id && x.id === r.id); })).slice(0, 10);
+    save();
+  }
   function lightState(c) {
     if (!c || S.lit[c]) return false;
     S.lit[c] = true; save();
@@ -1259,6 +1266,131 @@
     ['The one who walks slowly still arrives.', 'Tamil proverb'],
     ['A guest is God.', 'Taittiriya Upanishad — अतिथि देवो भव']
   ];
+
+  /* ================================================================ MY FEED (docs/30)
+     A feed a child can finish. app/feed.js ranks the 1,000 cards tools/build-feed.js cut from
+     the corpus, on this device, from what this child has done; this draws today's session —
+     about twenty cards and then a finished card — and the one question a card may ask.
+     What it keeps (S.feed, on the child's own profile, through the Store seam): which cards
+     were shown on which day, today's session, and which questions have paid. Nothing else,
+     and nothing leaves the device. Scrolling earns nothing; only a right answer to a card's
+     question pays, once, through the standard 'answer' event. */
+  var feedPlay = {};            /* this visit's answers: id -> { st: 'right'|'wrong'|'shown', o } */
+  function feedState() {
+    var F = S.feed || (S.feed = {});
+    F.seen = F.seen || {}; F.paid = F.paid || {};
+    return F;
+  }
+  function feedOn() { return !S.feedOff; }
+  function feedRungs() {
+    var out = {}, P = window.IND_INDEX && window.IND_INDEX.packs || [];
+    P.forEach(function (r) {
+      var rec = (S.lang[r[0]] || {}).stages || {}, n = 0;
+      Object.keys(rec).forEach(function (k) { var st = rec[k] || {}; if ((st.correct || 0) >= STAGE_TARGET || st.testout) n++; });
+      out[r[0]] = n;
+    });
+    return out;
+  }
+  function feedChild() {
+    var tg = tongue();
+    return { band: window.IND_FEED.bandOf(S.age), read: S.read || {}, readN: Object.keys(S.read || {}).length, lit: S.lit || {},
+      rungs: feedRungs(), langs: Object.keys(S.lang || {}).filter(function (k) { return (S.lang[k] || {}).asked > 0; }),
+      tongue: tg ? tg.pack : null, world: S.world, recent: S.recent || [], lang: S.lang || {}, seen: feedState().seen };
+  }
+  function feedNames() {
+    var n = {}, G = window.IND_GEO && window.IND_GEO.states || {}, X = window.IND_INDEX || {};
+    Object.keys(G).forEach(function (c) { n[c] = G[c].name; });
+    (X.names ? Object.keys(X.names) : []).forEach(function (c) { if (!n[c]) n[c] = X.names[c]; });
+    (X.packs || []).forEach(function (r) { n['lang:' + r[0]] = r[1]; });
+    var W = window.IND_WORLDS; if (W && W.get && S.world) { var wo = W.get(S.world); if (wo) n['world:' + S.world] = wo.name; }
+    return n;
+  }
+  /* today's session: kept for the day, re-ranked when the child has done something new */
+  function feedSession() {
+    var F = feedState(), day = Math.floor(Date.now() / 864e5), ch = feedChild();
+    var sig = JSON.stringify([ch.band, ch.readN, Object.keys(ch.lit).length, (S.recent || [])[0] && S.recent[0].at,
+      ch.rungs, ch.tongue, S.world, window.IND_FEED.slippedOf(ch.lang, Date.now()).length]);
+    if (F.day === day && F.sig === sig && F.ids && F.ids.length) return F.ids;
+    var items = window.IND_FEED.decode(window.IND_FEED_INDEX);
+    var list = window.IND_FEED.feedFor(ch, { now: Date.now(), items: items, names: feedNames() });
+    F.day = day; F.sig = sig;
+    F.ids = list.map(function (x) { return { id: x.id, g: x.g, why: x.why }; });
+    list.forEach(function (x) { F.seen[x.id] = day; });
+    /* the record of what was shown is pruned to a month, so it never grows without end */
+    Object.keys(F.seen).forEach(function (k) { if (day - F.seen[k] > 30) delete F.seen[k]; });
+    save();
+    return F.ids;
+  }
+  var BADGE_WORD = { katha: ['🪔', 'Katha'], itihaas: ['📜', 'Itihaas'], aaj: ['🧭', 'Aaj'] };
+  function feedCard(x, i) {
+    var it = (window.IND_FEED_BODY || {})[x.id], ix = feedIndexOf(x.id);
+    if (!it || !ix) return '';
+    var b = BADGE_WORD[ix.badge] || BADGE_WORD.aaj;
+    var lang = it.lang ? ' lang="' + esc(it.lang) + '"' : '';
+    var btn = it.act
+      ? '<button class="btn fd-go" data-act="' + esc(it.act.a) + '" data-id="' + esc(it.act.id) + '" data-n="' + esc(it.act.n) + '">' + esc(it.cta) + ' →</button>'
+      : '<a class="btn fd-go" href="' + esc(it.route) + '">' + esc(it.cta) + ' →</a>';
+    var body = '';
+    if (it.play) {
+      var P = feedPlay[x.id] || {}, ord = window.IND_FEED.order(x.id, it.play.opts.length);
+      body = '<p class="fd-q">' + esc(it.play.q) + '</p>' +
+        (it.text ? '<p class="fd-script"' + lang + '>' + esc(it.text) + '</p>' + (it.roman ? '<p class="fd-roman">' + esc(it.roman) + '</p>' : '') : '') +
+        '<div class="fd-opts" role="group" aria-label="' + esc(it.play.q) + '">' + ord.map(function (o) {
+          var cls = P.st && P.o === o ? (P.st === 'right' ? ' right' : ' wrong') : '';
+          return '<button class="opt fd-opt' + cls + '" data-act="feedans" data-id="' + esc(x.id) + '" data-o="' + o + '"' +
+            (P.st === 'right' || P.st === 'shown' ? ' disabled' : '') + '>' + esc(it.play.opts[o]) + '</button>';
+        }).join('') + '</div>' +
+        (P.st === 'wrong' ? '<p class="fd-held" role="status">Not quite. Have a think, then Continue.</p>' +
+          '<button class="btn ghost" data-act="feedcont" data-id="' + esc(x.id) + '">Continue</button>' : '') +
+        (P.st === 'right' ? '<p class="fd-after ok" role="status">Right! ' + esc(it.play.after) + '</p>' : '') +
+        (P.st === 'shown' ? '<p class="fd-after" role="status">' + esc(it.play.after) + '</p>' : '');
+    } else {
+      body = (it.text ? '<p class="fd-script"' + lang + '>' + esc(it.text).replace(/\n/g, '<br>') + '</p>' : '') +
+        (it.roman ? '<p class="fd-roman">' + esc(it.roman).replace(/\n/g, '<br>') + '</p>' : '') +
+        (it.body ? '<p class="fd-body">' + esc(it.body) + '</p>' : '') +
+        (it.source ? '<p class="fd-src">' + esc(it.source) + '</p>' : '') +
+        (it.sources ? '<p class="fd-src">From: ' + esc(it.sources.slice(0, 2).join(' · ')) + '</p>' : '');
+    }
+    return '<article class="bz-card fd-card" tabindex="0" data-fid="' + esc(x.id) + '" data-kind="' + esc(ix.kind) + '" aria-label="' + esc(it.title) + '">' +
+      (it.art ? '<img class="fd-art" src="' + esc(it.art) + '" alt="" loading="lazy" decoding="async">' : '') +
+      '<div class="fd-in"><div class="fd-top"><span class="badge ' + esc(ix.badge) + '"><span aria-hidden="true">' + b[0] + '</span> ' + b[1] + '</span>' +
+        '<span class="fd-why">' + esc(x.why || it.why || '') + '</span></div>' +
+        '<h3>' + esc(it.title) + '</h3>' + body + '<div class="fd-row">' + btn + '</div></div></article>';
+  }
+  var feedIdx = null;
+  function feedIndexOf(id) {
+    if (!feedIdx && window.IND_FEED_INDEX) { feedIdx = {}; window.IND_FEED.decode(window.IND_FEED_INDEX).forEach(function (r) { feedIdx[r.id] = r; }); }
+    return feedIdx && feedIdx[id];
+  }
+  V.feed = function () {
+    var H = window.IND_SHELL.pageHead({ title: 'My Feed', sub: 'Picked for you from across the app — about twenty, and then it ends.' });
+    if (!feedOn()) return H + emptyState('My Feed is switched off on this device. A grown-up can switch it back on behind the PIN.', 'Home', 'go', 'home');
+    var ids = feedSession();
+    var need = []; ids.forEach(function (x) { if (need.indexOf('feed-' + x.g) < 0) need.push('feed-' + x.g); });
+    var miss = missingOf(need);
+    if (miss.length) {
+      var v0 = view;
+      lastLoad = window.IND_LOAD(miss).then(function () { if (view === v0) render(); });
+      return H + '<div class="card loadcard" role="status"><span class="ldots" aria-hidden="true"><i></i><i></i><i></i></span><b>Opening your feed…</b></div>';
+    }
+    return H + '<div class="fd-list" data-feed="1">' + ids.map(feedCard).join('') +
+      '<article class="bz-card fd-card fd-end" tabindex="0" data-fid="end">' + peacock('cheer', 96) +
+        '<h3>That’s today’s feed — you’ve seen it all.</h3>' +
+        '<p class="fd-body">It ends here on purpose. Do something with it — then come back tomorrow, or after your next story, for new cards.</p>' +
+        '<div class="fd-row"><a class="btn" href="#/stories">Go read →</a> <a class="btn ghost" href="#/khel">Go play →</a></div></article></div>';
+  };
+  /* a card's question: right pays once (the standard 'answer' event) and says why; wrong holds */
+  function feedAnswer(id, o) {
+    var it = (window.IND_FEED_BODY || {})[id]; if (!it || !it.play) return;
+    var P = feedPlay[id] || {};
+    if (P.st === 'right' || P.st === 'shown') return;
+    if (o === it.play.a) {
+      feedPlay[id] = { st: 'right', o: o };
+      var F = feedState();
+      if (!F.paid[id]) { F.paid[id] = Math.floor(Date.now() / 864e5); earn('answer', 'a question in My Feed'); save(); }
+      sfx('right');
+    } else { feedPlay[id] = { st: 'wrong', o: o }; sfx('wrong'); }
+  }
 
   V.home = function () {
     var lit = Object.keys(S.lit).length, places = nPlaces();
@@ -4503,7 +4635,7 @@
       if (quiz.mode === 'lesson' && quiz.done > 0) {
         markToday();
         var lp = window.IND_PACKS[quiz.packId];
-        lastDid('lesson', lp && lp.name ? lp.name.en : 'Bhasha');
+        lastDid('lesson', lp && lp.name ? lp.name.en : 'Bhasha', '', { lang: quiz.packId });
         sfx('win');
         var AL = aajState();
         if (AL && quiz.packId === AL.pack && ((quiz.lesson && quiz.lesson.id === AL.lesson) || (!AL.lesson && quiz.stage === AL.review))) {
@@ -6860,6 +6992,11 @@
             return '<button class="pill' + ((S.goal || 3) === g2 ? ' on' : '') + '" aria-pressed="' + ((S.goal || 3) === g2) +
               '" data-act="goalset" data-g="' + g2 + '">' + g2 + ' a day</button>';
           }).join('') + '</div></div>' +
+        /* MY FEED can be switched off for this child (docs/30): the tab and the ☰ row go with it */
+        '<div class="setrow"><span><b>My Feed</b><small>About twenty cards a day from across the app, picked on this device from what ' +
+          esc(S.name || 'this child') + ' has done. It ends; nothing in it is counted as learning except a right answer.</small></span>' +
+          '<button class="pill' + (S.feedOff ? '' : ' on') + '" role="switch" aria-checked="' + !S.feedOff + '" data-act="feedtoggle">' +
+          (S.feedOff ? 'Off' : 'On') + '</button></div>' +
         '<div class="setrow"><span><b>Sound, read-aloud and the world</b><small>In Settings, from the ☰ menu.</small></span>' +
           '<button class="btn sm ghost" data-act="go" data-v="settings">' + icon('gear', 16) + ' Settings</button></div>' +
       '</div>' +
@@ -7348,6 +7485,9 @@
         '<div class="setrow"><span><b>Avatar</b><small>' + esc(avatarName(S.buddy) || '') + '</small></span>' +
           '<button class="btn sm ghost" data-act="go" data-v="collection">' + art(S.buddy, 28) + ' Choose</button></div>' +
         '<div class="setrow"><span><b>Who is playing</b></span><button class="btn sm ghost" data-act="kidmenu">Switch child</button></div>' +
+        /* the family's language moved here from ☰ when My Feed took its row (owner, 2 Oct 2026) */
+        '<div class="setrow"><span><b>Family language</b><small>' + esc(tongue() ? tongue().en : 'Tell us once, and everything leans your way.') + '</small></span>' +
+          '<button class="btn sm ghost" data-act="go" data-v="tongue">Choose</button></div>' +
         sw('hindi', !!S.hindi, 'Read stories in Hindi too', 'Every story that has a Hindi telling shows it beside the English.') +
       '</section>' +
       /* 2 · SOUND & MUSIC */
@@ -7536,7 +7676,8 @@
   /* FIVE TABS (family standard §4; FIX-INDIA C1): Home · India · Paathshala · Bhasha · Play.
      Home first and the map second, as in every Bizzing app. The story shelves (Nani-Nana)
      and Moral Science are doors inside Paathshala and rows in ☰; there is no More tab. */
-  var TABS = [['home', 'Home', 'home'], ['map', 'India', 'map'], ['paath', 'Paathshala', 'book'],
+  /* six tabs (owner, 2 Oct 2026): My Feed sits second, after Home */
+  var TABS = [['home', 'Home', 'home'], ['feed', 'My Feed', 'feed'], ['map', 'India', 'map'], ['paath', 'Paathshala', 'book'],
               ['bhasha', 'Bhasha', 'script'], ['khel', 'Play', 'game']];
 
   /* ------------------------------------------------------------- THE DECK */
@@ -7627,8 +7768,10 @@
      in — its words, its peacock, the child's face, its five tabs and its own four drawer rows.
      tools/lib/shell-check.mjs holds it to Bee's numbers. The chrome is rebuilt whenever one of
      the things it shows changes (shellKey), so nothing in it freezes at boot. */
-  var TAB_ICON = { home: 'home', map: 'map', paath: 'learn', bhasha: 'pen', khel: 'play' };
+  var TAB_ICON = { home: 'home', feed: 'feed', map: 'map', paath: 'learn', bhasha: 'pen', khel: 'play' };
   function shellOpts() {
+    var FEEDROW = feedOn() ? { icon: 'feed', label: 'My Feed', sub: 'about twenty cards from across the app, and then it ends', href: '#/feed' }
+                           : { icon: 'globe', label: 'Family language', sub: tongue() ? tongue().en : 'tell us once, and everything leans your way', href: '#/tongue' };
     var A = (window.IND_AVATAR_BY_ID || {})[S.buddy];
     var face = A ? A.art : 'art/' + S.buddy + '.png';
     return {
@@ -7636,24 +7779,24 @@
       kid: { name: S.name || '', avatar: face },
       search: 'Search stories, states, words…', query: view.name === 'search' ? (view.arg || '') : '',
       inRun: (view.name === 'pack' && !!quiz.q) || view.name === 'game',
-      tabs: TABS.map(function (t) { return { id: t[0], label: t[1], icon: TAB_ICON[t[0]] || 'star', href: '#/' + t[0] }; }),
+      tabs: TABS.filter(function (t) { return t[0] !== 'feed' || feedOn(); }).map(function (t) { return { id: t[0], label: t[1], icon: TAB_ICON[t[0]] || 'star', href: '#/' + t[0] }; }),
       active: activeTab(),
       drawer: {
         sub: 'Rank: ' + rank() + (window.IND_DEMO ? ' · sample child' : ''),
         routes: { me: '#/me', shop: '#/shop', collection: '#/collection', medals: '#/medals', settings: '#/settings',
                   grownups: '#/grown', help: '#/help', privacy: '#/privacy' },
         app: [
+          FEEDROW,
           { icon: 'book', label: tellerTitle(), sub: 'the story shelves, read aloud', href: '#/stories' },
           { icon: 'lamp', label: 'Moral Science', sub: 'values, faiths, festivals and the day’s deed', href: '#/neeti' },
-          { icon: 'star', label: 'The Epics', sub: 'the Ramayana and the Mahabharata, night by night', href: '#/epics' },
-          { icon: 'globe', label: 'Family language', sub: tongue() ? tongue().en : 'tell us once, and everything leans your way', href: '#/tongue' }
+          { icon: 'star', label: 'The Epics', sub: 'the Ramayana and the Mahabharata, night by night', href: '#/epics' }
         ]
       }
     };
   }
   function shellKey() {
     var o = shellOpts();
-    return JSON.stringify([o.coins, o.dark, o.kid, o.inRun, o.active, o.drawer.sub, o.drawer.app[0].label, o.drawer.app[3].sub, o.query, !!window.IND_DEMO]);
+    return JSON.stringify([o.coins, o.dark, o.kid, o.inRun, o.active, o.drawer.sub, o.drawer.app[0].label, o.drawer.app[1].label, o.tabs.length, o.query, !!window.IND_DEMO]);
   }
   var lastShell = '';
   function chrome() {
@@ -7688,7 +7831,7 @@
                   pack: 'bhasha', chart: 'bhasha', kosh: 'bhasha', wordcard: 'bhasha', vyakaran: 'bhasha', progress: 'bhasha',
                   game: 'khel', mela: 'khel', play: 'khel', rishtey: 'khel', rishquiz: 'khel' };
     var c = alias[view.name] || view.name;
-    return ['home', 'map', 'paath', 'bhasha', 'khel'].indexOf(c) >= 0 ? c : '';
+    return ['home', 'feed', 'map', 'paath', 'bhasha', 'khel'].indexOf(c) >= 0 ? c : '';
   }
 
   /* chrome() is built once and then left alone, so the two toggles that live in
@@ -7850,6 +7993,7 @@
       case 'privacy': h = V.privacy(); break;
       case 'help': h = V.help(); break;
       case 'search': h = V.search(view.arg); break;
+      case 'feed': h = V.feed(); break;
       default: h = V.home();
     }
     m.innerHTML = aajBar() + h + deckModal();
@@ -8105,7 +8249,8 @@
     grown: ['paath', 'content', 'voice', 'map', 'bhasha', 'packs'],
     /* the family layer: the collection, the shop and settings draw only the shell */
     collection: [], shop: [], medals: [], settings: [], privacy: [], help: [],
-    search: ['content', 'map', 'bhasha', 'paath'], avcard: []
+    search: ['content', 'map', 'bhasha', 'paath'], avcard: [],
+    feed: ['feed']
   };
   /* the PIN pad needs nothing; only the report behind it needs the record */
   function needsOf(n) { if (n === 'grown' && !grownOpen) return []; return NEEDS[n] || ALLG; }
@@ -8301,7 +8446,7 @@
            (standard §1, §10). Ludo, Saap-Sidi, carrom and the street games are played for
            their own sake: no coins, because a dice roll is not something a child learned. */
         if (TEACHES.indexOf(g.id) >= 0) { earn('contest', g.name); markToday(); }
-        lastDid('game', g.name);
+        lastDid('game', g.name, '', { id: g.id });
         setTimeout(function () { go('mela'); }, 900);
       });
       gameTeardown = function () {
@@ -8690,7 +8835,7 @@
           S.read[st.id] = true;
           var c = (st.place || [])[0]; if (c) lightState(c.replace('IN-', ''));
           earn('stop', 'story finished'); markToday();
-          lastDid('story', st.title, c ? stateName(c.replace('IN-', '')) : '');
+          lastDid('story', st.title, c ? stateName(c.replace('IN-', '')) : '', { id: st.id, place: c ? c.replace('IN-', '') : '', coll: st.collection });
           milestone('stop', st.title);
           sfx('win');
           setTimeout(function () { checkMedals(); }, 900);
@@ -8957,6 +9102,17 @@
       S.resume = S.resume || {}; S.resume.pack = { id: t.getAttribute('data-id'), at: Date.now() }; save();
       quiz = quizReset(null); return go('pack', t.getAttribute('data-id'));
     }
+    if (a === 'feedans') {
+      var fid = t.getAttribute('data-id'); feedAnswer(fid, +t.getAttribute('data-o')); render();
+      var fc = document.querySelector('.fd-card[data-fid="' + fid + '"]'); if (fc) fc.focus({ preventScroll: true });
+      return;
+    }
+    if (a === 'feedcont') {
+      var fid2 = t.getAttribute('data-id'); feedPlay[fid2] = { st: 'shown', o: (feedPlay[fid2] || {}).o }; render();
+      var fc2 = document.querySelector('.fd-card[data-fid="' + fid2 + '"]'); if (fc2) fc2.focus({ preventScroll: true });
+      return;
+    }
+    if (a === 'feedtoggle') { S.feedOff = !S.feedOff; save(); toast(S.feedOff ? 'My Feed is off' : 'My Feed is on'); return render(); }
     if (a === 'game')   {
       S.resume = S.resume || {}; S.resume.game = { id: t.getAttribute('data-id'), at: Date.now() }; save();
       return go('game', t.getAttribute('data-id'));
@@ -9209,6 +9365,19 @@
         var ok = (pk.consonants || []).indexOf(e.key) >= 0 || (pk.matras || []).indexOf(e.key) >= 0 ||
                  (pk.vowels || []).indexOf(e.key) >= 0 || e.key === pk.virama;
         if (ok) { e.preventDefault(); quiz.typed = (quiz.typed || '') + e.key; return render(); }
+      }
+    }
+    /* My Feed: j / k or the arrows step card to card; focus is the card, so it is always visible */
+    if (view.name === 'feed' && /^(j|k|ArrowDown|ArrowUp)$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey &&
+        !/^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || '')) {
+      var cards = [].slice.call(document.querySelectorAll('.fd-card'));
+      if (cards.length) {
+        e.preventDefault();
+        var cur = document.activeElement && document.activeElement.closest ? document.activeElement.closest('.fd-card') : null;
+        var at = cards.indexOf(cur), dn = e.key === 'j' || e.key === 'ArrowDown';
+        var nx = cards[at < 0 ? 0 : Math.max(0, Math.min(cards.length - 1, at + (dn ? 1 : -1)))];
+        nx.focus({ preventScroll: true }); nx.scrollIntoView({ block: 'center', behavior: 'auto' });
+        return;
       }
     }
     if (e.key === 'Escape' && $('#celebrate')) { $('#celebrate').remove(); setTimeout(showCelebration, 250); return; }

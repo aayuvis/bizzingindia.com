@@ -33,7 +33,10 @@ if [ $fail -ne 0 ]; then echo; echo "THE GATE IS SHUT: fix what failed, then run
 
 # record exactly what passed: the tree ids of app/ and tools/ as they are on disk here
 IDX=$(mktemp -u)
-( cd "$REPO" && GIT_INDEX_FILE="$IDX" git --work-tree="$ROOT" add -A app tools >/dev/null 2>&1 )
+# start from HEAD's index, so a file git tracks counts even where .gitignore would skip it
+# (tools/.art-raw is tracked and ignored at once — without this the gate could never open)
+( cd "$REPO" && GIT_INDEX_FILE="$IDX" git read-tree HEAD && \
+  GIT_INDEX_FILE="$IDX" git --work-tree="$ROOT" add -A app tools >/dev/null 2>&1 )
 TREE=$(cd "$REPO" && GIT_INDEX_FILE="$IDX" git write-tree)
 rm -f "$IDX"
 APP_T=$(cd "$REPO" && git rev-parse "$TREE:app")

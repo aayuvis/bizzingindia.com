@@ -477,7 +477,6 @@
           '<p>You got <b>' + perfectish + ' of ' + rounds.length + '</b> right on the very first try — and you finished every single one.</p>' +
           '<div class="mela-tally">' +
             '<span class="mela-chip"><b>' + score + '</b> points</span>' +
-            '<span class="mela-chip"><b>' + kauris + '</b> kauris</span>' +
           '</div>' +
           '<div class="mela-row">' +
             '<button type="button" class="mela-btn" data-go="out">Back to the Mela</button>' +
@@ -591,11 +590,12 @@
                   : 'Folded twice: left-right AND top-bottom. One quarter remembered is the whole rangoli.'
     };
   }
+  /* the child's own level, through the app's Store seam (one child's, never the household's) */
   function rgLoad() {
-    try { return Math.max(0, parseInt(W.localStorage.getItem(RG_LKEY) || '0', 10) || 0); }
+    try { return Math.max(0, parseInt((W.IND_STORE ? W.IND_STORE.kidGet(RG_LKEY) : W.localStorage.getItem(RG_LKEY)) || '0', 10) || 0); }
     catch (e) { return 0; }
   }
-  function rgSave(v) { try { W.localStorage.setItem(RG_LKEY, String(v)); } catch (e) {} }
+  function rgSave(v) { try { if (W.IND_STORE) W.IND_STORE.kidSet(RG_LKEY, String(v)); else W.localStorage.setItem(RG_LKEY, String(v)); } catch (e) {} }
 
   function rangoliPattern(cfg) {
     var n = cfg.n, half = Math.ceil(n / 2), map = {}, tries = 0, ci = 0;
@@ -1439,7 +1439,6 @@
             : passedN + ' of ' + SLOTS + ' levels cleared this sitting. You stand at level ' + (rgLoad() + 1) + ' of 100 — the ladder keeps your place.') + '</p>' +
           '<div class="mela-tally">' +
             '<span class="mela-chip"><b>' + score + '</b> points</span>' +
-            '<span class="mela-chip"><b>' + kauris + '</b> kauris</span>' +
           '</div>' +
           '<div class="mela-row">' +
             '<button type="button" class="mela-btn" data-go="out">Back to the Mela</button>' +

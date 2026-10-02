@@ -1326,9 +1326,11 @@
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
-  function load() { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { return null; } }
-  function save(g) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(g)); } catch (e) {} }
-  function wipe() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+  /* through the app's Store seam: a save belongs to ONE child of the household */
+  var ST = function () { return window.IND_STORE || { kidGet: function (k) { return localStorage.getItem(k); }, kidSet: function (k, v) { localStorage.setItem(k, v); }, kidDel: function (k) { localStorage.removeItem(k); } }; };
+  function load() { try { return JSON.parse(ST().kidGet(SAVE_KEY) || 'null'); } catch (e) { return null; } }
+  function save(g) { try { ST().kidSet(SAVE_KEY, JSON.stringify(g)); } catch (e) {} }
+  function wipe() { try { ST().kidDel(SAVE_KEY); } catch (e) {} }
 
   /* ==================================================================
      THE ENGINE

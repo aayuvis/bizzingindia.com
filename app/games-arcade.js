@@ -933,7 +933,7 @@
         win ? (vs === '2p' ? nm('you') + ' lights the diya!' : one(CHEERS)) : nm('gattu') + ' got there first',
         win ? 'Square 100 — the diya is lit! The ladders liked you today; every one of them was a virtue with a name.'
             : 'The snakes were hungry today. No matter — every ladder is still exactly where it was.',
-        [[String(moved), 'squares walked'], [String(win ? 3 : 1), 'kauris']]
+        [[String(moved), 'squares walked']]
       );
       sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="out"]')); }, 60);
     }
@@ -1486,7 +1486,7 @@
         win ? 'All four home! ' + one(CHEERS) : 'Gattu’s four got home first',
         win ? 'A clean run round the ring — Gattu bows and fans you with his ears.'
             : 'You brought ' + home + ' token' + (home === 1 ? '' : 's') + ' home — the ring will turn your way next time.',
-        [[String(home * 13), 'points'], [String(win ? 4 : 1), 'kauris']]
+        [[String(home * 13), 'points']]
       );
       sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="out"]')); }, 60);
     }

@@ -184,6 +184,8 @@ check('firstlearn', 'Read it plays a story before any setup; setup keeps it; a s
 }, { fresh: true });
 
 check('demo', '?demo is a labelled sample with progress, and the real household is untouched', async ({ p, base }) => {
+  /* one settled real boot first: a boot may write its own baseline, and that is not the demo */
+  await p.goto(base, { waitUntil: 'networkidle' }); await p.waitForTimeout(400);
   const before = await p.evaluate(() => { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); o[k] = localStorage.getItem(k); } return o; });
   if (!before.bi_v1) throw new Error('the harness has no real child to protect');
   await p.goto(base + '?demo', { waitUntil: 'networkidle' }); await p.waitForTimeout(500);

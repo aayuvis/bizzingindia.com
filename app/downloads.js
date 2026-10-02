@@ -21,12 +21,16 @@
 
   /* ---------------- diagnostics ring ---------------- */
   var DIAG_KEY = 'india.diag.v1';
+  /* the device's, not a child's — through the app's Store seam once it has loaded (errors
+     before that still land, straight in localStorage, rather than being lost) */
+  function fget(k) { return W.IND_STORE ? W.IND_STORE.famGet(k) : localStorage.getItem(k); }
+  function fset(k, v) { if (W.IND_STORE) W.IND_STORE.famSet(k, v); else localStorage.setItem(k, v); }
   function diagPush(kind, msg) {
     try {
-      var ring = JSON.parse(localStorage.getItem(DIAG_KEY) || '[]');
+      var ring = JSON.parse(fget(DIAG_KEY) || '[]');
       ring.push({ t: Date.now(), b: W.IND_BUILD || 'dev', k: kind, m: String(msg).slice(0, 400) });
       while (ring.length > 50) ring.shift();
-      localStorage.setItem(DIAG_KEY, JSON.stringify(ring));
+      fset(DIAG_KEY, JSON.stringify(ring));
     } catch (e) {}
   }
   W.addEventListener('error', function (e) {
@@ -40,13 +44,13 @@
        away — a handler that swallows its own exception leaves no trace at all,
        and "nothing happened when I pressed it" is the hardest report to act on */
     push: function (kind, msg) { diagPush(kind || 'note', msg); },
-    list: function () { try { return JSON.parse(localStorage.getItem(DIAG_KEY) || '[]'); } catch (e) { return []; } },
+    list: function () { try { return JSON.parse(fget(DIAG_KEY) || '[]'); } catch (e) { return []; } },
     text: function () {
       return this.list().map(function (r) {
         return new Date(r.t).toISOString() + ' [' + r.b + '] ' + r.k + ': ' + r.m;
       }).join('\n') || 'no errors recorded';
     },
-    clear: function () { try { localStorage.removeItem(DIAG_KEY); } catch (e) {} }
+    clear: function () { try { if (W.IND_STORE) W.IND_STORE.famDel(DIAG_KEY); else localStorage.removeItem(DIAG_KEY); } catch (e) {} }
   };
 
   /* ---------------- the pack downloader ---------------- */

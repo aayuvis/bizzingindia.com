@@ -10,12 +10,72 @@
 
   /* =================================================================== STORE */
   var Store = {
-    KEY: 'bi_v1', DEV: 'bi_device', schemaVersion: 2,
-    loadProfile: function () {
-      try { var raw = localStorage.getItem(this.KEY); return raw ? this.migrate(JSON.parse(raw)) : null; }
+    KEY: 'bi_v1', DEV: 'bi_device', HOUSE: 'bi_house', schemaVersion: 2,
+    /* A HOUSEHOLD OF CHILDREN (family standard §5; FIX-INDIA B7). There used to be one
+       profile per device, so a second child either shared the first one's stories, coins
+       and map or wiped them. Now `bi_house` names the children and which one is playing:
+         { v:1, active:'k1', order:['k1','k2'], next:3, adding:null }
+       THE FIRST CHILD KEEPS THE KEYS IT ALWAYS HAD; every later child gets the same keys
+       with its id appended (bi_v1 → bi_v1.k2, india.sabhyata.v2 → india.sabhyata.v2.k2).
+       So an existing device needs no migration to become a household of one, nothing a
+       child owns can be read under another child's id, and kidKey() is the only place
+       that decides it. Switching reloads the page, so no module can keep a reference to
+       the last child's state across the switch. */
+    house: function () {
+      try { var h = JSON.parse(localStorage.getItem(this.HOUSE) || 'null');
+            if (h && h.order && h.order.length && h.order.indexOf(h.active) >= 0) return h; } catch (e) {}
+      return { v: 1, active: 'k1', order: ['k1'], next: 2, adding: null };
+    },
+    saveHouse: function (h) { try { localStorage.setItem(this.HOUSE, JSON.stringify(h)); } catch (e) {} },
+    kidKey: function (base, id) { id = id || this.house().active; return id === 'k1' ? base : base + '.' + id; },
+    /* every key a child owns, so removing a child removes all of them */
+    KID_KEYS: ['bi_v1', 'india.sabhyata.v2', 'india.rangoli.lvl'],
+    kids: function () {
+      var h = this.house(), self = this;
+      return h.order.map(function (id) {
+        var p = null;
+        try { p = JSON.parse(localStorage.getItem(self.kidKey(self.KEY, id)) || 'null'); } catch (e) {}
+        p = p || {};
+        return { id: id, name: p.name || '', buddy: p.buddy || 'pt_tortoise', started: !!p.started, active: id === h.active };
+      });
+    },
+    /* a new child: their own empty keys, and onboarding next (the grown-ups' page) */
+    addKid: function () {
+      var h = this.house(), id = 'k' + (h.next || h.order.length + 1);
+      h.next = (h.next || h.order.length + 1) + 1;
+      h.order.push(id); h.active = id; h.adding = id;
+      this.saveHouse(h);
+      return id;
+    },
+    switchKid: function (id) {
+      var h = this.house();
+      if (h.order.indexOf(id) < 0) return false;
+      h.active = id; this.saveHouse(h); return true;
+    },
+    removeKid: function (id) {
+      var h = this.house(), self = this;
+      id = id || h.active;
+      try { this.KID_KEYS.forEach(function (b) { localStorage.removeItem(self.kidKey(b, id)); }); } catch (e) {}
+      h.order = h.order.filter(function (x) { return x !== id; });
+      if (h.adding === id) h.adding = null;
+      if (!h.order.length) { try { localStorage.removeItem(this.HOUSE); } catch (e) {} return; }
+      if (h.active === id) h.active = h.order[0];
+      this.saveHouse(h);
+    },
+    loadProfile: function (id) {
+      try { var raw = localStorage.getItem(this.kidKey(this.KEY, id)); return raw ? this.migrate(JSON.parse(raw)) : null; }
       catch (e) { return null; }
     },
-    saveProfile: function (b) { b.schemaVersion = this.schemaVersion; try { localStorage.setItem(this.KEY, JSON.stringify(b)); } catch (e) {} },
+    /* never stamp an OLDER version on data a newer build wrote (migrate() leaves it alone too) */
+    saveProfile: function (b) { if (!(b.schemaVersion > this.schemaVersion)) b.schemaVersion = this.schemaVersion; try { localStorage.setItem(this.kidKey(this.KEY), JSON.stringify(b)); } catch (e) {} },
+    /* the other keys a child owns (a Sabhyata save, the rangoli level) and the ones the
+       household shares (the family pass), for the engines that load before this file */
+    kidGet: function (base) { try { return localStorage.getItem(this.kidKey(base)); } catch (e) { return null; } },
+    kidSet: function (base, v) { try { localStorage.setItem(this.kidKey(base), v); } catch (e) {} },
+    kidDel: function (base) { try { localStorage.removeItem(this.kidKey(base)); } catch (e) {} },
+    famGet: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    famSet: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+    famDel: function (k) { try { localStorage.removeItem(k); } catch (e) {} },
     loadDevice: function (k, d) { try { var o = JSON.parse(localStorage.getItem(this.DEV) || '{}'); return (k in o) ? o[k] : d; } catch (e) { return d; } },
     saveDevice: function (k, v) { try { var o = JSON.parse(localStorage.getItem(this.DEV) || '{}'); o[k] = v; localStorage.setItem(this.DEV, JSON.stringify(o)); } catch (e) {} },
     /* VERSIONED, ONE STEP AT A TIME (family standard §5). A profile is walked up through
@@ -40,8 +100,32 @@
         b.sikke = 0; b.xp = 0;
       }
     },
-    /* the grown-ups' Erase, through the seam like everything else */
-    erase: function () { try { localStorage.removeItem(this.KEY); } catch (e) {} },
+    /* THE FAMILY'S BACKUP: every child and what each one owns, in one file. Restoring it
+       puts the household back exactly as it was; a single-child file from before the
+       household (it has `started` at the top) restores into the child playing now. */
+    backup: function () {
+      var h = this.house(), self = this, out = { kind: 'bizzing-india-household', v: 1, house: h, keys: {} };
+      h.order.forEach(function (id) {
+        self.KID_KEYS.forEach(function (b) { var k = self.kidKey(b, id), v = null;
+          try { v = localStorage.getItem(k); } catch (e) {} if (v != null) out.keys[k] = v; });
+      });
+      return out;
+    },
+    restore: function (o) {
+      if (!o || typeof o !== 'object') return false;
+      if (o.kind === 'bizzing-india-household' && o.house && o.keys) {
+        var self = this, ok = /^(bi_v1|india\.sabhyata\.v2|india\.rangoli\.lvl)(\.k\d+)?$/;
+        this.house().order.forEach(function (id) { self.KID_KEYS.forEach(function (b) {
+          try { localStorage.removeItem(self.kidKey(b, id)); } catch (e) {} }); });
+        Object.keys(o.keys).forEach(function (k) { if (ok.test(k)) try { localStorage.setItem(k, o.keys[k]); } catch (e) {} });
+        this.saveHouse(o.house);
+        return true;
+      }
+      if ('started' in o) { this.saveProfile(o); return true; }
+      return false;
+    },
+    /* the grown-ups' Erase, through the seam like everything else: this child only */
+    erase: function () { this.removeKid(); },
     onRemoteChange: function () {},
 
     /* BLOBS. Recorded voices do not fit in localStorage, so they go to IndexedDB — but they
@@ -65,6 +149,7 @@
       this._db(function (db) {
         if (!db) return fn && fn(false);
         var t = db.transaction(Store.STORE, 'readwrite');
+        rec.kid = rec.kid || Store.house().active;          /* a voice belongs to one child */
         t.objectStore(Store.STORE).put(rec);
         t.oncomplete = function () { fn && fn(true); };
         t.onerror = function () { fn && fn(false); };
@@ -74,8 +159,10 @@
       this._db(function (db) {
         if (!db) return fn([]);
         var rq = db.transaction(Store.STORE).objectStore(Store.STORE).getAll();
+        var me = Store.house().active;
         rq.onsuccess = function () {
-          fn((rq.result || []).sort(function (a, b) { return b.at - a.at; }));
+          fn((rq.result || []).filter(function (r) { return (r.kid || 'k1') === me; })
+            .sort(function (a, b) { return b.at - a.at; }));
         };
         rq.onerror = function () { fn([]); };
       });
@@ -89,6 +176,10 @@
       });
     }
   };
+
+  /* the engines that load before this file (Sabhyata, the games, the pass) reach storage
+     through the same seam at run time — one place decides whose key a thing is */
+  window.IND_STORE = Store;
 
   /* =================================================================== STATE */
   /* ?DEMO — a sample child with a few weeks of believable progress (family standard §14).
@@ -203,6 +294,9 @@
   var view = { name: 'home', arg: null };
   var lastScrollSig = '';
   var soundOn = Store.loadDevice('sound', true);
+  /* the one mute (standard §9): sfx.js asks here before every sound */
+  window.IND_SFX_MUTED = function () { return !soundOn; };
+  function sfx(k) { if (window.IND_SFX) window.IND_SFX.play(k); }
   var night = Store.loadDevice('night', false);
   function save() { Store.saveProfile(S); }
 
@@ -224,6 +318,73 @@
       (P[id].stages || []).forEach(function (s) { try { if (stageMastered(id, s)) n++; } catch (e) {} });
     });
     return n;
+  }
+  /* the evidence, by source — what the medals and the report card read */
+  function evidence() {
+    var e = { read: Object.keys(S.read || {}).length, lit: Object.keys(S.lit || {}).length,
+              objectives: 0, rungs: 0, made: 0 };
+    try {
+      var U = paathUI();
+      if (U) { U.report().forEach(function (r) { e.objectives += r.mastered || 0; });
+               e.made = ((U.shelf && U.shelf().marked) || []).length; }
+    } catch (x) {}
+    var P = window.IND_PACKS || {};
+    Object.keys(P).forEach(function (id) {
+      (P[id].stages || []).forEach(function (s2) { try { if (stageMastered(id, s2)) e.rungs++; } catch (x) {} });
+    });
+    e.rank = level();
+    return e;
+  }
+
+  /* MEDALS FROM EVIDENCE (family standard §8; FIX-INDIA I4). Each is earned by something
+     the app SAW — a story finished, a place lit, a rung or an objective mastered under its
+     own rules, a project the workshop marked — never by a tap that says "I did it", never
+     by days in a row, never by coins. Each is celebrated once, then kept on the shelf with
+     what earned it. Medallion tiers: bronze · silver · gold. */
+  var MEDALS = [
+    { id: 'story1',  tier: 'bronze', glyph: 'tree',   name: 'First story',          how: 'Hear a whole story, start to finish.',            ok: function (e) { return e.read >= 1; } },
+    { id: 'story10', tier: 'silver', glyph: 'tree',   name: 'Ten stories',          how: 'Finish ten stories.',                              ok: function (e) { return e.read >= 10; } },
+    { id: 'story50', tier: 'gold',   glyph: 'tree',   name: 'Fifty stories',        how: 'Finish fifty stories.',                            ok: function (e) { return e.read >= 50; } },
+    { id: 'place1',  tier: 'bronze', glyph: 'map',    name: 'The mist lifts',       how: 'Light your first place on the map.',               ok: function (e) { return e.lit >= 1; } },
+    { id: 'place10', tier: 'silver', glyph: 'map',    name: 'Ten places remembered', how: 'Light ten places on the map.',                    ok: function (e) { return e.lit >= 10; } },
+    { id: 'placeAll',tier: 'gold',   glyph: 'map',    name: 'All of India',         how: 'Light every place on the map.',                    ok: function (e) { return e.lit >= nPlaces(); } },
+    { id: 'rung1',   tier: 'bronze', glyph: 'script', name: 'First rung',           how: 'Master a rung of a language — or test out of it.', ok: function (e) { return e.rungs >= 1; } },
+    { id: 'rung3',   tier: 'silver', glyph: 'script', name: 'Three rungs',          how: 'Master three rungs.',                              ok: function (e) { return e.rungs >= 3; } },
+    { id: 'obj1',    tier: 'bronze', glyph: 'book',   name: 'It stayed',            how: 'Pass a course test on a later day than its lesson.', ok: function (e) { return e.objectives >= 1; } },
+    { id: 'obj5',    tier: 'silver', glyph: 'book',   name: 'Five that stayed',     how: 'Five course tests, each on a later day.',           ok: function (e) { return e.objectives >= 5; } },
+    { id: 'made1',   tier: 'bronze', glyph: 'star',   name: 'Made by hand',         how: 'Finish a course project the workshop can check.',  ok: function (e) { return e.made >= 1; } },
+    { id: 'sadhak',  tier: 'gold',   glyph: 'lamp',   name: 'Sadhak',               how: 'Reach the rank of Sadhak — three things mastered.', ok: function (e) { return e.rank >= 2; } }
+  ];
+  function medalHTML(m, size, got) {
+    return '<span class="medal ' + m.tier + (got ? '' : ' unearned') + '" style="--md:' + (size || 72) + 'px" aria-hidden="true">' +
+      '<span class="md-ring"></span><span class="md-face">' + icon(m.glyph, Math.round((size || 72) * 0.36)) + '</span></span>';
+  }
+  /* new medals are found after the things that can earn them; each is shown ONCE */
+  var celebrating = [];
+  function checkMedals() {
+    if (!S.started) return;
+    var e = evidence(), got = S.medals || (S.medals = {}), fresh = [];
+    MEDALS.forEach(function (m) { if (!got[m.id] && m.ok(e)) { got[m.id] = today(); fresh.push(m); } });
+    if (!fresh.length) return;
+    save();
+    fresh.forEach(function (m) { celebrating.push(m); milestone('mastery', 'Medal: ' + m.name); });
+    showCelebration();
+  }
+  /* THE CELEBRATION (family standard §8; FIX-INDIA J1): specific — it names what was done —
+     with motion and a sound, and never a word about any other child */
+  function showCelebration() {
+    if ($('#celebrate') || !celebrating.length) return;
+    var m = celebrating.shift(), d = document.createElement('div');
+    d.id = 'celebrate'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
+    d.setAttribute('aria-label', 'New medal: ' + m.name);
+    d.innerHTML = '<div class="cel-in"><div class="cel-burst" aria-hidden="true">' + new Array(13).join('<i></i>') + '</div>' +
+      medalHTML(m, 132, true) +
+      '<span class="mono">A new medal</span><h2>' + esc(m.name) + '</h2>' +
+      '<p>' + esc(m.how.replace(/\.$/, '')) + ' — and you did.</p>' +
+      '<button class="btn lg" data-act="celok">Shabash! →</button></div>';
+    document.body.appendChild(d);
+    sfx('medal');
+    var b = d.querySelector('[data-act="celok"]'); if (b) b.focus();
   }
   function level() {
     var m = mastered(), i;
@@ -433,7 +594,38 @@
   /* WHAT THE CHILD DID LAST, so the greeting can say something true about it (family
      standard §2.2: a speech bubble specific to what the child did last) */
   function lastDid(k, t, place) { S.last = { k: k, t: String(t || ''), place: place || '', at: Date.now() }; save(); }
-  function lightState(c) { if (!c || S.lit[c]) return false; S.lit[c] = true; save(); return true; }
+  function lightState(c) {
+    if (!c || S.lit[c]) return false;
+    S.lit[c] = true; save();
+    milestone('world', stateName(c) + ' remembered');
+    return true;
+  }
+
+  /* ================================================== THE HIVE'S FEED (standard §13)
+     bizzing-activity.js counts ACTIVE minutes for the child playing, and milestones are
+     written as they happen: a story finished (stop), a place lit (world), something
+     mastered (mastery), a new Gurukul rank (band). Never in the demo — the sample child
+     is not anybody's child, and her feed would be read by the Hive as if she were. */
+  var activityOn = false;
+  function startActivity() {
+    if (activityOn || window.IND_DEMO || !S.started || !window.IND_ACTIVITY) return;
+    activityOn = true;
+    window.IND_ACTIVITY.trackActivity('india', function () { return S.name; });
+  }
+  function milestone(ev, label) {
+    if (window.IND_DEMO || !S.started || !S.name || !window.IND_ACTIVITY) return;
+    window.IND_ACTIVITY.trackMilestone('india', S.name, ev, label);
+  }
+  /* mastery and rank are DERIVED (mastered(), level()), so growth is noticed by comparing
+     with what was last seen — once each, and never on the way down */
+  function checkGrowth() {
+    setTimeout(checkMedals, 0);
+    var g = S.grown || (S.grown = { m: 0, l: 0 }), m = mastered(), l = level(), out = { m: 0, l: false };
+    if (m > g.m) { out.m = m - g.m; milestone('mastery', m + ' thing' + (m === 1 ? '' : 's') + ' mastered'); g.m = m; }
+    if (l > g.l) { out.l = true; milestone('band', 'Rank: ' + RANKS[l]); g.l = l; }
+    if (out.m || out.l) save();
+    return out;
+  }
 
   /* ================================================================== AUDIO */
   var audio = null;
@@ -947,7 +1139,11 @@
         '</div>';
     }
 
+    /* a child being ADDED to the household can be un-added: the grown-up changed their mind */
+    var adding = Store.house().adding;
     return '<div class="wrap obwrap">' +
+      (adding ? '<div class="obadding"><span class="mono">A new child for this household</span>' +
+        '<button class="pill" data-act="addcancel">Not now</button></div>' : '') +
       obDots(i, steps.length) +
       '<div class="obhead"><span class="mono">Step ' + (i + 1) + ' of ' + steps.length + '</span>' +
         (i ? '<button class="backlink obback" data-act="obback">' + icon('back', 16) +
@@ -1084,6 +1280,14 @@
       /* 3 — TODAY'S THREE. Optional; nothing is lost for skipping one. */
       '<div class="hm-head"><h3>Today’s three</h3><span class="tiny muted">Nothing is lost for skipping.</span></div>' +
       '<div class="grid g3 hm-three">' +
+        (function () {
+          var A = aajState(), done = !!(A && A.end);
+          return '<button class="tile hm-t aajtile" data-act="aajgo"><span class="mono">Aaj ka · five minutes</span>' +
+            '<b>' + (done ? 'Done for today ✓' : 'A story, four new words, a look back') + '</b>' +
+            '<p class="tiny">' + (done ? 'Anything more is extra. Tomorrow there is another five.'
+              : A ? 'You are part-way — carry on where you stopped.' : 'Starts and ends cleanly. Nothing is lost for skipping.') +
+            '</p></button>';
+        })() +
         (todayValue
           ? '<div class="tile hm-t"><span class="mono">Do one</span>' +
             '<b>' + esc(todayValue.roman) + ' — ' + esc(todayValue.en) + '</b>' +
@@ -1099,15 +1303,8 @@
                 '<b>' + esc(kinEn(nq)) + '</b>' +
                 '<p class="tiny muted">This week, ask ' + esc(kinTerm(nq.to)) + '.</p></button>';
             })()
-          : (function () {
-              var now = (typeof utsavNow === 'function') ? utsavNow() : [];
-              if (!now.length) return '';
-              var f = now[new Date().getDate() % now.length];
-              return '<button class="tile hm-t" data-act="fest" data-id="' + f.id + '"><span class="mono">On this month</span>' +
-                '<b>' + esc(f.name) + '</b><p class="tiny">' + esc(f.do && f.do[0] ? f.do[0] : f.kid) + '</p></button>';
-            })()) +
-        '<div class="tile hm-t"><span class="mono">Subhashita of the hour</span>' +
-          '<p class="hm-q">“' + esc(q[0]) + '”</p><p class="tiny muted">— ' + esc(q[1]) + '</p></div>' +
+          : '<div class="tile hm-t"><span class="mono">Subhashita of the hour</span>' +
+              '<p class="hm-q">“' + esc(q[0]) + '”</p><p class="tiny muted">— ' + esc(q[1]) + '</p></div>') +
       '</div>' +
 
       /* 4 — WAYS IN. Five, each saying something true today. */
@@ -1146,6 +1343,127 @@
         '<span class="tiny muted">' + esc(x[3]) + '</span></button>';
     }).join('');
   }
+  /* =============================================================== AAJ KA
+     FIVE MINUTES, AND IT ENDS (FIX-INDIA E1; family standard §2.4). One story, four new
+     things in the family's language, and a look back — three questions from stories heard
+     on EARLIER days, which is the spaced recall that makes a story stay — then a finish
+     card that says what was done. Nothing here is a goal to keep up: skip a day and
+     nothing is lost; there is no count of days. */
+  function aajState() { var A = S.aaj; return (A && A.on === today()) ? A : null; }
+  function aajPack() {
+    var t = tongue(), P = window.IND_PACKS || {};
+    return (t && t.pack && P[t.pack]) ? t.pack : (P.hi ? 'hi' : (Object.keys(P)[0] || null));
+  }
+  function aajStart() {
+    var sd = storyOfDay(), pk = aajPack(), nx = (pk && window.IND_BHASHA) ? bNext(bPath(pk)) : null;
+    S.aaj = { on: today(), at: Date.now(), story: sd ? sd.id : null, pack: pk,
+              lesson: nx && nx.lesson ? nx.lesson.id : null,
+              review: nx && !nx.lesson && nx.rung ? nx.rung.stage.id : null,
+              did: {}, met: [], look: null, end: 0 };
+    save();
+  }
+  /* three questions from stories heard before today's — or today's own, for a first day */
+  function aajLook(A) {
+    if (A.look) return A.look;
+    var ids = Object.keys(S.read || {}).filter(function (id) { return id !== A.story; });
+    var pool = ids.map(storyById).filter(function (x) { return x && x.scenes.some(function (c) { return c.ask; }); });
+    var d = new Date().getDate();
+    pool.sort(function (a, b) { return ((a.id.length * 31 + d) % 97) - ((b.id.length * 31 + d) % 97) || (a.id < b.id ? -1 : 1); });
+    var pick = pool.slice(0, 3).map(function (x) { return x.id; });
+    if (!pick.length && A.story && storyById(A.story)) pick = [A.story];
+    A.look = { ids: pick, i: 0, right: 0, picked: null };
+    save();
+    return A.look;
+  }
+  function aajAsk(id) {
+    var st = storyById(id); if (!st) return null;
+    var sc = st.scenes.filter(function (c) { return c.ask; })[0];
+    return sc ? { st: st, ask: sc.ask } : null;
+  }
+  V.aaj = function () {
+    var A = aajState();
+    if (!A) { aajStart(); A = aajState(); }
+    var st = A.story ? storyById(A.story) : null, pk = A.pack && (window.IND_PACKS || {})[A.pack];
+    var did = { story: !!(st && S.read[st.id]), lesson: !!A.did.lesson, look: !!A.did.look };
+    var steps = [
+      ['story', 'tree', 'Hear a story', st ? st.title : 'Tonight’s story'],
+      ['lesson', 'script', 'Four new things', pk ? (pk.name ? pk.name.en : A.pack) + ' — one lesson' : 'A language lesson'],
+      ['look', 'star', 'Look back', 'Three questions from stories you heard before']
+    ];
+    var cur = !did.story ? 0 : !did.lesson ? 1 : !did.look ? 2 : 3;
+    var head = '<button class="backlink" data-act="go" data-v="home">' + icon('back', 18) + ' Home</button>' +
+      '<div class="card aajhead"><span class="mono">Aaj ka · about five minutes</span>' +
+      '<h1>' + (cur < 3 ? 'Today’s five minutes' : 'Done for today — shabash') + '</h1>' +
+      '<ol class="aajsteps">' + steps.map(function (x, i) {
+        var ok = did[x[0]];
+        return '<li class="' + (ok ? 'ok' : i === cur ? 'now' : '') + '"><span class="as-ic">' + (ok ? '✓' : icon(x[1], 18)) + '</span>' +
+          '<span><b>' + x[2] + '</b><span class="tiny muted">' + esc(x[3]) + '</span></span></li>';
+      }).join('') + '</ol></div>';
+
+    if (cur === 0) return head + '<div class="card aajgo"><p>' + esc(st ? st.hook || '' : '') + '</p>' +
+      '<button class="btn lg" data-act="aajstep" data-s="0">' + icon('play', 18) + ' Start the story</button></div>';
+    if (cur === 1) return head + '<div class="card aajgo"><p>Four new things, each shown and heard before you are asked.</p>' +
+      (A.lesson || A.review
+        ? '<button class="btn lg" data-act="aajstep" data-s="1">' + icon('play', 18) + ' Start the lesson</button>'
+        : '<button class="btn lg" data-act="aajskip" data-s="lesson">Nothing new today — on to the look back</button>') + '</div>';
+    if (cur === 2) {
+      var L = aajLook(A), q = L.ids[L.i] ? aajAsk(L.ids[L.i]) : null;
+      if (!q) { A.did.look = true; A.end = Date.now(); markToday(); save(); return V.aaj(); }
+      var picked = L.picked, right = picked === q.ask.answer;
+      return head + '<div class="card aajq"><span class="mono">Look back · ' + (L.i + 1) + ' of ' + L.ids.length +
+          ' · from “' + esc(q.st.title) + '”</span>' +
+        '<h2>' + esc(q.ask.q) + '</h2>' +
+        '<div class="aajopts">' + q.ask.options.map(function (o, i) {
+          var cls = picked == null ? '' : i === q.ask.answer ? ' right' : i === picked ? ' wrong' : ' off';
+          return '<button class="aajopt' + cls + '" data-act="aajpick" data-o="' + i + '"' + (picked == null ? '' : ' disabled') + '>' +
+            '<span class="ao-n">' + (i + 1) + '</span>' + esc(o) + '</button>';
+        }).join('') + '</div>' +
+        (picked == null ? '' :
+          '<div class="aajfb ' + (right ? 'good' : 'bad') + '"><p>' + esc(right ? q.ask.right : q.ask.wrong) + '</p>' +
+          '<button class="btn" data-act="aajnext">Continue →</button></div>') + '</div>';
+    }
+    /* THE FINISH: what was done, by name */
+    var mins = Math.max(1, Math.round(((A.end || Date.now()) - A.at) / 60000));
+    var Lk = A.look || { ids: [], right: 0 };
+    return head + '<div class="card aajdone">' +
+      '<div class="cel-burst" aria-hidden="true">' + new Array(13).join('<i></i>') + '</div>' +
+      '<ul class="aajsum">' +
+        (st ? '<li>' + icon('tree', 18) + '<span>You heard <b>' + esc(st.title) + '</b>.</span></li>' : '') +
+        (A.met && A.met.length ? '<li>' + icon('script', 18) + '<span>You met <span class="deva" lang="' + esc(A.pack) + '">' +
+          A.met.map(function (m) { return '<b>' + esc(m) + '</b>'; }).join(' · ') + '</span>.</span></li>' : '') +
+        (Lk.ids.length ? '<li>' + icon('star', 18) + '<span>You looked back at ' + Lk.ids.length + ' stor' +
+          (Lk.ids.length === 1 ? 'y' : 'ies') + ' and knew <b>' + Lk.right + '</b>.</span></li>' : '') +
+      '</ul><p class="tiny muted">About ' + mins + ' minute' + (mins === 1 ? '' : 's') +
+        '. That is today done — anything more is extra, and tomorrow there is another five.</p>' +
+      '<button class="btn lg" data-act="go" data-v="home">Back home</button></div>';
+  };
+  /* the strip on the story and the lesson while a session is on: where you are, and the way back */
+  function aajBar() {
+    var A = aajState();
+    if (!A || A.end || (view.name !== 'story' && view.name !== 'pack')) return '';
+    if (view.name === 'story' && view.arg !== A.story) return '';
+    if (view.name === 'pack' && view.arg !== A.pack) return '';
+    var st = A.story && storyById(A.story), sdone = !!(st && S.read[st.id]);
+    var n = !sdone ? 1 : !A.did.lesson ? 2 : 3;
+    var ready = (view.name === 'story' && sdone) || (view.name === 'pack' && A.did.lesson);
+    return '<div class="aajbar"><span class="mono">Aaj ka · step ' + n + ' of 3</span>' +
+      '<button class="pill' + (ready ? ' on' : '') + '" data-act="go" data-v="aaj">' +
+      (ready ? 'Next step →' : 'Today’s five minutes') + '</button></div>';
+  }
+
+  /* THE MEDAL SHELF: earned ones in their metal, with the day; the rest say how to earn them */
+  V.medals = function () {
+    var got = S.medals || {}, n = MEDALS.filter(function (m) { return got[m.id]; }).length;
+    return '<div class="card medalshelf"><div class="spread"><h3 style="margin:0">Medals</h3>' +
+      '<span class="pill stat">' + n + ' of ' + MEDALS.length + '</span></div>' +
+      '<p class="tiny muted" style="margin:4px 0 12px">Each one is earned by something the app saw you do — ' +
+        'a story finished, a place lit, a test passed on a later day. None of them is for showing up.</p>' +
+      '<div class="mdgrid">' + MEDALS.map(function (m) {
+        return '<div class="mdcell' + (got[m.id] ? '' : ' locked') + '">' + medalHTML(m, 64, !!got[m.id]) +
+          '<b>' + esc(m.name) + '</b><span class="tiny muted">' +
+          (got[m.id] ? 'Earned ' + esc(got[m.id]) : 'How to earn it: ' + esc(m.how)) + '</span></div>';
+      }).join('') + '</div></div>';
+  };
   /* the yatra: what is true of this child, on their own page */
   V.yatra = function () {
     var lit = Object.keys(S.lit).length, totalStories = allStories().length || 1;
@@ -4126,11 +4444,20 @@
         var rec = ensureLang(quiz.packId);
         var sst = rec.stages[quiz.stage] || (rec.stages[quiz.stage] = { asked: 0, correct: 0 });
         if (!sst.testout) { sst.testout = true; save(); earn('mastery', 'tested out'); }
+        checkGrowth();
       }
       if (quiz.mode === 'lesson' && quiz.done > 0) {
         markToday();
         var lp = window.IND_PACKS[quiz.packId];
         lastDid('lesson', lp && lp.name ? lp.name.en : 'Bhasha');
+        sfx('win');
+        var AL = aajState();
+        if (AL && quiz.packId === AL.pack && ((quiz.lesson && quiz.lesson.id === AL.lesson) || (!AL.lesson && quiz.stage === AL.review))) {
+          AL.did.lesson = true;
+          AL.met = quiz.lesson ? quiz.lesson.items.map(previewOf) : [];
+          save();
+        }
+        checkGrowth();
       }
       return;
     }
@@ -4284,6 +4611,7 @@
      read why. Now it waits for Continue (tap, Enter or →), says the right answer aloud in
      the device's own voice, and the feedback strip stays on the screen until then. */
   function settle(ok, okMs) {
+    sfx(ok ? 'right' : 'wrong');
     if (ok || window.BI_FAST) return advance(okMs);
     quiz.hold = true;
     var q = quiz.q, right = q && (q.answerWord || (Array.isArray(q.answer) ? q.answer.join('') :
@@ -5554,9 +5882,54 @@
       '<div class="grid g3 gshelf">' + rest.map(cover).join('') + '</div>';
     return out;
   };
+  /* THE GAME FRAME (family standard §10; FIX-INDIA F3). Every game gets, from the host,
+     the same five things whatever its engine does: a TITLE CARD with a three-second how-to
+     (it folds to a title row and never covers the board), SOUND on every answer and at the
+     finish, MOTION on every answer, a FINISH screen that says what was practised, and
+     keyboard as well as touch (the engines' own, said on the card). The engines share two
+     conventions the host reads: a status line toned `good` or `warm`, and an end card with
+     a [data-go="out"] button. Street and dice games say plainly that they are for fun. */
+  var GAME_FRAME = {
+    rangoli:      ['Watch the pattern, then draw it back in colour before it blows away.',
+                   'Pattern memory and symmetry — remember half, complete the whole.'],
+    statehunt:    ['Read the clue — a capital, a fort, an animal, a mountain — and pick the state it points to.',
+                   'Where India’s states are, and what each is known for.'],
+    festival:     ['Match each festival to its month, its home state and the reason people keep it.',
+                   'Twelve festivals: when they fall, where, and why.'],
+    jataka:       ['Hear the fable, then pick the lesson hiding in it.',
+                   'Finding the lesson inside a Jataka tale.'],
+    saapsidi:     ['Roll, count your squares, and climb the ladders to 100.',
+                   'Counting on a hundred-square board. Played for fun, so it pays no coins.'],
+    ludo:         ['Roll, choose a token, and bring all four home before Gattu.',
+                   'Counting moves and choosing which token to move. Played for fun.'],
+    kancha:       ['Slide to aim, pull back, and flick — whatever leaves the ring is yours.',
+                   'Aim and judging distance. A street game, played for fun.'],
+    pallanguzhi:  ['Pick one of your pits; its shells are sown one by one around the board.',
+                   'Counting ahead — which pit will end where you want it to.'],
+    gutte:        ['Toss the mother stone, snatch the stones the rung asks for, and catch her.',
+                   'Timing and counting. A courtyard game, played for fun.'],
+    carrom:       ['Aim the striker, choose the strength, and pocket your pieces.',
+                   'Angles and aim. Played for fun.'],
+    gyanpati:     ['Fifteen questions, easy to hard. Pick an answer and lock it in.',
+                   'What you know about India — and the ones you met for the first time today.'],
+    triviamaster: ['Ten questions from the topics you switch on. Answers in a row stack up.',
+                   'Quick recall across maps, history, festivals, food and the epics.'],
+    shabd:        ['Hear or read the word, then pick what it means.',
+                   'Words in your family’s language, and what they mean.'],
+    sabhyata:     ['Build, grow and learn — each era asks for one thing.',
+                   'How India’s first cities grew, era by era.']
+  };
   V.game = function () {
+    var g = (window.IND_GAMES || []).filter(function (x) { return x.id === view.arg; })[0];
+    var f = GAME_FRAME[view.arg] || [g && g.blurb || '', ''];
     return '<button class="backlink" data-act="go" data-v="mela">' + icon('back', 18) + ' Mela</button>' +
-      '<div class="card"><div id="gamehost"></div></div>';
+      '<div class="card gframe" id="gframe">' +
+      (g ? '<button class="gf-title" id="gftitle" aria-expanded="true" data-act="gfhow">' +
+        '<span class="gf-ic">' + icon('game', 22) + '</span>' +
+        '<span class="gf-txt"><b>' + esc(g.name) + '</b><span class="gf-how">' + esc(f[0]) + '</span>' +
+        '<span class="gf-keys tiny muted">Tap to play — or use the keyboard: Tab, the arrows and Enter.</span></span>' +
+        '<i class="gf-bar" aria-hidden="true"></i></button>' : '') +
+      '<div id="gamehost"></div></div>';
   };
 
   /* -------------------------------------------------------------------- ME */
@@ -5975,7 +6348,9 @@
         /* the child's own companion, for the pin they are standing at — the one piece
            of the atlas that is theirs rather than the course's */
         face: function (n) { return art(S.buddy || 'pt_tortoise', n); },
-        owns: function (cid) { return (S.own.packs || []).indexOf('paath.' + cid) >= 0; }
+        owns: function (cid) { return (S.own.packs || []).indexOf('paath.' + cid) >= 0; },
+        /* a course objective just counted (the day rule passed): mastery and rank may move */
+        learned: function () { checkGrowth(); }
       });
       /* The workshop keeps what a child made, so it gets the same store and the same
          save — one profile, one write path. It never touches the mastery record: that
@@ -6146,7 +6521,7 @@
       '<span class="pill stat">' + Object.keys(S.read).length + ' stories</span></div></div></div></div>' +
       /* the yatra and the mala live here, on the child's own page, since Home was cut to
          the family anatomy — the avatar in the top bar is the way in (standard §4) */
-      V.yatra() + V.malaStrip() +
+      V.medals() + V.yatra() + V.malaStrip() +
       /* Worlds comes BEFORE the companions and shows the worlds themselves. It
          used to be a one-line tile below a wall of 116 avatars, which is where
          a setting goes to be never found. Picking one is a two-tap job now. */
@@ -6266,13 +6641,27 @@
       '<div class="phead"><h1>Grown-ups</h1>' +
         '<button class="pill" data-act="grownlock">' + icon('lock', 16) + ' Lock</button></div>' +
       reportCard() +
+      /* CHILDREN IN THIS HOUSEHOLD (family standard §5): each keeps their own stories,
+         map, coins, languages and courses; switching never mixes them */
+      '<div class="card kidscard"><h3 style="margin-top:0">Children in this household</h3>' +
+        '<p class="tiny muted" style="margin-top:0">Each child keeps their own stories, map, coins, languages and ' +
+          'courses. Switching is also in the top bar, under the child’s picture.</p>' +
+        '<div class="kidlist">' + Store.kids().map(function (k) {
+          return '<div class="kidrow">' + art(k.buddy, 40) + '<b>' + esc(k.name || 'Not set up yet') + '</b>' +
+            (k.active ? '<span class="pill stat">playing now</span>'
+                      : '<button class="pill" data-act="switchkid" data-id="' + esc(k.id) + '">Switch to ' + esc(k.name || 'them') + '</button>') +
+            '</div>';
+        }).join('') + '</div>' +
+        '<div class="row" style="margin-top:12px"><button class="pill" data-act="addkid">+ Add a child</button></div>' +
+        '<p class="tiny muted" style="margin:10px 0 0">The whole family’s week, across every Bizzing app, is on the ' +
+          '<a href="https://aayuvis.github.io/Bizzing_Schedule/">Bizzing Hive</a>.</p></div>' +
       '<div class="card"><h3 style="margin-top:0">Keep a copy</h3>' +
         '<p class="tiny muted" style="margin-top:0">Everything stays on this device. A backup is a file you keep; ' +
           'restoring it puts this device back exactly as it was then.</p>' +
         '<div class="row">' +
           '<button class="pill" data-act="backup">' + icon('print', 16) + ' Save a backup</button>' +
           '<label class="pill">Restore from a backup<input type="file" id="restorefile" accept="application/json,.json" hidden></label>' +
-          '<button class="pill" data-act="reset">Erase and start again</button>' +
+          '<button class="pill" data-act="reset">Remove ' + esc(S.name || 'this child') + ' from this device</button>' +
         '</div></div>' +
       settings_html();
   };
@@ -6292,7 +6681,7 @@
             icon('sound', 18) + ' ' + (S.voice === 'm' ? 'Man’s voice' : 'Woman’s voice') + '</button>'
           : '';
       })() +
-      '<button class="pill" data-act="reset">Start again</button></div>' +
+      '</div>' +
       '<h4 class="setlbl">Reading speed</h4>' +
       '<div class="row seg" role="group" aria-label="Reading speed">' +
       [[0.7, 'Slower'], [0.85, 'Slow'], [1, 'Normal']].map(function (r) {
@@ -6475,62 +6864,47 @@
         ? '<div class="demobar" role="note"><b>Sample child.</b> A demo with a few weeks of made-up ' +
           'progress — nothing here is saved, and nothing is shared. <a href="' + esc(location.pathname) +
           '">Leave the sample</a></div>' : '') +
+      /* THE FAMILY TOP BAR (family standard §3; FIX-INDIA O4) — the same in every Bizzing
+         app, 56px, in this order: ⬡ back to the Hive · the app's name · … · theme ·
+         🔒 grown-ups · the child, with ▾ to switch. What is India's own — coins, the
+         family's language, read-in-Hindi — sits in the gap; on a phone it folds into the
+         child's menu, along with the one mute (§9), so the bar stays one row. */
       '<header class="topbar"><div class="barrow">' +
-      /* the mark is the peacock, not a mascot — Gattu still narrates, he just
-         doesn't have to BE the logo (and the user said as much) */
-      /* the whole lockup — peacock and wordmark — is the way home */
+      '<a class="hivebtn" href="https://aayuvis.github.io/Bizzing_Schedule/" aria-label="Back to the Bizzing Hive" title="The Bizzing Hive">' +
+        '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" ' +
+        'fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></a>' +
       '<button class="brand" data-act="go" data-v="home" aria-label="Bizzing India — home">' +
       (window.IND_ART_IMG && window.IND_ART_IMG.indexOf('logo') >= 0
-        ? '<img src="art/logo.png" alt="" width="68" height="68">'
+        ? '<img src="art/logo.png" alt="" width="40" height="40">'
         : '') + 'Bizzing <em>India</em></button>' +
-      /* THE WORLD'S FRIEZE. Not a badge and not a button: a wide, shallow band of this
-         world's own imagery filling the space between the wordmark and the controls,
-         fading out at both ends so it belongs to the bar rather than sitting on it.
-         It was a small square icon first, which was wrong twice -- one more clickable
-         thing competing with seven real controls, and one object on a plate is a
-         sticker, not design. Purely decorative: aria-hidden, pointer-events:none. */
+      /* the world's frieze: decorative, between the name and the controls */
       (window.IND_WORLDS && window.IND_WORLDS.frieze
         ? '<span class="worldfrieze" id="worldfrieze">' + window.IND_WORLDS.frieze(S.world) + '</span>'
         : '') +
-      /* One group, so when the bar is too narrow the WHOLE set of controls drops
-         to the next line together. Loose in the row, the wordmark would push
-         them over the edge one at a time and strand sound on a line by itself. */
       '<span class="barctl">' +
       /* ?from=hive: one chip back to the family's day (family standard §4) */
-      (fromHive ? '<a class="pill hivechip" href="https://aayuvis.github.io/Bizzing_Schedule/">\u2190 my day</a>' : '') +
-      '<span class="pill stat" title="Bizzing coins — earned for learning, the same wallet in every Bizzing app">🪙 <span id="kauriCount">' + coins() + '</span></span>' +
-      /* the family-language chip: shows the tongue in its own script, opens the picker */
+      (fromHive ? '<a class="pill hivechip" href="https://aayuvis.github.io/Bizzing_Schedule/">← my day</a>' : '') +
+      '<span class="pill stat barown" title="Bizzing coins — earned for learning, the same wallet in every Bizzing app">🪙 <span id="kauriCount">' + coins() + '</span></span>' +
       (window.IND_TONGUE
-        ? '<button class="pill stat" data-act="go" data-v="tongue" aria-label="Your family’s language">' +
+        ? '<button class="pill stat barown" data-act="go" data-v="tongue" aria-label="Your family’s language">' +
           (tongue() ? '<span lang="' + tongue().lang + '">' + esc(tongue().native) + '</span>' : icon('script', 16)) +
           '</button>'
         : '') +
-      /* READ IN HINDI. It sits beside the family-language chip because it is the
-         same kind of decision — what language this child is reading in — and it
-         is one tap from anywhere rather than buried per story.
-
-         Deliberately global with per-story content: a story that has no Hindi
-         simply reads as it always did, so the switch can ship now and the
-         translations can arrive one story at a time without ever showing a
-         child a half-translated page. */
-      '<button class="pill hitoggle' + (S.hindi ? ' on' : '') + '" data-act="hindi"' +
+      /* READ IN HINDI: global, with per-story content — a story with no Hindi reads as it did */
+      '<button class="pill hitoggle barown' + (S.hindi ? ' on' : '') + '" data-act="hindi"' +
       ' aria-pressed="' + (S.hindi ? 'true' : 'false') + '"' +
       ' aria-label="Read stories in Hindi as well as English">' +
       '<span class="deva" aria-hidden="true">अ</span><span class="hilbl">Hindi</span></button>' +
-      '<button class="iconbtn' + (soundOn ? '' : ' off') + '" data-act="sound"' +
-      ' aria-pressed="' + (soundOn ? 'true' : 'false') + '" aria-label="Sound">' +
-      icon('sound', 20) + '</button>' +
-      /* Light/night sits right beside sound: the two things a child changes for
-         themselves, in reach without opening settings. The icon shows where the
-         tap GOES, not where you are — a moon means "make it night". */
+      /* theme: the icon shows where the tap GOES — a moon means "make it night" */
       '<button class="iconbtn" data-act="night" aria-pressed="' + (night ? 'true' : 'false') + '"' +
       ' aria-label="' + (night ? 'Switch to day' : 'Switch to night') + '">' +
       icon(night ? 'sun' : 'moon', 20) + '</button>' +
-      /* This chip is the door to You — Worlds, sound, night mode all live behind
-         it. It briefly opened the deck instead, which stranded Worlds; the deck
-         has its own door on the big buddy on Home. */
-      '<button class="iconbtn" data-act="go" data-v="me" aria-label="You and your settings" style="overflow:hidden;padding:0">' +
-      art(S.buddy, 40) + '</button>' +
+      '<button class="iconbtn" data-act="go" data-v="grown" aria-label="Grown-ups (behind a PIN)" title="Grown-ups">' +
+      icon('lock', 19) + '</button>' +
+      /* the child — their page, the mute, and the switch to a brother or sister */
+      '<button class="kidbtn" data-act="kidmenu" aria-haspopup="true" aria-expanded="false" ' +
+      'aria-label="' + esc((S.name || 'You') + ' — switch child, sound, your page') + '">' +
+      '<span class="kidav">' + art(S.buddy, 36) + '</span><span class="kidcaret" aria-hidden="true">▾</span></button>' +
       '</span>' +
       '</div><nav class="nav">' + TABS.map(function (t) {
         var label = t[0] === 'stories' ? kinTerm('nani') + '-' + kinTerm('nana') : t[1];
@@ -6548,7 +6922,53 @@
   /* chrome() is built once and then left alone, so the two toggles that live in
      it have to be repainted by hand — otherwise you tap the moon, the whole app
      goes dark, and the moon is still sitting there asking to be tapped. */
+  /* THE CHILD'S MENU, under the avatar in the top bar: who is playing (and the switch to a
+     brother or sister — family standard §3, §5), their page, and the one mute (§9). On a
+     phone the bar's own extras — coins, the family's language, read-in-Hindi — fold in here
+     so the bar stays one row. Adding a child is a grown-up's job and goes through the PIN. */
+  function kidMenuHTML() {
+    var kids = Store.kids();
+    return '<div class="km-in" role="menu" aria-label="Who is playing">' +
+      '<div class="mono km-h">Who is playing</div>' +
+      kids.map(function (k) {
+        return '<button class="km-row' + (k.active ? ' on' : '') + '" role="menuitemradio" aria-checked="' + k.active +
+          '" data-act="switchkid" data-id="' + esc(k.id) + '">' + art(k.buddy, 34) +
+          '<span>' + esc(k.name || 'Not set up yet') + '</span>' + (k.active ? '<i>playing</i>' : '') + '</button>';
+      }).join('') +
+      '<hr>' +
+      '<button class="km-row" role="menuitem" data-act="go" data-v="me">' + icon('star', 18) + '<span>My page — medals, worlds, my mala</span></button>' +
+      '<button class="km-row" role="menuitemcheckbox" aria-checked="' + soundOn + '" data-act="sound">' + icon('sound', 18) +
+        '<span>Sound</span><i>' + (soundOn ? 'on' : 'off') + '</i></button>' +
+      '<div class="km-phone">' +
+        '<div class="km-row km-static">🪙 <span>' + coins() + ' Bizzing coins</span></div>' +
+        '<button class="km-row" role="menuitem" data-act="go" data-v="tongue">' + icon('script', 18) +
+          '<span>Family language</span><i>' + esc(tongue() ? tongue().en : 'choose') + '</i></button>' +
+        '<button class="km-row" role="menuitemcheckbox" aria-checked="' + !!S.hindi + '" data-act="hindi">' +
+          '<span class="deva km-ic" aria-hidden="true">अ</span>' +
+          '<span>Read in Hindi too</span><i>' + (S.hindi ? 'on' : 'off') + '</i></button>' +
+      '</div>' +
+      '<button class="km-row" role="menuitem" data-act="go" data-v="grown">' + icon('lock', 18) +
+        '<span>Grown-ups — add a child, the report card</span></button>' +
+      '</div>';
+  }
+  function openKidMenu() {
+    var m = document.createElement('div');
+    m.id = 'kidmenu'; m.innerHTML = kidMenuHTML();
+    m.addEventListener('click', function (e) { if (e.target === m) closeKidMenu(); });
+    document.body.appendChild(m);
+    var b = $('.kidbtn'); if (b) b.setAttribute('aria-expanded', 'true');
+    var f = m.querySelector('.km-row.on') || m.querySelector('.km-row'); if (f) f.focus();
+  }
+  function closeKidMenu() {
+    var m = $('#kidmenu'); if (m) m.remove();
+    var b = $('.kidbtn'); if (b) b.setAttribute('aria-expanded', 'false');
+  }
   function paintChrome() {
+    var km = $('#kidmenu'); if (km) km.innerHTML = kidMenuHTML();
+    /* the bar is built once: the child's face in it follows a change of companion */
+    var kv = $('.kidav'); if (kv && kv.getAttribute('data-b') !== S.buddy) { kv.innerHTML = art(S.buddy, 36); kv.setAttribute('data-b', S.buddy); }
+    /* ⬡ is hidden only inside a running drill (standard §3) */
+    document.body.classList.toggle('drilling', (view.name === 'pack' && !!quiz.q) || view.name === 'game');
     var s = document.querySelector('.topbar [data-act="sound"]');
     if (s) {
       s.classList.toggle('off', !soundOn);
@@ -6654,9 +7074,10 @@
       case 'paathk': h = V.paathk(view.arg); break;
       case 'me': h = V.me(); break;
       case 'grown': h = V.grown(); break;
+      case 'aaj': h = V.aaj(); break;
       default: h = V.home();
     }
-    m.innerHTML = h + deckModal();
+    m.innerHTML = aajBar() + h + deckModal();
     /* Stepping with the arrows walks across pack boundaries, and the pill row is
        a sideways scroller — without this the pill for the pack you are now in
        is off the right edge and the row looks stuck on "Gods & Teachers". */
@@ -6933,8 +7354,47 @@
   function mountGame(id) {
     var g = (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0], host = $('#gamehost');
     if (!g || !host) return;
+    var frame = $('#gframe'), title = $('#gftitle'), fr = GAME_FRAME[g.id] || ['', ''];
+    /* the how-to folds to a title row after three seconds (or the first tap on the board) */
+    var fold = function () { if (title) { title.classList.add('folded'); title.setAttribute('aria-expanded', 'false'); } };
+    var foldT = setTimeout(fold, 3000);
+    host.addEventListener('pointerdown', fold, { once: true });
+    /* sound and motion on every answer, and the finish says what was practised */
+    var pulse = function (ok) {
+      if (window.IND_SFX) window.IND_SFX.play(ok ? 'right' : 'wrong');
+      if (!frame) return;
+      frame.classList.remove('gf-yes', 'gf-no'); void frame.offsetWidth;
+      frame.classList.add(ok ? 'gf-yes' : 'gf-no');
+      setTimeout(function () { frame.classList.remove('gf-yes', 'gf-no'); }, 650);
+    };
+    var ended = function (out) {
+      if (window.IND_SFX) window.IND_SFX.play('win');
+      var row = out.parentNode;
+      if (fr[1] && row && row.parentNode && !row.parentNode.querySelector('.gf-practised'))
+        row.insertAdjacentHTML('beforebegin', '<p class="gf-practised"><b>What you practised:</b> ' + esc(fr[1]) + '</p>');
+    };
+    var TOK_OK = /(^|\s)(good|is-right)(\s|$)/, TOK_NO = /(^|\s)(warm|is-warm)(\s|$)/;
+    var obs = window.MutationObserver ? new MutationObserver(function (muts) {
+      muts.forEach(function (m) {
+        if (m.type === 'attributes') {
+          var c = typeof m.target.className === 'string' ? m.target.className : '', was = m.oldValue || '';
+          var fresh = c !== was || /feed/.test(c);
+          if (fresh && TOK_OK.test(c) && !(TOK_OK.test(was) && !/feed/.test(c))) pulse(true);
+          else if (fresh && TOK_NO.test(c) && !(TOK_NO.test(was) && !/feed/.test(c))) pulse(false);
+        } else {
+          for (var i = 0; i < m.addedNodes.length; i++) {
+            var n = m.addedNodes[i];
+            if (n.nodeType !== 1) continue;
+            var out = (n.matches && n.matches('[data-go="out"]')) ? n : (n.querySelector && n.querySelector('[data-go="out"]'));
+            if (out) ended(out);
+          }
+        }
+      });
+    }) : null;
+    if (obs) obs.observe(host, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+    var unframe = function () { clearTimeout(foldT); if (obs) obs.disconnect(); };
     try {
-      gameTeardown = g.engine(host, {}, function (res) {
+      var td = g.engine(host, {}, function (res) {
         res = res || {};
         /* ONLY A GAME THAT TEACHES PAYS, and it pays for finishing, not for winning
            (standard §1, §10). Ludo, Saap-Sidi, carrom and the street games are played for
@@ -6943,7 +7403,11 @@
         lastDid('game', g.name);
         setTimeout(function () { go('mela'); }, 900);
       });
-    } catch (e) { host.innerHTML = '<p class="muted">This stall could not open: ' + esc(e.message) + '</p>'; }
+      gameTeardown = function () {
+        unframe();
+        if (typeof td === 'function') td(); else if (td && td.destroy) td.destroy();
+      };
+    } catch (e) { unframe(); host.innerHTML = '<p class="muted">This stall could not open: ' + esc(e.message) + '</p>'; }
   }
 
   /* =============================================================== DISPATCH */
@@ -6969,9 +7433,54 @@
     /* the More sheet (phone nav) closes on any other action */
     var nms = $('#navmoresheet');
     if (nms && a !== 'navmore') nms.remove();
+    /* so does the child's menu — except for the toggles inside it, which repaint in place */
+    var kmn = $('#kidmenu');
+    if (kmn && a !== 'kidmenu' && a !== 'sound' && a !== 'hindi') closeKidMenu();
+    if (a === 'kidmenu') { if (kmn) closeKidMenu(); else openKidMenu(); return; }
 
     if (a === 'begin')  { view = { name: 'onboard' }; return render(); }
     if (a === 'cont')   return runStep();
+    if (a === 'aajgo')  { if (!aajState()) aajStart(); return go('aaj'); }
+    if (a === 'aajstep') {
+      var AJ = aajState(); if (!AJ) return go('aaj');
+      if (t.getAttribute('data-s') === '0' && AJ.story) {
+        S.resume = S.resume || {}; S.resume.story = { id: AJ.story, at: Date.now(), i: 0 }; save();
+        play = { story: null, i: 0, answered: false }; go('story', AJ.story);
+        var ajs = storyById(AJ.story); if (ajs) sayScene(ajs, 0);
+        return;
+      }
+      if (AJ.pack) {
+        S.resume = S.resume || {}; S.resume.pack = { id: AJ.pack, at: Date.now() }; save();
+        quiz = quizReset(AJ.pack);
+        var ajl = AJ.lesson ? bLesson(bPath(AJ.pack), AJ.lesson) : null;
+        if (ajl) startSession(ajl.stage.id, 'lesson', lessonRef(ajl));
+        else if (AJ.review) startSession(AJ.review, 'lesson');
+        return go('pack', AJ.pack);
+      }
+      return;
+    }
+    if (a === 'aajskip') { var AK = aajState(); if (AK) { AK.did.lesson = true; save(); } return render(); }
+    if (a === 'aajpick') {
+      var AP = aajState(); if (!AP || !AP.look || AP.look.picked != null) return;
+      var aq = aajAsk(AP.look.ids[AP.look.i]); if (!aq) return;
+      var ao = +t.getAttribute('data-o');
+      AP.look.picked = ao;
+      if (ao === aq.ask.answer) { AP.look.right++; earn('answer', 'remembered'); sfx('right'); } else sfx('wrong');
+      save(); render();
+      var nb = $('[data-act="aajnext"]'); if (nb) nb.focus({ preventScroll: true });
+      return;
+    }
+    if (a === 'aajnext') {
+      var AN = aajState(); if (!AN || !AN.look) return;
+      AN.look.i++; AN.look.picked = null;
+      if (AN.look.i >= AN.look.ids.length) {
+        AN.did.look = true; AN.end = Date.now(); markToday(); sfx('win');
+        lastDid('aaj', 'Aaj ka'); setTimeout(checkMedals, 900);
+      }
+      save(); return render();
+    }
+    if (a === 'celok')  { var cel = $('#celebrate'); if (cel) cel.remove(); setTimeout(showCelebration, 250); return; }
+    if (a === 'gfhow')  { t.classList.toggle('folded'); t.setAttribute('aria-expanded', t.classList.contains('folded') ? 'false' : 'true'); return; }
     if (a === 'guest')  {
       var gid = t.getAttribute('data-id'), gs = storyById(gid);
       if (!gs) { view = { name: 'onboard' }; return render(); }
@@ -7239,6 +7748,9 @@
           var c = (st.place || [])[0]; if (c) lightState(c.replace('IN-', ''));
           earn('stop', 'story finished'); markToday();
           lastDid('story', st.title, c ? stateName(c.replace('IN-', '')) : '');
+          milestone('stop', st.title);
+          sfx('win');
+          setTimeout(checkMedals, 900);
         }
         save();
       } else if (st) { sayScene(st, play.i); save(); }
@@ -7247,6 +7759,7 @@
     if (a === 'answer') {
       var ask = play.story.scenes[play.i].ask, i = +t.getAttribute('data-i');
       play.answered = (i === ask.answer) ? ask.right : ask.wrong;
+      sfx(i === ask.answer ? 'right' : 'wrong');
       if (i === ask.answer) earn('answer', 'good thinking');
       return render();
     }
@@ -7283,6 +7796,13 @@
     if (a === 'obnext') {
       obKeep();
       if (obSteps()[ob.step] === 'name' && !ob.name) { toast('Type a name first'); return; }
+      /* two children of one name would share one purse: the family wallet and the Hive's
+         feed are kept by first name, in every Bizzing app */
+      if (obSteps()[ob.step] === 'name' && Store.kids().some(function (k) {
+            return !k.active && k.name && k.name.trim().toLowerCase() === String(ob.name).trim().toLowerCase(); })) {
+        toast('Another child here is already called ' + ob.name + ' — add an initial, like “' + ob.name + ' R”');
+        return;
+      }
       ob.step++; return render();
     }
     if (a === 'obback') { obKeep(); if (ob.step) ob.step--; return render(); }
@@ -7379,7 +7899,7 @@
     if (a === 'grownlock') { grownOpen = false; return go('me'); }
     if (a === 'backup') {
       try {
-        var blob = new Blob([JSON.stringify(Store.loadProfile() || {}, null, 1)], { type: 'application/json' });
+        var blob = new Blob([JSON.stringify(Store.backup(), null, 1)], { type: 'application/json' });
         var url = URL.createObjectURL(blob), lnk = document.createElement('a');
         lnk.href = url; lnk.download = 'bizzing-india-backup-' + today() + '.json';
         document.body.appendChild(lnk); lnk.click(); lnk.remove();
@@ -7417,7 +7937,25 @@
          them the first time each pack is opened (Phase 2, docs/09 §3) */
       if (ob.place.home) S.placement = { home: ob.place.home, back: ob.place.back,
                                          lang: S.tongue || null };
-      S.started = today(); save(); return go('home');
+      S.started = today(); save();
+      var hh = Store.house(); if (hh.adding) { hh.adding = null; Store.saveHouse(hh); }
+      startActivity();
+      return go('home');
+    }
+    if (a === 'addcancel') { Store.removeKid(); location.reload(); return; }
+    /* SWITCHING CHILD reloads the page: nothing in memory — a story half told, a quiz, a
+       course's record, a Sabhyata city — can carry one child's state into another's */
+    if (a === 'switchkid') {
+      var kid = t.getAttribute('data-id');
+      if (kid && kid !== Store.house().active && Store.switchKid(kid)) {
+        try { sessionStorage.removeItem('bi_resume'); } catch (e) {}
+        location.hash = '#/home'; location.reload();
+      }
+      return;
+    }
+    if (a === 'addkid') {
+      if (!grownOpen) return go('grown');
+      Store.addKid(); location.hash = ''; location.reload(); return;
     }
     if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); toast('Sound ' + (soundOn ? 'on' : 'off')); paintChrome(); return render(); }
     if (a === 'night')  { night = !night; Store.saveDevice('night', night); toast(night ? 'Night' : 'Day'); paintChrome(); return render(); }
@@ -7437,8 +7975,9 @@
     }
     if (a === 'reset')  {
       if (view.name !== 'grown' || !grownOpen) return;     /* only from behind the PIN */
-      if (confirm('Erase everything on this device and start again? Save a backup first if you might want it.')) {
-        Store.erase(); location.reload();
+      if (confirm('Remove ' + (S.name || 'this child') + ' and everything they have done from this device? ' +
+                  'Save a backup first if you might want it.')) {
+        Store.erase(); location.hash = ''; location.reload();
       }
       return;
     }
@@ -7727,6 +8266,8 @@
         if (ok) { e.preventDefault(); quiz.typed = (quiz.typed || '') + e.key; return render(); }
       }
     }
+    if (e.key === 'Escape' && $('#celebrate')) { $('#celebrate').remove(); setTimeout(showCelebration, 250); return; }
+    if (e.key === 'Escape' && $('#kidmenu')) { closeKidMenu(); var kb = $('.kidbtn'); if (kb) kb.focus(); return; }
     if (e.key === 'Escape' && S.started && view.name !== 'home') go('home');
     if (e.key === 'ArrowRight' && view.name === 'story') { var n = document.querySelector('[data-act="next"]'); if (n) n.click(); }
     /* Map states are SVG <g>, which a browser will focus but will not activate on Enter the
@@ -7740,6 +8281,17 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     healWorld();
+    startActivity();
+    /* growth is measured from here: what a child had already mastered before this build is
+       not news, and announcing it as new would be the first lie the feed told */
+    if (S.started && !S.grown) { S.grown = { m: mastered(), l: level() }; save(); }
+    /* the sample child's shelf is already earned: nothing to celebrate on a demo's first screen */
+    if (window.IND_DEMO && !S.medals) {
+      var de = evidence(); S.medals = {};
+      MEDALS.forEach(function (m) { if (m.ok(de)) S.medals[m.id] = S.started; }); save();
+    }
+    /* a child just added by a grown-up goes straight to their own setup, not the landing */
+    if (!S.started && Store.house().adding === Store.house().active) view = { name: 'onboard' };
     /* back to the screen that was asked for when the update was taken */
     var resumed = false;
     try {
@@ -7773,9 +8325,10 @@
       rd.onload = function () {
         var o = null;
         try { o = JSON.parse(rd.result); } catch (err) { o = null; }
-        if (!o || typeof o !== 'object' || !('started' in o)) { toast('That file is not a Bizzing India backup'); return; }
+        if (!o || typeof o !== 'object' || !(o.kind === 'bizzing-india-household' || 'started' in o)) {
+          toast('That file is not a Bizzing India backup'); return; }
         if (!confirm('Replace everything on this device with this backup?')) return;
-        Store.saveProfile(o); location.reload();
+        if (Store.restore(o)) location.reload(); else toast('That backup could not be read');
       };
       rd.readAsText(f);
     });
@@ -7835,6 +8388,8 @@
     window.BI = { S: S, go: go, render: render, Store: Store,
                   /* test handles for tools/check-rewards.js: the real functions, not copies */
                   earn: earn, mastered: mastered, level: level, coins: coins, goodDays: goodDays,
+                  /* tools/check-motivation.js: the frame every game gets, and the medals' rules */
+                  gameFrame: GAME_FRAME, medals: MEDALS, evidence: evidence,
                   allStories: allStories, epics: epics,
                   storyThemes: function () { return STORY_THEMES.map(function (t) { return t.id; }); },
                   /* read-only view of the live quiz for tools/verify.js's

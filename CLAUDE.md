@@ -69,6 +69,15 @@ The short version:
   three · ≤ 6 ways in. `nextStep()` decides the next thing for Continue *and* `#/continue`;
   never add a second "next". `?demo` runs in `demo.js`'s in-memory sandbox and never touches
   the real household. `tools/check-home.js` holds all of it.
+- **A household, not a device** (docs/25): `Store.kidKey()` decides whose key a thing is — the
+  first child keeps the old keys, later ones get `.<id>`. Switching child reloads the page.
+  Only the seam files touch `localStorage`; engines use `window.IND_STORE`. The top bar is the
+  family's: ⬡ · name · … · theme · 🔒 · avatar ▾, 56px, one row. `bizzing.activity` gets
+  active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
+- **Medals, sound and the game frame** (docs/26): medals only from what the app saw, each
+  celebrated once; the host gives every game a how-to, sound, motion and "what you practised";
+  `sfx.js` makes its sounds (no audio files) under the one mute; every lock says how to open.
+  `tools/check-motivation.js` holds it.
 - **Nothing that changes the child sits on the child's page.** Starting again, backups and
   the report card are behind the grown-ups' PIN, which the screen calls a deterrent. The
   developer unlock exists only in tester mode (`?tester=1`), never in front of a child.

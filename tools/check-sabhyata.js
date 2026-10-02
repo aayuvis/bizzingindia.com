@@ -823,11 +823,15 @@ check('first-wake', 'the first city wakes without a road, and is never lost befo
     G.routes = []; G.res.katha = 25; G.explorers = [];
     const q = G.sites.dholavira; q.zzz = true; q.fade = -1;
     const adv = D.advise().why;
+    D.paint();
+    const next = (document.getElementById('sab-guide') || {}).textContent || '';
     D.act('dholavira', 'wake');
-    return { woke: !q.zzz, adv };
+    return { woke: !q.zzz, adv, next };
   });
   if (!trap.woke) throw new Error('the first city, asleep and alone, could not be woken — the game is over and says nothing');
   if (/road would let you wake/.test(trap.adv)) throw new Error(`the advisor sent the child for an impossible road: "${trap.adv}"`);
+  if (/explorer|road toward/.test(trap.next)) throw new Error(`the guide line asks for the impossible: "${trap.next}"`);
+  if (!/wake/i.test(trap.next)) throw new Error(`the guide line does not point at the wake: "${trap.next}"`);
 
   /* 3. with somewhere else awake it is the ordinary price — but still no road */
   const priced = await p.evaluate(() => {

@@ -24,11 +24,17 @@
  *    already keeps stats and rarity off those cards (avatar-cards.js), applied to the
  *    economy, and it is why the locked list below is the SECULAR packs only.
  *
- * 3. A DRAW NEVER GIVES A DUPLICATE. Every draw pulls from the cards you do NOT have in
- *    that pack, so every draw is a new character and nothing is ever wasted. Rarity
- *    weights the ORDER you meet them in, never whether the coins bought you anything.
- *    (For the real-people packs the weights are flat on purpose — ranking Kalpana Chawla
- *    as rarer than someone else is the same mistake as scoring her.)
+ * 3. NOTHING IS RANDOM (family standard §1). There used to be a pitara: a paid draw
+ *    weighted by rarity. It never gave a duplicate and it published its rates, and it
+ *    was still a chance bought with coins. Now a child CHOOSES who to meet next, at a
+ *    printed price. A rare card is not bought at all: its card says the learning that
+ *    opens it ("master 5 things"), and doing that opens it. (The real-people packs have
+ *    no rarity on purpose — ranking Kalpana Chawla above someone else is the same
+ *    mistake as scoring her.)
+ *
+ * 4. ONE WALLET FOR THE FAMILY. Coins live in bizzing-wallet.js — the same wallet Bee,
+ *    Maths, Geography and Finance use — and are earned only at the standard amounts
+ *    for learning. India's old sikke moved across 1:1, once (Store v1_to_v2).
  *
  * ==============================================================================
  * Storage lives on the profile through the Store seam, same as everything else, so it
@@ -77,12 +83,13 @@
       note: 'The animals and the courts of the story-books.' }
   ];
 
-  var DRAW_PRICE = 40;                              /* one card from the pitara */
+  var CARD_PRICE = 40;                              /* one card you choose, at a printed price */
 
-  /* Rarity weights. Higher = met sooner, more often. The people packs are deliberately
-     flat: 'common' for everyone, because a drop rate on a real person that says one of
-     them is rarer than another is a ranking, and this app does not rank people. */
-  var WEIGHT = { common: 60, uncommon: 30, rare: 9, legendary: 1 };
+  /* A RARE CARD IS EARNED BY LEARNING, never bought (family standard §1): its card names
+     the milestone. "Mastered" counts the evidence the rank counts — course objectives
+     learned under the day rule and Bhasha rungs mastered. The people packs carry no
+     rarity at all, because a rarer real person is a ranking. */
+  var RARE_NEEDS = { rare: 5, legendary: 15 };
   var FLAT_PACKS = ['great', 'khel', 'naya', 'vigyan'];
 
   function packOf(id) {
@@ -91,28 +98,17 @@
     return null;
   }
 
-  /* The published drop rate for one avatar, as a percentage of its pack's pitara. A
-     child (or a parent) can see this before spending anything — an undisclosed rate is
-     the part of a gacha that is actually indefensible. */
-  function dropRate(packId, avatarId) {
-    var P = window.IND_AVATAR_PACKS || [];
-    var pack = null, i;
-    for (i = 0; i < P.length; i++) if (P[i].id === packId) pack = P[i];
-    if (!pack) return 0;
-    var total = 0, mine = 0;
-    for (i = 0; i < pack.ids.length; i++) {
-      var w = weightOf(packId, pack.ids[i]);
-      total += w;
-      if (pack.ids[i] === avatarId) mine = w;
-    }
-    return total ? Math.round(mine / total * 1000) / 10 : 0;
+  /* how a card opens: a printed price, or (for a rare one) a named piece of learning */
+  function cardRule(packId, avatarId) {
+    var r = FLAT_PACKS.indexOf(packId) >= 0 ? 'common' : ((window.IND_AVATAR_RARITY || {})[avatarId] || 'common');
+    if (RARE_NEEDS[r]) return { kind: 'learn', need: RARE_NEEDS[r], rarity: r,
+      say: 'Opens when you have mastered ' + RARE_NEEDS[r] + ' things' };
+    return { kind: 'price', price: CARD_PRICE, rarity: r };
   }
 
-  function weightOf(packId, avatarId) {
-    if (FLAT_PACKS.indexOf(packId) >= 0) return WEIGHT.common;
-    var r = (window.IND_AVATAR_RARITY || {})[avatarId] || 'common';
-    return WEIGHT[r] || WEIGHT.common;
-  }
+  /* the family wallet, by the child's first name; tester mode never charges */
+  function wallet() { return window.IND_WALLET || null; }
+  function coins(S) { var Wl = wallet(); return Wl ? Wl.balance(S && S.name) : 0; }
 
   function shelfOf(packId) {
     var P = window.IND_AVATAR_PACKS || [];
@@ -134,8 +130,9 @@
     shelfOf: shelfOf,
     packSize: packSize,
     SACRED_OR_EPIC: SACRED_OR_EPIC,
-    DRAW_PRICE: DRAW_PRICE,
-    dropRate: dropRate,
+    CARD_PRICE: CARD_PRICE,
+    cardRule: cardRule,
+    coins: coins,
     packOf: packOf,
 
     /* Is this world open to this child? */
@@ -171,8 +168,8 @@
       return n;
     },
 
-    /* A single avatar can be held even when its pack is not bought — that is what the
-       pitara draws give you. Sacred and epic cards are held by everyone from the start. */
+    /* A single avatar can be held even when its pack is not bought — chosen one at a time,
+       or opened by learning. Sacred and epic cards are held by everyone from the start. */
     avatarOpen: function (S, avatarId) {
       if (S.dev) return true;
       var pack = packOf(avatarId);
@@ -192,26 +189,13 @@
       return pack.ids.filter(function (id) { return have.indexOf(id) < 0; });
     },
 
-    /* ONE DRAW. Weighted by rarity, but only ever across the cards you do not have, so
-       a draw can never come back empty-handed. Returns the avatar id, or null when the
-       pack is already complete (the caller must not charge for that). */
-    draw: function (S, packId) {
-      var pool = this.unheld(S, packId);
-      if (!pool.length) return null;
-      var total = 0, i, w = [];
-      for (i = 0; i < pool.length; i++) { w[i] = weightOf(packId, pool[i]); total += w[i]; }
-      var r = Math.random() * total;
-      for (i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) return pool[i]; }
-      return pool[pool.length - 1];
-    },
-
-    /* The wallet. One place that knows how to spend, so no view can go negative. */
-    canAfford: function (S, n) { return S.dev || (S.sikke || 0) >= n; },
-    spend: function (S, n) {
-      if (S.dev) return true;                        /* developer mode never charges */
-      if ((S.sikke || 0) < n) return false;
-      S.sikke -= n;
-      return true;
+    /* The wallet. One place that knows how to spend, so no view can go negative — and it
+       is the family's wallet, so a coin spent here is a coin gone in every Bizzing app. */
+    canAfford: function (S, n) { return !!S.dev || coins(S) >= n; },
+    spend: function (S, n, why) {
+      if (S.dev) return true;                        /* tester mode never charges */
+      var Wl = wallet();
+      return !!(Wl && Wl.spend('india', S.name, n, why || 'shop'));
     }
   };
 })();

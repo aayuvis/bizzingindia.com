@@ -607,17 +607,15 @@
 
   /* ==================================================================
      GAME 1 · KAUN BANEGA GYANPATI?
-     Fifteen rungs, easy to hard, kauris doubling all the way up. Safe
-     havens after Q5 and Q10. Walking away with the pot is a win — the
-     copy says so warmly, because knowing when to stop is also gyan.
+     Fifteen rungs, easy to hard, and the score is how many you KNEW.
+     It used to be a press-your-luck pot: kauris doubling every rung, a
+     walk-away offer after each one, and a wrong answer that dropped you
+     to the last safe haven. That taught betting, not facts (family
+     standard §1, §10: no doubling, no betting; score the learning).
+     Now every rung is climbed: a right answer lights it, a wrong one is
+     taught and waits for Aage, and the end card says what you knew.
      ================================================================== */
 
-  var LADDER = (function () {
-    var l = [], v = 10, i;
-    for (i = 0; i < 15; i++) { l.push(v); v *= 2; }
-    return l;   /* 10 · 20 · 40 … 163840 */
-  })();
-  var HAVENS = [4, 9];   /* 0-based: after Q5 and Q10 the pot is safe */
 
   function gyanpati(host, opts, done) {
     var sc = scope();
@@ -638,7 +636,7 @@
     var total = Math.min(15, qs.length);
     qs = qs.slice(0, total);
 
-    var idx = 0, secured = 0, finished = false, railOpen = false;
+    var idx = 0, secured = 0, finished = false, railOpen = false, got = 0, marks = [];
     var phase = 'ask', selected = -1, deal = null, current = null;
     var lifelines = { fifty: false, nani: false, gattu: false };
     var lifeArmed = false;
@@ -655,19 +653,19 @@
         game: 'gyanpati', phase: phase, qIndex: idx, total: total,
         question: current ? current.q : '', options: deal ? deal.options : [],
         answerIndex: deal ? deal.answer : -1, selected: selected,
-        pot: idx > 0 || secured > 0 ? LADDER[secured - 1] || 0 : 0,
+        correct: got, marks: marks.slice(),
         secured: secured, lifelines: { fifty: lifelines.fifty, nani: lifelines.nani, gattu: lifelines.gattu },
-        ladder: LADDER.slice(0, total), result: result
+        result: result
       };
     }
 
     function railHTML() {
-      var h = '<div class="qz-rail' + (railOpen ? ' open' : '') + '" aria-label="Kauri ladder">', i;
+      var h = '<div class="qz-rail' + (railOpen ? ' open' : '') + '" aria-label="The ladder">', i;
       for (i = total - 1; i >= 0; i--) {
-        var cls = 'qz-rung' + (HAVENS.indexOf(i) >= 0 ? ' haven' : '') +
-                  (i < secured ? ' past' : '') + (i === idx && phase !== 'end' ? ' now' : '');
-        h += '<div class="' + cls + '"><span>' + (i + 1) + '</span><span>🐚 ' + inr(LADDER[i]) +
-             (HAVENS.indexOf(i) >= 0 ? ' ◆' : '') + '</span></div>';
+        var cls = 'qz-rung' + (marks[i] === 1 ? ' past' : '') + (i === idx && phase !== 'end' ? ' now' : '');
+        h += '<div class="' + cls + '"><span>' + (i + 1) + '</span><span>' +
+             (marks[i] === 1 ? '✓ knew it' : marks[i] === 0 ? 'learned it' : (i < 5 ? 'easy' : i < 10 ? 'middle' : 'hard')) +
+             '</span></div>';
       }
       return h + '</div>';
     }
@@ -687,7 +685,7 @@
           '<div class="qz-hud">' +
             '<div><span class="qz-kicker">Mela · the ladder quiz</span><b>Kaun Banega Gyanpati?</b></div>' +
             '<div style="display:flex;gap:8px;align-items:center">' +
-              '<span class="qz-pot">Pot 🐚 <b>' + inr(secured ? LADDER[secured - 1] : 0) + '</b></span>' +
+              '<span class="qz-pot">Knew <b>' + got + '</b> of ' + total + '</span>' +
               '<button type="button" class="qz-railbtn" data-go="rail" aria-expanded="' + railOpen + '">Ladder</button>' +
             '</div>' +
           '</div>' +
@@ -705,7 +703,7 @@
       deal = dealOptions(current);
       ASKED[current.key] = 1;
       frame(
-        '<p class="qz-sub">Sawaal ' + (idx + 1) + ' of ' + total + ' · for 🐚 ' + inr(LADDER[idx]) + '</p>' +
+        '<p class="qz-sub">Sawaal ' + (idx + 1) + ' of ' + total + ' · ' + (idx < 5 ? 'easy' : idx < 10 ? 'middle' : 'hard') + '</p>' +
         '<h3 class="qz-q">' + esc(current.q) + '</h3>' +
         optionsHTML(deal.options) +
         '<div class="qz-life" role="group" aria-label="Lifelines">' +
@@ -754,70 +752,43 @@
         else if (k === selected) els[k].classList.add('is-warm');
         else els[k].classList.add('is-off');
       }
-      if (right) {
-        secured = idx + 1;
-        var pot = host.querySelector('.qz-pot b');
-        if (pot) pot.textContent = inr(LADDER[secured - 1]);
-        say(one(CHEERS) + ' 🐚 ' + inr(LADDER[idx]) + ' in the pot.', 'good');
-        if (secured >= total) return crown();
-        offer();
-      } else {
-        drop();
+      marks[idx] = right ? 1 : 0;
+      if (right) got++;
+      secured = idx + 1;
+      var pot = host.querySelector('.qz-pot b');
+      if (pot) pot.textContent = String(got);
+      if (right) say(one(CHEERS), 'good');
+      else {
+        /* the teaching beat: the right fact, shown, and it waits for Aage */
+        var teachBox = D.createElement('div');
+        teachBox.className = 'qz-teach';
+        teachBox.innerHTML = esc(current.teach || 'It was ' + current.a + '.');
+        var stage0 = host.querySelector('.qz-stage');
+        if (stage0) stage0.appendChild(teachBox);
+        say('Not this one — and now it is yours to keep.', 'warm');
       }
+      if (secured >= total) return finish();
+      offer();
     }
 
-    /* 'Le lo kauri, ya aage?' — after each correct answer the child may walk
-       away with the pot. Walking away is a win, and the copy treats it so. */
+    /* after each rung, one way on — there is no pot to take and nothing to walk away with */
     function offer() {
       phase = 'offer';
       var row = host.querySelector('.qz-row');
-      if (row) {
-        row.innerHTML =
-          '<button type="button" class="qz-btn ghost" data-go="walk">Le lo kauri 🐚 ' + inr(LADDER[secured - 1]) + '</button>' +
-          '<button type="button" class="qz-btn" data-go="aage">Aage! Sawaal ' + (secured + 1) + '</button>';
-      }
+      if (row) row.innerHTML = '<button type="button" class="qz-btn" data-go="aage">Aage! Sawaal ' + (secured + 1) + '</button>';
       var hint = host.querySelector('.qz-hint');
-      if (hint) hint.textContent = 'Le lo kauri, ya aage? Tab moves · Enter presses · K takes the pot home.';
+      if (hint) hint.textContent = 'Enter or tap for the next sawaal.';
       hook();
       sc.later(function () { focusSoft(host.querySelector('[data-go="aage"]')); }, 60);
     }
 
-    /* A miss above a haven drops to the haven, kindly. No shaming — the
-       right answer is taught, the pot that was safe stays safe. */
-    function drop() {
+    function finish() {
       phase = 'end';
-      var haven = secured >= 10 ? 10 : secured >= 5 ? 5 : 0;
-      var kauris = haven ? haven : 1;
-      result = { win: false, score: secured, kauris: Math.min(15, kauris) };
-      var teachBox = D.createElement('div');
-      teachBox.className = 'qz-teach';
-      teachBox.innerHTML = esc(current.teach || 'It was ' + current.a + '.');
-      var stage = host.querySelector('.qz-stage');
-      if (stage) stage.appendChild(teachBox);
-      say(haven
-        ? 'Not this one — but your haven holds. 🐚 ' + inr(LADDER[haven - 1]) + ' stays yours, warm and safe.'
-        : 'Not this one — but every sawaal you met today is one you now know.', 'warm');
-      endCard('Kya khel tha!',
-        haven ? 'You climbed to rung ' + secured + ' and the rung-' + haven + ' haven caught you, just as it promised.'
-              : 'You climbed ' + secured + ' rung' + (secured === 1 ? '' : 's') + ' on your first visit. The ladder will be here tomorrow.');
-    }
-
-    function walk() {
-      if (phase !== 'offer') return;
-      phase = 'end';
-      result = { win: true, score: secured, kauris: Math.min(15, secured) };
+      result = { win: got >= Math.ceil(total * 2 / 3), score: got, correct: got, total: total };
       say('', '');
-      endCard('Wah — samajhdaar!',
-        'You took the pot and walked, smiling, with 🐚 ' + inr(LADDER[secured - 1]) + '. ' +
-        'Knowing when to say "bas, le lo kauri" is its own kind of gyan — that is a real win.');
-    }
-
-    function crown() {
-      phase = 'end';
-      result = { win: true, score: secured, kauris: 15 };
-      say(one(CHEERS), 'good');
-      endCard('GYANPATI!',
-        'All ' + total + ' rungs. The whole ladder, 🐚 ' + inr(LADDER[total - 1]) + ' in the pot, and a new Gyanpati at the Mela.');
+      endCard(got === total ? 'GYANPATI!' : 'Kya khel tha!',
+        'You knew ' + got + ' of ' + total + (got === total ? ' — the whole ladder.' :
+          '. The ' + (total - got) + ' you met today for the first time are yours now too.'));
     }
 
     function endCard(title, line) {
@@ -828,8 +799,8 @@
       doneBox.innerHTML =
         '<h3>' + esc(title) + '</h3><p>' + esc(line) + '</p>' +
         '<div class="qz-chips">' +
-          '<span class="qz-chip"><b>' + result.score + '</b> rung' + (result.score === 1 ? '' : 's') + '</span>' +
-          '<span class="qz-chip"><b>' + result.kauris + '</b> kauris</span>' +
+          '<span class="qz-chip"><b>' + result.correct + '</b> knew</span>' +
+          '<span class="qz-chip"><b>' + (result.total - result.correct) + '</b> learned</span>' +
         '</div>' +
         '<div class="qz-row">' +
           '<button type="button" class="qz-btn" data-go="out">Back to the Mela</button>' +
@@ -853,7 +824,7 @@
       qs = pickFresh(b2.easy, 5).concat(pickFresh(b2.mid, 5), pickFresh(b2.hard, 5));
       total = Math.min(15, qs.length);
       qs = qs.slice(0, total);
-      idx = 0; secured = 0; result = null;
+      idx = 0; secured = 0; got = 0; marks = []; result = null;
       if (total) ask();
     }
 
@@ -912,7 +883,6 @@
       var what = go.getAttribute('data-go');
       if (what === 'lock') lock();
       else if (what === 'aage') { if (phase === 'offer') { idx++; ask(); } }
-      else if (what === 'walk') walk();
       else if (what === 'rail') {
         railOpen = !railOpen;
         var rail = host.querySelector('.qz-rail');
@@ -950,9 +920,6 @@
              a select, which is harmless; an explicit Enter anywhere locks */
           e.preventDefault(); lock(); return;
         }
-      } else if (phase === 'offer') {
-        if (key === 'k' || key === 'K') { e.preventDefault(); walk(); return; }
-        /* Enter falls through to the focused button — Aage by default */
       }
     });
 
@@ -1124,7 +1091,7 @@
             '<p class="qz-sub">Sawaal ' + (idx + 1) + ' of ' + qs.length + ' · ' + esc(catLabel(current.cat)) + '</p>' +
             '<h3 class="qz-q">' + esc(current.q) + '</h3>' +
             optionsHTML(deal.options) +
-            (streak >= 2 ? '<p class="qz-streak">Streak ×' + streak + ' · points ×' + mult.toFixed(1) + '</p>' : '') +
+            (streak >= 2 ? '<p class="qz-streak">' + streak + ' in a row · points ×' + mult.toFixed(1) + '</p>' : '') +
             '<div class="qz-row" data-role="next"></div>' +
             '<p class="qz-hint">Tap an answer — or press 1–4 or A–D. Tab moves, Enter presses.</p>' +
           '</div>' +
@@ -1151,7 +1118,7 @@
         streak++; if (streak > best) best = streak;
         score++;
         pts += Math.round(10 * (1 + 0.1 * Math.min(8, streak - 1)));
-        say(one(CHEERS) + (streak >= 3 ? ' Streak ×' + streak + '!' : ''), 'good');
+        say(one(CHEERS) + (streak >= 3 ? ' ' + streak + ' in a row!' : ''), 'good');
       } else {
         streak = 0;
         /* the teaching beat: the right fact, warmly, in one line */
@@ -1162,7 +1129,8 @@
       if (row) row.innerHTML = '<button type="button" class="qz-btn" data-go="next">' +
         (last ? 'See how I did' : 'Next') + '</button>';
       hook();
-      if (sprint) sc.later(next, slow ? 500 : 900);
+      /* a wrong answer waits to be read, even in a sprint (family standard §6) */
+      if (sprint && right) sc.later(next, slow ? 500 : 900);
       else sc.later(function () { focusSoft(host.querySelector('[data-go="next"]')); }, 60);
     }
 
@@ -1176,7 +1144,7 @@
       if (phase === 'end') return;
       phase = 'end';
       if (timer) { W.clearInterval(timer); timer = 0; }
-      result = { win: score >= 7, score: score, kauris: 1 + Math.floor(score / 3) };
+      result = { win: score >= 7, score: score, correct: score, total: qs.length };
       host.innerHTML =
         '<div class="qz-wrap">' +
           '<div class="qz-hud"><div><span class="qz-kicker">Mela · mixed sawaal</span>' +
@@ -1184,12 +1152,12 @@
           '<div class="qz-stage"><div class="qz-done">' +
             '<h3>' + esc(one(CHEERS)) + '</h3>' +
             '<p>' + score + ' of ' + qs.length + ' right' +
-              (best >= 3 ? ', with a best streak of ' + best : '') +
+              (best >= 3 ? ', with ' + best + ' in a row at best' : '') +
               (sprint ? ', at sprint speed' : '') +
               '. Every question you met today is one you now know.</p>' +
             '<div class="qz-chips">' +
               '<span class="qz-chip"><b>' + pts + '</b> points</span>' +
-              '<span class="qz-chip"><b>' + result.kauris + '</b> kauris</span>' +
+              '<span class="qz-chip"><b>' + (qs.length - score) + '</b> learned</span>' +
             '</div>' +
             '<div class="qz-row">' +
               '<button type="button" class="qz-btn" data-go="out">Back to the Mela</button>' +
@@ -1296,11 +1264,11 @@
   W.IND_GAMES = W.IND_GAMES || [];
   W.IND_GAMES.push(
     { id: 'gyanpati', name: 'Kaun Banega Gyanpati?', icon: 'star', minutes: 6,
-      blurb: 'Fifteen rungs, kauris doubling all the way up. Three lifelines, two safe havens — and walking away with the pot is winning too.',
+      blurb: 'Fifteen rungs, easy to hard, three lifelines — and the score is how many you knew. A miss is taught, never lost.',
       tag: 'ladder quiz', c: '#3b1d6e', c2: '#8b5cf6', scene: SCENE_GYAN,
       engine: gyanpati },
     { id: 'triviamaster', name: 'Trivia Master', icon: 'game', minutes: 4,
-      blurb: 'Ten mixed questions from the categories you switch on — maps, history, festivals, food, epics. Streaks stack the points.',
+      blurb: 'Ten mixed questions from the categories you switch on — maps, history, festivals, food, epics. Answers in a row stack the points.',
       tag: 'mixed trivia', c: '#0f5e6e', c2: '#2dd4bf', scene: SCENE_TRIVIA,
       engine: triviamaster }
   );

@@ -10,7 +10,7 @@
 
   /* =================================================================== STORE */
   var Store = {
-    KEY: 'bi_v1', DEV: 'bi_device', schemaVersion: 1,
+    KEY: 'bi_v1', DEV: 'bi_device', schemaVersion: 2,
     loadProfile: function () {
       try { var raw = localStorage.getItem(this.KEY); return raw ? this.migrate(JSON.parse(raw)) : null; }
       catch (e) { return null; }
@@ -18,7 +18,28 @@
     saveProfile: function (b) { b.schemaVersion = this.schemaVersion; try { localStorage.setItem(this.KEY, JSON.stringify(b)); } catch (e) {} },
     loadDevice: function (k, d) { try { var o = JSON.parse(localStorage.getItem(this.DEV) || '{}'); return (k in o) ? o[k] : d; } catch (e) { return d; } },
     saveDevice: function (k, v) { try { var o = JSON.parse(localStorage.getItem(this.DEV) || '{}'); o[k] = v; localStorage.setItem(this.DEV, JSON.stringify(o)); } catch (e) {} },
-    migrate: function (b) { if (!b.schemaVersion) b.schemaVersion = 1; return b; },
+    /* VERSIONED, ONE STEP AT A TIME (family standard §5). A profile is walked up through
+       vN_to_vN+1 steps and never down: data newer than this code is left exactly as it
+       is rather than "migrated" into an older shape. Never edit an old step — add one. */
+    migrate: function (b) {
+      if (!b.schemaVersion) b.schemaVersion = 1;
+      if (b.schemaVersion > this.schemaVersion) return b;
+      while (b.schemaVersion < this.schemaVersion) {
+        var step = this.STEPS[b.schemaVersion];
+        if (!step) break;
+        step(b); b.schemaVersion++;
+      }
+      return b;
+    },
+    STEPS: {
+      /* v1_to_v2 — THE FAMILY WALLET. India's sikke (and the kauris before them) become
+         Bizzing coins, 1:1, once. The amount is held on the profile until the wallet takes
+         it at boot (it needs the child's name), and rank no longer reads coins at all. */
+      1: function v1_to_v2(b) {
+        b.coinsToMove = Math.max(0, Math.floor((b.sikke != null ? b.sikke : b.kauris) || 0));
+        b.sikke = 0; b.xp = 0;
+      }
+    },
     /* the grown-ups' Erase, through the seam like everything else */
     erase: function () { try { localStorage.removeItem(this.KEY); } catch (e) {} },
     onRemoteChange: function () {},
@@ -33,7 +54,8 @@
        that to the family in writing, and this is where the code has to keep it. */
     DB: 'bi_voices', STORE: 'clips',
     _db: function (fn) {
-      if (!window.indexedDB) return fn(null);
+      /* the demo is a sandbox: a voice recorded in it is not kept */
+      if (!window.indexedDB || window.IND_DEMO) return fn(null);
       var rq = indexedDB.open(this.DB, 1), self = this;
       rq.onupgradeneeded = function () { rq.result.createObjectStore(self.STORE, { keyPath: 'id' }); };
       rq.onsuccess = function () { fn(rq.result); };
@@ -69,8 +91,90 @@
   };
 
   /* =================================================================== STATE */
-  var S = Store.loadProfile() || {
-    schemaVersion: 1, name: '', age: 8, mode: 'bade',
+  /* ?DEMO — a sample child with a few weeks of believable progress (family standard §14).
+     demo.js has already put this page's storage in a sandbox, so everything below lands
+     in memory, never in the real household. Every number is made the way a child would
+     make it — real stories finished, the real language path walked, a real course test
+     passed on a later day than its teaching, coins paid through the wallet's own earn() on
+     the days they were earned — so the demo shows the app's rules working, not a mock-up. */
+  function seedDemo() {
+    var D = 864e5, now = Date.now();
+    var iso = function (d) { return new Date(now - d * D).toISOString().slice(0, 10); };
+    var num = function (d) { var t = new Date(now - d * D); return t.getFullYear() * 10000 + (t.getMonth() + 1) * 100 + t.getDate(); };
+    var days = [20, 18, 17, 15, 12, 10, 9, 6, 4, 2, 1];
+    var P = {
+      schemaVersion: 2, name: 'Meera', age: 8, mode: 'bade', tongue: 'ta',
+      buddy: 'pt_tortoise', world: 'delhi6', voice: 'f', hindi: false, rate: 1,
+      sikke: 0, xp: 0, own: { worlds: [], packs: [], avatars: [] },
+      lit: {}, read: {}, lang: {}, recited: {}, mala: [],
+      streak: { days: days.map(iso), last: iso(1), count: 0 },
+      goal: 3, todayCount: 0, todayOn: null, started: iso(21), resume: {}, last: null
+    };
+    /* eighteen stories finished, from different corners, each lighting its place */
+    var st = allStories().filter(function (x) { return (x.place || []).length; }), seen = {};
+    for (var i = 0, n = 0; i < st.length && n < 18; i += 7) {
+      var c = st[i].place[0].replace('IN-', '');
+      if (seen[c] && n > 8) continue;
+      seen[c] = 1; P.read[st[i].id] = true; P.lit[c] = true; n++;
+    }
+    var open = st.filter(function (x) { return !P.read[x.id]; })[3];
+    if (open) P.resume.story = { id: open.id, at: now - 2 * D, i: 2 };
+    /* the mala: things she did, on the days she did them */
+    var K = window.IND_NEETI;
+    if (K) [19, 17, 15, 12, 9, 6, 4, 2, 1].forEach(function (d, k) {
+      P.mala.push({ v: K.values[k % K.values.length].id, on: iso(d) });
+    });
+    if (window.IND_SHLOK) window.IND_SHLOK.verses.slice(0, 2).forEach(function (v, k) { P.recited[v.id] = iso(14 - k * 5); });
+    /* Tamil, the family's language: the first rung met and mastered, three lessons into the second */
+    var B = window.IND_BHASHA, pk = (window.IND_PACKS || {}).ta;
+    if (B && pk && pk.stages) {
+      var rec = P.lang.ta = { asked: 0, correct: 0, srs: {}, stages: {}, window: [], path: 'beginner', band: 2 };
+      var card = function (key, box, d) {
+        rec.srs[key] = { key: key, box: box, seen: box + 1, right: box, intro: now - d * D, last: now - d * D,
+                         due: now + (box > 2 ? 3 : 1) * D };
+      };
+      pk.stages.slice(0, 2).forEach(function (sg, si) {
+        var k = 0;
+        B.path('ta', sg.id).forEach(function (u) {
+          u.lessons.forEach(function (l) {
+            if (si === 1 && k >= 3) return;
+            l.keys.forEach(function (key) { card(key, si ? 1 : 3, si ? 2 + k : 16 - k); });
+            k++;
+          });
+        });
+        var right = si ? 9 : 14;
+        rec.stages[sg.id] = { asked: right + 3, correct: right };
+        rec.asked += right + 3; rec.correct += right;
+      });
+      P.resume.pack = { id: 'ta', at: now - 1 * D };
+      P.last = { k: 'lesson', t: 'Tamil', place: '', at: now - 1 * D };
+    }
+    /* a course: the first part taught, its test passed on a later day, its project made */
+    var CP = window.IND_PAATH && window.IND_PAATH.courses.filter(function (x) { return !x.premium; })[0];
+    if (CP) {
+      var m0 = CP.modules[0], m1 = CP.modules[1], seenL = {};
+      var lidOf = function (m, l) { return m.id + '.' + l.n.slice(0, 18); };
+      m0.lessons.forEach(function (l) { if (l.k !== 'c') seenL[lidOf(m0, l)] = num(14); });
+      if (m1) seenL[lidOf(m1, m1.lessons[0])] = num(3);
+      var mm = {}; mm[m0.id] = { on: num(12), tries: 1 };
+      var made = {}; made[m0.project.id] = num(11);
+      P.paath = { v: 1, c: {} };
+      P.paath.c[CP.id] = { at: num(14), seen: seenL, made: made, note: {}, m: mm };
+      P.resume.paath = { id: CP.id, at: now - 3 * D };
+    }
+    /* coins, through the wallet's own rules, on the days they were earned */
+    var Wl = window.IND_WALLET;
+    if (Wl) days.forEach(function (d, k) {
+      var t = now - d * D;
+      Wl.earn('india', P.name, 'stop', t);
+      for (var a = 0; a < 6; a++) Wl.earn('india', P.name, 'answer', t + a);
+      if (k % 3 === 0) Wl.earn('india', P.name, 'contest', t + 9);
+    });
+    Store.saveProfile(P);
+    return P;
+  }
+  var S = (window.IND_DEMO ? seedDemo() : null) || Store.loadProfile() || {
+    schemaVersion: 2, name: '', age: 8, mode: 'bade',
     tongue: null,                 /* mother-tongue id from data-tongue.js; null = lean nowhere */
     buddy: 'ganesha', world: 'delhi6',
     voice: 'f',                   /* which recorded voice to hear — see humanClip() */
@@ -88,6 +192,11 @@
   /* MIGRATION. The currency used to be called kauris and lived in S.kauris. Same coins,
      new name, so the balance carries over instead of a child waking up broke. */
   if (S.sikke == null) S.sikke = S.kauris || 0;
+  /* and the coins themselves, into the family wallet (Store v1_to_v2 measured them) */
+  if (S.coinsToMove > 0 && S.name && window.IND_WALLET) {
+    window.IND_WALLET.migrateFrom('india', S.name, S.coinsToMove);
+    S.coinsToMove = 0; Store.saveProfile(S);
+  }
   if (!S.own) S.own = { worlds: [], packs: [], avatars: [] };
   S.own.worlds = S.own.worlds || []; S.own.packs = S.own.packs || []; S.own.avatars = S.own.avatars || [];
 
@@ -99,7 +208,28 @@
 
   /* the Gurukul rank ladder — every theme in Bizzing Bee carries one of these */
   var RANKS = ['Shishya', 'Vidyarthi', 'Sadhak', 'Khoji', 'Pandit', 'Vidwan', 'Acharya', 'Rishi'];
-  function level() { var n = Math.floor(S.xp / 60); return Math.max(0, Math.min(RANKS.length - 1, n)); }
+  /* RANK MOVES ONLY ON LEARNING (family standard §6). It used to be XP, and XP was coins —
+     so a lucky Ludo game moved a child up the Gurukul. Now it counts evidence only: course
+     objectives learned under the day rule, and Bhasha rungs mastered. Time, dice, games and
+     coins cannot move it, because none of them is in the count. */
+  var RANK_AT = [0, 1, 3, 6, 10, 15, 21, 28];
+  function mastered() {
+    var n = 0;
+    try {
+      var U = paathUI();
+      if (U) U.report().forEach(function (r) { n += r.mastered || 0; });
+    } catch (e) {}
+    var P = window.IND_PACKS || {};
+    Object.keys(P).forEach(function (id) {
+      (P[id].stages || []).forEach(function (s) { try { if (stageMastered(id, s)) n++; } catch (e) {} });
+    });
+    return n;
+  }
+  function level() {
+    var m = mastered(), i;
+    for (i = RANK_AT.length - 1; i > 0; i--) if (m >= RANK_AT[i]) return i;
+    return 0;
+  }
   function rank() { return RANKS[level()]; }
 
   var WORLDS = [
@@ -270,23 +400,39 @@
     var t = document.createElement('div'); t.className = 'toast'; t.textContent = m;
     document.body.appendChild(t); setTimeout(function () { t.remove(); }, 2300);
   }
-  function earn(n, why) {
-    S.sikke += n; S.xp += n; save();
-    toast('🐚 +' + n + (why ? ' · ' + why : ''));
-    var el = $('#kauriCount'); if (el) el.textContent = S.sikke;
+  /* COINS ARE FOR LEARNING, AT THE FAMILY'S AMOUNTS (standard §1): a right answer 1, a
+     story or lesson finished 5, a contest finished 10, something mastered 20 — through the
+     one family wallet, which also holds the 100-a-day lid. There is no event for time,
+     taps, dice or luck, so none of them can pay. */
+  function earn(ev, why) {
+    var Wl = window.IND_WALLET;
+    var n = Wl ? Wl.earn('india', S.name, ev) : 0;
+    if (n) toast('🪙 +' + n + (why ? ' · ' + why : ''));
+    paintCoins();
+    return n;
+  }
+  function coins() { return window.IND_ECONOMY ? window.IND_ECONOMY.coins(S) : 0; }
+  function paintCoins() { var el = $('#kauriCount'); if (el) el.textContent = coins(); }
+  /* GOOD DAYS THIS WEEK, never a run of days (standard §8). A day off costs nothing. */
+  function goodDays() {
+    var cut = new Date(Date.now() - 6 * 864e5).toISOString().slice(0, 10), seen = {};
+    ((S.streak && S.streak.days) || []).forEach(function (d) { if (d >= cut) seen[d] = 1; });
+    return Object.keys(seen).length;
   }
   function markToday() {
     var d = today();
     if (S.todayOn !== d) { S.todayOn = d; S.todayCount = 0; }
     S.todayCount++;
     if (S.streak.last !== d) {
-      var y = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
-      S.streak.count = (S.streak.last === y) ? S.streak.count + 1 : 1;
+      /* the days themselves, for "good days this week" — no run is counted */
       S.streak.last = d; S.streak.days.push(d);
       if (S.streak.days.length > 30) S.streak.days = S.streak.days.slice(-30);
     }
     save();
   }
+  /* WHAT THE CHILD DID LAST, so the greeting can say something true about it (family
+     standard §2.2: a speech bubble specific to what the child did last) */
+  function lastDid(k, t, place) { S.last = { k: k, t: String(t || ''), place: place || '', at: Date.now() }; save(); }
   function lightState(c) { if (!c || S.lit[c]) return false; S.lit[c] = true; save(); return true; }
 
   /* ================================================================== AUDIO */
@@ -560,7 +706,8 @@
     var nPlaces = Object.keys((window.IND_MAP && window.IND_MAP.paths) || {}).length;
     var nPacks = Object.keys(window.IND_PACKS || {}).length;
     var nWorlds = ((window.IND_WORLDS && window.IND_WORLDS.list) || []).length;
-    var pick = (allStories() || [])[(new Date().getDate() * 7) % Math.max(1, nStories)] || null;
+    /* the same daily pick Home's Continue offers a new child (storyOfDay) */
+    var pick = storyOfDay();
 
     return '<div class="wrap">' +
       '<div class="hero">' +
@@ -585,7 +732,10 @@
           '<h2 style="font-size:30px">' + esc(pick ? pick.title : 'The Lion Who Met Himself') + '</h2>' +
           '<p class="tiny">' + esc(pick && pick.hook ? pick.hook :
             'A lion who ate whatever he liked. And one small rabbit who had had enough.') + '</p>' +
-          '<button class="btn block" data-act="begin">Read it →</button>' +
+          /* READ IT, NOW (FIX-INDIA A3): the story plays before any setup; the questions
+             come after it, from somebody who has just seen what the app is */
+          (pick ? '<button class="btn block" data-act="guest" data-id="' + esc(pick.id) + '">Read it →</button>'
+                : '<button class="btn block" data-act="begin">Read it →</button>') +
           '<div class="row" style="margin-top:18px;gap:10px">' +
             '<div class="card flat tight" style="flex:1;margin:0"><div class="mono">Stories</div>' +
               '<b style="font-size:19px">' + nStories + '</b></div>' +
@@ -824,263 +974,186 @@
   ];
 
   V.home = function () {
-    var lit = Object.keys(S.lit).length, readN = Object.keys(S.read).length;
-    var totalStories = allStories().length || 1;
-    var lv = level(), pct = Math.min(100, Math.round(((S.xp % 60) / 60) * 100));
+    var lit = Object.keys(S.lit).length, places = nPlaces();
+    var lv = level(), mN = mastered();
+    var pct = lv >= RANKS.length - 1 ? 100
+      : Math.min(100, Math.round((mN - RANK_AT[lv]) / Math.max(1, RANK_AT[lv + 1] - RANK_AT[lv]) * 100));
     var hour = new Date().getHours();
     var greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    var wordsN = Object.keys(S.lang).reduce(function (n, k) { return n + (S.lang[k].correct || 0); }, 0);
-    /* the word of the day arrives in the family's language when one is chosen;
-       the Hindi set keeps its recorded voice, the others speak via the
-       synthesis fallback until their packs record */
+    /* the word of the hour arrives in the family's language when one is chosen;
+       the Hindi set keeps its recorded voice, the others speak through the device */
     var tg = tongue();
-    var W = (tg && tg.words && tg.words.length) ? tg.words : SHABD;
-    var w = W[hour % W.length], q = SUBHASHITA[hour % SUBHASHITA.length];
+    var Wd = (tg && tg.words && tg.words.length) ? tg.words : SHABD;
+    var w = Wd[hour % Wd.length], q = SUBHASHITA[hour % SUBHASHITA.length];
     var wLang = (tg && tg.words) ? tg.lang : 'hi';
-    var hello = ['“Chalo — one story and a whole state wakes up.”',
-                 '“I remember every single thing. Come and see.”',
-                 '“The mist is thinner than yesterday. That was you.”'][new Date().getDate() % 3];
-
-    /* TODAY. This used to be a "goal" card showing three unrelated counters, one of which
-       (Words) only ever moved if the family had bought Bhasha — so for a free child the
-       headline goal on the home screen was permanently stuck at zero.
-
-       It is now three invitations instead of three numbers, one for each way this app is
-       used, and every one of them works without a subscription:
-
-         DO one   — the day's deed. This is the payoff system: a bead for something you
-                    DID, never for something you read.
-         CARRY one — the word of the day. This one is masterable, so a count is honest here.
-
-       HEAR one retired (user call): the Stories tab and its Tell-me-one already make that
-       offer properly, and Today now lives inside the greeting card rather than a second
-       card below it — one card says hello and hands you the day.
-
-       The streak stays because a rhythm is not a completion target, but it is a footnote
-       now rather than the headline. */
+    var stp = nextStep();
     var K = window.IND_NEETI;
     var todayValue = K ? K.values[Math.floor(Date.now() / 86400000) % K.values.length] : null;
     var deedDone = todayValue && (S.mala || []).some(function (b) {
       return b.v === todayValue.id && b.on === today();
     });
+    var ringN = (S.todayOn === today()) ? (S.todayCount || 0) : 0;
+    var goal = S.goal || 3, ringDone = ringN >= goal, C = 2 * Math.PI * 26;
 
-    /* one line: the greeting and the day's two invitations side by side,
-       wrapping only when the screen genuinely cannot hold them */
-    return (
-      /* THE PINNED ASK (Bee's placement callout, India's version): until the
-         family's language is chosen the app cannot lean anyone's way, so the
-         ask rides the top of Home — once answered it disappears for good. */
-      !S.tongue
-        /* NOT `.callout` — that class belongs to the map's popup, which is
-           position:absolute and translated up and left, so this full-width banner was
-           being pulled under the sticky bar and half off the left edge of Home. Found by
-           tools/check-fold.js measuring where Home's first door starts: -67px. */
-        ? '<button class="card ask" data-act="go" data-v="tongue" style="width:100%;text-align:left;margin-bottom:var(--space-lg)">' +
-          '<div class="row" style="align-items:center;flex-wrap:nowrap;gap:12px">' + icon('script', 24) +
-          '<span style="flex:1"><b>Your family’s language</b>' +
-          '<span class="tiny muted" style="display:block">Tell us once — the stories, the words and the map lean your way.</span></span>' +
-          '<span class="pill stat" style="white-space:nowrap">Choose →</span></div></button>'
-        : '') +
-      '<div class="card notch"><div class="herorow">' +
-        '<div class="greetblk"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
-        /* the companion, at twice the size and tappable: it opens the deck */
-        '<button class="buddybtn" data-act="deck" aria-label="Your companions">' +
-        art(S.buddy, 216) + '</button>' +
-        '<div style="flex:1"><div class="tiny muted">' + greet + ',' +
-        (S.streak.count ? ' <span style="white-space:nowrap">· 🪔 ' + S.streak.count + '-day streak</span>' : '') + '</div>' +
-        '<h2 style="margin:0 0 10px">' + esc(S.name || 'Yatri') + '</h2>' +
-        '<div class="bubble">' + esc(hello) + '</div></div></div></div>' +
+    /* HOME, IN THE FAMILY'S ANATOMY (family standard §2; FIX-INDIA B1–B3). It was nine
+       blocks — greeting, ring, resume tiles, two journeys, Ask Nani, a subhashita, three
+       "on now" tiles, the yatra and the mala — and on a phone the only way in, "Start —
+       hear a story", sat below the fold under the deed button. Now, in this order:
 
-          (todayValue
-            ? '<div class="td"><span class="mono">Do one</span>' +
-              '<p><b>' + esc(todayValue.roman) + '</b> — ' + esc(todayValue.en) + '.<br>' +
-              esc(todayValue.doit) + '</p>' +
-              (deedDone
-                ? '<span class="pill stat">A bead on your mala ✓</span>'
-                : '<button class="btn ghost" data-act="deed" data-id="' + todayValue.id + '">I did it</button>')
-            + '</div>'
-            : '') +
+         1  a greeting that says something true about what the child did last,
+            beside the day's ring and the word of the hour;
+         2  ONE Continue card — the single next step, from nextStep(), the same function
+            #/continue uses, with the ONLY filled button on the screen; and next to it,
+            where the child is: their rank and the map;
+         3  today's three — small, optional, nothing lost for skipping;
+         4  five ways in.
 
-          '<div class="td"><span class="mono">Carry one</span>' +
-            '<p lang="' + esc(wLang) + '" style="font-size:28px;line-height:1.5;margin:0">' + esc(w[0]) + '</p>' +
-            '<p class="tiny muted" style="margin:0 0 4px">/ ' + esc(w[1]) + ' / · ' + esc(w[2]) + '</p>' +
-            '<button class="pill" data-act="say" data-k="' + esc(w[3] || '') + '" data-t="' + esc(w[0]) +
-            '" data-l="' + esc(wLang) + '-IN">' + icon('sound', 16) + ' hear it</button></div>' +
+       The yatra and the mala moved to the child's own page (the avatar, top right). */
+    return '<div class="hm">' +
+
+      /* 1 — THE GREETING. The companion, tappable: it opens the deck. */
+      '<div class="card notch hm-greet">' +
+        '<button class="buddybtn" data-act="deck" aria-label="Your companions">' + art(S.buddy, 216) + '</button>' +
+        '<div class="hm-hi"><div class="tiny muted">' + greet + ',' +
+          (goodDays() ? ' <span style="white-space:nowrap">· 🪔 ' + goodDays() + ' good day' +
+            (goodDays() === 1 ? '' : 's') + ' this week</span>' : '') + '</div>' +
+        '<h2>' + esc(S.name || 'Yatri') + (window.IND_DEMO ? ' <span class="pill sample">Sample</span>' : '') + '</h2>' +
+        '<div class="bubble">' + esc(helloLine()) + '</div></div></div>' +
+
+      /* the day's ring: DEEDS — a story finished, a lesson, a game, the day's deed —
+         never pages read (docs/10 §3.5). The target is the family's, in S.goal. */
+      '<div class="card hm-ring">' +
+        '<svg class="goring" viewBox="0 0 64 64" aria-hidden="true">' +
+          '<circle cx="32" cy="32" r="26" class="bg"/>' +
+          '<circle cx="32" cy="32" r="26" class="fg" stroke-dasharray="' + C.toFixed(1) +
+            '" stroke-dashoffset="' + (C * (1 - Math.min(1, ringN / goal))).toFixed(1) + '"/>' +
+          '<text x="32" y="31">' + Math.min(ringN, 99) + '/' + goal + '</text>' +
+          '<text x="32" y="43" class="sub">today</text></svg>' +
+        '<div><b>' + (ringDone ? 'Ring closed — shabash! 🪔' : 'Today’s ring') + '</b>' +
+        '<p class="tiny muted">' + (ringDone ? 'Everything from here is extra shine.'
+          : 'A story, a lesson, a game or the day’s deed — each one fills a notch.') + '</p>' +
+        '<span class="row goalpick" role="group" aria-label="How many a day">' +
+        [2, 3, 5].map(function (g2) {
+          return '<button class="pill' + (goal === g2 ? ' on' : '') + '" data-act="goalset" data-g="' + g2 +
+            '" aria-pressed="' + (goal === g2 ? 'true' : 'false') + '">' + g2 + '</button>';
+        }).join('') + '<span class="tiny muted">a day</span></span></div></div>' +
+
+      '<div class="card hm-word"><span class="mono">Word of the hour</span>' +
+        '<p lang="' + esc(wLang) + '" class="hm-w">' + esc(w[0]) + '</p>' +
+        '<p class="tiny muted">/ ' + esc(w[1]) + ' / · ' + esc(w[2]) + '</p>' +
+        '<button class="pill" data-act="say" data-k="' + esc(w[3] || '') + '" data-t="' + esc(w[0]) +
+        '" data-l="' + esc(wLang) + '-IN">' + icon('sound', 16) + ' hear it</button></div>' +
+
+      /* 2 — ONE CONTINUE. The painted card, the single next step, the only filled button. */
+      '<div class="card contcard">' +
+        '<div class="cc-art"' + (stp.art ? ' style="background-image:url(' + stp.art + ')"' : '') + '>' +
+          (stp.art ? '' : mascot('mithu', 'talk', 96)) + '</div>' +
+        '<div class="cc-body"><span class="mono">' + esc(stp.kick) + '</span>' +
+        '<h2>' + esc(stp.title) + '</h2>' +
+        (stp.sub ? '<p class="tiny">' + esc(stp.sub) + '</p>' : '') +
+        '<div class="cc-prog"><div class="meter"><i style="width:' +
+          Math.round(Math.min(1, (stp.n || 0) / Math.max(1, stp.of || 1)) * 100) + '%"></i></div>' +
+          '<span class="tiny muted">' + esc(stp.meter || '') + '</span></div>' +
+        '<button class="btn lg" data-act="cont">' + icon('play', 18) + ' Continue</button></div></div>' +
+
+      /* where the child is: rank by evidence, and the map — next to Continue (B3) */
+      '<div class="card hm-where">' +
+        '<div class="hw-map" style="background-image:url(art/banner/map.jpg)">' +
+          '<span class="tag">' + lit + ' of ' + places + ' places remembered</span></div>' +
+        '<div class="hw-body">' +
+        '<div class="spread"><span class="mono">Your rank</span><b class="hw-rank">' + esc(rank()) + '</b></div>' +
+        '<div class="meter"><i style="width:' + pct + '%"></i></div>' +
+        '<p class="tiny muted">' + (lv < RANKS.length - 1
+          ? (RANK_AT[lv + 1] - mN) + ' more thing' + (RANK_AT[lv + 1] - mN === 1 ? '' : 's') +
+            ' mastered to <b>' + esc(RANKS[lv + 1]) + '</b> — a course test passed on a later day, or a Bhasha rung.'
+          : 'You are at the top of the ladder.') + '</p>' +
+        '<div class="spread"><span class="mono">India</span><span class="tiny muted">' + lit + ' / ' + places + '</span></div>' +
+        '<div class="meter"><i style="width:' + Math.round(lit / places * 100) + '%"></i></div>' +
+        '<button class="btn ghost" data-act="go" data-v="map">' + icon('map', 16) + ' Open the map</button>' +
         '</div></div>' +
+    '</div>' +
 
-      /* TODAY'S RING (Bee's daily goal, in India's own currency). The ring
-         counts DEEDS — a story finished, a lesson answered, a game played,
-         the day's deed — the exact things markToday() already counts; never
-         pages read, never fractions of the library (docs/10 §3.5). The
-         target is the family's to choose and lives in S.goal. */
-      (function () {
-        var n = (S.todayOn === today()) ? (S.todayCount || 0) : 0;
-        var goal = S.goal || 3, ringDone = n >= goal;
-        var C = 2 * Math.PI * 26;
-        return '<div class="card goalcard notch">' +
-          '<svg class="goring" viewBox="0 0 64 64" aria-hidden="true">' +
-            '<circle cx="32" cy="32" r="26" class="bg"/>' +
-            '<circle cx="32" cy="32" r="26" class="fg" stroke-dasharray="' + C.toFixed(1) +
-              '" stroke-dashoffset="' + (C * (1 - Math.min(1, n / goal))).toFixed(1) + '"/>' +
-            '<text x="32" y="31">' + Math.min(n, 99) + '/' + goal + '</text>' +
-            '<text x="32" y="43" class="sub">today</text></svg>' +
-          '<div style="flex:1;min-width:180px">' +
-          '<h3 style="margin:0 0 2px">' + (ringDone ? 'Ring closed — shabash! 🪔' : 'Today’s ring') + '</h3>' +
-          '<p class="tiny muted" style="margin:0">' + (ringDone
-            ? 'Everything from here is extra shine.'
-            : 'A story finished, a lesson, a game or the day’s deed — each fills it one notch.') + '</p>' +
-          '<div class="row" style="margin-top:9px;align-items:center">' +
-          (ringDone ? '' : '<button class="btn" data-act="go" data-v="stories">' + icon('play', 15) + ' Start — hear a story</button>') +
-          '<span class="row goalpick" role="group" aria-label="How many a day">' +
-          [2, 3, 5].map(function (g2) {
-            return '<button class="pill' + (goal === g2 ? ' on' : '') + '" data-act="goalset" data-g="' + g2 +
-              '" aria-pressed="' + (goal === g2 ? 'true' : 'false') + '">' + g2 + '</button>';
-          }).join('') + '<span class="tiny muted">a day</span></span>' +
-          '</div></div></div>';
-      })() +
+      /* the family's language, until it is chosen: the stories, words and map lean its way */
+      (!S.tongue
+        ? '<button class="card ask hm-tongue" data-act="go" data-v="tongue">' + icon('script', 22) +
+          '<span><b>Your family’s language</b>' +
+          '<span class="tiny muted">Tell us once — the stories, the words and the map lean your way.</span></span>' +
+          '<span class="pill stat">Choose →</span></button>'
+        : '') +
 
-      /* KEEP GOING (Bee's resume cards). Whatever was open last — a story
-         mid-telling, a language pack, a game with cities waiting — comes back
-         as one tap. A finished story drops off; abundance, not homework. */
-      (function () {
-        var R = S.resume || {}, cards = [];
-        if (R.story) {
-          var so = allStories().filter(function (x) { return x.id === R.story.id; })[0];
-          if (so && !S.read[so.id]) cards.push({ at: R.story.at || 0,
-            h: '<button class="tile keepon" data-act="story" data-id="' + esc(so.id) + '">' +
-               '<span class="mono">Keep going</span><b>' + esc(so.title) + '</b>' +
-               '<p class="tiny">The story is waiting where you left it.</p></button>' });
-        }
-        if (R.pack && window.IND_PACKS && window.IND_PACKS[R.pack.id]) {
-          var pk = window.IND_PACKS[R.pack.id];
-          cards.push({ at: R.pack.at || 0,
-            h: '<button class="tile keepon" data-act="pack" data-id="' + esc(R.pack.id) + '">' +
-               '<span class="mono">Keep going</span><b>' + esc(pk.name || 'Bhasha') + '</b>' +
-               '<p class="tiny">Your letters and words remember you.</p></button>' });
-        }
-        if (R.game) {
-          var g3 = (window.IND_GAMES || []).filter(function (x) { return x.id === R.game.id; })[0];
-          if (g3) {
-            var note = 'Jump back in.';
-            if (g3.id === 'sabhyata') {
-              try {
-                var sv = JSON.parse(localStorage.getItem('india.sabhyata.v2') || 'null');
-                if (sv && window.IND_SABHYATA && window.IND_SABHYATA.eras[sv.era])
-                  note = 'Era ' + (sv.era + 1) + ' · ' + window.IND_SABHYATA.eras[sv.era].name +
-                    ' — your cities are waiting.';
-              } catch (e2) {}
-            }
-            cards.push({ at: R.game.at || 0,
-              h: '<button class="tile keepon" data-act="game" data-id="' + esc(g3.id) + '">' +
-                 '<span class="mono">Keep going</span><b>' + esc(g3.name) + '</b>' +
-                 '<p class="tiny">' + esc(note) + '</p></button>' });
-          }
-        }
-        if (!cards.length) return '';
-        cards.sort(function (a2, b2) { return (b2.at || 0) - (a2.at || 0); });
-        return '<div class="grid g3" style="margin-top:var(--space-lg)">' +
-          cards.slice(0, 3).map(function (c2) { return c2.h; }).join('') + '</div>';
-      })() +
-
-      /* the two big illustrated journeys */
-      '<div class="grid g2" style="grid-template-columns:1fr 1fr">' +
-        '<button class="journey" data-act="go" data-v="stories">' +
-          '<div class="banner" style="background-image:url(art/banner/stories.jpg)">' +
-            '<span class="chip">' + icon('tree', 20) + '</span>' +
-            '<span class="tag">' + totalStories + ' stories</span></div>' +
-          /* Not "next on your yatra" — there is no next. It is a library and you pick.
-             The Tell-me-one button lives in Today; a second copy here just made the same
-             offer twice on one screen. */
-          '<div class="body"><div class="tiny muted">The whole library, under the banyan</div>' +
-          '<h2 style="margin:2px 0 6px">Stories</h2>' +
-          '<p class="tiny" style="margin:0">Panchatantra, Jataka, the Puranas, the Ramayana and ' +
-          'the Mahabharata, and the folk tales of every state — with your favourite always ' +
-          'there to hear again.</p></div></button>' +
-
-        '<button class="journey" data-act="go" data-v="map">' +
-          '<div class="banner" style="background-image:url(art/banner/map.jpg)">' +
-            '<span class="chip">' + icon('map', 20) + '</span>' +
-            '<span class="tag">' + lit + ' of 34 remembered</span></div>' +
-          '<div class="body"><div class="tiny muted">Your long journey</div>' +
-          '<h2 style="margin:2px 0 6px">India</h2>' +
-          '<p class="tiny" style="margin:0 0 14px">Vismriti is eating India’s memory. Every story you finish pushes the grey back off one more place.</p>' +
-          '<div class="meter"><i style="width:' + Math.round(lit / 34 * 100) + '%"></i></div></div></button>' +
+      /* 3 — TODAY'S THREE. Optional; nothing is lost for skipping one. */
+      '<div class="hm-head"><h3>Today’s three</h3><span class="tiny muted">Nothing is lost for skipping.</span></div>' +
+      '<div class="grid g3 hm-three">' +
+        (todayValue
+          ? '<div class="tile hm-t"><span class="mono">Do one</span>' +
+            '<b>' + esc(todayValue.roman) + ' — ' + esc(todayValue.en) + '</b>' +
+            '<p class="tiny">' + esc(todayValue.doit) + '</p>' +
+            (deedDone ? '<span class="pill stat">A bead on your mala ✓</span>'
+                      : '<button class="pill" data-act="deed" data-id="' + todayValue.id + '">I did it</button>') +
+            '</div>'
+          : '') +
+        (naniWeek()
+          ? (function () {
+              var nq = naniWeek();
+              return '<button class="tile hm-t" data-act="go" data-v="nani"><span class="mono">Ask at home</span>' +
+                '<b>' + esc(kinEn(nq)) + '</b>' +
+                '<p class="tiny muted">This week, ask ' + esc(kinTerm(nq.to)) + '.</p></button>';
+            })()
+          : (function () {
+              var now = (typeof utsavNow === 'function') ? utsavNow() : [];
+              if (!now.length) return '';
+              var f = now[new Date().getDate() % now.length];
+              return '<button class="tile hm-t" data-act="fest" data-id="' + f.id + '"><span class="mono">On this month</span>' +
+                '<b>' + esc(f.name) + '</b><p class="tiny">' + esc(f.do && f.do[0] ? f.do[0] : f.kid) + '</p></button>';
+            })()) +
+        '<div class="tile hm-t"><span class="mono">Subhashita of the hour</span>' +
+          '<p class="hm-q">“' + esc(q[0]) + '”</p><p class="tiny muted">— ' + esc(q[1]) + '</p></div>' +
       '</div>' +
 
-      /* The week's question, high on Home. docs/11 §3: the outcome a parent actually wants is
-         "she can talk to my mother", and this is the only surface that moves it. It is also
-         the one with a deadline — grandparents do not wait — so it does not sit three taps
-         down behind a hub. */
-      (naniWeek()
-        ? (function () {
-            var q = naniWeek();
-            return '<button class="card askcard" data-act="go" data-v="nani" ' +
-              'style="margin-top:var(--space-lg);width:100%;text-align:left">' +
-              '<div class="mono">This week, ask ' + esc(kinTerm(q.to)) + '</div>' +
-              '<h2 style="margin:8px 0 4px">' + esc(kinEn(q)) + '</h2>' +
-              '<p class="tiny muted" style="margin:0">' + esc(q.roman) + '</p></button>';
-          })()
-        : '') +
+      /* 4 — WAYS IN. Five, each saying something true today. */
+      '<div class="ways">' + waysIn() + '</div>';
+  };
 
-      /* One nugget, not two. The Mithu tip said "ask a grown-up which version they were
-         told", which is the same job the Ask Nani card above does properly and with a real
-         question — so it was the same idea twice, weaker the second time. */
-      '<div class="card tint notch" style="margin-top:var(--space-lg)">' +
-        '<div class="row" style="flex-wrap:nowrap;align-items:center">' +
-        '<div style="flex:1"><div class="mono">Subhashita of the hour</div>' +
-        '<p style="font-family:var(--display);font-size:19px;font-style:italic;margin:8px 0 6px">“' + esc(q[0]) + '”</p>' +
-        '<div class="tiny muted">— ' + esc(q[1]) + '</div></div>' +
-        mascot('mithu', 'talk', 62) + '</div></div>' +
-
-      /* WHAT IS ON NOW. The four tiles that used to sit here — Neeti, Bhasha, Learn, Play —
-         were the top navigation printed a second time, with a static label under each. A
-         child had no more reason to tap "Play · 5 stalls open" than to tap the word Play in
-         the bar above it. Replaced with things that are actually true today: the festival
-         that falls this month, and a state that is still under the mist. */
-      (function () {
-        var bits = [];
-        var now = (typeof utsavNow === 'function') ? utsavNow() : [];
-        if (now.length) {
-          var f = now[new Date().getDate() % now.length];
-          bits.push('<button class="tile" data-act="fest" data-id="' + f.id + '">' +
-            '<span class="mono">On this month</span>' +
-            '<b>' + esc(f.name) + '</b>' +
-            '<p class="tiny">' + esc(f.do && f.do[0] ? f.do[0] : f.kid) + '</p></button>');
-        }
-        var G = window.IND_GEO;
-        var dark = G ? Object.keys(window.IND_MAP.paths).filter(function (c) { return !S.lit[c]; }) : [];
-        if (dark.length) {
-          var c = dark[new Date().getDate() % dark.length];
-          bits.push('<button class="tile" data-act="peekgo" data-code="' + c + '">' +
-            '<span class="mono">Still under the mist</span>' +
-            '<b>' + esc(stateName(c)) + '</b>' +
-            '<p class="tiny">' + (((window.IND_STATES || {})[c] || {}).trivia || [''])[0] + '</p></button>');
-        }
-        var st = allStories();
-        if (st.length) {
-          var s = st[(new Date().getDate() * 7) % st.length];
-          bits.push('<button class="tile" data-act="story" data-id="' + s.id + '">' +
-            '<span class="mono">If you only have five minutes</span>' +
-            '<b>' + esc(s.title) + '</b>' +
-            '<p class="tiny">' + esc(s.hook || '') + '</p></button>');
-        }
-        return bits.length
-          ? '<div class="grid g3" style="margin-top:var(--space-lg)">' + bits.join('') + '</div>'
-          : '';
-      })() +
-
-      /* YOUR YATRA. This was a row of identical mascots on an XP ladder, which told a child
-         nothing about their own journey and — worse — put a level ladder over stories, which
-         docs/10 §3.5 says explicitly not to do.
-
-         What it shows now is the five things that are actually true of this child, and it
-         separates them the way the doc does. Stories are a COUNT, never a fraction: the
-         promise there is abundance, "there is always another one", not completion. The map,
-         the verses and the words are genuinely masterable, so they get a denominator. The
-         mala gets neither, because deeds are not a score.
-
-         All of it works without a subscription except the words, which appear only once the
-         child has actually started a pack — no more dead zero on the home screen. */
+  /* the greeting's line: about the last thing the child actually did, when it was this week */
+  function helloLine() {
+    var L = S.last;
+    if (L && L.at && Date.now() - L.at < 7 * 864e5 && L.t) {
+      if (L.k === 'story') return '“You finished ' + L.t + (L.place ? ' — and the mist lifted off ' + L.place : '') + '. Shall we find the next one?”';
+      if (L.k === 'lesson') return '“Your ' + L.t + ' lesson is done — the next one is waiting.”';
+      if (L.k === 'game') return '“Good game of ' + L.t + '. What shall we learn next?”';
+    }
+    return ['“Chalo — one story and a whole state wakes up.”',
+            '“I remember every single thing. Come and see.”',
+            '“The mist is thinner than yesterday. That was you.”'][new Date().getDate() % 3];
+  }
+  function waysIn() {
+    var heard = Object.keys(S.read).length, P = window.IND_PACKS || {};
+    var started = Object.keys(S.lang || {}).filter(function (k) { return P[k] && (S.lang[k].correct || 0) > 0; }).length;
+    var U = paathUI(), courses = U ? (window.IND_PAATH.courses || []).length : 0;
+    var games = (window.IND_GAMES || []).length;
+    var vals = window.IND_NEETI ? window.IND_NEETI.values.length : 0;
+    var W5 = [
+      ['stories', 'tree', 'Stories', heard + ' of ' + allStories().length + ' heard'],
+      ['paath', 'book', 'Paathshala', courses + ' courses'],
+      ['bhasha', 'script', 'Bhasha', started ? started + ' language' + (started === 1 ? '' : 's') + ' started'
+                                             : Object.keys(P).length + ' languages'],
+      ['neeti', 'star', 'Moral Science', vals + ' values'],
+      ['khel', 'game', 'Play', games + ' games']
+    ];
+    return W5.map(function (x) {
+      return '<button class="wayin" data-act="go" data-v="' + x[0] + '">' +
+        '<span class="wi-ic">' + icon(x[1], 22) + '</span><b>' + esc(x[2]) + '</b>' +
+        '<span class="tiny muted">' + esc(x[3]) + '</span></button>';
+    }).join('');
+  }
+  /* the yatra: what is true of this child, on their own page */
+  V.yatra = function () {
+    var lit = Object.keys(S.lit).length, totalStories = allStories().length || 1;
+    var lv = level(), mN = mastered();
+    var pct = lv >= RANKS.length - 1 ? 100
+      : Math.min(100, Math.round((mN - RANK_AT[lv]) / Math.max(1, RANK_AT[lv + 1] - RANK_AT[lv]) * 100));
+    var wordsN = Object.keys(S.lang).reduce(function (n, k) { return n + (S.lang[k].correct || 0); }, 0);
+    return (
       (function () {
         var heard = Object.keys(S.read).length;
         var verses = Object.keys(S.recited || {}).length;
@@ -1098,7 +1171,7 @@
           'goes down.</p>' +
           '<div class="ygrid">' +
             cell(heard, 0, 'stories heard', 'out of ' + totalStories + ' — and more keep arriving') +
-            cell(lit, 34, 'places remembered', 'the mist lifts as you read') +
+            cell(lit, nPlaces(), 'places remembered', 'the mist lifts as you read') +
             cell(beads, 0, 'beads on your mala', 'one for each thing you did') +
             (totalVerses ? cell(verses, totalVerses, 'verses carried', 'said out loud, not just read') : '') +
             (wordsN ? cell(wordsN, 0, 'words known', 'across every language you have started') : '') +
@@ -1108,15 +1181,11 @@
             /* distance, not just destination (the Bee lesson): "how close am I"
                is what pulls a child back, so the next title says how far */
             (lv < RANKS.length - 1
-              ? 'Next: <b>' + esc(RANKS[lv + 1]) + '</b> · 🐚 ' + (60 - (S.xp % 60)) + ' more'
+              ? 'Next: <b>' + esc(RANKS[lv + 1]) + '</b> · ' + (RANK_AT[lv + 1] - mN) +
+                ' more thing' + (RANK_AT[lv + 1] - mN === 1 ? '' : 's') + ' mastered — a course test passed on a later day, or a Bhasha rung'
               : 'You are at the top of the ladder') +
           '</p></div>';
-      })() +
-
-      /* THE MALA, always — and explained. It used to appear only once a child had already
-         earned a bead, which meant the one screen that could explain the payoff system was
-         invisible to everybody who had not already worked it out. */
-      V.malaStrip();
+      })());
   };
 
   /* -------------------------------------------------------------------- MAP
@@ -1948,7 +2017,7 @@
         '<h2 style="margin:0;font-size:20px">India</h2>' +
         '<span class="tiny muted" style="flex:1;margin-left:10px">' + lit + ' of ' + total +
           ' places remembered · tap a state</span>' +
-        '<span class="pill stat">🪔 ' + S.streak.count + '</span></div>' +
+        '<span class="pill stat" title="Good days this week">🪔 ' + goodDays() + '/7</span></div>' +
       '<div class="mapwrap">' +
         '<svg class="mapsvg" viewBox="' + M.viewBox + '" role="img" aria-label="Map of India">' +
           '<defs>' + defs + '</defs>' +
@@ -2373,7 +2442,11 @@
   V.story = function (id) {
     var st = allStories().filter(function (s) { return s.id === id; })[0];
     if (!st) return '<div class="card">Story not found.</div>';
-    if (!play.story || play.story.id !== id) { play.story = st; play.i = 0; play.answered = false; }
+    if (!play.story || play.story.id !== id) {
+      /* Continue opens a story at the scene the child left it, never back at the start */
+      var from = play.from && play.from.id === id ? Math.min(play.from.i || 0, st.scenes.length - 1) : 0;
+      play.story = st; play.i = from; play.answered = false; play.from = null;
+    }
     if (play.i >= st.scenes.length) return V.storyEnd(st);
 
     var sc = st.scenes[play.i], cast = (sc.art || []).slice(0, 2), teller = sc.who === 'mithu';
@@ -2387,7 +2460,8 @@
 
     return '<div class="reader' + (hi ? ' twoup' : '') + '">' +
       '<div class="rhead">' +
-      '<button class="backlink" style="padding:0" data-act="go" data-v="stories">' + icon('back', 18) + ' Stories</button>' +
+      '<button class="backlink" style="padding:0" data-act="go" data-v="stories">' + icon('back', 18) +
+        (S.started ? ' Stories' : ' Back') + '</button>' +
       '<div class="dots">' + st.scenes.map(function (_, i) { return '<i class="' + (i <= play.i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
       '<span class="badge ' + st.badge + '">' + st.badge + '</span></div>' +
 
@@ -2421,6 +2495,22 @@
     var code = (st.place || [])[0]; code = code ? code.replace('IN-', '') : null;
     var G = window.IND_GEO, place = (code && G && G.states[code]) ? G.states[code].name : null;
     var himg = storyArt(st.id);
+    /* THE GUEST'S END: the first story is finished before a single question was asked,
+       and now the asking is worth it — it is the same story's place that lights first */
+    if (!S.started) {
+      return (himg ? '<div class="heroshot" style="background-image:url(' + himg + ')"></div>' : '') +
+        '<div class="card center">' + mascot('mithu', 'wink', 112) +
+        '<h1 style="margin-top:8px">' + esc(st.title) + '</h1>' +
+        '<p style="font-size:18px;max-width:52ch;margin:0 auto var(--space-md)">' + esc(st.moral) + '</p>' +
+        (place ? '<span class="badge aaj">🪔 The mist lifted off ' + esc(place) + '</span>' : '') +
+        '<p style="max-width:52ch;margin:var(--space-lg) auto">That is one story of ' + allStories().length +
+          '. Tell us your child’s first name and age, and ' + (place ? esc(place) + ' stays lit on their map' :
+          'it stays on their shelf') + ' — it takes about half a minute.</p>' +
+        '<div class="row" style="justify-content:center">' +
+        '<button class="btn lg" data-act="begin">Make it theirs →</button>' +
+        '<button class="btn ghost" data-act="again" data-id="' + st.id + '">' + icon('play', 18) + ' Again</button></div></div>' +
+        '<div class="card flat tiny"><b>Where this comes from.</b> ' + esc(st.source || '') + '</div>';
+    }
     return '<button class="backlink" data-act="go" data-v="stories">' + icon('back', 18) + ' Stories</button>' +
       (himg ? '<div class="heroshot" style="background-image:url(' + himg + ')"></div>' : '') +
       '<div class="card center">' + mascot('mithu', 'wink', 112) +
@@ -3543,7 +3633,7 @@
       neetiHub('Practise', 'The twelve values, the hard cases, and the question you take home.', '#13A892', practise) +
       '</div>' +
       neetiHub('Meet', 'People who steered by one of these, and a game.', '#F0703C', meet) +
-      '<p class="pfoot">Cards pay sikke. Beads are different: you get one when you ' +
+      '<p class="pfoot">Cards are for keeping. Beads are different: you get one when you ' +
       '<b>do</b> something, never when you read about it, and nobody checks.</p>';
   };
 
@@ -3689,7 +3779,7 @@
         : '<div class="mala empty">' +
             new Array(13).join('<i></i>') +
           '</div>' +
-          '<p class="tiny muted">Empty for now. Do the small thing at the top of this screen ' +
+          '<p class="tiny muted">Empty for now. Do today’s small thing on Home ' +
           'and the first one is yours — and it stays, because a bead is something you did and ' +
           'that cannot un-happen.</p>') +
       '</div>';
@@ -3900,8 +3990,8 @@
           '<div class="mono">' + esc(w.region) + '</div>' +
           '<p class="tiny" style="margin:8px 0 0">' + esc(w.note) + '</p>' +
           (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent);font-weight:700">' +
-            (E && E.canAfford(S, price) ? 'Tap to open it with your sikke'
-                                        : 'Keep going — ' + (price - (S.sikke || 0)) + ' more sikke') + '</p>') +
+            (E && E.canAfford(S, price) ? 'Tap to open it with your coins'
+                                        : 'Keep learning — ' + (price - coins()) + ' more coins') + '</p>') +
           '</button>';
       }).join('') + '</div>' +
       '<div class="card flat tiny"><b>Credit.</b> Every world names the tradition and the place it comes from, ' +
@@ -4035,14 +4125,18 @@
       if (quiz.mode === 'testout' && quiz.right >= TESTOUT_PASS && quiz.stage) {
         var rec = ensureLang(quiz.packId);
         var sst = rec.stages[quiz.stage] || (rec.stages[quiz.stage] = { asked: 0, correct: 0 });
-        if (!sst.testout) { sst.testout = true; save(); earn(8, 'tested out'); }
+        if (!sst.testout) { sst.testout = true; save(); earn('mastery', 'tested out'); }
       }
-      if (quiz.mode === 'lesson' && quiz.done > 0) markToday();
+      if (quiz.mode === 'lesson' && quiz.done > 0) {
+        markToday();
+        var lp = window.IND_PACKS[quiz.packId];
+        lastDid('lesson', lp && lp.name ? lp.name.en : 'Bhasha');
+      }
       return;
     }
     var sp = specs[quiz.pi];
     quiz.build = { placed: [], kfocus: 0, kb: false };
-    quiz.fb = null; quiz.lock = false; quiz.reveal = false; quiz.typed = '';
+    quiz.fb = null; quiz.lock = false; quiz.reveal = false; quiz.typed = ''; quiz.hold = false;
     if (sp.kind === 'introduce') {
       var sh = sp.show || {};
       quiz.q = { type: 'introduce', spec: sp, char: sh.char, sub: sh.sub, en: sh.en,
@@ -4182,8 +4276,24 @@
       window.IND_BHASHA.replayMiss(quiz.plan, quiz.pi, sp);
     }
     save();
-    if (ok) { earn(2, 'correct'); quiz.right++; }
+    if (ok) { earn('answer', 'correct'); quiz.right++; }
     quiz.done++;
+  }
+  /* RIGHT ANSWERS MOVE ON; WRONG ANSWERS HOLD (family standard §6). A wrong answer used
+     to show the right one for 2.6 seconds and then move on by itself — before a child had
+     read why. Now it waits for Continue (tap, Enter or →), says the right answer aloud in
+     the device's own voice, and the feedback strip stays on the screen until then. */
+  function settle(ok, okMs) {
+    if (ok || window.BI_FAST) return advance(okMs);
+    quiz.hold = true;
+    var q = quiz.q, right = q && (q.answerWord || (Array.isArray(q.answer) ? q.answer.join('') :
+      (q.options && typeof q.answerIndex === 'number' ? q.options[q.answerIndex] : '')));
+    if (right && typeof right === 'string') speak(null, right, packLang());
+    if (quiz.fb) {
+      quiz.fb.html += '<div class="fbgo"><button class="btn primary" data-act="qnext">Continue \u2192</button></div>';
+      showFb(quiz.fb);
+      var b = document.querySelector('#qfb [data-act="qnext"]'); if (b) b.focus({ preventScroll: true });
+    }
   }
   function advance(ms) {
     if (window.BI_FAST) ms = 30;   /* test hook: tools/verify.js answers hundreds of questions */
@@ -4326,7 +4436,7 @@
        IS the answer (word order), so the voice is the reward for finishing */
     if (q.type === 'sentenceBuild' && q.full) speak(null, q.full, packLang());
     render();
-    advance(ok ? 1100 : 2600);
+    settle(ok, 1100);
   }
 
   /* PHASE B — grade what the child wrote.
@@ -4356,7 +4466,7 @@
     render();
     /* a near-miss earns a longer beat than a plain miss: there is something
        specific to read, and it is the thing that teaches */
-    advance(r.ok ? 1300 : (r.near ? 3600 : 3000));
+    settle(r.ok, 1300);
   }
 
   /* ------------------------------------------------------------- A PACK
@@ -5382,7 +5492,7 @@
   };
   var MELA_GROUPS = [
     ['Aangan ke khel', 'From India’s own courtyard — these were being played centuries before there were screens to play them on.', ['saapsidi', 'ludo', 'carrom']],
-    ['Quiz shows', 'Ladders, lifelines, streaks — the hot seat is yours.', ['gyanpati', 'triviamaster']],
+    ['Quiz shows', 'Ladders and lifelines — the hot seat is yours.', ['gyanpati', 'triviamaster']],
     ['Drills in costume', 'Secretly practice. Openly a fair.', ['shabd', 'rangoli', 'statehunt', 'jataka']]
   ];
   V.mela = function () {
@@ -5490,21 +5600,20 @@
           : '') +
         '<div class="grid g4">' + p.ids.map(function (id) {
           if (!E || E.avatarOpen(S, id)) return chip(id, 74, 'avcard');
-          /* NOT MET YET. The name stays -- a silhouette with no name is a mystery box,
-             and a mystery box is the bit of a gacha that is actually indefensible.
-             Tapping it opens that pack's pitara, so the want and the way to it are the
-             same tap. */
-          return '<button class="avchip unmet" data-act="draw" data-p="' + esc(p.id) + '"' +
-            ' aria-label="' + esc(avatarName(id) || id) + ' — not met yet">' +
+          /* NOT MET YET. The name stays, the price is printed, and tapping it is the
+             choice: the child decides who to meet next. A rare card names the learning
+             that opens it instead of a price (standard §1). */
+          var rl = E ? E.cardRule(p.id, id) : { kind: 'price', price: 40 };
+          return '<button class="avchip unmet" data-act="meet" data-id="' + esc(id) + '"' +
+            ' aria-label="' + esc(avatarName(id) || id) + ' — ' +
+              (rl.kind === 'learn' ? esc(rl.say) : rl.price + ' coins') + '">' +
             art(id, 74) + '<span>' + esc(avatarName(id) || id) + '</span>' +
-            '<span class="rarlabel">🪙 ' + (E ? E.DRAW_PRICE : 40) + '</span></button>';
+            '<span class="rarlabel">' + (rl.kind === 'learn' ? '★ ' + rl.need + ' mastered' : '🪙 ' + rl.price) + '</span></button>';
         }).join('') + '</div>' +
-        (sale && held < total
+        (sale && held < total && !open
           ? '<div class="row" style="margin-top:10px">' +
-            '<button class="pill" data-act="draw" data-p="' + esc(p.id) + '">' +
-            'Open the pitara — 🪙 ' + (E ? E.DRAW_PRICE : 40) + '</button>' +
-            (open ? '' : '<button class="pill" data-act="buypack" data-p="' + esc(p.id) + '">' +
-              'Take all ' + total + ' — 🪙 ' + price + '</button>') + '</div>'
+            '<button class="pill" data-act="buypack" data-p="' + esc(p.id) + '">' +
+              'Take all ' + total + ' — 🪙 ' + price + '</button></div>'
           : '') +
         '</div>';
     }
@@ -5518,13 +5627,12 @@
         (sh.note ? '<p class="tiny muted" style="margin:6px 0 0">' + esc(sh.note) + '</p>' : '') +
         mine.map(packBlock).join('') + '</div>';
     }).join('') +
-      /* The rate, in writing, once — not buried in a card a child has to find. */
-      '<div class="card flat tiny"><b>How the pitara works.</b> A draw costs 🪙 ' +
-      (E ? E.DRAW_PRICE : 40) + ' and always gives you someone you have <b>not</b> met, so a ' +
-      'draw is never wasted and you never get the same card twice. A whole pack costs 🪙 ' +
-      (E ? E.PACK_UNIT : 20) + ' a card, so a small pack costs less than a big one. ' +
-      'Sikke are earned by reading, playing and practising — they can never be bought with ' +
-      'money, and nothing on this page is a real-money purchase.</div>';
+      /* The rule, in writing, once — not buried in a card a child has to find. */
+      '<div class="card flat tiny"><b>How meeting someone works.</b> You choose who to meet next: ' +
+      'a card costs 🪙 ' + (E ? E.CARD_PRICE : 40) + ', always the one you picked. A rare card is not ' +
+      'for sale — it says the learning that opens it, and doing that opens it. A whole pack costs 🪙 ' +
+      (E ? E.PACK_UNIT : 20) + ' a card. Bizzing coins are earned only by learning — right answers, ' +
+      'stories and lessons finished, things mastered — never with money, and nothing here is random.</div>';
   }
 
   /* ------------------------------------------------- TAKE IT OFFLINE (dl UI)
@@ -6032,10 +6140,13 @@
     return '<div class="card"><div class="row" style="flex-wrap:nowrap">' + art(S.buddy, 92) +
       '<div><h1 style="margin:0">' + esc(S.name || 'Yatri') + '</h1>' +
       '<div class="row" style="margin-top:8px">' +
-      '<span class="pill stat">🪙 ' + S.sikke + '</span>' +
+      '<span class="pill stat">🪙 ' + coins() + '</span>' +
       '<span class="pill stat">' + esc(rank()) + '</span>' +
       '<span class="pill stat">' + Object.keys(S.lit).length + ' places</span>' +
       '<span class="pill stat">' + Object.keys(S.read).length + ' stories</span></div></div></div></div>' +
+      /* the yatra and the mala live here, on the child's own page, since Home was cut to
+         the family anatomy — the avatar in the top bar is the way in (standard §4) */
+      V.yatra() + V.malaStrip() +
       /* Worlds comes BEFORE the companions and shows the worlds themselves. It
          used to be a one-line tile below a wall of 116 avatars, which is where
          a setting goes to be never found. Picking one is a two-tap job now. */
@@ -6071,7 +6182,7 @@
               '<div class="mono">' + esc(w.region) + '</div>' +
               (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent);font-weight:700">' +
                 (E && E.canAfford(S, price) ? 'Tap to open it'
-                                            : (price - (S.sikke || 0)) + ' more sikke') + '</p>') +
+                                            : (price - coins()) + ' more coins') + '</p>') +
               '</button>';
           }).join('') + '</div></div>' +
       packShop(packs);
@@ -6331,27 +6442,25 @@
           '<button class="deckarrow prev" data-act="deckstep" data-d="-1" aria-label="Previous card">' +
           icon('back', 24) + '</button>' +
           '<div class="avslot" id="avslot">' +
-            /* A LOCKED CARD SHOWS WHAT IT IS AND WHAT IT COSTS — never a blank grey box.
-               A child has to be able to want it. The published drop rate is on the card
-               too: an undisclosed rate is the part of a draw that is actually
-               indefensible, and this way a parent can read it before a coin is spent. */
+            /* A LOCKED CARD SHOWS WHAT IT IS AND HOW IT OPENS — never a blank grey box.
+               A child has to be able to want it: a printed price they choose to pay, or,
+               for a rare card, the learning that opens it. Nothing is drawn. */
             ((window.IND_ECONOMY && !window.IND_ECONOMY.avatarOpen(S, here.id))
               ? (function () {
                   var E = window.IND_ECONOMY;
-                  var left = E.unheld(S, here.packId).length;
                   var pp = E.packPrice(here.packId);
+                  var rl2 = E.cardRule(here.packId, here.id);
                   return '<div class="avlocked">' +
                     '<div class="avlockart">' + art(here.id, 96) + '</div>' +
                     '<h3 style="margin:10px 0 2px">' + esc(avatarName(here.id) || 'Not met yet') + '</h3>' +
                     '<p class="tiny muted" style="margin:0 0 12px">You have not met this one yet · ' +
-                      'drop rate ' + E.dropRate(here.packId, here.id) + '% · ' + left + ' left in this pitara</p>' +
-                    '<button class="btn sm" data-act="draw" data-p="' + esc(here.packId) + '">' +
-                      'Open the pitara — 🪙 ' + E.DRAW_PRICE + '</button>' +
+                      (rl2.kind === 'learn' ? esc(rl2.say) + ' (you have mastered ' + mastered() + ')' : 'choose them for 🪙 ' + rl2.price) + '</p>' +
+                    (rl2.kind === 'learn'
+                      ? (mastered() >= rl2.need ? '<button class="btn sm" data-act="meet" data-id="' + esc(here.id) + '">Meet them</button>' : '')
+                      : '<button class="btn sm" data-act="meet" data-id="' + esc(here.id) + '">Meet them — 🪙 ' + rl2.price + '</button>') +
                     (pp == null ? '' :
                       '<button class="pill" style="margin-top:8px" data-act="buypack" data-p="' +
                       esc(here.packId) + '">Take the whole pack — 🪙 ' + pp + '</button>') +
-                    '<p class="tiny muted" style="margin:10px 0 0">A draw never gives you one you ' +
-                      'already have, so nothing is ever wasted.</p>' +
                     '</div>';
                 })()
               : avCardHTML(here.id)) + '</div>' +
@@ -6362,7 +6471,11 @@
   }
 
   function chrome() {
-    return '<header class="topbar"><div class="barrow">' +
+    return (window.IND_DEMO
+        ? '<div class="demobar" role="note"><b>Sample child.</b> A demo with a few weeks of made-up ' +
+          'progress — nothing here is saved, and nothing is shared. <a href="' + esc(location.pathname) +
+          '">Leave the sample</a></div>' : '') +
+      '<header class="topbar"><div class="barrow">' +
       /* the mark is the peacock, not a mascot — Gattu still narrates, he just
          doesn't have to BE the logo (and the user said as much) */
       /* the whole lockup — peacock and wordmark — is the way home */
@@ -6385,7 +6498,7 @@
       '<span class="barctl">' +
       /* ?from=hive: one chip back to the family's day (family standard §4) */
       (fromHive ? '<a class="pill hivechip" href="https://aayuvis.github.io/Bizzing_Schedule/">\u2190 my day</a>' : '') +
-      '<span class="pill stat" title="Sikke — earned, never bought">🪙 <span id="kauriCount">' + S.sikke + '</span></span>' +
+      '<span class="pill stat" title="Bizzing coins — earned for learning, the same wallet in every Bizzing app">🪙 <span id="kauriCount">' + coins() + '</span></span>' +
       /* the family-language chip: shows the tongue in its own script, opens the picker */
       (window.IND_TONGUE
         ? '<button class="pill stat" data-act="go" data-v="tongue" aria-label="Your family’s language">' +
@@ -6468,6 +6581,14 @@
     var root = document.getElementById('app');
 
     if (!S.started) {
+      /* a guest reading tonight's story from the landing page, before any setup */
+      if (view.name === 'story' && view.arg) {
+        root.innerHTML = '<header class="guestbar"><span class="brand">Bizzing <em>India</em></span>' +
+          '<span class="tiny muted gb-note">Reading as a guest — nothing is set up yet</span>' +
+          '<button class="btn ghost" data-act="begin">Set up for my child →</button></header>' +
+          '<main class="wrap" id="main">' + V.story(view.arg) + '</main>';
+        return;
+      }
       root.innerHTML = (view.name === 'onboard') ? '<div id="main">' + V.onboard() + '</div>' : V.landing();
       return;
     }
@@ -6655,6 +6776,11 @@
             sessionStorage.setItem('bi_upd_to', updateReady); } catch (e) {}
       location.reload(); return;
     }
+    /* a course walked is a thread Continue can pick up again (nextStep) */
+    if (S.started && a && (n === 'paath' || n === 'paathl' || n === 'paathk')) {
+      S.resume = S.resume || {};
+      S.resume.paath = { id: String(a).split('|')[0], at: Date.now() }; save();
+    }
     stopAudio(); killGame(); view = { name: n, arg: a }; render();
     route(true);
   }
@@ -6693,9 +6819,10 @@
     var fromState = !!(e.state && e.state.n);
     var r = fromState ? { n: e.state.n, a: e.state.a } : parseHash(location.hash);
     if (!r || !S.started) return;
-    if (r.n === 'continue') { r = continueTarget(); }
+    var cont = r.n === 'continue';
+    if (cont) r = continueTarget();     /* primed already: prepView would undo it */
     if (!known(r.n)) r = { n: 'home', a: null };
-    prepView(r.n, r.a);
+    if (!cont) prepView(r.n, r.a);
     stopAudio(); killGame(); view = { name: r.n, arg: r.a }; render();
     /* a link typed or followed (no state of its own) takes its proper name in history */
     if (!fromState) route(false);
@@ -6707,20 +6834,113 @@
   }
   /* #/continue — the Hive's door, and Continue's own: the one next thing. A story left
      part-way, then a language pack left part-way, then the story shelf. */
-  function continueTarget() {
-    var R = S.resume || {};
-    if (R.story && R.story.id && !S.read[R.story.id]) return { n: 'story', a: R.story.id };
-    if (R.pack && R.pack.id && window.IND_PACKS && window.IND_PACKS[R.pack.id]) return { n: 'pack', a: R.pack.id };
-    return { n: 'stories', a: null };
+  function continueTarget() { var stp = nextStep(); primeStep(stp); return stp.go; }
+
+  /* ======================================================== THE ONE NEXT STEP
+     Home's Continue card and the Hive's #/continue are the same door, so they are the
+     same function (family standard §2.3, §4): never two "next" lessons that disagree.
+
+     Whatever the child was in the middle of most recently — a story left part-way, a
+     course stop, a language lesson — and when nothing is open, tonight's story, which is
+     the same story the landing page offers (one daily pick, one index). Every candidate
+     reads its own record: the course frontier from paath.js, the Bhasha lesson from the
+     SRS path, the story's scene from where the child stopped. Nothing here stores its
+     own idea of progress. */
+  function storyById(id) { return allStories().filter(function (x) { return x.id === id; })[0] || null; }
+  function storyOfDay() {
+    var st = allStories(), n = st.length;
+    if (!n) return null;
+    var at = (new Date().getDate() * 7) % n;
+    for (var k = 0; k < n; k++) { var s = st[(at + k) % n]; if (!S.read[s.id]) return s; }
+    return st[at];
+  }
+  function nPlaces() { return Object.keys((window.IND_MAP && window.IND_MAP.paths) || {}).length || 36; }
+  function nextStep() {
+    var R = S.resume || {}, cands = [];
+    if (R.story && R.story.id && !S.read[R.story.id]) {
+      var so = storyById(R.story.id);
+      if (so) {
+        var si = Math.min(R.story.i || 0, so.scenes.length - 1);
+        cands.push({ at: R.story.at || 0, kind: 'story', id: so.id, i: si,
+          kick: 'Keep going · a story', title: so.title, sub: so.hook || '',
+          art: storyArt(so.id), n: si, of: so.scenes.length,
+          meter: 'Scene ' + (si + 1) + ' of ' + so.scenes.length,
+          go: { n: 'story', a: so.id } });
+      }
+    }
+    var U = R.paath && R.paath.id ? paathUI() : null;
+    var pn = U && U.next ? U.next(R.paath.id) : null;
+    if (pn) cands.push({ at: R.paath.at || 0, kind: 'paath', id: pn.id, pn: pn,
+      kick: 'Paathshala · ' + pn.name, title: pn.label, sub: pn.part,
+      art: pn.cover, n: pn.n, of: pn.of, meter: 'Stop ' + (pn.n + 1) + ' of ' + pn.of,
+      go: pn.route });
+    if (R.pack && R.pack.id && window.IND_PACKS && window.IND_PACKS[R.pack.id] && window.IND_BHASHA) {
+      var pid = R.pack.id, pk = window.IND_PACKS[pid], path = bPath(pid), nx = bNext(path);
+      var all = 0, dn = 0;
+      path.forEach(function (r) { all += r.total; dn += r.done; });
+      if (nx) cands.push({ at: R.pack.at || 0, kind: 'bhasha', id: pid, nx: nx,
+        kick: 'Bhasha · ' + (pk.name ? pk.name.en : pid),
+        title: nx.lesson ? nx.lesson.unit.title + ' · lesson ' + nx.lesson.n + ' of ' + nx.lesson.of
+                         : 'Review ' + nx.rung.stage.name + ', until it sticks',
+        sub: nx.lesson ? 'Four new things, each shown and heard before you are asked. About five minutes.'
+                       : 'Nothing new — the words you have met, coming back until they stay.',
+        art: 'art/banner/bhasha.jpg', n: dn, of: all || 1,
+        meter: dn + ' of ' + all + ' lessons', go: { n: 'pack', a: pid } });
+    }
+    if (cands.length) {
+      cands.sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+      return cands[0];
+    }
+    var sd = storyOfDay();
+    if (!sd) return { kind: 'none', kick: 'Stories', title: 'The story shelf', sub: '', n: 0, of: 1,
+                      meter: '', go: { n: 'stories', a: null } };
+    var code = ((sd.place || [])[0] || '').replace('IN-', ''), lit = Object.keys(S.lit).length;
+    return { kind: 'story', id: sd.id, i: 0, fresh: true,
+      kick: (Object.keys(S.read).length ? 'Next on your journey' : 'Your first story') + ' · tonight’s story',
+      title: sd.title, sub: sd.hook || '', art: storyArt(sd.id), n: lit, of: nPlaces(),
+      meter: code && !S.lit[code] && stateName(code)
+        ? 'Finish it and the mist lifts off ' + stateName(code)
+        : lit + ' of ' + nPlaces() + ' places remembered',
+      go: { n: 'story', a: sd.id } };
+  }
+  /* what a step needs set up before its screen paints: a story at the scene the child
+     left, a course stop at its first card, a language lesson already under way */
+  function primeStep(stp) {
+    if (!stp) return;
+    S.resume = S.resume || {};
+    if (stp.kind === 'story') {
+      S.resume.story = { id: stp.id, at: Date.now(), i: stp.i || 0 }; save();
+      play = { story: null, i: 0, answered: false, from: { id: stp.id, i: stp.i || 0 } };
+    } else if (stp.kind === 'paath' && stp.pn && stp.pn.prime) {
+      stp.pn.prime();
+    } else if (stp.kind === 'bhasha') {
+      S.resume.pack = { id: stp.id, at: Date.now() }; save();
+      quiz = quizReset(stp.id);
+      if (stp.nx.lesson) startSession(stp.nx.lesson.stage.id, 'lesson', lessonRef(stp.nx.lesson));
+      else startSession(stp.nx.rung.stage.id, 'lesson');
+    }
+  }
+  /* the Continue button itself */
+  function runStep() {
+    var stp = nextStep();
+    primeStep(stp);
+    go(stp.go.n, stp.go.a);
+    if (stp.kind === 'story') { var s = storyById(stp.id); if (s) sayScene(s, stp.i || 0); }
   }
 
+  /* the games that teach — every one scored on the learning decision (standard §10) */
+  var TEACHES = ['statehunt', 'festival', 'jataka', 'gyanpati', 'triviamaster', 'shabd', 'sabhyata'];
   function mountGame(id) {
     var g = (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0], host = $('#gamehost');
     if (!g || !host) return;
     try {
       gameTeardown = g.engine(host, {}, function (res) {
         res = res || {};
-        earn(res.sikke || res.kauris || (res.win ? 10 : 4), g.name); markToday();
+        /* ONLY A GAME THAT TEACHES PAYS, and it pays for finishing, not for winning
+           (standard §1, §10). Ludo, Saap-Sidi, carrom and the street games are played for
+           their own sake: no coins, because a dice roll is not something a child learned. */
+        if (TEACHES.indexOf(g.id) >= 0) { earn('contest', g.name); markToday(); }
+        lastDid('game', g.name);
         setTimeout(function () { go('mela'); }, 900);
       });
     } catch (e) { host.innerHTML = '<p class="muted">This stall could not open: ' + esc(e.message) + '</p>'; }
@@ -6751,6 +6971,15 @@
     if (nms && a !== 'navmore') nms.remove();
 
     if (a === 'begin')  { view = { name: 'onboard' }; return render(); }
+    if (a === 'cont')   return runStep();
+    if (a === 'guest')  {
+      var gid = t.getAttribute('data-id'), gs = storyById(gid);
+      if (!gs) { view = { name: 'onboard' }; return render(); }
+      S.resume = { story: { id: gid, at: Date.now(), i: 0 } };
+      play = { story: null, i: 0, answered: false }; view = { name: 'story', arg: gid };
+      render(); window.scrollTo(0, 0); sayScene(gs, 0);
+      return;
+    }
     /* data-arg is optional and was added for Paathshala, whose lessons link straight
        into a story, a verse or an era. Absent everywhere else, so undefined. */
     if (a === 'go')     return go(t.getAttribute('data-v'), t.getAttribute('data-arg') || undefined);
@@ -6922,7 +7151,7 @@
     if (a === 'rishpick') {
       var pick = t.getAttribute('data-id');
       rish.picked = pick;
-      if (pick === window.IND_RISHTEY.tree[rish.i].answer) { rish.right++; earn(3, 'rishtey'); }
+      if (pick === window.IND_RISHTEY.tree[rish.i].answer) { rish.right++; earn('answer', 'rishtey'); }
       return render();
     }
     if (a === 'rishnext') { rish.i++; rish.picked = null; return render(); }
@@ -6941,7 +7170,7 @@
         S.epic = S.epic || {}; S.epic[deck.epic] = S.epic[deck.epic] || { done: {} };
         if (!S.epic[deck.epic].done[deck.n]) {
           S.epic[deck.epic].done[deck.n] = today();
-          earn(10, 'an episode'); markToday();
+          earn('stop', 'an episode'); markToday();
         }
         save();
       }
@@ -6952,7 +7181,8 @@
       /* saying it aloud is the whole exercise; nothing is recorded or scored */
       S.recited = S.recited || {};
       var vid = t.getAttribute('data-id');
-      if (!S.recited[vid]) { S.recited[vid] = today(); earn(4, 'said it aloud'); save(); }
+      /* said aloud is the child's own word, not evidence — kept, never paid */
+      if (!S.recited[vid]) { S.recited[vid] = today(); save(); toast('Said aloud — kept on your shelf'); }
       toast('Say it out loud, twice. That is how it sticks.');
       return;
     }
@@ -6962,7 +7192,7 @@
     if (a === 'cards') { go('cards'); return; }
     if (a === 'carddone') {
       var cid = t.getAttribute('data-id'), NSc = neetiState();
-      if (!NSc.cards[cid]) { NSc.cards[cid] = today(); save(); earn(6, 'card taken'); }
+      if (!NSc.cards[cid]) { NSc.cards[cid] = today(); save(); toast('The card is yours to keep'); }
       render(); return;
     }
     if (a === 'dvpick') {
@@ -6973,14 +7203,14 @@
       var gv = t.getAttribute('data-v'), NSg = neetiState();
       var first = NSg.ghar[gv] == null;
       NSg.ghar[gv] = +t.getAttribute('data-i'); save();
-      if (first) earn(4, 'you asked at home');
+      if (first) toast('Asked at home — that is the best kind of lesson');
       render(); return;
     }
     if (a === 'deed') {
       var vid = t.getAttribute('data-id');
       S.mala = S.mala || [];
       S.mala.push({ v: vid, on: today() });
-      save(); earn(5, 'you did it'); markToday();   /* the deed fills the day's ring too */
+      save(); markToday();   /* the deed fills the day's ring — and pays nothing: it is the child's own word */
       toast('A bead for your mala.');
       return render();
     }
@@ -7002,20 +7232,22 @@
     if (a === 'next') {
       play.i++; play.answered = false;
       var st = play.story;
+      if (st && S.resume && S.resume.story && S.resume.story.id === st.id) S.resume.story.i = play.i;
       if (st && play.i >= st.scenes.length) {
         if (!S.read[st.id]) {
           S.read[st.id] = true;
           var c = (st.place || [])[0]; if (c) lightState(c.replace('IN-', ''));
-          earn(12, 'story finished'); markToday();
+          earn('stop', 'story finished'); markToday();
+          lastDid('story', st.title, c ? stateName(c.replace('IN-', '')) : '');
         }
         save();
-      } else if (st) sayScene(st, play.i);
+      } else if (st) { sayScene(st, play.i); save(); }
       return render();
     }
     if (a === 'answer') {
       var ask = play.story.scenes[play.i].ask, i = +t.getAttribute('data-i');
       play.answered = (i === ask.answer) ? ask.right : ask.wrong;
-      if (i === ask.answer) earn(3, 'good thinking');
+      if (i === ask.answer) earn('answer', 'good thinking');
       return render();
     }
     if (a === 'tellone') {
@@ -7086,10 +7318,10 @@
       var BE = window.IND_ECONOMY;
       var bp = BE ? BE.worldPrice(bw) : 0;
       if (!BE || !BE.canAfford(S, bp)) {
-        toast('That one costs ' + bp + ' sikke. You have ' + (S.sikke || 0) + '.');
+        toast('That one costs ' + bp + ' coins. You have ' + coins() + '.');
         return;
       }
-      BE.spend(S, bp);
+      if (!BE.spend(S, bp, 'world:' + bw)) return;
       S.own.worlds.push(bw);
       S.world = bw; save(); paintChrome();
       var BW = (window.IND_WORLDS && window.IND_WORLDS.get(bw)) || null;
@@ -7098,38 +7330,37 @@
       return render();
     }
 
-    /* THE PITARA. One card, from the ones you do NOT have, so a draw is never wasted
-       and never a duplicate. Sacred and epic packs are not in here at all. */
-    if (a === 'draw') {
-      var dp = t.getAttribute('data-p');
-      var DE = window.IND_ECONOMY;
-      if (!DE) return;
-      var left = DE.unheld(S, dp);
-      if (!left.length) { toast('You have every card in this one already.'); return; }
-      if (!DE.canAfford(S, DE.DRAW_PRICE)) {
-        toast('A draw is ' + DE.DRAW_PRICE + ' sikke. You have ' + (S.sikke || 0) + '.');
-        return;
+    /* CHOOSE WHO YOU MEET NEXT (standard §1: no random rewards). One card, the one the
+       child picked, at the printed price — or, for a rare card, opened by the learning its
+       card names. There is no draw left anywhere in the app. */
+    if (a === 'meet') {
+      var mid = t.getAttribute('data-id');
+      var ME = window.IND_ECONOMY;
+      if (!ME || !mid || ME.avatarOpen(S, mid)) return;
+      var mp = ME.packOf(mid), rule = ME.cardRule(mp ? mp.id : '', mid);
+      if (rule.kind === 'learn') {
+        if (mastered() < rule.need) { toast(rule.say + ' — you have mastered ' + mastered() + '.'); return; }
+      } else {
+        if (!ME.canAfford(S, rule.price)) { toast('That card is ' + rule.price + ' coins. You have ' + coins() + '.'); return; }
+        if (!ME.spend(S, rule.price, 'card:' + mid)) return;
       }
-      var got = DE.draw(S, dp);
-      if (!got) return;
-      DE.spend(S, DE.DRAW_PRICE);
-      S.own.avatars.push(got);
-      save(); paintChrome();
-      toast('You met ' + (avatarName(got) || got) + '!');
+      S.own.avatars.push(mid);
+      save(); paintChrome(); paintCoins();
+      toast('You met ' + (avatarName(mid) || mid) + '!');
       return render();
     }
 
-    /* BUYING A WHOLE PACK outright, for a child who would rather not draw. */
+    /* BUYING A WHOLE PACK outright, at the price of its cards. */
     if (a === 'buypack') {
       var bk = t.getAttribute('data-p');
       var PE = window.IND_ECONOMY;
       var pp = PE ? PE.packPrice(bk) : null;
       if (!PE || pp == null) return;
       if (!PE.canAfford(S, pp)) {
-        toast('That pack is ' + pp + ' sikke. You have ' + (S.sikke || 0) + '.');
+        toast('That pack is ' + pp + ' coins. You have ' + coins() + '.');
         return;
       }
-      PE.spend(S, pp);
+      if (!PE.spend(S, pp, 'pack:' + bk)) return;
       S.own.packs.push(bk);
       save(); paintChrome();
       toast('The whole pack is open.');
@@ -7139,6 +7370,10 @@
     /* DEVELOPER UNLOCK — for testing. Device-scoped and profile-scoped both, loud on
        screen while it is on, and it never touches a paid entitlement: it opens the
        sikke economy only. */
+    if (a === 'qnext') {
+      if (!quiz.hold) return;
+      quiz.hold = false; quiz.pi++; planStep(); return render();
+    }
     if (a === 'pin')       { pinKey(t.getAttribute('data-d')); return; }
     if (a === 'pinback')   { pinBuf = pinBuf.slice(0, -1); return render(); }
     if (a === 'grownlock') { grownOpen = false; return go('me'); }
@@ -7345,8 +7580,8 @@
          than a tap-and-move drill, so the child hears it end. */
       if (q.type === 'sentenceBlank') {
         saySentence(quiz.packId, q.answerWord);
-        advance(ok ? 2400 : 3400);
-      } else advance(ok ? 1100 : 2600);
+        settle(ok, 2400);
+      } else settle(ok, 1100);
       return;
     }
     /* PHASE B — production. Typing is a render, not a re-plan: the question
@@ -7515,8 +7750,9 @@
     /* or to the screen the link names: a shared #/state/KL, the Hive's #/continue */
     if (!resumed && S.started) {
       var hr = parseHash(location.hash);
-      if (hr && hr.n === 'continue') hr = continueTarget();
-      if (hr && known(hr.n)) { prepView(hr.n, hr.a); view = { name: hr.n, arg: hr.a }; }
+      var hc = hr && hr.n === 'continue';
+      if (hc) hr = continueTarget();
+      if (hr && known(hr.n)) { if (!hc) prepView(hr.n, hr.a); view = { name: hr.n, arg: hr.a }; }
     }
     /* Back from the first screen of a visit lands on Home, not outside the app */
     if (S.started && window.history && history.replaceState && view.name !== 'home') {
@@ -7542,6 +7778,15 @@
         Store.saveProfile(o); location.reload();
       };
       rd.readAsText(f);
+    });
+    /* a held wrong answer moves on from the keyboard as well as by touch */
+    document.addEventListener('keydown', function (e) {
+      if (view.name !== 'pack' || !quiz.hold) return;
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
+        if (document.activeElement && document.activeElement.getAttribute('data-act') === 'qnext' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        var qb = document.querySelector('[data-act="qnext"]'); if (qb) qb.click();
+      }
     });
     /* the PIN from a keyboard as well as by touch (house rule) */
     document.addEventListener('keydown', function (e) {
@@ -7588,6 +7833,8 @@
     document.addEventListener('visibilitychange', function () { if (!document.hidden) checkUpdate(); });
 
     window.BI = { S: S, go: go, render: render, Store: Store,
+                  /* test handles for tools/check-rewards.js: the real functions, not copies */
+                  earn: earn, mastered: mastered, level: level, coins: coins, goodDays: goodDays,
                   allStories: allStories, epics: epics,
                   storyThemes: function () { return STORY_THEMES.map(function (t) { return t.id; }); },
                   /* read-only view of the live quiz for tools/verify.js's
@@ -7618,7 +7865,8 @@
     window.addEventListener('ind-reward', function (e) {
       var d = (e && e.detail) || {};
       var n = Math.round(+d.n || 0);
-      if (n > 0 && n <= 100) { earn(n, d.why || 'well played'); markToday(); }
+      /* a game's mid-run reward is one right answer's worth, whatever it asked for */
+      if (n > 0) { earn('answer', d.why || 'well played'); markToday(); }
     });
   });
 })();

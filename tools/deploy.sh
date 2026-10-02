@@ -70,6 +70,11 @@ done
 
 PARENT=$(git rev-parse origin/gh-pages 2>/dev/null || git rev-parse gh-pages 2>/dev/null || true)
 
+# NEVER ROLL BACK SOMEBODY ELSE'S DEPLOY. gh-pages is shared by every branch that runs
+# this script; if what is live was built from a commit this HEAD does not contain, this
+# deploy would silently take that work down. tools/live-guard.sh says so and stops.
+bash tools/live-guard.sh || { echo "deploy: refused."; exit 1; }
+
 TREE_SRC=$(git rev-parse HEAD:app)
 SCRATCH_INDEX=$(mktemp -u)
 # The trap must not read GIT_INDEX_FILE: the script unsets it below, and `set -u` then
@@ -162,13 +167,16 @@ fi
 # while it is in development, and writing a CNAME here would point Pages at a domain
 # that is not in use yet — which takes the site OFF the address that does work.
 
+# what this deploy was built from, for the next deploy's live-guard to read back
+FROM_LINE="Deployed-From: $(git rev-parse HEAD) ($BRANCH)"
+
 if [ -n "$PARENT" ] && [ "$(git rev-parse "$PARENT^{tree}")" = "$TREE" ]; then
   echo "gh-pages already matches app/ at HEAD — nothing to deploy"
 else
   if [ -n "$PARENT" ]; then
-    COMMIT=$(git commit-tree "$TREE" -p "$PARENT" -m "$MSG")
+    COMMIT=$(git commit-tree "$TREE" -p "$PARENT" -m "$MSG" -m "$FROM_LINE")
   else
-    COMMIT=$(git commit-tree "$TREE" -m "$MSG")
+    COMMIT=$(git commit-tree "$TREE" -m "$MSG" -m "$FROM_LINE")
   fi
   # The first push of a large corpus can disconnect mid-sideband; the objects that did
   # land are kept, so a retry sends only what is missing and succeeds quickly.

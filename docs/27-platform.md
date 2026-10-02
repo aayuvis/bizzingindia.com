@@ -47,6 +47,15 @@ landing 585 KB. Budgets 1.5 MB and 400 KB. Home loads no route group at all.
   `app/` and `tools/` are those trees. Test one tree and ship another, and it says so.
 - **CI** (`.github/workflows/test.yml`) runs the same `tools/test.sh` on every push to the branch,
   on GitHub's Chromium.
+- **A deploy never rolls back another branch's deploy.** gh-pages is shared: on 2 October the
+  family shell went live from one branch and, four hours later, a Sabhyata deploy from another
+  branch that did not contain it put 142 files back a version — gate open, sha reported, nothing
+  said. Every deploy now writes `Deployed-From: <sha> (<branch>)` into its gh-pages commit, and
+  `tools/live-guard.sh` reads the live one back before the next: if HEAD does not contain it, the
+  deploy is refused and told to merge it. Replacing a live deploy on purpose is
+  `DEPLOY_REPLACE=<that exact sha>`, never a general bypass. `check-deploy` plays the sequence in
+  a throwaway remote — seven scenarios, watched to fail with the guard always passing and with
+  any `DEPLOY_REPLACE` accepted.
 
 ## The phone (L4)
 

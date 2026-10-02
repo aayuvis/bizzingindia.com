@@ -40,11 +40,17 @@ Real places appear era by era, asleep under the mist. You:
 - **Connect** two places with a route (🛠️ kala — craft). Connected places thrive:
   double yield, and the mist cannot take them.
 - **Wake** a sleeping place by reaching it with a route and telling its story
-  (📜 katha — story). Waking a place shows its real one-line fact.
+  (📜 katha — story). Waking a place shows its real one-line fact. **The first city
+  needs no road**: Dholavira is where the story starts, so nothing has to travel to it.
+  And while it is the only lamp the realm has, it wakes for nothing — with nothing else
+  awake there is nowhere to earn katha, and a first city lost with no way back was a
+  game over that never said so.
 - **Utsav** — hold a festival for a burst of everything, on a cooldown.
 
 Left unconnected, an awake place fades and eventually sleeps again — reversibly, and
-gently ("the mist is drifting over Lothal…"). Every ~40s an event asks for help — a lean
+gently ("the mist is drifting over Lothal…"). The mist only works on a place **a road could
+hold**: alone on the map, with nowhere yet to build to, a city is not left to fade for
+something the child cannot do (`check-sabhyata first-wake`). Every ~40s an event asks for help — a lean
 season at a neighbour — answered by spending grain *if a route reaches them*; answering
 builds katha faster than anything else.
 

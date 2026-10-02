@@ -796,6 +796,72 @@ check('deepsleep', 'a place left asleep through an age asks more to wake, and ne
   if (!(r.deep < r.fresh * 4)) throw new Error(`waking it costs ${r.deep} — beyond reach is beyond recovery`);
 });
 
+/* The first minute used to be able to end the game without saying so: Dholavira alone,
+   left to the mist, asked for a road that had nowhere to go — and nothing awake could earn
+   the katha to wake it. The first city needs no road, and the mist waits for one to be
+   possible. Played, not poked: the turns are real turns. */
+check('first-wake', 'the first city wakes without a road, and is never lost before a road is possible', async ({ p }) => {
+  const turns = (n) => p.evaluate((n) => {
+    const G = window.__SABG(), D = window.__SABDO; let most = 0;
+    for (let i = 0; i < n; i++) {
+      const t0 = G.t; D.turn();
+      if (G.t === t0) { const b = document.querySelector('#sab-ovhost .sab-btn'); if (b) b.click(); D.turn(); }
+      most = Math.max(most, G.sites.dholavira.idle, G.sites.dholavira.fade >= 0 ? 99 : 0);
+    }
+    const q = G.sites.dholavira; return { t: G.t, zzz: q.zzz, fade: q.fade, most };
+  }, n);
+  /* 1. alone on the map, the mist does not take it: there is nowhere to lay a road */
+  const alone = await turns(90);
+  if (alone.t < 80) throw new Error(`the turns did not run (t=${alone.t})`);
+  if (alone.zzz || alone.fade >= 0)
+    throw new Error(`Dholavira, alone with nothing else found, ${alone.zzz ? 'fell asleep' : 'began to fade'} by turn ${alone.t} — a road could not have held it`);
+
+  /* 2. the trap itself: asleep, nothing else found, no road, katha short of a wake */
+  const trap = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO;
+    Object.keys(G.sites).forEach(id => { if (id !== 'dholavira') { G.sites[id].found = false; G.sites[id].zzz = true; } });
+    G.routes = []; G.res.katha = 25; G.explorers = [];
+    const q = G.sites.dholavira; q.zzz = true; q.fade = -1;
+    const adv = D.advise().why;
+    D.act('dholavira', 'wake');
+    return { woke: !q.zzz, adv };
+  });
+  if (!trap.woke) throw new Error('the first city, asleep and alone, could not be woken — the game is over and says nothing');
+  if (/road would let you wake/.test(trap.adv)) throw new Error(`the advisor sent the child for an impossible road: "${trap.adv}"`);
+
+  /* 3. with somewhere else awake it is the ordinary price — but still no road */
+  const priced = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO;
+    G.sites.lothal.found = true; G.sites.lothal.zzz = false;
+    const q = G.sites.dholavira; q.zzz = true; q.fade = -1;
+    const cost = D.wakeCost('dholavira');
+    D.act('dholavira', 'city'); D.paint();      /* select it, so its tiles draw */
+    const sh = document.querySelector('#sab-sheet');
+    const txt = sh ? sh.innerText.replace(/\s+/g, ' ') : '';
+    G.res.katha = cost; D.act('dholavira', 'wake');
+    const woke = !q.zzz;
+    /* and an ordinary city still needs its road */
+    G.sites.lothal.zzz = true; G.res.katha = 999; D.act('lothal', 'wake');
+    return { cost, woke, txt, other: !G.sites.lothal.zzz, routes: G.routes.length };
+  });
+  if (!(priced.cost > 0)) throw new Error(`with another city awake the first one woke for ${priced.cost} — free is only for the one way back`);
+  if (!priced.woke) throw new Error('the first city, with katha in hand and no road, would not wake');
+  if (!/Wake/.test(priced.txt) || /needs a road/.test(priced.txt))
+    throw new Error(`the sleeping first city's tiles say: "${priced.txt.slice(0, 120)}"`);
+  if (priced.other) throw new Error('Lothal woke without a road — only the first city is exempt');
+
+  /* 4. once a road is possible, the mist's lesson is back for Dholavira too. Its own
+     counter, not the outcome: a raid also fades a city, and hid this once. */
+  await p.evaluate(() => {
+    const G = window.__SABG(); G.routes = [];
+    G.sites.lothal.found = true; G.sites.lothal.zzz = true;
+    const q = G.sites.dholavira; q.zzz = false; q.idle = 0; q.fade = -1;
+  });
+  const later = await turns(20);
+  if (!(later.most >= 3))
+    throw new Error(`with a road possible and none laid, the mist never counted toward Dholavira (most ${later.most}) — the lesson is gone`);
+});
+
 check('scenario', 'a scenario hands over a realm that already works', async ({ p }) => {
   const r = await p.evaluate(() => {
     window.__SABDO.scenario('maurya');

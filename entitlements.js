@@ -29,7 +29,8 @@
   var FREE_PACKS = { 'lang-hi': true };
 
   function state() {
-    try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; }
+    /* the household's, not a child's: through the Store seam's family keys */
+    try { return JSON.parse((W.IND_STORE ? W.IND_STORE.famGet(KEY) : localStorage.getItem(KEY)) || 'null'); } catch (e) { return null; }
   }
 
   W.IND_ENT = {
@@ -45,10 +46,11 @@
       code = String(code || '').trim().toUpperCase();
       var plan = DEMO_CODES[code];
       if (!plan) return false;
-      try { localStorage.setItem(KEY, JSON.stringify({ plan: plan, code: code, at: Date.now() })); } catch (e) {}
+      try { var v = JSON.stringify({ plan: plan, code: code, at: Date.now() });
+            if (W.IND_STORE) W.IND_STORE.famSet(KEY, v); else localStorage.setItem(KEY, v); } catch (e) {}
       return true;
     },
-    clear: function () { try { localStorage.removeItem(KEY); } catch (e) {} },
+    clear: function () { try { if (W.IND_STORE) W.IND_STORE.famDel(KEY); else localStorage.removeItem(KEY); } catch (e) {} },
     planName: function () {
       var s = state();
       return s && s.plan === 'family' ? 'Parivaar Pass' : null;

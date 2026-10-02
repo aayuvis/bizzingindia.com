@@ -2701,3 +2701,172 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .demobar { background: var(--accent2); color: #fff; font-size: 13.5px; line-height: 1.4;
   padding: 7px 16px; text-align: center; }
 .demobar a { color: #fff; font-weight: 700; text-decoration: underline; margin-left: 6px; }
+
+/* ------------------------------------------------------------ FAMILY TOP BAR
+   Family standard §3: one 56px row, the same in every Bizzing app —
+   ⬡ back to the Hive · the app's name · … · theme · 🔒 grown-ups · avatar ▾.
+   India's own extras (coins, the family's language, read-in-Hindi) sit in the gap on a
+   wide screen and fold into the child's menu on a phone. */
+.topbar .barrow { flex-wrap: nowrap; height: 56px; padding: 0 var(--space-lg); gap: 10px; }
+.topbar .brand { font-size: 24px; gap: 9px; min-width: 0; white-space: nowrap; }
+.topbar .brand img, .topbar .brand svg { width: 40px; height: 40px; border-radius: 10px; }
+.topbar .worldfrieze .wa-frieze { height: 44px; }
+.hivebtn { flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+  color: var(--accent); border: 1px solid var(--line); background: var(--card); text-decoration: none; }
+.hivebtn:hover, .hivebtn:focus-visible { border-color: var(--accent); }
+body.drilling .hivebtn { visibility: hidden; }
+.kidbtn { flex: none; display: inline-flex; align-items: center; gap: 3px; height: 44px; padding: 3px 8px 3px 3px;
+  border-radius: var(--radius-pill); border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
+.kidbtn:hover, .kidbtn:focus-visible, .kidbtn[aria-expanded="true"] { border-color: var(--accent); }
+.kidav { display: block; width: 36px; height: 36px; border-radius: 50%; overflow: hidden; }
+.kidav img, .kidav svg { display: block; width: 36px; height: 36px; }
+.kidcaret { font-size: 12px; color: var(--text2); }
+#kidmenu { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 80; }
+#kidmenu .km-in { position: absolute; top: 60px; right: 12px; width: 340px; max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 80px); overflow: auto; background: var(--card); border: 1px solid var(--line);
+  border-radius: 16px; box-shadow: var(--shadow-lg); padding: 8px; }
+@media (min-width: 1150px) { #kidmenu .km-in { right: calc((100vw - 1120px) / 2 + 12px); } }
+.km-h { padding: 6px 10px 4px; }
+.km-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 10px;
+  border: 0; border-radius: 10px; background: none; color: var(--text); font: inherit; font-weight: 600;
+  text-align: left; cursor: pointer; }
+.km-row:hover, .km-row:focus-visible { background: var(--accent-soft); }
+.km-row > span { flex: 1; min-width: 0; }
+.km-row i { font-style: normal; font-size: 12px; font-weight: 700; color: var(--text2); }
+.km-row.on { background: var(--card2); }
+.km-row img { flex: none; width: 34px; height: 34px; border-radius: 50%; }
+.km-static { cursor: default; }
+.km-static:hover { background: none; }
+#kidmenu hr { border: 0; border-top: 1px solid var(--line); margin: 6px 4px; }
+.km-phone { display: none; }
+@media (max-width: 760px) {
+  .barctl .barown { display: none; }
+  .km-phone { display: block; }
+}
+@media (max-width: 430px) {
+  .topbar .barrow { padding: 0 10px; gap: 6px; }
+  .topbar .brand { font-size: 18px; gap: 6px; }
+  .topbar .brand img, .topbar .brand svg { width: 32px; height: 32px; }
+  .hivebtn { width: 34px; height: 34px; }
+  .barctl .hivechip { display: none; }
+}
+/* adding a child: the setup says whose it is, and can be stepped back out of */
+.obadding { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px;
+  padding: 8px 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-pill); }
+.km-row > span.km-ic { flex: none; width: 18px; text-align: center; color: var(--accent); }
+.kidlist { display: flex; flex-direction: column; gap: 8px; }
+.kidrow { display: flex; align-items: center; gap: 12px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--card2); }
+.kidrow img { width: 40px; height: 40px; border-radius: 50%; flex: none; }
+.kidrow b { flex: 1; min-width: 0; }
+
+/* ------------------------------------------------------------- GAME FRAME
+   Family standard §10, given by the host to every game (docs/26): a title card whose
+   how-to folds to a title row after three seconds, motion and sound on every answer,
+   and a finish that says what was practised. */
+.gframe { position: relative; }
+.gf-title { display: flex; align-items: center; gap: 12px; width: 100%; margin: 0 0 12px; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--card2); color: var(--text);
+  font: inherit; text-align: left; cursor: pointer; position: relative; overflow: hidden; }
+.gf-ic { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--accent); color: #fff; }
+.gf-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.gf-txt b { font-family: var(--display); font-size: 19px; }
+.gf-how { font-size: 15px; }
+.gf-bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--accent);
+  transform-origin: left; animation: gfbar 3s linear forwards; }
+@keyframes gfbar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.gf-title.folded { padding: 6px 12px; }
+.gf-title.folded .gf-how, .gf-title.folded .gf-keys, .gf-title.folded .gf-bar { display: none; }
+.gf-title.folded .gf-ic { width: 30px; height: 30px; }
+.gf-title.folded .gf-txt b { font-size: 16px; }
+.gf-practised { margin: 10px 0; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--text);
+  font-size: 14.5px; text-align: left; }
+.gframe.gf-yes { animation: gfyes .5s ease-out; }
+.gframe.gf-no { animation: gfno .4s ease-out; }
+@keyframes gfyes { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--good, #2e8b57) 55%, transparent); }
+  100% { box-shadow: 0 0 0 14px transparent; } }
+@keyframes gfno { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-4px); } 60% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) {
+  .gf-bar { animation: none; }
+  .gframe.gf-yes, .gframe.gf-no { animation: none; outline: 3px solid var(--accent); outline-offset: 2px; }
+}
+
+/* ------------------------------------------------------------------ MEDALS
+   The family medallion (standard §12): a struck metal disc with a raised rim, bronze ·
+   silver · gold, the glyph in the field. Unearned ones are the same disc, unstruck. */
+.medal { position: relative; display: inline-grid; place-items: center; flex: none;
+  width: var(--md); height: var(--md); border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, var(--m1) 0%, var(--m2) 52%, var(--m3) 100%);
+  box-shadow: inset 0 2px 3px rgba(255,255,255,.55), inset 0 -3px 5px rgba(0,0,0,.28), 0 3px 8px rgba(0,0,0,.18); }
+.medal .md-ring { position: absolute; top: 9%; left: 9%; right: 9%; bottom: 9%; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.5); box-shadow: inset 0 0 0 2px rgba(0,0,0,.12); }
+.medal .md-face { position: relative; color: var(--m4); display: grid; place-items: center; }
+.medal.bronze { --m1: #f3c9a0; --m2: #c27c46; --m3: #7c4520; --m4: #4e2a10; }
+.medal.silver { --m1: #ffffff; --m2: #c4ccd6; --m3: #7f8a98; --m4: #3b4350; }
+.medal.gold   { --m1: #fff3b8; --m2: #e3b23c; --m3: #9a6a12; --m4: #5a3d06; }
+.medal.unearned { --m1: #eeeae4; --m2: #d6d0c6; --m3: #b8b0a4; --m4: #8d857a; box-shadow: inset 0 0 0 2px rgba(0,0,0,.08); }
+.mdgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.mdcell { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 10px 8px;
+  border-radius: 14px; border: 1px solid var(--line); background: var(--card2); }
+.mdcell b { font-size: 14px; }
+#celebrate { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 130; display: grid; place-items: center;
+  background: rgba(14, 10, 34, .62); padding: 16px; }
+#celebrate .cel-in { position: relative; width: min(420px, 100%); background: var(--card); border-radius: 22px;
+  padding: 28px 22px 22px; text-align: center; box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
+  align-items: center; gap: 6px; overflow: hidden; }
+#celebrate h2 { margin: 2px 0; }
+#celebrate p { margin: 0 0 12px; }
+#celebrate .medal { animation: mdspin .9s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes mdspin { from { transform: rotateY(540deg) scale(.3); opacity: 0; } to { transform: rotateY(0) scale(1); opacity: 1; } }
+.cel-burst { position: absolute; top: 96px; left: 50%; width: 0; height: 0; }
+.cel-burst i { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--accent2);
+  animation: celb 1s ease-out .35s both; }
+.cel-burst i:nth-child(odd) { background: var(--accent); }
+.cel-burst i:nth-child(1) { --dx: 0px; --dy: -90px; } .cel-burst i:nth-child(2) { --dx: 64px; --dy: -64px; }
+.cel-burst i:nth-child(3) { --dx: 90px; --dy: 0px; } .cel-burst i:nth-child(4) { --dx: 64px; --dy: 64px; }
+.cel-burst i:nth-child(5) { --dx: 0px; --dy: 90px; } .cel-burst i:nth-child(6) { --dx: -64px; --dy: 64px; }
+.cel-burst i:nth-child(7) { --dx: -90px; --dy: 0px; } .cel-burst i:nth-child(8) { --dx: -64px; --dy: -64px; }
+.cel-burst i:nth-child(9) { --dx: 34px; --dy: -110px; } .cel-burst i:nth-child(10) { --dx: -34px; --dy: -110px; }
+.cel-burst i:nth-child(11) { --dx: 110px; --dy: 30px; } .cel-burst i:nth-child(12) { --dx: -110px; --dy: 30px; }
+@keyframes celb { from { transform: translate(0, 0) scale(1); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(.4); opacity: 0; } }
+/* the lesson's own end card moves too */
+.bh-done.ok { animation: bhdone .6s ease-out both; }
+@keyframes bhdone { 0% { transform: scale(.96); box-shadow: 0 0 0 0 var(--accent-soft); } 60% { transform: scale(1.01); } 100% { transform: scale(1); box-shadow: 0 0 0 16px transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  #celebrate .medal, .cel-burst i, .bh-done.ok { animation: none; }
+  .cel-burst { display: none; }
+}
+
+/* ------------------------------------------------------------------ AAJ KA
+   Five minutes that end (docs/26): three steps, a look back, a finish card. */
+.aajhead h1 { margin: 4px 0 12px; }
+.aajsteps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.aajsteps li { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 14px; background: var(--card2); }
+.aajsteps li > span:last-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.aajsteps .as-ic { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--card); border: 1px solid var(--line); color: var(--text2); font-weight: 800; }
+.aajsteps li.now { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.aajsteps li.ok .as-ic { background: var(--accent); border-color: var(--accent); color: #fff; }
+@media (max-width: 640px) { .aajsteps { grid-template-columns: minmax(0, 1fr); } }
+.aajgo p { margin: 0 0 12px; }
+.aajq h2 { margin: 6px 0 14px; }
+.aajopts { display: grid; gap: 10px; }
+.aajopt { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 10px 14px;
+  border: 1.5px solid var(--line); border-radius: 14px; background: var(--card); color: var(--text);
+  font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.aajopt:hover:not([disabled]), .aajopt:focus-visible { border-color: var(--accent); }
+.aajopt .ao-n { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--card2); border: 1px solid var(--line); font-weight: 800; }
+.aajopt.right { border-color: var(--good, #2e8b57); background: var(--accent-soft); }
+.aajopt.wrong { border-color: var(--accent2); }
+.aajopt.off { opacity: .6; }
+.aajfb { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--card2); border: 1px solid var(--line); }
+.aajfb p { margin: 0 0 10px; }
+.aajdone { position: relative; overflow: hidden; text-align: left; }
+.aajdone .cel-burst { top: 30px; left: 85%; }
+.aajsum { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.aajsum li { display: flex; gap: 10px; align-items: flex-start; font-size: 17px; }
+.aajsum li svg { flex: none; margin-top: 3px; color: var(--accent); }
+.aajbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px;
+  padding: 8px 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-pill); box-shadow: var(--shadow); }

@@ -1728,6 +1728,7 @@
     if (a === 'pass') {
       var cid2 = el.getAttribute('data-id'), m2 = modOf(get(cid2), el.getAttribute('data-m'));
       var res = ledger.checked(cid2, m2);
+      if (res.mastered && api.learned) api.learned(m2.objective || m2.name);
       api.toast(res.mastered ? 'Learned — and it counted, because you learned it on an earlier day.'
                              : 'Good practice. Come back another day and it will count.');
       api.go('paath', cid2); return true;

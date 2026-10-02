@@ -598,7 +598,6 @@
             ' — every word you met today is one the mist gets back a little less of.</p>' +
           '<div class="sh-tally">' +
             '<span class="sh-chipstat"><b>' + score + '</b> / ' + QS.length + '</span>' +
-            '<span class="sh-chipstat"><b>' + kauris + '</b> kauris</span>' +
           '</div>' +
           '<div class="sh-row">' +
             '<button type="button" class="sh-btn" data-go="out">Back to the Mela</button>' +

@@ -3579,16 +3579,15 @@
     }
   };
   /* ============================================================ MANIFEST OUT */
-  /* FIVE WORLDS IN THE PICKER, the rest archived in place. The scenes,
-     tiles and friezes of the archived ten stay in this file untouched — one
-     id added back to ACTIVE re-opens a world whole. The five cover the
-     registers: a street, a folk-art tradition, a festival, the sky, and
-     play. A profile saved on an archived world is healed to the first
-     active one by worldFix() in app.js. */
-  var ACTIVE = ['delhi6', 'madhubani', 'diwali', 'antariksh', 'cricket'];
-  var list = W.filter(function (w) { return ACTIVE.indexOf(w.id) >= 0; }).map(function (w) {
+  /* ALL FIFTEEN WORLDS IN THE PICKER, under the family's one rule (standard §7; FIX-INDIA
+     §2): ten of them sat painted and finished but unoffered. The order is the rule — worlds
+     1–2 are open to everyone, the rest open with the family plan or for 240 coins, and
+     worlds 1–6 each hold two avatar packs (economy.js WORLD_ORDER, avatar-catalogue.js). */
+  var ACTIVE = ['delhi6', 'madhubani', 'diwali', 'pujo', 'cricket', 'antariksh',
+                'mumbai', 'rajasthan', 'taj', 'holi', 'dallake', 'bollywood', 'truck', 'dance', 'patterns'];
+  var list = ACTIVE.map(function (id) { return W.filter(function (w) { return w.id === id; })[0]; }).filter(Boolean).map(function (w) {
     return { id: w.id, name: w.name, region: w.region, note: w.note, credit: w.credit,
-      full: !!w.full, tokens: w.t, tile: (TILES[w.id] || '') };
+      full: !!w.full, tokens: w.t, night: w.n, tile: (TILES[w.id] || '') };
   });
   window.IND_WORLDS = {
     list: list,

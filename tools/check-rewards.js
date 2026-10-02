@@ -94,14 +94,15 @@ check('random', 'nothing is random: no draw, and choosing a card gives that card
     throw new Error('a draw, a drop rate or the pitara is still in the app');
   const r = await p.evaluate(() => {
     const B = window.BI, E = window.IND_ECONOMY, S = B.S;
-    for (let i = 0; i < 10; i++) B.earn('mastery');           /* enough to choose */
-    const pack = (window.IND_AVATAR_PACKS || []).find(pk => E.packPrice(pk.id) != null && !E.packOpen(S, pk.id));
-    if (!pack) return { none: true };
-    const id = E.unheld(S, pack.id).find(a => E.cardRule(pack.id, a).kind === 'price');
-    if (!id) return { none: true };
-    const el = document.createElement('button'); el.setAttribute('data-act', 'meet'); el.setAttribute('data-id', id);
+    /* enough to choose: three past days of mastery, each under the family's daily lid */
+    for (let d = 1; d <= 3; d++) for (let i = 0; i < 5; i++) window.IND_WALLET.earn('india', S.name, 'mastery', Date.now() - d * 864e5 - i);
+    /* the family engine (standard §8): a Rare in an open world, at its printed price */
+    const a = (window.IND_AVATARS || []).find(x => x.tier === 'rare' && E.stateOf(S, x.id).state === 'buy' && !E.stateOf(S, x.id).short);
+    if (!a) return { none: true };
+    const id = a.id, before = S.own.avatars.length;
+    const el = document.createElement('button'); el.setAttribute('data-act', 'buyav'); el.setAttribute('data-id', id);
     document.getElementById('main').appendChild(el); el.click();
-    return { id, got: S.own.avatars.includes(id), others: S.own.avatars.filter(a => a !== id).length };
+    return { id, got: S.own.avatars.includes(id), others: S.own.avatars.length - before - 1 };
   });
   if (r.none) throw new Error('no card to choose — nothing was tested');
   if (!r.got) throw new Error(`choosing ${r.id} did not give ${r.id}`);
@@ -163,7 +164,7 @@ check('migrate', 'the old sikke move into the family wallet 1:1, once', async ({
   await p.goto(base, { waitUntil: 'networkidle' }); await p.waitForTimeout(500);
   const b = await p.evaluate(() => window.IND_WALLET.balance('Migrant'));
   if (a.bal !== 137) throw new Error(`137 sikke became ${a.bal} coins`);
-  if (a.v !== 2) throw new Error(`the profile is at schema ${a.v}, not 2`);
+  if (a.v !== 3) throw new Error(`the profile is at schema ${a.v}, not walked up to 3`);
   if (b !== 137) throw new Error(`a second boot moved them again (${b})`);
 });
 

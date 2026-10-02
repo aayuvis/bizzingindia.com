@@ -78,7 +78,8 @@ check('sfx', 'right and wrong sound different, and the one mute silences both', 
   const r = await played(p);
   if (r.indexOf('right') < 0) throw new Error('a right answer made no sound: ' + JSON.stringify(r));
   /* the one mute, in the child's menu */
-  await tap(p, '.kidbtn'); await tap(p, '#kidmenu [data-act="sound"]');
+  /* the one mute is one tap from ☰ (standard v2 §11) */
+  await tap(p, '.menubtn'); await tap(p, '#drawer [data-act="sound"]');
   await p.waitForTimeout(1200); await clearPlayed(p);
   await ans(false);
   const m = await played(p);
@@ -127,7 +128,7 @@ check('games', 'every game: a title card with a folding how-to; Gyanpati sounds 
   if (!/What you practised/.test(end.practised)) throw new Error('the end card does not say what was practised');
   const rights = pl.filter(x => x === 'right').length;
   if (rights < answers) throw new Error(`${answers} answers, ${rights} right sounds`);
-  if (pl.indexOf('win') < 0) throw new Error('the finish made no sound');
+  if (pl.indexOf('win') < 0 && pl.indexOf('finish') < 0) throw new Error('the finish made no sound');
   if (motions < answers) throw new Error(`${answers} answers, ${motions} motions`);
 }, { reduced: true });
 

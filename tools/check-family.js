@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-/* Bizzing India — the family layer (FIX-INDIA O4, B7, O3, N4; family standard §3, §5, §13).
+/* Bizzing India — the family layer (FIX-INDIA O4, B7, O3, N4; family standard v2 §3, §5, §19).
    docs/25-family.md says why each one exists.
 
-     topbar     one 56px row in the family order — ⬡ Hive · name · … · theme · 🔒 · avatar ▾ —
+     topbar     one 56px row in the family order — ⬡ Hive · ☰ · name · … · search · coin · theme · 🔒 · avatar ▾ —
                 on desktop and phone, nothing past 390px, and ⬡ hidden inside a running drill
      household  two children: the second starts with nothing of the first's (stories, coins,
                 map, Sabhyata), switching back finds the first exactly as left, a second child
@@ -50,7 +50,8 @@ check('topbar', 'one 56px row in the family order, on desktop and phone; ⬡ hid
     const m = await p.evaluate(() => {
       const row = document.querySelector('.topbar .barrow'), r = row.getBoundingClientRect();
       const x = sel => { const e = document.querySelector(sel); return e && e.offsetParent ? e.getBoundingClientRect() : null; };
-      const parts = { hive: x('.topbar .hivebtn'), name: x('.topbar .brand'), theme: x('.topbar [data-act="night"]'),
+      const parts = { hive: x('.topbar .hivebtn'), menu: x('.topbar .menubtn'), name: x('.topbar .brand'),
+        search: x('.topbar [data-v="search"]'), coin: x('.topbar .coinchip'), theme: x('.topbar [data-act="night"]'),
         grown: x('.topbar [data-v="grown"]'), kid: x('.topbar .kidbtn') };
       /* the standard's own measure: the page's width against the 390 the viewport was set to
          (innerWidth widens under emulation when something overflows, so it is not used) */
@@ -59,7 +60,10 @@ check('topbar', 'one 56px row in the family order, on desktop and phone; ⬡ hid
         rowTop: r.top, rowBot: r.bottom, href: (document.querySelector('.topbar .hivebtn') || {}).href || '', over };
     });
     if (Math.abs(m.h - 56) > 1) throw new Error(`at ${vp.width}px the bar is ${m.h}px, not 56`);
-    const order = ['hive', 'name', 'theme', 'grown', 'kid'];
+    /* family standard v2 §3: [⬡ Hive] [☰] [mascot + Bizzing India] … [search] [coin] [theme] [🔒] [avatar ▾];
+       on a phone search, theme and 🔒 move into ☰ */
+    const order = vp.width >= 900 ? ['hive', 'menu', 'name', 'search', 'coin', 'theme', 'grown', 'kid']
+                                  : ['hive', 'menu', 'name', 'coin', 'kid'];
     for (const k of order) {
       const v = m.parts[k];
       if (!v) throw new Error(`at ${vp.width}px the bar has no ${k}`);
@@ -93,7 +97,8 @@ check('household', 'two children never mix, switching back finds the first as le
   /* a grown-up adds Ravi */
   await p.evaluate(() => window.BI.go('grown')); await p.waitForTimeout(300);
   for (let k = 0; k < 2; k++) for (const d of '2468') await tap(p, `.pinkey[data-d="${d}"]`);
-  await tap(p, '[data-act="addkid"]'); await p.waitForTimeout(800);
+  await p.waitForSelector('#main [data-act="addkid"]', { timeout: 20000 }).catch(() => {});
+  await tap(p, '#main [data-act="addkid"]'); await p.waitForTimeout(800);
   if (!(await p.$('#nm'))) throw new Error('adding a child did not open their setup');
   if (!(await p.$('[data-act="addcancel"]'))) throw new Error('a child being added cannot be un-added');
   /* the same name is refused: the wallet is kept by first name */
@@ -155,7 +160,7 @@ check('activity', 'bizzing.activity gets active minutes and a story\'s milestone
 }, { clock: true });
 
 check('seam', 'storage goes through the Store seam; v1 walks up; a newer profile is never stamped older', async ({ p, base }) => {
-  const SEAM = ['app.js', 'demo.js', 'bizzing-wallet.js', 'bizzing-activity.js'];
+  const SEAM = ['app.js', 'demo.js'];   /* the family's own modules live in app/family/ and own their keys */
   const bad = [];
   fs.readdirSync(APP).filter(f => f.endsWith('.js') && SEAM.indexOf(f) < 0).forEach(f => {
     const L = fs.readFileSync(path.join(APP, f), 'utf8').split('\n');

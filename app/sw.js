@@ -61,6 +61,21 @@ self.addEventListener('activate', function (e) {
       }));
     }).then(function () { return self.clients.claim(); })
   );
+  /* THE SECOND LIST (FIX-INDIA R2): the per-script faces, the reading passages and the music,
+     fetched one at a time well after the first visit has settled — so the app is offline in
+     every script without a first visit paying for nine scripts it did not draw. */
+  setTimeout(function () {
+    caches.open(CORE_CACHE).then(function (c) {
+      return (self.IND_PRECACHE_LATER || []).reduce(function (p, u) {
+        return p.then(function () {
+          return c.match(u).then(function (hit) {
+            if (hit) return;
+            return fetch(u).then(function (r) { if (r && r.ok) return c.put(u, r); }).catch(function () {});
+          });
+        });
+      }, Promise.resolve());
+    }).catch(function () {});
+  }, 30000);
 });
 
 function isMedia(path) {

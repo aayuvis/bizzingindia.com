@@ -10,7 +10,7 @@
 
   /* =================================================================== STORE */
   var Store = {
-    KEY: 'bi_v1', DEV: 'bi_device', HOUSE: 'bi_house', schemaVersion: 2,
+    KEY: 'bi_v1', DEV: 'bi_device', HOUSE: 'bi_house', schemaVersion: 3,
     /* A HOUSEHOLD OF CHILDREN (family standard §5; FIX-INDIA B7). There used to be one
        profile per device, so a second child either shared the first one's stories, coins
        and map or wiped them. Now `bi_house` names the children and which one is playing:
@@ -98,6 +98,37 @@
       1: function v1_to_v2(b) {
         b.coinsToMove = Math.max(0, Math.floor((b.sikke != null ? b.sikke : b.kauris) || 0));
         b.sikke = 0; b.xp = 0;
+      },
+      /* v2_to_v3 — THE FAMILY'S 96 (standard §8; FIX-INDIA §2). Avatars and worlds moved to the
+         family engine: tiers, printed prices, two free worlds. NOTHING A CHILD HELD IS TAKEN
+         AWAY: every card that was open to them under the old rules (the sacred and epic packs
+         and the Panchatantra six were free to all; packs and cards they bought) and every world
+         they could use (Diwali Nights was free) is written into what they own. The lists are
+         frozen here as they stood on 2 Oct 2026 — this step must never read today's packs. */
+      2: function v2_to_v3(b) {
+        var own = b.own = b.own || {}; own.avatars = own.avatars || []; own.worlds = own.worlds || []; own.packs = own.packs || [];
+        var OLD = {
+          devas: ['ganesha','krishna','hanuman','durga','saraswati','shiva','rama','lakshmi','buddha','mahavira','khanda'],
+          panch: ['pt_lion','pt_crow','pt_tortoise','pt_mouse','pt_monkey','pt_rabbit'],
+          darbar: ['akbar','birbal','tansen'],
+          great: ['ashoka','shivaji','lakshmibai','gandhi','ambedkar','bhagat','kalam','savitribai'],
+          khel: ['dhyanchand','milkha','sachin','marykom','sindhu','neeraj','mirabai','avani'],
+          naya: ['kurien','sudha_murty','ela_bhatt','falguni','rocket'],
+          vigyan: ['raman','ramanujan','jcbose','janaki_ammal','swaminathan'],
+          ramayana: ['sita','lakshmana','ravana','vibhishana','jatayu','shabari','valmiki'],
+          mahabharata: ['draupadi','arjuna','bhima','yudhishthira','karna','bhishma','gandhari','ekalavya'],
+          dashavatara: ['matsya','kurma','varaha','narasimha','vamana','parashurama','balarama','kalki'],
+          pantheon: ['indra','agni','surya','ganga','parvati','kartikeya'],
+          asuras: ['bali','prahlada','hiranyakashipu','shukracharya','mahishasura']
+        };
+        var FREE = ['devas', 'ramayana', 'mahabharata', 'dashavatara', 'pantheon', 'asuras', 'panch'];
+        var add = function (id) { if (own.avatars.indexOf(id) < 0) own.avatars.push(id); };
+        Object.keys(OLD).forEach(function (p) {
+          if (FREE.indexOf(p) >= 0 || own.packs.indexOf(p) >= 0) OLD[p].forEach(add);
+        });
+        if (b.buddy) add(b.buddy);
+        if (b.started && own.worlds.indexOf('diwali') < 0) own.worlds.push('diwali');
+        if (b.world && ['delhi6', 'madhubani'].indexOf(b.world) < 0 && own.worlds.indexOf(b.world) < 0) own.worlds.push(b.world);
       }
     },
     /* THE FAMILY'S BACKUP: every child and what each one owns, in one file. Restoring it
@@ -265,7 +296,7 @@
     return P;
   }
   var S = Store.loadProfile() || {
-    schemaVersion: 2, name: '', age: 8, mode: 'bade',
+    schemaVersion: 3, name: '', age: 8, mode: 'bade',
     tongue: null,                 /* mother-tongue id from data-tongue.js; null = lean nowhere */
     buddy: 'ganesha', world: 'delhi6',
     voice: 'f',                   /* which recorded voice to hear — see humanClip() */
@@ -283,10 +314,14 @@
   /* MIGRATION. The currency used to be called kauris and lived in S.kauris. Same coins,
      new name, so the balance carries over instead of a child waking up broke. */
   if (S.sikke == null) S.sikke = S.kauris || 0;
-  /* and the coins themselves, into the family wallet (Store v1_to_v2 measured them) */
-  if (S.coinsToMove > 0 && S.name && window.IND_WALLET) {
-    window.IND_WALLET.migrateFrom('india', S.name, S.coinsToMove);
-    S.coinsToMove = 0; Store.saveProfile(S);
+  /* and the coins themselves, into the family wallet (Store v1_to_v2 measured them). The
+     wallet is the family's ES module (family/bridge.js), which runs after this file is
+     parsed — so this waits for boot(), where the wallet is always in place. */
+  function moveOldCoins() {
+    if (S.coinsToMove > 0 && S.name && window.IND_WALLET) {
+      window.IND_WALLET.migrateFrom('india', S.name, S.coinsToMove);
+      S.coinsToMove = 0; Store.saveProfile(S);
+    }
   }
   if (!S.own) S.own = { worlds: [], packs: [], avatars: [] };
   S.own.worlds = S.own.worlds || []; S.own.packs = S.own.packs || []; S.own.avatars = S.own.avatars || [];
@@ -386,6 +421,7 @@
     d.id = 'celebrate'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
     d.setAttribute('aria-label', 'New medal: ' + m.name);
     d.innerHTML = '<div class="cel-in"><div class="cel-burst" aria-hidden="true">' + new Array(13).join('<i></i>') + '</div>' +
+      '<span class="cel-peacock" aria-hidden="true">' + peacock('cheer', 84) + '</span>' +
       medalHTML(m, 132, true) +
       '<span class="mono">A new medal</span><h2>' + esc(m.name) + '</h2>' +
       '<p>' + esc(m.how.replace(/\.$/, '')) + ' — and you did.</p>' +
@@ -423,6 +459,8 @@
 
   /* prefer the generated PNG art; fall back to the inline SVG set */
   function art(id, size) {
+    if (window.IND_AV_WEBP && window.IND_AV_WEBP.indexOf(id) >= 0)
+      return '<img src="art/av/' + id + '.webp" width="' + (size || 76) + '" height="' + (size || 76) + '" alt="" loading="lazy" decoding="async">';
     var have = window.IND_ART_IMG && window.IND_ART_IMG.indexOf(id) >= 0;
     if (have) return '<img src="art/' + id + '.png" width="' + (size || 76) + '" height="' + (size || 76) +
       '" alt="" loading="lazy">';
@@ -480,8 +518,9 @@
      never string-swapped (see the warning in data-nani.js). */
   function kinEn(q) {
     var t = tongue();
-    if (!t || t.id === 'hi' || !q) return q && q.en;
-    return q.en.replace(/^(Nani|Nana|Dadi|Dada)\b/, kinTerm(q.to));
+    if (!q) return q && q.en;
+    if (!t || t.id === 'hi') return naniFill(q.en);
+    return naniFill(q.en.replace(/^(Nani|Nana|Dadi|Dada)\b/, kinTerm(q.to)));
   }
   /* The name of the whole story pillar, in the family's own words. A Tamil
      child's shelf is Paati-Thaatha Tales, a Bengali child's is Dida-Dadu
@@ -712,7 +751,7 @@
   }
 
   function speak(key, text, lang) {
-    if (!soundOn) return;
+    if (!narrationOn()) return;
     var src = key ? humanClip(key) : null;
     if (src || (key && (!window.IND_VOICE || window.IND_VOICE.indexOf(key) >= 0))) {
       try {
@@ -732,6 +771,13 @@
           } catch (e) {}
         };
         audio.playbackRate = speakRate();
+        audio.volume = Math.max(0, Math.min(1, dev.vol + 0.2));
+        /* the music steps back while the voice speaks (standard §11: ducking) */
+        if (window.IND_AUDIO) {
+          window.IND_AUDIO.duck(true);
+          var undk = function () { window.IND_AUDIO.duck(false); };
+          audio.addEventListener('ended', undk); audio.addEventListener('pause', undk); audio.addEventListener('error', undk);
+        }
         audio.preservesPitch = true;
         audio.mozPreservesPitch = true; audio.webkitPreservesPitch = true;
         audio.play().catch(function () {});
@@ -763,7 +809,7 @@
      this simply does nothing, which is the honest failure: silence, never a
      leak. */
   function sayMasked(before, after, lang) {
-    if (!soundOn || !window.speechSynthesis) return;
+    if (!narrationOn() || !window.speechSynthesis) return;
     stopAudio();
     try {
       var mk = function (txt) {
@@ -804,7 +850,7 @@
      686 epic cards narrate over hours — so the browser voice covers the gap and the clip
      takes over the moment it lands. */
   function readAloud(key, text) {
-    if (!soundOn) return;
+    if (!narrationOn()) return;
     if (key && window.IND_VOICE && window.IND_VOICE.indexOf(key) >= 0) return speak(key);
     if (!text || !window.speechSynthesis) return;
     try {
@@ -892,14 +938,28 @@
         middle +
         quote +
         (C && C.fact ? '<div class="avfact"><b>Did you know?</b> ' + esc(C.fact) + '</div>' : '') +
+        /* the family card's own line (standard §8): its tier, and the path to it in plain words */
+        (function () {
+          var E = window.IND_ECONOMY, A = (window.IND_AVATAR_BY_ID || {})[id];
+          if (!E || !A) return '';
+          var st = E.stateOf(S, id);
+          return '<div class="avpath"><span class="bz-tier" data-tier="' + A.tier + '">' + esc(st.label || A.tier) + '</span> ' +
+            esc(st.say) + (A.about ? '<p class="tiny">' + esc(A.about) + '</p>' : '') + '</div>';
+        })() +
         (mine
           ? '<span class="pill stat" style="margin-top:14px">Travelling with you ✓</span>'
-          : '<button class="btn lg" style="margin-top:14px" data-act="pick" data-id="' + id + '">Travel with me</button>') +
+          : (!window.IND_ECONOMY || window.IND_ECONOMY.avatarOpen(S, id))
+            ? '<button class="btn lg" style="margin-top:14px" data-act="pick" data-id="' + id + '">Travel with me</button>'
+            : (function () { var st = window.IND_ECONOMY.stateOf(S, id);
+                return st.state === 'buy'
+                  ? '<button class="btn lg' + (st.short ? ' ghost' : '') + '" style="margin-top:14px" data-act="buyav" data-id="' + id + '">' +
+                    coinSvg(20) + ' ' + st.price + (st.short ? ' · ' + st.short + ' more to go' : ' — meet them') + '</button>'
+                  : ''; })()) +
       '</div>';
   }
 
   V.avcard = function (id) {
-    return '<button class="backlink" data-act="go" data-v="me">' + icon('back', 18) + ' Back</button>' +
+    return '<button class="backlink" data-act="back">' + icon('back', 18) + ' Back</button>' +
       '<div class="avcardwrap">' + avCardHTML(id) + '</div>';
   };
 
@@ -934,7 +994,8 @@
           'read aloud from the first tap, so a four-year-old can use it on their own.</p>' +
           '<div class="row" style="margin:22px 0">' +
             '<button class="btn lg" data-act="begin">Start free →</button>' +
-            '<button class="btn ghost lg" data-act="begin">I have an account</button>' +
+            /* there are no accounts, so no "I have an account" — a sample child instead (standard §20) */
+            '<a class="btn ghost lg" href="?demo">See a sample child</a>' +
           '</div>' +
           '<ul class="ticks">' +
             '<li>' + icon('lock', 20) + '<span><b>Works offline, and stays private</b> — nothing about your child leaves the device</span></li>' +
@@ -1024,7 +1085,8 @@
      shelf is one tap away on the Me page from the first minute.
      These five are also all free on day one (economy.js: `panch` is free, `devas` is
      never purchasable), so nothing here can be tapped and refused. */
-  var OB_BUDDIES = ['pt_tortoise', 'pt_monkey', 'pt_crow', 'pt_mouse', 'ganesha'];
+  /* five Commons, free to every child from the first minute (standard §8, §16) */
+  var OB_BUDDIES = ['pt_tortoise', 'pt_monkey', 'ganesha', 'royal_elephant', 'rocket'];
 
   /* TWO WORLDS, AND THEY ARE THE TWO FURTHEST APART — a real street in Old Delhi and a
      painting tradition from Mithila. Three are free (economy.js), but a choice between
@@ -1249,14 +1311,11 @@
             '" stroke-dashoffset="' + (C * (1 - Math.min(1, ringN / goal))).toFixed(1) + '"/>' +
           '<text x="32" y="31">' + Math.min(ringN, 99) + '/' + goal + '</text>' +
           '<text x="32" y="43" class="sub">today</text></svg>' +
-        '<div><b>' + (ringDone ? 'Ring closed — shabash! 🪔' : 'Today’s ring') + '</b>' +
+        '<div><b>' + (ringDone ? 'Ring closed — shabash!' : 'Today’s ring') + '</b>' +
         '<p class="tiny muted">' + (ringDone ? 'Everything from here is extra shine.'
           : 'A story, a lesson, a game or the day’s deed — each one fills a notch.') + '</p>' +
-        '<span class="row goalpick" role="group" aria-label="How many a day">' +
-        [2, 3, 5].map(function (g2) {
-          return '<button class="pill' + (goal === g2 ? ' on' : '') + '" data-act="goalset" data-g="' + g2 +
-            '" aria-pressed="' + (goal === g2 ? 'true' : 'false') + '">' + g2 + '</button>';
-        }).join('') + '<span class="tiny muted">a day</span></span></div></div>' +
+        /* the day's target is set by a grown-up, behind the PIN (standard §5, §15; FIX-INDIA Q4) */
+        '<p class="tiny muted goalnote">' + goal + ' a day — a grown-up sets this.</p></div></div>' +
 
       '<div class="card hm-word"><span class="mono">Word of the hour</span>' +
         '<p lang="' + esc(wLang) + '" class="hm-w">' + esc(w[0]) + '</p>' +
@@ -1300,6 +1359,11 @@
           '<span class="tiny muted">Tell us once — the stories, the words and the map lean your way.</span></span>' +
           '<span class="pill stat">Choose →</span></button>'
         : '') +
+
+      /* SOMETHING WORTH SAVING FOR (FIX-INDIA K10): the Legendary of the child's first open
+         world whose learning they can reach, or the next world — with how far the coins are.
+         A goal, never a deadline: no countdown, no "you will lose". */
+      savingFor() +
 
       /* 3 — TODAY'S THREE. Optional; nothing is lost for skipping one. */
       '<div class="hm-head"><h3>Today’s three</h3><span class="tiny muted">Nothing is lost for skipping.</span></div>' +
@@ -2216,8 +2280,8 @@
     if (timeStop !== 'aaj') return tstrip + timeLens(timeStop);
     /* today's map has two skins: the states (rajya) and the land (bhugol) */
     var mtoggle = '<div class="bg-toggle" role="tablist" aria-label="Map view">' +
-      '<button class="bg-tab' + (mapMode === 'rajya' ? ' on' : '') + '" data-act="mapmode" data-m="rajya" role="tab">\ud83d\uddfa\ufe0f Rajya \u00b7 the states</button>' +
-      '<button class="bg-tab' + (mapMode === 'bhugol' ? ' on' : '') + '" data-act="mapmode" data-m="bhugol" role="tab">\u26f0\ufe0f Bhugol \u00b7 the land</button></div>';
+      '<button class="bg-tab' + (mapMode === 'rajya' ? ' on' : '') + '" data-act="mapmode" data-m="rajya" role="tab">' + icon('map', 18) + ' Rajya \u00b7 the states</button>' +
+      '<button class="bg-tab' + (mapMode === 'bhugol' ? ' on' : '') + '" data-act="mapmode" data-m="bhugol" role="tab">' + icon('temple', 18) + ' Bhugol \u00b7 the land</button></div>';
     if (mapMode === 'bhugol') return tstrip + mtoggle + bhugolView();
     var codes = Object.keys(M.paths);
     var lit = Object.keys(S.lit).length, total = codes.length;
@@ -2369,12 +2433,15 @@
         '<svg class="mapsvg" viewBox="' + M.viewBox + '" role="img" aria-label="Map of India">' +
           '<defs>' + defs + '</defs>' +
           '<path class="outline" d="' + M.outline + '"/>' + paths + pins + caps + labels + '</svg>' +
-        callout +
+        callout + mapYou(M) +
       '</div>' +
       strip +
-      '<div class="legend" style="margin-top:14px">' +
+      /* DONE · NEXT · STILL MISTY, each said in words (FIX-INDIA D8) */
+      '<div class="legend maplegend" style="margin-top:14px">' +
+        '<span><i class="sw sw-lit"></i>remembered — painted in</span>' +
+        '<span><i class="sw sw-you">' + art(S.buddy, 18) + '</i>you — your next story is from here</span>' +
+        '<span><i class="sw sw-mist"></i>still misty — finish a story from here to light it</span>' +
         '<span><i class="dot lg-cap"></i>a capital city</span>' +
-        '<span><i class="dot lg-caplit"></i>remembered</span>' +
         '<span><i class="dot" style="background:var(--accent3)"></i>a place to visit</span></div></div>' +
       (lit === 0 ? '<div class="card center"><p>Every state is painted under the mist. Read a story and the mist lifts off the place it came from.</p>' +
         '<button class="btn" data-act="go" data-v="stories">Open the story library</button></div>' : '') +
@@ -2427,7 +2494,7 @@
   V.state = function (code) {
     var G = window.IND_GEO, s = G && G.states[code];
     var X = (window.IND_STATES || {})[code] || {};
-    if (!s) return '<div class="card">Nothing here yet.</div>';
+    if (!s) return emptyState('Nothing here yet — it is on its way.', 'Back to Home');
     var img = stateArt(code);
     var stories = allStories().filter(function (t) { return (t.place || []).indexOf('IN-' + code) >= 0; });
     var mons = (G.monuments || []).filter(function (m) { return m.state === code; });
@@ -2541,7 +2608,12 @@
             '<b>' + esc(m.name) + '</b> <span class="tiny muted">· ' + esc(m.when) + '</span>' +
             '<div class="tiny" style="margin-top:5px">' + esc(m.fact) + '</div></div>';
         }).join('') +
-        (X.places || []).map(function (pl) {
+        /* ONE PLACE, ONCE (FIX-INDIA N12: Tamil Nadu listed the Meenakshi Temple twice) — a
+           place the monuments list already carries is not repeated from the state's own list */
+        (X.places || []).filter(function (pl) {
+          var k = String(pl.name || '').toLowerCase().split(/[ ,]/)[0];
+          return !mons.some(function (m) { return String(m.name || '').toLowerCase().split(/[ ,]/)[0] === k; });
+        }).map(function (pl) {
           return '<div class="card flat tight" style="margin:0"><b>' + esc(pl.name) + '</b>' +
             '<div class="tiny" style="margin-top:4px">' + esc(pl.what) + '</div></div>';
         }).join('') + '</div>' : '') +
@@ -2675,7 +2747,8 @@
        the expression on the next line is a semicolon by ASI, and this function
        silently returned undefined, which rendered the page as the word
        "undefined". Do not reformat this. */
-    return '<button class="pickbar" data-act="tellone">' +
+    return '<h1 class="sr-only">' + esc(tellerTitle()) + '</h1>' +
+      '<button class="pickbar" data-act="tellone">' +
         '<span class="mosaic" aria-hidden="true">' +
           mosaicTiles(12).map(function (p) {
             return '<i style="background-image:url(' + p + ')"></i>';
@@ -2805,19 +2878,24 @@
     var sayKey = storyClip(st, play.i);
 
     return '<div class="reader' + (hi ? ' twoup' : '') + '">' +
+      '<h1 class="sr-only">' + esc(st.title) + '</h1>' +
       '<div class="rhead">' +
       '<button class="backlink" style="padding:0" data-act="go" data-v="stories">' + icon('back', 18) +
         (S.started ? ' Stories' : ' Back') + '</button>' +
       '<div class="dots">' + st.scenes.map(function (_, i) { return '<i class="' + (i <= play.i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
       '<span class="badge ' + st.badge + '">' + st.badge + '</span></div>' +
 
-      '<div class="stage"' + (img ? ' style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(' + img + ')"' : '') + '>' + (teller ? '<div class="speaking">' + mascot('mithu', 'talk', 128) + '</div>' :
-        cast.map(function (c, i) { return '<div class="' + (i === 0 ? 'speaking' : '') + '">' + art(c, i === 0 ? 128 : 100) + '</div>'; }).join('')) + '</div>' +
+      /* NO STICKERS OVER A PAINTING (FIX-INDIA D4, N2). A scene with its own painted plate
+         shows the painting whole; the speaker's face moves down beside their name in the
+         speech panel. A scene with no plate keeps the cast on the stage, as before. */
+      '<div class="stage' + (img ? ' painted' : '') + '"' + (img ? ' style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(' + img + ')"' : '') + '>' +
+        (img ? '' : (teller ? '<div class="speaking">' + mascot('mithu', 'talk', 128) + '</div>' :
+          cast.map(function (c, i) { return '<div class="' + (i === 0 ? 'speaking' : '') + '">' + art(c, i === 0 ? 128 : 100) + '</div>'; }).join(''))) + '</div>' +
 
       /* Bubble when somebody is talking, plain panel when the storyteller is. */
       '<div class="speech' + (hasDialogue(sc.text) ? ' bubble' : '') + '">' +
-      (teller ? '<span class="who">Mithu</span>'
-              : (cast[0] && avatarName(cast[0]) ? '<span class="who">' + esc(avatarName(cast[0])) + '</span>' : '')) +
+      (teller ? '<span class="who">' + (img ? '<span class="whoface">' + mascot('mithu', 'talk', 30) + '</span>' : '') + 'Mithu</span>'
+              : (cast[0] && avatarName(cast[0]) ? '<span class="who">' + (img ? '<span class="whoface">' + art(cast[0], 30) + '</span>' : '') + esc(avatarName(cast[0])) + '</span>' : '')) +
       (hi ? '<p class="sdeva" lang="hi">' + esc(hi) + '</p>' : '') +
       '<p class="sen">' + esc(sc.text).replace(/\*(.+?)\*/g, '<i>$1</i>') + '</p></div>' +
 
@@ -2945,7 +3023,7 @@
   V.era = function (id) {
     var I = window.IND_ITIHAAS;
     var e = I && I.eras.filter(function (x) { return x.id === id; })[0];
-    if (!e) return '<div class="card">Not found.</div>';
+    if (!e) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var big = (S.age || 8) >= 9;
     var img = eraArt(e);
     return '<button class="backlink" data-act="go" data-v="itihaas">' + icon('back', 18) + ' Itihaas</button>' +
@@ -3050,7 +3128,7 @@
   V.faith = function (id) {
     var D = window.IND_DHARMA;
     var f = D && D.faiths.filter(function (x) { return x.id === id; })[0];
-    if (!f) return '<div class="card">Not found.</div>';
+    if (!f) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var stories = (allStories() || []).filter(function (s) { return (f.stories || []).indexOf(s.id) >= 0; });
     return '<button class="backlink" data-act="go" data-v="dharma">' + icon('back', 18) + ' Dharma</button>' +
       '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(f.avatar, 96) +
@@ -3143,7 +3221,7 @@
 
   V.utsav = function () {
     var U = window.IND_UTSAV;
-    if (!U) return '<div class="card">Nothing here yet.</div>';
+    if (!U) return emptyState('Nothing here yet — it is on its way.', 'Back to Home');
     var now = utsavNow(), month = MONTHS[new Date().getMonth()];
     var rest = U.festivals.filter(function (f) { return now.indexOf(f) < 0; });
 
@@ -3174,7 +3252,7 @@
 
   V.festival = function (id) {
     var f = festById(id);
-    if (!f) return '<div class="card">Not found.</div>';
+    if (!f) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var st = f.story ? allStories().filter(function (s) { return s.id === f.story; })[0] : null;
     return '<button class="backlink" data-act="go" data-v="utsav">' + icon('back', 18) + ' Utsav</button>' +
       '<div class="card">' +
@@ -3225,7 +3303,7 @@
 
   V.gully = function () {
     var G = window.IND_GULLY;
-    if (!G) return '<div class="card">Nothing here yet.</div>';
+    if (!G) return emptyState('Nothing here yet — it is on its way.', 'Back to Home');
     /* Sorted by what you need, because "we have nothing and four kids" is the real question
        a child is answering when they open this. */
     var free = G.games.filter(function (g) { return (g.needs || [])[0] === 'nothing'; });
@@ -3247,7 +3325,7 @@
 
   V.gullygame = function (id) {
     var G = window.IND_GULLY, g = gullyById(id);
-    if (!g) return '<div class="card">Not found.</div>';
+    if (!g) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var adapt = (G.adapt || []).filter(function (a) { return a.gameId === id; })[0];
     return '<button class="backlink" data-act="go" data-v="gully">' + icon('back', 18) + ' Gully</button>' +
       '<div class="card">' +
@@ -3330,7 +3408,7 @@
 
   V.nani = function () {
     var N = window.IND_NANI;
-    if (!N) return '<div class="card">Nothing here yet.</div>';
+    if (!N) return emptyState('Nothing here yet — it is on its way.', 'Back to Home');
     var q = naniWeek();
     if (nani.clips === null) { loadClips(render); }
     var n = (nani.clips || []).length;
@@ -3341,9 +3419,9 @@
       (q ? '<div class="card askcard">' +
           '<span class="mono">This week, ask ' + esc(kinTerm(q.to)) + '</span>' +
           '<h2 style="margin:8px 0">' + esc(kinEn(q)) + '</h2>' +
-          '<p lang="' + esc(q.lang || 'hi') + '" style="margin-bottom:4px">' + esc(q.hi) + '</p>' +
-          '<p class="tiny muted">' + esc(q.roman) + '</p>' +
-          (q.follow ? '<p class="tiny"><b>If the answer is short, ask:</b> ' + esc(q.follow) + '</p>' : '') +
+          '<p lang="' + esc(q.lang || 'hi') + '" style="margin-bottom:4px">' + esc(naniFill(q.hi)) + '</p>' +
+          '<p class="tiny muted">' + esc(naniFill(q.roman)) + '</p>' +
+          (q.follow ? '<p class="tiny"><b>If the answer is short, ask:</b> ' + esc(naniFill(q.follow)) + '</p>' : '') +
           '<button class="btn" data-act="go" data-v="shelf">' + icon('mic', 18) + ' Record the answer</button>' +
         '</div>' : '') +
 
@@ -3358,12 +3436,14 @@
     var N = window.IND_NANI;
     if (nani.clips === null) { loadClips(render); return '<div class="card">…</div>'; }
     var list = nani.clips;
-    var empty = N.ritual.empty[Math.floor(Date.now() / 86400000) % N.ritual.empty.length];
+    var empty = naniFill(N.ritual.empty[Math.floor(Date.now() / 86400000) % N.ritual.empty.length]);
 
     return '<button class="backlink" data-act="go" data-v="nani">' + icon('back', 18) + ' Back</button>' +
       '<div class="card">' +
         '<h1>' + esc(naniTitle()) + '</h1>' +
-        '<p>' + esc(N.archive.child) + '</p>' +
+        /* archive.child is an object (headline, blurb, empty…): printing it whole is how the
+           shelf came to say "[object Object]" (FIX-INDIA §1) */
+        '<p>' + esc(N.archive.child.blurb) + '</p>' +
         (nani.rec
           ? '<button class="btn lg block" data-act="recstop">■ Stop and keep it</button>'
           : '<button class="btn lg block" data-act="recstart">' + icon('mic', 20) + ' Record a story</button>') +
@@ -3391,26 +3471,41 @@
             '<span class="tiny muted">' + esc(p.why) + '</span></div>'; }).join('') + '</div></div>';
   };
 
+  /* {child} and {relation} are tokens the data leaves for the view (data-nani.js). Every
+     string from IND_NANI that reaches the screen goes through here, so a raw "{child}" can
+     never be printed again (FIX-INDIA §1). */
+  function naniFill(t) {
+    return String(t == null ? '' : t)
+      .replace(/\{child\}/g, S.name || 'your child')
+      .replace(/\{relation\}/g, kinTerm('nani'))
+      .replace(/\{n\}/g, '');
+  }
+  /* ASK A GRANDPARENT — the honest version. There is no family account yet, so there is no
+     link to send and no page a grandparent can open from far away. The page used to promise
+     both ("No password and no account", "Send to {child}"). What is true is that the shelf
+     records on THIS device, so this page says how to use it: when they visit, or holding the
+     phone up on a call. Nothing here pretends to send anything. */
   V.invite = function () {
-    var N = window.IND_NANI, L = N.invite.landing;
+    var N = window.IND_NANI, L = N.invite.landing, nm = esc(S.name || 'your child');
     return '<button class="backlink" data-act="go" data-v="nani">' + icon('back', 18) + ' Back</button>' +
-      '<div class="card"><h1>' + esc(L.headline) + '</h1><p>' + esc(L.sub) + '</p>' +
-        '<p>' + esc(L.what) + '</p>' +
-        '<ul class="dolist">' + (L.reassurances || []).map(function (r) {
-          return '<li>' + esc(r) + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="card"><h1>Ask ' + esc(kinTerm('nani')) + ' or ' + esc(kinTerm('nana')) + ' for a story</h1>' +
+        '<p>' + nm + ' can keep a grandparent’s voice on the Family Shelf and play it any night. ' +
+        'It records on this device, so it works when they visit — or hold the phone up on the Sunday call.</p>' +
+        '<ol class="dolist">' +
+          '<li>Open the Family Shelf and press <b>Record a story</b>.</li>' +
+          '<li>' + esc(naniFill(L.what)) + '</li>' +
+          '<li>Any story, in any language. Two minutes is plenty.</li>' +
+        '</ol>' +
+        '<button class="btn" data-act="go" data-v="shelf">' + icon('mic', 18) + ' Open the Family Shelf</button></div>' +
       '<div class="card"><h2 style="margin-top:0">Hello, in their language</h2>' +
         '<div class="grid g3">' + (N.invite.greetings || []).map(function (g) {
-          return '<div class="tile center"><b lang="' + esc(g.lang || 'hi') + '">' + esc(g.word) + '</b>' +
-            '<span class="tiny muted">' + esc(g.roman || '') + '</span></div>'; }).join('') + '</div>' +
+          return '<div class="tile center"><b lang="' + esc(g.lang || 'hi') + '">' + esc(g.text || g.word || '') + '</b>' +
+            '<span class="tiny muted">' + esc(g.roman || '') + (g.note ? ' · ' + esc(g.note) : '') + '</span></div>'; }).join('') + '</div>' +
         '<p class="tiny muted">Not every grandparent in this app speaks Hindi, and the app should ' +
         'never assume they do.</p></div>' +
-      /* Honest about what is not built. A fake "send" button here would be the worst thing
-         in the product: a parent would send nothing and a grandparent would wait. */
-      '<div class="card"><h3 style="margin-top:0">Sending them a link</h3>' +
-        '<p>The link a grandparent opens with no app and no account needs the family account, ' +
-        'which is not built yet. Until it is, the shelf records on this device — so it works ' +
-        'when they visit, or when you hold the phone up on Sunday’s call.</p>' +
-        '<p class="tiny muted">' + esc(N.invite.parentNote) + '</p></div>';
+      '<div class="card flat tiny"><b>What this does not do yet.</b> There is no family account, so there is ' +
+        'no link to send a grandparent who lives far away. Recordings stay on this device and are never sent ' +
+        'anywhere. If that changes, the privacy page changes first.</div>';
   };
 
   /* ------------------------------------------------------------------- GEET
@@ -3443,7 +3538,7 @@
 
   V.geet = function () {
     var G = window.IND_GEET;
-    if (!G) return '<div class="card">Nothing here yet.</div>';
+    if (!G) return emptyState('Nothing here yet — it is on its way.', 'Back to Home');
     var ready = G.songs.filter(function (s) { return !s.text_pending; });
     var pending = G.songs.filter(function (s) { return s.text_pending; });
     var card = function (s) {
@@ -3471,7 +3566,7 @@
 
   V.song = function (id) {
     var G = window.IND_GEET, s = geetById(id);
-    if (!s) return '<div class="card">Not found.</div>';
+    if (!s) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var lang = GEET_LANG[s.lang] || 'hi';
     var lines = function (txt, cls, lg) {
       return '<p class="' + cls + '"' + (lg ? ' lang="' + lg + '"' : '') + '>' +
@@ -3581,7 +3676,7 @@
 
   V.epic = function (id) {
     var e = epicById(id);
-    if (!e) return '<div class="card">Not found.</div>';
+    if (!e) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var st = (S.epic && S.epic[id]) || { done: {} };
     var byBook = {};
     e.episodes.forEach(function (ep) { (byBook[ep.book] = byBook[ep.book] || []).push(ep); });
@@ -3697,9 +3792,9 @@
 
   V.episode = function () {
     var e = epicById(deck.epic);
-    if (!e) return '<div class="card">Not found.</div>';
+    if (!e) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var ep = e.episodes.filter(function (x) { return x.n === deck.n; })[0];
-    if (!ep) return '<div class="card">Not found.</div>';
+    if (!ep) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var last = deck.i >= ep.cards.length;
     var nextEp = e.episodes.filter(function (x) { return x.n === deck.n + 1; })[0];
 
@@ -3856,7 +3951,7 @@
   V.verses = function (cid) {
     var K = window.IND_SHLOK;
     var c = K.collections.filter(function (x) { return x.id === cid; })[0];
-    if (!c) return '<div class="card">Not found.</div>';
+    if (!c) return errorState('That page is not here. It may have moved — Home always has the way in.');
     /* Every verse is listed. A verse a child cannot yet carry is still a verse they should
        know is waiting, and hiding it just made the collection look shorter than it is. */
     var mine = K.verses.filter(function (v) { return v.collection === cid; });
@@ -4134,7 +4229,7 @@
   V.value = function (id) {
     var K = window.IND_NEETI;
     var v = K && K.values.filter(function (x) { return x.id === id; })[0];
-    if (!v) return '<div class="card">Not found.</div>';
+    if (!v) return errorState('That page is not here. It may have moved — Home always has the way in.');
     /* the hand-picked stories plus everything the corpus's own morals matched */
     var mine = neetiStories(v.id);
     var done = (S.mala || []).filter(function (b) { return b.v === v.id; });
@@ -4474,6 +4569,7 @@
         if (!sst.testout) { sst.testout = true; save(); earn('mastery', 'tested out'); }
         checkGrowth();
       }
+      if (quiz.done > 0) sfx('finish');
       if (quiz.mode === 'lesson' && quiz.done > 0) {
         markToday();
         var lp = window.IND_PACKS[quiz.packId];
@@ -4492,6 +4588,8 @@
     var sp = specs[quiz.pi];
     quiz.build = { placed: [], kfocus: 0, kb: false };
     quiz.fb = null; quiz.lock = false; quiz.reveal = false; quiz.typed = ''; quiz.hold = false;
+    quiz.hint = null;
+    if (sp.item != null && (quiz.seen || (quiz.seen = [])).indexOf(sp.item) < 0) quiz.seen.push(sp.item);
     if (sp.kind === 'introduce') {
       var sh = sp.show || {};
       quiz.q = { type: 'introduce', spec: sp, char: sh.char, sub: sh.sub, en: sh.en,
@@ -4506,16 +4604,17 @@
         srs: ensureLang(quiz.packId).srs });
     if (quiz.q) speak(quiz.q.audio, quiz.q.say, packLang());
   }
-  function startSession(sid, mode, lesson) {
+  function startSession(sid, mode, lesson, review) {
     if (!sid) return;
     var rec = ensureLang(quiz.packId);
     quiz.stage = sid; quiz.mode = mode || 'lesson';
     quiz.offer = null; quiz.over = false; quiz.done = 0; quiz.right = 0; quiz.pi = 0;
+    quiz.seen = []; quiz.missed = [];
     /* a lesson narrows what is NEW to its own four things; review stays rung-wide */
     quiz.lesson = (quiz.mode === 'lesson' && lesson) ? lesson : null;
     quiz.plan = window.IND_BHASHA.session(quiz.packId, sid, rec,
       { now: Date.now(), testout: quiz.mode === 'testout',
-        only: quiz.lesson ? quiz.lesson.keys : null });
+        only: quiz.lesson ? quiz.lesson.keys : null, review: review || null });
     planStep();
   }
 
@@ -4630,6 +4729,7 @@
     if (!ok && sp && quiz.plan && quiz.mode !== 'testout') {
       window.IND_BHASHA.replayMiss(quiz.plan, quiz.pi, sp);
     }
+    if (!ok && sp && sp.item != null && (quiz.missed || (quiz.missed = [])).indexOf(sp.item) < 0) quiz.missed.push(sp.item);
     save();
     if (ok) { earn('answer', 'correct'); quiz.right++; }
     quiz.done++;
@@ -4965,10 +5065,21 @@
             '<button class="btn ghost" data-act="bclose">Back to the path</button>' +
           '</div></div>';
       } else {
-        overCard = '<div class="card tint"><h2 style="margin:0">Shabash — session done</h2>' +
-          '<p class="tiny">' + quiz.right + ' right of ' + quiz.done + '. Every answer moved one of your ' +
-          'cards along its boxes.</p>' +
-          '<button class="btn" data-act="quiz" data-s="' + esc(quiz.stage) + '">Another round</button></div>';
+        /* THE FINISH NAMES WHAT WAS PRACTISED AND WHAT IS NEXT (FIX-INDIA F4; standard §12) */
+        var nx3 = bNext(bPath(id)), seen3 = (quiz.seen || []).slice(0, 8), miss3 = quiz.missed || [];
+        overCard = '<div class="bh-done ok"><p class="bh-kick dark">' + (quiz.mode === 'slipped' ? 'Words that slipped' : 'Review') + '</p>' +
+          '<h2>Shabash — ' + quiz.right + ' right of ' + quiz.done + '</h2>' +
+          (seen3.length ? '<p class="tiny" style="margin:0">What you practised:</p><p class="bh-met deva" lang="' + esc(id) + '">' +
+            seen3.map(function (it) { return '<span>' + esc(previewOf(it)) + '</span>'; }).join('') + '</p>' : '') +
+          '<p class="tiny">' + (miss3.length
+            ? miss3.length + (miss3.length === 1 ? ' of them' : ' of them') + ' will come back in a day or two, in Words that slipped.'
+            : 'Every one of them moved along its boxes.') + '</p>' +
+          '<div class="row">' +
+            (nx3 && nx3.lesson
+              ? '<button class="btn primary" data-act="blesson" data-l="' + esc(nx3.lesson.id) + '">Next: ' +
+                esc(nx3.lesson.unit.title) + ' ' + nx3.lesson.n + ' →</button>'
+              : '<button class="btn primary" data-act="quiz" data-s="' + esc(quiz.stage) + '">Another round</button>') +
+            '<button class="btn ghost" data-act="bclose">Back to the path</button></div></div>';
       }
     }
 
@@ -5098,7 +5209,7 @@
     }).join('');
 
     return '<button class="backlink" data-act="go" data-v="bhasha">' + icon('back', 18) + ' Bhasha</button>' +
-      opener + offerCard + overCard + nextCard +
+      opener + offerCard + overCard + nextCard + slippedCard(id) +
       '<div class="bh-path">' +
         '<div class="bh-secthead"><h3>The path</h3>' +
         '<span>The same eight rungs in every language</span></div>' +
@@ -5212,7 +5323,7 @@
     var B = window.IND_BHASHA;
     var pack = packId || 'hi';
     var P = window.IND_PACKS[pack];
-    if (!B || !P) return '<div class="card">Not found.</div>';
+    if (!B || !P) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var pname = (P.name && P.name.en) || 'this language';
     var srs = (S.lang && S.lang[pack] && S.lang[pack].srs) || {};
     var keys = Object.keys(srs);
@@ -5298,14 +5409,17 @@
   };
 
   V.chart = function (id) {
-    var p = window.IND_PACKS[id]; if (!p) return '<div class="card">Not found.</div>';
+    var p = window.IND_PACKS[id]; if (!p) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var sc = window.IND_SCRIPTS[p.script];
     var grid = function (list) {
       return '<div class="gridscript">' + (list || []).map(function (v) {
         return '<button class="glyph" data-act="say" data-k="' + esc(v.audio || '') +
           /* the synthesis fallback must speak the pack's own language, not Hindi */
           '" data-t="' + esc(v.char) + '" data-l="' + esc((p.id || 'hi') + '-IN') + '">' +
-          esc(v.char) + '<small>' + esc(v.name) + '</small></button>';
+          /* EVERY CHART IN ITS OWN FACE (FIX-INDIA §1; standard §9): the letter carries its
+             pack's language, so Urdu lands in Nastaliq and Tamil in Mukta Malar — never in
+             Mukta or a system fallback. check-standard "scripts" reads the font Chrome used. */
+          '<span lang="' + esc(p.id || 'hi') + '">' + esc(v.char) + '</span><small>' + esc(v.name) + '</small></button>';
       }).join('') + '</div>';
     };
     return '<button class="backlink" data-act="pack" data-id="' + id + '">' + icon('back', 18) +
@@ -5828,10 +5942,46 @@
           (s ? ' <span class="muted tiny">' + s + '</span>' : '') + '</button>';
       return ear ? '<div class="optrow">' + btn + ear + '</div>' : btn;
     }).join('');
+    /* A HINT ON THE EXACT ITEM (FIX-INDIA E6): once a thing has been missed — earlier in this
+       sitting or on another day — its question offers one hint, which takes away one WRONG
+       choice. It can never take away the right one, so it never gives the answer. */
+    var hintBtn = '';
+    if (typeof q.answerIndex === 'number' && opts.length > 2 && !quiz.lock) {
+      var hsp = specNow(), hkey = (q.itemKey) || (hsp && hsp.key);
+      var hcard = hkey ? (ensureLang(quiz.packId).srs || {})[hkey] : null;
+      if (quiz.hint == null && hcard && hcard.lapses > 0)
+        hintBtn = '<button class="pill qhint" data-act="qhint">' + icon('help', 16) + ' A hint — take one wrong answer away</button>';
+    }
+    if (quiz.hint != null) choices = choices.replace('data-act="ans" data-i="' + quiz.hint + '"', 'data-act="ans" data-i="' + quiz.hint + '" disabled aria-disabled="true" data-gone="1"');
     return '<div class="card">' + arcStrip() + '<h3>' + prompt + '</h3>' + lead + big + hear +
-      (grid ? '<div class="gridscript">' + choices + '</div>' : choices) +
+      (grid ? '<div class="gridscript">' + choices + '</div>' : choices) + hintBtn +
       qfb + meta + '</div>';
   };
+
+  /* WORDS THAT SLIPPED (FIX-INDIA F3; standard §12) — the mistakes deck. Every thing this
+     child has missed and not yet mastered, the most-missed first. It comes back after a gap:
+     the button wakes when at least one card's review is due, and the session it starts
+     drills exactly those cards and nothing else. A miss is reported here, never hidden. */
+  function slippedCard(id) {
+    var B = window.IND_BHASHA;
+    if (!B || !B.slipped || quiz.q) return '';
+    var L = B.slipped(id, ensureLang(id), Date.now());
+    if (!L.length) return '';
+    var ready = L.filter(function (x) { return x.ready; });
+    var first = (ready[0] || L[0]).stageId;
+    var keys = (ready.length ? ready : []).filter(function (x) { return x.stageId === first; }).map(function (x) { return x.key; });
+    return '<div class="card slipped"><div class="spread"><h3 style="margin:0">Words that slipped</h3>' +
+        '<span class="pill stat">' + L.length + '</span></div>' +
+      '<p class="tiny muted" style="margin:6px 0 10px">The ones you have missed, most-missed first. They come back after a day or ' +
+        'two — that gap is what makes them stay.</p>' +
+      '<p class="slipwords deva" lang="' + esc(id) + '">' + L.slice(0, 10).map(function (x) {
+        return '<span class="' + (x.ready ? 'due' : '') + '">' + esc(previewOf(x.item)) + '</span>'; }).join('') + '</p>' +
+      (keys.length
+        ? '<button class="btn sm" data-act="slipped" data-s="' + esc(first) + '" data-k="' + esc(keys.join('|')) + '">' +
+          'Bring back ' + keys.length + (keys.length === 1 ? ' word' : ' words') + '</button>'
+        : '<p class="tiny">Not yet — they come back once their gap is over.</p>') +
+      '</div>';
+  }
 
   /* ------------------------------------------------------------------ MELA */
   /* The fairground shelf, in the Bizzing Bee arcade idiom: a loud gradient
@@ -5849,7 +5999,7 @@
   var MELA_GROUPS = [
     ['Aangan ke khel', 'From India’s own courtyard — these were being played centuries before there were screens to play them on.', ['saapsidi', 'ludo', 'carrom']],
     ['Quiz shows', 'Ladders and lifelines — the hot seat is yours.', ['gyanpati', 'triviamaster']],
-    ['Drills in costume', 'Secretly practice. Openly a fair.', ['shabd', 'rangoli', 'statehunt', 'jataka']]
+    ['Drills in costume', 'Secretly practice. Openly a fair.', ['shabd', 'rangoli', 'statehunt', 'festival', 'jataka']]
   ];
   V.mela = function () {
     var G = window.IND_GAMES || [];
@@ -5866,7 +6016,10 @@
            a 64px line glyph floating in it, which tells a child nothing about which game
            is which. A game with no illustration still falls back to its old glyph. */
         '<span class="gart' + (window.IND_GAME_ART && window.IND_GAME_ART[g.id] ? ' art' : '') +
+          ((window.IND_GAME_PLATES || []).indexOf(g.id) >= 0 ? ' painted' : '') +
           '" style="background:linear-gradient(135deg,' + c + ',' + c2 + ')">' +
+          ((window.IND_GAME_PLATES || []).indexOf(g.id) >= 0
+            ? '<img class="gplate" src="art/games/' + g.id + '.webp" alt="" loading="lazy" decoding="async">' : '') +
           ((window.IND_GAME_ART && window.IND_GAME_ART[g.id]) || g.scene || icon(g.icon || 'star', 46)) +
           (tag ? '<span class="gtag">' + esc(tag) + '</span>' : '') + '</span>' +
         '<span class="gbody"><b>' + esc(g.name) + '</b>' +
@@ -5961,89 +6114,6 @@
   };
 
   /* -------------------------------------------------------------------- ME */
-  /* ------------------------------------------------------- THE PITARA (shop)
-     Everything a child does not have yet, in the one place they will look for it: the
-     settings page, under their own collection. It used to be nowhere. The deck showed
-     all 142 cards whether owned or not, which made the collection a list of absences;
-     the fix was to show only owned cards there -- and that left the other 105 with no
-     home at all. This is that home.
-
-     THREE THINGS THIS SCREEN HAS TO GET RIGHT:
-
-     1. LOCKED LOOKS LOCKED, AND SAYS WHAT IT COSTS. A greyed card with no price is a
-        dead end. A greyed card with "🪙 40" is a reason to go and finish a story.
-     2. SHELVES, NOT A WALL. Twelve packs in a row read as arbitrary. Three shelves --
-        the sacred, the real, the tales -- say why each pack is where it is.
-     3. THE SACRED SHELF IS NOT A SHOP. It carries no price, no draw button and no
-        progress bar, because none of it is for sale (economy.js rule 2). It is on this
-        page only so a child can see their whole collection in one place. */
-  function packShop(packs) {
-    var E = window.IND_ECONOMY;
-    var shelves = (E && E.SHELVES) || [{ id: 'tales', name: 'Who travels with you', note: '' }];
-
-    function packBlock(p) {
-      var open = !E || E.packOpen(S, p.id);
-      var price = E ? E.packPrice(p.id) : null;
-      var held = E ? E.packHeld(S, p.id) : p.ids.length;
-      var total = p.ids.length;
-      var sale = price != null;                    /* sacred/epic packs are never for sale */
-
-      return '<div class="packblk' + (open ? '' : ' locked') + '">' +
-        '<div class="spread packhead"><b>' + esc(p.name) + '</b>' +
-        '<span class="row" style="gap:6px">' +
-        '<span class="tiny muted">' + held + ' of ' + total + '</span>' +
-        (sale && !open ? '<span class="badge price">🪙 ' + price + '</span>' : '') + '</span>' +
-        '</div>' +
-        '<p class="tiny muted" style="margin:2px 0 8px">' + esc(p.note) + '</p>' +
-        (sale
-          ? '<div class="packbar"><i style="width:' +
-            Math.round(held / Math.max(1, total) * 100) + '%"></i></div>'
-          : '') +
-        '<div class="grid g4">' + p.ids.map(function (id) {
-          if (!E || E.avatarOpen(S, id)) return chip(id, 74, 'avcard');
-          /* NOT MET YET. The name stays, the price is printed, and tapping it is the
-             choice: the child decides who to meet next. A rare card names the learning
-             that opens it instead of a price (standard §1). */
-          var rl = E ? E.cardRule(p.id, id) : { kind: 'price', price: 40 };
-          return '<button class="avchip unmet" data-act="meet" data-id="' + esc(id) + '"' +
-            ' aria-label="' + esc(avatarName(id) || id) + ' — ' +
-              (rl.kind === 'learn' ? esc(rl.say) : rl.price + ' coins') + '">' +
-            art(id, 74) + '<span>' + esc(avatarName(id) || id) + '</span>' +
-            '<span class="rarlabel">' + (rl.kind === 'learn' ? '★ ' + rl.need + ' mastered' : '🪙 ' + rl.price) + '</span></button>';
-        }).join('') + '</div>' +
-        (sale && held < total && !open
-          ? '<div class="row" style="margin-top:10px">' +
-            '<button class="pill" data-act="buypack" data-p="' + esc(p.id) + '">' +
-              'Take all ' + total + ' — 🪙 ' + price + '</button></div>'
-          : '') +
-        '</div>';
-    }
-
-    return shelves.map(function (sh) {
-      var mine = packs.filter(function (p) {
-        return (E ? E.shelfOf(p.id) : 'tales') === sh.id;
-      });
-      if (!mine.length) return '';
-      return '<div class="card"><h3 style="margin:0">' + esc(sh.name) + '</h3>' +
-        (sh.note ? '<p class="tiny muted" style="margin:6px 0 0">' + esc(sh.note) + '</p>' : '') +
-        mine.map(packBlock).join('') + '</div>';
-    }).join('') +
-      /* The rule, in writing, once — not buried in a card a child has to find. */
-      '<div class="card flat tiny"><b>How meeting someone works.</b> You choose who to meet next: ' +
-      'a card costs 🪙 ' + (E ? E.CARD_PRICE : 40) + ', always the one you picked. A rare card is not ' +
-      'for sale — it says the learning that opens it, and doing that opens it. A whole pack costs 🪙 ' +
-      (E ? E.PACK_UNIT : 20) + ' a card. Bizzing coins are earned only by learning — right answers, ' +
-      'stories and lessons finished, things mastered — never with money, and nothing here is random.</div>';
-  }
-
-  /* ------------------------------------------------- TAKE IT OFFLINE (dl UI)
-     The Grown-ups' download shelf, over the seams built for it: IND_PACKS_DL
-     (what exists and what it weighs), IND_DL (the cache loop), IND_ENT (the
-     gate). Cache API statuses come back asynchronously, so rows render from a
-     small last-known cache (DLC) and a refresh pass corrects it once the DOM
-     is in — at most one extra render, then it is settled. Progress during a
-     download patches the row's counter in place; a full render every ten
-     files would fight the reader's scroll. */
   var DLC = {};                       /* packId -> {have,total,done} last known */
 
   /* copy-to-clipboard for browsers without navigator.clipboard (older WebViews) */
@@ -6119,21 +6189,19 @@
   function passCard() {
     var ent = window.IND_ENT;
     if (!ent) return '';
-    if (ent.hasPass()) {
-      return '<p class="tiny" style="margin:6px 0 0"><b>' + esc(ent.planName() || 'Pass') +
-        '</b> is on for this device — every pack above is open.</p>' +
-        '<div class="row" style="margin-top:6px">' +
-        '<button class="pill" data-act="passclear">Switch it off on this device</button></div>';
-    }
-    /* honest copy: no payment exists yet, and the demo code is handed out by a
-       person, never printed here. The real check is server-side (CLAUDE.md). */
+    /* No codes and no payment form (family standard §15, §21). The family plan arrives with
+       the family server that every Bizzing app shares; until then a grown-up in tester mode
+       can switch it on to walk the product, and nobody else can. */
+    var on = ent.hasPass();
     return '<p class="tiny muted" style="margin:6px 0 0">Reading, playing and streaming are free. ' +
-      'The Parivaar Pass opens the offline packs above. Payments are still being built — ' +
-      'if you have a family code, it works today.</p>' +
-      '<div class="row" style="margin-top:6px">' +
-      '<input id="passcode" class="opt" autocomplete="off" autocapitalize="characters" ' +
-      'placeholder="Family code" style="max-width:170px;margin:0">' +
-      '<button class="pill" data-act="passredeem">Use the code</button></div>';
+      'The family plan opens the offline packs above and every world. It comes with the family ' +
+      'account, which is still being built — there is nothing to buy or type in yet.</p>' +
+      (on ? '<p class="tiny" style="margin:6px 0 0"><b>' + esc(ent.planName() || 'The family plan') +
+            '</b> is on for this device (tester mode).</p>' : '') +
+      (tester()
+        ? '<div class="row" style="margin-top:6px"><button class="pill' + (on ? ' on' : '') + '" data-act="passtester" aria-pressed="' + on + '">' +
+          (on ? 'Tester: family plan on' : 'Tester: switch the family plan on') + '</button></div>'
+        : '');
   }
 
   function diagCard() {
@@ -6190,6 +6258,27 @@
         if (c >= BLOCKS[j][0] && c <= BLOCKS[j][1]) { out = BLOCKS[j][2]; break; }
     }
     return out;
+  }
+  /* THE SAFETY NET under the script rule. A fragment written as class="deva" carries the
+     Devanagari face whatever is in it — so a Tamil, Bengali or Urdu word rendered through a
+     shared template fell back to whatever the system had (the audit's Urdu chart in Naskh).
+     After every paint, an element that holds Indic text and is not already tagged with the
+     right language gets it, and the :lang() rules in app.css do the rest. Marathi and Hindi
+     share Devanagari and Mukta, so 'hi' standing for both is right here. */
+  var TAG_SEL = '.deva, .glyph, .wcs, .opt, .wcword, .kw, [data-script]';
+  function tagScripts(root) {
+    if (!root || !root.querySelectorAll) return;
+    var els = root.querySelectorAll(TAG_SEL), i, el, lg, have;
+    for (i = 0; i < els.length; i++) {
+      el = els[i];
+      if (el.children.length > 3) continue;              /* a container, not a word */
+      lg = scriptLang(el.textContent);
+      if (!lg) continue;
+      have = (el.getAttribute('lang') || '').split('-')[0];
+      if (have === lg || (lg === 'hi' && /^(mr|ne|sa)$/.test(have))) continue;
+      el.setAttribute('lang', lg);
+      if (lg === 'ur') el.setAttribute('dir', 'rtl');
+    }
   }
 
   /* ------------------------------------------- what Paathshala is allowed to ask for
@@ -6364,6 +6453,107 @@
              script: script, lang: lang, cap: cap };
   }
 
+  /* ---------------------------------------------- A LEARN STOP THAT TEACHES (FIX-INDIA E3)
+     Each Hindi stop that used to say "open Bhasha" gets a worked example built from the
+     engine's own reviewed data — never written here: the script's letters with their names
+     and recorded sounds, its matras worked on a consonant, a theme's words with their sounds
+     and meanings, a grammar point's rule, its trap and its example sentences, or a real
+     exchange from the dialogue bank. Every sound is a tap away; the drill stays in Bhasha. */
+  var TEACH = {
+    'Why the line on top': ['headline'], 'The first ten letters': ['letters', 0, 10], 'Sound to shape': ['letters', 0, 10],
+    'A week later': ['letters', 0, 10], 'The middle rows': ['letters', 10, 20], 'The last rows': ['letters', 20, 33],
+    'The whole board': ['letters', 0, 33], 'Cold read': ['letters', 0, 33],
+    'A letter is never alone': ['matras', 3], 'The ten marks': ['matras', 99], 'Build the word': ['matras', 99],
+    'Say it, spell it': ['words', 'basics'], 'The house': ['words', 'home'], 'The kitchen and the street': ['words', 'food'],
+    'Point and say': ['words', 'places'], 'Cold recall': ['words', 'actions'],
+    'Who, what, does': ['grammar', 'sov'], 'Is and are': ['grammar', 'copula'], 'Make ten': ['grammar', 'sov'],
+    'Your own ten': ['grammar', 'agreement'], 'The question words': ['grammar', 'question'], 'Asking politely': ['grammar', 'request'],
+    'Twenty questions': ['grammar', 'question'], 'A real exchange': ['talk'], 'It already happened': ['grammar', 'tense-past'],
+    'It has not happened yet': ['grammar', 'tense-future'], 'Move the sentence in time': ['grammar', 'tense-present'],
+    'Tell a small story': ['grammar', 'tense-past'], 'Reading past the words you do not know': ['read'],
+    'A story in Hindi': ['read'], 'Three passages': ['read'], 'One you have not seen': ['read'],
+    'आप and तुम': ['grammar', 'respect'], 'Keeping it going': ['talk'], 'Two minutes': ['talk'], 'With someone new': ['talk'],
+    'When you get stuck': ['talk'], 'Words this app did not teach you': ['grammar', 'possession'], 'A whole conversation': ['talk'],
+    'The long check': ['grammar', 'negation'], 'Aap, always': ['grammar', 'respect'], 'Four exchanges': ['talk'],
+    'Where did that word come from': ['words', 'family']
+  };
+  function sayBtn(audio, text, label, cls) {
+    return '<button class="' + (cls || 'tglyph') + '" data-act="say" data-k="' + esc(audio || '') + '" data-t="' + esc(text) +
+      '" data-l="hi-IN" aria-label="Hear ' + esc(label || text) + '"><span lang="hi">' + esc(text) + '</span>' +
+      (label ? '<small>' + esc(label) + '</small>' : '') + '</button>';
+  }
+  function teachCard(kind, title, body) {
+    return '<div class="pl-card plain teach"><div class="pl-body"><p class="pl-kind">' + esc(kind) + '</p><h3>' + esc(title) + '</h3>' + body + '</div></div>';
+  }
+  function paathTeach(l, m) {
+    var t = l && TEACH[l.n], B = window.IND_BHASHA, P = window.IND_PACKS && window.IND_PACKS.hi;
+    if (!t || !B || !P) return '';
+    var sc = (window.IND_SCRIPTS || {})[P.script] || {};
+    var goal = '<p class="teach-goal"><b>By the end of this stop you can</b> ' + esc(l.o) + '.</p>';
+    if (t[0] === 'headline') {
+      var ws = (P.lexicon || []).filter(function (w) { return /^[\u0900-\u097F]+$/.test(w.word) && B.clusters && B.clusters(w.word).length >= 3; }).slice(0, 3);
+      return teachCard('Learn it here', 'The line on top', goal +
+        '<p>Most Devanagari letters hang from a line drawn along the top, called the <b>shirorekha</b>. Look at each letter on its own — then at the word, where their lines join into one.</p>' +
+        ws.map(function (w) {
+          var parts = B.clusters ? B.clusters(w.word) : w.word.split('');
+          return '<div class="teach-row"><span class="teach-apart" lang="hi">' + parts.map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') +
+            '</span><span class="teach-arrow" aria-hidden="true">→</span>' + sayBtn(w.audio, w.word, w.roman + ' · ' + w.en, 'tword') + '</div>';
+        }).join('') +
+        '<p class="tiny">The joined line is how a reader sees where one word ends and the next begins. Write it unbroken, all the way across.</p>');
+    }
+    if (t[0] === 'letters') {
+      var L = (sc.consonants || []).slice(t[1], t[2]);
+      return teachCard('Learn it here', L.length + ' letters, and the sound each one makes', goal +
+        '<p>Say each one out loud first, then tap it to hear whether you were right.</p>' +
+        '<div class="teach-grid">' + L.map(function (c) { return sayBtn(c.audio, c.char, c.name); }).join('') + '</div>');
+    }
+    if (t[0] === 'matras') {
+      var base = (sc.consonants || [])[0] || { char: 'क' }, MS = (sc.matras || []).slice(0, t[1]);
+      return teachCard('Learn it here', 'A letter is never alone', goal +
+        '<p>A consonant carries a short “a” of its own. A <b>matra</b> — a small mark before, after, above or below it — changes that sound. Here is ' +
+          '<span lang="hi">' + esc(base.char) + '</span> with each one:</p>' +
+        '<div class="teach-grid">' + MS.map(function (x) { return sayBtn(x.audio, x.example || (base.char + x.sign), x.name + ' · ' + (x.position || '')); }).join('') + '</div>');
+    }
+    if (t[0] === 'words') {
+      var W2 = (P.lexicon || []).filter(function (w) { return w.theme === t[1]; }).slice(0, 12);
+      if (!W2.length) return '';
+      return teachCard('Learn it here', W2.length + ' words to start with', goal +
+        '<p>Hear each word, say it back, and point at the thing if it is near you.</p>' +
+        '<div class="teach-words">' + W2.map(function (w) { return sayBtn(w.audio, w.word, w.roman + ' · ' + w.en, 'tword'); }).join('') + '</div>');
+    }
+    if (t[0] === 'grammar') {
+      var g = B.grammarPoint ? B.grammarPoint('hi', t[1]) : null;
+      if (!g) return '';
+      return teachCard('Learn it here', g.en, goal +
+        '<p class="teach-rule"><span lang="hi">' + esc(g.hi) + '</span> · ' + esc(g.rule) + '</p>' +
+        (g.watch ? '<p class="tiny"><b>Watch out:</b> ' + esc(g.watch) + '</p>' : '') +
+        (g.eg || []).slice(0, 3).map(function (e) {
+          return '<div class="teach-eg">' + sayBtn(e.audio, e.hi, '', 'tword') + '<span><i>' + esc(e.roman || '') + '</i> — ' + esc(e.en || '') + '</span></div>';
+        }).join(''));
+    }
+    if (t[0] === 'talk') {
+      var D = (B.dialogues && B.dialogues('hi')) || [], d = D[(l.n.length * 7) % Math.max(1, D.length)];
+      if (!d) return '';
+      return teachCard('Learn it here', d.sceneEn || 'A real exchange', goal +
+        '<div class="teach-eg">' + sayBtn(d.audio, d.prompt, '', 'tword') + '<span><i>' + esc(d.roman) + '</i> — ' + esc(d.en) + '</span></div>' +
+        (d.reply ? '<div class="teach-eg you">' + sayBtn(d.reply.audio, d.reply.hi, '', 'tword') + '<span><i>' + esc(d.reply.roman) + '</i> — ' + esc(d.reply.en) + '</span></div>' : '') +
+        '<p class="tiny">Read both sides aloud with someone at home. Then swap who goes first.</p>');
+    }
+    if (t[0] === 'read') {
+      var ps = (((P.stages || []).filter(function (x) { return (x.types || []).indexOf('readPassage') >= 0; })[0] || {}).items || [])
+        .filter(function (x) { return x && x.kind === 'passage'; });
+      var pp = ps[(l.n.length * 3) % Math.max(1, ps.length)];
+      if (!pp) return '';
+      return teachCard('Learn it here', 'Read it for the sense', goal +
+        '<p>Read it once all the way through without stopping. Most of it is enough to know what is happening.</p>' +
+        '<p class="teach-passage" lang="hi">' + esc(pp.hi) + '</p>' +
+        '<button class="btn ghost sm" data-act="say" data-k="' + esc(pp.audio || '') + '" data-t="' + esc(pp.hi) + '" data-l="hi-IN">' +
+          icon('sound', 16) + ' Hear it read</button>' +
+        '<details><summary>What it says</summary><p>' + esc(pp.en || '') + '</p></details>');
+    }
+    return '';
+  }
+
   function paathUI() {
     if (!window.IND_PAATH_UI || !window.IND_PAATH) return null;
     if (!paathReady) {
@@ -6373,6 +6563,7 @@
         save: save, go: go, toast: toast, icon: icon, esc: esc,
         look: paathLook,
         card: paathCard,
+        teach: paathTeach,
         /* the child's own companion, for the pin they are standing at — the one piece
            of the atlas that is theirs rather than the course's */
         face: function (n) { return art(S.buddy || 'pt_tortoise', n); },
@@ -6394,8 +6585,17 @@
   }
   V.paath = function (arg) {
     var U = paathUI();
-    if (!U) return '<div class="card"><h2>Paathshala</h2><p>The courses did not load.</p></div>';
-    return arg ? U.course(arg) : U.hub();
+    if (!U) return errorState('The courses did not load. It may be the connection — once they have loaded once, they work offline.', 'paath');
+    if (arg) return U.course(arg);
+    /* THE STORY SHELVES AND MORAL SCIENCE LIVE HERE NOW (FIX-INDIA C1): two doors at the top
+       of the school, with everything they held, one tap away — and in ☰ as well. */
+    return '<div class="grid g2 pdoors">' +
+        '<button class="tile pdoor" data-act="go" data-v="stories">' + icon('tree', 28) +
+          '<span><b>' + esc(tellerTitle()) + '</b><span class="tiny muted">' + allStories().length +
+          ' stories, read aloud — the epics, the Panchatantra, every state.</span></span></button>' +
+        '<button class="tile pdoor" data-act="go" data-v="neeti">' + icon('lamp', 28) +
+          '<span><b>Moral Science</b><span class="tiny muted">Values, faiths, festivals and verses — and the day’s deed.</span></span></button>' +
+      '</div>' + U.hub();
   };
   V.paathl = function (arg) {
     var U = paathUI();
@@ -6539,60 +6739,29 @@
   };
 
   V.me = function () {
-    var packs = window.IND_AVATAR_PACKS || [];
-    return '<div class="card"><div class="row" style="flex-wrap:nowrap">' + art(S.buddy, 92) +
+    var A = (window.IND_AVATAR_BY_ID || {})[S.buddy], E = window.IND_ECONOMY;
+    return '<div class="card mehead"><div class="row" style="flex-wrap:nowrap">' +
+      '<span class="' + (S.frame ? 'framed fr-' + esc(S.frame) : '') + '">' + art(S.buddy, 92) + '</span>' +
       '<div><h1 style="margin:0">' + esc(S.name || 'Yatri') + '</h1>' +
       '<div class="row" style="margin-top:8px">' +
-      '<span class="pill stat">🪙 ' + coins() + '</span>' +
+      '<button class="pill coinchip" data-act="wallet">' + coinSvg(18) + ' ' + coins() + '</button>' +
       '<span class="pill stat">' + esc(rank()) + '</span>' +
       '<span class="pill stat">' + Object.keys(S.lit).length + ' places</span>' +
-      '<span class="pill stat">' + Object.keys(S.read).length + ' stories</span></div></div></div></div>' +
-      /* the yatra and the mala live here, on the child's own page, since Home was cut to
-         the family anatomy — the avatar in the top bar is the way in (standard §4) */
+      '<span class="pill stat">' + Object.keys(S.read).length + ' stories</span></div>' +
+      (A ? '<p class="tiny muted" style="margin:8px 0 0">Travelling with ' + esc(A.name) + ' · ' + esc(A.tier) + '</p>' : '') +
+      '</div></div></div>' +
+      /* THE CHILD'S OWN THINGS, each with its own screen now (standard §1, §8): the
+         Collection of 96, the Shop with its three shelves, and the worlds */
+      '<div class="grid g3 mydoors">' +
+        '<button class="tile" data-act="go" data-v="collection">' + icon('cards', 26) + '<b>Collection</b>' +
+          '<span class="tiny muted">' + collectionCount() + ' of 96 met</span></button>' +
+        '<button class="tile" data-act="go" data-v="shop">' + icon('bag', 26) + '<b>Shop</b>' +
+          '<span class="tiny muted">Avatars · Worlds · Extras</span></button>' +
+        '<button class="tile" data-act="go" data-v="settings">' + icon('gear', 26) + '<b>Worlds &amp; settings</b>' +
+          '<span class="tiny muted">Now: ' + esc(((window.IND_WORLDS && window.IND_WORLDS.get(S.world)) || {}).name || S.world) + '</span></button>' +
+      '</div>' +
       V.medals() + V.yatra() + V.malaStrip() +
-      /* Worlds comes BEFORE the companions and shows the worlds themselves. It
-         used to be a one-line tile below a wall of 116 avatars, which is where
-         a setting goes to be never found. Picking one is a two-tap job now. */
-      (function () {
-        var list = worldList(), here = null;
-        list.forEach(function (w) { if (w.id === S.world) here = w; });
-        return '<div class="card"><div class="spread"><h3 style="margin:0">Worlds</h3>' +
-          '<button class="pill" data-act="go" data-v="worlds">All ' + list.length + '</button></div>' +
-          '<p class="tiny muted" style="margin:6px 0 0">Repaint the whole app in a real Indian ' +
-          'folk-art tradition. Now: <b>' + esc(here ? here.name : S.world) + '</b>' +
-          (here ? ' — ' + esc(here.region) : '') + '.</p>' +
-          /* LOCKED WORLDS LOOK LOCKED. This grid used to hand every tile the `world`
-             action whether or not the child owned it, so a locked world silently did
-             nothing when tapped -- the one thing a four-year-old reads as "broken app".
-             Now it dims, wears its price, and tapping it buys it. */
-          '<div class="grid g2" style="margin-top:12px">' + list.map(function (w) {
-            var E = window.IND_ECONOMY;
-            var open = !E || E.worldOpen(S, w.id);
-            var price = E ? E.worldPrice(w.id) : 0;
-            return '<button class="tile' + (S.world === w.id ? ' on' : '') + (open ? '' : ' locked') +
-              '" data-act="' + (open ? 'world' : 'buyworld') + '" data-w="' + w.id + '">' +
-              (w.tile
-                ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>'
-                : '<div class="wpreview" data-world="' + w.id + '">' +
-                  '<b style="background:var(--accent)"></b>' +
-                  '<b style="background:var(--accent2);width:24px;height:24px"></b>' +
-                  '<b style="background:var(--accent3);width:19px;height:19px"></b>' +
-                  '<span class="aa">आ Aa</span></div>') +
-              '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3>' +
-              (S.world === w.id ? '<span class="badge aaj">on</span>'
-                : (open ? '<span class="badge">alive</span>'
-                        : '<span class="badge price">🪙 ' + price + '</span>')) + '</div>' +
-              '<div class="mono">' + esc(w.region) + '</div>' +
-              (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent-ink,var(--accent));font-weight:700">' +
-                (E && E.canAfford(S, price) ? 'Tap to open it'
-                                            : (price - coins()) + ' more coins') + '</p>') +
-              '</button>';
-          }).join('') + '</div></div>' +
-      packShop(packs);
-      })() +
-      /* THE GROWN-UPS' DOOR. Everything that changes the child — starting again, the
-         developer unlock, backups — used to sit open on this page. It is behind a PIN now,
-         and this is the only thing left of it here. */
+      /* THE GROWN-UPS' DOOR. Everything that changes the child is behind a PIN. */
       '<div class="card growndoor"><div class="spread"><div><h3 style="margin:0">Grown-ups</h3>' +
       '<p class="tiny muted" style="margin:4px 0 0">The report card, settings, backups and starting again — behind a PIN.</p></div>' +
       '<button class="btn" data-act="go" data-v="grown">' + icon('lock', 18) + ' Grown-ups</button></div></div>';
@@ -6747,6 +6916,24 @@
       '<div class="phead"><h1>Grown-ups</h1>' +
         '<button class="pill" data-act="grownlock">' + icon('lock', 16) + ' Lock</button></div>' +
       reportCard() +
+      /* THIS CHILD'S CONTROLS (standard §15; FIX-INDIA Q4): the age band and the day's target,
+         here behind the PIN and nowhere a child can reach them. Sound, read-aloud and the world
+         are in Settings, which every child can use. */
+      '<div class="card"><h3 style="margin-top:0">' + esc(S.name || 'This child') + '’s settings</h3>' +
+        '<div class="setrow"><span><b>Age band</b><small>Changes which stories, quizzes and history open.</small></span>' +
+          '<div class="segpills" role="group" aria-label="Age band">' + OB_AGES.map(function (o) {
+            var on = (S.age || 8) <= 7 ? o[0] === 6 : (S.age || 8) <= 9 ? o[0] === 9 : o[0] === 11;
+            return '<button class="pill' + (on ? ' on' : '') + '" aria-pressed="' + on + '" data-act="growage" data-v="' + o[0] + '">' + esc(o[1]) + '</button>';
+          }).join('') + '</div></div>' +
+        '<div class="setrow"><span><b>Daily target</b><small>Stories, lessons, games or deeds a day. Missing a day costs nothing.</small></span>' +
+          '<div class="segpills" role="group" aria-label="Daily target">' + [2, 3, 5].map(function (g2) {
+            return '<button class="pill' + ((S.goal || 3) === g2 ? ' on' : '') + '" aria-pressed="' + ((S.goal || 3) === g2) +
+              '" data-act="goalset" data-g="' + g2 + '">' + g2 + ' a day</button>';
+          }).join('') + '</div></div>' +
+        '<div class="setrow"><span><b>Sound, read-aloud and the world</b><small>In Settings, from the ☰ menu.</small></span>' +
+          '<button class="btn sm ghost" data-act="go" data-v="settings">' + icon('gear', 16) + ' Settings</button></div>' +
+      '</div>' +
+      certCard() +
       /* CHILDREN IN THIS HOUSEHOLD (family standard §5): each keeps their own stories,
          map, coins, languages and courses; switching never mixes them */
       '<div class="card kidscard"><h3 style="margin-top:0">Children in this household</h3>' +
@@ -6773,12 +6960,10 @@
   };
   function settings_html() {
     return (
-      '<div class="card"><h3>Settings</h3><div class="row">' +
-      '<button class="pill' + (soundOn ? ' on' : '') + '" data-act="sound">' + icon('sound', 18) + ' Sound</button>' +
-      '<button class="pill' + (night ? ' on' : '') + '" data-act="night">' +
-      icon(night ? 'sun' : 'moon', 18) + ' Night mode</button>' +
-      /* Only worth offering once a human has actually recorded both — before
-         that there is one synthesised voice and a switch would be a lie. */
+      /* Sound, music, reading speed and the world are the child's own Settings now (☰ →
+         Settings, standard §5). What stays here is the grown-ups' half: the plan, downloads,
+         the recorded voice, tester mode, and the build number. */
+      '<div class="card"><h3>The plan, downloads and tester mode</h3><div class="row">' +
       (function () {
         var H = window.IND_VOICE_HUMAN || {}, k, both = false;
         for (k in H) { if (H[k] && H[k].v && H[k].v.length > 1) { both = true; break; } }
@@ -6788,15 +6973,6 @@
           : '';
       })() +
       '</div>' +
-      '<h4 class="setlbl">Reading speed</h4>' +
-      '<div class="row seg" role="group" aria-label="Reading speed">' +
-      [[0.7, 'Slower'], [0.85, 'Slow'], [1, 'Normal']].map(function (r) {
-        return '<button class="pill' + (speakRate() === r[0] ? ' on' : '') +
-          '" data-act="rate" data-r="' + r[0] + '"' +
-          ' aria-pressed="' + (speakRate() === r[0] ? 'true' : 'false') + '">' + r[1] + '</button>';
-      }).join('') + '</div>' +
-      '<p class="tiny muted" style="margin:8px 0 0">Slows every voice in the app — stories, ' +
-      'words and the Hindi lessons. The words stay the same pitch, just slower.</p>' +
       /* THE DEVELOPER UNLOCK. Sits at the bottom of the grown-ups' page, says plainly what
          it does, and is loud while it is on so nobody ships a screenshot of a "finished"
          collection that was actually a test switch. It opens the SIKKE economy only —
@@ -6816,7 +6992,7 @@
       'sikke and your real collection are exactly as you left them.</p>' +      '' : '') +
 
       '<h4 class="setlbl">Take it offline</h4>' + dlRows() +
-      '<h4 class="setlbl">Parivaar Pass</h4>' + passCard() +
+      '<h4 class="setlbl">Family plan</h4>' + passCard() +
       '<h4 class="setlbl">If something breaks</h4>' + diagCard() +
       '<p class="tiny muted" style="margin-top:12px">Build <b>' + esc(window.IND_BUILD || 'dev') + '</b>' +
       ' — if something looks wrong, quote this number so we know which version you are on.</p>' +
@@ -6855,6 +7031,622 @@
       'state lines either — the states above are where yours is most at home, not a fence.</div>';
   };
 
+  function savingFor() {
+    var E = window.IND_ECONOMY, C = window.IND_AVATARS || [];
+    if (!E || !S.started) return '';
+    var goal = null;
+    for (var i = 0; i < C.length && !goal; i++) {
+      var st = E.stateOf(S, C[i].id);
+      if (C[i].tier === 'legendary' && (st.state === 'buy' || st.state === 'milestone')) goal = { a: C[i], st: st };
+    }
+    var c = coins(), price, title, line, act, arg;
+    if (goal) {
+      price = goal.st.price; title = goal.a.name; act = 'avcard'; arg = goal.a.id;
+      line = goal.st.state === 'milestone' ? goal.st.say + ', then ' + price + ' coins' : 'Legendary · ' + price + ' coins';
+    } else {
+      var w = (E.WORLD_ORDER || []).filter(function (id) { return !E.worldOpen(S, id); })[0];
+      if (!w) return '';
+      var wo = window.IND_WORLDS && window.IND_WORLDS.get(w);
+      price = E.worldPrice(); title = (wo ? wo.name : w) + ' world'; act = 'shop'; arg = 'worlds';
+      line = 'A new world · ' + price + ' coins';
+    }
+    var pct = Math.min(100, Math.round(c / Math.max(1, price) * 100));
+    return '<button class="card hm-goal" data-act="go" data-v="' + act + '" data-arg="' + esc(arg) + '">' +
+      (goal ? '<span class="hg-face bz-av" data-tier="legendary" data-state="' + goal.st.state + '">' + art(goal.a.id, 52) + '</span>'
+            : '<span class="hg-face">' + icon('map', 30) + '</span>') +
+      '<span class="hg-body"><span class="mono">Saving for</span><b>' + esc(title) + '</b>' +
+        '<span class="tiny muted">' + esc(line) + ' · you have ' + c + '</span>' +
+        '<span class="meter"><i style="width:' + pct + '%"></i></span></span></button>';
+  }
+
+  /* CERTIFICATES (standard §13; FIX-INDIA T9). What triggers one: a level finished — a medal
+     earned or a language rung mastered, each from evidence. What it shows: the child's first
+     name, their avatar, the peacock, and what was mastered. How it is shared: as a PNG drawn
+     on this device, from here behind the PIN only. Nothing is uploaded. */
+  function certList() {
+    var out = [];
+    MEDALS.forEach(function (m) { var on = (S.medals || {})[m.id]; if (on) out.push({ id: 'm-' + m.id, what: m.name, how: m.how, on: on }); });
+    try { reportOf().mastery.filter(function (x) { return /·/.test(x.where) && !/Paathshala/.test(x.where); })
+      .forEach(function (x, i) { out.push({ id: 'r-' + i, what: x.what, how: x.where, on: x.on }); }); } catch (e) {}
+    return out;
+  }
+  function certCard() {
+    var L = certList();
+    return '<div class="card certs"><h3 style="margin-top:0">' + icon('medal', 20) + ' Certificates</h3>' +
+      '<p class="tiny muted" style="margin-top:0">One for every medal and every language rung ' + esc(S.name || 'your child') +
+        ' has earned. Drawn on this device as a picture you can keep or send; nothing is uploaded.</p>' +
+      (L.length ? '<div class="certlist">' + L.map(function (c) {
+          return '<div class="certrow"><span><b>' + esc(c.what) + '</b><small>' + esc(c.how) + ' · ' + esc(c.on) + '</small></span>' +
+            '<button class="pill" data-act="cert" data-id="' + esc(c.id) + '">' + icon('print', 16) + ' Make it</button></div>';
+        }).join('') + '</div>'
+        : '<p>Nothing yet. The first medal makes the first certificate.</p>') + '</div>';
+  }
+  function loadImg(src) {
+    return new Promise(function (ok) { var im = new Image(); im.onload = function () { ok(im); }; im.onerror = function () { ok(null); }; im.src = src; });
+  }
+  function makeCert(id) {
+    var c = certList().filter(function (x) { return x.id === id; })[0];
+    if (!c) return Promise.resolve(null);
+    var cv = document.createElement('canvas'); cv.width = 1600; cv.height = 1131;
+    var g = cv.getContext('2d');
+    return Promise.all([loadImg(artSrc(S.buddy)), loadImg('art/peacock-cheer.webp')]).then(function (im) {
+      g.fillStyle = '#FFF8EC'; g.fillRect(0, 0, 1600, 1131);
+      g.strokeStyle = '#3A2A5C'; g.lineWidth = 14; g.strokeRect(40, 40, 1520, 1051);
+      g.strokeStyle = '#E9A13B'; g.lineWidth = 4; g.strokeRect(70, 70, 1460, 991);
+      g.fillStyle = '#3A2A5C'; g.textAlign = 'center';
+      g.font = '800 54px Fraunces, Georgia, serif'; g.fillText('Bizzing India', 800, 170);
+      g.font = '600 30px "Hanken Grotesk", sans-serif'; g.fillText('This certificate is for', 800, 300);
+      g.font = '800 104px Fraunces, Georgia, serif'; g.fillText(S.name || '', 800, 420);
+      g.font = '600 30px "Hanken Grotesk", sans-serif'; g.fillText('who earned', 800, 510);
+      g.font = '800 64px Fraunces, Georgia, serif'; g.fillStyle = '#B84A2A'; g.fillText(c.what, 800, 600);
+      g.fillStyle = '#3A2A5C'; g.font = '500 28px "Hanken Grotesk", sans-serif'; g.fillText(c.how, 800, 670);
+      g.font = '600 26px "Sono", monospace'; g.fillText(String(c.on), 800, 980);
+      if (im[0]) g.drawImage(im[0], 160, 760, 260, 260);
+      if (im[1]) g.drawImage(im[1], 1180, 760, 260, 260);
+      return new Promise(function (ok) { cv.toBlob(function (b) { ok({ blob: b, name: 'bizzing-india-' + slug(S.name || 'child') + '-' + slug(c.what) + '.png' }); }, 'image/png'); });
+    });
+  }
+  function artSrc(id) {
+    return (window.IND_AV_WEBP && window.IND_AV_WEBP.indexOf(id) >= 0) ? 'art/av/' + id + '.webp' : 'art/' + id + '.png';
+  }
+
+  /* YOU ARE HERE (FIX-INDIA J6, D8): the child's own face on the map, on the place their
+     next story comes from — or, with no story waiting, the last place they lit. A pin over
+     the map, never a mark on a boundary: nothing on the map's geometry moves. */
+  function mapYou(M) {
+    var code = null;
+    try {
+      var stp = nextStep();
+      if (stp && stp.go && stp.go.n === 'story') {
+        var st = storyById(stp.go.a), pl = st && st.place && st.place[0];
+        if (pl) code = String(pl).replace('IN-', '');
+      }
+    } catch (e) {}
+    if (!code || !(M.anchors || {})[code]) { var lk = Object.keys(S.lit || {}); code = lk.length ? lk[lk.length - 1] : null; }
+    if (!code || !(M.anchors || {})[code]) return '';
+    var vb = M.viewBox.split(/[\s,]+/).map(Number), a = M.anchors[code];
+    var lx = ((a[0] - vb[0]) / vb[2]) * 100, ly = ((a[1] - vb[1]) / vb[3]) * 100;
+    return '<span class="mapyou" style="left:' + lx.toFixed(2) + '%;top:' + ly.toFixed(2) + '%" title="You — ' + esc(stateName(code)) + '">' +
+      '<span class="' + (S.frame ? 'framed fr-' + esc(S.frame) : '') + '">' + art(S.buddy, 34) + '</span></span>';
+  }
+
+  /* ===================================================== THE FAMILY LAYER (standard v2)
+     Everything a child meets the same way in every Bizzing app (FIX-INDIA §2; family
+     standard §1, §3, §5, §8, §16): the ☰ drawer, the coin chip and its wallet history,
+     the Shop, the Collection, Settings in five sections, search, and the peacock on every
+     empty and error state. India's own subject stays India's; this is the shared skin. */
+
+  /* ---- device settings: remembered on the device, never on the child (standard §5) */
+  var dev = {
+    fx: Store.loadDevice('fx', true),          /* sound effects */
+    music: Store.loadDevice('music', true),    /* the world's loop */
+    vol: +Store.loadDevice('vol', 0.8),        /* one master volume */
+    read: Store.loadDevice('read', true),      /* read aloud: the recorded narration */
+    theme: Store.loadDevice('theme', null),    /* 'light' | 'dark' | 'auto'; null = the old night switch */
+    text: Store.loadDevice('text', 'M'),       /* S · M · L */
+    motion: Store.loadDevice('motion', false), /* reduce motion */
+    calm: Store.loadDevice('calm', false)      /* calm mode: no music, softer effects, no confetti */
+  };
+  if (!(dev.vol >= 0 && dev.vol <= 1)) dev.vol = 0.8;
+  var mqDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  if (dev.theme === 'auto' && mqDark) night = mqDark.matches;
+  else if (dev.theme === 'dark') night = true;
+  else if (dev.theme === 'light') night = false;
+  if (mqDark && mqDark.addEventListener) mqDark.addEventListener('change', function () {
+    if (dev.theme !== 'auto') return;
+    night = mqDark.matches; paintChrome(); render();
+  });
+  function setDev(k, v) { dev[k] = v; Store.saveDevice(k, v); applyLook(); }
+  /* the look the html element carries, so CSS (and the worlds engine, and the family's
+     avatar glow) can follow it without asking */
+  function applyLook() {
+    var r = document.documentElement;
+    r.setAttribute('data-text', dev.text || 'M');
+    if (dev.motion) r.setAttribute('data-motion', 'reduce'); else r.removeAttribute('data-motion');
+    if (dev.calm) r.setAttribute('data-calm', '1'); else r.removeAttribute('data-calm');
+    if (night) r.setAttribute('data-bz-dark', ''); else r.removeAttribute('data-bz-dark');
+    if (window.IND_AUDIO) window.IND_AUDIO.set({ muted: !soundOn, fx: dev.fx, music: dev.music && !dev.calm,
+      vol: dev.vol, calm: dev.calm });
+  }
+  /* effects and read-aloud each have their own switch, under the one mute */
+  window.IND_SFX_MUTED = function () { return !soundOn || !dev.fx; };
+  function narrationOn() { return soundOn && dev.read; }
+
+  /* ---- the mascot (standard §2): the peacock, in six poses. The poses are painted
+     (art/peacock-<pose>.webp); the logo stands in for any pose not painted yet. */
+  var PEACOCK = ['wave', 'cheer', 'think', 'point', 'sleep', 'oops'];
+  window.IND_PEACOCK = PEACOCK;
+  function peacock(pose, size) {
+    var have = window.IND_PEACOCK && window.IND_PEACOCK.indexOf(pose) >= 0;
+    var src = have ? 'art/peacock-' + pose + '.webp' : 'art/logo.png';
+    return '<img class="peacock p-' + esc(pose) + '" src="' + src + '" alt="" width="' + (size || 96) +
+      '" height="' + (size || 96) + '" loading="lazy" decoding="async">';
+  }
+  /* EMPTY AND ERROR STATES (standard §16): the mascot, one sentence, one button. Never a
+     blank panel, never a stack trace, "[object Object]" or a {placeholder}. */
+  function emptyState(line, btn, act, v) {
+    return '<div class="card bz-empty" role="status">' + peacock('sleep', 112) +
+      '<p>' + esc(line) + '</p>' +
+      (btn ? '<button class="btn" data-act="' + (act || 'go') + '" data-v="' + esc(v || 'home') + '">' + esc(btn) + '</button>' : '') +
+      '</div>';
+  }
+  function errorState(line, retryV, retryArg) {
+    return '<div class="card bz-empty bz-oops" role="alert">' + peacock('oops', 112) +
+      '<h2>That did not work</h2><p>' + esc(line) + '</p>' +
+      '<button class="btn" data-act="go" data-v="' + esc(retryV || 'home') + '"' +
+        (retryArg != null ? ' data-arg="' + esc(retryArg) + '"' : '') + '>Try again</button></div>';
+  }
+
+  /* ---- THE ☰ DRAWER (standard §3): left, 300px, over a scrim; Esc, the scrim or × close
+     it; focus is trapped inside while it is open. The order is the family's, in every app:
+     My page · Shop · Collection · Medals · (India's own four) · Settings · Grown-ups 🔒 ·
+     Help · Privacy · Back to the Hive. Anything that is not a main tab lives here. */
+  var drawerFrom = null;
+  function drawerHTML() {
+    var row = function (v, ic, label, extra) {
+      return '<button class="dr-row" data-act="go" data-v="' + v + '">' + icon(ic, 22) + '<span>' + label + '</span>' +
+        (extra || '') + '</button>';
+    };
+    return '<div class="dr-scrim" data-act="drawerclose"></div>' +
+      '<nav class="dr-in" role="dialog" aria-modal="true" aria-label="Menu">' +
+        '<div class="dr-head"><span class="dr-brand">' + peacock('wave', 36) + '<b>Bizzing <em>India</em></b></span>' +
+          '<button class="iconbtn" data-act="drawerclose" aria-label="Close the menu">' + icon('close', 20) + '</button></div>' +
+        /* on a phone the bar folds search, theme and the grown-ups' lock in here (standard §3) */
+        '<div class="dr-quick">' +
+          '<button class="dr-chip dr-phone" data-act="go" data-v="search">' + icon('search', 18) + '<span>Search</span></button>' +
+          '<button class="dr-chip dr-phone" data-act="night" aria-pressed="' + night + '">' + icon(night ? 'sun' : 'moon', 18) +
+            '<span>' + (night ? 'Day' : 'Night') + '</span></button>' +
+          /* read-in-Hindi: India's own, global, with per-story content */
+          '<button class="dr-chip" data-act="hindi" aria-pressed="' + !!S.hindi + '"><span class="deva" lang="hi" aria-hidden="true">अ</span>' +
+            '<span>Hindi too: ' + (S.hindi ? 'on' : 'off') + '</span></button>' +
+          /* THE ONE MUTE, one tap from ☰ (standard §11) */
+          '<button class="dr-chip" data-act="sound" aria-pressed="' + !soundOn + '">' + icon(soundOn ? 'sound' : 'mute', 18) +
+            '<span>' + (soundOn ? 'Sound on' : 'Muted') + '</span></button>' +
+        '</div>' +
+        row('me', 'star', 'My page') +
+        row('shop', 'bag', 'Shop') +
+        row('collection', 'cards', 'Collection', '<i>' + collectionCount() + ' of 96</i>') +
+        row('medals', 'medal', 'Medals') +
+        '<hr>' +
+        row('stories', 'tree', esc(tellerTitle())) +
+        row('neeti', 'lamp', 'Moral Science') +
+        row('epics', 'book', 'The Epics') +
+        row('tongue', 'script', 'Family language', '<i>' + esc(tongue() ? tongue().en : 'choose') + '</i>') +
+        '<hr>' +
+        row('settings', 'gear', 'Settings') +
+        row('grown', 'lock', 'Grown-ups') +
+        row('help', 'help', 'Help') +
+        row('privacy', 'shield', 'Privacy') +
+        '<a class="dr-row" href="https://aayuvis.github.io/Bizzing_Schedule/">' + icon('hive', 22) + '<span>Back to the Hive</span></a>' +
+      '</nav>';
+  }
+  function openDrawer() {
+    if ($('#drawer')) return;
+    drawerFrom = document.activeElement;
+    var d = document.createElement('div');
+    d.id = 'drawer'; d.innerHTML = drawerHTML();
+    document.body.appendChild(d);
+    document.body.classList.add('drawer-open');
+    var b = $('.menubtn'); if (b) b.setAttribute('aria-expanded', 'true');
+    var f = d.querySelector('.dr-in [data-act="drawerclose"]'); if (f) f.focus();
+  }
+  function closeDrawer() {
+    var d = $('#drawer'); if (!d) return;
+    d.remove(); document.body.classList.remove('drawer-open');
+    var b = $('.menubtn'); if (b) b.setAttribute('aria-expanded', 'false');
+    if (drawerFrom && drawerFrom.focus && document.body.contains(drawerFrom)) drawerFrom.focus();
+    drawerFrom = null;
+  }
+  /* Esc closes the drawer and the sheets; Tab stays inside whichever is open */
+  document.addEventListener('keydown', function (e) {
+    var open = $('#drawer .dr-in') || $('#walletsheet .ws-in') || $('#kidmenu .km-in');
+    if (!open) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if ($('#drawer')) closeDrawer(); else if ($('#walletsheet')) closeWallet(); else closeKidMenu();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    var f = [].filter.call(open.querySelectorAll('button, a[href], input, [tabindex="0"]'), function (x) { return !x.disabled && x.offsetParent !== null; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (!open.contains(document.activeElement)) { e.preventDefault(); first.focus(); return; }
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  /* ---- THE WALLET (standard §1.1): the coin chip opens the balance, the last thirty lines
+     written as words, and one line saying what coins are for. Coins from a sibling app are
+     marked with that app's mascot. */
+  var APPS = {
+    bee: { name: 'Bizzing Bee', head: 'art/family/bee.webp' },
+    maths: { name: 'Bizzing Maths', head: 'art/family/maths.webp' },
+    geography: { name: 'Bizzing Geography', head: 'art/family/geography.webp' },
+    india: { name: 'Bizzing India', head: 'art/logo.png' },
+    finance: { name: 'Bizzing Finance', head: 'art/family/finance.webp' }
+  };
+  var EARN_WORDS = { answer: 'a right answer', stop: 'finished a story, a stop or a lesson', contest: 'finished a quiz show',
+                     mastery: 'mastered something', migrated: 'old coins, brought across' };
+  function ledgerLine(x) {
+    var why = String(x.why || ''), w = EARN_WORDS[why], m;
+    if (!w && (m = why.match(/^avatar:(.+)$/))) w = 'met ' + (avatarName(m[1]) || m[1]);
+    if (!w && (m = why.match(/^world:(\d+)$/))) {
+      var wid = (window.IND_ECONOMY && window.IND_ECONOMY.WORLD_ORDER[+m[1] - 1]) || '', wo = window.IND_WORLDS && window.IND_WORLDS.get(wid);
+      w = 'opened the ' + (wo ? wo.name : 'world ' + m[1]) + ' world';
+    }
+    if (!w && (m = why.match(/^world:([a-z0-9]+)$/))) {
+      var wo2 = window.IND_WORLDS && window.IND_WORLDS.get(m[1]); w = 'opened the ' + (wo2 ? wo2.name : m[1]) + ' world';
+    }
+    if (!w && (m = why.match(/^extra:(.+)$/))) {
+      var ex = ((window.IND_ECONOMY && window.IND_ECONOMY.EXTRAS) || []).filter(function (e) { return e.id === m[1]; })[0];
+      w = 'bought ' + (ex ? ex.name : m[1]);
+    }
+    if (!w && (m = why.match(/^(card|pack):(.+)$/))) w = (m[1] === 'card' ? 'met ' + (avatarName(m[2]) || m[2]) : 'opened a pack');
+    if (!w && /^refund:/.test(why)) w = 'given back: ' + why.slice(7);
+    return w || why;
+  }
+  function walletLines(n) {
+    var Wl = window.IND_WALLET;
+    var L = (Wl && S.name) ? Wl.ledger(S.name).slice(-(n || 30)).reverse() : [];
+    if (!L.length) return '<p class="tiny muted">Nothing yet. Your first coins come with your first right answer.</p>';
+    return '<ul class="ws-list">' + L.map(function (x) {
+      var app = APPS[x.a] || APPS.india;
+      var d = new Date(x.t);
+      return '<li class="' + (x.n < 0 ? 'out' : 'in') + '"><img src="' + app.head + '" alt="' + esc(app.name) + '" title="' + esc(app.name) + '" width="24" height="24">' +
+        '<b>' + (x.n > 0 ? '+' : '−') + Math.abs(x.n) + '</b>' +
+        '<span>' + esc(ledgerLine(x)) + (x.a !== 'india' ? ' · ' + esc(app.name.replace('Bizzing ', '')) : '') + '</span>' +
+        '<time datetime="' + d.toISOString() + '">' + d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + '</time></li>';
+    }).join('') + '</ul>';
+  }
+  var COINS_FOR = 'Bizzing coins are earned only by learning — 1 for a right answer, 5 for a story or lesson finished — ' +
+    'and spent on avatars, worlds and extras at printed prices. The same coins work in every Bizzing app.';
+  function coinSvg(size) {
+    return '<svg class="bzcoin" viewBox="0 0 24 24" width="' + (size || 20) + '" height="' + (size || 20) + '" aria-hidden="true">' +
+      '<circle cx="12" cy="12" r="10" fill="#F0B429" stroke="#B7791F" stroke-width="1.6"/>' +
+      '<circle cx="12" cy="12" r="6.6" fill="none" stroke="#B7791F" stroke-width="1.3"/>' +
+      /* the family's hexagon, never a currency sign: Bizzing coins are not money (standard §1) */
+      '<path d="M12 8.2l3.3 1.9v3.8L12 15.8l-3.3-1.9v-3.8z" fill="#FFE08A" stroke="#8a5a12" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+  }
+  function openWallet() {
+    if ($('#walletsheet')) return;
+    var d = document.createElement('div');
+    d.id = 'walletsheet';
+    d.innerHTML = '<div class="ws-scrim" data-act="walletclose"></div>' +
+      '<div class="ws-in" role="dialog" aria-modal="true" aria-label="Your Bizzing coins">' +
+        '<div class="ws-head"><h2>' + coinSvg(28) + ' <span id="wsBal">' + coins() + '</span> Bizzing coins</h2>' +
+          '<button class="iconbtn" data-act="walletclose" aria-label="Close">' + icon('close', 20) + '</button></div>' +
+        '<p class="tiny ws-for">' + esc(COINS_FOR) + '</p>' +
+        '<h3 class="mono">Where they came from, and went</h3>' + walletLines(30) +
+        '<button class="btn" data-act="go" data-v="shop">' + icon('bag', 18) + ' Open the Shop</button>' +
+      '</div>';
+    document.body.appendChild(d);
+    var f = d.querySelector('.ws-in [data-act="walletclose"]'); if (f) f.focus();
+  }
+  function closeWallet() { var d = $('#walletsheet'); if (d) d.remove(); var c = $('.coinchip'); if (c) c.focus(); }
+
+  /* ---- the collection count, for the drawer and the Collection page */
+  function collectionCount() {
+    var E = window.IND_ECONOMY, n = 0;
+    (window.IND_AVATARS || []).forEach(function (a) { if (!E || E.avatarOpen(S, a.id)) n++; });
+    return n;
+  }
+  /* the family's avatar card (family/bizzing-avatars.css): the tier's border, and its glow at night */
+  function bzCard(a, opts) {
+    var E = window.IND_ECONOMY, st = E ? E.stateOf(S, a.id) : { state: 'owned', say: '' };
+    var o = opts || {};
+    return '<button class="bzcard" data-act="go" data-v="avcard" data-arg="' + esc(a.id) + '" aria-label="' +
+        esc(a.name + ' — ' + (st.label || a.tier) + ' — ' + st.say) + '">' +
+      '<figure class="bz-av" data-tier="' + a.tier + '" data-state="' + st.state + '">' +
+        art(a.id, o.size || 96) +
+        '<figcaption>' + esc(a.name) + ' <b>' + esc(st.label || a.tier) + '</b></figcaption></figure>' +
+      '<span class="bzsay' + (st.state === 'owned' ? ' own' : '') + '">' + esc(st.say) + '</span></button>';
+  }
+
+  /* ---- COLLECTION (standard §8): all 96 by pack, owned and locked, each with its path */
+  V.collection = function () {
+    var P = window.IND_AVATAR_PACKS || [], C = window.IND_AVATARS || [], WO = (window.IND_ECONOMY || {}).WORLD_ORDER || [];
+    return '<div class="phead"><h1>Collection</h1><span class="pill stat">' + collectionCount() + ' of 96</span>' +
+        '<p>Twelve packs of eight. Every card says how it opens — nothing is drawn by chance, and nothing is for sale for real money.</p></div>' +
+      P.map(function (p, i) {
+        var w = window.IND_WORLDS && window.IND_WORLDS.get(WO[Math.floor(i / 2)]);
+        return '<section class="card bzpack"><div class="spread"><h2 style="margin:0">' + esc(p.name) + '</h2>' +
+            '<span class="mono">' + (w ? esc(w.name) + ' world' : '') + '</span></div>' +
+          '<p class="tiny muted" style="margin:4px 0 12px">' + esc(p.note || '') + '</p>' +
+          '<div class="bzgrid">' + C.filter(function (a) { return a.pack === i + 1; }).map(function (a) { return bzCard(a); }).join('') + '</div></section>';
+      }).join('') +
+      '<div class="card flat tiny"><b>About these cards.</b> Real people carry a line about what they actually did, from their own sourced card. ' +
+        'Figures from the faiths and the epics are drawn the way families keep them, and none of them is ever drawn as a villain.</div>';
+  };
+
+  /* ---- SHOP (standard §1): Avatars · Worlds · Extras, then the wallet history */
+  V.shop = function (tab) {
+    tab = tab === 'worlds' || tab === 'extras' ? tab : 'avatars';
+    var E = window.IND_ECONOMY;
+    var tabs = [['avatars', 'Avatars'], ['worlds', 'Worlds'], ['extras', 'Extras']];
+    var body = '';
+    if (tab === 'avatars') {
+      var P = window.IND_AVATAR_PACKS || [], C = window.IND_AVATARS || [];
+      body = P.map(function (p, i) {
+        var want = C.filter(function (a) { return a.pack === i + 1 && E && !E.avatarOpen(S, a.id); });
+        if (!want.length) return '';
+        return '<section class="card bzpack"><h3 style="margin:0 0 10px">' + esc(p.name) + '</h3><div class="bzgrid">' +
+          want.map(function (a) {
+            var st = E.stateOf(S, a.id);
+            return '<div class="shopcell">' + bzCard(a, { size: 84 }) +
+              (st.state === 'buy'
+                ? '<button class="btn sm' + (st.short ? ' ghost' : '') + '" data-act="buyav" data-id="' + esc(a.id) + '"' + (st.short ? ' aria-disabled="true"' : '') + '>' +
+                  coinSvg(16) + ' ' + st.price + '</button>'
+                : '') + '</div>';
+          }).join('') + '</div></section>';
+      }).join('') || emptyState('You have every card there is. Every one of them was earned.', 'See your Collection', 'go', 'collection');
+    } else if (tab === 'worlds') {
+      body = '<div class="grid g2">' + worldList().map(function (w) {
+        var open = !E || E.worldOpen(S, w.id), n = E ? E.worldNum(w.id) : 0;
+        return '<div class="card wshop' + (open ? '' : ' locked') + '">' +
+          (w.tile ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>' : '') +
+          '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3><span class="mono">World ' + n + '</span></div>' +
+          '<p class="tiny muted" style="margin:4px 0 10px">' + esc(w.region) + (n <= 6 ? ' · two avatar packs live here' : '') + '</p>' +
+          (open ? (S.world === w.id ? '<span class="pill stat">You are in this world</span>'
+                                    : '<button class="btn sm ghost" data-act="world" data-w="' + w.id + '">Go there</button>')
+                : '<button class="btn sm" data-act="buyworld" data-w="' + w.id + '">' + coinSvg(16) + ' ' + E.worldPrice() + '</button>' +
+                  '<p class="tiny" style="margin:6px 0 0">' + esc(E.worldSay(S, w.id)) + '</p>') +
+          '</div>';
+      }).join('') + '</div>';
+    } else {
+      body = '<div class="grid g2">' + ((E && E.EXTRAS) || []).map(function (x) {
+        var have = E.extraOwned(S, x.id), on = x.kind === 'frame' ? S.frame === x.id : (S.skin || {})[x.game] === x.id;
+        return '<div class="card xshop">' + extraArt(x) +
+          '<div><h3 style="margin:0">' + esc(x.name) + '</h3><p class="tiny muted" style="margin:4px 0 10px">' + esc(x.note) + '</p>' +
+          (have ? (on ? '<span class="pill stat">On</span> <button class="pill" data-act="useextra" data-id="' + x.id + '" data-off="1">Take it off</button>'
+                      : '<button class="btn sm ghost" data-act="useextra" data-id="' + x.id + '">Use it</button>')
+                : '<button class="btn sm" data-act="buyextra" data-id="' + x.id + '">' + coinSvg(16) + ' ' + x.price + '</button>') +
+          '</div></div>';
+      }).join('') + '</div>';
+    }
+    return '<div class="phead"><h1>Shop</h1>' +
+        '<button class="pill coinchip big" data-act="wallet">' + coinSvg(20) + ' ' + coins() + '</button>' +
+        '<p>Fixed prices, printed on everything. Coins are earned only by learning, and nothing here is ever chosen by chance.</p></div>' +
+      '<div class="segtabs" role="tablist" aria-label="What to look at">' + tabs.map(function (t) {
+        return '<button role="tab" aria-selected="' + (t[0] === tab) + '" class="seg' + (t[0] === tab ? ' on' : '') +
+          '" data-act="go" data-v="shop" data-arg="' + t[0] + '">' + t[1] + '</button>';
+      }).join('') + '</div>' +
+      body +
+      '<section class="card"><h2 style="margin-top:0">Where your coins came from</h2>' +
+        '<p class="tiny muted" style="margin-top:0">' + esc(COINS_FOR) + '</p>' + walletLines(30) + '</section>';
+  };
+  /* a frame or a board, drawn: the child sees exactly what they are choosing */
+  function extraArt(x) {
+    if (x.kind === 'board') {
+      var c = x.id === 'board-rosewood' ? ['#6b3416', '#3d1d0b', '#c98b45'] : ['#e8c58f', '#b7884b', '#f6e2bd'];
+      return '<svg class="xart" viewBox="0 0 80 80" aria-hidden="true"><rect x="4" y="4" width="72" height="72" rx="6" fill="' + c[1] + '"/>' +
+        '<rect x="10" y="10" width="60" height="60" fill="' + c[2] + '"/><circle cx="40" cy="40" r="11" fill="none" stroke="' + c[0] + '" stroke-width="2"/>' +
+        '<circle cx="14" cy="14" r="4" fill="#222"/><circle cx="66" cy="14" r="4" fill="#222"/><circle cx="14" cy="66" r="4" fill="#222"/><circle cx="66" cy="66" r="4" fill="#222"/></svg>';
+    }
+    return '<span class="xart framed fr-' + esc(x.id) + '">' + art(S.buddy, 64) + '</span>';
+  }
+
+  /* ---- MEDALS, as their own page (☰ → Medals) */
+  V.medalsPage = function () {
+    return '<div class="phead"><h1>Medals</h1><p>Earned by something the app saw you do. Never for showing up, never for days in a row.</p></div>' +
+      V.medals();
+  };
+
+  /* ---- SETTINGS (standard §5): Bee's centred sheet, five sections in the family order:
+     Me · Sound & music · Look · Comfort · Grown-ups 🔒, then Privacy · About · version. */
+  function sw(act, on, label, note) {
+    return '<div class="setrow"><span><b>' + label + '</b>' + (note ? '<small>' + note + '</small>' : '') + '</span>' +
+      '<button class="switch' + (on ? ' on' : '') + '" role="switch" aria-checked="' + !!on + '" data-act="' + act + '" aria-label="' + esc(label) + '"><i></i></button></div>';
+  }
+  function seg(label, act, cur, opts) {
+    return '<div class="setrow"><span><b>' + label + '</b></span><div class="segpills" role="group" aria-label="' + esc(label) + '">' +
+      opts.map(function (o) {
+        return '<button class="pill' + (String(cur) === String(o[0]) ? ' on' : '') + '" aria-pressed="' + (String(cur) === String(o[0])) +
+          '" data-act="' + act + '" data-v="' + o[0] + '">' + o[1] + '</button>';
+      }).join('') + '</div></div>';
+  }
+  V.settings = function () {
+    var E = window.IND_ECONOMY, th = dev.theme || (night ? 'dark' : 'light');
+    return '<div class="setsheet">' +
+      '<div class="sethead"><button class="backlink" data-act="back">' + icon('back', 18) + ' Back</button>' +
+        '<h1>' + icon('gear', 24) + ' Settings</h1>' +
+        '<button class="iconbtn" data-act="go" data-v="home" aria-label="Close settings">' + icon('close', 20) + '</button></div>' +
+      /* 1 · ME */
+      '<section class="card setcard" data-sec="me"><h2>Me</h2>' +
+        '<div class="setrow"><span><b>Name</b><small>Grown-ups can change it — it is how every Bizzing app knows your coins.</small></span>' +
+          '<input class="setname" value="' + esc(S.name || '') + '" readonly aria-label="Your name"></div>' +
+        '<div class="setrow"><span><b>Avatar</b><small>' + esc(avatarName(S.buddy) || '') + '</small></span>' +
+          '<button class="btn sm ghost" data-act="go" data-v="collection">' + art(S.buddy, 28) + ' Choose</button></div>' +
+        '<div class="setrow"><span><b>Who is playing</b></span><button class="btn sm ghost" data-act="kidmenu">Switch child</button></div>' +
+        sw('hindi', !!S.hindi, 'Read stories in Hindi too', 'Every story that has a Hindi telling shows it beside the English.') +
+      '</section>' +
+      /* 2 · SOUND & MUSIC */
+      '<section class="card setcard" data-sec="sound"><h2>Sound &amp; music</h2>' +
+        sw('setfx', dev.fx, 'Sound effects') +
+        sw('setmusic', dev.music, 'Music', dev.calm ? 'Calm mode keeps the music off.' : 'A loop for each world, played by tanpura, bansuri, santoor and tabla — composed in code for Bizzing.') +
+        '<div class="setrow"><span><b>Volume</b></span><input type="range" class="slider" min="0" max="100" step="5" value="' +
+          Math.round(dev.vol * 100) + '" data-set="vol" aria-label="Volume"></div>' +
+        sw('setread', dev.read, 'Read aloud', 'The recorded voice that reads stories and words.') +
+        seg('Reading speed', 'rate', speakRate(), [[0.7, 'Slower'], [0.85, 'Slow'], [1, 'Normal']]) +
+        sw('sound', !soundOn, 'Mute everything', 'Also one tap from the ☰ menu.') +
+      '</section>' +
+      /* 3 · LOOK */
+      '<section class="card setcard" data-sec="look"><h2>Look</h2>' +
+        '<h3 class="setlbl">World</h3><div class="setworlds">' + worldList().map(function (w) {
+          var open = !E || E.worldOpen(S, w.id);
+          return '<button class="setworld' + (S.world === w.id ? ' on' : '') + (open ? '' : ' locked') + '" data-act="' + (open ? 'world' : 'buyworld') +
+            '" data-w="' + w.id + '" aria-label="' + esc(w.name + (open ? '' : ' — ' + E.worldSay(S, w.id))) + '">' +
+            (w.tile ? '<span class="wpreview live" data-world="' + w.id + '">' + w.tile + '</span>' : '') +
+            '<b>' + esc(w.name) + '</b>' + (open ? '' : '<small>' + esc(E.worldSay(S, w.id)) + '</small>') + '</button>';
+        }).join('') + '</div>' +
+        seg('Light or dark', 'settheme', th, [['light', 'Light'], ['dark', 'Dark'], ['auto', 'Match device']]) +
+        seg('Text size', 'settext', dev.text, [['S', 'S'], ['M', 'M'], ['L', 'L']]) +
+      '</section>' +
+      /* 4 · COMFORT */
+      '<section class="card setcard" data-sec="comfort"><h2>Comfort</h2>' +
+        sw('setmotion', dev.motion, 'Reduce motion', 'Worlds hold still; nothing slides or bounces.') +
+        sw('setcalm', dev.calm, 'Calm mode', 'Music off, softer effects, no confetti.') +
+      '</section>' +
+      /* 5 · GROWN-UPS — one row, behind the PIN. Age band, daily targets, the plan, backups and
+         tester mode live behind it, never above it. */
+      '<section class="card setcard" data-sec="grown"><h2>Grown-ups ' + icon('lock', 18) + '</h2>' +
+        '<div class="setrow"><span><b>Age band, daily targets, the family plan, backups</b><small>Behind the grown-ups’ PIN.</small></span>' +
+          '<button class="btn sm" data-act="go" data-v="grown">' + icon('lock', 16) + ' Open</button></div>' +
+      '</section>' +
+      '<p class="setfoot tiny"><a href="#/privacy" data-act="go" data-v="privacy">Privacy</a> · ' +
+        '<a href="#/help" data-act="go" data-v="help">About &amp; help</a> · Build ' + esc(window.IND_BUILD || 'dev') + '</p>' +
+      '</div>';
+  };
+
+  /* ---- PRIVACY (standard §17): true, and updated FIRST when anything changes */
+  V.privacy = function () {
+    return '<div class="card"><h1>' + icon('shield', 26) + ' Privacy</h1>' +
+      '<p>Bizzing India keeps everything on this device, in this browser. Nothing about your child is sent anywhere.</p>' +
+      '<ul class="dolist">' +
+        '<li><b>What we keep:</b> a first name, an age band and a chosen picture for each child; what they have read, lit, ' +
+          'practised and earned. No birthday, no surname, no email, no photograph, no location.</li>' +
+        '<li><b>Where:</b> this browser’s own storage. The family’s Bizzing apps share three things on this device — the ' +
+          'coins (<code>bizzing.wallet</code>), the minutes and milestones the Hive shows (<code>bizzing.activity</code>), and nothing else.</li>' +
+        '<li><b>Recordings</b> on the Family Shelf stay on this device and are never sent anywhere.</li>' +
+        '<li><b>No ads, no analytics, no trackers, no third-party scripts.</b> The fonts and the music are part of the app.</li>' +
+        '<li><b>No accounts yet.</b> The family plan comes with a family account that is still being built. When it exists, this page changes before anything else does.</li>' +
+        '<li><b>Backups and erasing</b> are on the grown-ups’ page, behind the PIN.</li>' +
+      '</ul>' +
+      '<p class="tiny muted">The PIN is a deterrent, not security: it keeps settings one step away from a curious tap.</p></div>';
+  };
+  V.help = function () {
+    return '<div class="card"><h1>' + icon('help', 26) + ' Help</h1>' +
+      '<ul class="dolist">' +
+        '<li><b>Continue</b> on Home always opens the one next thing.</li>' +
+        '<li><b>Bizzing coins</b> come from learning — a right answer, a story finished — and buy avatars, worlds and extras in the Shop.</li>' +
+        '<li><b>Worlds</b> repaint the whole app. The first two are open to everyone; the others open with the family plan or for 240 coins.</li>' +
+        '<li><b>Search</b> finds any story, state, era, word, festival or person.</li>' +
+        '<li><b>Back</b> always stays inside the app. To leave, use ⬡ — the way to the Bizzing Hive.</li>' +
+        '<li><b>Grown-ups</b> (🔒) holds the report card, the age band, daily targets, backups and erasing.</li>' +
+      '</ul>' +
+      '<p class="tiny muted">Folk-art traditions are credited on every world. Music is composed in code for Bizzing (music/CREDITS.md).</p></div>';
+  };
+
+  /* ---- SEARCH (FIX-INDIA C4): one box over stories, states, eras, words, festivals, people,
+     games and courses. The index is built from the same data the screens draw, so a result
+     always opens a screen that exists. */
+  var SIDX = null;
+  function searchIndex() {
+    if (SIDX) return SIDX;
+    var out = [], add = function (kind, title, sub, v, arg, extra) {
+      if (!title) return;
+      out.push({ k: kind, t: String(title), s: String(sub || ''), v: v, a: arg, x: (String(title) + ' ' + (sub || '') + ' ' + (extra || '')).toLowerCase() });
+    };
+    allStories().forEach(function (st) { add('Story', st.title, st.hook || st.place || '', 'story', st.id, (st.place || '') + ' ' + (st.collection || '')); });
+    epics().forEach(function (e) { add('Epic', e.title || e.name, e.tagline || '', 'epic', e.id); });
+    var ST = window.IND_STATES || {};
+    Object.keys(ST).forEach(function (c) { var s = ST[c] || {}; add('Place', s.name || stateName(c), s.capital ? 'capital ' + s.capital : '', 'state', c, (s.known || '') + ' ' + c); });
+    ((window.IND_ITIHAAS || {}).eras || []).forEach(function (e) { add('Era', e.name || e.title, e.when || e.dates || '', 'era', e.id, e.summary || ''); });
+    ((window.IND_UTSAV || {}).festivals || []).forEach(function (f) { add('Festival', f.name, f.month || '', 'festival', f.id, (f.states || []).join(' ') + ' ' + (f.why || '')); });
+    ((window.IND_DHARMA || {}).faiths || []).forEach(function (f) { add('Faith', f.name, '', 'faith', f.id); });
+    var P = window.IND_PACKS || {};
+    Object.keys(P).forEach(function (pid) {
+      (P[pid].lexicon || []).forEach(function (w) {
+        add('Word', w.word, (w.roman ? w.roman + ' · ' : '') + (w.en || w.meaning || ''), 'wordcard', pid + '|' + w.word, (w.en || '') + ' ' + (w.roman || ''));
+      });
+    });
+    (window.IND_AVATARS || []).forEach(function (a) { add(a.real ? 'Person' : 'Card', a.name, a.about || '', 'avcard', a.id); });
+    (window.IND_GAMES || []).forEach(function (g) { if (!g.hide) add('Game', g.name, (g.blurb || '').slice(0, 90), 'game', g.id); });
+    ((window.IND_PAATH || {}).courses || []).forEach(function (c) { add('Course', c.title || c.name, c.tagline || c.sub || '', 'paath', c.id); });
+    SIDX = out;
+    return out;
+  }
+  function searchFind(q, n) {
+    q = String(q || '').trim().toLowerCase();
+    if (q.length < 2) return [];
+    var words = q.split(/\s+/), rank = [];
+    searchIndex().forEach(function (r) {
+      for (var i = 0; i < words.length; i++) if (r.x.indexOf(words[i]) < 0) return;
+      var t = r.t.toLowerCase(), sc = t === q ? 0 : t.indexOf(q) === 0 ? 1 : t.indexOf(q) >= 0 ? 2 : 3;
+      rank.push([sc, r]);
+    });
+    rank.sort(function (a, b) { return a[0] - b[0] || a[1].t.length - b[1].t.length; });
+    return rank.slice(0, n || 40).map(function (x) { return x[1]; });
+  }
+  function searchResults(q) {
+    var R = searchFind(q, 60);
+    if (String(q || '').trim().length < 2) return '<p class="tiny muted">Type two letters or more — a story, a state, a word in any script, a festival, a person.</p>';
+    if (!R.length) return '<div class="bz-empty slim">' + peacock('think', 72) + '<p>Nothing called “' + esc(q) + '” yet. Try a shorter word, or another spelling.</p></div>';
+    return '<p class="tiny muted" role="status">' + R.length + (R.length === 60 ? '+' : '') + ' found</p><ul class="sresults">' + R.map(function (r) {
+      return '<li><button class="sres" data-act="go" data-v="' + r.v + '" data-arg="' + esc(r.a) + '">' +
+        '<span class="skind">' + esc(r.k) + '</span><b>' + esc(r.t) + '</b><small>' + esc(r.s) + '</small></button></li>';
+    }).join('') + '</ul>';
+  }
+  V.search = function (q) {
+    return '<div class="phead"><h1>' + icon('search', 26) + ' Search</h1></div>' +
+      '<div class="card"><label class="sbox"><span class="sr-only">Search Bizzing India</span>' + icon('search', 20) +
+        '<input id="sq" type="search" autocomplete="off" placeholder="A story, a state, an era, a word…" value="' + esc(q || '') + '"></label>' +
+      '<div id="sres">' + searchResults(q || '') + '</div></div>';
+  };
+  document.addEventListener('input', function (e) {
+    if (!e.target || e.target.id !== 'sq') return;
+    var box = $('#sres'); if (box) box.innerHTML = searchResults(e.target.value);
+    tagScripts(box);
+    view.arg = e.target.value;
+    try { history.replaceState({ n: 'search', a: view.arg, d: depth }, '', hashOf(view)); } catch (err) {}
+  });
+  /* THE MUSIC FOLLOWS THE CHILD (standard §11): the Mela's loop in a game, the home loop on
+     Home, and the world's own loop everywhere else. audio.js keeps it silent until a real
+     tap, under the mute, in Calm mode and while the tab is hidden. */
+  function musicNow() {
+    if (!window.IND_AUDIO) return;
+    applyLook();
+    if (!S.started) { window.IND_AUDIO.music(null); return; }
+    var n = view.name;
+    var theme = (n === 'game' || n === 'gullygame' || n === 'mela' || n === 'khel' || n === 'play') ? 'games'
+      : (n === 'home' ? 'home' : S.world);
+    window.IND_AUDIO.music(theme);
+  }
+  /* A LEGENDARY'S MILESTONE is measured, never claimed (standard §8): the same evidence the
+     medals read, plus the stories and epic nights the profile already records. */
+  function legendEvidence() {
+    var e = evidence(), read = Object.keys(S.read || {});
+    e.epic = {};
+    Object.keys(S.epic || {}).forEach(function (k) { e.epic[k] = Object.keys((S.epic[k] || {}).done || {}).length; });
+    e.pre = function (p) { return read.filter(function (id) { return id.indexOf(p) === 0; }).length; };
+    return e;
+  }
+  if (window.IND_ECONOMY) window.IND_ECONOMY.setMeasure(function () {
+    var M = window.IND_LEGEND_MILESTONES || {}, e = null;
+    try { e = legendEvidence(); } catch (x) { return []; }
+    return Object.keys(M).filter(function (k) { try { return M[k].ok(e); } catch (x) { return false; } });
+  });
+  /* NOTHING ANIMATES BEHIND A CLOSED TAB (standard §7): the worlds' ambient life, the
+     friezes and every loop hold still while the page is hidden; audio.js pauses the music */
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) document.documentElement.setAttribute('data-hidden', '');
+    else document.documentElement.removeAttribute('data-hidden');
+  });
+  /* the volume slider moves the music as it slides */
+  document.addEventListener('input', function (e) {
+    if (!e.target || e.target.getAttribute('data-set') !== 'vol') return;
+    setDev('vol', Math.max(0, Math.min(1, (+e.target.value || 0) / 100)));
+  });
+
   /* ================================================================== SHELL */
   /* FIVE TABS, one per verb. Stories is everything told; India is everything that is a
      place or a time (the map with the River of Time inside it); Neeti is everything
@@ -6870,10 +7662,11 @@
      Moral Science · Play. Itihaas is not a door any more — the river of time
      lives INSIDE India (the timeline atop the map); V.itihaas and V.era stay
      as pages the timeline opens. */
-  var TABS = [['home', 'Home', 'chart'], ['paath', 'Paathshala', 'book'],
-              ['stories', 'Stories', 'tree'], ['map', 'India', 'map'],
-              ['bhasha', 'Bhasha', 'script'], ['neeti', 'Moral Science', 'star'],
-              ['khel', 'Play', 'game']];
+  /* FIVE TABS (family standard §4; FIX-INDIA C1): Home · India · Paathshala · Bhasha · Play.
+     Home first and the map second, as in every Bizzing app. The story shelves (Nani-Nana)
+     and Moral Science are doors inside Paathshala and rows in ☰; there is no More tab. */
+  var TABS = [['home', 'Home', 'home'], ['map', 'India', 'map'], ['paath', 'Paathshala', 'book'],
+              ['bhasha', 'Bhasha', 'script'], ['khel', 'Play', 'game']];
 
   /* ------------------------------------------------------------- THE DECK */
   /* Tapping your companion opens the whole deck as a popup — the Bee's move.
@@ -6942,20 +7735,12 @@
                for a rare card, the learning that opens it. Nothing is drawn. */
             ((window.IND_ECONOMY && !window.IND_ECONOMY.avatarOpen(S, here.id))
               ? (function () {
-                  var E = window.IND_ECONOMY;
-                  var pp = E.packPrice(here.packId);
-                  var rl2 = E.cardRule(here.packId, here.id);
+                  var st = window.IND_ECONOMY.stateOf(S, here.id);
                   return '<div class="avlocked">' +
                     '<div class="avlockart">' + art(here.id, 96) + '</div>' +
                     '<h3 style="margin:10px 0 2px">' + esc(avatarName(here.id) || 'Not met yet') + '</h3>' +
-                    '<p class="tiny muted" style="margin:0 0 12px">You have not met this one yet · ' +
-                      (rl2.kind === 'learn' ? esc(rl2.say) + ' (you have mastered ' + mastered() + ')' : 'choose them for 🪙 ' + rl2.price) + '</p>' +
-                    (rl2.kind === 'learn'
-                      ? (mastered() >= rl2.need ? '<button class="btn sm" data-act="meet" data-id="' + esc(here.id) + '">Meet them</button>' : '')
-                      : '<button class="btn sm" data-act="meet" data-id="' + esc(here.id) + '">Meet them — 🪙 ' + rl2.price + '</button>') +
-                    (pp == null ? '' :
-                      '<button class="pill" style="margin-top:8px" data-act="buypack" data-p="' +
-                      esc(here.packId) + '">Take the whole pack — 🪙 ' + pp + '</button>') +
+                    '<p class="tiny muted" style="margin:0 0 12px">' + esc(st.label) + ' · ' + esc(st.say) + '</p>' +
+                    (st.state === 'buy' && !st.short ? '<button class="btn sm" data-act="buyav" data-id="' + esc(here.id) + '">Meet them — ' + st.price + ' coins</button>' : '') +
                     '</div>';
                 })()
               : avCardHTML(here.id)) + '</div>' +
@@ -6970,58 +7755,41 @@
         ? '<div class="demobar" role="note"><b>Sample child.</b> A demo with a few weeks of made-up ' +
           'progress — nothing here is saved, and nothing is shared. <a href="' + esc(location.pathname) +
           '">Leave the sample</a></div>' : '') +
-      /* THE FAMILY TOP BAR (family standard §3; FIX-INDIA O4) — the same in every Bizzing
-         app, 56px, in this order: ⬡ back to the Hive · the app's name · … · theme ·
-         🔒 grown-ups · the child, with ▾ to switch. What is India's own — coins, the
-         family's language, read-in-Hindi — sits in the gap; on a phone it folds into the
-         child's menu, along with the one mute (§9), so the bar stays one row. */
+      /* THE FAMILY TOP BAR (family standard §3), the same 56px row in every Bizzing app:
+         [⬡ Hive] [☰] [peacock + Bizzing India] … [search] [coin chip] [theme] [🔒] [avatar ▾].
+         On a phone it keeps ⬡ ☰ logo … coin · avatar; search, theme and 🔒 move into ☰. */
       '<header class="topbar"><div class="barrow">' +
       '<a class="hivebtn" href="https://aayuvis.github.io/Bizzing_Schedule/" aria-label="Back to the Bizzing Hive" title="The Bizzing Hive">' +
-        '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" ' +
-        'fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></a>' +
+        icon('hive', 22) + '</a>' +
+      '<button class="iconbtn menubtn" data-act="drawer" aria-haspopup="dialog" aria-expanded="false" aria-label="Menu">' + icon('menu', 22) + '</button>' +
       '<button class="brand" data-act="go" data-v="home" aria-label="Bizzing India — home">' +
-      (window.IND_ART_IMG && window.IND_ART_IMG.indexOf('logo') >= 0
-        ? '<img src="art/logo.png" alt="" width="40" height="40">'
-        : '') + 'Bizzing <em>India</em></button>' +
+        '<img src="art/logo.png" alt="" width="28" height="28">' +
+        '<span class="bz-word">Bizzing</span> <em>India</em></button>' +
       /* the world's frieze: decorative, between the name and the controls */
       (window.IND_WORLDS && window.IND_WORLDS.frieze
         ? '<span class="worldfrieze" id="worldfrieze">' + window.IND_WORLDS.frieze(S.world) + '</span>'
         : '') +
       '<span class="barctl">' +
-      /* ?from=hive: one chip back to the family's day (family standard §4) */
+      /* ?from=hive: one chip back to the family's day (family standard §19) */
       (fromHive ? '<a class="pill hivechip" href="https://aayuvis.github.io/Bizzing_Schedule/">← my day</a>' : '') +
-      '<span class="pill stat barown" title="Bizzing coins — earned for learning, the same wallet in every Bizzing app">🪙 <span id="kauriCount">' + coins() + '</span></span>' +
-      (window.IND_TONGUE
-        ? '<button class="pill stat barown" data-act="go" data-v="tongue" aria-label="Your family’s language">' +
-          (tongue() ? '<span lang="' + tongue().lang + '">' + esc(tongue().native) + '</span>' : icon('script', 16)) +
-          '</button>'
-        : '') +
-      /* READ IN HINDI: global, with per-story content — a story with no Hindi reads as it did */
-      '<button class="pill hitoggle barown' + (S.hindi ? ' on' : '') + '" data-act="hindi"' +
-      ' aria-pressed="' + (S.hindi ? 'true' : 'false') + '"' +
-      ' aria-label="Read stories in Hindi as well as English">' +
-      '<span class="deva" aria-hidden="true">अ</span><span class="hilbl">Hindi</span></button>' +
+      '<button class="searchpill bar-desk" data-act="go" data-v="search" aria-label="Search">' + icon('search', 18) + '<span>Search</span></button>' +
+      '<button class="pill coinchip" data-act="wallet" aria-label="Bizzing coins: ' + coins() + ' — where they came from" title="Bizzing coins">' +
+        coinSvg(20) + '<span id="kauriCount">' + coins() + '</span></button>' +
       /* theme: the icon shows where the tap GOES — a moon means "make it night" */
-      '<button class="iconbtn" data-act="night" aria-pressed="' + (night ? 'true' : 'false') + '"' +
+      '<button class="iconbtn bar-desk" data-act="night" aria-pressed="' + (night ? 'true' : 'false') + '"' +
       ' aria-label="' + (night ? 'Switch to day' : 'Switch to night') + '">' +
       icon(night ? 'sun' : 'moon', 20) + '</button>' +
-      '<button class="iconbtn" data-act="go" data-v="grown" aria-label="Grown-ups (behind a PIN)" title="Grown-ups">' +
+      '<button class="iconbtn bar-desk" data-act="go" data-v="grown" aria-label="Grown-ups (behind a PIN)" title="Grown-ups">' +
       icon('lock', 19) + '</button>' +
-      /* the child — their page, the mute, and the switch to a brother or sister */
+      /* the child — and the switch to a brother or sister (standard §3) */
       '<button class="kidbtn" data-act="kidmenu" aria-haspopup="true" aria-expanded="false" ' +
-      'aria-label="' + esc((S.name || 'You') + ' — switch child, sound, your page') + '">' +
-      '<span class="kidav">' + art(S.buddy, 36) + '</span><span class="kidcaret" aria-hidden="true">▾</span></button>' +
+      'aria-label="' + esc((S.name || 'You') + ' — who is playing') + '">' +
+      '<span class="kidav' + (S.frame ? ' framed fr-' + esc(S.frame) : '') + '">' + art(S.buddy, 36) + '</span>' + icon('drop', 14) + '</button>' +
       '</span>' +
-      '</div><nav class="nav">' + TABS.map(function (t) {
-        var label = t[0] === 'stories' ? kinTerm('nani') + '-' + kinTerm('nana') : t[1];
-        return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 19) +
-          '<span>' + esc(label) + '</span></button>';
+      '</div><nav class="nav" aria-label="Main">' + TABS.map(function (t) {
+        return '<button class="navtab" data-act="go" data-v="' + t[0] + '">' + icon(t[2], 24) +
+          '<span>' + esc(t[1]) + '</span></button>';
       }).join('') +
-      /* phone only (CSS): the bar drops to the bottom of the screen with five
-         doors — Home, Stories, Bhasha, Khel and this More — the rest one tap
-         behind it. Desktop keeps the full row and never sees this button. */
-      '<button class="navtab navmore" data-act="navmore" aria-haspopup="true" aria-label="More">' +
-      '<span class="moredots" aria-hidden="true">⋯</span><span>More</span></button>' +
       '</nav></header><main class="wrap" id="main"></main>';
   }
 
@@ -7032,29 +7800,23 @@
      brother or sister — family standard §3, §5), their page, and the one mute (§9). On a
      phone the bar's own extras — coins, the family's language, read-in-Hindi — fold in here
      so the bar stays one row. Adding a child is a grown-up's job and goes through the PIN. */
+  /* THE AVATAR ▾ MENU (standard §3; FIX-INDIA C3): every child in the household, each with
+     their own face, one tap to switch — switching reloads, so nothing is ever mixed — and
+     "Add a child", which is a grown-up's job and goes through the PIN. */
   function kidMenuHTML() {
     var kids = Store.kids();
     return '<div class="km-in" role="menu" aria-label="Who is playing">' +
       '<div class="mono km-h">Who is playing</div>' +
       kids.map(function (k) {
         return '<button class="km-row' + (k.active ? ' on' : '') + '" role="menuitemradio" aria-checked="' + k.active +
-          '" data-act="switchkid" data-id="' + esc(k.id) + '">' + art(k.buddy, 34) +
-          '<span>' + esc(k.name || 'Not set up yet') + '</span>' + (k.active ? '<i>playing</i>' : '') + '</button>';
+          '" data-act="switchkid" data-id="' + esc(k.id) + '">' + art(k.buddy, 40) +
+          '<span>' + esc(k.name || 'Not set up yet') + '</span>' + (k.active ? '<i>playing</i>' : '<i>switch</i>') + '</button>';
       }).join('') +
+      '<button class="km-row" role="menuitem" data-act="addkid">' + icon('people', 20) +
+        '<span>Add a child</span><i>grown-ups</i></button>' +
       '<hr>' +
-      '<button class="km-row" role="menuitem" data-act="go" data-v="me">' + icon('star', 18) + '<span>My page — medals, worlds, my mala</span></button>' +
-      '<button class="km-row" role="menuitemcheckbox" aria-checked="' + soundOn + '" data-act="sound">' + icon('sound', 18) +
-        '<span>Sound</span><i>' + (soundOn ? 'on' : 'off') + '</i></button>' +
-      '<div class="km-phone">' +
-        '<div class="km-row km-static">🪙 <span>' + coins() + ' Bizzing coins</span></div>' +
-        '<button class="km-row" role="menuitem" data-act="go" data-v="tongue">' + icon('script', 18) +
-          '<span>Family language</span><i>' + esc(tongue() ? tongue().en : 'choose') + '</i></button>' +
-        '<button class="km-row" role="menuitemcheckbox" aria-checked="' + !!S.hindi + '" data-act="hindi">' +
-          '<span class="deva km-ic" aria-hidden="true">अ</span>' +
-          '<span>Read in Hindi too</span><i>' + (S.hindi ? 'on' : 'off') + '</i></button>' +
-      '</div>' +
-      '<button class="km-row" role="menuitem" data-act="go" data-v="grown">' + icon('lock', 18) +
-        '<span>Grown-ups — add a child, the report card</span></button>' +
+      '<button class="km-row" role="menuitem" data-act="go" data-v="me">' + icon('star', 18) + '<span>My page</span></button>' +
+      '<button class="km-row" role="menuitem" data-act="go" data-v="collection">' + icon('cards', 18) + '<span>Collection</span></button>' +
       '</div>';
   }
   function openKidMenu() {
@@ -7071,6 +7833,11 @@
   }
   function paintChrome() {
     var km = $('#kidmenu'); if (km) km.innerHTML = kidMenuHTML();
+    var dr = $('#drawer'); if (dr) { var foc = document.activeElement && document.activeElement.getAttribute('data-act');
+      dr.innerHTML = drawerHTML(); var back = foc && dr.querySelector('[data-act="' + foc + '"]'); if (back) back.focus(); }
+    var cc = $('.topbar .coinchip'); if (cc) cc.setAttribute('aria-label', 'Bizzing coins: ' + coins() + ' — where they came from');
+    var kc = $('#kauriCount'); if (kc) kc.textContent = coins();
+    var kva = $('.kidav'); if (kva) kva.className = 'kidav' + (S.frame ? ' framed fr-' + S.frame : '');
     /* the bar is built once: the child's face in it follows a change of companion */
     var kv = $('.kidav'); if (kv && kv.getAttribute('data-b') !== S.buddy) { kv.innerHTML = art(S.buddy, 36); kv.setAttribute('data-b', S.buddy); }
     /* ⬡ is hidden only inside a running drill (standard §3) */
@@ -7105,6 +7872,7 @@
     var r = document.documentElement;
     r.setAttribute('data-world', S.world);
     if (night) r.setAttribute('data-mode', 'night'); else r.removeAttribute('data-mode');
+    applyLook();
     var root = document.getElementById('app');
 
     if (!S.started) {
@@ -7139,9 +7907,7 @@
       m.innerHTML = '<div class="card loadcard" role="status"><span class="ldots" aria-hidden="true"><i></i><i></i><i></i></span>' +
         '<b>Opening it…</b><span class="tiny muted">The first time takes a moment; after that it is on this device.</span></div>';
       lastLoad = window.IND_LOAD(miss).then(function () { if (view === v0) render(); },
-        function () { if (view === v0) m.innerHTML = '<div class="card"><h2>This part could not load</h2>' +
-          '<p>It may be the connection. Once it has loaded once it works offline.</p>' +
-          '<button class="btn" data-act="go" data-v="' + esc(v0.name) + '">Try again</button></div>'; });
+        function () { if (view === v0) m.innerHTML = errorState('This part could not load. It may be the connection — once it has loaded once, it works offline.', v0.name, v0.arg); });
       return;
     }
     lastLoad = null;
@@ -7199,6 +7965,14 @@
       case 'me': h = V.me(); break;
       case 'grown': h = V.grown(); break;
       case 'aaj': h = V.aaj(); break;
+      /* the family layer (standard v2) */
+      case 'collection': h = V.collection(); break;
+      case 'shop': h = V.shop(view.arg); break;
+      case 'medals': h = V.medalsPage(); break;
+      case 'settings': h = V.settings(); break;
+      case 'privacy': h = V.privacy(); break;
+      case 'help': h = V.help(); break;
+      case 'search': h = V.search(view.arg); break;
       default: h = V.home();
     }
     m.innerHTML = aajBar() + h + deckModal();
@@ -7226,16 +8000,28 @@
                   nani: 'stories', shelf: 'stories', invite: 'stories', kahani: 'stories',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
                   worlds: 'me', tongue: 'home', avcard: 'me',
+                  /* the story shelves and Moral Science live inside Paathshala now (FIX-INDIA C1) */
                   /* a stop, a workshop and a take-home pack are all inside Paathshala */
                   paathl: 'paath', paathk: 'paath', paathp: 'paath' };
     var cur = alias[view.name] || view.name;
+    if (cur === 'stories' || cur === 'neeti') cur = 'paath';
+    if (cur === 'itihaas') cur = 'map';
+    if (cur === 'mela' || cur === 'play') cur = 'khel';
     Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
       t.classList.toggle('active', t.getAttribute('data-v') === cur);
     });
-    /* on a phone the map, Moral Science and You live behind More: More says you are there */
-    var nmore = document.querySelector('.navmore');
-    if (nmore) nmore.classList.toggle('active', cur === 'map' || cur === 'neeti' || cur === 'me' || cur === 'grown');
+    Array.prototype.forEach.call(document.querySelectorAll('.navtab'), function (t) {
+      if (t.classList.contains('active')) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
+    });
     if (view.name === 'game') mountGame(view.arg);
+    /* the PIN pad paints at once; the report behind it starts loading while the PIN is typed */
+    if (view.name === 'grown' && !grownOpen && window.IND_LOAD) window.IND_LOAD(NEEDS.grown).catch(function () {});
+    /* the reading passages (3.5 MB) follow a child INTO a language, never ahead of them: the
+       engine reads the bank lazily at question time, so the path paints without waiting */
+    if ((view.name === 'pack' || view.name === 'aaj') && window.IND_LOAD && !window.IND_HAS('passages'))
+      window.IND_LOAD(['passages']).catch(function () {});
+    tagScripts(m);
+    musicNow();
     placeCallout();
 
     /* The tracing canvas (stage 7) owns window-level pointer listeners, so it
@@ -7330,7 +8116,20 @@
       S.resume.paath = { id: String(a).split('|')[0], at: Date.now() }; save();
     }
     stopAudio(); killGame(); view = { name: n, arg: a }; render();
-    route(true);
+    /* HOME IS THE ROOT (FIX-INDIA §1: "repeated Back from Home landed on #/neeti"). Going
+       Home does not push a new entry on top of the trail; it walks back to the root entry,
+       so the trail behind Home is empty and Back from Home has nowhere else to go. */
+    if (n === 'home' && depth > 1 && window.history && history.go) { homing = true; history.go(-(depth - 1)); return; }
+    route(n !== 'home');
+  }
+  /* depth: how far this entry is from the root Home entry (1). 0 is the guard under it. */
+  var depth = 1, homing = false;
+  function rootTrail() {
+    try {
+      history.replaceState({ n: 'home', a: null, d: 0, guard: true }, '', '#/home');
+      history.pushState({ n: 'home', a: null, d: 1 }, '', '#/home');
+    } catch (e) {}
+    depth = 1;
   }
   var updateReady = false, fromHive = false;
   /* ===================================================== ROUTES
@@ -7346,8 +8145,9 @@
   function route(push) {
     if (!S.started || !window.history || !history.pushState) return;
     var h = hashOf(view);
-    if (location.hash === h) return;
-    try { history[push ? 'pushState' : 'replaceState']({ n: view.name, a: view.arg }, '', h); } catch (e) {}
+    if (push && location.hash === h) return;
+    if (push) depth++;
+    try { history[push ? 'pushState' : 'replaceState']({ n: view.name, a: view.arg, d: depth }, '', h); } catch (e) {}
   }
   var ROUTES = null;
   function known(n) {
@@ -7364,6 +8164,16 @@
     return { n: m[1], a: a };
   }
   window.addEventListener('popstate', function (e) {
+    /* the guard under the root: Back from Home stays on Home */
+    if (e.state && e.state.guard) {
+      if (!S.started) return;
+      try { history.pushState({ n: 'home', a: null, d: 1 }, '', '#/home'); } catch (err) {}
+      depth = 1; homing = false;
+      if (view.name !== 'home') { stopAudio(); killGame(); view = { name: 'home', arg: null }; render(); }
+      return;
+    }
+    if (e.state && e.state.d) depth = e.state.d;
+    if (homing) { homing = false; if (view.name === 'home') return; }
     var fromState = !!(e.state && e.state.n);
     var r = fromState ? { n: e.state.n, a: e.state.a } : parseHash(location.hash);
     if (!r || !S.started) return;
@@ -7402,7 +8212,7 @@
   /* ===================================================== WHAT EACH SCREEN NEEDS
      The corpus loads per route (loader.js; FIX-INDIA N2). A screen names the groups it
      draws from; anything not listed here waits for all of them, which is always safe. */
-  var ALLG = ['content', 'voice', 'map', 'bhasha', 'paath', 'games', 'packs'];
+  var ALLG = ['content', 'voice', 'map', 'bhasha', 'passages', 'paath', 'games', 'packs'];
   var STORYG = ['content', 'voice'], MAPG = ['map', 'content', 'voice'], LANGG = ['bhasha', 'voice'];
   var NEEDS = {
     home: [], me: [], worlds: [], onboard: [],
@@ -7413,9 +8223,13 @@
     tongue: LANGG, aaj: ['content', 'voice', 'bhasha'],
     paath: ['paath', 'content', 'voice', 'map', 'bhasha'], paathl: ['paath', 'content', 'voice', 'map', 'bhasha'],
     paathk: ['paath', 'content', 'voice', 'map', 'bhasha'], paathp: ['paath', 'content', 'voice', 'map', 'bhasha'],
-    grown: ['paath', 'content', 'voice', 'map', 'bhasha', 'packs']
+    grown: ['paath', 'content', 'voice', 'map', 'bhasha', 'packs'],
+    /* the family layer: the collection, the shop and settings draw only the shell */
+    collection: [], shop: [], medals: [], settings: [], privacy: [], help: [],
+    search: ['content', 'map', 'bhasha', 'paath'], avcard: []
   };
-  function needsOf(n) { return NEEDS[n] || ALLG; }
+  /* the PIN pad needs nothing; only the report behind it needs the record */
+  function needsOf(n) { if (n === 'grown' && !grownOpen) return []; return NEEDS[n] || ALLG; }
   function missingOf(gs) { return window.IND_HAS ? gs.filter(function (g) { return !window.IND_HAS(g); }) : []; }
   /* run fn now if its groups are here, or once they are; the promise is for the test handle */
   function withGroups(gs, fn) {
@@ -7548,18 +8362,38 @@
     var foldT = setTimeout(fold, 3000);
     host.addEventListener('pointerdown', fold, { once: true });
     /* sound and motion on every answer, and the finish says what was practised */
+    /* MOTION ON EVERY ANSWER, AND A COUNT THAT ONLY GOES UP (FIX-INDIA G6): a right answer
+       throws a little burst of sparks from the frame and adds to "N right this game" — a
+       progress count, never a streak that a miss can take away. */
+    var rights = 0;
+    var burst = function (big) {
+      if (!frame || dev.calm || dev.motion) return;
+      var b = document.createElement('span'); b.className = 'gf-burst' + (big ? ' big' : ''); b.setAttribute('aria-hidden', 'true');
+      b.innerHTML = new Array(big ? 19 : 9).join('<i></i>');
+      frame.appendChild(b); setTimeout(function () { b.remove(); }, big ? 1400 : 800);
+    };
     var pulse = function (ok) {
       if (window.IND_SFX) window.IND_SFX.play(ok ? 'right' : 'wrong');
       if (!frame) return;
       frame.classList.remove('gf-yes', 'gf-no'); void frame.offsetWidth;
       frame.classList.add(ok ? 'gf-yes' : 'gf-no');
       setTimeout(function () { frame.classList.remove('gf-yes', 'gf-no'); }, 650);
+      if (ok) {
+        rights++; burst(false);
+        var rc = frame.querySelector('.gf-rights');
+        if (!rc && title) { title.insertAdjacentHTML('beforeend', '<span class="gf-rights" aria-live="polite"></span>'); rc = frame.querySelector('.gf-rights'); }
+        if (rc) rc.textContent = rights + ' right this game';
+      }
     };
+    /* THE FINISH: what was practised, the child's own face and the peacock cheering (J6, I4) */
     var ended = function (out) {
-      if (window.IND_SFX) window.IND_SFX.play('win');
+      if (window.IND_SFX) window.IND_SFX.play('finish');
+      burst(true);
       var row = out.parentNode;
       if (fr[1] && row && row.parentNode && !row.parentNode.querySelector('.gf-practised'))
-        row.insertAdjacentHTML('beforebegin', '<p class="gf-practised"><b>What you practised:</b> ' + esc(fr[1]) + '</p>');
+        row.insertAdjacentHTML('beforebegin', '<div class="gf-practised"><span class="gf-faces">' +
+          '<span class="' + (S.frame ? 'framed fr-' + esc(S.frame) : '') + '">' + art(S.buddy, 56) + '</span>' + peacock('cheer', 56) + '</span>' +
+          '<p><b>What you practised:</b> ' + esc(fr[1]) + (rights ? ' · ' + rights + ' right' : '') + '</p></div>');
     };
     var TOK_OK = /(^|\s)(good|is-right)(\s|$)/, TOK_NO = /(^|\s)(warm|is-warm)(\s|$)/;
     var obs = window.MutationObserver ? new MutationObserver(function (muts) {
@@ -7582,7 +8416,7 @@
     if (obs) obs.observe(host, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
     var unframe = function () { clearTimeout(foldT); if (obs) obs.disconnect(); };
     try {
-      var td = g.engine(host, {}, function (res) {
+      var td = g.engine(host, { skin: (S.skin || {})[g.id] || null }, function (res) {
         res = res || {};
         /* ONLY A GAME THAT TEACHES PAYS, and it pays for finishing, not for winning
            (standard §1, §10). Ludo, Saap-Sidi, carrom and the street games are played for
@@ -7595,7 +8429,7 @@
         unframe();
         if (typeof td === 'function') td(); else if (td && td.destroy) td.destroy();
       };
-    } catch (e) { unframe(); host.innerHTML = '<p class="muted">This stall could not open: ' + esc(e.message) + '</p>'; }
+    } catch (e) { unframe(); host.innerHTML = errorState('This game could not open. Try again in a moment.', 'game', id); }
   }
 
   /* =============================================================== DISPATCH */
@@ -7618,13 +8452,58 @@
     var t = e.target.closest('[data-act]'); if (!t) return;
     var a = t.getAttribute('data-act');
 
-    /* the More sheet (phone nav) closes on any other action */
-    var nms = $('#navmoresheet');
-    if (nms && a !== 'navmore') nms.remove();
-    /* so does the child's menu — except for the toggles inside it, which repaint in place */
+    /* the ☰ drawer and the wallet close on anything chosen inside them — except the toggles,
+       which repaint in place so a child can see what they changed */
+    if ($('#drawer') && a !== 'drawer' && a !== 'sound' && a !== 'night' && a !== 'hindi') closeDrawer();
+    if ($('#walletsheet') && a !== 'wallet') closeWallet();
     var kmn = $('#kidmenu');
-    if (kmn && a !== 'kidmenu' && a !== 'sound' && a !== 'hindi') closeKidMenu();
+    if (kmn && a !== 'kidmenu') closeKidMenu();
     if (a === 'kidmenu') { if (kmn) closeKidMenu(); else openKidMenu(); return; }
+    if (a === 'drawer') { if ($('#drawer')) closeDrawer(); else openDrawer(); return; }
+    if (a === 'drawerclose') { closeDrawer(); return; }
+    if (a === 'wallet') { openWallet(); return; }
+    if (a === 'walletclose') { closeWallet(); return; }
+    if (a === 'back') { if (depth > 1) history.back(); else go('home'); return; }
+    /* settings (standard §5): each switch says its new state at once */
+    if (a === 'setfx')     { setDev('fx', !dev.fx); if (dev.fx) sfx('tap'); return render(); }
+    if (a === 'setmusic')  { setDev('music', !dev.music); musicNow(); return render(); }
+    if (a === 'setread')   { setDev('read', !dev.read); if (!dev.read) stopAudio(); return render(); }
+    if (a === 'setmotion') { setDev('motion', !dev.motion); return render(); }
+    if (a === 'setcalm')   { setDev('calm', !dev.calm); musicNow(); return render(); }
+    if (a === 'settext')   { setDev('text', t.getAttribute('data-v')); return render(); }
+    if (a === 'settheme') {
+      var tv = t.getAttribute('data-v'); setDev('theme', tv);
+      night = tv === 'dark' || (tv === 'auto' && !!(mqDark && mqDark.matches));
+      Store.saveDevice('night', night); paintChrome(); return render();
+    }
+    /* THE SHOP (standard §1, §8): every purchase goes through the family's engine and wallet */
+    if (a === 'buyav') {
+      var bid = t.getAttribute('data-id'), BE2 = window.IND_ECONOMY;
+      if (!BE2 || !bid) return;
+      var bst = BE2.stateOf(S, bid);
+      if (bst.state !== 'buy') { toast(bst.say); return; }
+      if (bst.short) { toast(bst.price + ' coins — ' + bst.short + ' more to go. Coins come from learning.'); return; }
+      if (!BE2.buy(S, bid)) { toast('That did not go through — nothing was spent.'); return; }
+      save(); paintChrome(); sfx('unlock');
+      toast('You met ' + (avatarName(bid) || bid) + '!');
+      return render();
+    }
+    if (a === 'buyextra' || a === 'useextra') {
+      var xid = t.getAttribute('data-id'), XE = window.IND_ECONOMY;
+      var xx = XE && XE.EXTRAS.filter(function (e2) { return e2.id === xid; })[0];
+      if (!xx) return;
+      if (a === 'buyextra') {
+        if (!XE.canAfford(S, xx.price)) { toast(xx.name + ' is ' + xx.price + ' coins. You have ' + coins() + '.'); return; }
+        if (!XE.buyExtra(S, xid)) return;
+        sfx('coin'); toast(xx.name + ' is yours.');
+      }
+      if (XE.extraOwned(S, xid)) {
+        var off = t.getAttribute('data-off') === '1';
+        if (xx.kind === 'frame') S.frame = off ? null : xid;
+        else { S.skin = S.skin || {}; S.skin[xx.game] = off ? null : xid; }
+      }
+      save(); paintChrome(); return render();
+    }
 
     if (a === 'begin')  { view = { name: 'onboard' }; return render(); }
     if (a === 'cont')   return runStep();
@@ -7677,26 +8556,17 @@
        into a story, a verse or an era. Absent everywhere else, so undefined. */
     if (a === 'go')     return go(t.getAttribute('data-v'), t.getAttribute('data-arg') || undefined);
     /* the day's target is the family's to choose (Bee's goal picker) */
+    if (a === 'growage') {
+      if (!grownOpen) return go('grown');
+      S.age = +t.getAttribute('data-v') || 8; S.mode = S.age <= 7 ? 'chhote' : 'bade'; save();
+      toast('Age band set — the stories and the map follow it.');
+      return render();
+    }
     if (a === 'goalset') {
+      if (!grownOpen) return go('grown');
       S.goal = +t.getAttribute('data-g') || 3; save();
       toast(S.goal + ' a day — a small habit beats a big plan.');
       return render();
-    }
-    /* the phone nav's More: a small sheet with the pillars that do not fit */
-    if (a === 'navmore') {
-      if (nms) { nms.remove(); return; }
-      var sh2 = document.createElement('div');
-      sh2.id = 'navmoresheet';
-      sh2.innerHTML = '<div class="nm-in" role="menu">' +
-        [['map', 'India', 'map'], ['neeti', 'Moral Science', 'star'],
-         ['me', 'You & Grown-ups', 'parent']]
-          .map(function (t2) {
-            return '<button class="nm-row" data-act="go" data-v="' + t2[0] + '">' +
-              icon(t2[2], 20) + '<span>' + t2[1] + '</span></button>';
-          }).join('') + '</div>';
-      sh2.addEventListener('click', function (e2) { if (e2.target === sh2) sh2.remove(); });
-      document.body.appendChild(sh2);
-      return;
     }
     if (a === 'state')  return go('state', t.getAttribute('data-code'));
     /* Tapping a state on the map shows its facts in place rather than navigating away —
@@ -7972,7 +8842,12 @@
     }
     if (a === 'say')    return withGroups(['voice'], function () {
                           speak(t.getAttribute('data-k'), t.getAttribute('data-t'), t.getAttribute('data-l')); });
-    if (a === 'pick')   { S.buddy = t.getAttribute('data-id'); save(); return render(); }
+    /* a face you travel with is a face you have (standard §8) */
+    if (a === 'pick')   {
+      var pid = t.getAttribute('data-id');
+      if (view.name !== 'onboard' && window.IND_ECONOMY && !window.IND_ECONOMY.avatarOpen(S, pid)) { toast(window.IND_ECONOMY.stateOf(S, pid).say); return; }
+      S.buddy = pid; save(); paintChrome(); return render();
+    }
 
     /* ---------------------------------------------------------------- onboarding
        One handler per question, and every one of them ADVANCES. A step that answers
@@ -8022,56 +8897,20 @@
     if (a === 'buyworld') {
       var bw = t.getAttribute('data-w');
       var BE = window.IND_ECONOMY;
-      var bp = BE ? BE.worldPrice(bw) : 0;
-      if (!BE || !BE.canAfford(S, bp)) {
-        toast('That one costs ' + bp + ' coins. You have ' + coins() + '.');
-        return;
-      }
-      if (!BE.spend(S, bp, 'world:' + bw)) return;
-      S.own.worlds.push(bw);
-      S.world = bw; save(); paintChrome();
+      if (!BE) return;
+      var bp = BE.worldPrice(bw);
+      if (!BE.canAfford(S, bp)) { toast(BE.worldSay(S, bw) + '.'); return; }
+      if (!BE.buyWorld(S, bw)) return;
+      S.world = bw; save(); paintChrome(); sfx('unlock');
       var BW = (window.IND_WORLDS && window.IND_WORLDS.get(bw)) || null;
       toast('Opened ' + (BW ? BW.name : bw) + ' — it is yours for good.');
       if (window.IND_WORLDS_ART && window.IND_WORLDS_ART.refresh) window.IND_WORLDS_ART.refresh();
+      musicNow();
       return render();
     }
 
-    /* CHOOSE WHO YOU MEET NEXT (standard §1: no random rewards). One card, the one the
-       child picked, at the printed price — or, for a rare card, opened by the learning its
-       card names. There is no draw left anywhere in the app. */
-    if (a === 'meet') {
-      var mid = t.getAttribute('data-id');
-      var ME = window.IND_ECONOMY;
-      if (!ME || !mid || ME.avatarOpen(S, mid)) return;
-      var mp = ME.packOf(mid), rule = ME.cardRule(mp ? mp.id : '', mid);
-      if (rule.kind === 'learn') {
-        if (mastered() < rule.need) { toast(rule.say + ' — you have mastered ' + mastered() + '.'); return; }
-      } else {
-        if (!ME.canAfford(S, rule.price)) { toast('That card is ' + rule.price + ' coins. You have ' + coins() + '.'); return; }
-        if (!ME.spend(S, rule.price, 'card:' + mid)) return;
-      }
-      S.own.avatars.push(mid);
-      save(); paintChrome(); paintCoins();
-      toast('You met ' + (avatarName(mid) || mid) + '!');
-      return render();
-    }
-
-    /* BUYING A WHOLE PACK outright, at the price of its cards. */
-    if (a === 'buypack') {
-      var bk = t.getAttribute('data-p');
-      var PE = window.IND_ECONOMY;
-      var pp = PE ? PE.packPrice(bk) : null;
-      if (!PE || pp == null) return;
-      if (!PE.canAfford(S, pp)) {
-        toast('That pack is ' + pp + ' coins. You have ' + coins() + '.');
-        return;
-      }
-      if (!PE.spend(S, pp, 'pack:' + bk)) return;
-      S.own.packs.push(bk);
-      save(); paintChrome();
-      toast('The whole pack is open.');
-      return render();
-    }
+    /* an old "meet" button (a cached page) does what the Shop's button does */
+    if (a === 'meet') { t.setAttribute('data-act', 'buyav'); t.click(); return; }
 
     /* DEVELOPER UNLOCK — for testing. Device-scoped and profile-scoped both, loud on
        screen while it is on, and it never touches a paid entitlement: it opens the
@@ -8105,7 +8944,8 @@
     if (a === 'progress') return go('progress', t.getAttribute('data-id'));
 
     if (a === 'world')  {
-      S.world = t.getAttribute('data-w'); save();
+      if (window.IND_ECONOMY && !window.IND_ECONOMY.worldOpen(S, t.getAttribute('data-w'))) return;
+      S.world = t.getAttribute('data-w'); save(); musicNow();
       var W = (window.IND_WORLDS && window.IND_WORLDS.get(S.world)) || null;
       toast(W ? W.name + ' — ' + W.region : 'World: ' + S.world);
       /* the ambient layer watches data-world itself, but nudge it so a world
@@ -8126,7 +8966,9 @@
       S.started = today(); S.grown = S.grown || { m: 0, l: 0 }; S.medals = S.medals || {}; save();
       var hh = Store.house(); if (hh.adding) { hh.adding = null; Store.saveHouse(hh); }
       startActivity();
-      return go('home');
+      view = { name: 'home', arg: null }; render();
+      if (window.history && history.replaceState) rootTrail();
+      return;
     }
     if (a === 'addcancel') { Store.removeKid(); location.reload(); return; }
     /* SWITCHING CHILD reloads the page: nothing in memory — a story half told, a quiz, a
@@ -8143,8 +8985,8 @@
       if (!grownOpen) return go('grown');
       Store.addKid(); location.hash = ''; location.reload(); return;
     }
-    if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); toast('Sound ' + (soundOn ? 'on' : 'off')); paintChrome(); return render(); }
-    if (a === 'night')  { night = !night; Store.saveDevice('night', night); toast(night ? 'Night' : 'Day'); paintChrome(); return render(); }
+    if (a === 'sound')  { soundOn = !soundOn; Store.saveDevice('sound', soundOn); if (!soundOn) stopAudio(); applyLook(); musicNow(); toast(soundOn ? 'Sound on' : 'Muted'); paintChrome(); return render(); }
+    if (a === 'night')  { night = !night; Store.saveDevice('night', night); setDev('theme', night ? 'dark' : 'light'); toast(night ? 'Night' : 'Day'); paintChrome(); return render(); }
     if (a === 'voice')  { S.voice = S.voice === 'm' ? 'f' : 'm'; save(); toast(S.voice === 'm' ? 'Man’s voice' : 'Woman’s voice'); return render(); }
     if (a === 'rate')   {
       S.rate = +t.getAttribute('data-r') || 1; save();
@@ -8172,7 +9014,7 @@
     if (a === 'dl') {
       var did = t.getAttribute('data-id');
       if (window.IND_ENT && !window.IND_ENT.canDownload(did)) {
-        toast('That pack needs the Parivaar Pass — the code box is just below.');
+        toast('That pack opens with the family plan, which comes with the family account — still being built.');
         var pc = $('#passcode'); if (pc) pc.focus();
         return;
       }
@@ -8199,14 +9041,10 @@
       });
       return;
     }
-    if (a === 'passredeem') {
-      var pin = $('#passcode');
-      if (window.IND_ENT && window.IND_ENT.redeem(pin && pin.value)) {
-        toast('The Parivaar Pass is on — every pack is open.');
-        return render();
-      }
-      toast('That code didn’t work. Check it and try once more.');
-      return;
+    if (a === 'passtester') {
+      if (!tester() || !window.IND_ENT) return;
+      window.IND_ENT.testerPlan(!window.IND_ENT.hasPass());
+      return render();
     }
     if (a === 'passclear') {
       if (window.IND_ENT) window.IND_ENT.clear();
@@ -8288,8 +9126,42 @@
       return render();
     }
     /* choice questions: tap an option */
+    if (a === 'slipped') {
+      var sk = String(t.getAttribute('data-k') || '').split('|').filter(Boolean);
+      if (!sk.length) return;
+      quiz = quizReset(view.arg); startSession(t.getAttribute('data-s'), 'slipped', null, sk);
+      return render();
+    }
+    if (a === 'cert') {
+      if (view.name !== 'grown' || !grownOpen) return;
+      makeCert(t.getAttribute('data-id')).then(function (r) {
+        if (!r || !r.blob) { toast('This browser could not draw the certificate'); return; }
+        var file = null;
+        try { file = new File([r.blob], r.name, { type: 'image/png' }); } catch (e) {}
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], title: 'A Bizzing India certificate' }).catch(function () {});
+          return;
+        }
+        var url = URL.createObjectURL(r.blob), lnk = document.createElement('a');
+        lnk.href = url; lnk.download = r.name; document.body.appendChild(lnk); lnk.click(); lnk.remove();
+        window.IND_LAST_CERT = r.name;
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+        toast('Certificate saved');
+      });
+      return;
+    }
+    if (a === 'qhint') {
+      var hq = quiz.q;
+      if (!hq || quiz.lock || quiz.hint != null || typeof hq.answerIndex !== 'number') return;
+      var wrongs = (hq.options || []).map(function (_, i) { return i; }).filter(function (i) { return i !== hq.answerIndex; });
+      if (!wrongs.length) return;
+      /* the same wrong choice every time for the same question: nothing random */
+      quiz.hint = wrongs[(quiz.pi + quiz.done) % wrongs.length];
+      return render();
+    }
     if (a === 'ans') {
       var q = quiz.q, idx = +t.getAttribute('data-i');
+      if (t.getAttribute('data-gone') === '1') return;
       if (!q || quiz.lock) return;
       var want = (typeof q.answerIndex === 'number') ? q.answerIndex : -1;
       var ok = (idx === want);
@@ -8489,6 +9361,7 @@
   function boot() {
     /* the sample child is built from the real corpus, now that it is here */
     if (window.IND_DEMO) { S = seedDemo(); lightStories = null; }
+    moveOldCoins();
     healWorld();
     startActivity();
     /* the sample child's shelf is already earned: nothing to celebrate on a demo's first screen */
@@ -8512,10 +9385,12 @@
       if (hc) hr = continueTarget();
       if (hr && known(hr.n)) { if (!hc) prepView(hr.n, hr.a); view = { name: hr.n, arg: hr.a }; }
     }
-    /* Back from the first screen of a visit lands on Home, not outside the app */
-    if (S.started && window.history && history.replaceState && view.name !== 'home') {
-      try { history.replaceState({ n: 'home', a: null }, '', '#/home'); } catch (e) {}
-      route(true);
+    /* THE TRAIL STARTS AT HOME, with a guard under it: Back from the first screen of a visit
+       lands on Home, and Back from Home stays on Home (FIX-INDIA §1; standard §4). The way
+       out of the app is the ⬡ Hive button, or "← my day" when the Hive opened it. */
+    if (S.started && window.history && history.replaceState) {
+      rootTrail();
+      if (view.name !== 'home') route(true);
     } else route(false);
     /* TESTER MODE is a device setting, switched by ?tester=1 / ?tester=0, never a button in
        front of a child; and without it the developer unlock is simply off */
@@ -8615,6 +9490,7 @@
        ind-reward: games grant sikke mid-run through one event, so the economy
        stays in the shell — capped, and never negative. */
     window.IND_ART_SRC = function (id) {
+      if (window.IND_AV_WEBP && window.IND_AV_WEBP.indexOf(id) >= 0) return 'art/av/' + id + '.webp';
       return (window.IND_ART_IMG && window.IND_ART_IMG.indexOf(id) >= 0) ? 'art/' + id + '.png' : '';
     };
     window.IND_BUDDY_TIER = function (id) {

@@ -71,9 +71,10 @@ check('anatomy', 'Home is greeting · one Continue · today\'s three · ≤ 6 wa
   if (a.ways < 1 || a.ways > 6) throw new Error(a.ways + ' ways in — the standard allows six at most');
   const allowed = ['hm', 'card', 'hm-head', 'grid', 'ways', 'deckwrap', 'DIV'];
   const extra = a.top.filter(c => allowed.indexOf(c) < 0);
-  /* a `card` at the top level may only be the language ask */
+  /* a `card` at the top level may only be the language ask, or the one thing the child is
+     saving for (FIX-INDIA K10 — an outline card, never a second Continue) */
   const cards = await p.evaluate(() => [...document.getElementById('main').children]
-    .filter(x => x.classList.contains('card') && !x.classList.contains('hm-tongue')).length);
+    .filter(x => x.classList.contains('card') && !x.classList.contains('hm-tongue') && !x.classList.contains('hm-goal')).length);
   if (extra.length || cards) throw new Error('Home carries blocks outside the anatomy: ' + JSON.stringify(a.top));
 });
 
@@ -162,6 +163,8 @@ check('firstlearn', 'Read it plays a story before any setup; setup keeps it; a s
   const id = await p.evaluate(() => { const b = document.querySelector('.herocard [data-act="guest"]'); return b && b.getAttribute('data-id'); });
   if (!id) throw new Error('the landing\'s "Read it" does not open a story');
   await tap(p, '.herocard [data-act="guest"]');
+  /* the stories load on demand (docs/27); on a busy machine that is more than 350ms */
+  await p.waitForSelector('.reader', { timeout: 20000 }).catch(() => {});
   const g = await p.evaluate(() => ({ reader: !!document.querySelector('.reader'), started: (JSON.parse(localStorage.getItem('bi_v1') || '{}')).started || null,
     onboard: !!document.getElementById('nm') }));
   if (!g.reader || g.started || g.onboard) throw new Error('"Read it" did not play the story before setup: ' + JSON.stringify(g));

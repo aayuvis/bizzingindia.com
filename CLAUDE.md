@@ -58,7 +58,7 @@ The short version:
 - **Back never leaves the app.** Every screen is a route, `#/<view>/<arg>`, written by `go()`;
   `#/continue` opens the one next thing (the Hive's door). A new screen is routable by being
   a `case` in `render()` — there is no second list. `tools/check-trust.js` holds it.
-- **Coins are for learning, in the family's one wallet** (`app/bizzing-wallet.js`, docs/23):
+- **Coins are for learning, in the family's one wallet** (`app/family/bizzing-wallet.js`, docs/23):
   `earn('answer'|'stop'|'contest'|'mastery')` at 1 · 5 · 10 · 20, ≤ 100 a day. Never for
   time, taps, self-report, dice or luck; only a game in `TEACHES` pays. Rank counts mastery
   evidence, never coins. Nothing is random (no draws — a child chooses at a printed price).
@@ -72,7 +72,8 @@ The short version:
 - **A household, not a device** (docs/25): `Store.kidKey()` decides whose key a thing is — the
   first child keeps the old keys, later ones get `.<id>`. Switching child reloads the page.
   Only the seam files touch `localStorage`; engines use `window.IND_STORE`. The top bar is the
-  family's: ⬡ · name · … · theme · 🔒 · avatar ▾, 56px, one row. `bizzing.activity` gets
+  family's (standard v2 §3): ⬡ · ☰ · peacock + name · … · search · coin · theme · 🔒 · avatar ▾, 56px,
+  one row; five tabs Home · India · Paathshala · Bhasha · Play; everything else lives in ☰. `bizzing.activity` gets
   active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
 - **Medals, sound and the game frame** (docs/26): medals only from what the app saw, each
   celebrated once; the host gives every game a how-to, sound, motion and "what you practised";
@@ -159,6 +160,14 @@ Gita module specifically. Four rules bind anyone touching them:
 `tools/check-paath.js` holds all of it — hours = modules × 3, every corpus reference
 resolves, nothing sensitive claims to be finished, the project is gated, and the app's
 claim about how it marked a thing matches what it actually did.
+
+- **The family's shared code is copied, never edited** (docs/29): `app/family/` holds
+  Bizzing_Schedule's `bizzing-wallet.js`, `bizzing-activity.js`, `bizzing-avatars.js` and `.css`
+  byte for byte; `family/bridge.js` hands them to the classic scripts. Avatars are the family's
+  96 = 12 × 8 at 2/3/2/1 (`avatar-catalogue.js`, validated in `check-standard`); worlds 1–2 are
+  free and the rest open with the family plan or 240 coins. Music is composed in code
+  (`music/engine.js`, `music/CREDITS.md`), lazy, ducked under the voice, off in Calm mode.
+  `tools/check-standard.js` holds the v2 standard.
 
 ## Architecture (planned)
 

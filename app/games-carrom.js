@@ -225,8 +225,13 @@
      THE ENGINE
      ================================================================== */
 
+  /* A BOARD FROM THE SHOP (FIX-INDIA K4): the playing surface a child bought with Bizzing coins.
+     Only the wood changes — the pieces, the pockets and the physics are the same board. */
+  var SKINS = { 'board-rosewood': ['#c9955f', '#a8703f'], 'board-teak': ['#f7ead0', '#ecd6a9'] };
   function carrom(host, opts, done) {
     injectCSS();
+    var sk = SKINS[(opts && opts.skin) || ''] || ['#f2e0ba', '#e2c48d'];
+    WOOD_HI = sk[0]; WOOD_LO = sk[1];
     var sc = scope();
     var reduced = reducedMotion();
     var finished = false;

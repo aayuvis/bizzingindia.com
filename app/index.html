@@ -17,6 +17,8 @@
 <link rel="stylesheet" href="fonts-world.css?v=202610021354">
 <link rel="stylesheet" href="tokens.css?v=202610021354">
 <link rel="stylesheet" href="app.css?v=202610021354">
+<link rel="stylesheet" href="family/bizzing-avatars.css">
+<link rel="stylesheet" href="family.css">
 </head>
 <body>
 <div id="app"></div>
@@ -32,11 +34,13 @@
 <script src="art-manifest.js?v=202610021354"></script>
 <script src="art.js?v=202610021354"></script>
 <script src="avatars.js?v=202610021354"></script>
-<script src="bizzing-wallet.js"></script>
-<script src="bizzing-activity.js"></script>
+<!-- the family's shared code (Bizzing_Schedule integration/, copied byte for byte) -->
+<script type="module" src="family/bridge.js"></script>
+<script src="audio.js"></script>
 <script src="sfx.js"></script>
 <script src="economy.js?v=202610021354"></script>
 <script src="avatar-cards.js"></script>
+<script src="avatar-catalogue.js"></script>
 <script src="worlds-bg-manifest.js"></script>
 <script src="worlds-art.js"></script>
 <script src="state-art-manifest.js"></script>
@@ -105,8 +109,12 @@
 <script src="data-bhasha-ur.js"></script>
 <script src="data-bhasha-hi-sentences.js"></script>
 <script src="data-bhasha-hi-dialogues.js"></script>
-<script src="data-bhasha-hi-passages.js"></script>
 <script src="data-bhasha-hi-grammar.js"></script>
+</template>
+<!-- 3.5 MB of story tellings as Hindi reading passages: only a lesson draws on them, so they
+     wait for a lesson to open (FIX-INDIA R2) and are never in the background warm-up -->
+<template id="lazy-passages">
+<script src="data-bhasha-hi-passages.js"></script>
 </template>
 <template id="lazy-games">
 <script src="game-art.js?v=202610021354"></script>

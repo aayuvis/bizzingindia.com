@@ -749,8 +749,11 @@ window.IND_NANI = {
       remove: 'Delete a recording'
     },
 
-    where: 'Recordings live in your family’s account and nowhere else. They belong to ' +
-           'your family, not to us.',
+    /* TRUE TODAY, and it has to be (FIX-INDIA §1, S3): there is no family account yet, so a
+       recording stays in this browser on this device. When the family server lands and
+       holds the line in docs/01 §7, this sentence changes with it — not before. */
+    where: 'Recordings stay on this device, in this browser, and nowhere else. They are never ' +
+           'sent anywhere. They belong to your family, not to us.',
 
     promises: [
       'Nobody outside your family can hear them.',

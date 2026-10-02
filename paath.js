@@ -174,7 +174,7 @@
     '.pa-body b{display:block;font:800 clamp(20px,2.5vw,26px)/1.12 var(--display,Georgia,serif);' +
       'letter-spacing:-.015em;margin:0 0 6px}',
     '.pa-sub{display:block;font:800 10.5px/1.3 var(--body);letter-spacing:.14em;' +
-      'text-transform:uppercase;color:var(--accent);margin:0 0 5px}',
+      'text-transform:uppercase;color:var(--accent-ink,var(--accent));margin:0 0 5px}',
     '.pa-t{display:block;margin:0;font-size:14px;line-height:1.55;color:var(--text2);max-width:58ch}',
     '.pa-meta{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:11px}',
     '.pa-pill{font:700 11px/1.3 var(--body);letter-spacing:.07em;text-transform:uppercase;' +
@@ -798,9 +798,11 @@
   }
 
   function badge(c) {
-    var B = { katha: '🪔 Katha', itihaas: '📜 Itihaas', aaj: '🧭 Aaj', dharma: '🪔 Dharma' };
+    /* the badge's mark is drawn, not an emoji: a control never carries an emoji (family standard §9) */
+    var B = { katha: ['diya', 'Katha'], itihaas: ['scroll', 'Itihaas'], aaj: ['compass', 'Aaj'], dharma: ['diya', 'Dharma'] };
+    var b = B[c.badge];
     return c.badge ? '<span class="pa-badge ' + esc(c.badge) + '">' +
-      esc(B[c.badge] || c.badge) + '</span>' : '';
+      (b && window.IND_ICON ? window.IND_ICON(b[0], 14) + ' ' + esc(b[1]) : esc(b ? b[1] : c.badge)) + '</span>' : '';
   }
 
   function hub() {
@@ -1216,7 +1218,7 @@
     var out = [], seen = {};
     Object.keys(l.use || {}).forEach(function (k) {
       var v = l.use[k];
-      if (k === 'bh') { out.push({ kind: 'bh', n: v }); return; }
+      if (k === 'bh') { out.push({ kind: 'bh', n: v, lesson: l, module: m }); return; }
       if (k === 'sa') { out.push({ kind: 'sa' }); return; }
       if (!Array.isArray(v)) return;
       v.forEach(function (id) {
@@ -1244,6 +1246,15 @@
 
   function cardHTML(cd, c) {
     if (cd.kind === 'bh') {
+      /* THE STOP TEACHES, HERE (FIX-INDIA E3). The host builds a worked example for this stop
+         from the language engine's own data — the letters with their sounds, the matras on a
+         consonant, the theme's words, the grammar point with its rule and its sentences, a
+         real exchange — and Bhasha stays the optional place to drill it. */
+      var taught = api.teach ? api.teach(cd.lesson, cd.module) : '';
+      if (taught) return taught +
+        '<div class="pl-card plain"><div class="pl-body"><p class="pl-kind">Then practise</p>' +
+        '<h3>' + cd.n + ' Bhasha exercises</h3><p>The same things, drilled in Bhasha until they are easy.</p>' +
+        '<button class="pl-deep" data-act="go" data-v="bhasha">Practise in Bhasha →</button></div></div>';
       return '<div class="pl-card plain"><div class="pl-plate words"><span lang="hi">अ आ इ</span></div>' +
         '<div class="pl-body"><p class="pl-kind">Practise</p><h3>' + cd.n + ' Bhasha exercises</h3>' +
         '<p>This stop is practised in Bhasha, the language pillar — the same letters and words, ' +

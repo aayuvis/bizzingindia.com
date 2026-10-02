@@ -1351,14 +1351,15 @@
 
     /* ---- game state: a plain JSON snapshot, deliberately ---- */
     var G = null;
+    var FIRST = 'dholavira';     /* where every journey begins — see needsRoad() */
     function fresh() {
       var st = {};
-      SITES.forEach(function (s) { st[s.id] = { lv: 1, zzz: s.era > 0 || s.id !== 'dholavira', fade: -1, idle: 0, seen: false,
+      SITES.forEach(function (s) { st[s.id] = { lv: 1, zzz: s.era > 0 || s.id !== FIRST, fade: -1, idle: 0, seen: false,
                                                 bld: {}, mon: false, neg: 0, jobs: null, hero: null,
                                                 /* `plan` is the city's build queue — see queueStep() */
                                                 plan: [],
-                                                found: s.id === 'dholavira' }; });
-      st.dholavira.seen = true;
+                                                found: s.id === FIRST }; });
+      st[FIRST].seen = true;
       return { era: 0, res: { anna: T.startRes.anna, kala: T.startRes.kala, katha: T.startRes.katha },
                sites: st, routes: [], t: 0, utsav: 0, ev: null, score: 0, won: false,
                quests: {}, qdone: 0, lastq: 0,
@@ -1389,6 +1390,15 @@
       return G.routes.some(function (r) { return r[0] === id || r[1] === id; });
     }
     function awake(id) { var q = G.sites[id]; return q && !q.zzz; }
+    /* THE FIRST CITY NEEDS NO ROAD. "A story has to travel to be heard" is why a
+       sleeping town waits for a road — but Dholavira is where the story starts, so
+       nothing has to travel to it. Before this, a child who let it drift into the mist
+       in the first minute, with nothing else yet found, was asked for a road that had
+       nowhere to go: no road, no explorer from a sleeping city, no katha with nothing
+       awake to earn it. A game over that never said so. */
+    function needsRoad(id) { return id !== FIRST && !connected(id); }
+    /* a road could be laid from here: somewhere else is on the map (tryRoute's own rule) */
+    function roadable(id) { return SITES.some(function (o) { return o.id !== id && onMap(o); }); }
     function routed(a, b) {
       return G.routes.some(function (r) { return (r[0] === a && r[1] === b) || (r[0] === b && r[1] === a); });
     }
@@ -1607,8 +1617,10 @@
     function advise() {
       var L = decisionList();
       if (L.length) return { why: nameOf(byId[L[0].id]) + ' wants you — ' + L[0].why, go: L[0].id };
-      var zz = SITES.filter(function (x) { return onMap(x) && !awake(x.id) && connected(x.id); })[0];
-      if (zz) return { why: 'A road already reaches ' + nameOf(zz) + '. Wake it and its story is yours.', go: zz.id };
+      var zz = SITES.filter(function (x) { return onMap(x) && !awake(x.id) && !needsRoad(x.id); })[0];
+      if (zz) return { why: (connected(zz.id) ? 'A road already reaches ' + nameOf(zz) + '.'
+                                              : nameOf(zz) + ' is where the story began — it needs no road.') +
+                            ' Wake it and its story is yours.', go: zz.id };
       var far = SITES.filter(function (x) { return onMap(x) && !awake(x.id); })[0];
       if (far) return { why: nameOf(far) + ' is found but unreached — a road would let you wake it.', go: far.id };
       if (hiddenSites().length && G.res.anna >= T.exploreCost)
@@ -3014,6 +3026,10 @@
     /* what waking THIS place costs, which is no longer one number for the whole map */
     function wakeCost(id) {
       var q = G.sites[id] || {};
+      /* with nothing else awake there is nowhere to earn katha, so the first city,
+         the one way back, asks nothing — never destroyed, always recoverable (docs/16) */
+      if (id === FIRST && !SITES.some(function (x) {
+        return x.id !== FIRST && inEra(x) && awake(x.id) && !isHer(x.id); })) return 0;
       return Math.round(T.wakeCost * (1 + (q.deep || 0) * 0.4));
     }
     function costOf(c, kind) {
@@ -3348,8 +3364,9 @@
       if (G.explorers.length) return 'Your explorer is out walking the mist — the fog opens where the lamp goes.';
       var zz = SITES.filter(function (x) { return onMap(x) && !awake(x.id); })[0];
       if (zz) {
-        if (!connected(zz.id)) return 'Build a road toward <b>' + esc(zz.name) + '</b> — it sleeps under the mist.';
-        if (G.res.katha >= wakeCost(zz.id)) return '<b>' + esc(zz.name) + '</b> is reached — wake it (' + wakeCost(zz.id) + ' \ud83d\udcdc).';
+        if (needsRoad(zz.id)) return 'Build a road toward <b>' + esc(zz.name) + '</b> — it sleeps under the mist.';
+        if (G.res.katha >= wakeCost(zz.id)) return '<b>' + esc(zz.name) + '</b> ' + (connected(zz.id) ? 'is reached' : 'needs no road') +
+          ' — wake it (' + (wakeCost(zz.id) ? wakeCost(zz.id) + ' \ud83d\udcdc' : 'free') + ').';
         return 'Earn katha to wake <b>' + esc(zz.name) + '</b> — quests and lean-season help pay best.';
       }
       var m3 = SITES.filter(function (x) { return inEra(x) && awake(x.id) && !isHer(x.id) && G.sites[x.id].lv >= 3 && !G.sites[x.id].mon; })[0];
@@ -4338,8 +4355,8 @@
            so the sleeping town can start its own: Reach it, then Wake it. */
         b.push(tile('route', 'road', 'Reach it', costStr(costOf({ kala: T.routeCost }, 'route'))));
         b.push(tile('yields', 'book', 'Why?', 'where the numbers come from', true));
-        b.push(tile('wake', 'sun', 'Wake', connected(sel) ? wakeCost(sel) + ' 📜' : 'needs a road',
-          { go: true, disabled: !connected(sel) }));
+        b.push(tile('wake', 'sun', 'Wake', needsRoad(sel) ? 'needs a road' : wakeCost(sel) ? wakeCost(sel) + ' 📜' : 'free',
+          { go: true, disabled: needsRoad(sel) }));
       } else {
         b.push(tile('route', 'road', 'Route', costStr(costOf({ kala: T.routeCost }, 'route'))));
         b.push(tile('utsav', 'lamp', 'Utsav',
@@ -5437,7 +5454,7 @@
         if (uq && uq.kind === 'utsav') finishQuest(sel, 'The whole town danced.');
       }
       if (name === 'wake' && q.zzz) {
-        if (!connected(sel)) return say(s.name + ' needs a road first — a story has to travel to be heard.', '');
+        if (needsRoad(sel)) return say(s.name + ' needs a road first — a story has to travel to be heard.', '');
         if (G.res.katha < wakeCost(sel)) return say((G.sites[sel].deep ? 'This one has slept through an age and asks more — ' : '') +
           'not enough katha yet. Stories are earned by helping and holding utsavs.', '');
         pay({ katha: wakeCost(sel) }); deed('wake'); G.sites[sel].deep = 0;
@@ -6239,6 +6256,9 @@
         if (polEff('noFade') && G.res.anna > 0) { q.idle = 0; if (q.fade >= 0) q.fade = -1; return; }
         if (dedEff('penseverance')) { q.idle = 0; if (q.fade >= 0) q.fade = -1; return; }
         if (connected(s.id)) { q.idle = 0; if (q.fade >= 0 && !G.ev) q.fade = -1; return; }
+        /* "A road would hold it" — so the mist waits until a road COULD: a city alone
+           on the map, with nowhere yet to build to, is not punished for it */
+        if (!roadable(s.id)) { q.idle = 0; if (q.fade >= 0) q.fade = -1; return; }
         if (q.fade >= 0) {
           q.fade++;
           if (q.fade >= T.fadeLen) {
@@ -6250,7 +6270,9 @@
             if (q.zzz) q.deep = (q.deep || 0) + 1;
             q.zzz = true; q.fade = -1;
             showOverlay(mascot('vismriti', null, 90) + '<h3>' + esc(s.name) + ' sleeps.</h3>' +
-              '<p>Vismriti has drifted over its lamps — for now. Nothing is lost that a road and a story cannot bring back.</p>' +
+              '<p>Vismriti has drifted over its lamps — for now. ' + (s.id === FIRST
+                ? 'Nothing is lost: this is where the story began, and it wakes without a road.'
+                : 'Nothing is lost that a road and a story cannot bring back.') + '</p>' +
               '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Reach it again</button></div>');
             say('The mist has taken ' + s.name + ' — for now. Reach it again.', 'mist'); }
         } else {
@@ -7313,7 +7335,7 @@
        BOOT — resume a saved sabhyata or begin at Dholavira
        ================================================================ */
     var saved = load();
-    G = (saved && !saved.won && saved.sites && saved.sites.dholavira) ? saved : fresh();
+    G = (saved && !saved.won && saved.sites && saved.sites[FIRST]) ? saved : fresh();
     /* saves from before the quest scrolls simply gain empty ones */
     G.quests = G.quests || {}; G.qdone = G.qdone || 0; G.lastq = G.lastq || 0;
     G.tech = G.tech || {}; G.capital = G.capital || null; G.disp = G.disp || null;

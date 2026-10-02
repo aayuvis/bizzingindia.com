@@ -77,7 +77,10 @@ check('topbar', 'one 56px row in the family order, on desktop and phone; ⬡ hid
   }
   /* a running drill hides ⬡ */
   await p.setViewportSize(DESK);
-  await tap(p, '.navtab[data-v="bhasha"]'); await tap(p, '[data-act="pack"][data-id="hi"]'); await tap(p, '.bh-next');
+  /* the language groups load on demand: wait for them rather than guessing a time */
+  await tap(p, '.navtab[data-v="bhasha"]'); await p.waitForSelector('[data-act="pack"][data-id="hi"]', { timeout: 20000 }).catch(() => {});
+  await tap(p, '[data-act="pack"][data-id="hi"]'); await p.waitForSelector('.bh-next', { timeout: 20000 }).catch(() => {});
+  await tap(p, '.bh-next');
   const vis = await p.evaluate(() => getComputedStyle(document.querySelector('.hivebtn')).visibility);
   if (vis !== 'hidden') throw new Error('⬡ is still showing inside a running drill');
 });

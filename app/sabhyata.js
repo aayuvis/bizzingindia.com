@@ -1309,12 +1309,165 @@
     /* and the city scene keeps the whole window, above all of this */
     '.sab-wrap.gw .sab-scene.iskit.full{z-index:70}',
 
+    /* ==================================================================
+       THE PHONE. The same window, the same teak and brass, arranged for a thumb.
+       ==================================================================
+         top      the beam (the way out, the age, the turn, the menu) and under it
+                  the four stores; then Mithu's one line and anything live. One
+                  column, measured by the map so the country is fitted below it.
+         middle   India, edge to edge. Zoom is a brass rail on the right edge.
+         bottom   the dock: the three books on the left, Agla Saal on the right —
+                  where a right thumb already rests. A chosen place's sheet rises
+                  above the dock, OVER the map, never pushing it: the map that
+                  moved under the second tap is the bug this layout exists to fix.
+       Nothing here is a different game: every button is the desktop's button. */
+    '.sab-wrap.gw.gm{--dock:calc(72px + env(safe-area-inset-bottom,0px));--tw:136px}',
+    '.sab-wrap.gm::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--dock);z-index:5;' +
+      'background:var(--teak);border-top:1px solid var(--brass-soft);box-shadow:0 -6px 18px rgba(18,9,4,.28)}',
+    /* the top column: beam, stores, Mithu, the rail, the news line */
+    '.sab-wrap.gm .sab-side{display:flex;flex-direction:column;align-items:stretch;gap:6px;position:absolute;' +
+      'top:0;left:0;right:0;z-index:6;pointer-events:none;padding:0 0 4px}',
+    '.sab-wrap.gm .sab-side>*{pointer-events:auto}',
+    '.sab-wrap.gm .sab-bar{position:relative;order:0;height:auto;flex-wrap:wrap;column-gap:2px;row-gap:0;' +
+      'padding:env(safe-area-inset-top,0px) 6px 0}',
+    '.sab-wrap.gm .sab-exit{width:44px;height:44px;padding:0;justify-content:center;margin-right:2px}',
+    '.sab-wrap.gm .sab-exit span{display:none}',
+    '.sab-wrap.gm .sab-era{height:50px;padding:0 4px;min-width:0}',
+    '.sab-wrap.gm .sab-era:first-of-type{flex:0 1 auto}',
+    '.sab-wrap.gm .sab-era b{font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.sab-wrap.gm .sab-era span{display:block;font-size:9.5px;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.sab-wrap.gm .sab-era+.sab-era{padding:0 6px}',
+    '.sab-wrap.gm .sab-era+.sab-era b{font-size:17px}',
+    '.sab-wrap.gm .sab-ages,.sab-wrap.gm .sab-guide,.sab-wrap.gm .sab-realm{display:none}',
+    '.sab-wrap.gm .sab-globals{margin-left:0}',
+    '.sab-wrap.gm #sab-menu{width:44px;height:44px}',
+    '.sab-wrap.gm #sab-res{order:5;flex:1 0 100%;height:42px;margin:0;justify-content:space-between;overflow:visible;' +
+      'border-top:1px solid var(--brass-faint)}',
+    '.sab-wrap.gm #sab-res::after{display:none}',
+    '.sab-wrap.gm #sab-res .sab-chip{height:40px;min-height:40px;gap:5px;padding:0 6px 0 2px;font-size:14.5px}',
+    '.sab-wrap.gm #sab-res .sab-chip small{display:inline;font-size:10.5px}',
+    '.sab-wrap.gm #sab-res .sab-chip small.cap{display:none}',
+    '.sab-wrap.gm .sab-ri{width:24px;height:24px}',
+    '.sab-wrap.gm .sab-more{top:calc(100% + 6px);left:8px;right:8px;width:auto;max-width:none;justify-content:flex-start}',
+    '.sab-wrap.gm .sab-more .sab-act,.sab-wrap.gm .sab-more .sab-speed{flex:1 1 calc(50% - 6px);min-height:46px;justify-content:center}',
+    /* Mithu: one line of advice, the whole width, and the rail under it */
+    '.sab-wrap.gm .sab-coach{order:1;position:relative;top:auto;right:auto;width:auto;margin:0 8px;padding:7px 8px 8px;' +
+      'display:flex;border-radius:14px}',
+    '.sab-wrap.gm .sab-coach::before{margin:0 2px 5px;font-size:9px}',
+    '.sab-wrap.gm .sab-advisebtn{min-height:40px;padding:6px 9px}',
+    '.sab-wrap.gm .sab-advisebtn span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px}',
+    '.sab-wrap.gm .sab-rail{order:2;position:relative;right:auto;bottom:auto;width:auto;margin:0 8px;gap:4px}',
+    '.sab-wrap.gm .sab-rail:empty{display:none}',
+    '.sab-wrap.gm .sab-railrow:nth-child(n+3){display:none}',
+    '.sab-wrap.gm .sab-railrow .sab-railgo{min-height:42px;padding:7px 10px;font-size:12.5px}',
+    '.sab-wrap.gm .sab-railrow .sab-railx{width:44px;min-height:42px}',
+    '.sab-wrap.gm .sab-strip{order:3;position:relative;top:auto;left:auto;transform:none;max-width:none;margin:0 8px;' +
+      'display:flex;justify-content:center}',
+    '.sab-wrap.gm .sab-feed{padding:7px 14px;font-size:12.5px;max-width:100%}',
+    /* the dock: the three books, the next thing, Agla Saal */
+    '.sab-wrap.gm .sab-tabs{position:fixed;left:4px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:8;gap:0}',
+    '.sab-wrap.gm .sab-tab{flex-direction:column;justify-content:center;gap:4px;width:62px;height:56px;padding:0;' +
+      'font:800 10.5px/1 var(--body)}',
+    '.sab-wrap.gm .sab-tab span{display:block}',
+    '.sab-wrap.gm #sab-turn{right:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);width:var(--tw);height:56px;' +
+      'border-radius:18px;box-shadow:0 0 0 3px rgba(38,24,17,.92),0 0 0 4px var(--brass-soft),0 10px 24px rgba(18,9,4,.45),' +
+      'inset 0 2px 0 rgba(255,255,255,.25),inset 0 -5px 10px rgba(0,0,0,.2)}',
+    '.sab-wrap.gm #sab-turn .lbl{font-size:17px;gap:3px}',
+    '.sab-wrap.gm #sab-turn .lbl em{padding:2px 7px;font-size:10px}',
+    '.sab-wrap.gm #sab-next{right:calc(var(--tw) + 16px);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);' +
+      'width:48px;height:48px;min-height:48px}',
+    '.sab-wrap.gm #sab-adv{right:auto;left:50%;transform:translateX(-50%);top:auto;' +
+      'bottom:calc(var(--dock) + 12px);width:auto;padding:0 20px;min-height:52px;z-index:9}',
+    /* zoom: a brass rail on the right edge, clear of the sheet and the thumb */
+    '.sab-wrap.gm .sab-zoom{right:8px;bottom:auto;top:50%;transform:translateY(-30%);flex-direction:column;border-radius:14px}',
+    '.sab-wrap.gm .sab-zoom .sab-btn{width:46px;min-height:46px;height:46px}',
+    '.sab-wrap.gm .sab-zoom .sab-btn+.sab-btn{border-left:0;border-top:1px solid var(--brass-faint)}',
+    /* the chosen place: a sheet over the bottom of the map, never pushing it */
+    '.sab-wrap.gm .sab-tray{left:0;right:0;bottom:var(--dock);max-width:none;flex-wrap:wrap;gap:8px;' +
+      'padding:14px 12px 12px;border:0;border-top:2px solid var(--brass);border-radius:20px 20px 0 0;' +
+      'box-shadow:0 -10px 30px rgba(18,9,4,.38);animation:sabsheet .22s ease-out}',
+    '@keyframes sabsheet{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}',
+    '.sab-wrap.gm .sab-tray .sab-who{flex:1 0 100%;min-width:0;max-width:none;padding:0 46px 2px 2px;margin:0;border:0}',
+    '.sab-wrap.gm .sab-tray .sab-who b{font-size:21px}',
+    '.sab-wrap.gm .sab-tray .sab-who span{font-size:12px}',
+    '.sab-wrap.gm .sab-tray .sab-act{flex:1 1 0;width:auto;min-width:68px;min-height:78px}',
+    '.sab-wrap.gm .sab-tray .sab-act.sq{flex:none;top:10px;right:10px;width:44px;min-width:0;height:44px;min-height:44px;' +
+      'display:grid;place-items:center;justify-content:center;align-content:center;padding:0;font-size:17px;line-height:1}',
+    /* the zoom rail stands aside while a place is chosen: on a short phone it would
+       sit on the sheet's own door and its way out */
+    '.sab-wrap.gm #sab-sheet:not([hidden])~#sab-stage .sab-zoom{display:none}',
+    /* THE DOOR */
+    '.sab-enter{display:none}',
+    '.sab-wrap.gm .sab-enter{display:flex;align-items:center;gap:12px;flex:1 0 100%;min-height:60px;padding:8px 14px 8px 10px;' +
+      'border-radius:16px;border:2px solid #ecc977;cursor:pointer;text-align:left;color:#fff;' +
+      'background:radial-gradient(circle at 30% 20%,#e0683f,#b8391f 60%,#8f2a15);' +
+      'box-shadow:0 6px 16px rgba(18,9,4,.35),inset 0 2px 0 rgba(255,255,255,.22)}',
+    '.sab-wrap.gm .sab-enter .sab-tico{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;' +
+      'background:rgba(255,255,255,.16);border:1.5px solid #ffe2a0;color:#fff}',
+    '.sab-wrap.gm .sab-enter .lbl{flex:1;display:flex;flex-direction:column;gap:3px;font:900 18px/1.1 var(--display,Georgia,serif)}',
+    '.sab-wrap.gm .sab-enter .lbl em{font:700 11.5px/1.2 var(--body);font-style:normal;color:#ffe2a0}',
+    '.sab-wrap.gm .sab-enter:active{transform:translateY(1px);filter:brightness(.96)}',
+    '.sab-wrap.gm .sab-enter:focus-visible{outline:3px solid #ffe2a0;outline-offset:2px}',
+    /* a book opens between the beam and the dock */
+    '.sab-wrap.gm #sab-cityhost:not(:empty){top:calc(92px + env(safe-area-inset-top,0px));bottom:var(--dock);padding:12px 12px 16px}',
+    '.sab-wrap.gm .sab-over{padding:12px 10px}',
+    /* small phones: the books keep their names; Agla Saal gives a little */
+    '@media (max-width:379px){.sab-wrap.gw.gm{--tw:122px}.sab-wrap.gm .sab-tab{width:56px;font-size:10px}' +
+      '.sab-wrap.gm #sab-next{width:44px;height:44px;min-height:44px}.sab-wrap.gm #sab-turn .lbl{font-size:16px}}',
+    '@media (max-width:339px){.sab-wrap.gm .sab-tab{width:46px}.sab-wrap.gm .sab-tab span{display:none}' +
+      '.sab-wrap.gm #sab-res .sab-chip small{display:none}}',
+    /* A TABLET HELD UPRIGHT gets the phone's arrangement with the phone's widths: a
+       sheet the width of the screen put Enter 700px from end to end. */
+    '@media (min-width:600px) and (orientation:portrait){' +
+      '.sab-wrap.gm .sab-tray{right:auto;left:8px;width:min(560px,calc(100% - 16px))}' +
+      '.sab-wrap.gm .sab-coach,.sab-wrap.gm .sab-rail{width:min(560px,calc(100% - 16px))}' +
+      '.sab-wrap.gm #sab-res{justify-content:flex-start;gap:28px}' +
+    '}',
+    /* A PHONE ON ITS SIDE has height to spare nowhere: the stores join the beam, Mithu
+       keeps one line, and the sheet becomes a strip. */
+    '@media (orientation:landscape) and (max-height:520px){' +
+      '.sab-wrap.gw.gm{--dock:calc(62px + env(safe-area-inset-bottom,0px))}' +
+      '.sab-wrap.gm .sab-bar{flex-wrap:nowrap;padding-left:max(6px,env(safe-area-inset-left,0px))}' +
+      '.sab-wrap.gm .sab-era{height:46px}' +
+      '.sab-wrap.gm #sab-res{order:0;flex:0 1 auto;height:46px;border-top:0;justify-content:flex-start}' +
+      '.sab-wrap.gm .sab-coach::before{display:none}' +
+      '.sab-wrap.gm .sab-coach{padding:4px 6px;max-width:560px}' +
+      '.sab-wrap.gm .sab-advisebtn span{-webkit-line-clamp:1}' +
+      '.sab-wrap.gm .sab-railrow:nth-child(n+2){display:none}' +
+      '.sab-wrap.gm .sab-tabs,.sab-wrap.gm #sab-turn{bottom:calc(env(safe-area-inset-bottom,0px) + 3px)}' +
+      '.sab-wrap.gm #sab-next{bottom:calc(env(safe-area-inset-bottom,0px) + 7px)}' +
+      '.sab-wrap.gm .sab-tray{flex-wrap:nowrap;overflow-x:auto;padding:10px 56px 10px 12px;align-items:stretch}' +
+      '.sab-wrap.gm .sab-tray .sab-who{flex:0 0 auto;max-width:170px;padding:0 10px 0 2px;border-right:1px solid var(--brass-faint)}' +
+      '.sab-wrap.gm .sab-enter{flex:0 0 auto;min-height:0;width:auto}' +
+      '.sab-wrap.gm .sab-enter .lbl{font-size:16px}' +
+      '.sab-wrap.gm .sab-tray .sab-act{flex:0 0 auto;width:84px;min-height:0}' +
+      '.sab-wrap.gm #sab-cityhost:not(:empty){top:calc(48px + env(safe-area-inset-top,0px))}' +
+    '}',
+
+    /* THE CITY, FOR A THUMB. Agla Saal used to sit top-left in a box under the way
+       out — on a phone, the one corner a right thumb cannot reach. On a narrow screen
+       the city now keeps the map's own arrangement: the way out and the name across
+       the top, zoom a rail on the right edge, Build bottom-left, and bottom-right the
+       stores with Agla Saal under them and Grow above — the verbs a turn is made of,
+       where the thumb already is. */
+    '@media (max-width:620px){' +
+      '.sab-scene.tight.iskit .sab-cityturn{left:auto;right:8px;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);' +
+        'width:auto;min-width:156px;padding:6px;gap:4px;border-radius:18px}' +
+      '.sab-scene.tight.iskit .sab-cityturn .sab-act{min-height:52px;font-size:16px;border-radius:14px}' +
+      '.sab-scene.tight.iskit .sab-cityturn .sab-act em{display:inline}' +
+      '.sab-scene.tight.iskit .sab-grow{right:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 118px);min-height:46px;font-size:12.5px}' +
+      '.sab-scene.tight.iskit .sab-dhandle{left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);min-height:52px;' +
+        'padding:0 16px 0 12px;font-size:14px;max-width:calc(100% - 190px)}' +
+      '.sab-scene.tight.iskit .sab-kitbar{top:50%;bottom:auto;right:8px;transform:translateY(-50%);flex-direction:column;' +
+        'flex-wrap:nowrap;gap:4px}' +
+      '.sab-scene.tight.iskit .sab-kitbar button,.sab-scene.tight.iskit .sab-kitbar .z{min-width:44px;min-height:44px}' +
+    '}',
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
       '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,.sab-trespot .glint,' +
       '.sab-smoke,.sab-cross,.sab-plot .pbell,.sab-yatri.walking img,.sab-stand,' +
       '.sab-greens polygon,.sab-raksha{animation:none}' +
-      '.sab-trespot .glint{opacity:.55}.sab-cam{transition:none}.sab-tray{animation:none}}'   /* still findable when nothing may move */
+      '.sab-trespot .glint{opacity:.55}.sab-cam{transition:none}.sab-tray,.sab-wrap.gm .sab-tray{animation:none}}'   /* still findable when nothing may move */
   ].join('\n');
 
   var cssIn = false;
@@ -3541,28 +3694,58 @@
        window then takes the stage's own shape at every zoom level, and what it FITS is
        not the stage but the clear ground between the columns — so at the opening view
        no panel lies on the country. */
-    var gw = false, GW_TOP = 66, GW_BOT = 24;
+    /* THE PHONE IS A GAME WINDOW TOO (CSS: "THE PHONE"). Below the landscape desktop the
+       game used to be a page: header, title card, a two-row HUD, and a map in what was
+       left. Selecting a city inserted its card ABOVE the map, the map dropped 260px, and
+       the second tap of the double tap landed on empty country — on a phone a city could
+       not be entered at all. Now every screen gets the whole window; `gm` is the phone's
+       arrangement of it, the HUD a column at the top and a dock at the bottom. */
+    var gw = false, gm = false, GW_TOP = 66, GW_BOT = 24;
     function gwSide() { return Math.round(Math.max(220, Math.min(310, (W.innerWidth || 1200) * 0.21))); }
     function gwSet() {
       var wrapEl = D.getElementById('sabwrap');
       if (!wrapEl) return;
       var iw = W.innerWidth || 0, ih = W.innerHeight || 1;
-      gw = !dead && iw >= 900 && iw / ih >= 1.15;
+      gw = !dead;
+      gm = gw && !(iw >= 900 && iw / ih >= 1.15);
       wrapEl.classList.toggle('gw', gw);
+      wrapEl.classList.toggle('gm', gm);
       D.body.classList.toggle('sab-mapfull', gw);
       var P = gwSide();
       wrapEl.style.setProperty('--gw-p', P + 'px');
       wrapEl.style.setProperty('--gw-w', (P - 20) + 'px');
     }
+    /* THE CLEAR GROUND: the part of the window no panel covers. On a wide screen it is
+       between the two columns and under the beam, fixed numbers. On a phone the top
+       column grows and shrinks with what Mithu is saying, and the chosen place's sheet
+       rises over the bottom of the map — so there it is measured, every time. */
+    function gwIns() {
+      if (!gm) { var P = gwSide(); return { l: P, r: P, t: GW_TOP, b: GW_BOT }; }
+      var st = D.getElementById('sab-stage');
+      if (!st) return { l: 10, r: 10, t: 150, b: 90 };
+      var sr = st.getBoundingClientRect(), top = sr.top, bot = sr.bottom;
+      var sd = D.querySelector('#sabwrap .sab-side');
+      if (sd) top = Math.max(top, sd.getBoundingClientRect().bottom);
+      ['#sab-turn', '#sab-tabs', '#sab-sheet'].forEach(function (q) {
+        var el = D.querySelector('#sabwrap ' + q);
+        if (!el || el.hidden) return;
+        var r = el.getBoundingClientRect();
+        if (r.height) bot = Math.min(bot, r.top);
+      });
+      return { l: 10, r: 10, t: Math.max(0, top - sr.top) + 8, b: Math.max(0, sr.bottom - bot) + 8 };
+    }
     function gwFit(b) {
       var st1 = D.getElementById('sab-stage');
       var Wd = st1 ? st1.clientWidth : 0, Ht = st1 ? st1.clientHeight : 0;
       if (!Wd || !Ht) return;
-      var P = gwSide(), aw = Math.max(160, Wd - 2 * P), ah = Math.max(160, Ht - GW_TOP - GW_BOT);
+      var I = gwIns(), aw = Math.max(160, Wd - I.l - I.r), ah = Math.max(160, Ht - I.t - I.b);
       var s = Math.min(aw / (b.x1 - b.x0), ah / (b.y1 - b.y0));
       VZ.w = Wd / s; VZ.h = Ht / s;
-      VZ.x = (b.x0 + b.x1) / 2 - (P + aw / 2) / s;
-      VZ.y = (b.y0 + b.y1) / 2 - (GW_TOP + ah / 2) / s;
+      VZ.x = (b.x0 + b.x1) / 2 - (I.l + aw / 2) / s;
+      VZ.y = (b.y0 + b.y1) / 2 - (I.t + ah / 2) / s;
+      /* said where a check can read it: the ground the map was fitted to */
+      var wr = D.getElementById('sabwrap');
+      if (wr) ['l', 'r', 't', 'b'].forEach(function (k) { wr.style.setProperty('--gw-' + k, Math.round(I[k]) + 'px'); });
     }
     function gwZoom(at) {
       if (zlevel === 2) { gwFit({ x0: 0, y0: 0, x1: 1000, y1: 1100 }); return; }
@@ -3638,8 +3821,8 @@
       clearTimeout(rsTm);
       rsTm = setTimeout(function () {
         if (dead) return;
-        var was = gw; gwSet();
-        if (was !== gw) zoomTo(zlevel); else { vzClamp(); vzApply(); }
+        var was = gw, wasM = gm; gwSet();
+        if (was !== gw || wasM !== gm) zoomTo(zlevel); else { vzClamp(); vzApply(); }
       }, 200);
     }
     W.addEventListener('resize', onResize);
@@ -3725,9 +3908,9 @@
         var stc = D.getElementById('sab-stage');
         var Wc = stc ? stc.clientWidth : 0, Hc = stc ? stc.clientHeight : 0;
         if (!Wc || !Hc) return;
-        var sc = Wc / VZ.w, Pc = gwSide();
+        var sc = Wc / VZ.w, Ic = gwIns();
         var bf = zlevel === 2 ? { x0: 0, y0: 0, x1: 1000, y1: 1100 } : revealedBox();
-        var sl = Pc / sc, sr = (Wc - Pc) / sc, stp = GW_TOP / sc, sbt = (Hc - GW_BOT) / sc;
+        var sl = Ic.l / sc, sr = (Wc - Ic.r) / sc, stp = Ic.t / sc, sbt = (Hc - Ic.b) / sc;
         if (sr - sl >= bf.x1 - bf.x0) VZ.x = (bf.x0 + bf.x1) / 2 - (sl + sr) / 2;
         else VZ.x = Math.max(bf.x0 - sl, Math.min(bf.x1 - sr, VZ.x));
         if (sbt - stp >= bf.y1 - bf.y0) VZ.y = (bf.y0 + bf.y1) / 2 - (stp + sbt) / 2;
@@ -3760,10 +3943,18 @@
        scrolls the page like everywhere else, and any number of fingers on
        the map can only pan it.
        ================================================================ */
+    /* A FINGER IS NOT A MOUSE. The drag used to be measured as the sum of every
+       wobble, so a thumb resting on a lamp for a quarter-second "dragged" 9px and the
+       tap was swallowed as a pan. It is the distance from where the finger landed now,
+       and a finger is allowed more tremor than a mouse. */
+    var lastPtr = 'mouse';
     function onPointerDown(e) {
+      lastPtr = e.pointerType || 'mouse';
       var stage = D.getElementById('sab-stage');
       if (!stage || !stage.contains(e.target)) return;
-      if (panning === null) panning = { id: e.pointerId, cx: e.clientX, cy: e.clientY, moved: 0 };
+      if (panning === null) panning = { id: e.pointerId, cx: e.clientX, cy: e.clientY,
+                                        sx: e.clientX, sy: e.clientY, moved: 0,
+                                        slop: lastPtr === 'mouse' ? 8 : 14 };
     }
     function onPointerMove(e) {
       if (!panning || e.pointerId !== panning.id) return;
@@ -3771,9 +3962,9 @@
       var r = svg.getBoundingClientRect();
       var dx = (e.clientX - panning.cx) / r.width * VZ.w;
       var dy = (e.clientY - panning.cy) / r.height * VZ.h;
-      panning.moved += Math.abs(e.clientX - panning.cx) + Math.abs(e.clientY - panning.cy);
+      panning.moved = Math.max(panning.moved, Math.abs(e.clientX - panning.sx) + Math.abs(e.clientY - panning.sy));
       panning.cx = e.clientX; panning.cy = e.clientY;
-      if (panning.moved > 8) {
+      if (panning.moved > panning.slop) {
         VZ.x -= dx; VZ.y -= dy; vzClamp(); vzApply();
         swallowClick = true;
       }
@@ -3828,7 +4019,7 @@
           '<span class="sab-gap"></span>' +
           /* THE THREE BOOKS, on the strip when there is room for them — Civ keeps its
              research and its civics one click away at the top, not under a menu */
-          '<div class="sab-tabs">' +
+          '<div class="sab-tabs" id="sab-tabs">' +
             '<button class="sab-tab" data-sab-act="tabtech" id="sab-tabtech" aria-pressed="false" aria-label="Vidya">' +
               ic('book', 18) + '<span>Vidya</span></button>' +
             '<button class="sab-tab" data-sab-act="world" aria-label="Sea roads">' + ic('anchor', 18) + '<span>Sea roads</span></button>' +
@@ -4365,11 +4556,21 @@
         b.push(tile('utsav', 'lamp', 'Utsav',
           G.utsav > 0 ? G.utsav + 's' : utsavCost().anna + ' \ud83c\udf3e + ' + utsavCost().kala + ' \ud83d\udee0\ufe0f',
           { disabled: G.utsav > 0 }));
-        /* No Enter-city button: the city itself is the button. Double-click
-           it, or press Enter with it selected. A tile that says "enter the
-           thing you just tapped" is a tile that should not exist. */
+        /* No Enter-city button ON A DESKTOP: the city itself is the button. Double-click
+           it, or press Enter with it selected. A tile that says "enter the thing you
+           just tapped" is a tile that should not exist — where there is a mouse.
+           ON A PHONE IT MUST EXIST. A double tap is invisible until somebody tells you,
+           and a city a child cannot find the door to is a game with no inside. So the
+           phone's sheet leads with the door, the full width of the thumb. */
         var waiting = cityJobsWaiting(sel).length;
-        if (waiting || inDispute(sel))
+        if (gm)
+          b.splice(1, 0, '<button class="sab-enter" data-sab-act="city">' +
+            '<span class="sab-tico">' + ic('temple', 20) + '</span>' +
+            '<span class="lbl">Enter ' + esc(nameOf(byId[sel])) +
+              (waiting ? '<em>' + waiting + (waiting === 1 ? ' thing waits' : ' things wait') + ' inside</em>'
+                       : inDispute(sel) ? '<em>a quarrel waits inside</em>' : '') + '</span>' +
+            ic('next', 20) + '</button>');
+        else if (waiting || inDispute(sel))
           b.push(tile('city', 'temple', waiting ? 'A scroll waits' : 'A quarrel',
             'open ' + esc(nameOf(byId[sel])),
             { go: true, badge: waiting || '\u26a1', hot: inDispute(sel) }));
@@ -6344,6 +6545,65 @@
       while (el && el !== host) { if (el.getAttribute && el.getAttribute('data-sab')) return el.getAttribute('data-sab'); el = el.parentNode; }
       return null;
     }
+    /* where a place is on the glass, through the svg's own transform */
+    function siteScreen(s) {
+      var svg = D.querySelector('#sab-stage svg');
+      if (!svg || !svg.getScreenCTM || !svg.createSVGPoint) return null;
+      var m = svg.getScreenCTM(); if (!m) return null;
+      var pt = svg.createSVGPoint(); pt.x = s.x; pt.y = s.y;
+      return pt.matrixTransform(m);
+    }
+    /* A LAMP IS A FINGER WIDE, NOT A PIXEL WIDE. A town drawn 30px across on a phone
+       is a target a thumb misses as often as it hits, and a miss on the map clears the
+       choice. A tap that lands on no place takes the nearest one within a fingertip —
+       the same 44px every other touch target in the family is held to. */
+    var TAP_R = 30;
+    function nearSite(e) {
+      if (!e || typeof e.clientX !== 'number') return null;
+      var stage = D.getElementById('sab-stage');
+      if (!stage || !stage.contains(e.target) || actAt(e.target)) return null;
+      var best = null, bd = TAP_R * TAP_R;
+      SITES.forEach(function (s) {
+        if (!onMap(s)) return;
+        var p = siteScreen(s); if (!p) return;
+        var dx = p.x - e.clientX, dy = p.y - e.clientY, d2 = dx * dx + dy * dy;
+        if (d2 <= bd) { bd = d2; best = s.id; }
+      });
+      return best;
+    }
+    /* THE CHOSEN PLACE STAYS IN SIGHT. On a phone its sheet rises over the bottom of
+       the map, so a town near the bottom would be chosen and then hidden by its own
+       card. After the double-tap window (moving sooner would pull the second tap off
+       the town) the map glides it into the clear ground. */
+    var revealTm = null;
+    function revealSel(id) {
+      clearTimeout(revealTm);
+      revealTm = setTimeout(function () {
+        if (dead || city || sel !== id || !byId[id]) return;
+        var st = D.getElementById('sab-stage'), p = siteScreen(byId[id]);
+        if (!st || !p) return;
+        var sr = st.getBoundingClientRect(), I = gwIns(), pad = 28;
+        var x0 = sr.left + I.l + pad, x1 = sr.right - I.r - pad, y0 = sr.top + I.t + pad, y1 = sr.bottom - I.b - pad;
+        if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1) return;
+        var sc = st.clientWidth / VZ.w;
+        var dx = (p.x < x0 || p.x > x1) ? (p.x - (x0 + x1) / 2) / sc : 0;
+        var dy = (p.y < y0 || p.y > y1) ? (p.y - (y0 + y1) / 2) / sc : 0;
+        var from = { x: VZ.x, y: VZ.y };
+        VZ.x += dx; VZ.y += dy; vzClamp();
+        var to = { x: VZ.x, y: VZ.y };
+        if (REDUCED || !W.requestAnimationFrame) { vzApply(); return; }
+        VZ.x = from.x; VZ.y = from.y;
+        var t0 = 0;
+        var step = function (ts) {
+          if (dead) return;
+          if (!t0) t0 = ts;
+          var k = Math.min(1, (ts - t0) / 260), e2 = 1 - Math.pow(1 - k, 3);
+          VZ.x = from.x + (to.x - from.x) * e2; VZ.y = from.y + (to.y - from.y) * e2; vzApply();
+          if (k < 1) W.requestAnimationFrame(step);
+        };
+        W.requestAnimationFrame(step);
+      }, 480);
+    }
     function onMouseDown(e) {
       var id = siteAt(e.target);
       if (id) {
@@ -7056,7 +7316,7 @@
         }
         return;
       }
-      var id = siteAt(e.target);
+      var id = siteAt(e.target) || nearSite(e);
       if (id) {
         if (G.ev && id === G.ev.id) return helpEvent();
         if (targeting) return tryRoute(id);
@@ -7072,12 +7332,17 @@
         var again = lastTap.id === id && now - lastTap.t < 450;
         lastTap = { id: id, t: now };
         var qd = G.sites[id];
+        /* ON A PHONE, A TAP ON THE PLACE YOU HAVE ALREADY CHOSEN GOES IN — at any
+           pace. A double tap is a gesture you have to be told about; "tap it, then tap
+           it again" is the one every phone already taught. */
+        if (!again && lastPtr !== 'mouse' && sel === id && qd && !qd.zzz && !overlay) again = true;
         if (again && qd && !qd.zzz && qd.fade < 0) {
           lastTap = { id: null, t: 0 };
           sel = id; kbd = id; act('city');
           return;
         }
         sel = id; kbd = id; paintAll();
+        if (gm) revealSel(id);
         return;
       }
       if (targeting) { targeting = false; say('Road put away.', ''); paintSheet(); }

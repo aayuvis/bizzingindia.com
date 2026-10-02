@@ -279,7 +279,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .pill:hover { border-color: var(--accent); color: var(--accent); }
 .pill.on { background: var(--accent); color: #fff; border-color: transparent; }
-.pill.stat { cursor: default; background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.pill.stat { cursor: default; background: var(--accent-soft); border-color: transparent; color: var(--accent-ink, var(--accent)); }
 .pill.stat:hover { color: var(--accent); }
 
 .iconbtn {
@@ -333,12 +333,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
    So the head is a rule and a line, and what used to be the second paragraph moves to
    .pfoot at the bottom of the page, where a grown-up who wants it will go looking. The
    content starts in the first screenful. */
-.phead { padding: 0 0 12px; margin: 0 0 16px; border-bottom: 2px solid var(--text); }
+/* the masthead sits on PAPER: on the world's backdrop its line of text fell to ~2:1 (L5) */
+.phead { padding: 14px 18px 12px; margin: 0 0 16px; border-bottom: 2px solid var(--text);
+  background: var(--card); border-radius: 16px 16px 4px 4px; box-shadow: var(--shadow); }
 .phead h1 { font-size: clamp(25px, 3.6vw, 36px); margin: 0 0 3px; line-height: 1.06; }
 .phead .mono { display: block; margin: 0 0 7px; }
 .phead p { margin: 0; color: var(--text2); font-size: 14.5px; line-height: 1.55; max-width: 64ch; }
 .phead .row { margin-top: 10px; }
-@media (max-width: 560px) { .phead { padding-bottom: 9px; margin-bottom: 12px; } }
+@media (max-width: 560px) { .phead { padding-top: 8px; padding-bottom: 9px; margin-bottom: 12px; } }
 
 /* the house rules, the pitch, the small print — kept, moved to the foot */
 .pfoot { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
@@ -391,6 +393,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tmtick { position: absolute; top: 62px; transform: translateX(-50%); font: 700 10px/1 var(--mono, monospace);
   letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .tmtick:last-of-type { transform: translateX(-100%); }
+/* the ends are anchored inward, or "3300 BCE" is cut off the left edge of a phone */
+.tmtick.tm-l { transform: none; }
+.tmtick.tm-r { transform: translateX(-100%); }
 .tm-zone { fill: transparent; cursor: pointer; }
 .tm-zone:focus-visible { outline: none; stroke: var(--accent); stroke-width: 3; stroke-dasharray: 2 8; }
 .tstop { flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
@@ -896,8 +901,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .bdbody b { font: 800 22px/1.15 var(--display); color: #fff;
   text-shadow: 0 1px 10px rgba(10,5,26,.6); }
 .mdoor .bdbody b { font-size: 16px; }
-.bdbody .mono, .bdbody .tiny { color: rgba(255,255,255,.9); }
-.bdbody .tiny { text-shadow: 0 1px 8px rgba(10,5,26,.65); }
+.bdbody .mono, .bdbody .tiny { color: rgba(255,255,255,.95); }
+.bdbody .tiny, .bdbody .mono { text-shadow: 0 1px 3px rgba(10,5,26,.85), 0 1px 8px rgba(10,5,26,.65); }
 .bdbody .btn { align-self: flex-start; margin-top: 8px; pointer-events: none; }
 
 /* the randomiser's wall: twelve paintings from twelve different shelves, laid
@@ -1148,7 +1153,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   color: rgba(255,255,255,.72); }
 .bh-tally b { display: block; font: 800 20px/1.1 var(--display); color: #fff;
   letter-spacing: 0; text-transform: none; margin-bottom: 2px; }
-.bh-credit { font: 700 10.5px/1.4 var(--body); color: var(--muted); margin: 0 0 16px; text-align: right; }
+.bh-credit { font: 700 10.5px/1.4 var(--body); color: var(--text2); margin: 0 0 16px; text-align: right; }
 
 /* THE NEXT LESSON — the one thing on this page a child should find without looking */
 .bh-next { display: flex; align-items: center; gap: 16px; width: 100%; text-align: left;
@@ -1250,7 +1255,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .bh-step.done .bh-disc { background: var(--accent); border-color: var(--accent); color: #fff; }
 .bh-step.started .bh-disc { border-color: var(--accent); color: var(--accent); }
 .bh-step.next .bh-disc { width: 48px; height: 48px; margin-left: -4px; background: var(--accent2);
-  border-color: var(--accent2); color: #fff; font-size: 18px;
+  border-color: var(--accent2); color: #1d1406; font-size: 18px;
   box-shadow: 0 0 0 5px var(--card), 0 0 0 8px var(--accent2); }
 .bh-lwords { font-size: 19px; line-height: 1.7; color: var(--text2); }
 .bh-step.next .bh-lwords { color: var(--text); font-weight: 600; }
@@ -2404,8 +2409,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .avlocked .avlockart { opacity: .3; filter: grayscale(1); }
 .avlocked h3 { font-size: 19px; }
 /* a price on a world tile reads as a price, not as a status badge */
-.badge.price { background: var(--accent-soft); color: var(--accent); font-weight: 800; }
-.tile.locked { opacity: .82; }
+.badge.price { background: var(--accent-soft); color: var(--accent-ink, var(--accent)); font-weight: 800; }
+/* locked looks locked in its PICTURE; its words stay readable (FIX-INDIA L5) */
 .tile.locked .wpreview { filter: saturate(.35); }
 
 /* ------------------------------------------------------- the world's emblem
@@ -2464,10 +2469,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
    art and the name both stay: a nameless silhouette is a mystery box, and this
    app does not sell mystery boxes. The price sits where the rarity label sits on
    a card you own, so the two never fight for the same corner. */
-.avchip.unmet { opacity: .5; filter: grayscale(1); border-style: dashed; }
-.avchip.unmet:hover, .avchip.unmet:focus-visible { opacity: .85; filter: grayscale(.35); }
+/* dimmed in the art only: the name and the price stay at full contrast (FIX-INDIA L5) */
+.avchip.unmet { border-style: dashed; }
+.avchip.unmet img, .avchip.unmet svg { opacity: .5; filter: grayscale(1); }
+.avchip.unmet:hover img, .avchip.unmet:focus-visible img,
+.avchip.unmet:hover svg, .avchip.unmet:focus-visible svg { opacity: .85; filter: grayscale(.35); }
 .avchip.unmet .rarlabel {
-  background: var(--accent-soft); color: var(--accent); font-weight: 800;
+  background: var(--accent-soft); color: var(--accent-ink, var(--accent)); font-weight: 800;
 }
 
 /* ------------------------------------------------- the closing practice set
@@ -2519,7 +2527,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @keyframes ghlamp{0%,100%{opacity:.5}50%{opacity:1}}
 .gh-body{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;gap:5px;
   padding:52px 18px 16px;background:linear-gradient(180deg,transparent,rgba(18,12,36,.80) 62%)}
-.gh-kicker{font:800 10.5px/1 var(--body,system-ui);letter-spacing:.14em;text-transform:uppercase;color:#ffd76e}
+.gh-kicker{font:800 10.5px/1 var(--body,system-ui);letter-spacing:.14em;text-transform:uppercase;color:#ffd76e;text-shadow:0 1px 3px rgba(0,0,0,.75)}
 .ghero b{font:800 clamp(23px,4.5vw,31px)/1.08 var(--display,Georgia,serif)}
 .gh-blurb{font:600 12.5px/1.45 var(--body,system-ui);opacity:.93;max-width:540px}
 .gh-cta{display:inline-flex;align-items:center;gap:7px;margin-top:7px;width:max-content;
@@ -2870,3 +2878,47 @@ body.drilling .hivebtn { visibility: hidden; }
 .aajsum li svg { flex: none; margin-top: 3px; color: var(--accent); }
 .aajbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px;
   padding: 8px 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-pill); box-shadow: var(--shadow); }
+
+/* the report card: Time · Progress · Mastery, the family's three measures (docs/27) */
+.reportgrid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.1fr) minmax(0, 1.4fr); gap: var(--space-lg); align-items: start; }
+.reportgrid > .card { margin: 0; }
+.reportgrid h3 { margin: 4px 0 8px; }
+.rc-big { font-family: var(--display); font-size: 40px; line-height: 1; margin: 4px 0 8px; }
+.rc-big small { font-size: 15px; color: var(--text2); font-family: var(--body, inherit); }
+.rc-row { display: flex; justify-content: space-between; gap: 10px; font-size: 14.5px; margin: 8px 0 4px; }
+.rc-row b { white-space: nowrap; }
+.rc-mastery .reportlist li { display: flex; flex-direction: column; gap: 1px; margin-bottom: 8px; }
+@media (max-width: 900px) { .reportgrid { grid-template-columns: minmax(0, 1fr); } }
+
+/* MAP LABELS ON A PHONE (FIX-INDIA L4): the map is scaled to ~45%, so a 13px label rendered
+   at 6px. Only states with room keep a label there, set large enough to read (~11px). */
+@media (max-width: 560px) {
+  .mapsvg .tlab { display: none; }
+  .mapsvg .tlab.big { display: inline; font-size: 25px; stroke-width: 6; }
+}
+
+/* ------------------------------------------------------------- CONTRAST (L5)
+   Night turns the accent light, so white text on it fell to 2:1 — every filled button,
+   the active tab and a chosen pill. On a light accent the text goes dark. */
+:root[data-mode="night"] .btn:not(.ghost), :root[data-mode="night"] .navtab.active,
+:root[data-mode="night"] .pill.on, :root[data-mode="night"] .gf-ic,
+:root[data-mode="night"] .aajsteps li.ok .as-ic, :root[data-mode="night"] .bh-step.done .bh-disc,
+:root[data-mode="night"] .pill.sample, :root[data-mode="night"] .pa-stgo, :root[data-mode="night"] .gh-cta { color: var(--ground); }
+/* white words on a painting carry a halo as well as the scrim */
+.bh-kick:not(.dark) { text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+.cc-body .mono { color: var(--accent-ink, var(--accent)); }
+
+/* a section's heading and note, on paper rather than on the backdrop (FIX-INDIA L5) */
+.shelfhead { width: fit-content; max-width: 100%; margin: 26px 0 12px; padding: 8px 16px 9px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.shelfhead h3 { margin: 0 0 2px; }
+.shelfhead p { margin: 0; color: var(--text2); }
+.bh-credit { width: fit-content; margin-left: auto; padding: 2px 10px; border-radius: 999px; background: var(--card); }
+
+/* a screen whose part of the corpus is still arriving (loader.js; docs/27) */
+.loadcard { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 40px 20px; text-align: center; }
+.ldots { display: inline-flex; gap: 6px; margin-bottom: 6px; }
+.ldots i { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); animation: ldot 1s ease-in-out infinite; }
+.ldots i:nth-child(2) { animation-delay: .15s; } .ldots i:nth-child(3) { animation-delay: .3s; }
+@keyframes ldot { 0%, 100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .ldots i { animation: none; opacity: .7; } }

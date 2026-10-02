@@ -1350,8 +1350,10 @@ check('board-fills', 'the board uses the room it is given, at every width', asyn
       const wrap = document.getElementById('sabwrap');
       const gwMode = wrap && wrap.classList.contains('gw');
       if (gwMode) {
-        const P = parseFloat(getComputedStyle(wrap).getPropertyValue('--gw-p')) || 0;
-        b = { left: b.left + P, top: b.top + 66, width: b.width - 2 * P, height: b.height - 66 - 24 };
+        /* the ground the fit says it used — on a phone the HUD is a top column and a
+           dock rather than two side columns, and it is measured, so it is read back */
+        const v = k => parseFloat(wrap.style.getPropertyValue('--gw-' + k)) || 0;
+        b = { left: b.left + v('l'), top: b.top + v('t'), width: b.width - v('l') - v('r'), height: b.height - v('t') - v('b') };
       }
       let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
       svg.querySelectorAll('path.sab-terr').forEach(el => {
@@ -1660,6 +1662,217 @@ check('feedback', 'a turn says which number moved, and stills under reduced moti
     throw new Error('reduced motion hid the delta entirely — the fact should survive, only the travel goes');
 });
 
+/* ---------------------------------------------------------------- the phone */
+/* "I was not able to click and enter the city." On a phone the game was a page: the
+   first tap selected Dholavira and inserted its card ABOVE the map, the map dropped
+   260px, and the second tap of the double tap landed on empty country. Nothing caught
+   it because every check here clicked with a mouse at 1440px, and a synthetic event
+   does not care where the map has gone. These drive a phone: a touch screen, a real
+   viewport, taps at coordinates, and a finger that is never exactly on target. */
+async function bootPhone(browser, port, w, h) {
+  const ctx = await browser.newContext({ viewport: { width: w || 390, height: h || 844 },
+    deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  const p = await ctx.newPage();
+  const errs = [];
+  p.on('pageerror', e => errs.push('pageerror: ' + e.message));
+  await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
+  await skipOnboarding(p);
+  await p.waitForTimeout(400);
+  await p.evaluate(() => { location.hash = '#/game/sabhyata'; });
+  await p.waitForFunction(() => typeof window.__SABG === 'function', null, { timeout: 20000 });
+  await p.waitForTimeout(700);
+  const ov = await p.$('#sab-ovhost .sab-btn');
+  if (ov) { await ov.tap(); await p.waitForTimeout(400); }
+  return { ctx, p, errs };
+}
+const townAt = (p, id) => p.evaluate(id => {
+  const s = (window.IND_SABHYATA.sites || []).filter(x => x.id === id)[0];
+  const svg = document.querySelector('#sab-stage svg');
+  const pt = svg.createSVGPoint(); pt.x = s.x; pt.y = s.y;
+  const q = pt.matrixTransform(svg.getScreenCTM());
+  return { x: q.x, y: q.y };
+}, id);
+
+check('phone-window', 'on a phone the map is the whole window, and every control is a thumb wide', async ({ browser, port }) => {
+  const bad = [];
+  for (const [w, h] of [[390, 844], [360, 740], [320, 568]]) {
+    const { ctx, p, errs } = await bootPhone(browser, port, w, h);
+    const r = await p.evaluate(() => {
+      const wrap = document.getElementById('sabwrap');
+      const st = document.getElementById('sab-stage').getBoundingClientRect();
+      const inWin = el => { if (!el) return false; const q = el.getBoundingClientRect();
+        return q.width > 0 && q.left >= -1 && q.top >= -1 && q.right <= innerWidth + 1 && q.bottom <= innerHeight + 1; };
+      const small = [];
+      ['.sab-exit', '#sab-menu', '#sab-turn', '#sab-next', '.sab-tab', '.sab-zoom .sab-btn'].forEach(sel =>
+        document.querySelectorAll(sel).forEach(el => { const q = el.getBoundingClientRect();
+          if (q.width && Math.min(q.width, q.height) < 44) small.push(sel + ' ' + Math.round(q.width) + 'x' + Math.round(q.height)); }));
+      return { gm: !!wrap && wrap.classList.contains('gm'),
+               cover: (st.width * st.height) / (innerWidth * innerHeight),
+               turn: inWin(document.getElementById('sab-turn')), beam: inWin(document.querySelector('.sab-bar')),
+               tabs: inWin(document.getElementById('sab-tabs')),
+               over: document.documentElement.scrollWidth - innerWidth, small };
+    });
+    if (!r.gm) bad.push(`${w}x${h}: not the phone's game window`);
+    if (r.cover < 0.98) bad.push(`${w}x${h}: the map is ${Math.round(r.cover * 100)}% of the window`);
+    if (!r.turn || !r.beam || !r.tabs) bad.push(`${w}x${h}: Agla Saal ${r.turn}, the beam ${r.beam}, the books ${r.tabs} — not all on the window`);
+    if (r.over > 0) bad.push(`${w}x${h}: the page scrolls sideways by ${r.over}px`);
+    if (r.small.length) bad.push(`${w}x${h}: under a thumb's 44px — ${r.small.slice(0, 4).join(', ')}`);
+    if (errs.length) bad.push(errs[0]);
+    await ctx.close();
+  }
+  if (bad.length) throw new Error(bad.join('; '));
+});
+
+check('phone-enter', 'on a phone a city is entered by tapping it, and the map holds still for the second tap', async ({ browser, port }) => {
+  const { ctx, p, errs } = await bootPhone(browser, port);
+  try {
+    /* 1. a finger lands a little off the town: it still chooses the town. Tapped as raw
+       touch events, not touchscreen.tap — Chromium's mobile emulation nudges a tap onto
+       the nearest target by itself, and Safari does not, so the game must. The point is
+       checked to lie OUTSIDE the town's own target first, or this proves nothing. */
+    const c0 = await townAt(p, 'dholavira');
+    const off = await p.evaluate(({ x, y }) => {
+      const el = document.elementFromPoint(x, y);
+      if (el && el.closest && el.closest('[data-sab]')) return 'inside';
+      const st = document.getElementById('sab-stage');
+      const fire = (t, C) => (el || st).dispatchEvent(new C(t, { bubbles: true, cancelable: true, pointerId: 9,
+        pointerType: 'touch', isPrimary: true, clientX: x, clientY: y }));
+      fire('pointerdown', PointerEvent); fire('pointerup', PointerEvent); fire('click', MouseEvent);
+      return 'outside';
+    }, { x: c0.x + 16, y: c0.y + 15 });
+    if (off === 'inside') throw new Error('the off-centre point is inside the town\'s own target — this proves nothing');
+    await p.waitForTimeout(250);
+    const one = await p.evaluate(() => {
+      const sh = document.getElementById('sab-sheet');
+      return { city: window.__SAB().city, sheet: sh && !sh.hidden ? sh.innerText : '' };
+    });
+    if (one.city) throw new Error('one tap went straight in');
+    if (!/Dholavira/.test(one.sheet)) throw new Error('a tap a fingertip off the town did not choose it');
+    /* 2. THE BUG: choosing it must not move the map out from under the finger */
+    const c1 = await townAt(p, 'dholavira');
+    const moved = Math.hypot(c1.x - c0.x, c1.y - c0.y);
+    if (moved > 2) throw new Error(`choosing the town moved it ${Math.round(moved)}px — the second tap lands on empty country`);
+    /* 3. the second tap, at a child's pace rather than a double-click's, goes in */
+    await p.waitForTimeout(700);
+    await p.touchscreen.tap(c1.x, c1.y);
+    await p.waitForTimeout(900);
+    if ((await p.evaluate(() => window.__SAB().city)) !== 'dholavira')
+      throw new Error('tapping the chosen town again did not go in');
+    /* 4. and the door is a button too, the full width of the sheet */
+    await p.evaluate(() => { const l = document.querySelector('[data-sab-act="leave"]'); if (l) l.click(); });
+    await p.waitForTimeout(700);
+    await p.evaluate(() => { window.__SABDO.act('dholavira', 'close'); });
+    const c2 = await townAt(p, 'dholavira');
+    await p.touchscreen.tap(c2.x, c2.y);
+    await p.waitForTimeout(400);
+    const door = await p.evaluate(() => { const b = document.querySelector('#sab-sheet .sab-enter');
+      if (!b) return null; const q = b.getBoundingClientRect(); return { x: q.x + q.width / 2, y: q.y + q.height / 2, w: q.width, h: q.height, t: b.innerText }; });
+    if (!door) throw new Error('the phone\'s sheet has no door into the city');
+    if (door.h < 52 || door.w < 240) throw new Error(`the door is ${Math.round(door.w)}x${Math.round(door.h)} — not the obvious thing`);
+    await p.touchscreen.tap(door.x, door.y);
+    await p.waitForTimeout(900);
+    if ((await p.evaluate(() => window.__SAB().city)) !== 'dholavira') throw new Error('the door did not open the city');
+    if (errs.length) throw new Error(errs[0]);
+  } finally { await ctx.close(); }
+});
+
+check('phone-thumb', 'a thumb\'s tremor is a tap, and a chosen town is never hidden by its own sheet', async ({ browser, port }) => {
+  const { ctx, p } = await bootPhone(browser, port);
+  try {
+    /* 1. a finger that rests and wobbles 11px is tapping, not panning */
+    const c = await townAt(p, 'dholavira');
+    const sel = await p.evaluate(({ x, y }) => {
+      const st = document.getElementById('sab-stage');
+      const at = (t, x2, y2) => { const el = document.elementFromPoint(x2, y2) || st;
+        el.dispatchEvent(new PointerEvent(t, { bubbles: true, cancelable: true, pointerId: 7, pointerType: 'touch', isPrimary: true, clientX: x2, clientY: y2 })); return el; };
+      at('pointerdown', x, y);
+      for (let i = 1; i <= 4; i++) at('pointermove', x + (i % 2 ? 4 : -3), y + (i % 2 ? 3 : -4));
+      at('pointermove', x + 6, y + 5);
+      const el = at('pointerup', x + 6, y + 5);
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: x + 6, clientY: y + 5 }));
+      const sh = document.getElementById('sab-sheet');
+      return sh && !sh.hidden ? sh.innerText : '';
+    }, c);
+    if (!/Dholavira/.test(sel)) throw new Error('a resting, wobbling thumb was read as a drag and the tap was swallowed');
+    /* 2. the four Harappan towns awake and region-framed: the realm reaches from the
+       Ghaggar to the Gulf, so Lothal is fitted at the bottom of the clear ground — exactly
+       where the sheet rises */
+    const id = await p.evaluate(() => {
+      const G = window.__SABG();
+      ['lothal', 'rakhigarhi', 'kalibangan'].forEach(k => { G.sites[k].found = true; G.sites[k].zzz = false; });
+      window.__SABDO.act('dholavira', 'close'); window.__SABDO.zoom(1); window.__SABDO.paint();
+      return 'lothal';
+    });
+    await p.waitForTimeout(300);
+    const t0 = await townAt(p, id);
+    await p.touchscreen.tap(t0.x, t0.y);
+    /* first make sure this proves something: the sheet really did rise over the town */
+    await p.waitForTimeout(150);
+    const pre = await p.evaluate(() => document.getElementById('sab-sheet').getBoundingClientRect().top);
+    if (!(t0.y > pre - 12)) throw new Error(`${id} was never under the sheet (y ${Math.round(t0.y)}, sheet ${Math.round(pre)}) — this proves nothing`);
+    await p.waitForTimeout(950);
+    const r = await p.evaluate(id => {
+      const sh = document.getElementById('sab-sheet').getBoundingClientRect();
+      return { chosen: document.getElementById('sab-sheet').innerText.indexOf(window.IND_SABHYATA.sites.filter(x => x.id === id)[0].name) >= 0,
+               sheetTop: sh.top };
+    }, id);
+    const t1 = await townAt(p, id);
+    if (!r.chosen) throw new Error(`tapping ${id} did not choose it`);
+    if (t1.y > r.sheetTop - 12) throw new Error(`${id} sits at y=${Math.round(t1.y)}, under its own sheet (top ${Math.round(r.sheetTop)})`);
+  } finally { await ctx.close(); }
+});
+
+check('phone-city', 'inside a city on a phone, Agla Saal is under the right thumb and nothing sits on anything', async ({ browser, port }) => {
+  const bad = [];
+  for (const [w, h] of [[390, 844], [320, 568]]) {
+    const { ctx, p } = await bootPhone(browser, port, w, h);
+    await p.evaluate(() => window.__SABDO.act('dholavira', 'city'));
+    await p.waitForTimeout(1200);
+    const r = await p.evaluate(() => {
+      const box = sel => { const el = document.querySelector(sel); if (!el) return null; const q = el.getBoundingClientRect();
+        return q.width ? { l: q.left, t: q.top, r: q.right, b: q.bottom, w: q.width, h: q.height } : null; };
+      const turn = box('.sab-cityturn .sab-act'), parts = { strip: box('.sab-cityturn'), grow: box('.sab-grow'),
+        build: box('.sab-dhandle'), zoom: box('.sab-kitbar'), leave: box('.sab-leave'), name: box('.sab-nameplate') };
+      const hit = [];
+      const keys = Object.keys(parts).filter(k => parts[k]);
+      keys.forEach((a, i) => keys.slice(i + 1).forEach(b => { const A = parts[a], B = parts[b];
+        if (Math.min(A.r, B.r) - Math.max(A.l, B.l) > 2 && Math.min(A.b, B.b) - Math.max(A.t, B.t) > 2) hit.push(a + '/' + b); }));
+      return { inCity: !!window.__SAB().city, turn, hit };
+    });
+    if (!r.inCity) { bad.push(`${w}x${h}: the city did not open`); await ctx.close(); continue; }
+    if (!r.turn) bad.push(`${w}x${h}: no Agla Saal in the city`);
+    else {
+      if ((r.turn.l + r.turn.r) / 2 < w * 0.5 || (r.turn.t + r.turn.b) / 2 < h * 0.7)
+        bad.push(`${w}x${h}: Agla Saal is at ${Math.round(r.turn.l)},${Math.round(r.turn.t)} — out of the right thumb's reach`);
+      if (r.turn.h < 48) bad.push(`${w}x${h}: Agla Saal is ${Math.round(r.turn.h)}px tall`);
+    }
+    if (r.hit.length) bad.push(`${w}x${h}: overlapping — ${r.hit.join(', ')}`);
+    await ctx.close();
+  }
+  if (bad.length) throw new Error(bad.join('; '));
+});
+
+check('phone-side', 'a phone on its side still plays: the map, the turn and the door all on the window', async ({ browser, port }) => {
+  const { ctx, p } = await bootPhone(browser, port, 844, 390);
+  try {
+    const c = await townAt(p, 'dholavira');
+    await p.touchscreen.tap(c.x, c.y);
+    await p.waitForTimeout(400);
+    const r = await p.evaluate(() => {
+      const inWin = el => { if (!el) return false; const q = el.getBoundingClientRect();
+        return q.width > 0 && q.left >= -1 && q.top >= -1 && q.right <= innerWidth + 1 && q.bottom <= innerHeight + 1; };
+      const sh = document.getElementById('sab-sheet').getBoundingClientRect();
+      return { gm: document.getElementById('sabwrap').classList.contains('gm'),
+               turn: inWin(document.getElementById('sab-turn')), door: inWin(document.querySelector('.sab-enter')),
+               sheetShare: sh.height / innerHeight };
+    });
+    if (!r.gm) throw new Error('on its side the phone lost its game window');
+    if (!r.turn) throw new Error('Agla Saal is off the window');
+    if (!r.door) throw new Error('the door into the city is off the window');
+    if (r.sheetShare > 0.45) throw new Error(`the chosen place's sheet is ${Math.round(r.sheetShare * 100)}% of the screen's height`);
+  } finally { await ctx.close(); }
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;
@@ -1671,6 +1884,7 @@ async function main() {
   for (const c of CHECKS) {
     if (only && c.id !== only) continue;
     const ctx = await boot(browser, port);
+    ctx.browser = browser; ctx.port = port;
     try {
       await c.fn(ctx);
       console.log(`  ok   ${c.id.padEnd(10)} ${c.what}`);

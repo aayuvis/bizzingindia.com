@@ -418,7 +418,60 @@ the same rule as Bizzing-Videos' `rig.ladderSpan`, arrived at independently.
 
 57 checks, 0 failed, layout audit green.
 
-## 10. Phase 2 and beyond (not in this build)
+## 10. The phone (v8) — the same window, arranged for a thumb
+
+*"Sabhyata does not work well on mobile — I was not able to click and enter the city."*
+
+**Why it failed.** Below the landscape desktop the game was still a page: the app's header,
+a title card, a two-row HUD, and the map in whatever was left (about 40% of a phone). The
+city is entered with a double tap, and the first tap selects it — which inserted the city's
+card *above* the map. The map dropped 260px, and the second tap landed on empty country. On
+top of that the town was a ~30px target, and a resting thumb's wobble was summed into a
+"drag" that swallowed the tap. Every check clicked with a mouse at 1440px; a synthetic
+event does not care where the map has gone.
+
+**What it is now.** Every screen is the game window. On a phone (`gm`) the same teak and
+brass are arranged for a thumb:
+
+- **Top:** the way out, the age and the turn, the menu; under it the four stores; then
+  Mithu's one line and anything live. One column, *measured* — the map is fitted below it.
+- **Middle:** India, edge to edge. Zoom is a brass rail on the right edge.
+- **Bottom:** the dock — the three books on the left, Agla Saal on the right, where a right
+  thumb rests. A chosen place's **sheet rises over the map and never pushes it**.
+- **The door.** On a phone the sheet leads with *Enter Dholavira*, full width. (The desktop
+  keeps its rule that the city itself is the button — where there is a mouse.)
+- **Taps forgive.** A tap that lands on no town takes the nearest within 30px; tapping the
+  town you have already chosen goes in, at any pace; a thumb may wobble 14px (net, not
+  summed) before it counts as a drag. The double tap still works.
+- **The chosen town stays in sight.** If its own sheet would cover it, the map glides it
+  into the clear ground — after the double-tap window, so the second tap still lands.
+- **Inside the city** the same arrangement: the way out and the name on top, zoom on the
+  right edge, Build bottom-left, and bottom-right the stores with Agla Saal under them and
+  Grow above.
+- A phone on its side keeps one line of everything and a strip for a sheet. A portrait
+  tablet gets the phone's arrangement at the phone's widths.
+
+**What holds it** — five checks that drive a touch-emulated phone with taps at
+coordinates:
+
+| check | holds |
+|---|---|
+| `phone-window` | at 390, 360 and 320 wide: the map is the window, the beam, books and Agla Saal are on it, nothing scrolls sideways, every control ≥ 44px |
+| `phone-enter` | a tap a fingertip off the town chooses it; choosing it moves the town ≤ 2px; a slow second tap goes in; the door is ≥ 240×52 and opens the city |
+| `phone-thumb` | a resting, wobbling thumb is a tap; a town under its own sheet is brought above it |
+| `phone-city` | inside, Agla Saal is in the bottom-right thumb zone and ≥ 48px tall, and no control sits on another |
+| `phone-side` | on its side: the window, the turn and the door on screen; the sheet ≤ 45% of the height |
+
+Each was watched to fail by breaking what it holds — the old page layout on a phone; choosing a
+town refitting the map (it moved 112px); the fingertip snap removed; tap-again removed; the door
+removed; the wobble summed again; the reveal removed; the city's Agla Saal back top-left; the
+landscape arrangement removed (the sheet took 61% of the height). Two of them passed vacuously
+the first time and were made to prove something: Chromium's mobile emulation nudges a tap onto
+the nearest target by itself (Safari does not), so the snap is tested with raw touch events at
+a point checked to lie outside the town's own target; and the reveal test now checks that the
+town really was under the sheet before asserting that it no longer is.
+
+## 11. Phase 2 and beyond (not in this build)
 
 Narrated site cards in the app's own voice; more eras (Vijayanagara, the takeoff era
 bridging to Itihaas); a "visit the story" link from a woken site into the story library;

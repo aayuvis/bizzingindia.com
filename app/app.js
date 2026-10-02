@@ -7336,7 +7336,8 @@
        interrupted by a refresh. */
     var updateOffered = false;
     function checkUpdate() {
-      if (updateOffered || !window.fetch) return;
+      /* opened from a file there is no server to have a newer build, and asking is an error */
+      if (updateOffered || !window.fetch || location.protocol === 'file:') return;
       fetch('build.js?live=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text(); })
         .then(function (t) {
           var m = t.match(/IND_BUILD\s*=\s*'([^']+)'/);

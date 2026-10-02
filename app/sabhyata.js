@@ -3353,12 +3353,15 @@
       if (G.ev) return '<b>' + esc(byId[G.ev.id].name) + '</b> asks for grain — tap it (or press H) to help.';
       var dust = SITES.filter(function (x) { return inEra(x) && dusty(x.id); })[0];
       if (dust) return '<b>' + esc(dust.name) + '</b> is dusty and earning half — visit it, grow it, or build there.';
-      var hero1 = SITES.filter(function (x) { var q2 = G.sites[x.id]; return inEra(x) && q2.hero && !q2.hero.used && !q2.hero.gone; })[0];
+      /* "enter the city" only ever names a city that can be entered: a sleeping one cannot */
+      var hero1 = SITES.filter(function (x) { var q2 = G.sites[x.id]; return inEra(x) && awake(x.id) && q2.hero && !q2.hero.used && !q2.hero.gone; })[0];
       if (hero1) return 'A great one waits in <b>' + esc(hero1.name) + '</b> — enter the city and ask for the deed.';
-      var qid = Object.keys(G.quests)[0];
+      var qid = Object.keys(G.quests).filter(function (id) { return awake(id); })[0];
       if (qid) return 'A scroll waits at <b>' + esc(byId[qid].name) + '</b> — enter the city and take the quest.';
       var hid2 = hiddenSites();
-      if (hid2.length && !G.explorers.length)
+      /* an explorer leaves from an awake city — never send a child to do it from a sleeping one */
+      if (hid2.length && !G.explorers.length &&
+          SITES.some(function (x) { return inEra(x) && awake(x.id) && !isHer(x.id); }))
         return 'Somewhere out in the mist lies <b>' + (hid2.length === 1 ? 'one more place' : 'more of India') +
           '</b> — select a city and send an explorer (' + T.exploreCost + ' \ud83c\udf3e).';
       if (G.explorers.length) return 'Your explorer is out walking the mist — the fog opens where the lamp goes.';

@@ -7852,20 +7852,30 @@
   /* THE AVATAR ▾ MENU (standard §3; FIX-INDIA C3): every child in the household, each with
      their own face, one tap to switch — switching reloads, so nothing is ever mixed — and
      "Add a child", which is a grown-up's job and goes through the PIN. */
+  /* THE FAMILY'S MENU (owner, 3 Oct 2026, from Bee's): the children first, each a big row
+     with their own face and a tick on the one playing; then a rule; then three plain lines —
+     My page (avatar, badges, collection), Settings, and Add a child, which says it is for
+     grown-ups because it goes through the PIN. No heading, no icons on the lines: it is a
+     list a child reads in one look. The face is the top bar's own, so the two never differ. */
+  function faceOf(buddy, size) {
+    var A = (window.IND_AVATAR_BY_ID || {})[buddy];
+    return A ? '<img src="' + esc(A.art) + '" width="' + size + '" height="' + size + '" alt="" decoding="async">' : art(buddy, size);
+  }
+  var TICK = '<svg class="km-tick" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" ' +
+    'stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   function kidMenuHTML() {
     var kids = Store.kids();
     return '<div class="km-in" role="menu" aria-label="Who is playing">' +
-      '<div class="mono km-h">Who is playing</div>' +
       kids.map(function (k) {
-        return '<button class="km-row' + (k.active ? ' on' : '') + '" role="menuitemradio" aria-checked="' + k.active +
-          '" data-act="switchkid" data-id="' + esc(k.id) + '">' + art(k.buddy, 40) +
-          '<span>' + esc(k.name || 'Not set up yet') + '</span>' + (k.active ? '<i>playing</i>' : '<i>switch</i>') + '</button>';
+        return '<button class="km-kid' + (k.active ? ' on' : '') + '" role="menuitemradio" aria-checked="' + k.active +
+          '" data-act="switchkid" data-id="' + esc(k.id) + '"' + (k.active ? '' : ' aria-label="Switch to ' + esc(k.name || 'this child') + '"') + '>' +
+          '<span class="km-face">' + faceOf(k.buddy, 56) + '</span>' +
+          '<b>' + esc(k.name || 'Not set up yet') + '</b>' + (k.active ? TICK : '') + '</button>';
       }).join('') +
-      '<button class="km-row" role="menuitem" data-act="addkid">' + icon('people', 20) +
-        '<span>Add a child</span><i>grown-ups</i></button>' +
       '<hr>' +
-      '<button class="km-row" role="menuitem" data-act="go" data-v="me">' + icon('star', 18) + '<span>My page</span></button>' +
-      '<button class="km-row" role="menuitem" data-act="go" data-v="collection">' + icon('cards', 18) + '<span>Collection</span></button>' +
+      '<button class="km-row" role="menuitem" data-act="go" data-v="me"><span>My page — avatar, badges, collection</span></button>' +
+      '<button class="km-row" role="menuitem" data-act="go" data-v="settings"><span>Settings</span></button>' +
+      '<button class="km-row" role="menuitem" data-act="addkid"><span>+ Add a child</span><i>grown-ups</i></button>' +
       '</div>';
   }
   function openKidMenu() {
@@ -7874,7 +7884,7 @@
     m.addEventListener('click', function (e) { if (e.target === m) closeKidMenu(); });
     document.body.appendChild(m);
     var b = $('[data-bz=kid]'); if (b) b.setAttribute('aria-expanded', 'true');
-    var f = m.querySelector('.km-row.on') || m.querySelector('.km-row'); if (f) f.focus();
+    var f = m.querySelector('.km-kid.on') || m.querySelector('.km-kid,.km-row'); if (f) f.focus();
   }
   function closeKidMenu() {
     var m = $('#kidmenu'); if (m) m.remove();

@@ -69,6 +69,7 @@ lit, and the way into Bhasha's own progress page. It reports learning, never min
 |---|---|---|
 | `back` | Back from inside the app stays inside; a linked screen opens and Back stays in | `go()` without `route()` |
 | `deadends` | every screen in `HUB_OF`, opened on nothing, is its shelf; on a thing not there, the peacock and a door that is not Home; every `render()` case that reads its arg has a shelf | the redirect removed and *Pack not found.* put back (14 dead ends) |
+| `price` | the family plan's price ($59 / ₹1,999 a year) is on the grown-ups' page, from `IND_ENT.plan()`; no screen a child can reach shows a ₹ or $ amount | the price taken off the grown-ups' card; *($59 a year)* put in the worlds' lock line (Shop, Settings) |
 | `continue` | `#/continue` resolves to a real next step | `continueTarget()` returning home |
 | `pin` | nothing that changes the child is on the child's page; the PIN opens, a wrong one does not, leaving locks it | *Start again* put back on the Me page |
 | `tester` | no developer unlock outside tester mode; `S.dev` switched off at boot | `tester()` always true |

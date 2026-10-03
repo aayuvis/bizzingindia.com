@@ -12,6 +12,8 @@
                backups and the report card are behind a PIN the screen calls a deterrent,
                and leaving the grown-ups' page locks it again
      tester    the developer unlock does not exist outside tester mode (?tester=1)
+     price     the family plan's price ($59 / ₹1,999 a year) is on the grown-ups' page only;
+               no child's screen shows real money
      sources   every Dharma object carries sources[], and the faith page shows them
      report    the grown-ups' page shows the Paathshala report — objectives, never minutes
 
@@ -190,6 +192,30 @@ check('tester', 'the developer unlock exists only in tester mode', async ({ p, b
   await p.waitForTimeout(300);
   if (!await look()) throw new Error('tester mode did not show the developer unlock');
   await p.goto(base + '?tester=0', { waitUntil: 'networkidle' }); await p.waitForTimeout(300);
+});
+
+/* THE PRICE IS FOR GROWN-UPS (owner, 3 Oct 2026: $59 a year, ₹1,999 in India). It is said on
+   the grown-ups' page, behind the PIN, from the one place it is kept (IND_ENT.plan()) — and no
+   screen a child can reach shows real money at all, not a ₹ or a $ next to a number. */
+check('price', 'the family plan\'s price is on the grown-ups\' page, from IND_ENT.plan(); no child\'s screen shows real money', async ({ p }) => {
+  const MONEY = /[₹$]\s?\d/;
+  const bad = [];
+  for (const [v, a] of [['home'], ['me'], ['shop', 'avatars'], ['shop', 'worlds'], ['shop', 'extras'], ['worlds'], ['collection'], ['settings'], ['help'], ['privacy'], ['play'], ['feed'], ['map'], ['paath']]) {
+    await p.evaluate(([v, a]) => window.BI.go(v, a), [v, a]); await p.waitForTimeout(250);
+    const t = await p.evaluate(() => document.body.innerText);
+    const m = t.match(MONEY); if (m) bad.push(`#/${v}${a ? '/' + a : ''} shows "${t.slice(Math.max(0, m.index - 20), m.index + 12).replace(/\s+/g, ' ')}"`);
+  }
+  if (bad.length) throw new Error('real money on a child\'s screen: ' + bad.join(' · '));
+  await p.evaluate(() => { window.BI.S.pin = null; });
+  await p.evaluate(() => window.BI.go('grown')); await p.waitForTimeout(300);
+  for (const d of '13571357') { await p.keyboard.press(d); await p.waitForTimeout(50); }
+  await p.waitForTimeout(300);
+  const g = await p.evaluate(() => { const c = document.querySelector('[data-plan]'), P = window.IND_ENT && window.IND_ENT.plan && window.IND_ENT.plan();
+    return { text: c ? c.innerText : '', P }; });
+  if (!g.P) throw new Error('IND_ENT.plan() is missing — the price has no one place');
+  const y = '₹' + Number(g.P.INR.year).toLocaleString('en-IN'), u = '$' + g.P.USD.year;
+  if (g.text.indexOf(y) < 0 || g.text.indexOf(u) < 0) throw new Error(`the grown-ups' page does not say ${y} and ${u}: "${g.text.slice(0, 120)}"`);
+  if (g.P.INR.year !== 1999 || g.P.USD.year !== 59) throw new Error('the price is not the owner\'s ($59 / ₹1,999)');
 });
 
 check('sources', 'every Dharma object carries sources, and its page shows them', async ({ p }) => {

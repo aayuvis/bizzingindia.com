@@ -6433,7 +6433,7 @@
               right = '<span class="tiny" style="font-weight:700">On this device ✓</span>' +
                 '<button class="pill" data-act="dlrm" data-id="' + esc(id) + '">Remove</button>';
             } else if (!open) {
-              right = '<button class="pill" data-act="dl" data-id="' + esc(id) + '">🔒 Needs the Pass</button>';
+              right = '<button class="pill" data-act="dl" data-id="' + esc(id) + '">' + icon('lock', 14) + ' With the family plan</button>';
             } else {
               right = (st.have ? '<span class="tiny mono">' + st.have + ' of ' + st.total + '</span>' : '') +
                 '<button class="pill" data-act="dl" data-id="' + esc(id) + '">' +
@@ -6453,10 +6453,15 @@
     /* No codes and no payment form (family standard §15, §21). The family plan arrives with
        the family server that every Bizzing app shares; until then a grown-up in tester mode
        can switch it on to walk the product, and nobody else can. */
-    var on = ent.hasPass();
+    var on = ent.hasPass(), P = ent.plan ? ent.plan() : null;
+    var inr = function (n) { return '₹' + Number(n).toLocaleString('en-IN'); };
     return '<p class="tiny muted" style="margin:6px 0 0">Reading, playing and streaming are free. ' +
-      'The family plan opens the offline packs above and every world. It comes with the family ' +
-      'account, which is still being built — there is nothing to buy or type in yet.</p>' +
+      'The family plan opens the offline packs above and every world, for up to ' + (P ? P.kids : 4) + ' children.</p>' +
+      (P ? '<div class="plancard" data-plan="1"><b>' + esc(P.name) + '</b>' +
+           '<span>In India <b>' + inr(P.INR.year) + ' a year</b> or ' + inr(P.INR.month) + ' a month</span>' +
+           '<span>Everywhere else <b>$' + P.USD.year + ' a year</b> or $' + P.USD.month + ' a month</span></div>' +
+           '<p class="tiny muted" style="margin:6px 0 0">Buying it opens with the family account, which is not built yet — ' +
+           'until then nothing here takes money, and nothing a child can reach ever will.</p>' : '') +
       (on ? '<p class="tiny" style="margin:6px 0 0"><b>' + esc(ent.planName() || 'The family plan') +
             '</b> is on for this device (tester mode).</p>' : '') +
       (tester()
@@ -9334,8 +9339,8 @@
     if (a === 'dl') {
       var did = t.getAttribute('data-id');
       if (window.IND_ENT && !window.IND_ENT.canDownload(did)) {
-        toast('That pack opens with the family plan, which comes with the family account — still being built.');
-        var pc = $('#passcode'); if (pc) pc.focus();
+        toast('That pack opens with the family plan — its price is just below. Buying it opens with the family account.');
+        var pcd = $('[data-plan]'); if (pcd && pcd.scrollIntoView) pcd.scrollIntoView({ block: 'center', behavior: 'smooth' });
         return;
       }
       if (!window.IND_DL) return;

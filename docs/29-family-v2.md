@@ -97,7 +97,8 @@ and each one was watched to fail by breaking the thing it holds.
 - **G2 / G4** — Ludo, Kancha, Gutte and Carrom still teach nothing. The standard says such a
   game is cut, and the brief suggested tying them to questions; both change what the owner
   kept. Not done without the owner.
-- **Real money, plans and accounts** — not in this work by the brief; the family plan is a
+- **Real money, plans and accounts** — the price is decided ($59 / ₹1,999 a year, docs/06) and
+  shown to grown-ups; where it is bought and verified is the owner's open decision. The family plan is a
   tester switch until the family server exists.
 - **The shared wallet's daily lid** still counts the one-time `migrated` line (docs/28). The
   copy here is byte-identical, so the fix belongs in Bizzing_Schedule.

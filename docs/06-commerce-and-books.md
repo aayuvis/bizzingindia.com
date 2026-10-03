@@ -46,6 +46,14 @@ free tier feels like a demo, loop 1 dies and so does the business.
 | **Diaspora** — US, CA, UK, AU, AE, SG | **$7.99** | **$59** · *includes one printed book, shipped* |
 | **India** | **₹299** | **₹1,999** |
 
+> **Decided (owner, 3 Oct 2026): India's family plan is $59 a year ($7.99 a month), ₹1,999 a
+> year in India (₹299 a month), up to four children.** It is kept in one place in the app
+> (`IND_ENT.plan()` in `app/entitlements.js`) and said only on the grown-ups' page, behind the
+> PIN; no screen a child can reach shows real money (`check-trust price`). There is no checkout
+> yet and the app does not promise the printed book: where the payment and the entitlement live
+> (the shared family server, or India's own) is still the owner's call, and until it exists the
+> plan is a tester switch and nothing takes money.
+
 **Bizzing Family Pass** — Bizzing India + Bizzing Bee: **$99/year** (India: ₹2,999). One
 account, one parent dashboard, all children.
 

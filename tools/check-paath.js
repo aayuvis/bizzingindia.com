@@ -230,7 +230,7 @@ async function boot(browser, port) {
   await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
   await skipOnboarding(p);
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
+  await p.waitForSelector('[data-bz=tab][data-v="paath"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(600);
   return { p, errs };
 }
@@ -391,7 +391,7 @@ check('dayrule', 'a check taken the same day is practice, not learning', async (
      remembering it a week later is learning, and only the second belongs in a report a
      parent reads. So mastery is written only when the check happens on a LATER DAY than
      the teaching. This check drives both halves through the real engine. */
-  await p.evaluate(() => document.querySelector('.pa-card[data-id="neeti-course"]').click());
+  await p.waitForSelector('.pa-card[data-id="neeti-course"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-card[data-id="neeti-course"]').click());
   await p.waitForTimeout(400);
   /* teach today, check today */
   await p.evaluate(() => {
@@ -399,7 +399,7 @@ check('dayrule', 'a check taken the same day is practice, not learning', async (
     ls[0].click();
   });
   await p.waitForTimeout(400);
-  await p.evaluate(() => document.querySelector('.pl-x').click());   /* back to the map */
+  await p.waitForSelector('.pl-x', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pl-x').click());   /* back to the map */
   await p.waitForTimeout(400);
   await p.evaluate(() => {
     const ls = document.querySelectorAll('#pa-part-n1 .pa-stop[data-pa="lesson"]');
@@ -409,7 +409,7 @@ check('dayrule', 'a check taken the same day is practice, not learning', async (
   const warned = await p.evaluate(() =>
     /will not count/.test((document.querySelector('.pa-warn') || {}).textContent || ''));
   if (!warned) throw new Error('a same-day check does not warn that it will not count');
-  await p.evaluate(() => document.querySelector('[data-pa="pass"]').click());
+  await p.waitForSelector('[data-pa="pass"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-pa="pass"]').click());
   await p.waitForTimeout(500);
   const sameDay = await p.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('bi_v1') || '{}');
@@ -428,16 +428,16 @@ check('dayrule', 'a check taken the same day is practice, not learning', async (
     location.reload();
   });
   await p.waitForTimeout(1600);
-  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
+  await p.waitForSelector('[data-bz=tab][data-v="paath"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('.pa-card[data-id="neeti-course"]').click());
+  await p.waitForSelector('.pa-card[data-id="neeti-course"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-card[data-id="neeti-course"]').click());
   await p.waitForTimeout(400);
   await p.evaluate(() => {
     const ls = document.querySelectorAll('#pa-part-n1 .pa-stop[data-pa="lesson"]');
     ls[ls.length - 1].click();
   });
   await p.waitForTimeout(400);
-  await p.evaluate(() => document.querySelector('[data-pa="pass"]').click());
+  await p.waitForSelector('[data-pa="pass"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-pa="pass"]').click());
   await p.waitForTimeout(500);
   const later = await p.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('bi_v1') || '{}');
@@ -453,9 +453,9 @@ check('pack', 'a course leaves the screen', async ({ p, C }) => {
      question to ask at dinner and something to do at home for each part, and every
      project brief with room to write on. It is generated from the course itself, so it
      cannot disagree with what is on the screen. */
-  await p.evaluate(() => document.querySelector('.pa-card[data-id="gita-course"]').click());
+  await p.waitForSelector('.pa-card[data-id="gita-course"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-card[data-id="gita-course"]').click());
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('[data-pa="pack"]').click());
+  await p.waitForSelector('[data-pa="pack"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-pa="pack"]').click());
   await p.waitForTimeout(700);
   const gita = C.P.courses.find(c => c.id === 'gita-course');
   const r = await p.evaluate(() => ({
@@ -496,9 +496,9 @@ check('script', 'every verse is set in its own script', async ({ p }) => {
      up in three traditions is the lesson, so the pack must carry three scripts and not one.
      The lang attribute is derived from the verse's collection, and the app's :lang() rules
      do the rest. */
-  await p.evaluate(() => document.querySelector('.pa-card[data-id="gita-course"]').click());
+  await p.waitForSelector('.pa-card[data-id="gita-course"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-card[data-id="gita-course"]').click());
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('[data-pa="pack"]').click());
+  await p.waitForSelector('[data-pa="pack"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-pa="pack"]').click());
   await p.waitForTimeout(700);
   const bad = await p.evaluate(() => {
     const SH = window.IND_SHLOK;
@@ -526,6 +526,10 @@ check('script', 'every verse is set in its own script', async ({ p }) => {
 check('report', 'the grown-up is told objectives, never minutes', async ({ p }) => {
   /* docs/05 and the sibling app's rule: if it is not in the mastery record it does not go
      in a report. A report that counts minutes rewards leaving the app open. */
+  /* open Paathshala first and wait for its data: this check used to lean on an earlier one
+     having opened it, and failed by that one's timing rather than its own */
+  await p.waitForSelector('[data-bz=tab][data-v="paath"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
+  await p.waitForFunction(() => { try { return !!window.IND_PAATH_UI && Array.isArray(window.IND_PAATH_UI.report()); } catch (e) { return false; } }, null, { timeout: 30000 });
   const r = await p.evaluate(() => {
     const rep = window.IND_PAATH_UI.report();
     return { rows: rep, keys: rep.length ? Object.keys(rep[0]) : [] };
@@ -541,7 +545,7 @@ check('keyboard', 'every control is reachable and pressable without a mouse', as
   /* Inherited from Bizzing Bee and non-negotiable: keyboard AND touch. Real <button>
      elements give both for free, which is why they are used throughout — this makes sure
      nobody has replaced one with a clickable div. */
-  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
+  await p.waitForSelector('[data-bz=tab][data-v="paath"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(400);
   const r = await p.evaluate(() => {
     const ctl = [...document.querySelectorAll('[data-pa]')];
@@ -736,7 +740,7 @@ check('gate', 'the project does not open before the test is passed', async ({ p 
   /* "I made it" used to be tappable on a course nobody had opened — a self-certification
      standing in for both the test and the project. Making the thing is how you keep what
      you learned; it is not a way round showing that you learned it. */
-  await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
+  await p.waitForSelector('.pa-card[data-id="hindi-zero"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
   await p.waitForTimeout(600);
   const shut = await p.evaluate(() => ({
     stages: document.querySelectorAll('.pa-act.open .pa-stop').length,
@@ -761,9 +765,9 @@ check('gate', 'the project does not open before the test is passed', async ({ p 
   });
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(700);
-  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
+  await p.waitForSelector('[data-bz=tab][data-v="paath"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
+  await p.waitForSelector('.pa-card[data-id="hindi-zero"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
   await p.waitForTimeout(700);
   const open = await p.evaluate(() => ({
     made: document.querySelectorAll('[data-pa="made"]').length,
@@ -788,9 +792,9 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   });
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(700);
-  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
+  await p.waitForSelector('[data-bz=tab][data-v="paath"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
+  await p.waitForSelector('.pa-card[data-id="hindi-zero"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-card[data-id="hindi-zero"]').click());
   await p.waitForTimeout(600);
 
   const before = await p.evaluate(() => {
@@ -799,12 +803,12 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   });
 
   /* the one the app CANNOT mark — a name only the child knows */
-  await p.evaluate(() => document.querySelector('[data-pa="karya"][data-p="h1p"]').click());
+  await p.waitForSelector('[data-pa="karya"][data-p="h1p"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-pa="karya"][data-p="h1p"]').click());
   await p.waitForTimeout(600);
   for (const ch of ['आ', 'य', 'ु', 'ष'])
     await p.evaluate(c => document.querySelector(`.kykey[data-c="${c}"]`).click(), ch);
   await p.waitForTimeout(200);
-  await p.evaluate(() => document.querySelector('[data-ka="checkown"]').click());
+  await p.waitForSelector('[data-ka="checkown"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-ka="checkown"]').click());
   await p.waitForTimeout(500);
   const own = await p.evaluate(() => {
     const S = JSON.parse(localStorage.getItem('bi_v1'));
@@ -821,17 +825,17 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
     throw new Error('a project wrote to the mastery record — ledger() is meant to be the only door');
 
   /* and the one it CAN mark */
-  await p.evaluate(() => document.querySelector('.backlink').click());
+  await p.waitForSelector('.backlink', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.backlink').click());
   await p.waitForTimeout(500);
   /* part 3 is not the open one — a child reaches it from its pin on the board */
-  await p.evaluate(() => document.querySelector('.pa-pin[data-m="h3"]').click());
+  await p.waitForSelector('.pa-pin[data-m="h3"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-pin[data-m="h3"]').click());
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('[data-pa="karya"][data-p="h3p"]').click());
+  await p.waitForSelector('[data-pa="karya"][data-p="h3p"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-pa="karya"][data-p="h3p"]').click());
   await p.waitForTimeout(600);
   for (const ch of ['द', 'ू', 'ध'])
     await p.evaluate(c => document.querySelector(`.kykey[data-c="${c}"]`).click(), ch);
   await p.waitForTimeout(200);
-  await p.evaluate(() => document.querySelector('[data-ka="check"]').click());
+  await p.waitForSelector('[data-ka="check"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-ka="check"]').click());
   await p.waitForTimeout(500);
   const known = await p.evaluate(() => {
     const S = JSON.parse(localStorage.getItem('bi_v1'));
@@ -858,9 +862,9 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   });
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(600);
-  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
+  await p.waitForSelector('[data-bz=tab][data-v="paath"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('.pa-card[data-id="rishtey-course"]').click());
+  await p.waitForSelector('.pa-card[data-id="rishtey-course"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-card[data-id="rishtey-course"]').click());
   await p.waitForTimeout(600);
   const pill = await p.evaluate(() => {
     const d = document.querySelector('[data-pa="karya"][data-p="r1p"]');
@@ -869,7 +873,7 @@ check('honest', 'the app never claims to have marked what it cannot mark', async
   });
   if (/kept|marked/.test(pill))
     throw new Error(`a half-finished board is labelled "${pill}" on the course page`);
-  await p.evaluate(() => document.querySelector('[data-pa="karya"][data-p="r1p"]').click());
+  await p.waitForSelector('[data-pa="karya"][data-p="r1p"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-pa="karya"][data-p="r1p"]').click());
   await p.waitForTimeout(600);
   const line = await p.evaluate(() => [...document.querySelectorAll('.pa-note')]
     .map(n => n.textContent).join(' | '));
@@ -903,7 +907,7 @@ check('atlas', 'every course is a map you walk', async ({ p, C }) => {
   });
   await p.reload({ waitUntil: 'networkidle' });
   await p.waitForTimeout(600);
-  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
+  await p.waitForSelector('[data-bz=tab][data-v="paath"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(400);
   for (const c of C.P.courses) {
     const back = await p.$('.backlink[data-pa="hub"]');
@@ -976,9 +980,9 @@ check('pictures', 'every part has its own picture, or its own words — never a 
 check('touch', 'a phone can hit everything', async ({ p }) => {
   await p.setViewportSize({ width: 390, height: 844 });
   await p.waitForTimeout(400);
-  await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
+  await p.waitForSelector('[data-bz=tab][data-v="paath"]', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('[data-bz=tab][data-v="paath"]').click());
   await p.waitForTimeout(500);
-  await p.evaluate(() => document.querySelector('.pa-card').click());
+  await p.waitForSelector('.pa-card', { state: 'attached', timeout: 30000 }); await p.evaluate(() => document.querySelector('.pa-card').click());
   await p.waitForTimeout(500);
   const r = await p.evaluate(() => {
     const small = [];

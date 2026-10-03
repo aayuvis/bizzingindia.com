@@ -30,6 +30,9 @@
    Run:  node tools/check-feed.js            # all of them
          node tools/check-feed.js --only mix
 */
+const FEED_COUNTER = /\b\d[\d,.]*\s*k?\s*(likes?|views?|followers?|hearts?)\b|\b(streaks?|days in a row)\b|\b(likes|views|followers)\s*[:·]\s*\d/i;
+for (const [t, want] of [['so still it looked like a floor', false], ['the wolves like him', false], ['12 likes', true], ['1.2k views', true], ['3 followers', true], ['a 5-day streak', true], ['Likes: 4', true], ['7 days in a row', true]])
+  if (FEED_COUNTER.test(t) !== want) throw new Error('check-feed: the counter pattern misreads "' + t + '"');
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -233,7 +236,9 @@ check('screen', 'the page head, about twenty cards, the finished card; no counts
     if (r.n < 12 || r.n > 20) throw new Error(r.n + ' cards — a session is about twenty');
     if (!r.end || !r.last) throw new Error('the feed does not end with the finished card');
     if (r.why !== r.n || r.badge !== r.n) throw new Error('a card has no reason or no badge');
-    if (/\b(likes?|followers?|views|streak|days in a row)\b/i.test(r.text)) throw new Error('the feed counts likes, views or streaks');
+    /* a COUNTER ("12 likes", "1.2k views", "3 followers") or streak talk — not the word "like" in a story
+       ("so still it looked like a floor"), which the first version of this check mistook for one */
+    if (FEED_COUNTER.test(r.text)) throw new Error('the feed counts likes, views or streaks');
     if (r.sfx || r.music) throw new Error('the feed made a sound before any tap: ' + JSON.stringify([r.sfx, r.music]));
     if (vp.width < 400 && r.wide > 0) throw new Error(`the feed is ${r.wide}px wider than the phone`);
     if (vp.width > 900 && r.maxw > 561) throw new Error('a card is ' + r.maxw + 'px wide, not 560');

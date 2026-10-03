@@ -1268,8 +1268,10 @@
   ];
 
   /* ================================================================ MY FEED (docs/30)
-     A feed a child can finish. app/feed.js ranks the 1,000 cards tools/build-feed.js cut from
-     the corpus, on this device, from what this child has done; this draws today's session —
+     A feed a child can finish. The family's engine (family/bizzing-feed.js, through app/feed.js,
+     which only adapts India's signals to it) ranks the cards tools/build-feed.js cut from the
+     corpus, on this device, from what this child has done and the rank they hold — most of a
+     session at their own rank, a little review, a peek at the next; this draws today's session —
      about twenty cards and then a finished card — and the one question a card may ask.
      What it keeps (S.feed, on the child's own profile, through the Store seam): which cards
      were shown on which day, today's session, and which questions have paid. Nothing else,
@@ -1293,7 +1295,7 @@
   }
   function feedChild() {
     var tg = tongue();
-    return { band: window.IND_FEED.bandOf(S.age), read: S.read || {}, readN: Object.keys(S.read || {}).length, lit: S.lit || {},
+    return { band: window.IND_FEED.bandOf(S.age), level: level(), read: S.read || {}, readN: Object.keys(S.read || {}).length, lit: S.lit || {},
       rungs: feedRungs(), langs: Object.keys(S.lang || {}).filter(function (k) { return (S.lang[k] || {}).asked > 0; }),
       tongue: tg ? tg.pack : null, world: S.world, recent: S.recent || [], lang: S.lang || {}, seen: feedState().seen };
   }
@@ -1308,13 +1310,15 @@
   /* today's session: kept for the day, re-ranked when the child has done something new */
   function feedSession() {
     var F = feedState(), day = Math.floor(Date.now() / 864e5), ch = feedChild();
-    var sig = JSON.stringify([ch.band, ch.readN, Object.keys(ch.lit).length, (S.recent || [])[0] && S.recent[0].at,
+    /* the build is in the signature too: a session kept from an older feed names groups and
+       cards that may no longer exist, so a new build draws a fresh one */
+    var sig = JSON.stringify([window.IND_FEED_INDEX.v, window.IND_FEED_INDEX.rows.length, ch.band, ch.level, ch.readN, Object.keys(ch.lit).length, (S.recent || [])[0] && S.recent[0].at,
       ch.rungs, ch.tongue, S.world, window.IND_FEED.slippedOf(ch.lang, Date.now()).length]);
     if (F.day === day && F.sig === sig && F.ids && F.ids.length) return F.ids;
     var items = window.IND_FEED.decode(window.IND_FEED_INDEX);
-    var list = window.IND_FEED.feedFor(ch, { now: Date.now(), items: items, names: feedNames() });
+    var list = window.IND_FEED.feedFor(ch, { now: Date.now(), items: items, names: feedNames(), ranks: RANKS });
     F.day = day; F.sig = sig;
-    F.ids = list.map(function (x) { return { id: x.id, g: x.g, why: x.why }; });
+    F.ids = list.map(function (x) { return { id: x.id, g: x.g, why: x.why, tier: x.tier }; });
     list.forEach(function (x) { F.seen[x.id] = day; });
     /* the record of what was shown is pruned to a month, so it never grows without end */
     Object.keys(F.seen).forEach(function (k) { if (day - F.seen[k] > 30) delete F.seen[k]; });
@@ -1322,9 +1326,12 @@
     return F.ids;
   }
   var BADGE_WORD = { katha: ['🪔', 'Katha'], itihaas: ['📜', 'Itihaas'], aaj: ['🧭', 'Aaj'] };
+  /* a card whose script is a line, not a letter, is set smaller (family.css .fd-card.fd-line) */
+  var FEED_LINE = { verse: 1, festival: 1, gully: 1, sentence: 1, talk: 1, ask: 1, value: 1, family: 1 };
   function feedCard(x, i) {
     var it = (window.IND_FEED_BODY || {})[x.id], ix = feedIndexOf(x.id);
     if (!it || !ix) return '';
+    var ord0 = it.play ? window.IND_FEED.order(x.id, it.play.opts.length) : null;
     var b = BADGE_WORD[ix.badge] || BADGE_WORD.aaj;
     var lang = it.lang ? ' lang="' + esc(it.lang) + '"' : '';
     var btn = it.act
@@ -1332,7 +1339,7 @@
       : '<a class="btn fd-go" href="' + esc(it.route) + '">' + esc(it.cta) + ' →</a>';
     var body = '';
     if (it.play) {
-      var P = feedPlay[x.id] || {}, ord = window.IND_FEED.order(x.id, it.play.opts.length);
+      var P = feedPlay[x.id] || {}, ord = ord0;
       body = '<p class="fd-q">' + esc(it.play.q) + '</p>' +
         (it.text ? '<p class="fd-script"' + lang + '>' + esc(it.text) + '</p>' + (it.roman ? '<p class="fd-roman">' + esc(it.roman) + '</p>' : '') : '') +
         '<div class="fd-opts" role="group" aria-label="' + esc(it.play.q) + '">' + ord.map(function (o) {
@@ -1351,7 +1358,8 @@
         (it.source ? '<p class="fd-src">' + esc(it.source) + '</p>' : '') +
         (it.sources ? '<p class="fd-src">From: ' + esc(it.sources.slice(0, 2).join(' · ')) + '</p>' : '');
     }
-    return '<article class="bz-card fd-card" tabindex="0" data-fid="' + esc(x.id) + '" data-kind="' + esc(ix.kind) + '" aria-label="' + esc(it.title) + '">' +
+    return '<article class="bz-card fd-card' + (FEED_LINE[ix.kind] ? ' fd-line' : '') + '" tabindex="0" data-fid="' + esc(x.id) + '" data-kind="' + esc(ix.kind) + '"' +
+      (it.play ? ' data-play="1"' : '') + (x.tier ? ' data-tier="' + esc(x.tier) + '"' : '') + ' aria-label="' + esc(it.title) + '">' +
       (it.art ? '<img class="fd-art" src="' + esc(it.art) + '" alt="" loading="lazy" decoding="async">' : '') +
       '<div class="fd-in"><div class="fd-top"><span class="badge ' + esc(ix.badge) + '"><span aria-hidden="true">' + b[0] + '</span> ' + b[1] + '</span>' +
         '<span class="fd-why">' + esc(x.why || it.why || '') + '</span></div>' +

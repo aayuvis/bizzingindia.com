@@ -62,7 +62,17 @@
     bollywood: { name: 'Bollywood',       raga: 'yaman',       tala: 'keherwa', bpm: 104, sa: 155.56, lead: 'sarangi', answer: 'santoor', drum: 'dholak', bells: 1, seed: 79 },
     truck:     { name: 'Truck Art',       raga: 'bhimpalasi',  tala: 'keherwa', bpm: 100, sa: 146.83, lead: 'bansuri', answer: 'santoor', drum: 'dholak', seed: 83 },
     dance:     { name: 'Dances of India', raga: 'hamsadhwani', tala: 'rupak',   bpm: 96,  sa: 146.83, lead: 'bansuri', answer: 'santoor', drum: 'tabla',  bells: 1, seed: 89 },
-    patterns:  { name: 'Patterns of India', raga: 'hindol',    tala: 'dadra',   bpm: 80,  sa: 155.56, lead: 'santoor', answer: 'bansuri', drum: 'tabla',  soft: 1, seed: 97 }
+    patterns:  { name: 'Patterns of India', raga: 'hindol',    tala: 'dadra',   bpm: 80,  sa: 155.56, lead: 'santoor', answer: 'bansuri', drum: 'tabla',  soft: 1, seed: 97 },
+    /* THE GITA, BY SITUATION (owner, 3 Oct 2026: "chant-like with situational music behind
+       them — this helps in memory"). No drums anywhere: a shloka keeps its own metre, and a
+       theka under it would fight the chant. Tonic C, low, so a chanting voice sits above it.
+       Which chapter takes which is the module's choice (gita.js), not a claim about the text. */
+    gitawar:     { name: 'The field before the battle', raga: 'darbari',  tala: 'none', bpm: 54, sa: 130.81, lead: 'sarangi', answer: 'pad',     drum: null, soft: 1, seed: 101 },
+    gitateach:   { name: 'A teacher and a friend',      raga: 'bhupali',  tala: 'none', bpm: 58, sa: 130.81, lead: 'bansuri', answer: 'pad',     drum: null, soft: 1, seed: 103 },
+    gitastill:   { name: 'Sitting still',               raga: 'malkauns', tala: 'none', bpm: 50, sa: 130.81, lead: 'pad',     answer: 'santoor', drum: null, soft: 1, seed: 107 },
+    gitadevotion:{ name: 'Devotion',                    raga: 'bhairavi', tala: 'none', bpm: 56, sa: 130.81, lead: 'bansuri', answer: 'santoor', drum: null, soft: 1, seed: 109 },
+    gitavision:  { name: 'The vision',                  raga: 'darbari',  tala: 'none', bpm: 52, sa: 130.81, lead: 'pad',     answer: 'sarangi', drum: null, soft: 1, seed: 113 },
+    gitaway:     { name: 'The way through',             raga: 'yaman',    tala: 'none', bpm: 58, sa: 130.81, lead: 'santoor', answer: 'bansuri', drum: null, soft: 1, seed: 127 }
   };
 
   /* a small seeded generator: the same theme always writes the same tune */

@@ -19,7 +19,7 @@ function load() {
   ctx.window = ctx; ctx.self = ctx; vm.createContext(ctx);
   const html = fs.readFileSync(path.join(APP, 'index.html'), 'utf8');
   const files = [...html.matchAll(/<script src="([^"?]+)/g)].map(m => m[1])
-    .filter(f => /^(data-|map-data|likhna\.js|bhasha\.js|game-art\.js|games(-[a-z]+)?\.js)/.test(f) && f !== 'data-feed.js');
+    .filter(f => /^(data-|map-data|likhna\.js|bhasha\.js|game-art\.js|games(-[a-z]+)?\.js|avatars\.js|avatar-cards\.js)/.test(f) && !/^data-feed/.test(f));
   for (const f of files) vm.runInContext(fs.readFileSync(path.join(APP, f), 'utf8'), ctx, { filename: f });
   /* the games list and each game's how-to line live in app.js; read them, never retype them */
   const app = fs.readFileSync(path.join(APP, 'app.js'), 'utf8');

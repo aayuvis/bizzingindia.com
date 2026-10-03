@@ -11,6 +11,9 @@
                 finished story writes a 'stop' milestone — through the family's own row shape
      seam       nothing outside the Store seam touches localStorage directly, a v1 profile is
                 walked up, and a profile from a NEWER build is never stamped older
+     dropins    the family's shared files in app/family/ (and tools/lib/shell-check.mjs) are
+                byte for byte the ones recorded in tools/lib/family-dropins.json — and, where
+                Bizzing_Schedule is checked out beside this repo, byte for byte its integration/
 
    Each was watched to fail by breaking the thing it holds (docs/25-family.md).
    Run:  node tools/check-family.js            # all of them
@@ -171,6 +174,25 @@ check('seam', 'storage goes through the Store seam; v1 walks up; a newer profile
   await p.evaluate(() => { window.BI.S.goal = 5; window.BI.Store.saveProfile(window.BI.S); });
   const v = await p.evaluate(() => JSON.parse(localStorage.getItem('bi_v1')));
   if (v.schemaVersion !== 99 || v.fromTheFuture !== 'kept') throw new Error(`a newer profile was stamped ${v.schemaVersion}`);
+});
+
+/* ------------------------------------------------------------------ dropins (family standard §1, §6a) */
+const crypto = require('crypto');
+const DROPINS = require('./lib/family-dropins.json');
+check('dropins', 'the family\'s shared files are its own, byte for byte', async () => {
+  const sha = f => crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
+  const here = f => (f === 'shell-check.mjs' ? path.join(__dirname, 'lib', f) : path.join(APP, 'family', f));
+  const theirs = process.env.BIZZING_SCHEDULE || path.join(__dirname, '..', '..', 'Bizzing_Schedule');
+  const bad = [];
+  /* every family file in app/family/ is on the list: a new drop-in cannot arrive unrecorded */
+  fs.readdirSync(path.join(APP, 'family')).filter(f => /^bizzing-/.test(f)).forEach(f => { if (!DROPINS[f]) bad.push(f + ' is not in family-dropins.json'); });
+  for (const f of Object.keys(DROPINS)) {
+    if (!fs.existsSync(here(f))) { bad.push(f + ' is missing'); continue; }
+    if (sha(here(f)) !== DROPINS[f]) bad.push(f + ' was edited here');
+    const t = path.join(theirs, 'integration', f);
+    if (fs.existsSync(t) && sha(t) !== DROPINS[f]) bad.push(f + ' is not Bizzing_Schedule\'s current copy — copy it again');
+  }
+  if (bad.length) throw new Error(bad.join(' · '));
 });
 
 (async () => {

@@ -1,33 +1,46 @@
-/* Bizzing India — My Feed's engine (docs/30-feed.md). Pure: no DOM, no storage, no clock of
-   its own. app.js hands it the child (read from the Store seam) and the day; it hands back an
-   ordered list of cards, each with the plain-words reason it is there. tools/check-feed.js
-   runs this same file in node.
+/* Bizzing India — My Feed's adapter (docs/30-feed.md; FAMILY-STANDARD §6a).
 
-   THE RULES IT KEEPS (owner, 2 Oct 2026; family standard §6, §14):
-     - It ENDS. One session is LIMIT cards and then a finished card; nothing loads more.
-     - Nothing is ranked by what holds attention. The score is what the child has been
-       doing (context), what they are ready for (level fit), what is due again (a word that
-       slipped, after its gap), and what they have not seen (novelty) — minus what they saw
-       lately and minus a third card of the same kind in a row.
-     - A card a child's band does not open never appears; nor does one their progress has
-       not reached (a rung, a story read).
-     - Every card says why it is there, in words a child and a parent can check. */
+   THERE IS ONE ENGINE, and it is the family's: family/bizzing-feed.js, copied byte for byte from
+   Bizzing_Schedule and handed to the classic scripts by family/bridge.js as
+   window.IND_FEED_ENGINE. It ranks, tiers by level, mixes and ENDS. This file only says what
+   India knows about a child, in the engine's words:
+
+     level      the Gurukul rank Home shows as "Your level" (Shishya 0 … Rishi 7)
+     levelName  the rank's own name: "Coming up on Khoji", "To keep: from Shishya"
+     signals    the last stories read (the story, its place, its collection), games and lessons,
+                the languages started, the family's language, the places lit, the world chosen
+     due        a word or letter with a miss on record whose gap is over — the same rule as Words
+                that slipped, read straight from the language record — keyed "<lang>|<srs key>"
+     unlocked   a card behind a language rung opens when that rung is reached (or its word slipped)
+     skip       a story already read is not news: its opening and hook never come back
+     extra      the level fit: a card that opened at the rung the child has just reached
+
+   Pure: no DOM, no storage, no clock of its own. tools/check-feed.js runs this same file in node
+   with the same engine. */
 (function (W) {
   'use strict';
-  var LIMIT = 20, MAX_PLAY = 5, MAX_KIND = 6, SPREAD = 1.5, WHY_COST = 1.6, MAX_WHY = 6;
   var DAY = 864e5;
   var WEEKDAY = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   /* the world a child chose says something about what they like; the topic each one leans to */
   var WORLD_TOPIC = { diwali: 'festival:diwali', pujo: 'festival:durga-puja', holi: 'festival:holi', cricket: 'game:triviamaster',
     madhubani: 'place:BR', mumbai: 'place:MH', rajasthan: 'place:RJ', taj: 'place:UP', dallake: 'place:JK',
     delhi6: 'place:DL', truck: 'place:PB', bollywood: 'place:MH', antariksh: 'coll:vigyan', dance: 'festival:onam', patterns: 'game:rangoli' };
+  function engine(ctx) { return (ctx && ctx.engine) || W.IND_FEED_ENGINE; }
 
-  function decode(index) {
-    var K = index.keys;
-    return index.rows.map(function (r) { var o = {}; K.forEach(function (k, i) { o[k] = r[i]; }); return o; });
+  /* the index is columns and dictionaries (tools/build-feed.js); this makes it items */
+  function decode(ix) {
+    if (ix.items) return ix.items;
+    var bands = ix.bands;
+    ix.items = ix.rows.map(function (r) {
+      var u = r[5] ? String(r[5]).split(':') : null;
+      return { id: r[0], kind: ix.kinds[r[1]], badge: ix.badges[r[2]],
+        bands: bands.filter(function (b, i) { return r[3] & (1 << i); }),
+        level: r[4] < 0 ? null : r[4], unlock: u ? { lang: u[0], rung: +u[1] } : null,
+        topics: r[6].map(function (t) { return ix.topics[t]; }), g: ix.groups[r[7]], key: r[8] || null,
+        play: !!(r[9] & 1), news: !!(r[9] & 2) };
+    });
+    return ix.items;
   }
-  /* a stable number from a string: the same card, the same day, the same jitter */
-  function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 
   /* the child's band from their age: the app's own three (onboarding's OB_AGES) */
   function bandOf(age) { age = age || 8; return age <= 7 ? '4-7' : age <= 9 ? '8-9' : '10-12'; }
@@ -47,15 +60,10 @@
     return out;
   }
 
-  /* child = { band, read:{id}, rungs:{lang:n}, langs:[], tongue, world, recent:[{k,id,t,place,at}],
-               lang (the Bhasha record), seen:{id:day}, readN } */
-  function feedFor(child, ctx) {
-    var now = ctx.now, today = Math.floor(now / DAY), items = ctx.items, limit = ctx.limit || LIMIT;
-    var names = ctx.names || {};
-    var slipped = {}; slippedOf(child.lang, now).forEach(function (s) { slipped[s.lang + '|' + s.key] = s; });
-    /* what the child has been doing lately, strongest first */
-    var ctxTopic = {};
-    var put = function (t, w, why) { if (!ctxTopic[t] || ctxTopic[t].w < w) ctxTopic[t] = { w: w, why: why }; };
+  /* what the child has been doing lately, strongest first, as the engine's signals */
+  function signalsOf(child, names) {
+    var out = [];
+    var put = function (t, w, why) { out.push({ topic: t, w: w, why: why }); };
     (child.recent || []).slice(0, 8).forEach(function (r, i) {
       var fresh = Math.max(1, 6 - i);
       if (r.k === 'story' && r.id) {
@@ -70,68 +78,40 @@
     if (child.tongue) put('lang:' + child.tongue, 2, 'In your family’s language, ' + (names['lang:' + child.tongue] || child.tongue));
     Object.keys(child.lit || {}).forEach(function (p) { put('place:' + p, 1, 'You lit ' + (names[p] || p) + ' on the map'); });
     if (WORLD_TOPIC[child.world]) put(WORLD_TOPIC[child.world], 1, 'Because your world is ' + (names['world:' + child.world] || child.world));
-
-    var scored = [];
-    items.forEach(function (it) {
-      if ((it.bands || []).indexOf(child.band) < 0) return;                       /* never above the band */
-      var u = it.unlock;
-      if (u && u.lang && (child.rungs[u.lang] || 0) < u.rung) return;              /* not reached yet */
-      if (u && u.read && (child.readN || 0) < u.read) return;
-      var s = 0, why = null, best = 0;
-      (it.topics || []).forEach(function (t) { var c = ctxTopic[t]; if (c && c.w > best) { best = c.w; why = c.why; } });
-      s += best;
-      /* level fit: a card that opened at the rung the child has just reached */
-      if (u && u.lang && (child.rungs[u.lang] || 0) === u.rung) { s += 4; if (best < 4) why = 'New: you reached Rung ' + u.rung + ' in ' + (names['lang:' + u.lang] || u.lang); }
-      /* due: a word or letter that slipped, its gap now over */
-      var sl = it.key && it.topics && slipped[(it.topics[0] || '').replace('lang:', '') + '|' + it.key];
-      if (sl) { s += 9; why = sl.at ? 'A word that slipped on ' + WEEKDAY[new Date(sl.at).getDay()] + ' — its gap is over' : 'A word that slipped — its gap is over'; }
-      /* a story already read is not news: its opening never comes back as a card */
-      if (it.kind === 'story' && child.read && it.topics && child.read[(it.topics[0] || '').replace('story:', '')]) return;
-      /* novelty, and what was seen lately */
-      var seen = child.seen && child.seen[it.id];
-      if (seen == null) s += 2; else if (today - seen < 7) s -= 12; else s -= 2;
-      s += (hash(it.id + ':' + today) % 1000) / 600;                             /* a little variety, same all day */
-      scored.push({ it: it, s: s, why: why });
-    });
-    scored.sort(function (a, b) { return b.s - a.s; });
-
-    /* a session: never three of a kind in a row, a few questions at most, a mix of kinds */
-    var out = [], kinds = {}, whys = {}, plays = 0;
-    var pool = scored.slice();
-    while (out.length < limit && pool.length) {
-      /* each card of a kind already in the session costs the next one of that kind a little,
-         so a session is a mix by arithmetic, not by luck */
-      var pick = -1, bestS = -Infinity;
-      for (var i = 0; i < pool.length; i++) {
-        var k = pool[i].it.kind, n = out.length;
-        if (n >= 2 && out[n - 1].kind === k && out[n - 2].kind === k) continue;
-        if (k === 'play' && plays >= MAX_PLAY) continue;
-        if ((kinds[k] || 0) >= MAX_KIND) continue;
-        /* and one reason is not the whole feed: a story just read leads a few cards, not twenty */
-        var wn = pool[i].why ? (whys[pool[i].why] || 0) : 0;
-        if (wn >= MAX_WHY) continue;
-        var eff = pool[i].s - SPREAD * (kinds[k] || 0) - WHY_COST * wn;
-        if (eff > bestS) { bestS = eff; pick = i; }
-      }
-      if (pick < 0) break;
-      var p = pool.splice(pick, 1)[0];
-      kinds[p.it.kind] = (kinds[p.it.kind] || 0) + 1; if (p.it.kind === 'play') plays++;
-      if (p.why) whys[p.why] = (whys[p.why] || 0) + 1;
-      out.push({ id: p.it.id, kind: p.it.kind, g: p.it.g, why: p.why, score: p.s });
-    }
     return out;
   }
 
-  /* the options of a question, in an order taken from the card's id — never the order they
-     were written in (the right one is written first), never the same place every time */
-  function order(id, n) {
-    var idx = []; for (var i = 0; i < n; i++) idx.push(i);
-    var h = hash(id);
-    for (var j = n - 1; j > 0; j--) { var r = h % (j + 1); h = Math.floor(h / (j + 1)) + 7919 * j; var t = idx[j]; idx[j] = idx[r]; idx[r] = t; }
-    return idx;
+  /* child = { band, level, read:{id}, rungs:{lang:n}, langs:[], tongue, world, recent:[…], lang, seen:{id:day}, lit }
+     ctx   = { now, items (decoded), names, ranks:[…], limit, engine } */
+  function feedFor(child, ctx) {
+    var E = engine(ctx), now = ctx.now, names = ctx.names || {}, ranks = ctx.ranks || [];
+    var rungs = child.rungs || {}, read = child.read || {};
+    var due = {};
+    slippedOf(child.lang, now).forEach(function (s) {
+      due[s.lang + '|' + s.key] = s.at ? 'A word that slipped on ' + WEEKDAY[new Date(s.at).getDay()] + ' — its gap is over' : 'A word that slipped — its gap is over';
+    });
+    var byId = {}; ctx.items.forEach(function (it) { byId[it.id] = it; });
+    var list = E.feedFor({
+      items: ctx.items, band: child.band, now: now, limit: ctx.limit, seen: child.seen || {},
+      level: child.level == null ? null : child.level,
+      levelName: function (n) { return ranks[n] || ('Level ' + (n + 1)); },
+      signals: signalsOf(child, names), due: due,
+      unlocked: function (it) { var u = it.unlock; return !u || (rungs[u.lang] || 0) >= u.rung || !!(it.key && due[it.key]); },
+      skip: function (it) { return it.news && read[(it.topics[0] || '').replace('story:', '')]; },
+      extra: function (it) {
+        var u = it.unlock;
+        if (u && (rungs[u.lang] || 0) === u.rung) return { s: 4, why: 'New: you reached Rung ' + u.rung + ' in ' + (names['lang:' + u.lang] || u.lang) };
+        return null;
+      },
+      fallbackWhy: 'New for you'
+    });
+    return list.map(function (x) { var it = byId[x.id]; return { id: x.id, kind: x.kind, g: it.g, why: x.why, tier: x.tier, level: it.level, score: x.score }; });
   }
 
-  var API = { feedFor: feedFor, decode: decode, bandOf: bandOf, slippedOf: slippedOf, order: order, LIMIT: LIMIT, hash: hash };
+  /* the options of a question, in an order taken from the card's id (the engine's own rule) */
+  function order(id, n, ctx) { return engine(ctx).order(id, n); }
+
+  var API = { feedFor: feedFor, decode: decode, bandOf: bandOf, slippedOf: slippedOf, signalsOf: signalsOf, order: order };
   W.IND_FEED = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })(typeof window !== 'undefined' ? window : this);

@@ -387,7 +387,7 @@ html[data-bz-dark] { --bz-accent-ink: var(--ground); }
 .fd-card h3 { margin: 10px 0 6px; font: 800 20px/1.25 'Fraunces', serif; color: var(--text); }
 .fd-body { margin: 6px 0; color: var(--text); line-height: 1.55; }
 .fd-card .fd-script { margin: 8px 0 2px; font-size: 2em; line-height: 1.8; color: var(--text); overflow-wrap: anywhere; }
-.fd-card[data-kind="verse"] .fd-script, .fd-card[data-kind="festival"] .fd-script, .fd-card[data-kind="game"] .fd-script { font-size: 1.35em; }
+.fd-card.fd-line .fd-script { font-size: 1.35em; }
 .fd-roman { margin: 0 0 6px; color: var(--text2); font-style: italic; overflow-wrap: anywhere; }
 .fd-src { margin: 8px 0 0; font-size: 12.5px; color: var(--text2); }
 .fd-q { margin: 8px 0; font-weight: 700; color: var(--text); }

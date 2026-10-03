@@ -1,31 +1,192 @@
 {
- "total": 1000,
+ "total": 7836,
+ "cut": 7854,
+ "nearDropped": 18,
+ "byLevel": {
+  "Shishya": 1467,
+  "Vidyarthi": 868,
+  "Sadhak": 2311,
+  "Khoji": 386,
+  "Pandit": 315,
+  "Vidwan": 301,
+  "Acharya": 336,
+  "Rishi": 214,
+  "any": 1638
+ },
  "byKind": {
-  "story": 393,
+  "story": 336,
+  "hook": 336,
+  "moment": 336,
+  "moral": 336,
+  "storyword": 486,
+  "storyplace": 322,
+  "cast": 23,
+  "person": 35,
+  "night": 57,
+  "nighthook": 57,
+  "nightmoment": 57,
+  "wonder": 57,
   "verse": 34,
-  "fact": 109,
-  "tip": 144,
-  "play": 117,
-  "festival": 54,
-  "place": 108,
-  "game": 41
+  "versemeaning": 34,
+  "versewhy": 34,
+  "era": 11,
+  "erakid": 11,
+  "erabig": 11,
+  "erawonder": 11,
+  "found": 34,
+  "moment-era": 63,
+  "today": 33,
+  "figure": 37,
+  "word": 2349,
+  "letter": 406,
+  "matra": 89,
+  "sentence": 102,
+  "talk": 70,
+  "conjunct": 42,
+  "wordq": 491,
+  "festival": 27,
+  "festdo": 118,
+  "festways": 78,
+  "festwhere": 27,
+  "place": 36,
+  "trivia": 144,
+  "see": 178,
+  "food": 171,
+  "foodq": 36,
+  "capital": 36,
+  "feature": 399,
+  "game": 13,
+  "gully": 28,
+  "gullyhow": 28,
+  "gullyname": 127,
+  "ask": 52,
+  "family": 26,
+  "value": 12
  },
  "groups": [
   [
-   "a",
-   393
+   "L0-0",
+   300
   ],
   [
-   "b",
-   143
+   "L0-1",
+   300
   ],
   [
-   "c",
-   198
+   "L0-2",
+   300
   ],
   [
-   "d",
-   266
+   "L0-3",
+   300
+  ],
+  [
+   "L0-4",
+   267
+  ],
+  [
+   "L1-0",
+   300
+  ],
+  [
+   "L1-1",
+   300
+  ],
+  [
+   "L1-2",
+   268
+  ],
+  [
+   "L2-0",
+   300
+  ],
+  [
+   "L2-1",
+   300
+  ],
+  [
+   "L2-2",
+   300
+  ],
+  [
+   "L2-3",
+   300
+  ],
+  [
+   "L2-4",
+   300
+  ],
+  [
+   "L2-5",
+   300
+  ],
+  [
+   "L2-6",
+   300
+  ],
+  [
+   "L2-7",
+   211
+  ],
+  [
+   "L3-0",
+   300
+  ],
+  [
+   "L3-1",
+   86
+  ],
+  [
+   "L4-0",
+   300
+  ],
+  [
+   "L4-1",
+   15
+  ],
+  [
+   "L5-0",
+   300
+  ],
+  [
+   "L5-1",
+   1
+  ],
+  [
+   "L6-0",
+   300
+  ],
+  [
+   "L6-1",
+   36
+  ],
+  [
+   "L7-0",
+   214
+  ],
+  [
+   "any-0",
+   300
+  ],
+  [
+   "any-1",
+   300
+  ],
+  [
+   "any-2",
+   300
+  ],
+  [
+   "any-3",
+   300
+  ],
+  [
+   "any-4",
+   300
+  ],
+  [
+   "any-5",
+   138
   ]
  ]
 }

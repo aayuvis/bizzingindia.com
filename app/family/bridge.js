@@ -10,7 +10,9 @@
      window.IND_WALLET          earn · spend · balance · migrateFrom · refund · ledger
      window.IND_ACTIVITY        trackActivity · trackMilestone
      window.IND_AVATAR_ENGINE   validate · stateOf · buy · buyWorld · sacredSafe · worldOf ·
-                                worldOpen · TIERS · SHAPE · PACKS · PER_PACK · FREE_WORLDS · WORLD_PRICE */
+                                worldOpen · TIERS · SHAPE · PACKS · PER_PACK · FREE_WORLDS · WORLD_PRICE
+     window.IND_FEED_ENGINE     feedFor · order · hash · LIMIT — My Feed's one engine (app/feed.js
+                                only adapts India's signals to it; docs/30) */
 import * as wallet from './bizzing-wallet.js';
 import * as activity from './bizzing-activity.js';
 import * as avatars from './bizzing-avatars.js';
@@ -18,6 +20,12 @@ import * as avatars from './bizzing-avatars.js';
 window.IND_WALLET = Object.assign({ KEY: 'bizzing.wallet' }, wallet);
 window.IND_ACTIVITY = Object.assign({}, activity);
 window.IND_AVATAR_ENGINE = Object.assign({}, avatars);
+
+/* MY FEED (FAMILY-STANDARD §6a): the family's one feed engine. India keeps its own card look
+   (family.css .fd-*), so bizzing-feed.css is carried, unedited, for the day it moves to the
+   family card — and not linked. */
+import * as feedKit from './bizzing-feed.js';
+window.IND_FEED_ENGINE = Object.assign({}, feedKit);
 
 /* THE SHELL (owner, 2 Oct 2026): Bizzing Bee's top bar, tabs, ☰ drawer and home grid as one
    measured drop-in, copied byte for byte like the rest. app.js renders every screen inside it. */

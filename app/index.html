@@ -144,25 +144,109 @@
 <script src="paath.js"></script>
 <script src="karya.js"></script>
 </template>
-<!-- MY FEED (docs/30): the engine and what the ranking needs, then the cards' words in four
-     groups, each fetched only when one of its cards is on today's feed. All built by
-     tools/build-feed.js from the corpus above. -->
+<!-- MY FEED (docs/30): the family engine's adapter and what the ranking needs (no words), then
+     the cards' words in one group per level chunk and agnostic chunk, each fetched only when one
+     of its cards is on today's feed. All built by tools/build-feed.js from the corpus above; it
+     rewrites everything between the markers. -->
 <template id="lazy-feed">
 <script src="feed.js"></script>
 <script src="data-feed-index.js"></script>
 </template>
-<template id="lazy-feed-a">
-<script src="data-feed-a.js"></script>
+<!-- feed:groups -->
+<template id="lazy-feed-L0-0">
+<script src="data-feed-L0-0.js"></script>
 </template>
-<template id="lazy-feed-b">
-<script src="data-feed-b.js"></script>
+<template id="lazy-feed-L0-1">
+<script src="data-feed-L0-1.js"></script>
 </template>
-<template id="lazy-feed-c">
-<script src="data-feed-c.js"></script>
+<template id="lazy-feed-L0-2">
+<script src="data-feed-L0-2.js"></script>
 </template>
-<template id="lazy-feed-d">
-<script src="data-feed-d.js"></script>
+<template id="lazy-feed-L0-3">
+<script src="data-feed-L0-3.js"></script>
 </template>
+<template id="lazy-feed-L0-4">
+<script src="data-feed-L0-4.js"></script>
+</template>
+<template id="lazy-feed-L1-0">
+<script src="data-feed-L1-0.js"></script>
+</template>
+<template id="lazy-feed-L1-1">
+<script src="data-feed-L1-1.js"></script>
+</template>
+<template id="lazy-feed-L1-2">
+<script src="data-feed-L1-2.js"></script>
+</template>
+<template id="lazy-feed-L2-0">
+<script src="data-feed-L2-0.js"></script>
+</template>
+<template id="lazy-feed-L2-1">
+<script src="data-feed-L2-1.js"></script>
+</template>
+<template id="lazy-feed-L2-2">
+<script src="data-feed-L2-2.js"></script>
+</template>
+<template id="lazy-feed-L2-3">
+<script src="data-feed-L2-3.js"></script>
+</template>
+<template id="lazy-feed-L2-4">
+<script src="data-feed-L2-4.js"></script>
+</template>
+<template id="lazy-feed-L2-5">
+<script src="data-feed-L2-5.js"></script>
+</template>
+<template id="lazy-feed-L2-6">
+<script src="data-feed-L2-6.js"></script>
+</template>
+<template id="lazy-feed-L2-7">
+<script src="data-feed-L2-7.js"></script>
+</template>
+<template id="lazy-feed-L3-0">
+<script src="data-feed-L3-0.js"></script>
+</template>
+<template id="lazy-feed-L3-1">
+<script src="data-feed-L3-1.js"></script>
+</template>
+<template id="lazy-feed-L4-0">
+<script src="data-feed-L4-0.js"></script>
+</template>
+<template id="lazy-feed-L4-1">
+<script src="data-feed-L4-1.js"></script>
+</template>
+<template id="lazy-feed-L5-0">
+<script src="data-feed-L5-0.js"></script>
+</template>
+<template id="lazy-feed-L5-1">
+<script src="data-feed-L5-1.js"></script>
+</template>
+<template id="lazy-feed-L6-0">
+<script src="data-feed-L6-0.js"></script>
+</template>
+<template id="lazy-feed-L6-1">
+<script src="data-feed-L6-1.js"></script>
+</template>
+<template id="lazy-feed-L7-0">
+<script src="data-feed-L7-0.js"></script>
+</template>
+<template id="lazy-feed-any-0">
+<script src="data-feed-any-0.js"></script>
+</template>
+<template id="lazy-feed-any-1">
+<script src="data-feed-any-1.js"></script>
+</template>
+<template id="lazy-feed-any-2">
+<script src="data-feed-any-2.js"></script>
+</template>
+<template id="lazy-feed-any-3">
+<script src="data-feed-any-3.js"></script>
+</template>
+<template id="lazy-feed-any-4">
+<script src="data-feed-any-4.js"></script>
+</template>
+<template id="lazy-feed-any-5">
+<script src="data-feed-any-5.js"></script>
+</template>
+<!-- /feed:groups -->
 <template id="lazy-packs">
 <script src="pack-manifest.js"></script>
 </template>

@@ -76,12 +76,16 @@ The short version:
   six tabs Home · India · Paathshala · Bhasha · Play · My Feed (owner, 2 Oct 2026: My Feed last); everything else lives in ☰. `checkShell`
   must return [] (check-standard `shell`). `bizzing.activity` gets
   active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
-- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts its 1,000 cards
-  from the corpus (each with a `src` that must resolve, nothing needs_review or gated 11+);
-  `app/feed.js` ranks them on the device from what the child did, about twenty a session and
-  then a finished card. No likes, counts, streaks, autoplay or sound before a tap; only a right
-  answer to a card's question pays, once, as `answer`. A grown-up can switch it off behind the
-  PIN. Change the corpus → rerun `node tools/build-feed.js`. `tools/check-feed.js` holds it.
+- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts 7,836 cards
+  from the corpus — several honest angles per object, each with a `src` that must resolve, nothing
+  needs_review or gated 11+, no two ≥ 80% the same words — on the Gurukul rank as the level (≥ 100
+  per rank, 214–2,311 today) plus 1,638 with no level. ONE engine: the family's
+  `family/bizzing-feed.js` (byte for byte, via `bridge.js`); `app/feed.js` only adapts India's
+  signals to it. About twenty a session, mostly at the child's rank, then a finished card; lazy
+  groups by level, only those the session needs. No likes, counts, streaks, autoplay or sound
+  before a tap; only a right answer to a card's question pays, once, as `answer`. A grown-up can
+  switch it off behind the PIN. Change the corpus → rerun `node tools/build-feed.js`.
+  `tools/check-feed.js` holds it.
 - **Medals, sound and the game frame** (docs/26): medals only from what the app saw, each
   celebrated once; the host gives every game a how-to, sound, motion and "what you practised";
   `sfx.js` makes its sounds (no audio files) under the one mute; every lock says how to open.

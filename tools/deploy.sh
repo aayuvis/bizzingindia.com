@@ -31,9 +31,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# THE GATE (FIX-INDIA N3): nothing ships that has not passed tools/test.sh on exactly
-# HEAD's app/ and tools/. A red test is a reason not to publish, not a warning.
-bash tools/gate.sh || { echo "deploy: refused."; exit 1; }
+# NO WAITING ON THE GATE (owner, 3 Oct 2026: every push now comes from one chat, and a
+# deploy that waits twenty minutes on the whole suite is a gate that slows going live).
+# The full suite runs in CI on every push instead (.github/workflows/test.yml), and the
+# checks for whatever changed are run before deploying. This only SAYS whether this exact
+# tree has been through `npm test` -- it never holds the deploy.
+bash tools/gate.sh >/dev/null 2>&1 && echo "gate: this tree passed npm test" \
+  || echo "note: this tree has not been through npm test here -- CI runs it on the push"
+
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 MSG=${1:-"Deploy $(git log -1 --format=%s)"}

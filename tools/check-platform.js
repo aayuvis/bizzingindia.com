@@ -180,7 +180,7 @@ check('thirdparty', 'no request leaves the app\'s own origin — boot, warm-up, 
   if (out.length) throw new Error(out.length + ' third-party requests: ' + [...new Set(out)].slice(0, 3).join(' '));
 }, { vp: DESK, fresh: true });
 
-check('gate', 'deploy.sh refuses a tree tools/test.sh has not passed', async () => {
+check('gate', 'npm test records what it passed and CI runs it on every push; a deploy is never held by it', async () => {
   /* a snapshot of the tree is tested against its repository (BIZZING_REPO, as test.sh does) */
   const ROOT = process.env.BIZZING_REPO || path.join(__dirname, '..');
   const gitDir = execFileSync('git', ['rev-parse', '--absolute-git-dir'], { cwd: ROOT }).toString().trim();
@@ -193,9 +193,13 @@ check('gate', 'deploy.sh refuses a tree tools/test.sh has not passed', async () 
                  execFileSync('git', ['rev-parse', 'HEAD:tools'], { cwd: ROOT }).toString().trim();
     fs.writeFileSync(mark, want + '\n');
     if (run() !== 0) throw new Error('the gate stayed shut for the tree that passed');
+    /* the owner's call (3 Oct): pushes come from one chat, so the suite runs in CI on every
+       push rather than holding the deploy. Both halves are held: CI really runs it on the
+       branch, and deploy.sh never exits on it. */
+    const ci = fs.readFileSync(path.join(ROOT, '.github', 'workflows', 'test.yml'), 'utf8');
+    if (!/push:/.test(ci) || !/bash tools\/test\.sh/.test(ci)) throw new Error('CI does not run tools/test.sh on push');
     const dep = fs.readFileSync(path.join(ROOT, 'tools', 'deploy.sh'), 'utf8');
-    const at = dep.indexOf('bash tools/gate.sh'), push = dep.indexOf('git push');
-    if (at < 0 || (push >= 0 && at > push)) throw new Error('deploy.sh does not run the gate before it publishes');
+    if (/gate\.sh[^\n]*\|\|[^\n]*exit/.test(dep)) throw new Error('deploy.sh is held by the gate again');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
     if (!pkg.scripts || !/tools\/test\.sh/.test(pkg.scripts.test || '')) throw new Error('npm test does not run tools/test.sh');
   } finally {

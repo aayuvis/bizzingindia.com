@@ -43,10 +43,11 @@ landing 585 KB. Budgets 1.5 MB and 400 KB. Home loads no route group at all.
   the thing it holds. `npm run test:full` adds the long walks (`verify`, `qc-paath`,
   `check-sabhyata`).
 - On success it records **exactly what passed** — the git tree ids of `app/` and `tools/` as tested
-  — in `.git/bizzing-gate`. **`deploy.sh` runs `tools/gate.sh` first and refuses** unless HEAD's
-  `app/` and `tools/` are those trees. Test one tree and ship another, and it says so.
-- **CI** (`.github/workflows/test.yml`) runs the same `tools/test.sh` on every push to the branch,
-  on GitHub's Chromium.
+  — in `.git/bizzing-gate`. `deploy.sh` reports whether HEAD is that tree, and **no longer waits
+  for it** (owner, 3 Oct 2026: every push comes from one chat, and twenty minutes of suite before
+  every deploy was a gate slowing going live). The checks for what changed run before a deploy;
+- **CI** (`.github/workflows/test.yml`) runs the whole `tools/test.sh` on every push to the branch,
+  on GitHub's Chromium — that is now where the full suite is held, and a red run is fixed forward.
 - **A deploy never rolls back another branch's deploy.** gh-pages is shared: on 2 October the
   family shell went live from one branch and, four hours later, a Sabhyata deploy from another
   branch that did not contain it put 142 files back a version — gate open, sha reported, nothing

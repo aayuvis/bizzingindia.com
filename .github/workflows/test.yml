@@ -1,8 +1,8 @@
 # The gate, on every push (FIX-INDIA N3; family standard §15; docs/27).
 #
-# tools/test.sh runs the engine tests and the browser checks, desktop and phone — the same
-# script deploy.sh insists has passed on exactly what it publishes. Here it runs on GitHub's
-# own Chromium, so a red check is visible on the commit as well as refused at deploy.
+# tools/test.sh runs the engine tests and the browser checks, desktop and phone. Since 3 Oct
+# 2026 the deploy does not wait for it (owner: every push comes from one chat) — this is where
+# the whole suite runs, on GitHub's own Chromium, and a red check is visible on the commit.
 # The narration and art are not needed by any check, so the checkout skips LFS-sized media.
 name: Tests
 

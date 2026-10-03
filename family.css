@@ -421,7 +421,7 @@ html[data-bz-dark] { --bz-accent-ink: var(--ground); }
 /* THE PLATES GO TO NIGHT WITH THE REST (audit, 03-home-night). Home's story and map plates are
    paintings, and at night they stayed in full daylight — two bright windows in a dark page.
    A tone, not a redraw: the painting dims and cools like the world around it. No geometry. */
-html[data-mode="night"] .bz-plate::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+html[data-mode="night"] .bz-plate::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit; pointer-events: none;
   background: linear-gradient(180deg, rgba(14, 18, 48, .5), rgba(10, 12, 32, .62)); }
 html[data-mode="night"] .bz-plate .bz-badge { z-index: 1; }
 
@@ -429,7 +429,7 @@ html[data-mode="night"] .bz-plate .bz-badge { z-index: 1; }
    portrait's own size — draped across the chest, where every one of the 96 has one */
 .wear { position: relative; display: inline-grid; place-items: center; line-height: 0; }
 .wear > img, .wear > svg:not(.outfit) { grid-area: 1 / 1; }
-.wear .outfit { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.wear .outfit { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
 .xart.xwear { display: grid; place-items: center; width: 80px; height: 80px; flex: none; }
 .cel-rank .cel-wear { display: block; margin: 0 auto 6px; }
 .cel-rank .cel-wear .wear { filter: drop-shadow(0 8px 18px rgba(0,0,0,.18)); }

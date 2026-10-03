@@ -33,6 +33,37 @@ edit fourteen engines, the **host gives every game the frame**:
 Found on the way: four games' own end cards still said *"3 kauris"* — a coin nothing paid any
 more. They are gone; coins are announced only by the wallet's toast when actually paid.
 
+**One hub, and a finish that stays (audit C5/H5/N3/F4/G9, 3 Oct 2026).** There were two game hubs:
+the Play tab's flat list, its tiles at uneven heights, and the painted Mela that a game's back pill
+returned to — so a child who started on Play finished somewhere else. Play *is* the painted Mela now
+(`#/mela` and `#/khel` are old names for it), with Rishtey, Gully and Geet as its *From home* shelf;
+a stall's blurb is three lines, so a row has no hole under its short ones; a game's back pill, the
+finish and Sabhyata's own exit all say **Play**. And a game used to jump back to the hub 0.9 s after
+it said done — the street games say done on their last move, so they ended with no screen at all.
+Every game now ends on **the host's finish card**, which stays until the child chooses: what they
+practised, their score and their **best** (kept per child, `S.best`, and shown on the stall), the
+coins the wallet actually took in, and *Play again* / *Back to Play*. An engine's own end card
+still shows first; its *Back to the Mela* button now reads *Finish* and leads there.
+
+## A new rank is said to the child (L4, J3)
+
+The Gurukul rank counts mastery only (docs/23), and when it moved it told the Hive and nobody else.
+Now `checkGrowth()` holds a **ceremony, once per rank**: what the word means (*a sadhak is one who
+practises*), how many things were mastered to reach it, the next rank and its number, and the rank's
+**sash** — earned, never sold (`buyExtra` refuses one), with *Wear it* right there. A rank reached
+before this build goes on the shelf without a fanfare; the demo has none; and the Sadhak medal,
+which is the same moment, is not celebrated a second time.
+
+## What the companion wears (K6)
+
+Cosmetics were six things (four frames, two carrom boards). There are now **five outfits** from the
+weaving and flower traditions, each named with where it is made — a marigold garland; a bandhani
+dupatta (Gujarat, Rajasthan); a phulkari shawl (Punjab); an ikat stole (Odisha, Telangana); an ajrakh
+stole (Kutch) — at printed prices, plus the **eight rank sashes**. Nothing marks a faith, a caste or a
+community: cloth and flowers only. `wearer()` draws the frame and the outfit over the companion
+everywhere it appears — Me, the finish card, the ceremony, the shop — across the chest, where every
+one of the 96 portraits has one.
+
 ## Medals from evidence (§8)
 
 Twelve, in the family medallion (a struck disc, bronze · silver · gold, the glyph in the field):
@@ -82,5 +113,8 @@ price in coins earned by learning), premium courses (*"A grown-up unlocks this"*
 | `medals` | a story earns *First story*, celebrated with motion and sound, **once**; self-report earns none; unearned medals say how | the once-only guard removed |
 | `aaj` | story → lesson → look back → a finish card naming the story and the words; Home says done | the story dropped from the finish card |
 | `locks` | every visible lock on Me, Worlds, the Hindi path, Paathshala and a course says how to open | the rung's "Opens after … or test out" removed |
+| `games` (finish) | the end card's button lands on the host's finish — score, best, *what you practised*, Play again / Back to Play — still there after 2 s; the stall then shows the best | the old host (back to the Mela after 0.9 s) |
+| `hub` | `#/play` is the painted hub with the family shelf; `#/mela` and `#/khel` are the same; a game's way back is Play; no row has a blurb > 3 lines taller than its neighbour | the old flat Play; the three-line clamp removed |
+| `rankup` | a new rank is one ceremony with its meaning and count; its sash is given and *Wear it* dresses the companion on Me; not said twice; a sash cannot be bought; ≥ 5 outfits | the ceremony's push removed (only the medal showed) |
 
 Run: `node tools/check-motivation.js` (or `--only medals`).

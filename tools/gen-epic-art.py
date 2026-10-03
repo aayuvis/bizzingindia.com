@@ -67,12 +67,12 @@ STORY_DIR = os.path.join(ROOT, "app", "art", "story")
 MANIFEST = os.path.join(ROOT, "app", "epic-art-manifest.js")
 ENDPOINT = ("https://generativelanguage.googleapis.com/v1beta/models/"
             "%s:generateContent")
-# gemini-3.1-flash-image returns 1408x768 natively — landscape, so nothing is thrown away
+# the current image model returns 1408x768 natively — landscape, so nothing is thrown away
 # cropping a square down to a banner, and high enough to double as a page in a digital book.
-# (gemini-2.5-flash-image returns 1024x1024; gemini-3-pro-image at 4K returns 5504x3072 and
+# (an earlier image model returns 1024x1024; a larger image model at 4K returns 5504x3072 and
 # ~11MB, which is the right model for the handful of full-page book heroes later, not for
 # 686 cards.)
-DEFAULT_MODEL = "gemini-3.1-flash-image"
+DEFAULT_MODEL = os.environ.get("IMG_MODEL", "")   # named at run time (IMG_MODEL or --model), never in this file
 
 # TWO TIERS, because this art has two jobs.
 #
@@ -847,6 +847,8 @@ def main():
     ap.add_argument("--manifest-only", action="store_true")
     ap.add_argument("--print-prompt", help="print one card's prompt and exit, no API call")
     args = ap.parse_args()
+    if not os.environ.get("IMG_MODEL") and not getattr(args, "model", None):
+        sys.exit("no image model: set IMG_MODEL or pass --model (CLAUDE.md: no model is named in this repo)")
     check_stop()
 
     os.makedirs(OUT_DIR, exist_ok=True)

@@ -31,6 +31,14 @@ Five parts, in this order (`V.home` in `app/app.js`):
 The yatra and the mala moved to the child's own page, which the avatar in the top bar
 opens. On a 390×844 phone the Continue button sits at ~615px, above the tab bar at 776px.
 
+**Said once, and quiet beside Continue (audit, 3 Oct 2026).** The Continue card said *Finish it and
+the mist lifts off Odisha* twice — as its chip and again as its bar's caption — and the bar was the
+map's place count, beside a map card already counting places. The chip says what finishing does; the
+bar is how far into *this* story, captioned with its length (*9 scenes · about 5 min*). The shell
+draws Aaj ka's arrow in Continue's own filled orange, so Home had two orange calls a hand apart; it is
+an outline now, recoloured through the family's `--bz-*` variables only. And at night the two plates
+dim with the page (an overlay over the painting) — they had stayed in full daylight.
+
 ## One next step — `nextStep()`
 
 Home's Continue and the Hive's `#/continue` are **the same function**, so there can never
@@ -56,6 +64,15 @@ lit on their map"*), and the story stays read and its place lit through setup. A
 Continue is one tap from a story.
 
 A guest earns nothing: the family wallet pays a named child, and there is none yet.
+
+**The landing works as a page (owner, 3 Oct 2026: "no marketing site/screenshots — look at Bizzing
+Bee").** Bee's hero lets a stranger spell a real word with the real audio; ours lets them hear a
+real story. *Read it here, aloud* now plays tonight's story **inside the landing's own card** — the
+painting, the voice, scene by scene, its question, its end — on the same page, beside *Start free*
+and the sample child, instead of on a screen of its own behind a guest bar. The three feature
+cards are gone: a parent sees the thing itself, then one line about privacy. There are no
+screenshots and never were; `check-home firstlearn` now holds both (the reader in the hero, no
+feature grid, no screenshot) and was watched to fail with the story put back on its own screen.
 
 ## `?demo` — a sample child in a sandbox (A5)
 
@@ -84,5 +101,6 @@ not India. Every screen carries the **Sample child** bar with a way out.
 | `progress` | rank, two bars and the map's own place count beside Continue | the place count typed as 34 |
 | `firstlearn` | *Read it* plays a story with no setup; its end asks for setup; the story and its place survive setup; a story is one tap after it | *Read it* sent back to onboarding |
 | `demo` | labelled *Sample*, weeks of progress, and every real key byte-for-byte unchanged after using it | the sandbox removed |
+| `night` | at night each Home plate is ≤ 60% as bright as by day, measured on the screen's pixels; Continue says its chip once | the night overlay removed (78%); the caption put back (said twice) |
 
 Run: `node tools/check-home.js` (or `--only fold`).

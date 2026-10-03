@@ -135,6 +135,41 @@ check('onenext', 'Continue and #/continue open the same next thing, every time',
   if (!/^#\/paathl\//.test(course.hash)) throw new Error('Continue did not open the course stop: ' + course.hash);
 });
 
+/* THE PLATES GO TO NIGHT (audit, 03-home-night): Home's story and map plates stayed in daylight
+   on a night page. Measured on the screen's own pixels: at night each plate is at most 60% as
+   bright as by day. And the Continue card says what finishing does once, not twice (03-home-new). */
+async function plateLum(p) {
+  const out = [];
+  for (const sel of ['[data-bz=next] .bz-plate', '[data-bz=second] .bz-plate']) {
+    const el = await p.$(sel); if (!el) { out.push(null); continue; }
+    const png = (await el.screenshot()).toString('base64');
+    out.push(await p.evaluate(async b64 => {
+      const im = new Image(); im.src = 'data:image/png;base64,' + b64; await im.decode();
+      const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
+      const g = c.getContext('2d'); g.drawImage(im, 0, 0);
+      const d = g.getImageData(0, 0, c.width, c.height).data; let t = 0;
+      for (let i = 0; i < d.length; i += 4) t += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+      return t / (d.length / 4) / 255;
+    }, png));
+  }
+  return out;
+}
+check('night', 'at night Home\'s plates dim with the page; Continue says what finishing does once', async ({ p }) => {
+  await p.evaluate(() => window.BI.go('home')); await p.waitForTimeout(500);
+  const t = await p.evaluate(() => { const n = document.querySelector('[data-bz=next]'); return n ? n.innerText : ''; });
+  const chip = await p.evaluate(() => (document.querySelector('[data-bz=next] .bz-chiprow span') || {}).textContent || '');
+  if (chip && t.split(chip).length > 2) throw new Error(`the Continue card says "${chip}" twice`);
+  const day = await plateLum(p);
+  await p.click('[data-bz=theme]'); await p.waitForTimeout(600);
+  if ((await p.evaluate(() => document.documentElement.getAttribute('data-mode'))) !== 'night') throw new Error('the moon did not turn night on');
+  const night = await plateLum(p);
+  await p.click('[data-bz=theme]'); await p.waitForTimeout(300);
+  ['story', 'map'].forEach((w, i) => {
+    if (day[i] == null || night[i] == null) throw new Error(`no ${w} plate on Home`);
+    if (night[i] > 0.6 * day[i]) throw new Error(`the ${w} plate is ${Math.round(night[i] / day[i] * 100)}% as bright at night as by day — still daylight`);
+  });
+});
+
 check('progress', 'rank, a bar and the map\'s own place count sit on Home, the map beside Continue', async ({ p }) => {
   /* Home draws before the map group loads (docs/27); its count must still be the MAP's */
   await p.evaluate(() => window.IND_LOAD && window.IND_LOAD(['map']));
@@ -153,7 +188,7 @@ check('progress', 'rank, a bar and the map\'s own place count sit on Home, the m
   if (m.text.indexOf('of ' + m.total + ' places') < 0) throw new Error(`the place count is not the map's ${m.total}: "${m.text.slice(0, 80)}"`);
 }, { vp: DESK });
 
-check('firstlearn', 'Read it plays a story before any setup; setup keeps it; a story is one tap after setup', async ({ p }) => {
+check('firstlearn', 'Read it plays a story in the landing itself, before any setup; setup keeps it; a story is one tap after setup', async ({ p }) => {
   const id = await p.evaluate(() => { const b = document.querySelector('.herocard [data-act="guest"]'); return b && b.getAttribute('data-id'); });
   if (!id) throw new Error('the landing\'s "Read it" does not open a story');
   await tap(p, '.herocard [data-act="guest"]');
@@ -162,14 +197,24 @@ check('firstlearn', 'Read it plays a story before any setup; setup keeps it; a s
   const g = await p.evaluate(() => ({ reader: !!document.querySelector('.reader'), started: (JSON.parse(localStorage.getItem('bi_v1') || '{}')).started || null,
     onboard: !!document.getElementById('nm') }));
   if (!g.reader || g.started || g.onboard) throw new Error('"Read it" did not play the story before setup: ' + JSON.stringify(g));
+  /* THE LANDING WORKS AS A PAGE (owner, 3 Oct 2026; Bizzing Bee's hero lets a stranger spell a real
+     word): the story plays INSIDE the landing's own card, beside Start free, on the same page —
+     not on a screen of its own — and the landing is the thing itself: no screenshots, no grid of
+     feature claims */
+  const L = await p.evaluate(() => ({ inHero: !!document.querySelector('.herocard .reader'), start: !!document.querySelector('.hero [data-act="begin"]'),
+    grid: document.querySelectorAll('.grid.g3 .card').length,
+    shots: [...document.querySelectorAll('img')].map(i => i.getAttribute('src') || '').filter(s => /shot|screen|mock/i.test(s)) }));
+  if (!L.inHero || !L.start) throw new Error('the story did not play inside the landing, beside Start free: ' + JSON.stringify(L));
+  if (L.grid || L.shots.length) throw new Error('the landing is a brochure: ' + L.grid + ' feature cards, screenshots ' + L.shots.join(', '));
+  /* the story's own end card, in the hero — not the landing's Start free beside it */
   for (let i = 0; i < 40; i++) {
-    const end = await p.$('[data-act="begin"].lg');
+    const end = await p.$('#herolive [data-act="begin"].lg');
     if (end) break;
     const ans = await p.$('[data-act="answer"]');
     if (ans && !(await p.$('[data-act="next"]'))) { await ans.click(); await p.waitForTimeout(200); continue; }
     await tap(p, '[data-act="next"]');
   }
-  await tap(p, '[data-act="begin"].lg');
+  await tap(p, '#herolive [data-act="begin"].lg');
   if (!(await p.$('#nm'))) throw new Error('the story\'s end does not lead to setup');
   await skipOnboarding(p);
   const S = await profile(p);

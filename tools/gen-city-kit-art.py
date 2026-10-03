@@ -31,7 +31,7 @@ MASTER = os.path.join(ROOT, "masters", "city-kit")
 MANIFEST = os.path.join(ROOT, "app", "kit-art-manifest.js")
 REF_DIR = os.path.join(ROOT, "app", "art", "sabhyata")
 REFS = ["kashi.jpg", "lothal.jpg"]
-DEFAULT_MODEL = "gemini-3.1-flash-image"
+DEFAULT_MODEL = os.environ.get("IMG_MODEL", "")   # named at run time (IMG_MODEL or --model), never in this file
 FACES = ["se", "sw", "nw", "ne"]      # turntable order, 90 degrees apart
 
 # The locked palette. Every call carries it, or 143 parts drawn over two
@@ -422,6 +422,8 @@ def main():
     ap.add_argument("--print-prompt")
     ap.add_argument("--list", action="store_true")
     args = ap.parse_args()
+    if not os.environ.get("IMG_MODEL") and not getattr(args, "model", None):
+        sys.exit("no image model: set IMG_MODEL or pass --model (CLAUDE.md: no model is named in this repo)")
 
     kit = load_kit()
     lo, hi = [int(x) for x in args.era.split("-")]

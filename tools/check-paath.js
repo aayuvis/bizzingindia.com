@@ -930,8 +930,17 @@ check('atlas', 'every course is a map you walk', async ({ p, C }) => {
       walked: document.querySelectorAll('.pa-route path').length,
       open: document.querySelectorAll('.pa-act.open').length,
       openIsHere: !!document.querySelector('.pa-act.open.here'),
-      curStop: document.querySelectorAll('.pa-act.open .pa-stop.cur').length
+      curStop: document.querySelectorAll('.pa-act.open .pa-stop.cur').length,
+      text: document.getElementById('main').innerText.replace(/\s+/g, ' ')
     }));
+    /* BACKSTAGE STAYS BACKSTAGE (audit, 3 Oct 2026). A course's `why` and `note` are the
+       authors' reasons — "The founder's own complaint: parents miss…", "Hindi first because
+       the corpus is deepest there" — and the Neeti page printed them to the child under
+       "Why this course". They are kept in the data for whoever edits it, never shown. */
+    for (const k of ['why', 'note']) {
+      const t = String(c[k] || '').replace(/\s+/g, ' ').slice(0, 48);
+      if (t && r.text.indexOf(t) >= 0) bad.push(`${c.id} shows its ${k} to the child: "${t.slice(0, 40)}…"`);
+    }
     const n = c.modules.length;
     if (!r.board) bad.push(`${c.id} has no painted board`);
     if (r.pins !== n) bad.push(`${c.id} has ${r.pins} pins for ${n} parts`);

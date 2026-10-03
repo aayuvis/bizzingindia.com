@@ -24,6 +24,12 @@ number stays a number; the hash is only parsed for a link typed or shared from o
 - A screen reached by Back gets the same setup its own button gives it (`prepView`): a story
   opens at its start, a language pack on a fresh round.
 
+**And no dead ends (audit, 3 Oct 2026).** `#/value` and `#/verses` with nothing after them showed
+the error page; `#/kosh` said a bare *Pack not found.* and `#/kahani` *This shelf is not here.* —
+no peacock, no way on. Every screen that names one thing has the shelf it sits on (`HUB_OF` in
+app.js): opened on nothing it **is** that shelf (the address is replaced, so Back is not a trap);
+opened on a thing that is not there it says so with the peacock and a door to the shelf, and Home.
+
 ## 2. The grown-ups' door
 
 The Me page used to carry *Start again* (wipes the child), a *Developer unlock* (opens every
@@ -62,6 +68,7 @@ lit, and the way into Bhasha's own progress page. It reports learning, never min
 | check | holds | broken to prove it |
 |---|---|---|
 | `back` | Back from inside the app stays inside; a linked screen opens and Back stays in | `go()` without `route()` |
+| `deadends` | every screen in `HUB_OF`, opened on nothing, is its shelf; on a thing not there, the peacock and a door that is not Home; every `render()` case that reads its arg has a shelf | the redirect removed and *Pack not found.* put back (14 dead ends) |
 | `continue` | `#/continue` resolves to a real next step | `continueTarget()` returning home |
 | `pin` | nothing that changes the child is on the child's page; the PIN opens, a wrong one does not, leaving locks it | *Start again* put back on the Me page |
 | `tester` | no developer unlock outside tester mode; `S.dev` switched off at boot | `tester()` always true |

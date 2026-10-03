@@ -24,7 +24,7 @@ OUT = os.path.join(ROOT, "app", "art", "kit", "_ground")
 MANIFEST = os.path.join(ROOT, "app", "kit-ground-manifest.js")
 REF_DIR = os.path.join(ROOT, "app", "art", "sabhyata")
 REFS = ["lothal.jpg"]
-DEFAULT_MODEL = "gemini-3.1-flash-image"
+DEFAULT_MODEL = os.environ.get("IMG_MODEL", "")   # named at run time (IMG_MODEL or --model), never in this file
 SIZE, Q = 1024, 82
 
 PALETTE = ("#241a14 ink, #f3e6cd cream, #f7f1e4 warm white, #2f3d78 indigo, "

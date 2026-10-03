@@ -66,10 +66,10 @@ OUT_DIR = os.path.join(ROOT, "app", "art", "story")
 MANIFEST = os.path.join(ROOT, "app", "story-art-manifest.js")
 ENDPOINT = ("https://generativelanguage.googleapis.com/v1beta/models/"
             "%s:generateContent")
-# gemini-3.1-flash-image returns 1408x768 natively — landscape, high enough to double as
-# a page in the digital book. The first 78 were made on gemini-2.5-flash-image (1024x1024);
+# the current image model returns 1408x768 natively — landscape, high enough to double as
+# a page in the digital book. The first 78 were made on an earlier image model (1024x1024);
 # the web tier stays 900x600 so all 283 stay consistent in the app.
-DEFAULT_MODEL = "gemini-3.1-flash-image"
+DEFAULT_MODEL = os.environ.get("IMG_MODEL", "")   # named at run time (IMG_MODEL or --model), never in this file
 
 # The story data files, in the order the app merges them.
 DATA_FILES = ["data-stories.js", "data-stories-regional.js", "data-stories-more.js",
@@ -1121,6 +1121,8 @@ def main():
     ap.add_argument("--manifest-only", action="store_true")
     ap.add_argument("--print-prompt", help="print one story's prompt and exit, no API call")
     args = ap.parse_args()
+    if not os.environ.get("IMG_MODEL") and not getattr(args, "model", None):
+        sys.exit("no image model: set IMG_MODEL or pass --model (CLAUDE.md: no model is named in this repo)")
     check_stop()
 
     os.makedirs(OUT_DIR, exist_ok=True)

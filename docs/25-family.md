@@ -84,6 +84,7 @@ saved — the exact thing `migrate()` was written to refuse. It no longer stamps
 |---|---|---|
 | `topbar` | 56px, one row, ⬡ · name · theme · 🔒 · avatar in that order, at 1280 and 390; the page no wider than the 390px phone; ⬡ hidden in a drill | the theme button moved after 🔒 |
 | `kidmenu` | on a desk and from a real tap on a phone: child · child · rule · three lines, in that order; the tick only on the child playing; the playing child's face is the top bar's; My page → `#/me`, Settings → `#/settings`, each closing the menu; tapping the child playing closes without a reload | the Settings line removed; a tick on every child; a face that is not the child's |
+| `shelf` | the Collection draws all 96 faces at once from their 192px copies (`tools/gen-av-thumbs.py`), at night, without a scroll; every copy present and no older than its portrait | lazy 512px portraits (47 of 96 blank) |
 | `household` | Ravi starts with none of Asha's stories, coins, places or Sabhyata; same name refused; switching back finds Asha exactly as left; removing Ravi leaves no `.k2` key and Asha whole | `kidKey()` ignoring the child |
 | `activity` | whole active minutes for the child playing, none for idle time past the grace, a `stop` and a `world` milestone from a finished story | `trackActivity` never started |
 | `seam` | no direct `localStorage` outside the seam; a profile from a newer build keeps its version and fields through a save | a direct call in Sabhyata; `saveProfile` stamping |

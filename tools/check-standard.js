@@ -326,12 +326,14 @@ check('settings', 'Settings in five sections in the family order; age band and d
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}\u{2B50}\u{2B55}\u{231A}-\u{23FF}]/u;
 check('emoji', 'zero emoji inside controls, tabs, nav, headings and chips', async ({ p }) => {
   const bad = [];
-  for (const [v, a] of [['home'], ['map'], ['paath'], ['bhasha'], ['khel'], ['me'], ['shop'], ['collection'], ['settings'], ['medals'], ['search', 'goa']]) {
+  /* #/worlds and the map's chip were missed (audit, 3 Oct 2026: 13 🪙 prices on #/worlds, a 🪔 on
+     the map) — because the screen was not on this list and a price is a .badge, a count a .pill */
+  for (const [v, a] of [['home'], ['map'], ['paath'], ['bhasha'], ['khel'], ['me'], ['shop'], ['collection'], ['settings'], ['medals'], ['search', 'goa'], ['worlds']]) {
     await go(p, v, a); await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(200);
     await openMenu(p);
     const hits = await p.evaluate(src => {
       const re = new RegExp(src, 'u'), out = [];
-      document.querySelectorAll('button, [role=tab], nav, h1, h2, h3, .chip').forEach(e => {
+      document.querySelectorAll('button, [role=tab], nav, h1, h2, h3, .chip, .pill, .badge').forEach(e => {
         const t = [...e.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('') + ' ' +
           [...e.querySelectorAll('span, b, i, em, small')].map(x => x.textContent).join(' ');
         if (re.test(t)) out.push((e.tagName + ' "' + e.textContent.trim().slice(0, 30) + '"'));
@@ -342,6 +344,25 @@ check('emoji', 'zero emoji inside controls, tabs, nav, headings and chips', asyn
     hits.forEach(h => bad.push('#/' + v + ': ' + h));
   }
   if (bad.length) throw new Error(bad.length + ' emoji in controls: ' + [...new Set(bad)].slice(0, 6).join(' · '));
+});
+
+/* PAINTED WORLDS (audit U9/D3/D4, 3 Oct 2026): three of fifteen worlds had painted day and night
+   plates and twelve were drawn shapes. Every world the child can choose has both, 1600 × 900,
+   listed in the manifest the page reads, under the 420 KB a plate is allowed. */
+check('plates', 'every world has a painted day and night plate, in the manifest, 1600 × 900, ≤ 420 KB', async ({ p }) => {
+  const r = await p.evaluate(() => ({ list: ((window.IND_WORLDS || {}).list || []).map(w => w.id || w), bg: window.IND_WORLD_BG || [] }));
+  if (r.list.length < 15) throw new Error('only ' + r.list.length + ' worlds');
+  const bad = [];
+  for (const id of r.list) for (const m of ['day', 'night']) {
+    const f = path.join(APP, 'art', 'worlds', id + '-' + m + '.jpg');
+    if (!fs.existsSync(f)) { bad.push(id + '-' + m + ' is not painted'); continue; }
+    if (r.bg.indexOf(id + '-' + m) < 0) bad.push(id + '-' + m + ' is not in worlds-bg-manifest.js');
+    const b = fs.readFileSync(f); let i = 2, w = 0, h = 0;
+    while (i < b.length) { if (b[i] !== 0xff) { i++; continue; } const mk = b[i + 1]; if (mk >= 0xc0 && mk <= 0xc3) { h = b.readUInt16BE(i + 5); w = b.readUInt16BE(i + 7); break; } i += 2 + b.readUInt16BE(i + 2); }
+    if (w !== 1600 || h !== 900) bad.push(`${id}-${m} is ${w}×${h}`);
+    if (b.length > 420 * 1024) bad.push(`${id}-${m} is ${Math.round(b.length / 1024)} KB`);
+  }
+  if (bad.length) throw new Error(bad.length + ': ' + bad.slice(0, 5).join('; '));
 });
 
 /* ------------------------------------------------------------------ avatars (§8) */

@@ -180,6 +180,29 @@ check('kidmenu', 'the avatar opens the family\'s menu: each child with a face an
   } finally { await pc.close(); }
 });
 
+/* THE SHELF IS NEVER BLANK (audit, 3 Oct 2026: "Night Collection: several avatar cards render
+   blank until scrolled"). The cards drew 512px portraits at 96px, lazily — 3.3 MB arriving as the
+   child scrolled, an empty frame until each came. Every card is drawn from its 192px copy
+   (tools/gen-av-thumbs.py), all at once: at night, without a single scroll, every face is there. */
+check('shelf', 'the Collection draws all 96 faces at once, from their small copies, without a scroll — at night too', async ({ p }) => {
+  const AV = path.join(APP, 'art', 'av');
+  const ids = fs.readdirSync(AV).filter(f => f.endsWith('.webp')).map(f => f.slice(0, -5));
+  const miss = ids.filter(id => !fs.existsSync(path.join(AV, 'sm', id + '.webp')) ||
+    fs.statSync(path.join(AV, 'sm', id + '.webp')).mtimeMs < fs.statSync(path.join(AV, id + '.webp')).mtimeMs - 1000);
+  if (miss.length) throw new Error(`${miss.length} avatars have no small copy, or an older one (${miss.slice(0, 3).join(', ')}) — run python3 tools/gen-av-thumbs.py`);
+  await p.click('[data-bz=theme]'); await p.waitForTimeout(300);
+  await p.evaluate(() => window.BI.go('collection')); await p.waitForTimeout(1500);
+  const r = await p.evaluate(() => {
+    const im = [...document.querySelectorAll('#main .bzcard img')];
+    return { n: im.length, blank: im.filter(i => !i.complete || !i.naturalWidth).length,
+             big: im.filter(i => i.naturalWidth > 256).length, night: document.documentElement.getAttribute('data-mode'), y: scrollY };
+  });
+  if (r.night !== 'night') throw new Error('could not switch to night');
+  if (r.n < 90) throw new Error(`the Collection drew ${r.n} cards`);
+  if (r.blank) throw new Error(`${r.blank} of ${r.n} cards are still blank 1.5 s after opening, without a scroll`);
+  if (r.big) throw new Error(`${r.big} cards draw the full 512px portrait at 96px`);
+});
+
 check('activity', 'bizzing.activity gets active minutes and a story\'s milestone', async ({ p }) => {
   /* active minutes: the clock runs and the child keeps touching the screen */
   for (let i = 0; i < 12; i++) {

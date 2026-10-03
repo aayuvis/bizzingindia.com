@@ -425,7 +425,12 @@
     if (!fresh.length) { if (first) save(); return; }
     save();
     if (first || quiet === true) return;
-    fresh.forEach(function (m) { celebrating.push(m); milestone('mastery', 'Medal: ' + m.name); });
+    fresh.forEach(function (m) {
+      milestone('mastery', 'Medal: ' + m.name);
+      /* the Sadhak medal and the Sadhak rank are one moment: the rank's ceremony says it */
+      if (RANKS.indexOf(m.name) >= 0 && (S.rankShown || 0) >= RANKS.indexOf(m.name)) return;
+      celebrating.push(m);
+    });
     showCelebration();
   }
   /* THE CELEBRATION (family standard §8; FIX-INDIA J1): specific — it names what was done —
@@ -434,6 +439,25 @@
     if ($('#celebrate') || !celebrating.length) return;
     var m = celebrating.shift(), d = document.createElement('div');
     d.id = 'celebrate'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
+    if (m.rank != null) {
+      d.setAttribute('aria-label', 'A new rank: ' + RANKS[m.rank]);
+      d.className = 'cel-rank';
+      d.innerHTML = '<div class="cel-in"><div class="cel-burst" aria-hidden="true">' + new Array(19).join('<i></i>') + '</div>' +
+        '<span class="cel-wear">' + wearer(132, 'sash-' + m.rank) + '</span>' +
+        '<span class="mono">A new rank · ' + (m.rank + 1) + ' of ' + RANKS.length + '</span>' +
+        '<h2>You are a ' + esc(RANKS[m.rank]) + ' now</h2>' +
+        '<p>A ' + esc(RANKS[m.rank].toLowerCase()) + ' is ' + esc(RANK_MEANS[m.rank]) + '. You reached it with ' + m.m +
+          ' thing' + (m.m === 1 ? '' : 's') + ' mastered — every one checked on a later day than it was taught.</p>' +
+        '<p class="tiny">The ' + esc(RANKS[m.rank]) + ' sash is yours to wear.' +
+          (m.rank < RANKS.length - 1 ? ' Next: ' + esc(RANKS[m.rank + 1]) + ', at ' + RANK_AT[m.rank + 1] + ' mastered.' : '') + '</p>' +
+        '<div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap">' +
+        '<button class="btn lg" data-act="celwear" data-id="sash-' + m.rank + '">Wear it</button>' +
+        '<button class="btn lg ghost" data-act="celok">Shabash! →</button></div></div>';
+      document.body.appendChild(d);
+      sfx('medal');
+      var bw = d.querySelector('[data-act="celwear"]'); if (bw) bw.focus();
+      return;
+    }
     d.setAttribute('aria-label', 'New medal: ' + m.name);
     d.innerHTML = '<div class="cel-in"><div class="cel-burst" aria-hidden="true">' + new Array(13).join('<i></i>') + '</div>' +
       '<span class="cel-peacock" aria-hidden="true">' + peacock('cheer', 84) + '</span>' +
@@ -451,6 +475,43 @@
     return 0;
   }
   function rank() { return RANKS[level()]; }
+  var RANK_MEANS = ['a student', 'one who goes after knowledge', 'one who practises', 'a seeker, an explorer',
+                    'one who has learned a great deal', 'a scholar', 'a teacher', 'a sage'];
+  var SASH = ['#e3a13a', '#3a8f5c', '#2f6db5', '#7a4bc4', '#b8402f', '#a87a12', '#1f3a5f', '#efe1b0'];
+
+  /* THE CHILD'S COMPANION, DRESSED (audit K6): the frame round the face (S.frame) and what it
+     wears (S.outfit) — a garland, a stole from a weaving tradition, or the sash of a rank it has
+     reached. Drawn over the portrait and clipped to its circle, so it fits every one of the 96. */
+  function outfitSVG(id) {
+    /* draped across the chest of a figure that fills its square: one curve, shoulder to shoulder */
+    var at = function (t, lift) { var u = 1 - t; return [u * u * 14 + 2 * u * t * 50 + t * t * 86, u * u * 56 + 2 * u * t * (88 - (lift || 0)) + t * t * 56]; };
+    var band = function (fill, deco) {
+      return '<path d="M14 52 Q50 84 86 52 L86 64 Q50 96 14 64 Z" fill="' + fill + '" stroke="rgba(0,0,0,.3)" stroke-width="1.2"/>' + deco;
+    };
+    var along = function (n, draw) { var o = ''; for (var i = 0; i < n; i++) { var q = at((i + 0.5) / n, 6); o += draw(q[0], q[1] + 2, i); } return o; };
+    if (id === 'outfit-genda') {
+      var g = ''; for (var i = 0; i <= 12; i++) { var q = at(i / 12, 4);
+        g += '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="4.4" fill="' + (i % 2 ? '#f6c12c' : '#ef8a17') + '" stroke="#b85c0a" stroke-width=".7"/>'; }
+      return g + '<path d="M50 80 l-5 9 l5 -3 l5 3 z" fill="#3f8f3a"/>';
+    }
+    if (id === 'outfit-bandhani') return band('#b8262f', along(11, function (x, y, i) { return '<circle cx="' + x.toFixed(1) + '" cy="' + (y + (i % 2 ? 2 : -2)).toFixed(1) + '" r="1.5" fill="' + (i % 3 ? '#fff4dc' : '#f6c12c') + '"/>'; }));
+    if (id === 'outfit-phulkari') return band('#d9661f', along(6, function (x, y, i) { return '<path d="M' + x.toFixed(1) + ' ' + (y - 4.5).toFixed(1) + ' l3.6 4.5 l-3.6 4.5 l-3.6 -4.5 z" fill="' + (i % 2 ? '#f6c12c' : '#e0418a') + '"/>'; }));
+    if (id === 'outfit-ikat') return band('#1f4e79', along(6, function (x, y) { return '<path d="M' + (x - 4).toFixed(1) + ' ' + y.toFixed(1) + ' l4 -4 l4 4 l-4 4 z" fill="none" stroke="#f3e6c8" stroke-width="1.8" stroke-dasharray="2.5 1.2"/>'; }));
+    if (id === 'outfit-ajrakh') return band('#1b2a49', along(6, function (x, y) {
+      return '<path d="M' + x.toFixed(1) + ' ' + (y - 3.6).toFixed(1) + ' l1 2.6 l2.6 1 l-2.6 1 l-1 2.6 l-1 -2.6 l-2.6 -1 l2.6 -1 z" fill="#d0453a"/>'; }));
+    var m = /^sash-(\d)$/.exec(id || '');
+    if (m) {
+      var c = SASH[+m[1]] || SASH[0];
+      return '<path d="M25 44 L34 40 L82 100 L70 100 Z" fill="' + c + '" stroke="rgba(0,0,0,.3)" stroke-width="1"/>' +
+        '<circle cx="55" cy="74" r="5.6" fill="#f2c94c" stroke="#8a6410" stroke-width="1.1"/><circle cx="55" cy="74" r="2.2" fill="#8a6410"/>';
+    }
+    return '';
+  }
+  function wearer(size, outfit) {
+    var o = outfit === undefined ? S.outfit : outfit, svg = o ? outfitSVG(o) : '';
+    return '<span class="wear' + (S.frame ? ' framed fr-' + esc(S.frame) : '') + '">' + art(S.buddy, size) +
+      (svg ? '<svg class="outfit" viewBox="0 0 100 100" aria-hidden="true">' + svg + '</svg>' : '') + '</span>';
+  }
 
   var WORLDS = [
     { id: 'chitrakatha', name: 'Chitrakatha', region: 'Pan-Indian', note: 'A painted scroll, unrolling. The storyteller’s cloth.' },
@@ -473,9 +534,12 @@
   function slug(s) { return String(s).replace(/[^a-z0-9]+/gi, '-').toLowerCase().replace(/^-|-$/g, '').slice(0, 60); }
 
   /* prefer the generated PNG art; fall back to the inline SVG set */
-  function art(id, size) {
+  /* drawn at 96px or less, an avatar is its 192px copy (tools/gen-av-thumbs.py): ~10 KB, not
+     the 34 KB portrait. `eager` is for a shelf that must not stand blank while it scrolls. */
+  function art(id, size, eager) {
     if (window.IND_AV_WEBP && window.IND_AV_WEBP.indexOf(id) >= 0)
-      return '<img src="art/av/' + id + '.webp" width="' + (size || 76) + '" height="' + (size || 76) + '" alt="" loading="lazy" decoding="async">';
+      return '<img src="art/av/' + ((size || 76) <= 96 ? 'sm/' : '') + id + '.webp" width="' + (size || 76) + '" height="' + (size || 76) +
+        '" alt=""' + (eager ? '' : ' loading="lazy"') + ' decoding="async">';
     var have = window.IND_ART_IMG && window.IND_ART_IMG.indexOf(id) >= 0;
     if (have) return '<img src="art/' + id + '.png" width="' + (size || 76) + '" height="' + (size || 76) +
       '" alt="" loading="lazy">';
@@ -641,7 +705,7 @@
   function earn(ev, why) {
     var Wl = window.IND_WALLET;
     var n = Wl ? Wl.earn('india', S.name, ev) : 0;
-    if (n) toast('🪙 +' + n + (why ? ' · ' + why : ''));
+    if (n) toast('+' + n + ' coins' + (why ? ' · ' + why : ''));
     paintCoins();
     return n;
   }
@@ -709,10 +773,20 @@
     if (!window.IND_PAATH_UI || !window.IND_BHASHA || !window.IND_PACKS) return out;
     /* growth is measured from the first time it CAN be measured: what a child already had
        before this build is not news, and announcing it as new would be the feed's first lie */
-    if (!S.grown) { S.grown = { m: mastered(), l: level() }; save(); return out; }
+    var E0 = window.IND_ECONOMY, sashes = function (to) { if (E0 && E0.grantSash) for (var r = 0; r <= to; r++) E0.grantSash(S, r); };
+    if (!S.grown) { S.grown = { m: mastered(), l: level() }; sashes(S.grown.l); S.rankShown = S.grown.l; save(); return out; }
     var g = S.grown, m = mastered(), l = level();
     if (m > g.m) { out.m = m - g.m; milestone('mastery', m + ' thing' + (m === 1 ? '' : 's') + ' mastered'); g.m = m; }
-    if (l > g.l) { out.l = true; milestone('band', 'Rank: ' + RANKS[l]); g.l = l; }
+    sashes(l);
+    /* THE RANK, SAID TO THE CHILD (audit L4/J3, 3 Oct 2026). A new rank told the Hive and nobody
+       else — the child's own ladder moved in silence. Now it is a ceremony, once per rank: what
+       the word means, what was mastered to reach it, and the sash that goes with it. Never on
+       the way down, never for a rank reached before this build (quiet: on the shelf, no fanfare). */
+    if (l > g.l) {
+      out.l = true; milestone('band', 'Rank: ' + RANKS[l]); g.l = l;
+      if (!quiet && !window.IND_DEMO && l > (S.rankShown || 0)) { celebrating.unshift({ rank: l, m: m }); setTimeout(showCelebration, 0); }
+      S.rankShown = Math.max(S.rankShown || 0, l);
+    }
     if (out.m || out.l) save();
     return out;
   }
@@ -1004,7 +1078,12 @@
      The numbers are COUNTED, never typed. This page claimed 11 stories and 34 places for
      months after there were 344 and 36 — the worst kind of stale copy, because it
      undersells the thing and nobody notices. */
-  V.landing = function () {
+  /* THE LANDING WORKS AS A PAGE (owner, 3 Oct 2026: "no marketing site/screenshots — look at
+     Bizzing Bee"). Bee's landing lets a stranger spell a real word in its hero. Ours lets them
+     HEAR A REAL STORY in its hero: Read it plays tonight's story inside this card — the painting,
+     the voice, scene by scene, to its end — on this same page, beside Start free. No screenshots,
+     no feature grid: the thing itself, then one honest line about privacy. */
+  V.landing = function (guestId) {
     var nStories = (allStories() || []).length;
     var nPlaces = nPlaces_();
     var nPacks = Object.keys(window.IND_PACKS || {}).length || ((window.IND_INDEX && window.IND_INDEX.packs) || []).length;
@@ -1030,6 +1109,7 @@
             '<li>' + icon('script', 20) + '<span><b>' + nPacks + ' Indian languages</b> in their own scripts — never romanised</span></li>' +
           '</ul>' +
         '</div>' +
+        (guestId ? '<div class="herocard live" id="herolive" aria-live="polite">' + V.story(guestId) + '</div>' :
         '<div class="herocard">' +
           mascot('mithu', 'talk', 116) +
           '<div class="mono" style="margin:10px 0 4px">Tonight’s story</div>' +
@@ -1038,7 +1118,7 @@
             'A lion who ate whatever he liked. And one small rabbit who had had enough.') + '</p>' +
           /* READ IT, NOW (FIX-INDIA A3): the story plays before any setup; the questions
              come after it, from somebody who has just seen what the app is */
-          (pick ? '<button class="btn block" data-act="guest" data-id="' + esc(pick.id) + '">Read it →</button>'
+          (pick ? '<button class="btn block" data-act="guest" data-id="' + esc(pick.id) + '">' + icon('sound', 18) + ' Read it here, aloud</button>'
                 : '<button class="btn block" data-act="begin">Read it →</button>') +
           '<div class="row" style="margin-top:18px;gap:10px">' +
             '<div class="card flat tight" style="flex:1;margin:0"><div class="mono">Stories</div>' +
@@ -1048,24 +1128,7 @@
             '<div class="card flat tight" style="flex:1;margin:0"><div class="mono">Worlds</div>' +
               '<b style="font-size:19px">' + nWorlds + '</b></div>' +
           '</div>' +
-        '</div>' +
-      '</div>' +
-
-      /* What it actually does, in three plain claims a parent can check. */
-      '<div class="grid g3" style="margin-top:10px">' +
-        [['tree', 'Stories they will sit still for',
-          'Panchatantra, the Jatakas, the Ramayana and the Mahabharata, and the folk tales of every ' +
-          'state — told properly, never dumbed down, with a real question at the end instead of a moral.'],
-         ['map', 'A map of India they fill in themselves',
-          'Finish a story and the place it came from lights up. Every state painted, every capital ' +
-          'where it really is. Geography and progress in one picture.'],
-         ['script', 'Hindi taught the way it is actually spoken',
-          'Devanagari from day one, never romanised. The words, the letters, the grammar — and when ' +
-          'to say आप instead of तुम, which is the part that matters to a grandparent.']]
-        .map(function (c) {
-          return '<div class="card"><div style="width:44px;height:44px;border-radius:13px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin-bottom:12px">' +
-            icon(c[0], 24) + '</div><h3>' + c[1] + '</h3><p class="tiny">' + c[2] + '</p></div>';
-        }).join('') +
+        '</div>') +
       '</div>' +
 
       /* The one thing every diaspora parent is actually worried about, answered straight. */
@@ -1480,7 +1543,7 @@
                 ? '#/wordcard/' + encodeURIComponent(wLang + ':' + w[0]) : '#/bhasha' },
       next: { plate: stp.art || 'art/banner/stories.jpg', chip: stp.meter || '', kicker: stp.kick, title: stp.title, sub: stp.sub || '',
               href: '#/continue', cta: 'Continue', icon: 'path',
-              progress: { pct: Math.round(Math.min(1, (stp.n || 0) / Math.max(1, stp.of || 1)) * 100), label: stp.meter || '' } },
+              progress: { pct: Math.round(Math.min(1, (stp.n || 0) / Math.max(1, stp.of || 1)) * 100), label: stp.plabel && stp.plabel !== stp.meter ? stp.plabel : '' } },
       second: { plate: 'art/banner/map.jpg', chip: lit + ' of ' + places + ' places', kicker: 'Your journey across India',
                 title: 'The map of India', sub: 'Every story you finish lifts the mist off the place it came from.',
                 href: '#/map', cta: 'Open the map', ctaIcon: 'map', progress: { pct: Math.round(lit / Math.max(1, places) * 100) } },
@@ -2537,7 +2600,7 @@
         '<h2 style="margin:0;font-size:20px">India</h2>' +
         '<span class="tiny muted" style="flex:1;margin-left:10px">' + lit + ' of ' + total +
           ' places remembered · tap a state</span>' +
-        '<span class="pill stat" title="Good days this week">🪔 ' + goodDays() + '/7</span></div>' +
+        '<span class="pill stat" title="Good days this week">' + icon('diya', 14) + ' ' + goodDays() + '/7</span></div>' +
       '<div class="mapwrap">' +
         '<svg class="mapsvg" viewBox="' + M.viewBox + '" role="img" aria-label="Map of India">' +
           '<defs>' + defs + '</defs>' +
@@ -2964,7 +3027,7 @@
   /* one themed room: the door's collections as rails */
   V.kahani = function (id) {
     var t = doorById(id);
-    if (!t) return '<div class="card">This shelf is not here.</div>';
+    if (!t) return errorState('There is no shelf of stories by that name.');
     var all = allStories(), favs = S.favs || {};
     var cols = allCollections().filter(function (c) { return t.cols.indexOf(c.id) >= 0; });
     var n = themeStories(t, all).length;
@@ -3757,30 +3820,11 @@
       (s.source ? '<p class="tiny muted" style="padding:0 var(--space-lg)">' + esc(s.source) + '</p>' : '');
   };
 
-  V.play = function () {
-    var G = window.IND_GAMES || [];
-    return '<div class="card"><h1>Play</h1><p>The Mela. Every stall is a drill wearing a costume.</p></div>' +
-      '<div class="grid g2">' +
-      hubCard('rishtey', 'Rishtey', 'Thirty exact words for your family, where English has one. Build your own tree.', 'parent') +
-      (window.IND_GULLY
-        ? hubCard('gully', 'Gully', window.IND_GULLY.games.length +
-            ' street games, with the rules — to take outside and actually play.', 'run')
-        : '') +
-      (window.IND_GEET
-        ? hubCard('geet', 'Geet', 'The rhymes and lullabies your parents knew by heart, ' +
-            'with what the words mean.', 'sound')
-        : '') +
-      G.map(function (g) {
-        return '<button class="tile" data-act="game" data-id="' + g.id + '">' +
-          '<div class="row" style="flex-wrap:nowrap;align-items:flex-start">' +
-          '<span style="width:46px;height:46px;flex:none;border-radius:13px;background:var(--accent-soft);' +
-          'color:var(--accent);display:grid;place-items:center">' + icon('game', 24) + '</span>' +
-          '<div style="flex:1"><h3 style="margin:0">' + esc(g.name) + '</h3>' +
-          '<p class="tiny" style="margin:5px 0 0">' + esc(g.blurb || '') + '</p>' +
-          '<div class="mono" style="margin-top:6px">' + (g.minutes || 2) + ' min</div></div></div></button>';
-      }).join('') + '</div>';
-  };
-
+  /* ONE HUB FOR PLAY (audit C5/H5/N3, 3 Oct 2026). There were two: this tab's flat list of
+     tiles at uneven heights, and the painted Mela a game's back pill returned to — so a child
+     who started on Play finished somewhere else. Play IS the Mela now; #/mela and #/khel are
+     old names for it. The family corners (Rishtey, Gully, Geet) are a shelf of it. */
+  V.play = function () { return V.mela(); };
 
   /* ---------------------------------------------------------------- EPICS */
   /* Card-by-card serialised reading. One beat a card, a page-turn each time.
@@ -4591,7 +4635,7 @@
           '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3>' +
           (S.world === w.id ? '<span class="badge aaj">on</span>'
             : (open ? '<span class="badge">alive</span>'
-                    : '<span class="badge price">🪙 ' + price + '</span>')) + '</div>' +
+                    : '<span class="badge price">' + icon('coin', 14) + ' ' + price + '</span>')) + '</div>' +
           '<div class="mono">' + esc(w.region) + '</div>' +
           '<p class="tiny" style="margin:8px 0 0">' + esc(w.note) + '</p>' +
           (open ? '' : '<p class="tiny" style="margin:6px 0 0;color:var(--accent-ink,var(--accent));font-weight:700">' +
@@ -5166,7 +5210,7 @@
   }
 
   V.pack = function (id) {
-    var p = window.IND_PACKS[id]; if (!p) return '<div class="card">Pack not found.</div>';
+    var p = window.IND_PACKS[id]; if (!p) return errorState('There is no language by that name here.');
     var sc = window.IND_SCRIPTS[p.script];
     if (quiz.packId !== id) quiz = quizReset(id);
     var rec = ensureLang(id);
@@ -5780,7 +5824,7 @@
       (st[0] === 'new' ? '' : '<i class="rc ' + st[1] + '">' + st[0] + '</i>') + '</button>';
   }
   V.kosh = function (id) {
-    var p = window.IND_PACKS[id]; if (!p) return '<div class="card">Pack not found.</div>';
+    var p = window.IND_PACKS[id]; if (!p) return errorState('There is no language by that name here.');
     var lex = p.lexicon || [], byTheme = {}, i;
     for (i = 0; i < lex.length; i++) (byTheme[lex[i].theme] || (byTheme[lex[i].theme] = [])).push(lex[i]);
     var withSent = 0, B = window.IND_BHASHA;
@@ -6222,12 +6266,13 @@
           (tag ? '<span class="gtag">' + esc(tag) + '</span>' : '') + '</span>' +
         '<span class="gbody"><b>' + esc(g.name) + '</b>' +
         '<span class="tiny muted">' + esc(g.blurb || '') + '</span>' +
-        '<span class="mono">' + (g.minutes || 2) + ' min</span></span></button>';
+        '<span class="mono">' + (g.minutes || 2) + ' min' +
+          (bestOf(g.id) != null ? ' · your best ' + bestOf(g.id) : '') + '</span></span></button>';
     }
     /* nomenclature rule: the tab's word is the pillar's name; the Mela keeps its
        proper name as the subtitle, the way the river does under Itihaas */
-    var out = '<div class="phead"><h1>Khel</h1>' +
-      '<span class="mono">The Mela — the fairground</span>' +
+    var out = '<div class="phead"><h1>Play</h1>' +
+      '<span class="mono">Khel · the Mela — the fairground</span>' +
       '<p>Some stalls are as old as India, some are drills wearing a costume — every one ' +
       'plays with fingers and with keys.</p></div>';
     /* THE HERO STALL. Sabhyata is the fair's big wheel — it gets the top of the
@@ -6257,8 +6302,21 @@
         '<div class="grid g3 gshelf">' + list.map(cover).join('') + '</div>';
     });
     var rest = G.filter(function (g) { return !used[g.id] && !g.hide; });
-    if (rest.length) out += '<h3 style="margin:26px 0 12px">More stalls</h3>' +
+    if (rest.length) out += '<div class="shelfhead"><h3>More stalls</h3><p class="tiny">Courtyard games, played with fingers and with keys.</p></div>' +
       '<div class="grid g3 gshelf">' + rest.map(cover).join('') + '</div>';
+    /* the corners that are not games but are played: your family's words, the street, the songs */
+    var corner = function (v, name, blurb, ic, c, c2, tag) {
+      return '<button class="gcover" data-act="go" data-v="' + v + '">' +
+        '<span class="gart" style="background:linear-gradient(135deg,' + c + ',' + c2 + ')">' + icon(ic, 46) +
+        '<span class="gtag">' + esc(tag) + '</span></span>' +
+        '<span class="gbody"><b>' + esc(name) + '</b><span class="tiny muted">' + esc(blurb) + '</span></span></button>';
+    };
+    out += '<div class="shelfhead"><h3>From home</h3><p class="tiny">Not on a screen at all, mostly — words, games and songs to take to the family.</p></div>' +
+      '<div class="grid g3 gshelf">' +
+      corner('rishtey', 'Rishtey', 'Thirty exact words for your family, where English has one. Build your own tree.', 'parent', '#b4471f', '#e7842c', 'family') +
+      (window.IND_GULLY ? corner('gully', 'Gully', window.IND_GULLY.games.length + ' street games, with the rules — to take outside and actually play.', 'run', '#2f7a4d', '#7cb36a', 'outside') : '') +
+      (window.IND_GEET ? corner('geet', 'Geet', 'The rhymes and lullabies your parents knew by heart, with what the words mean.', 'sound', '#5b3fd6', '#9b7be8', 'songs') : '') +
+      '</div>';
     return out;
   };
   /* THE GAME FRAME (family standard §10; FIX-INDIA F3). Every game gets, from the host,
@@ -6301,7 +6359,7 @@
   V.game = function () {
     var g = (window.IND_GAMES || []).filter(function (x) { return x.id === view.arg; })[0];
     var f = GAME_FRAME[view.arg] || [g && g.blurb || '', ''];
-    return '<button class="backlink" data-act="go" data-v="mela">' + icon('back', 18) + ' Mela</button>' +
+    return '<button class="backlink" data-act="go" data-v="play">' + icon('back', 18) + ' Play</button>' +
       '<div class="card gframe" id="gframe">' +
       (g ? '<button class="gf-title" id="gftitle" aria-expanded="true" data-act="gfhow">' +
         '<span class="gf-ic">' + icon('game', 22) + '</span>' +
@@ -6939,7 +6997,7 @@
   V.me = function () {
     var A = (window.IND_AVATAR_BY_ID || {})[S.buddy], E = window.IND_ECONOMY;
     return '<div class="card mehead"><div class="row" style="flex-wrap:nowrap">' +
-      '<span class="' + (S.frame ? 'framed fr-' + esc(S.frame) : '') + '">' + art(S.buddy, 92) + '</span>' +
+      wearer(92) +
       '<div><h1 style="margin:0">' + esc(S.name || 'Yatri') + '</h1>' +
       '<div class="row" style="margin-top:8px">' +
       '<button class="pill coinchip" data-act="wallet">' + coinSvg(18) + ' ' + coins() + '</button>' +
@@ -7330,7 +7388,7 @@
     var vb = M.viewBox.split(/[\s,]+/).map(Number), a = M.anchors[code];
     var lx = ((a[0] - vb[0]) / vb[2]) * 100, ly = ((a[1] - vb[1]) / vb[3]) * 100;
     return '<span class="mapyou" style="left:' + lx.toFixed(2) + '%;top:' + ly.toFixed(2) + '%" title="You — ' + esc(stateName(code)) + '">' +
-      '<span class="' + (S.frame ? 'framed fr-' + esc(S.frame) : '') + '">' + art(S.buddy, 34) + '</span></span>';
+      wearer(34) + '</span>';
   }
 
   /* ===================================================== THE FAMILY LAYER (standard v2)
@@ -7394,11 +7452,35 @@
       '</div>';
   }
   function errorState(line, retryV, retryArg) {
+    oopsed = true;
+    /* a thing that is not here is not a failure to retry: the way on is the shelf it would
+       have been on (audit, 3 Oct 2026 — "Try again" on a missing page went Home) */
+    var hub = !retryV && HUB_OF[view.name];
+    if (hub) return '<div class="card bz-empty bz-oops" role="alert">' + peacock('oops', 112) +
+      '<h2>That one is not here</h2><p>' + esc(/Home always has the way in/.test(line) ? 'It may have moved, or the link was cut short.' : line) + '</p>' +
+      '<div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap">' +
+      '<button class="btn" data-act="go" data-v="' + esc(hub[0]) + '">' + esc(hub[1]) + ' →</button>' +
+      '<button class="btn ghost" data-act="go" data-v="home">Home</button></div></div>';
     return '<div class="card bz-empty bz-oops" role="alert">' + peacock('oops', 112) +
       '<h2>That did not work</h2><p>' + esc(line) + '</p>' +
       '<button class="btn" data-act="go" data-v="' + esc(retryV || 'home') + '"' +
         (retryArg != null ? ' data-arg="' + esc(retryArg) + '"' : '') + '>Try again</button></div>';
   }
+  /* NO DEAD ENDS (audit, 3 Oct 2026): #/value and #/verses with nothing after them showed the
+     error page; #/kosh said a bare "Pack not found." and #/kahani "This shelf is not here." with
+     no way on. Every screen that names one thing has the shelf that thing sits on: opened with
+     nothing named, it IS that shelf; opened on a thing that is not there, it says so with the
+     peacock and a door to the shelf. check-trust deadends opens every one both ways. */
+  var oopsed = false;
+  var HUB_OF = {
+    state: ['map', 'Open the map'], kahani: ['stories', 'All the stories'], story: ['stories', 'All the stories'],
+    pack: ['bhasha', 'Open Bhasha'], chart: ['bhasha', 'Open Bhasha'], vyakaran: ['bhasha', 'Open Bhasha'],
+    kosh: ['bhasha', 'Open Bhasha'], wordcard: ['bhasha', 'Open Bhasha'], progress: ['bhasha', 'Open Bhasha'],
+    epic: ['epics', 'All the epics'], verses: ['shlok', 'All the verses'], value: ['neeti', 'All the values'],
+    era: ['itihaas', 'Open Itihaas'], song: ['geet', 'All the songs'], gullygame: ['gully', 'All the street games'],
+    festival: ['utsav', 'All the festivals'], faith: ['dharma', 'Open Dharma'], avcard: ['collection', 'Your collection'],
+    paathl: ['paath', 'Open Paathshala'], paathp: ['paath', 'Open Paathshala'], paathk: ['paath', 'Open Paathshala']
+  };
 
   /* The ☰ drawer is the family shell's (family/bizzing-shell.js), wired by bindShell. */
   /* Esc closes the sheets; Tab stays inside whichever is open */
@@ -7501,7 +7583,7 @@
     return '<button class="bzcard" data-act="go" data-v="avcard" data-arg="' + esc(a.id) + '" aria-label="' +
         esc(a.name + ' — ' + (st.label || a.tier) + ' — ' + st.say) + '">' +
       '<figure class="bz-av" data-tier="' + a.tier + '" data-state="' + st.state + '">' +
-        art(a.id, o.size || 96) +
+        art(a.id, o.size || 96, true) +
         '<figcaption>' + esc(a.name) + ' <b>' + esc(st.label || a.tier) + '</b></figcaption></figure>' +
       '<span class="bzsay' + (st.state === 'owned' ? ' own' : '') + '">' + esc(st.say) + '</span></button>';
   }
@@ -7526,7 +7608,7 @@
   V.shop = function (tab) {
     tab = tab === 'worlds' || tab === 'extras' ? tab : 'avatars';
     var E = window.IND_ECONOMY;
-    var tabs = [['avatars', 'Avatars'], ['worlds', 'Worlds'], ['extras', 'Extras']];
+    var tabs = [['avatars', 'Avatars'], ['worlds', 'Worlds'], ['extras', 'Outfits & extras']];
     var body = '';
     if (tab === 'avatars') {
       var P = window.IND_AVATAR_PACKS || [], C = window.IND_AVATARS || [];
@@ -7558,11 +7640,13 @@
       }).join('') + '</div>';
     } else {
       body = '<div class="grid g2">' + ((E && E.EXTRAS) || []).map(function (x) {
-        var have = E.extraOwned(S, x.id), on = x.kind === 'frame' ? S.frame === x.id : (S.skin || {})[x.game] === x.id;
+        var have = E.extraOwned(S, x.id), worn = x.kind === 'outfit' || x.kind === 'sash';
+        var on = x.kind === 'frame' ? S.frame === x.id : worn ? S.outfit === x.id : (S.skin || {})[x.game] === x.id;
         return '<div class="card xshop">' + extraArt(x) +
           '<div><h3 style="margin:0">' + esc(x.name) + '</h3><p class="tiny muted" style="margin:4px 0 10px">' + esc(x.note) + '</p>' +
           (have ? (on ? '<span class="pill stat">On</span> <button class="pill" data-act="useextra" data-id="' + x.id + '" data-off="1">Take it off</button>'
-                      : '<button class="btn sm ghost" data-act="useextra" data-id="' + x.id + '">Use it</button>')
+                      : '<button class="btn sm ghost" data-act="useextra" data-id="' + x.id + '">' + (worn ? 'Wear it' : 'Use it') + '</button>')
+                : x.kind === 'sash' ? '<span class="tiny" style="font-weight:700">Earned by reaching ' + esc(RANKS[x.rank]) + ' — never sold</span>'
                 : '<button class="btn sm" data-act="buyextra" data-id="' + x.id + '">' + coinSvg(16) + ' ' + x.price + '</button>') +
           '</div></div>';
       }).join('') + '</div>';
@@ -7580,6 +7664,7 @@
   };
   /* a frame or a board, drawn: the child sees exactly what they are choosing */
   function extraArt(x) {
+    if (x.kind === 'outfit' || x.kind === 'sash') return '<span class="xart xwear">' + wearer(72, x.id) + '</span>';
     if (x.kind === 'board') {
       var c = x.id === 'board-rosewood' ? ['#6b3416', '#3d1d0b', '#c98b45'] : ['#e8c58f', '#b7884b', '#f6e2bd'];
       return '<svg class="xart" viewBox="0 0 80 80" aria-hidden="true"><rect x="4" y="4" width="72" height="72" rx="6" fill="' + c[1] + '"/>' +
@@ -8038,10 +8123,7 @@
         return;
       }
       if (view.name === 'story' && view.arg) {
-        root.innerHTML = '<header class="guestbar"><span class="brand">Bizzing <em>India</em></span>' +
-          '<span class="tiny muted gb-note">Reading as a guest — nothing is set up yet</span>' +
-          '<button class="btn ghost" data-act="begin">Set up for my child →</button></header>' +
-          '<main class="wrap" id="main">' + V.story(view.arg) + '</main>';
+        root.innerHTML = '<div id="main">' + V.landing(view.arg) + '</div>';
         return;
       }
       root.innerHTML = (view.name === 'onboard') ? '<div id="main">' + V.onboard() + '</div>' : V.landing();
@@ -8077,6 +8159,7 @@
       return;
     }
     lastLoad = null;
+    oopsed = false;
     switch (view.name) {
       case 'map': h = V.map(); break;
       case 'state': h = V.state(view.arg); break;
@@ -8090,8 +8173,8 @@
       case 'progress': h = V.progress(view.arg); break;
       case 'kosh': h = V.kosh(view.arg); break;
       case 'wordcard': h = V.wordcard(view.arg); break;
-      case 'mela': h = V.mela(); break;
-      case 'khel': h = V.mela(); break;   /* the games pillar got its own tab; Mela is its page */
+      case 'mela': h = V.play(); break;   /* old names for Play (one hub, audit C5) */
+      case 'khel': h = V.play(); break;
       case 'game': h = V.game(); break;
       case 'learn': h = V.map(); break;   /* the Learn hub is gone; old links land on the map */
       case 'play': h = V.play(); break;
@@ -8141,6 +8224,10 @@
       case 'search': h = V.search(view.arg); break;
       case 'feed': h = V.feed(); break;
       default: h = V.home();
+    }
+    /* named nothing: this screen is its shelf (HUB_OF, by errorState) */
+    if (oopsed && HUB_OF[view.name] && (view.arg == null || view.arg === '') && !view.focus) {
+      view = mkView(HUB_OF[view.name][0], null); route(false); return render();
     }
     m.innerHTML = aajBar() + h + deckModal();
     /* Home's Continue is the one next step, played (narration and all), not just a link */
@@ -8480,9 +8567,15 @@
     if (!sd) return { kind: 'none', kick: 'Stories', title: 'The story shelf', sub: '', n: 0, of: 1,
                       meter: '', go: { n: 'stories', a: null } };
     var code = ((sd.place || [])[0] || '').replace('IN-', ''), lit = Object.keys(S.lit).length;
+    /* the bar is how far into THIS story (none of it yet), and its caption how long it is; the
+       chip says what finishing it does. The bar used to be the map's places, under the chip's
+       own words again — one card saying "the mist lifts off Odisha" twice, beside a map card
+       already counting places (audit, 03-home-new). */
+    var nsc = (sd.scenes || []).length;
     return { kind: 'story', id: sd.id, i: 0, fresh: true,
       kick: (Object.keys(S.read).length ? 'Next on your journey' : 'Your first story') + ' · tonight’s story',
-      title: sd.title, sub: sd.hook || '', art: storyArt(sd.id), n: lit, of: nPlaces(),
+      title: sd.title, sub: sd.hook || '', art: storyArt(sd.id), n: 0, of: Math.max(1, nsc),
+      plabel: nsc ? nsc + ' scenes' + (sd.minutes ? ' · about ' + sd.minutes + ' min' : '') : '',
       meter: code && !S.lit[code] && stateName(code)
         ? 'Finish it and the mist lifts off ' + stateName(code)
         : lit + ' of ' + nPlaces() + ' places remembered',
@@ -8511,7 +8604,9 @@
     if (!gs) { view = { name: 'onboard' }; return render(); }
     S.resume = { story: { id: gid, at: Date.now(), i: 0 } };
     play = { story: null, i: 0, answered: false }; view = { name: 'story', arg: gid };
-    render(); window.scrollTo(0, 0); sayScene(gs, 0);
+    render(); sayScene(gs, 0);
+    /* on a phone the card is under the words: bring the story to the eye, not the page's top */
+    var hl = $('#herolive'); if (hl && hl.scrollIntoView) hl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
   /* the Continue button itself */
   function runStep() {
@@ -8526,6 +8621,8 @@
 
   /* the games that teach — every one scored on the learning decision (standard §10) */
   var TEACHES = ['statehunt', 'festival', 'jataka', 'gyanpati', 'triviamaster', 'shabd', 'sabhyata'];
+  /* a game's best score, this child's (S.best[gameId]) — shown on its stall and at its finish */
+  function bestOf(id) { return S.best && typeof S.best[id] === 'number' ? S.best[id] : null; }
   function mountGame(id) {
     var g = (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0], host = $('#gamehost');
     if (!g || !host) return;
@@ -8560,12 +8657,14 @@
     };
     /* THE FINISH: what was practised, the child's own face and the peacock cheering (J6, I4) */
     var ended = function (out) {
+      /* the engine's own "Back to the Mela" leads to the host's finish card now */
+      if (/Mela/.test(out.textContent || '')) out.textContent = 'Finish';
       if (window.IND_SFX) window.IND_SFX.play('finish');
       burst(true);
       var row = out.parentNode;
       if (fr[1] && row && row.parentNode && !row.parentNode.querySelector('.gf-practised'))
         row.insertAdjacentHTML('beforebegin', '<div class="gf-practised"><span class="gf-faces">' +
-          '<span class="' + (S.frame ? 'framed fr-' + esc(S.frame) : '') + '">' + art(S.buddy, 56) + '</span>' + peacock('cheer', 56) + '</span>' +
+          wearer(56) + peacock('cheer', 56) + '</span>' +
           '<p><b>What you practised:</b> ' + esc(fr[1]) + (rights ? ' · ' + rights + ' right' : '') + '</p></div>');
     };
     var TOK_OK = /(^|\s)(good|is-right)(\s|$)/, TOK_NO = /(^|\s)(warm|is-warm)(\s|$)/;
@@ -8601,9 +8700,31 @@
         /* ONLY A GAME THAT TEACHES PAYS, and it pays for finishing, not for winning
            (standard §1, §10). Ludo, Saap-Sidi, carrom and the street games are played for
            their own sake: no coins, because a dice roll is not something a child learned. */
+        var c0 = coins();
         if (TEACHES.indexOf(g.id) >= 0) { earn('contest', g.name); markToday(); }
+        var paid = coins() - c0;   /* what the wallet actually took in — the lid may have held it */
         lastDid('game', g.name, '', { id: g.id });
-        setTimeout(function () { go('mela'); }, 900);
+        /* THE FINISH IS THE HOST'S (audit F4/G9, 3 Oct 2026). It used to jump back to the Mela
+           0.9 s after the engine said done — and the street games say done on the last move,
+           so they ended with no screen at all. Now every game ends here, and stays until the
+           child chooses: what they practised, their score and their best, and two doors. */
+        var sc = typeof res.score === 'number' && res.score >= 0 ? Math.round(res.score) : null;
+        var was = bestOf(g.id), isBest = sc != null && (was == null || sc > was);
+        if (isBest) { S.best = S.best || {}; S.best[g.id] = sc; save(); }
+        gameTeardown = function () { unframe(); };
+        if (typeof td === 'function') { try { td(); } catch (e) {} } else if (td && td.destroy) { try { td.destroy(); } catch (e) {} }
+        if (!host.isConnected) return;
+        host.innerHTML = '<div class="gf-finish" role="status">' +
+          '<span class="gf-faces">' + wearer(64) + peacock('cheer', 64) + '</span>' +
+          '<h2>' + (res.win ? 'Shabash — you did it!' : 'Well played!') + '</h2>' +
+          (sc != null ? '<p class="gf-score"><b>' + sc + '</b> this time · your best <b>' + Math.max(sc, was || 0) + '</b>' +
+            (isBest && was != null ? ' <span class="badge aaj">a new best</span>' : '') + '</p>' : '') +
+          (fr[1] ? '<p><b>What you practised:</b> ' + esc(fr[1]) + (rights ? ' · ' + rights + ' right' : '') + '</p>' : '') +
+          (paid ? '<p class="tiny">' + icon('coin', 14) + ' +' + paid + ' coins for finishing</p>' : '') +
+          '<div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px">' +
+            '<button class="btn" data-act="game" data-id="' + esc(g.id) + '" id="gfagain">Play again</button>' +
+            '<button class="btn ghost" data-act="go" data-v="play">Back to Play</button></div></div>';
+        var ag = $('#gfagain'); if (ag) ag.focus({ preventScroll: true });
       });
       gameTeardown = function () {
         unframe();
@@ -8690,6 +8811,7 @@
       if (XE.extraOwned(S, xid)) {
         var off = t.getAttribute('data-off') === '1';
         if (xx.kind === 'frame') S.frame = off ? null : xid;
+        else if (xx.kind === 'outfit' || xx.kind === 'sash') S.outfit = off ? null : xid;
         else { S.skin = S.skin || {}; S.skin[xx.game] = off ? null : xid; }
       }
       save(); paintChrome(); return render();
@@ -8736,6 +8858,7 @@
       save(); return render();
     }
     if (a === 'celok')  { var cel = $('#celebrate'); if (cel) cel.remove(); setTimeout(showCelebration, 250); return; }
+    if (a === 'celwear') { S.outfit = t.getAttribute('data-id'); save(); var cw = $('#celebrate'); if (cw) cw.remove(); render(); setTimeout(showCelebration, 250); return; }
     if (a === 'gfhow')  { t.classList.toggle('folded'); t.setAttribute('aria-expanded', t.classList.contains('folded') ? 'false' : 'true'); return; }
     if (a === 'guest')  {
       return withGroups(STORYG, function () { guestStory(t.getAttribute('data-id')); });
@@ -9685,7 +9808,7 @@
                   /* test handles for tools/check-rewards.js: the real functions, not copies */
                   earn: earn, mastered: mastered, level: level, coins: coins, goodDays: goodDays,
                   /* tools/check-motivation.js: the frame every game gets, and the medals' rules */
-                  gameFrame: GAME_FRAME, medals: MEDALS, evidence: evidence,
+                  gameFrame: GAME_FRAME, medals: MEDALS, evidence: evidence, growth: function () { return checkGrowth(); },
                   allStories: allStories, epics: epics,
                   storyThemes: function () { return STORY_THEMES.map(function (t) { return t.id; }); },
                   /* read-only view of the live quiz for tools/verify.js's

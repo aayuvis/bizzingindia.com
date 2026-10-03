@@ -1182,10 +1182,11 @@
       warn +
       c.modules.map(function (m, mi) { return partSection(c, st, mi, mi === open); }).join('') +
 
-      /* the why, the note and the sources — for the grown-up, at the foot */
+      /* the week's family assignments and the sources — for the grown-up, at the foot. NOT the
+         course's `why` and `note`: those are the authors' reasons ("The founder's own
+         complaint…", "Hindi first because the corpus is deepest there") and the page used to
+         print them to the child (audit, 3 Oct 2026). They stay in the data for its editors. */
       '<div class="pa-afoot">' +
-        '<p><b>Why this course.</b> ' + esc(c.why) + '</p>' +
-        (c.note ? '<p>' + esc(c.note) + '</p>' : '') +
         ((c.assignments || []).length ? '<p><b>Every week, with your family.</b> ' +
           c.assignments.map(function (a) { return esc(a.name) + ' — ' + esc(a.brief); }).join(' ') + '</p>' : '') +
         '<p><b>Where this comes from.</b></p><ul>' +

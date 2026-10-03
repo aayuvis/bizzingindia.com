@@ -50,7 +50,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "app", "art", "state")
 MANIFEST = os.path.join(ROOT, "app", "state-art-manifest.js")
 ENDPOINT = ("https://generativelanguage.googleapis.com/v1beta/models/"
-            "gemini-2.5-flash-image:generateContent")
+            + os.environ.get("IMG_MODEL", "") + ":generateContent")   # the model is named at run time
 
 WIDTH, HEIGHT, QUALITY = 900, 600, 78
 
@@ -505,6 +505,8 @@ def main():
     ap.add_argument("--manifest-only", action="store_true")
     ap.add_argument("--workers", type=int, default=4)
     args = ap.parse_args()
+    if not os.environ.get("IMG_MODEL") and not getattr(args, "model", None):
+        sys.exit("no image model: set IMG_MODEL or pass --model (CLAUDE.md: no model is named in this repo)")
 
     os.makedirs(OUT_DIR, exist_ok=True)
     known = state_codes()

@@ -33,7 +33,7 @@ MASTER_DIR = os.path.join(ROOT, "masters", "sabhyata-dio")
 MANIFEST = os.path.join(ROOT, "app", "sabhyata-dio-manifest.js")
 REF_DIR = os.path.join(ROOT, "app", "art", "sabhyata")
 REFS = ["kashi.jpg", "lothal.jpg"]
-DEFAULT_MODEL = "gemini-3.1-flash-image"
+DEFAULT_MODEL = os.environ.get("IMG_MODEL", "")   # named at run time (IMG_MODEL or --model), never in this file
 WIDTH, HEIGHT, QUALITY = 900, 600, 80
 
 STYLE = (
@@ -333,6 +333,8 @@ def main():
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     args = ap.parse_args()
+    if not os.environ.get("IMG_MODEL") and not getattr(args, "model", None):
+        sys.exit("no image model: set IMG_MODEL or pass --model (CLAUDE.md: no model is named in this repo)")
     if args.print_prompt:
         print(DIO_PROMPTS[args.print_prompt]); return
     if args.manifest_only:

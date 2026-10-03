@@ -50,9 +50,18 @@ and each one was watched to fail by breaking the thing it holds.
   writes every card and world that was open to them into what they own (`avatars`, `extras`).
 - **Worlds** (§7): all fifteen are offered under the one rule — worlds 1–2 free, the rest with
   the family plan or 240 coins. AA is measured on all fifteen, day and night (`check-contrast`).
+  **All fifteen are painted, day and night** (audit U9/D3/D4, 3 Oct 2026; three were, twelve were
+  drawn shapes): `tools/gen-world-backdrops.py` made the twelve the way the first three were made,
+  each prompt naming its world's own palette, every night plate painted *from* its day plate so it
+  is recognisably the same place, and the image model named only at run time (never in the file).
+  Every plate was looked at full size before it shipped and repainted where it broke a rule — a
+  houseboat name board and carved panels that read as writing, a frame line, moonlit dunes that
+  read as snow. No people, no deities, no lettering in any script. `check-standard plates` holds
+  all thirty: present, in the manifest, 1600 × 900, ≤ 420 KB. A painted plate replaces a world's
+  drawn scene (the Pujo murti stays on its picker tile); only the first three have drifters yet.
 - **Shop and wallet** (§1): a Shop screen (Avatars · Worlds · Extras) with the history under it;
-  the coin chip opens the last thirty lines in words. Extras are frames and carrom boards
-  (`shop`).
+  the coin chip opens the last thirty lines in words. Extras are frames, carrom boards, five
+  outfits and the eight earned rank sashes (`shop`; docs/26).
 - **Music** (§11): composed in code — a tanpura, bansuri, santoor, sarangi, tabla, dholak, dhak —
   one loop per world, one for Home, one for the games, 60–90 s, lazy, ducked under the voice,
   paused when hidden, off in Calm mode (`music`; `music/CREDITS.md`).

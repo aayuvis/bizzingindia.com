@@ -132,7 +132,47 @@ check('games', 'every game: a title card with a folding how-to; Gyanpati sounds 
   if (rights < answers) throw new Error(`${answers} answers, ${rights} right sounds`);
   if (pl.indexOf('win') < 0 && pl.indexOf('finish') < 0) throw new Error('the finish made no sound');
   if (motions < answers) throw new Error(`${answers} answers, ${motions} motions`);
+  /* THE FINISH STAYS (audit F4/G9): pressing the end card's button lands on the host's finish —
+     score, best, what was practised, Play again / Back to Play — and it is still there two
+     seconds later; it used to jump to the Mela after 0.9 s */
+  await p.evaluate(() => document.querySelector('#gamehost [data-go="out"]').click());
+  await p.waitForTimeout(2200);
+  const fin = await p.evaluate(() => { const f = document.querySelector('#gamehost .gf-finish');
+    return { hash: location.hash, f: !!f, text: f ? f.innerText : '', again: !!(f && f.querySelector('[data-act="game"]')),
+             back: f ? (f.querySelector('[data-act="go"]') || {}).getAttribute && f.querySelector('[data-act="go"]').getAttribute('data-v') : null }; });
+  if (!/^#\/game/.test(fin.hash) || !fin.f) throw new Error(`the finish did not stay: ${fin.hash}, finish card ${fin.f}`);
+  if (!/your best/.test(fin.text) || !/What you practised/.test(fin.text)) throw new Error('the finish card has no best or no "what you practised": ' + fin.text.slice(0, 120));
+  if (!fin.again || fin.back !== 'play') throw new Error('the finish card needs Play again and Back to Play');
+  await p.evaluate(() => document.querySelector('#gamehost .gf-finish [data-v="play"]').click()); await p.waitForTimeout(500);
+  const hub = await p.evaluate(() => ({ hash: location.hash, best: [...document.querySelectorAll('.gcover[data-id="gyanpati"] .mono')].map(e => e.textContent).join('') }));
+  if (hub.hash !== '#/play') throw new Error('Back to Play landed on ' + hub.hash);
+  if (!/your best/.test(hub.best)) throw new Error('the stall does not show the best just made');
 }, { reduced: true });
+
+/* ONE HUB (audit C5/H5/N3): the Play tab was a flat list at uneven heights and the painted Mela
+   another page a game's back pill went to. Play is the painted hub; #/mela and #/khel are old
+   names for it; a game's way back is Play; a row of stalls is one height. */
+check('hub', 'Play is the one painted hub: #/mela and #/khel are it, a game goes back to it, its rows are even', async ({ p }) => {
+  const look = async h => p.evaluate(async h => { location.hash = h; await new Promise(r => setTimeout(r, 60)); if (window.BI.ready) await window.BI.ready();
+    const m = document.getElementById('main');
+    /* a row's boxes always stretch to one height; what the eye sees is the hole under a short
+       blurb beside a long one — so measure the words, row by row */
+    const rows = [...m.querySelectorAll('.gshelf')].map(g => { const hs = {}; [...g.children].forEach(c => { const r = c.getBoundingClientRect(), t = c.querySelector('.gbody .tiny');
+      (hs[Math.round(r.top)] = hs[Math.round(r.top)] || []).push(t ? t.getBoundingClientRect().height : 0); }); return Object.values(hs); }).flat();
+    return { hero: !!m.querySelector('.ghero'), stalls: m.querySelectorAll('.gcover[data-act="game"]').length,
+             corners: ['rishtey', 'gully', 'geet'].filter(v => m.querySelector('.gcover[data-v="' + v + '"]')).length,
+             uneven: rows.filter(r => r.length > 1 && Math.max(...r) - Math.min(...r) > 60).length,
+             tab: (document.querySelector('[data-bz=tab][aria-current]') || {}).getAttribute ? document.querySelector('[data-bz=tab][aria-current]').getAttribute('data-v') : null }; }, h);
+  await p.evaluate(() => window.IND_LOAD(['games'])); 
+  const a = await look('#/play'), b = await look('#/mela'), c = await look('#/khel');
+  if (!a.hero || a.stalls < 13) throw new Error(`#/play is not the painted hub (hero ${a.hero}, ${a.stalls} stalls)`);
+  if (a.corners !== 3) throw new Error(`#/play is missing the family corners (${a.corners} of Rishtey, Gully, Geet)`);
+  if (a.uneven) throw new Error(`${a.uneven} rows of stalls have one blurb more than three lines taller than its neighbour — a hole under the short ones`);
+  for (const [h, r] of [['#/mela', b], ['#/khel', c]]) if (r.stalls !== a.stalls || r.hero !== a.hero) throw new Error(h + ' is a different hub from #/play');
+  await p.evaluate(() => window.BI.go('game', 'statehunt')); await p.waitForTimeout(400);
+  const back = await p.evaluate(() => (document.querySelector('#main .backlink') || {}).getAttribute && document.querySelector('#main .backlink').getAttribute('data-v'));
+  if (back !== 'play') throw new Error('a game\'s back pill goes to ' + back + ', not Play');
+});
 
 /* "On Sabhyata every action or click refreshes the game to home and then back" (owner, 3 Oct).
    The frame's wrong-answer shake was a transform on #gframe, the ancestor of every game, and a
@@ -217,6 +257,43 @@ check('medals', 'a story earns a medal, celebrated once; self-report earns none;
   if (!sh.length || !sh.some(x => !x.locked && /First story/.test(x.t))) throw new Error('the shelf does not hold the earned medal');
   const mute = sh.filter(x => x.locked && !/How to earn it/.test(x.t));
   if (mute.length) throw new Error('an unearned medal does not say how to earn it');
+});
+
+/* THE RANK IS SAID TO THE CHILD (audit L4/J3/K6, 3 Oct 2026). A new Gurukul rank used to tell
+   the Hive and nobody else. Now: one ceremony per rank, naming it, what it means and what was
+   mastered; the rank's sash, earned and never sold; Wear it dresses the companion; and it is not
+   said twice. And the cosmetics are more than six things: outfits from the weaving traditions. */
+check('rankup', 'a new rank is a ceremony, once, with its sash to wear; sashes are never sold; outfits are on the shelf', async ({ p }) => {
+  await p.evaluate(() => window.IND_LOAD(['paath', 'bhasha']));
+  await p.evaluate(() => window.BI.growth()); await p.waitForTimeout(200);   /* measured once: the baseline */
+  const r0 = await p.evaluate(() => ({ ex: (window.BI.S.own || {}).extras || [], cel: !!document.getElementById('celebrate') }));
+  if (r0.cel) throw new Error('a ceremony for a rank the child already had');
+  if (r0.ex.indexOf('sash-0') < 0) throw new Error('the Shishya sash is not on the shelf from the start');
+  await p.evaluate(() => {
+    const S = window.BI.S, C = window.IND_PAATH.courses.find(c => !c.premium), m = C.modules[0];
+    const lid = l => m.id + '.' + l.n.slice(0, 18), seen = {};
+    m.lessons.forEach(l => { if (l.k !== 'c') seen[lid(l)] = 20261001; });
+    S.paath = S.paath || { v: 1, c: {} };
+    S.paath.c[C.id] = { at: 20261001, seen, made: {}, note: {}, m: { [m.id]: { on: 20261002, tries: 1 } } };
+    window.BI.Store.saveProfile(S);
+  });
+  await p.evaluate(() => window.BI.growth()); await p.waitForTimeout(500);
+  const r1 = await p.evaluate(() => { const c = document.getElementById('celebrate'); return { text: c ? c.innerText : '', ex: window.BI.S.own.extras }; });
+  if (!/You are a Vidyarthi now/.test(r1.text) || !/1 thing mastered/.test(r1.text)) throw new Error('no ceremony for Vidyarthi: ' + r1.text.slice(0, 80));
+  if (r1.ex.indexOf('sash-1') < 0) throw new Error('the Vidyarthi sash was not given');
+  await p.click('#celebrate [data-act="celwear"]'); await p.waitForTimeout(300);
+  const r2 = await p.evaluate(() => ({ outfit: window.BI.S.outfit, again: /Vidyarthi now/.test((document.getElementById('celebrate') || {}).innerText || '') }));
+  if (r2.outfit !== 'sash-1' || r2.again) throw new Error('Wear it did not dress the companion: ' + JSON.stringify(r2));
+  /* the medals the same evidence earned come after, one at a time */
+  for (let i = 0; i < 6 && (await p.$('#celebrate [data-act="celok"]')); i++) { await p.click('#celebrate [data-act="celok"]'); await p.waitForTimeout(350); }
+  await p.evaluate(() => window.BI.go('me')); await p.waitForTimeout(300);
+  if (!(await p.$('#main .wear .outfit'))) throw new Error('the companion on Me is not wearing the sash');
+  await p.evaluate(() => window.BI.growth()); await p.waitForTimeout(400);
+  if (await p.$('#celebrate')) throw new Error('the same rank was celebrated twice');
+  const sold = await p.evaluate(() => { const E = window.IND_ECONOMY; return E.buyExtra(window.BI.S, 'sash-3'); });
+  if (sold) throw new Error('a sash was sold');
+  const outfits = await p.evaluate(() => window.IND_ECONOMY.EXTRAS.filter(x => x.kind === 'outfit' && x.price > 0).length);
+  if (outfits < 5) throw new Error('only ' + outfits + ' outfits to choose');
 });
 
 check('aaj', 'Aaj ka: a story, a lesson, a look back, and a card that names what was done', async ({ p }) => {

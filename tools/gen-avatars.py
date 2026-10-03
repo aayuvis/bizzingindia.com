@@ -48,7 +48,7 @@ from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "app", "art")
 RAW_DIR = os.path.join(ROOT, "tools", ".art-raw")
-MODEL = "gemini-2.5-flash-image"
+MODEL = os.environ.get("IMG_MODEL", "")   # named at run time (IMG_MODEL or --model), never in this file
 ENDPOINT = ("https://generativelanguage.googleapis.com/v1beta/models/"
             + MODEL + ":generateContent")
 
@@ -284,6 +284,8 @@ def main():
     ap.add_argument("--matte", action="store_true",
                     help="leave the background opaque white instead of cutting it out")
     args = ap.parse_args()
+    if not os.environ.get("IMG_MODEL") and not getattr(args, "model", None):
+        sys.exit("no image model: set IMG_MODEL or pass --model (CLAUDE.md: no model is named in this repo)")
 
     if args.reprocess:
         n = 0

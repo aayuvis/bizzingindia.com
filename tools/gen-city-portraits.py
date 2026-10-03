@@ -26,7 +26,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.join(HERE, "..", "app")
 OUT = os.path.join(APP, "art", "itihaas", "ct")
 W, H, Q = 1120, 630, 80
-DEFAULT_MODEL = "gemini-3.1-flash-image"
+DEFAULT_MODEL = os.environ.get("IMG_MODEL", "")   # named at run time (IMG_MODEL or --model), never in this file
 
 STYLE = (" Flat hand-painted Indian illustration, matte gouache texture, warm "
          "children's picture-book art, wide 16:9 landscape. Rich colour, soft "
@@ -124,6 +124,8 @@ def main():
     ap.add_argument("--only")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     args = ap.parse_args()
+    if not os.environ.get("IMG_MODEL") and not getattr(args, "model", None):
+        sys.exit("no image model: set IMG_MODEL or pass --model (CLAUDE.md: no model is named in this repo)")
     key = os.environ.get("GEMKEY")
     if not key:
         sys.exit("GEMKEY not set")

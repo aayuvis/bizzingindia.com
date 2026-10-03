@@ -5,6 +5,8 @@
 
      back      browser Back from inside the app never leaves it (the audit's map →
                about:blank), and a shared #/<view> link opens that view
+     deadends  a screen that names one thing, opened on nothing, is its shelf; opened on a thing
+               that is not there, it shows the peacock and a door to the shelf — never a bare line
      continue  #/continue — the Hive's door — opens the one next thing
      pin       nothing that changes the child sits on the child's page: starting again,
                backups and the report card are behind a PIN the screen calls a deterrent,
@@ -85,6 +87,42 @@ check('back', 'Back never leaves the app, and a shared link opens its screen', a
     if (!h.url.startsWith(base) || h.hash !== '#/home' || h.view !== 'home')
       throw new Error(`Back ${i + 1} from Home landed on ${h.url} (tab ${h.view})`);
   }
+});
+
+/* NO DEAD ENDS (audit, 3 Oct 2026): #/value and #/verses with nothing after them showed the error
+   page, #/kosh a bare "Pack not found." and #/kahani "This shelf is not here." — no peacock, no
+   way on. Every screen that names one thing (HUB_OF in app.js) is opened twice: with nothing
+   named it must be a real screen, never the oops card; with a name that is not there it must be
+   the oops card, with the peacock, and a door to a screen that is not Home. */
+check('deadends', 'a screen opened on nothing is its shelf; on a thing not there, the peacock and a door to the shelf', async ({ p, base }) => {
+  const src = fs.readFileSync(path.join(APP, 'app.js'), 'utf8');
+  const lit = src.match(/var HUB_OF = (\{[\s\S]*?\});/);
+  if (!lit) throw new Error('app.js has no HUB_OF — the table of shelves is gone');
+  const HUB = require('vm').runInNewContext('(' + lit[1] + ')');
+  /* every render() case that reads view.arg must have a shelf */
+  const takes = [...new Set([...src.matchAll(/case '([a-z0-9]+)':\s*h = V\.\w+\(view\.arg\)/g)].map(m => m[1]))];
+  const OWN = { paath: 1, shop: 1, search: 1 };   /* with no arg these ARE the hub */
+  const orphan = takes.filter(n => !HUB[n] && !OWN[n]);
+  if (orphan.length) throw new Error('screens with no shelf to fall back to: ' + orphan.join(', '));
+  await p.evaluate(() => window.IND_LOAD(window.IND_GROUPS()));
+  const bad = [];
+  for (const n of Object.keys(HUB)) {
+    for (const [arg, want] of [['', 'shelf'], ['/zz-not-a-thing', 'oops']]) {
+      const r = await p.evaluate(async h => {
+        location.hash = h; await new Promise(ok => setTimeout(ok, 30));
+        if (window.BI.ready) await window.BI.ready();
+        const m = document.getElementById('main'), o = m.querySelector('.bz-oops');
+        const b = o && [...o.querySelectorAll('[data-act="go"]')].map(x => x.getAttribute('data-v'));
+        return { oops: !!o, face: !!(o && o.querySelector('img, svg')), doors: b || [], text: m.innerText.slice(0, 120),
+                 bare: /^(Pack not found\.|This shelf is not here\.)/.test(m.innerText.trim()) };
+      }, '#/' + n + arg);
+      if (r.bare) bad.push(`#/${n}${arg} says only "${r.text.slice(0, 30)}"`);
+      else if (want === 'shelf' && r.oops) bad.push(`#/${n} with nothing named is the error page`);
+      else if (want === 'oops' && !r.oops) { /* a screen may show a default for an unknown name; that is not a dead end */ }
+      else if (want === 'oops' && (!r.face || !r.doors.some(d => d && d !== 'home'))) bad.push(`#/${n}${arg} has no peacock or no door but Home`);
+    }
+  }
+  if (bad.length) throw new Error(bad.length + ' dead ends: ' + bad.slice(0, 5).join(' · '));
 });
 
 check('continue', '#/continue opens the one next thing', async ({ p, base }) => {

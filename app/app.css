@@ -2812,14 +2812,20 @@ body.drilling .hivebtn { visibility: hidden; }
 .gf-title.folded .gf-txt b { font-size: 16px; }
 .gf-practised { margin: 10px 0; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--text);
   font-size: 14.5px; text-align: left; }
+/* THE FRAME NEVER MOVES ITSELF. It is the ancestor of every game, and a transform on an
+   ancestor makes it the box that position:fixed is measured from — so Sabhyata's full-window
+   game dropped into a 100px strip on the page for the length of every shake, and the page
+   showed through ("every click refreshes to home and back", 3 Oct). The shake is the title
+   row's; the glow is a box-shadow. Neither touches the game's own box. */
 .gframe.gf-yes { animation: gfyes .5s ease-out; }
-.gframe.gf-no { animation: gfno .4s ease-out; }
+.gframe.gf-no .gf-title { animation: gfno .4s ease-out; }
 @keyframes gfyes { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--good, #2e8b57) 55%, transparent); }
   100% { box-shadow: 0 0 0 14px transparent; } }
 @keyframes gfno { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-4px); } 60% { transform: translateX(3px); } }
 @media (prefers-reduced-motion: reduce) {
   .gf-bar { animation: none; }
-  .gframe.gf-yes, .gframe.gf-no { animation: none; outline: 3px solid var(--accent); outline-offset: 2px; }
+  .gframe.gf-yes, .gframe.gf-no .gf-title { animation: none; }
+  .gframe.gf-yes, .gframe.gf-no { outline: 3px solid var(--accent); outline-offset: 2px; }
 }
 
 /* ------------------------------------------------------------------ MEDALS

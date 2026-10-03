@@ -134,6 +134,48 @@ check('games', 'every game: a title card with a folding how-to; Gyanpati sounds 
   if (motions < answers) throw new Error(`${answers} answers, ${motions} motions`);
 }, { reduced: true });
 
+/* "On Sabhyata every action or click refreshes the game to home and then back" (owner, 3 Oct).
+   The frame's wrong-answer shake was a transform on #gframe, the ancestor of every game, and a
+   transform on an ancestor becomes the box position:fixed is measured from — so Sabhyata's
+   full-window game fell into a 100px strip on the page for 0.4s on every action, because its
+   GOOD news is classed `warm`, which the frame read as a wrong answer (and sounded as one).
+   Measured the way a player sees it: the game's box, every frame, through real actions. */
+check('still', 'the frame never moves a game: Sabhyata stays the whole window through its actions, with no wrong-answer sound', async ({ p }) => {
+  await p.evaluate(() => window.BI.go('game', 'sabhyata'));
+  await p.waitForFunction(() => window.__SABDO && document.getElementById('sabwrap'), null, { timeout: 20000 });
+  await p.waitForTimeout(700);
+  await p.evaluate(() => { const b = document.querySelector('#sab-ovhost .sab-btn'); if (b) b.click(); });
+  await p.waitForTimeout(300);
+  const r = await p.evaluate(() => new Promise(res => {
+    const w = document.getElementById('sabwrap'), host = document.getElementById('gamehost'), seen = new Set(), sounds = [];
+    const play = window.IND_SFX.play; window.IND_SFX.play = function (n) { sounds.push(n); return play.apply(this, arguments); };
+    const G = window.__SABG(); G.res.anna = G.res.kala = G.res.katha = 500;
+    const acts = [['dholavira', 'utsav'], ['dholavira', 'explore'], ['dholavira', 'grow']];
+    let i = 0, t0 = performance.now();
+    const ancestorsMoved = () => { const bad = []; for (let e = host; e && e !== document.body; e = e.parentElement) {
+      const cs = getComputedStyle(e); if (cs.transform !== 'none' || cs.filter !== 'none') bad.push((e.id || e.className) + ' ' + cs.transform + ' ' + cs.filter); } return bad; };
+    const moved = [];
+    const tick = () => {
+      const q = w.getBoundingClientRect(); seen.add([q.left, q.top, q.width, q.height].map(Math.round).join(','));
+      moved.push(...ancestorsMoved());
+      const t = performance.now() - t0;
+      if (i < acts.length && t > i * 450) { window.__SABDO.act(acts[i][0], acts[i][1]); i++; }
+      if (t < acts.length * 450 + 700) requestAnimationFrame(tick);
+      else { window.IND_SFX.play = play; res({ boxes: [...seen], sounds, moved: [...new Set(moved)].slice(0, 3), full: [0, 0, innerWidth, innerHeight].join(',') }); }
+    };
+    requestAnimationFrame(tick);
+  }));
+  if (r.boxes.length !== 1 || r.boxes[0] !== r.full) throw new Error('the game left the window during its own actions — it was at ' + r.boxes.join(' / ') + ', the window is ' + r.full);
+  if (r.moved.length) throw new Error('an ancestor of the game was transformed: ' + r.moved.join('; '));
+  if (r.sounds.indexOf('wrong') >= 0) throw new Error('Sabhyata\'s good news played the wrong-answer sound: ' + r.sounds.join(','));
+  /* and the shake a quiz still gets never lands on the frame itself */
+  const f = await p.evaluate(() => new Promise(res => {
+    const fr = document.getElementById('gframe'); fr.classList.add('gf-no');
+    setTimeout(() => { const t = getComputedStyle(fr).transform; fr.classList.remove('gf-no'); res(t); }, 120);
+  }));
+  if (f !== 'none') throw new Error('the wrong-answer shake transforms the frame itself (' + f + ') — every fixed game inside it would jump');
+});
+
 check('currency', 'no game\'s end card names a coin it did not pay', async () => {
   const bad = [];
   fs.readdirSync(APP).filter(f => /^games.*\.js$|^sabhyata\.js$/.test(f)).forEach(f => {

@@ -8438,9 +8438,16 @@
           '<p><b>What you practised:</b> ' + esc(fr[1]) + (rights ? ' · ' + rights + ' right' : '') + '</p></div>');
     };
     var TOK_OK = /(^|\s)(good|is-right)(\s|$)/, TOK_NO = /(^|\s)(warm|is-warm)(\s|$)/;
+    /* A GAME WITH ITS OWN VOICE IS NOT READ FOR ANSWERS. The good/warm convention is the quiz
+       engines': warm means "close, but wrong". Sabhyata uses warm for its GOOD news ("Dholavira
+       wakes!") and has its own sounds for every verb, so the frame played the wrong-answer
+       sound — and shook — on nearly every action in it. */
+    var OWN_VOICE = { sabhyata: 1 };
+    var listen = !OWN_VOICE[g.id];
     var obs = window.MutationObserver ? new MutationObserver(function (muts) {
       muts.forEach(function (m) {
         if (m.type === 'attributes') {
+          if (!listen) return;
           var c = typeof m.target.className === 'string' ? m.target.className : '', was = m.oldValue || '';
           var fresh = c !== was || /feed/.test(c);
           if (fresh && TOK_OK.test(c) && !(TOK_OK.test(was) && !/feed/.test(c))) pulse(true);

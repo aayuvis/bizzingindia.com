@@ -23,6 +23,12 @@ edit fourteen engines, the **host gives every game the frame**:
 - a **finish** that says *What you practised* — inserted above the end card's buttons, found by
   the other shared convention, `[data-go="out"]`;
 - dice and street games say they are **played for fun** and pay no coins (docs/23).
+- **The frame never moves a game.** Its wrong-answer shake was a `transform` on the frame, the
+  ancestor of every game — and a transform on an ancestor becomes the box `position: fixed` is
+  measured from, so Sabhyata's full-window game fell into a 100px strip on the page for every
+  shake ("every click refreshes to home and back", 3 Oct). The shake is the title row's now.
+  And a game with its own voice is not read for answers: Sabhyata classes its *good* news
+  `warm`, which the frame had been sounding as a wrong answer on nearly every action.
 
 Found on the way: four games' own end cards still said *"3 kauris"* — a coin nothing paid any
 more. They are gone; coins are announced only by the wallet's toast when actually paid.
@@ -71,6 +77,7 @@ price in coins earned by learning), premium courses (*"A grown-up unlocks this"*
 |---|---|---|
 | `sfx` | a wrong answer sounds *wrong*, a right one *right*; with the mute on nothing plays | `settle()` without its sound |
 | `games` | every game has a how-to and a *what you practised*; its title card folds after 3 s; Gyanpati played to the end sounds and moves on every answer and at the finish | the fold timer removed |
+| `still` | Sabhyata stays the whole window, every frame, through utsav, explore and grow; no ancestor of a game is transformed; no wrong-answer sound for its news; the quiz shake never lands on the frame | the shake back on `.gframe`; Sabhyata read for answers again |
 | `currency` | no game end card names coins it did not pay | a *kauris* chip put back in Shabd |
 | `medals` | a story earns *First story*, celebrated with motion and sound, **once**; self-report earns none; unearned medals say how | the once-only guard removed |
 | `aaj` | story → lesson → look back → a finish card naming the story and the words; Home says done | the story dropped from the finish card |

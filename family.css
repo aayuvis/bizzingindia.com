@@ -412,3 +412,26 @@ html[data-bz-dark] { --bz-accent-ink: var(--ground); }
 .fd-card .badge.aaj { color: #155f42; }
 /* a page head sits on the world's painting: its subtitle takes the ink colour, not the muted one */
 [data-bz=phead] { --bz-muted: var(--text); }
+
+/* AAJ KA IS A TIP, NOT A SECOND CONTINUE (audit, 03-home). The shell draws the tip's arrow in the
+   same filled orange as Continue, so Home had two orange calls to action a hand's width apart.
+   Colour only, from the family's own variables — the shell's geometry is untouched (checkShell). */
+.bz-tip .bz-badge { background: var(--bz-card); color: var(--bz-accent); box-shadow: inset 0 0 0 2px var(--bz-line); }
+
+/* THE PLATES GO TO NIGHT WITH THE REST (audit, 03-home-night). Home's story and map plates are
+   paintings, and at night they stayed in full daylight — two bright windows in a dark page.
+   A tone, not a redraw: the painting dims and cools like the world around it. No geometry. */
+html[data-mode="night"] .bz-plate::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(180deg, rgba(14, 18, 48, .5), rgba(10, 12, 32, .62)); }
+html[data-mode="night"] .bz-plate .bz-badge { z-index: 1; }
+
+/* WHAT THE COMPANION WEARS (audit K6): an outfit is drawn over the portrait, absolutely, at the
+   portrait's own size — draped across the chest, where every one of the 96 has one */
+.wear { position: relative; display: inline-grid; place-items: center; line-height: 0; }
+.wear > img, .wear > svg:not(.outfit) { grid-area: 1 / 1; }
+.wear .outfit { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.xart.xwear { display: grid; place-items: center; width: 80px; height: 80px; flex: none; }
+.cel-rank .cel-wear { display: block; margin: 0 auto 6px; }
+.cel-rank .cel-wear .wear { filter: drop-shadow(0 8px 18px rgba(0,0,0,.18)); }
+.cel-rank h2 { margin: 6px 0 4px; }
+.cel-rank p { max-width: 42ch; margin: 4px auto; }

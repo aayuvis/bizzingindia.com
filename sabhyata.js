@@ -4004,8 +4004,8 @@
         '<div class="sab-bar">' +
           /* the way out, for when the game is the whole window (it is hidden otherwise:
              the page's own back link is right above the board) */
-          '<button class="sab-exit" data-act="go" data-v="mela" aria-label="Leave Sabhyata for the Mela">' +
-            ic('back', 18) + '<span>Mela</span></button>' +
+          '<button class="sab-exit" data-act="go" data-v="play" aria-label="Leave Sabhyata for Play">' +
+            ic('back', 18) + '<span>Play</span></button>' +
           '<div class="sab-era"><span id="sab-eradate"></span><b id="sab-eraname"></b></div>' +
           /* TIME WAS INVISIBLE. The era's dates were on screen and the turn was not,
              so nothing told a child the world had moved. Dates stay RANGES per

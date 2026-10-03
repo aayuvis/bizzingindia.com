@@ -49,7 +49,25 @@
     { id: 'frame-kolam',   kind: 'frame', name: 'Kolam frame',   price: 80, note: 'One unbroken line, looped round the dots.' },
     { id: 'frame-diya',    kind: 'frame', name: 'Diya frame',    price: 120, note: 'Little lamps that glow when the app is in night mode.' },
     { id: 'board-rosewood', kind: 'board', game: 'carrom', name: 'Rosewood carrom board', price: 100, note: 'A dark polished board for Carrom.' },
-    { id: 'board-teak',    kind: 'board', game: 'carrom', name: 'Teak carrom board',     price: 100, note: 'A pale, warm board for Carrom.' }
+    { id: 'board-teak',    kind: 'board', game: 'carrom', name: 'Teak carrom board',     price: 100, note: 'A pale, warm board for Carrom.' },
+    /* OUTFITS (audit K6, 3 Oct 2026: "cosmetics beyond avatars are 6 items"). Worn by the child's
+       companion, from the textile traditions — each named with where it is made. Nothing marks
+       a faith, a caste or a community; cloth and flowers only. */
+    { id: 'outfit-genda',    kind: 'outfit', name: 'Marigold garland', price: 60,  note: 'Genda phool, strung the way a guest is welcomed all over India.' },
+    { id: 'outfit-bandhani', kind: 'outfit', name: 'Bandhani dupatta', price: 100, note: 'Tie-dyed dots, each one knotted by hand — from Gujarat and Rajasthan.' },
+    { id: 'outfit-phulkari', kind: 'outfit', name: 'Phulkari shawl',   price: 120, note: 'Silk-thread flowers darned across the cloth — from Punjab.' },
+    { id: 'outfit-ikat',     kind: 'outfit', name: 'Ikat stole',       price: 120, note: 'The threads are dyed before they are woven — from Odisha and Telangana.' },
+    { id: 'outfit-ajrakh',   kind: 'outfit', name: 'Ajrakh stole',     price: 120, note: 'Block-printed in indigo and madder red — from Kutch, in Gujarat.' },
+    /* THE RANK SASHES: earned, never bought. Rank counts mastery only (standard §6), so a sash
+       says something true about the child; there is no price, and buyExtra refuses one. */
+    { id: 'sash-0', kind: 'sash', rank: 0, name: 'Shishya sash',   price: 0, note: 'Everyone starts here: a shishya is a student.' },
+    { id: 'sash-1', kind: 'sash', rank: 1, name: 'Vidyarthi sash', price: 0, note: 'Earned at Vidyarthi — one who goes after knowledge.' },
+    { id: 'sash-2', kind: 'sash', rank: 2, name: 'Sadhak sash',    price: 0, note: 'Earned at Sadhak — one who practises.' },
+    { id: 'sash-3', kind: 'sash', rank: 3, name: 'Khoji sash',     price: 0, note: 'Earned at Khoji — a seeker, an explorer.' },
+    { id: 'sash-4', kind: 'sash', rank: 4, name: 'Pandit sash',    price: 0, note: 'Earned at Pandit — one who has learned a great deal.' },
+    { id: 'sash-5', kind: 'sash', rank: 5, name: 'Vidwan sash',    price: 0, note: 'Earned at Vidwan — a scholar.' },
+    { id: 'sash-6', kind: 'sash', rank: 6, name: 'Acharya sash',   price: 0, note: 'Earned at Acharya — a teacher.' },
+    { id: 'sash-7', kind: 'sash', rank: 7, name: 'Rishi sash',     price: 0, note: 'Earned at Rishi — a sage.' }
   ];
 
   function eng() { return window.IND_AVATAR_ENGINE || null; }
@@ -150,9 +168,17 @@
     extraOwned: function (S, id) { return ((S.own && S.own.extras) || []).indexOf(id) >= 0; },
     buyExtra: function (S, id) {
       var x = EXTRAS.filter(function (e) { return e.id === id; })[0], Wl = wallet();
-      if (!x || !Wl || this.extraOwned(S, id)) return false;
+      if (!x || !Wl || this.extraOwned(S, id) || x.kind === 'sash' || !(x.price > 0)) return false;
       if (!(S && S.dev) && !Wl.spend('india', S.name, x.price, 'extra:' + id)) return false;
       S.own.extras = S.own.extras || [];
+      S.own.extras.push(id);
+      return true;
+    },
+    /* a sash is given by the rank it names, by the host's growth check — never sold */
+    grantSash: function (S, rank) {
+      var id = 'sash-' + rank;
+      if (!EXTRAS.some(function (e) { return e.id === id; }) || this.extraOwned(S, id)) return false;
+      S.own = S.own || {}; S.own.extras = S.own.extras || [];
       S.own.extras.push(id);
       return true;
     },

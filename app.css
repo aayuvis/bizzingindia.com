@@ -2970,3 +2970,33 @@ body.drilling .hivebtn { visibility: hidden; }
 .focuscard h2 { margin: 2px 0 6px; }
 .focusglyph { font-size: 72px; line-height: 1.5; margin: 4px 0; }
 .focusline { font-size: 26px; line-height: 1.75; margin: 6px 0 2px; }
+
+/* the app's own coin and diya, not the platform's emoji (audit, 3 Oct 2026: 13 🪙 on #/worlds and
+   a 🪔 on the map, each drawn differently on every phone) */
+.badge.price svg, .pill.stat svg { width: 14px; height: 14px; vertical-align: -2px; flex: none; }
+.badge.price { display: inline-flex; align-items: center; gap: 4px; }
+
+/* ONE HUB, EVEN STALLS (audit C5, 3 Oct 2026). A stall's blurb is three lines at most, so a row
+   of stalls is one height: Rangoli Rush's ten-twist paragraph made its row twice as tall as its
+   neighbours, with empty space under each. The whole blurb is in the game's own how-to. */
+.gshelf { align-items: stretch; }
+.gshelf .gcover { height: 100%; }
+.gbody .tiny { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.gbody .mono { margin-top: auto; }
+
+/* THE FINISH (audit F4/G9): every game ends on the host's card and stays until the child chooses */
+.gf-finish { text-align: center; padding: 22px 16px 18px; display: grid; justify-items: center; gap: 6px; }
+.gf-finish h2 { margin: 6px 0 2px; font-size: 26px; }
+.gf-finish .gf-faces { display: flex; gap: 10px; align-items: flex-end; justify-content: center; }
+.gf-finish .gf-score { font-size: 17px; margin: 2px 0; }
+.gf-finish .gf-score b { font-size: 22px; }
+.gf-finish p { margin: 2px 0; max-width: 46ch; }
+.gf-finish .tiny svg { width: 14px; height: 14px; vertical-align: -2px; }
+
+/* THE STORY PLAYS IN THE HERO (owner, 3 Oct 2026): the landing's card becomes the reader, on the
+   landing — so it sizes to its content rather than to the screen, and the picture stays modest */
+.herocard.live { padding: 14px; text-align: left; }
+.herocard.live .reader { height: auto; min-height: 0; max-width: none; }
+.herocard.live .reader .stage { flex: none; height: 200px; max-height: 32vh; }
+.herocard.live .reader .speech { overflow: visible; }
+.herocard.live .storyend, .herocard.live .card { margin-top: 0; }

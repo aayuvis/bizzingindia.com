@@ -2739,9 +2739,23 @@ body.drilling .hivebtn { visibility: hidden; }
 .kidav img, .kidav svg { display: block; width: 36px; height: 36px; }
 .kidcaret { font-size: 12px; color: var(--text2); }
 #kidmenu { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 80; }
-#kidmenu .km-in { position: absolute; top: 60px; right: 12px; width: 340px; max-width: calc(100vw - 24px);
+#kidmenu .km-in { position: absolute; top: 60px; right: 12px; width: 360px; max-width: calc(100vw - 24px);
   max-height: calc(100vh - 80px); overflow: auto; background: var(--card); border: 1px solid var(--line);
-  border-radius: 16px; box-shadow: var(--shadow-lg); padding: 8px; }
+  border-radius: 24px; box-shadow: var(--shadow-lg); padding: 10px; }
+/* the family's menu: the children as big rows, a rule, three plain lines (owner, from Bee's) */
+.km-kid { display: flex; align-items: center; gap: 16px; width: 100%; min-height: 72px; padding: 8px 18px 8px 10px;
+  border: 0; border-radius: 20px; background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.km-kid + .km-kid { margin-top: 4px; }
+.km-kid.on { background: var(--accent-soft); }
+.km-kid:hover, .km-kid:focus-visible { background: var(--accent-soft); }
+.km-kid:focus-visible, #kidmenu .km-row:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+.km-face { flex: none; width: 56px; height: 56px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
+  background: var(--card2); }
+.km-face img, .km-face svg { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+.km-kid b { flex: 1; min-width: 0; font-size: 20px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.km-tick { flex: none; color: var(--accent-ink, var(--accent)); }
+#kidmenu .km-row { min-height: 52px; padding: 10px 14px; border-radius: 14px; font-size: 18px; font-weight: 800; }
+#kidmenu .km-row i { font-size: 14px; font-weight: 800; color: var(--muted); }
 @media (min-width: 1150px) { #kidmenu .km-in { right: calc((100vw - 1120px) / 2 + 12px); } }
 .km-h { padding: 6px 10px 4px; }
 .km-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 10px;
@@ -2754,7 +2768,7 @@ body.drilling .hivebtn { visibility: hidden; }
 .km-row img { flex: none; width: 34px; height: 34px; border-radius: 50%; }
 .km-static { cursor: default; }
 .km-static:hover { background: none; }
-#kidmenu hr { border: 0; border-top: 1px solid var(--line); margin: 6px 4px; }
+#kidmenu hr { border: 0; border-top: 2px solid var(--line); margin: 10px 8px 6px; }
 .km-phone { display: none; }
 @media (max-width: 760px) {
   .barctl .barown { display: none; }

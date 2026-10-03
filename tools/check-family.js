@@ -123,6 +123,63 @@ check('household', 'two children never mix, switching back finds the first as le
     throw new Error('removing the second child disturbed the first, or left keys behind: ' + JSON.stringify(a2));
 });
 
+/* "Ensure clicking the top-right icon of the kid's avatar opens options like this" (owner,
+   3 Oct, with Bee's menu): the children as big rows with their own faces and a tick on the one
+   playing, a rule, then exactly My page — avatar, badges, collection · Settings · + Add a child
+   (grown-ups). Read off the live menu on a desk and from a real tap on a phone. */
+check('kidmenu', 'the avatar opens the family\'s menu: each child with a face and a tick, then My page, Settings, Add a child', async ({ p, ctx, base }) => {
+  const seed = async (pg) => {
+    await pg.evaluate(() => { const h = window.BI.Store.house(); if (h.order.indexOf('k2') < 0) { h.order.push('k2'); h.next = 3; window.BI.Store.saveHouse(h); }
+      localStorage.setItem('bi_v1.k2', JSON.stringify({ schemaVersion: 3, name: 'Kabir', buddy: 'rocket', started: '2026-09-01', own: { avatars: [], worlds: [] }, lit: {}, read: {}, lang: {} })); });
+    await pg.reload({ waitUntil: 'networkidle' }); await pg.waitForTimeout(500);
+  };
+  const read = (pg) => pg.evaluate(() => {
+    const m = document.querySelector('#kidmenu .km-in'); if (!m) return null;
+    const top = document.querySelector('[data-bz=kid] img'), r = m.getBoundingClientRect();
+    return { kids: [...m.querySelectorAll('[data-act="switchkid"]')].map(b => ({ name: b.innerText.trim(), on: b.getAttribute('aria-checked') === 'true',
+               tick: !!b.querySelector('.km-tick'), img: b.querySelector('img') ? b.querySelector('img').getAttribute('src') : '' })),
+             lines: [...m.querySelectorAll('.km-row')].map(b => [b.innerText.replace(/\s+/g, ' ').trim(), b.getAttribute('data-act'), b.getAttribute('data-v')]),
+             order: [...m.children].map(e => e.tagName === 'HR' ? 'rule' : e.classList.contains('km-kid') ? 'child' : 'line').join(' '),
+             top: top ? top.getAttribute('src') : '', fits: r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight };
+  });
+  const judge = (r, where) => {
+    if (!r) throw new Error(where + ': the avatar opened nothing');
+    if (r.order !== 'child child rule line line line') throw new Error(where + ': the menu reads ' + r.order);
+    const on = r.kids.filter(k => k.on);
+    if (on.length !== 1 || !on[0].tick || r.kids.some(k => !k.on && k.tick)) throw new Error(where + ': the tick is not on the one child playing — ' + JSON.stringify(r.kids));
+    if (on[0].img !== r.top) throw new Error(where + `: the menu shows ${on[0].img} for the child the top bar shows as ${r.top}`);
+    if (!/Kabir/.test(r.kids[1].name) || !/rocket/.test(r.kids[1].img)) throw new Error(where + ': the second child is not there with their own face');
+    const want = [['My page — avatar, badges, collection', 'go', 'me'], ['Settings', 'go', 'settings'], ['+ Add a child grown-ups', 'addkid', null]];
+    if (JSON.stringify(r.lines) !== JSON.stringify(want)) throw new Error(where + ': the lines are ' + JSON.stringify(r.lines));
+    if (!r.fits) throw new Error(where + ': the menu runs off the screen');
+  };
+  await seed(p);
+  await tap(p, '[data-bz=kid]');
+  judge(await read(p), 'desk');
+  /* every line goes where it says, and the menu closes behind it */
+  for (const [v, h] of [['me', '#/me'], ['settings', '#/settings']]) {
+    if (!(await p.$('#kidmenu'))) await tap(p, '[data-bz=kid]');
+    await p.evaluate(v => document.querySelector('#kidmenu [data-v="' + v + '"]').click(), v);
+    await p.waitForTimeout(500);
+    const at = await p.evaluate(() => location.hash);
+    if (at.indexOf(h) !== 0 || await p.$('#kidmenu')) throw new Error(`the ${v} line left the page at ${at}, menu ${await p.$('#kidmenu') ? 'still open' : 'closed'}`);
+  }
+  /* the child already playing: a tap just closes the menu, it never reloads */
+  await tap(p, '[data-bz=kid]');
+  await p.evaluate(() => { window.__still = 1; document.querySelector('#kidmenu .km-kid.on').click(); });
+  await p.waitForTimeout(400);
+  if (await p.$('#kidmenu')) throw new Error('tapping the child who is playing left the menu open');
+  if (!(await p.evaluate(() => window.__still === 1))) throw new Error('tapping the child who is playing reloaded the page');
+  /* a phone, a real tap */
+  const pc = await ctx.browser().newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: 'block' });
+  try {
+    const q = await pc.newPage();
+    await q.goto(base, { waitUntil: 'networkidle' }); await skipOnboarding(q); await seed(q);
+    await q.tap('[data-bz=kid]'); await q.waitForTimeout(400);
+    judge(await read(q), 'phone');
+  } finally { await pc.close(); }
+});
+
 check('activity', 'bizzing.activity gets active minutes and a story\'s milestone', async ({ p }) => {
   /* active minutes: the clock runs and the child keeps touching the screen */
   for (let i = 0; i < 12; i++) {

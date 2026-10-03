@@ -1,0 +1,10 @@
+{
+ "status": "needs_review",
+ "by": null,
+ "on": null,
+ "why": "CLAUDE.md: the whole Gita course carries needsReview and does not publish. A person who reads Sanskrit signs this off — the text against a printed edition, the three held readings (resolutions.json), the English attributions, and a listen to the chanting — and writes their name here. Until then the module opens only in tester mode.",
+ "owner_decisions": [
+  "3 Oct 2026: all 700 verses chanted by a computer voice, LABELLED as one on screen, until a human reciter records them; a reciter's file replaces each verse automatically.",
+  "3 Oct 2026: chant over situational music; reuse the Mahabharata paintings for the visuals."
+ ]
+}

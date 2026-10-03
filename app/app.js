@@ -901,6 +901,7 @@
   }
   function stopAudio() {
     if (audio) { audio.pause(); audio = null; }
+    if (window.IND_GITA_UI) window.IND_GITA_UI.stop();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
   }
 
@@ -3612,7 +3613,10 @@
   }
 
   function loadClips(then) {
-    Store.listClips(function (list) { nani.clips = list; then && then(); });
+    Store.listClips(function (list) {
+      nani.clips = list.filter(function (c) { return c.kind !== 'gita'; });   /* a child's own Gita recitations live with the verse */
+      then && then();
+    });
   }
 
   V.nani = function (fq) {
@@ -4159,7 +4163,13 @@
     var vhead = '<div class="card"><h1>' + esc(c.name) + '</h1>' +
       '<div class="mono">' + esc(c.language || '') + '</div>' +
       '<p style="margin-top:10px">' + esc(c.blurb || '') + '</p>' +
-      '<div class="tiny muted">' + esc(c.source || '') + '</div></div>';
+      '<div class="tiny muted">' + esc(c.source || '') + '</div>' +
+      /* THE WHOLE GITA (docs/21) is built and held for a reviewer: tester mode opens it, and
+         everyone else is told it exists and why it is not open yet */
+      (cid === 'gita' ? (tester()
+        ? '<button class="btn" style="margin-top:12px" data-act="go" data-v="gita">All 700 verses, chanted, with a guru →</button>'
+        : '<p class="tiny muted" style="margin-top:10px">All 700 verses, chanted, with a guru to take you through them, are ' +
+          'built — and a person who reads Sanskrit is checking them before they open here.</p>') : '') + '</div>';
     var vcards = mine.map(function (v) {
         var isF = fid && v.id === fid;
         return '<div class="card' + (isF ? ' focuscard" data-focus="1' : '') + '">' +
@@ -4175,6 +4185,8 @@
           '<div class="row" style="margin-top:12px">' +
           '<button class="pill" data-act="say" data-k="' + esc(v.audio || '') + '">' + icon('sound', 16) + ' hear it</button>' +
           '<button class="pill" data-act="recite" data-id="' + esc(v.id) + '">' + icon('mic', 16) + ' say it back</button>' +
+          (v.collection === 'gita' && tester() && /^gita-\d+-\d+$/.test(v.id)
+            ? '<button class="pill" data-act="go" data-v="gitav" data-arg="' + esc(v.id.slice(5).replace('-', '.')) + '">' + icon('music', 16) + ' chanted, with the guru</button>' : '') +
           '</div>' +
           '<div class="tiny muted" style="margin-top:10px">' + esc(v.source) + '</div>' +
           (v.note ? '<div class="tiny muted" style="margin-top:5px"><i>' + esc(v.note) + '</i></div>' : '') +
@@ -4185,6 +4197,32 @@
     return '<button class="backlink" data-act="go" data-v="shlok">' + icon('back', 18) + ' Shlok</button>' +
       (lead ? vcards[0] + vhead + vcards.slice(1).join('') : vhead + vcards.join(''));
   };
+
+  /* ---------------------------------------------------------------- THE GITA
+     All 700 verses with a guru — app/gita.js, docs/21. It owns its screens and verbs (data-ga);
+     the host hands it the profile, the clip store and the sound system, and nothing else. */
+  var gitaReady = false;
+  function gitaUI() {
+    if (!window.IND_GITA_UI || !window.IND_GITA) return null;
+    if (!gitaReady) {
+      window.IND_GITA_UI.init({
+        state: function () { S.gita = S.gita || { v: {} }; return S.gita; },
+        save: save, go: go, toast: toast, icon: icon, esc: esc, render: render,
+        tester: tester, age: function () { return S.age || 8; },
+        store: Store, error: errorState,
+        bed: function (on) { if (window.IND_AUDIO && window.IND_AUDIO.bed) window.IND_AUDIO.bed(on); },
+        duck: function (on) { if (window.IND_AUDIO) window.IND_AUDIO.duck(on); },
+        musicOn: function () { return !!(dev.music && !dev.calm && soundOn); },
+        soundOn: function () { return soundOn; }
+      });
+      gitaReady = true;
+    }
+    return window.IND_GITA_UI;
+  }
+  var GITA_LOST = 'The Gita did not load. It may be the connection — once it has loaded once, it works offline.';
+  V.gita = function () { var U = gitaUI(); return U ? U.journey() : errorState(GITA_LOST, 'gita'); };
+  V.gitach = function (a) { var U = gitaUI(); return U ? U.chapter(a) : errorState(GITA_LOST, 'gitach', a); };
+  V.gitav = function (a) { var U = gitaUI(); return U ? U.verse(a) : errorState(GITA_LOST, 'gitav', a); };
 
   /* ---------------------------------------------------------------- NEETI */
   /* The payoff here is deliberately NOT a ladder. Nobody acquires a value by
@@ -7489,7 +7527,8 @@
     epic: ['epics', 'All the epics'], verses: ['shlok', 'All the verses'], value: ['neeti', 'All the values'],
     era: ['itihaas', 'Open Itihaas'], song: ['geet', 'All the songs'], gullygame: ['gully', 'All the street games'],
     festival: ['utsav', 'All the festivals'], faith: ['dharma', 'Open Dharma'], avcard: ['collection', 'Your collection'],
-    paathl: ['paath', 'Open Paathshala'], paathp: ['paath', 'Open Paathshala'], paathk: ['paath', 'Open Paathshala']
+    paathl: ['paath', 'Open Paathshala'], paathp: ['paath', 'Open Paathshala'], paathk: ['paath', 'Open Paathshala'],
+    gitach: ['gita', 'All eighteen chapters'], gitav: ['gita', 'All eighteen chapters']
   };
 
   /* The ☰ drawer is the family shell's (family/bizzing-shell.js), wired by bindShell. */
@@ -7861,6 +7900,8 @@
     var n = view.name;
     var theme = (n === 'game' || n === 'gullygame' || n === 'mela' || n === 'khel' || n === 'play') ? 'games'
       : (n === 'home' ? 'home' : S.world);
+    /* the Gita: each chapter's own raga, under the chant (docs/21) */
+    if ((n === 'gita' || n === 'gitach' || n === 'gitav') && window.IND_GITA_UI) theme = window.IND_GITA_UI.theme(n, view.arg);
     window.IND_AUDIO.music(theme);
   }
   /* A LEGENDARY'S MILESTONE is measured, never claimed (standard §8): the same evidence the
@@ -8196,6 +8237,9 @@
       case 'episode': h = V.episode(); break;
       case 'shlok': h = V.shlok(); break;
       case 'verses': h = V.verses(view.arg); break;
+      case 'gita': h = V.gita(); break;
+      case 'gitach': h = V.gitach(view.arg); break;
+      case 'gitav': h = V.gitav(view.arg); break;
       case 'neeti': h = V.neeti(); break;
       case 'cards': h = V.cards(); break;
       case 'dvandva': h = V.dvandva(); break;
@@ -8271,7 +8315,8 @@
                   worlds: 'me', tongue: 'home', avcard: 'me',
                   /* the story shelves and Moral Science live inside Paathshala now (FIX-INDIA C1) */
                   /* a stop, a workshop and a take-home pack are all inside Paathshala */
-                  paathl: 'paath', paathk: 'paath', paathp: 'paath' };
+                  paathl: 'paath', paathk: 'paath', paathp: 'paath',
+                  gita: 'neeti', gitach: 'neeti', gitav: 'neeti' };
     var cur = alias[view.name] || view.name;
     if (cur === 'stories' || cur === 'neeti') cur = 'paath';
     if (cur === 'itihaas') cur = 'map';
@@ -8299,6 +8344,9 @@
     if (traceOff) { try { traceOff(); } catch (err) {} traceOff = null; }
     /* the workshop's canvas, same contract: mounted after the paint, torn down first */
     if (karyaOff) { try { karyaOff(); } catch (err) {} karyaOff = null; }
+    /* the Gita's keys (space, arrows, 1–6), same contract */
+    if (gitaOff) { try { gitaOff(); } catch (err) {} gitaOff = null; }
+    if (view.name === 'gitav' && window.IND_GITA_UI) gitaOff = window.IND_GITA_UI.mount();
     if (view.name === 'paathk' && window.IND_PAATH_UI && window.IND_PAATH_UI.mount)
       karyaOff = window.IND_PAATH_UI.mount(view.arg);
     if (view.name === 'pack' && quiz.q && quiz.q.type === 'trace' &&
@@ -8362,7 +8410,8 @@
   /* a running game owns document-level key handlers and timers */
   var gameTeardown = null;
   var traceOff = null;      /* teardown for the mounted Likhna tracing canvas */
-  var karyaOff = null;      /* the same, for the one the workshop mounts */
+  var karyaOff = null;
+  var gitaOff = null;       /* and for the Gita's verse keys */      /* the same, for the one the workshop mounts */
   function killGame() {
     if (!gameTeardown) return;
     try { if (typeof gameTeardown === 'function') gameTeardown(); else if (gameTeardown.destroy) gameTeardown.destroy(); } catch (e) {}
@@ -8499,10 +8548,19 @@
     /* the family layer: the collection, the shop and settings draw only the shell */
     collection: [], shop: [], medals: [], settings: [], privacy: [], help: [],
     search: ['content', 'map', 'bhasha', 'paath'], avcard: [],
-    feed: ['feed']
+    feed: ['feed'],
+    gita: ['gita'], gitach: ['gita'], gitav: ['gita']    /* + the chapter's own group: needsOf */
   };
   /* the PIN pad needs nothing; only the report behind it needs the record */
-  function needsOf(n) { if (n === 'grown' && !grownOpen) return []; return NEEDS[n] || ALLG; }
+  function needsOf(n, a) {
+    if (n === 'grown' && !grownOpen) return [];
+    /* THE GITA (docs/21): the index and the ONE chapter a screen shows — never all eighteen */
+    if (n === 'gita' || n === 'gitach' || n === 'gitav') {
+      var gc = parseInt(String(a === undefined ? view.arg : a || ''), 10);
+      return gc >= 1 && gc <= 18 && n !== 'gita' ? ['gita', 'gita-' + (gc < 10 ? '0' : '') + gc] : ['gita'];
+    }
+    return NEEDS[n] || ALLG;
+  }
   function missingOf(gs) { return window.IND_HAS ? gs.filter(function (g) { return !window.IND_HAS(g); }) : []; }
   /* run fn now if its groups are here, or once they are; the promise is for the test handle */
   function withGroups(gs, fn) {
@@ -8775,6 +8833,9 @@
     var pa = e.target.closest('[data-pa]');
     if (pa && window.IND_PAATH_UI &&
         window.IND_PAATH_UI.act(pa.getAttribute('data-pa'), pa)) return;
+    /* the Gita's verbs, the same way (app/gita.js) */
+    var ga = e.target.closest('[data-ga]');
+    if (ga && window.IND_GITA_UI && window.IND_GITA_UI.act(ga.getAttribute('data-ga'), ga)) return;
     var t = e.target.closest('[data-act]'); if (!t) return;
     if (t.tagName === 'A' && /^#/.test(t.getAttribute('href') || '')) e.preventDefault();
     var a = t.getAttribute('data-act');
@@ -9698,7 +9759,7 @@
       var rs0 = null, hr0 = parseHash(location.hash);
       try { rs0 = JSON.parse(sessionStorage.getItem('bi_resume') || 'null'); } catch (e) {}
       var n0 = (rs0 && rs0.n) || (hr0 && S.started && hr0.n) || (S.started ? 'home' : 'landing');
-      first = n0 === 'continue' ? ['content', 'voice', 'map', 'bhasha', 'paath'] : (n0 === 'landing' ? [] : needsOf(n0));
+      first = n0 === 'continue' ? ['content', 'voice', 'map', 'bhasha', 'paath'] : (n0 === 'landing' ? [] : needsOf(n0, rs0 && rs0.n ? rs0.a : hr0 && hr0.a));
     }
     var go1 = function () {
       boot();

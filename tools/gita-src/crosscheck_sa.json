@@ -1,0 +1,5862 @@
+{
+ "summary": {
+  "counts": {
+   "expected_vulgate": [
+    47,
+    72,
+    43,
+    42,
+    29,
+    47,
+    30,
+    28,
+    34,
+    42,
+    55,
+    20,
+    34,
+    27,
+    20,
+    24,
+    28,
+    78
+   ],
+   "A_gita_gita_as_published(701)": [
+    47,
+    72,
+    43,
+    42,
+    29,
+    47,
+    30,
+    28,
+    34,
+    42,
+    55,
+    20,
+    35,
+    27,
+    20,
+    24,
+    28,
+    78
+   ],
+   "A_after_700_renumber": [
+    47,
+    72,
+    43,
+    42,
+    29,
+    47,
+    30,
+    28,
+    34,
+    42,
+    55,
+    20,
+    34,
+    27,
+    20,
+    24,
+    28,
+    78
+   ],
+   "B_cltk_gitasupersite(701)": [
+    47,
+    72,
+    43,
+    42,
+    29,
+    47,
+    30,
+    28,
+    34,
+    42,
+    55,
+    20,
+    35,
+    27,
+    20,
+    24,
+    28,
+    78
+   ],
+   "C_gretil_vulgate_after_renumber": [
+    47,
+    71,
+    43,
+    42,
+    29,
+    47,
+    30,
+    28,
+    34,
+    42,
+    55,
+    20,
+    34,
+    27,
+    20,
+    24,
+    28,
+    78
+   ],
+   "D_dcs_CE_verses_with_counter": [
+    46,
+    63,
+    43,
+    42,
+    29,
+    47,
+    30,
+    28,
+    34,
+    42,
+    55,
+    20,
+    34,
+    27,
+    20,
+    24,
+    28,
+    78
+   ],
+   "V_vedicscriptures_after_renumber": [
+    48,
+    73,
+    44,
+    43,
+    30,
+    48,
+    31,
+    29,
+    35,
+    43,
+    56,
+    21,
+    35,
+    28,
+    21,
+    25,
+    29,
+    79
+   ],
+   "E_wikisource_besant_ch1": 47
+  },
+  "total_out": 700,
+  "per_chapter_ok": true,
+  "dropped_from_A": [
+   {
+    "src": "13.1",
+    "raw": "अर्जुन उवाच\n\nप्रकृतिं पुरुषं चैव क्षेत्रं क्षेत्रज्ञमेव च।\n\nएतद्वेदितुमिच्छामि ज्ञानं ज्ञेयं च केशव।।13.1।।\n ",
+    "note": "Arjuna's question; counted only in 701-verse editions"
+   }
+  ],
+  "A_verse_mark_not_closed": [
+   "18.78"
+  ],
+  "A_flat_source_formatting": 222,
+  "A_speaker_lines": {
+   "धृतराष्ट्र उवाच": 1,
+   "सञ्जय उवाच": 8,
+   "अर्जुन उवाच": 21,
+   "संजय उवाच": 1,
+   "श्री भगवानुवाच": 28
+  },
+  "encoding_fixes": {
+   "verses": [
+    "1.26",
+    "2.7",
+    "3.2",
+    "3.5",
+    "3.18",
+    "3.25",
+    "4.31",
+    "5.1",
+    "6.40",
+    "7.3",
+    "7.17",
+    "7.24",
+    "9.25",
+    "10.14",
+    "10.29",
+    "11.6",
+    "11.22",
+    "12.17",
+    "12.19",
+    "13.4",
+    "13.9",
+    "13.10",
+    "14.26",
+    "16.11",
+    "17.17",
+    "18.6",
+    "18.40",
+    "18.68",
+    "18.69"
+   ],
+   "by_kind": {
+    "vocalic-r+nukta -> U+0944": 3,
+    "i-matra-before-conjunct": 26,
+    "stray-nukta-on-vowel-sign": 1
+   }
+  },
+  "shrri_spelling_in_A": [
+   "2.29",
+   "2.39",
+   "5.8",
+   "10.1",
+   "10.18",
+   "13.3",
+   "16.6",
+   "17.2",
+   "17.7",
+   "18.4",
+   "18.29",
+   "18.36",
+   "18.64",
+   "18.71"
+  ],
+  "B_same_as_A": {
+   "True": 692,
+   "False": 8
+  },
+  "B_differs": [
+   "1.8",
+   "1.24",
+   "2.17",
+   "2.29",
+   "2.42",
+   "2.60",
+   "7.11",
+   "9.22"
+  ],
+  "witness_agreement": {
+   "all_available_witnesses_agree": 550,
+   "some_disagreement": 150
+  },
+  "times_outvoted": {
+   "C": 89,
+   "V": 25,
+   "D": 34,
+   "A": 33
+  },
+  "review_count": 33,
+  "review_refs": [
+   "1.34",
+   "2.8",
+   "2.29",
+   "2.31",
+   "2.33",
+   "2.39",
+   "4.29",
+   "5.8",
+   "6.32",
+   "6.35",
+   "8.7",
+   "9.21",
+   "10.1",
+   "10.18",
+   "11.19",
+   "11.21",
+   "11.28",
+   "11.54",
+   "13.3",
+   "15.4",
+   "16.1",
+   "16.6",
+   "16.20",
+   "17.2",
+   "17.7",
+   "17.23",
+   "17.25",
+   "18.4",
+   "18.29",
+   "18.36",
+   "18.64",
+   "18.68",
+   "18.71"
+  ],
+  "C_problems": [
+   "number 2.20 used twice (second occurrence ignored)",
+   "ch.13 uses 701 numbering (13.1 = Arjuna's question); renumbered"
+  ],
+  "D_lines_without_counter_by_chapter": {
+   "1": 2,
+   "2": 20
+  },
+  "speaker_placement_notes": [
+   {
+    "ref": "1.21",
+    "who": "E (Besant 1922 via Wikisource)",
+    "note": "speaker line printed BETWEEN the half-verses; gita/gita puts it before the verse",
+    "lines": [
+     "हृषीकेशं तदा वाक्यमिदमाह महीपते ।",
+     "अर्जुन उवाच ।",
+     "सेनयोरुभयोर्मध्ये रथं स्थापय मेऽच्युत "
+    ]
+   },
+   {
+    "ref": "1.28",
+    "who": "E (Besant 1922 via Wikisource)",
+    "note": "speaker line printed BETWEEN the half-verses; gita/gita puts it before the verse",
+    "lines": [
+     "कृपया परयाऽऽविष्टो विषीदन्निदमब्रवीत् ।",
+     "अर्जुन उवाच ।",
+     "दृष्ट्वेमं स्वजनं कृष्ण युयुत्सुं समुपस्थितम् "
+    ]
+   },
+   {
+    "ref": "1.28",
+    "who": "V (vedicscriptures)",
+    "note": "speaker line printed mid-verse",
+    "lines": [
+     "कृपया परयाविष्टो विषीदन्निदमब्रवीत् |",
+     "अर्जुन उवाच |",
+     "दृष्ट्वेमं स्वजनं कृष्ण युयुत्सुं समुपस्थितम् ||१-२८||"
+    ]
+   }
+  ]
+ },
+ "review": [
+  {
+   "ref": "1.34",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CVE",
+    "A",
+    "D"
+   ],
+   "readings": {
+    "A": "आचार्याः पितरः पुत्रास्तथैव च पितामहाः मातुलाः श्चशुराः पौत्राः श्यालाः सम्बन्धिनस्तथा",
+    "C": "ācāryāḥ pitaraḥ putrās tathaiva ca pitāmahāḥ mātulāḥ śvaśurāḥ pautrāḥ śyālāḥ sambandhinas tathā",
+    "D": "ācāryāḥ pitaraḥ putrāstathaiva ca pitāmahāḥ mātulāḥ śvaśurāḥ pautrāḥ syālāḥ sambandhinastathā",
+    "V": "आचार्याः पितरः पुत्रास्तथैव च पितामहाः मातुलाः श्वशुराः पौत्राः श्यालाः सम्बन्धिनस्तथा",
+    "E": "आचार्याः पितरः पुत्रास्तथैव च पितामहाः मातुलाः श्वशुराः पौत्राः श्यालाः सम्बन्धिनस्तथा"
+   }
+  },
+  {
+   "ref": "2.8",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "न हि प्रपश्यामि ममापनुद्या द्यच्छोकमुच्छोषणमिन्द्रियाणाम् अवाप्य भूमावसपत्नमृद्धम् राज्यं सुराणामपि चाधिपत्यम्",
+    "C": "na hi prapaśyāmi mamāpanudyād yac chokam ucchoṣaṇam indriyāṇām avāpya bhūmāv asapatnam ṛddhaṃ rājyaṃ surāṇām api cādhipatyam",
+    "D": "na hi prapaśyāmi mamāpanudyādyacchokamucchoṣaṇamindriyāṇām avāpya bhūmāvasapatnamṛddhaṃ rājyaṃ surāṇāmapi cādhipatyam",
+    "V": "न हि प्रपश्यामि ममापनुद्याद् यच्छोकमुच्छोषणमिन्द्रियाणाम् अवाप्य भूमावसपत्नमृद्धं राज्यं सुराणामपि चाधिपत्यम्"
+   }
+  },
+  {
+   "ref": "2.29",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "आश्चर्यवत्पश्यति कश्चिदेन माश्चर्यवद्वदति तथैव चान्यः आश्चर्यवच्चैनमन्यः श्रृणोति श्रुत्वाप्येनं वेद न चैव कश्चित्",
+    "C": "āścaryavat paśyati kaścid enam āścaryavad vadati tathaiva cānyaḥ āścaryavac cainam anyaḥ śṛṇoti śrutvāpy enaṃ veda na caiva kaścit",
+    "D": "āścaryavatpaśyati kaścidenam āścaryavadvadati tathaiva cānyaḥ āścaryavaccainamanyaḥ śṛṇoti śrutvāpyenaṃ veda na caiva kaścit",
+    "V": "आश्चर्यवत्पश्यति कश्चिदेन माश्चर्यवद्वदति तथैव चान्यः आश्चर्यवच्चैनमन्यः शृणोति श्रुत्वाप्येनं वेद न चैव कश्चित्"
+   }
+  },
+  {
+   "ref": "2.31",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "स्वधर्ममपि चावेक्ष्य न विकम्पितुमर्हसि धर्म्याद्धि युद्धाछ्रेयोऽन्यत्क्षत्रियस्य न विद्यते",
+    "C": "svadharmam api cāvekṣya na vikampitum arhasi dharmyād dhi yuddhāc chreyonyat kṣatriyasya na vidyate",
+    "D": "svadharmamapi cāvekṣya na vikampitumarhasi dharmyāddhi yuddhācchreyo 'nyatkṣatriyasya na vidyate",
+    "V": "स्वधर्ममपि चावेक्ष्य न विकम्पितुमर्हसि धर्म्याद्धि युद्धाच्छ्रेयोऽन्यत्क्षत्रियस्य न विद्यते"
+   }
+  },
+  {
+   "ref": "2.33",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "DV",
+    "A",
+    "C"
+   ],
+   "readings": {
+    "A": "अथ चैत्त्वमिमं धर्म्यं संग्रामं न करिष्यसि ततः स्वधर्मं कीर्तिं च हित्वा पापमवाप्स्यसि",
+    "C": "atha cet tvam imaṃ dhārmyaṃ saṅgrāmaṃ na kariṣyasi tataḥ svadharmaṃ kīrtiṃ ca hitvā pāpam avāpsyasi",
+    "D": "atha cettvamimaṃ dharmyaṃ saṃgrāmaṃ na kariṣyasi tataḥ svadharmaṃ kīrtiṃ ca hitvā pāpamavāpsyasi",
+    "V": "अथ चेत्त्वमिमं धर्म्यं संग्रामं न करिष्यसि ततः स्वधर्मं कीर्तिं च हित्वा पापमवाप्स्यसि"
+   }
+  },
+  {
+   "ref": "2.39",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "एषा तेऽभिहिता सांख्ये बुद्धिर्योगे त्विमां श्रृणु बुद्ध्यायुक्तो यया पार्थ कर्मबन्धं प्रहास्यसि",
+    "C": "eṣā tebhihitā sāṅkhye buddhir yoge tv imāṃ śṛṇu buddhyā yukto yayā pārtha karmabandhaṃ prahāsyasi",
+    "D": "eṣā te 'bhihitā sāṃkhye buddhir yoge tvimāṃ śṛṇu buddhyā yukto yayā pārtha karmabandhaṃ prahāsyasi",
+    "V": "एषा तेऽभिहिता साङ्ख्ये बुद्धिर्योगे त्विमां शृणु बुद्ध्या युक्तो यया पार्थ कर्मबन्धं प्रहास्यसि"
+   }
+  },
+  {
+   "ref": "4.29",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "DV",
+    "A",
+    "C"
+   ],
+   "readings": {
+    "A": "अपाने जुह्वति प्राण प्राणेऽपानं तथाऽपरे प्राणापानगती रुद्ध्वा प्राणायामपरायणाः",
+    "C": "apāne juvhati prāṇaṃ prāṇepānaṃ tathāpare prāṇāpānagatī ruddhvā prāṇāyāmaparāyaṇāḥ",
+    "D": "apāne juhvati prāṇaṃ prāṇe 'pānaṃ tathāpare prāṇāpānagatī ruddhvā prāṇāyāmaparāyaṇāḥ",
+    "V": "अपाने जुह्वति प्राणं प्राणेऽपानं तथापरे प्राणापानगती रुद्ध्वा प्राणायामपरायणाः"
+   }
+  },
+  {
+   "ref": "5.8",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "नैव किंचित्करोमीति युक्तो मन्येत तत्त्ववित् पश्यन् श्रृणवन्स्पृशञ्जिघ्रन्नश्नन्गच्छन्स्वपन् श्वसन्",
+    "C": "naiva kiṃcit karomīti yukto manyeta tattvavit paśyañ śṛṇvan spṛśañ jighrann aśnan gacchan svapañ śvasan",
+    "D": "naiva kiṃcitkaromīti yukto manyeta tattvavit paśyañśṛṇvanspṛśañjighrannaśnangacchansvapañśvasan",
+    "V": "नैव किञ्चित्करोमीति युक्तो मन्येत तत्त्ववित् पश्यञ्शृण्वन्स्पृशञ्जिघ्रन्नश्नन्गच्छन्स्वपञ्श्वसन्"
+   }
+  },
+  {
+   "ref": "6.32",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "आत्मौपम्येन सर्वत्र समं पश्यति योऽर्जुन सुखं वा यदि वा दुःखं सः योगी परमो मतः",
+    "C": "ātmaupamyena sarvatra samaṃ paśyati yorjuna sukhaṃ vā yadi vā duḥkhaṃ sa yogī paramo mataḥ",
+    "D": "ātmaupamyena sarvatra samaṃ paśyati yo 'rjuna sukhaṃ vā yadi vā duḥkhaṃ sa yogī paramo mataḥ",
+    "V": "आत्मौपम्येन सर्वत्र समं पश्यति योऽर्जुन सुखं वा यदि वा दुःखं स योगी परमो मतः"
+   }
+  },
+  {
+   "ref": "6.35",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "DV",
+    "A",
+    "C"
+   ],
+   "readings": {
+    "A": "असंशयं महाबाहो मनो दुर्निग्रहं चलं अभ्यासेन तु कौन्तेय वैराग्येण च गृह्यते",
+    "C": " asañśayaṃ mahābāho mano durnigrahaṃ calam abhyāsena tu kaunteya vairāgyeṇa ca gṛhyate",
+    "D": "asaṃśayaṃ mahābāho mano durnigrahaṃ calam abhyāsena tu kaunteya vairāgyeṇa ca gṛhyate",
+    "V": "असंशयं महाबाहो मनो दुर्निग्रहं चलम् अभ्यासेन तु कौन्तेय वैराग्येण च गृह्यते"
+   }
+  },
+  {
+   "ref": "8.7",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CD",
+    "A",
+    "V"
+   ],
+   "readings": {
+    "A": "तस्मात्सर्वेषु कालेषु मामनुस्मर युध्य च मय्यर्पितमनोबुद्धिर्मामेवैष्यस्यसंशयम्",
+    "C": "tasmāt sarveṣu kāleṣu mām anusmara yudhya ca mayy arpitamanobuddhir mām evaiṣyasy asaṃśayaḥ",
+    "D": "tasmātsarveṣu kāleṣu māmanusmara yudhya ca mayyarpitamanobuddhirmāmevaiṣyasyasaṃśayaḥ",
+    "V": "तस्मात्सर्वेषु कालेषु मामनुस्मर युध्य च मय्यर्पितमनोबुद्धिर्मामेवैष्यस्यसंशयः (orसंशयम्)"
+   }
+  },
+  {
+   "ref": "9.21",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "ते तं भुक्त्वा स्वर्गलोकं विशालं क्षीणे पुण्ये मर्त्यलोकं विशन्ति एव त्रयीधर्ममनुप्रपन्ना गतागतं कामकामा लभन्ते",
+    "C": "te taṃ bhuktvā svargalokaṃ viśālaṃ kṣīṇe puṇye martyalokaṃ viśanti evaṃ trayīdharmam anuprapannā gatāgataṃ kāmakāmā labhante",
+    "D": "te taṃ bhuktvā svargalokaṃ viśālaṃ kṣīṇe puṇye martyalokaṃ viśanti evaṃ trayīdharmamanuprapannā gatāgataṃ kāmakāmā labhante",
+    "V": "ते तं भुक्त्वा स्वर्गलोकं विशालं क्षीणे पुण्ये मर्त्यलोकं विशन्ति एवं त्रयीधर्ममनुप्रपन्ना गतागतं कामकामा लभन्ते"
+   }
+  },
+  {
+   "ref": "10.1",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "भूय एव महाबाहो श्रृणु मे परमं वचः यत्तेऽहं प्रीयमाणाय वक्ष्यामि हितकाम्यया",
+    "C": " bhūya eva mahābāho śṛṇu me paramaṃ vacaḥ yat tehaṃ prīyamāṇāya vakṣyāmi hitakāmyayā",
+    "D": "bhūya eva mahābāho śṛṇu me paramaṃ vacaḥ yatte 'haṃ prīyamāṇāya vakṣyāmi hitakāmyayā",
+    "V": "भूय एव महाबाहो शृणु मे परमं वचः यत्तेऽहं प्रीयमाणाय वक्ष्यामि हितकाम्यया"
+   }
+  },
+  {
+   "ref": "10.18",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "विस्तरेणात्मनो योगं विभूतिं च जनार्दन भूयः कथय तृप्तिर्हि श्रृण्वतो नास्ति मेऽमृतम्",
+    "C": "vistareṇātmano yogaṃ vibhūtiṃ ca janārdana bhūyaḥ kathaya tṛptir hi śṛṇvato nāsti memṛtam",
+    "D": "vistareṇātmano yogaṃ vibhūtiṃ ca janārdana bhūyaḥ kathaya tṛptirhi śṛṇvato nāsti me 'mṛtam",
+    "V": "विस्तरेणात्मनो योगं विभूतिं च जनार्दन भूयः कथय तृप्तिर्हि शृण्वतो नास्ति मेऽमृतम्"
+   }
+  },
+  {
+   "ref": "11.19",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "अनादिमध्यान्तमनन्तवीर्य मनन्तबाहुं शशिसूर्यनेत्रम् पश्यामि त्वां दीप्तहुताशवक्त्रम् स्वतेजसा विश्वमिदं तपन्तम्",
+    "C": "anādimadhyāntam anantavīryam anantabāhuṃ śaśisūryanetram paśyāmi tvāṃ dīptahutāśavaktraṃ svatejasā viśvam idaṃ tapantam",
+    "D": "anādimadhyāntamanantavīryamanantabāhuṃ śaśisūryanetram paśyāmi tvāṃ dīptahutāśavaktraṃ svatejasā viśvamidaṃ tapantam",
+    "V": "अनादिमध्यान्तमनन्तवीर्य मनन्तबाहुं शशिसूर्यनेत्रम् पश्यामि त्वां दीप्तहुताशवक्त्रं स्वतेजसा विश्वमिदं तपन्तम्"
+   }
+  },
+  {
+   "ref": "11.21",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CV",
+    "A",
+    "D"
+   ],
+   "readings": {
+    "A": "अमी हि त्वां सुरसङ्घाः विशन्ति केचिद्भीताः प्राञ्जलयो गृणन्ति स्वस्तीत्युक्त्वा महर्षिसिद्धसङ्घाः स्तुवन्ति त्वां स्तुतिभिः पुष्कलाभिः",
+    "C": "amī hi tvāṃ surasaṃghā viśanti kecid bhītāḥ prāñjalayo gṛṇanti svastīty uktvā maharṣisiddhasaṃghāḥ stuvanti tvāṃ stutibhiḥ puṣkalābhiḥ",
+    "D": "amī hi tvā surasaṃghā viśanti kecidbhītāḥ prāñjalayo gṛṇanti svastītyuktvā maharṣisiddhasaṃghāḥ stuvanti tvāṃ stutibhiḥ puṣkalābhiḥ",
+    "V": "अमी हि त्वां सुरसङ्घा विशन्ति केचिद्भीताः प्राञ्जलयो गृणन्ति स्वस्तीत्युक्त्वा महर्षिसिद्धसङ्घाः स्तुवन्ति त्वां स्तुतिभिः पुष्कलाभिः"
+   }
+  },
+  {
+   "ref": "11.28",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "यथा नदीनां बहवोऽम्बुवेगाः समुद्रमेवाभिमुखाः द्रवन्ति तथा तवामी नरलोकवीरा विशन्ति वक्त्राण्यभिविज्वलन्ति",
+    "C": "yathā nadīnāṃ bahavombuvegāḥ samudram evābhimukhā dravanti tathā tavāmī naralokavīrā viśanti vaktrāṇy abhivijvalanti",
+    "D": "yathā nadīnāṃ bahavo 'mbuvegāḥ samudramevābhimukhā dravanti tathā tavāmī naralokavīrā viśanti vaktrāṇyabhivijvalanti",
+    "V": "यथा नदीनां बहवोऽम्बुवेगाः समुद्रमेवाभिमुखा द्रवन्ति तथा तवामी नरलोकवीरा विशन्ति वक्त्राण्यभिविज्वलन्ति"
+   }
+  },
+  {
+   "ref": "11.54",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "भक्त्या त्वनन्यया शक्यमहमेवंविधोऽर्जुन ज्ञातुं दृष्टुं च तत्त्वेन प्रवेष्टुं च परंतप",
+    "C": "bhaktyā tv ananyayā śakya aham evaṃvidhorjuna jñātuṃ draṣṭuṃ ca tattvena praveṣṭuṃ ca paraṃtapa",
+    "D": "bhaktyā tvananyayā śakya ahamevaṃvidho 'rjuna jñātuṃ draṣṭuṃ ca tattvena praveṣṭuṃ ca paraṃtapa",
+    "V": "भक्त्या त्वनन्यया शक्य अहमेवंविधोऽर्जुन ज्ञातुं द्रष्टुं च तत्त्वेन प्रवेष्टुं च परन्तप"
+   }
+  },
+  {
+   "ref": "13.3",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "तत्क्षेत्रं यच्च यादृक् च यद्विकारि यतश्च यत् स च यो यत्प्रभावश्च तत्समासेन मे श्रृणु",
+    "C": "tat kṣetraṃ yac ca yādṛk ca yadvikāri yataś ca yat sa ca yo yatprabhāvaś ca tat samāsena me śṛṇu",
+    "D": "tatkṣetraṃ yacca yādṛkca yadvikāri yataśca yat sa ca yo yatprabhāvaśca tatsamāsena me śṛṇu",
+    "V": "तत्क्षेत्रं यच्च यादृक्च यद्विकारि यतश्च यत् स च यो यत्प्रभावश्च तत्समासेन मे शृणु"
+   }
+  },
+  {
+   "ref": "15.4",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "ततः पदं तत्परिमार्गितव्य यस्मिन्गता न निवर्तन्ति भूयः तमेव चाद्यं पुरुषं प्रपद्ये यतः प्रवृत्तिः प्रसृता पुराणी",
+    "C": "tataḥ padaṃ tatparimārgitavyaṃ yasmin gatā na nivartanti bhūyaḥ tameva cādyaṃ puruṣaṃ prapadye yataḥ pravṛttiḥ prasṛtā purāṇī",
+    "D": "tataḥ padaṃ tatparimārgitavyaṃ yasmingatā na nivartanti bhūyaḥ tameva cādyaṃ puruṣaṃ prapadye yataḥ pravṛttiḥ prasṛtā purāṇī",
+    "V": "ततः पदं तत्परिमार्गितव्यं यस्मिन्गता न निवर्तन्ति भूयः तमेव चाद्यं पुरुषं प्रपद्ये यतः प्रवृत्तिः प्रसृता पुराणी"
+   }
+  },
+  {
+   "ref": "16.1",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "अभयं सत्त्वसंशुद्धिः ज्ञानयोगव्यवस्थितिः दानं दमश्च यज्ञश्च स्वाध्यायस्तप आर्जवम्",
+    "C": " abhayaṃ sattvasaṃśuddhir jñānayogavyavasthitiḥ dānaṃ damaś ca yajñaś ca svādhyāyas tapa ārjavam",
+    "D": "abhayaṃ sattvasaṃśuddhirjñānayogavyavasthitiḥ dānaṃ damaśca yajñaśca svādhyāyastapa ārjavam",
+    "V": "अभयं सत्त्वसंशुद्धिर्ज्ञानयोगव्यवस्थितिः दानं दमश्च यज्ञश्च स्वाध्यायस्तप आर्जवम्"
+   }
+  },
+  {
+   "ref": "16.6",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "द्वौ भूतसर्गौ लोकेऽस्मिन् दैव आसुर एव च दैवो विस्तरशः प्रोक्त आसुरं पार्थ मे श्रृणु",
+    "C": "dvau bhūtasargau lokesmin daiva āsura eva ca daivo vistaraśaḥ prokta āsuraṃ pārtha me śṛṇu",
+    "D": "dvau bhūtasargau loke 'smindaiva āsura eva ca daivo vistaraśaḥ prokta āsuraṃ pārtha me śṛṇu",
+    "V": "द्वौ भूतसर्गौ लोकेऽस्मिन्दैव आसुर एव च दैवो विस्तरशः प्रोक्त आसुरं पार्थ मे शृणु"
+   }
+  },
+  {
+   "ref": "16.20",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "असुरीं योनिमापन्ना मूढा जन्मनि जन्मनि मामप्राप्यैव कौन्तेय ततो यान्त्यधमां गतिम्",
+    "C": "āsurīṃ yonim āpannā mūḍhā janmanijanmani mām aprāpyaiva kaunteya tato yānty adhamāṃ gatim",
+    "D": "āsurīṃ yonimāpannā mūḍhā janmani janmani mām aprāpyaiva kaunteya tato yāntyadhamāṃ gatim",
+    "V": "आसुरीं योनिमापन्ना मूढा जन्मनि जन्मनि मामप्राप्यैव कौन्तेय ततो यान्त्यधमां गतिम्"
+   }
+  },
+  {
+   "ref": "17.2",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "त्रिविधा भवति श्रद्धा देहिनां सा स्वभावजा सात्त्विकी राजसी चैव तामसी चेति तां श्रृणु",
+    "C": " trividhā bhavati śraddhā dehināṃ sā svabhāvajā sāttvikī rājasī caiva tāmasī ceti tāṃ śṛṇu",
+    "D": "trividhā bhavati śraddhā dehināṃ sā svabhāvajā sāttvikī rājasī caiva tāmasī ceti tāṃ śṛṇu",
+    "V": "त्रिविधा भवति श्रद्धा देहिनां सा स्वभावजा सात्त्विकी राजसी चैव तामसी चेति तां शृणु"
+   }
+  },
+  {
+   "ref": "17.7",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "आहारस्त्वपि सर्वस्य त्रिविधो भवति प्रियः यज्ञस्तपस्तथा दानं तेषां भेदमिमं श्रृणु",
+    "C": "āhāras tv api sarvasya trividho bhavati priyaḥ yajñas tapas tathā dānaṃ teṣāṃ bhedam imaṃ śṛṇu",
+    "D": "āhārastvapi sarvasya trividho bhavati priyaḥ yajñastapastathā dānaṃ teṣāṃ bhedamimaṃ śṛṇu",
+    "V": "आहारस्त्वपि सर्वस्य त्रिविधो भवति प्रियः यज्ञस्तपस्तथा दानं तेषां भेदमिमं शृणु"
+   }
+  },
+  {
+   "ref": "17.23",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "तत्सदिति निर्देशो ब्रह्मणस्त्रिविधः स्मृतः ब्राह्मणास्तेन वेदाश्च यज्ञाश्च विहिताः पुरा",
+    "C": "oṃ tat sad iti nirdeśo brahmaṇas trividhaḥ smṛtaḥ brāhmaṇās tena vedāś ca yajñāś ca vihitāḥ purā",
+    "D": "oṃ tatsaditi nirdeśo brahmaṇastrividhaḥ smṛtaḥ brāhmaṇāstena vedāśca yajñāśca vihitāḥ purā",
+    "V": "ॐतत्सदिति निर्देशो ब्रह्मणस्त्रिविधः स्मृतः ब्राह्मणास्तेन वेदाश्च यज्ञाश्च विहिताः पुरा"
+   }
+  },
+  {
+   "ref": "17.25",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "तदित्यनभिसन्धाय फलं यज्ञतपःक्रियाः दानक्रियाश्च विविधाः क्रियन्ते मोक्षकाङ्क्षि",
+    "C": "tad ity anabhisaṃdhāya phalaṃ yajñatapaḥkriyāḥ dānakriyāś ca vividhāḥ kriyante mokṣakāṅkṣibhiḥ",
+    "D": "tadityanabhisaṃdhāya phalaṃ yajñatapaḥkriyāḥ dānakriyāśca vividhāḥ kriyante mokṣakāṅkṣibhiḥ",
+    "V": "तदित्यनभिसन्धाय फलं यज्ञतपःक्रियाः दानक्रियाश्च विविधाः क्रियन्ते मोक्षकाङ्क्षिभिः"
+   }
+  },
+  {
+   "ref": "18.4",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "निश्चयं श्रृणु मे तत्र त्यागे भरतसत्तम त्यागो हि पुरुषव्याघ्र त्रिविधः संप्रकीर्तितः",
+    "C": "niścayaṃ śṛṇu me tatra tyāge bharatasattama tyāgo hi puruṣavyāghra trividhaḥ saṃprakīrtitaḥ",
+    "D": "niścayaṃ śṛṇu me tatra tyāge bharatasattama tyāgo hi puruṣavyāghra trividhaḥ saṃprakīrtitaḥ",
+    "V": "निश्चयं शृणु मे तत्र त्यागे भरतसत्तम त्यागो हि पुरुषव्याघ्र त्रिविधः सम्प्रकीर्तितः"
+   }
+  },
+  {
+   "ref": "18.29",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "बुद्धेर्भेदं धृतेश्चैव गुणतस्त्रिविधं श्रृणु प्रोच्यमानमशेषेण पृथक्त्वेन धनञ्जय",
+    "C": "buddher bhedaṃ dhṛteś caiva guṇatas trividhaṃ śṛṇu procyamānam aśeṣeṇa pṛthaktvena dhanaṃjaya",
+    "D": "buddherbhedaṃ dhṛteścaiva guṇatastrividhaṃ śṛṇu procyamānamaśeṣeṇa pṛthaktvena dhanaṃjaya",
+    "V": "बुद्धेर्भेदं धृतेश्चैव गुणतस्त्रिविधं शृणु प्रोच्यमानमशेषेण पृथक्त्वेन धनञ्जय"
+   }
+  },
+  {
+   "ref": "18.36",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "सुखं त्विदानीं त्रिविधं श्रृणु मे भरतर्षभ अभ्यासाद्रमते यत्र दुःखान्तं च निगच्छति",
+    "C": "sukhaṃ tv idānīṃ trividhaṃ śṛṇu me bharatarṣabha abhyāsād ramate yatra duḥkhāntaṃ ca nigacchhati",
+    "D": "sukhaṃ tvidānīṃ trividhaṃ śṛṇu me bharatarṣabha abhyāsādramate yatra duḥkhāntaṃ ca nigacchati",
+    "V": "सुखं त्विदानीं त्रिविधं शृणु मे भरतर्षभ अभ्यासाद्रमते यत्र दुःखान्तं च निगच्छति"
+   }
+  },
+  {
+   "ref": "18.64",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "सर्वगुह्यतमं भूयः श्रृणु मे परमं वचः इष्टोऽसि मे दृढमिति ततो वक्ष्यामि ते हितम्",
+    "C": "sarvaguhyatamaṃ bhūyaḥ śṛṇu me paramaṃ vacaḥ iṣṭosi me dṛḍham iti tato vakṣyāmi te hitam",
+    "D": "sarvaguhyatamaṃ bhūyaḥ śṛṇu me paramaṃ vacaḥ iṣṭo 'si me dṛḍhamiti tato vakṣyāmi te hitam",
+    "V": "सर्वगुह्यतमं भूयः शृणु मे परमं वचः इष्टोऽसि मे दृढमिति ततो वक्ष्यामि ते हितम्"
+   }
+  },
+  {
+   "ref": "18.68",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CDV",
+    "A"
+   ],
+   "readings": {
+    "A": "य इमं परमं गुह्यं मद्भक्तेष्वभिधास्यति भक्तिं मयि परां कृत्वा मामेवैष्यत्यसंशयः",
+    "C": "ya idaṃ paramaṃ guhyaṃ madbhakteṣv abhidhāsyati bhaktiṃ mayi parāṃ kṛtvā mām evaiṣyaty asaṃśayaḥ",
+    "D": "ya idaṃ paramaṃ guhyaṃ madbhakteṣvabhidhāsyati bhaktiṃ mayi parāṃ kṛtvā māmevaiṣyatyasaṃśayaḥ",
+    "V": "य इदं परमं गुह्यं मद्भक्तेष्वभिधास्यति भक्तिं मयि परां कृत्वा मामेवैष्यत्यसंशयः"
+   }
+  },
+  {
+   "ref": "18.71",
+   "why": "A (base) is outvoted by agreeing independent witnesses",
+   "agreement": [
+    "CD",
+    "A",
+    "V"
+   ],
+   "readings": {
+    "A": "श्रद्धावाननसूयश्च श्रृणुयादपि यो नरः सोऽपि मुक्तः शुभाँल्लोकान्प्राप्नुयात्पुण्यकर्मणाम्",
+    "C": "śraddhāvān anasūyaś ca śṛṇuyād api yo naraḥ sopi muktaḥ śubhāṃl lokān prāpnuyāt puṇyakarmaṇām",
+    "D": "śraddhāvān anasūyaś ca śṛṇuyādapi yo naraḥ so 'pi muktaḥ śubhāṃllokānprāpnuyātpuṇyakarmaṇām",
+    "V": "श्रद्धावाननसूयश्च शृणुयादपि यो नरः सोऽपि मुक्तः शुभाँल्लोकान्प्राप्नुयात्पुण्यकर्मणाम्"
+   }
+  }
+ ],
+ "per_verse": [
+  {
+   "ref": "1.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACVE"
+   ]
+  },
+  {
+   "ref": "1.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.8",
+   "B_same_as_A": false,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADVE",
+    "C"
+   ]
+  },
+  {
+   "ref": "1.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADVE",
+    "C"
+   ]
+  },
+  {
+   "ref": "1.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADE",
+    "C",
+    "V"
+   ]
+  },
+  {
+   "ref": "1.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADE",
+    "C",
+    "V"
+   ]
+  },
+  {
+   "ref": "1.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDE",
+    "V"
+   ]
+  },
+  {
+   "ref": "1.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADVE",
+    "C"
+   ]
+  },
+  {
+   "ref": "1.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.24",
+   "B_same_as_A": false,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADVE",
+    "C"
+   ]
+  },
+  {
+   "ref": "1.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACVE",
+    "D"
+   ]
+  },
+  {
+   "ref": "1.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADVE",
+    "C"
+   ]
+  },
+  {
+   "ref": "1.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "CVE",
+    "A",
+    "D"
+   ]
+  },
+  {
+   "ref": "1.35",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.36",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADVE",
+    "C"
+   ]
+  },
+  {
+   "ref": "1.37",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACVE",
+    "D"
+   ]
+  },
+  {
+   "ref": "1.38",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.39",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.40",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.41",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.42",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.43",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.44",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDE",
+    "V"
+   ]
+  },
+  {
+   "ref": "1.45",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.46",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "1.47",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDVE"
+   ]
+  },
+  {
+   "ref": "2.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV"
+   ]
+  },
+  {
+   "ref": "2.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV"
+   ]
+  },
+  {
+   "ref": "2.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV"
+   ]
+  },
+  {
+   "ref": "2.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "C"
+   ]
+  },
+  {
+   "ref": "2.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "C",
+    "D"
+   ]
+  },
+  {
+   "ref": "2.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACD",
+    "V"
+   ]
+  },
+  {
+   "ref": "2.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "2.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "C",
+    "D"
+   ]
+  },
+  {
+   "ref": "2.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV"
+   ]
+  },
+  {
+   "ref": "2.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "2.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "2.17",
+   "B_same_as_A": false,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV"
+   ]
+  },
+  {
+   "ref": "2.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV"
+   ]
+  },
+  {
+   "ref": "2.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV"
+   ]
+  },
+  {
+   "ref": "2.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "2.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "2.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "2.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.29",
+   "B_same_as_A": false,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "2.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "2.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "DV",
+    "A",
+    "C"
+   ]
+  },
+  {
+   "ref": "2.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.35",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.36",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.37",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.38",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.39",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "2.40",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.41",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.42",
+   "B_same_as_A": false,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.43",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.44",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.45",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "2.46",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.47",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.48",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.49",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.50",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.51",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.52",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.53",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.54",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.55",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV"
+   ]
+  },
+  {
+   "ref": "2.56",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.57",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.58",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.59",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.60",
+   "B_same_as_A": false,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.61",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.62",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.63",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACD",
+    "V"
+   ]
+  },
+  {
+   "ref": "2.64",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "C",
+    "V"
+   ]
+  },
+  {
+   "ref": "2.65",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.66",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.67",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.68",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.69",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.70",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.71",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "2.72",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "3.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "3.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "CD"
+   ]
+  },
+  {
+   "ref": "3.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "CD"
+   ]
+  },
+  {
+   "ref": "3.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.35",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.36",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.37",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.38",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "3.39",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "3.40",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.41",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.42",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "3.43",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "4.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "4.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "4.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "DV",
+    "A",
+    "C"
+   ]
+  },
+  {
+   "ref": "4.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "4.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.35",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACD",
+    "V"
+   ]
+  },
+  {
+   "ref": "4.36",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.37",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.38",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.39",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "CD"
+   ]
+  },
+  {
+   "ref": "4.40",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.41",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "4.42",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "5.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "CD"
+   ]
+  },
+  {
+   "ref": "5.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "5.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "6.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "6.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "6.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.35",
+   "B_same_as_A": true,
+   "agreement": [
+    "DV",
+    "A",
+    "C"
+   ]
+  },
+  {
+   "ref": "6.36",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.37",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.38",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "6.39",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.40",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.41",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "6.42",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.43",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.44",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.45",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.46",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "6.47",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "7.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "7.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.11",
+   "B_same_as_A": false,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "7.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "7.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "7.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACD",
+    "V"
+   ]
+  },
+  {
+   "ref": "7.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "7.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "CD",
+    "A",
+    "V"
+   ]
+  },
+  {
+   "ref": "8.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "C",
+    "V"
+   ]
+  },
+  {
+   "ref": "8.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACD",
+    "V"
+   ]
+  },
+  {
+   "ref": "8.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "8.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "CV"
+   ]
+  },
+  {
+   "ref": "8.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "8.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "9.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "9.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "9.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "9.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "9.22",
+   "B_same_as_A": false,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "9.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "9.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "10.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "CD"
+   ]
+  },
+  {
+   "ref": "10.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACD",
+    "V"
+   ]
+  },
+  {
+   "ref": "10.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "10.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "10.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "10.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "10.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.35",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.36",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "10.37",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.38",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.39",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.40",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.41",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "10.42",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "11.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "11.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "11.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "11.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "11.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "C",
+    "D"
+   ]
+  },
+  {
+   "ref": "11.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "CV",
+    "A",
+    "D"
+   ]
+  },
+  {
+   "ref": "11.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "11.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "11.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "CD"
+   ]
+  },
+  {
+   "ref": "11.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "11.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "11.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.35",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.36",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.37",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.38",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.39",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "11.40",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.41",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.42",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.43",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.44",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.45",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.46",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "C",
+    "V"
+   ]
+  },
+  {
+   "ref": "11.47",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.48",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "11.49",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.50",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.51",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.52",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "11.53",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "11.54",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "11.55",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "CV"
+   ]
+  },
+  {
+   "ref": "12.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "12.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "C",
+    "V"
+   ]
+  },
+  {
+   "ref": "12.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "12.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "CV"
+   ]
+  },
+  {
+   "ref": "12.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "12.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "12.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "12.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "12.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "13.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "13.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "13.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "13.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "14.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "14.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACD",
+    "V"
+   ]
+  },
+  {
+   "ref": "14.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "14.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "14.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "15.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "CV"
+   ]
+  },
+  {
+   "ref": "15.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "15.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "15.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "15.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "CD"
+   ]
+  },
+  {
+   "ref": "15.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACD",
+    "V"
+   ]
+  },
+  {
+   "ref": "15.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "15.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "CD"
+   ]
+  },
+  {
+   "ref": "15.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "16.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "16.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "16.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "16.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "16.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "16.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "CV"
+   ]
+  },
+  {
+   "ref": "16.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "16.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "16.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "17.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "17.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "17.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "17.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "AD",
+    "CV"
+   ]
+  },
+  {
+   "ref": "17.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "17.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "17.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "17.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "17.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "18.1",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.2",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.3",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.4",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "18.5",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.6",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.7",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.8",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.9",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.10",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.11",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.12",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.13",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.14",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.15",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.16",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.17",
+   "B_same_as_A": true,
+   "agreement": [
+    "AV",
+    "C",
+    "D"
+   ]
+  },
+  {
+   "ref": "18.18",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.19",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.20",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.21",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.22",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "18.23",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.24",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.25",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.26",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.27",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.28",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "18.29",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "18.30",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.31",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.32",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "18.33",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.34",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.35",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.36",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "18.37",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.38",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "18.39",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.40",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.41",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.42",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.43",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "18.44",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACV",
+    "D"
+   ]
+  },
+  {
+   "ref": "18.45",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.46",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.47",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "18.48",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.49",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.50",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.51",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.52",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.53",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.54",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.55",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.56",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.57",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.58",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "18.59",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.60",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.61",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.62",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.63",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.64",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "18.65",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.66",
+   "B_same_as_A": true,
+   "agreement": [
+    "ADV",
+    "C"
+   ]
+  },
+  {
+   "ref": "18.67",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.68",
+   "B_same_as_A": true,
+   "agreement": [
+    "CDV",
+    "A"
+   ]
+  },
+  {
+   "ref": "18.69",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.70",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.71",
+   "B_same_as_A": true,
+   "agreement": [
+    "CD",
+    "A",
+    "V"
+   ]
+  },
+  {
+   "ref": "18.72",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACD",
+    "V"
+   ]
+  },
+  {
+   "ref": "18.73",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.74",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.75",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.76",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.77",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  },
+  {
+   "ref": "18.78",
+   "B_same_as_A": true,
+   "agreement": [
+    "ACDV"
+   ]
+  }
+ ]
+}

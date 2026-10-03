@@ -42,6 +42,9 @@
      audio         key only — NO audio has been recorded yet. Per docs/09 these must be a
                    human voice, never TTS: children imitate what they hear, and Tamil, Pali
                    and Sanskrit recitation has metre in it that a synthesiser destroys.
+                   ONE LABELLED EXCEPTION (owner, 3 Oct 2026): the whole-Gita module
+                   (app/gita.js, docs/21 §8) chants all 700 verses with a computer voice
+                   and says so on every verse, until a human reciter records them.
      gate          minimum age band
      note          required when unsure or needs_original; occasionally an editorial note
 

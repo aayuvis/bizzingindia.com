@@ -12,13 +12,13 @@
    • It PAUSES when the tab is hidden, and stays off in Calm mode.
    • Nothing plays before a real tap or key — no page makes a sound a child did not ask for.
 
-   window.IND_AUDIO = { ctx(), fxOut(), set({muted, fx, music, vol, calm}), duck(on),
+   window.IND_AUDIO = { ctx(), fxOut(), set({muted, fx, music, vol, calm}), duck(on), bed(on),
                         music(theme), stop(), state, playing(), ducked() } */
 (function (W, D) {
   'use strict';
   var AC = null, master = null, fxBus = null, duckBus = null, musicBus = null;
   var state = { muted: false, fx: true, music: true, vol: 0.8, calm: false };
-  var armed = false, want = null, engineLoading = false, ducks = 0, duckTimer = null;
+  var armed = false, want = null, engineLoading = false, ducks = 0, duckTimer = null, bedOn = false;
   var MUSIC_LEVEL = 0.4;            /* the music sits at 40% of the master (standard §11) */
 
   function ctx() {
@@ -40,6 +40,10 @@
     musicBus.gain.setTargetAtTime(musicOn() ? MUSIC_LEVEL : 0, t, now ? 0.01 : 0.6);
   }
   function musicOn() { return state.music && !state.calm && !state.muted; }
+  function level() {
+    if (!AC) return;
+    duckBus.gain.setTargetAtTime(ducks ? 0.22 : bedOn ? 0.6 : 1, AC.currentTime, ducks ? 0.08 : 0.5);
+  }
 
   function loadEngine(then) {
     if (W.IND_MUSIC) return then();
@@ -74,9 +78,13 @@
     duck: function (on, ms) {
       ducks = Math.max(0, ducks + (on ? 1 : -1));
       if (on && ms) { clearTimeout(duckTimer); duckTimer = setTimeout(function () { api.duck(false); }, ms); }
-      if (!AC) return;
-      duckBus.gain.setTargetAtTime(ducks ? 0.22 : 1, AC.currentTime, ducks ? 0.08 : 0.5);
+      level();
     },
+    /* A CHANT OVER ITS MUSIC (the Gita, owner 3 Oct 2026: "chant-like with situational music behind
+       them — this helps in memory"). Narration ducks the music to a quarter, out of the way; a chant
+       keeps it as a bed, a little more than half, because there the music is part of it. A real
+       duck (a sound, a word) still wins. */
+    bed: function (on) { bedOn = !!on; level(); },
     ducked: function () { return ducks > 0; },
     music: function (theme) { want = theme || null; if (!want) { if (W.IND_MUSIC) W.IND_MUSIC.stop(); return; } startWanted(); },
     stop: function () { want = null; if (W.IND_MUSIC) W.IND_MUSIC.stop(); },

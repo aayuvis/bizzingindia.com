@@ -1,0 +1,165 @@
+{
+ "retrieved": "2026-10-03",
+ "network": {
+  "reachable": [
+   "github.com (git clone)",
+   "raw.githubusercontent.com",
+   "gitlab.com",
+   "registry.npmjs.org",
+   "pypi.org"
+  ],
+  "blocked_by_egress_policy_403": [
+   "en.wikisource.org",
+   "sa.wikisource.org",
+   "archive.org",
+   "sacred-texts.com",
+   "gretil.sub.uni-goettingen.de",
+   "gutenberg.org",
+   "sanskritdocuments.org",
+   "wisdomlib.org",
+   "hathitrust.org",
+   "huggingface.co",
+   "cdn.jsdelivr.net",
+   "gitasupersite.iitk.ac.in",
+   "neonvagabond.xyz (sacred-texts mirror)"
+  ],
+  "note": "Every primary host was reached only through a verbatim GitHub mirror; commits recorded below."
+ },
+ "sources": [
+  {
+   "id": "A",
+   "role": "Sanskrit BASE (Devanagari vulgate)",
+   "repo": "https://github.com/gita/gita",
+   "commit": "c6fce39595445768876ddbb8d1268a9c935e1d2b",
+   "file": "raw/gita_gita_verse.json (= data/verse.json)",
+   "license_verbatim": "This is free and unencumbered software released into the public domain. ... (Unlicense, raw/gita_gita_LICENSE.txt)",
+   "upstream": "IIT Kanpur Gita Supersite (format '।।c.v।।'; 692/700 verses identical to CLTK's 2017 scrape of gitasupersite). IITK's own terms could not be read (host blocked).",
+   "caveats": [
+    "701 numbering in ch.13 (13.1 = Arjuna's question) -> renumbered to 700",
+    "26 i-matra-before-conjunct encoding errors (कश्िचत्), 3 ृ+nukta for ॄ, 1 stray nukta -> repaired, logged per verse",
+    "14 verses spell श्रृ for शृ (śṛṇu etc.)",
+    "33 verses outvoted by agreeing independent witnesses (out/crosscheck_sa.json review)",
+    "speaker lines of 1.21 and 1.28 moved to verse start (printed mid-verse in Besant 1922 and vedicscriptures)",
+    "fields transliteration/word_meanings are NOT IAST (ṣh, ch, ṛi house style) and of unverified provenance; translation.json holds copyrighted modern translations - do not use"
+   ]
+  },
+  {
+   "id": "B",
+   "role": "witness (scrape fidelity)",
+   "repo": "https://github.com/cltk/sanskrit_text_gitasupersite",
+   "commit": "d8a6ccec70099d8f2e23aa3d7fdf439d336b4116",
+   "license_verbatim": "Public Domain Mark 1.0 ... 'These files are in the public domain and generously made publicly available by the Gita Supersite.' (CLTK's claim)",
+   "files": "raw/cltk_gitasupersite/"
+  },
+  {
+   "id": "C",
+   "role": "witness (independent IAST vulgate)",
+   "repo": "https://github.com/wujastyk/GRETIL-mirror (DOI 10.5281/zenodo.6486741)",
+   "commit": "0baf718d8e450821eb0403c03aacc9a4a82316d7",
+   "file": "raw/gretil_bhagvg_u.htm (gretil/1_sanskr/2_epic/mbh/ext/bhagvg_u.htm); also raw/gretil_bhgce__u.htm (BORI CE)",
+   "license_verbatim": [
+    "legacy file: 'THIS GRETIL TEXT FILE IS FOR REFERENCE PURPOSES ONLY! COPYRIGHT AND TERMS OF USAGE AS FOR SOURCE FILE.' (no inputter or source edition named)",
+    "GRETIL TEI headers (e.g. corpustei/sa_bhagavadgItA-comm.xml): 'Distributed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.'"
+   ],
+   "caveats": [
+    "NonCommercial: not usable as shipped text in a paid app",
+    "ch.13 in 701 numbering",
+    "2.22 labelled '2.20'",
+    "ITRANS residues (cchh, .h), missing avagrahas, typos (juvhati)",
+    "same text as sacred-texts.com/hin/bgs"
+   ]
+  },
+  {
+   "id": "D",
+   "role": "witness (BORI critical edition, IAST, lemmatised)",
+   "repo": "https://github.com/OliverHellwig/sanskrit (Digital Corpus of Sanskrit)",
+   "commit": "8aeed5a1343d0e48b64eb32af8c00e8c6eb29359",
+   "files": "raw/dcs/*.conllu (Mahābhārata 6, BhaGī 1-18)",
+   "license_verbatim": "The data in this directory are licensed under the Creative Commons BY 4.0 (CC BY 4.0) license. Cite: Oliver Hellwig: Digital Corpus of Sanskrit (DCS). 2010-2024.",
+   "caveats": [
+    "critical-edition readings differ from the vulgate in places (e.g. 1.28 dṛṣṭvemān svajanān…; 11.20 rūpam idaṃ tavograṃ)",
+    "10 verses (1.1, 2.1-4, 2.10, 2.20-22, 2.55) only as sandhi-resolved treebank lines",
+    "anusvara normalised before stops"
+   ]
+  },
+  {
+   "id": "V",
+   "role": "witness (Devanagari + IAST)",
+   "repo": "https://github.com/vedicscriptures/bhagavad-gita-data",
+   "commit": "43dfc8db815d01e15a347ea294b089334cf2aa17",
+   "files": "raw/vedicscriptures/",
+   "license_verbatim": "GNU GENERAL PUBLIC LICENSE Version 3 (repo LICENSE)",
+   "upstream": "not stated; conventions (||1-1||, ITRANS-style IAST, .a avagraha, OM) match sanskritdocuments.org, whose Gita files say: 'This text is prepared by volunteers and is to be used for personal study and research. The file is not to be copied or reposted for promotion of any website or individuals or for commercial purpose without permission.' (verbatim from doc_giitaa/gitAanvayasandhivigraha.itx via kmadathil/sanskrit_parser)",
+   "caveats": [
+    "ASCII | and || for dandas",
+    "701 numbering + an 18 colophons counted as verses (719 files)",
+    "verse division 1.20/1.21 differs (1.20 has 3 lines)",
+    "1.44 carries an inline '(or …)' variant note",
+    "stray Latin letters in 5 verses"
+   ]
+  },
+  {
+   "id": "E",
+   "role": "witness + ENGLISH (Besant 1922, ch.1 first-hand)",
+   "repo": "https://github.com/radhepa/hindu-reader",
+   "commit": "27c190d22be05df0d3c91ebecce46679cf253947",
+   "file": "raw/wikisource_besant4_discourse1_api.json (cached en.wikisource API parse of 'Bhagavad-Gita (Besant 4th)/Discourse 1', pageid 2714069)",
+   "license": "Besant, The Bhagavad-Gita, 4th ed. 1922: public domain (published before 1931 in the US); Wikisource transcription: CC BY-SA 4.0 (Wikisource terms; not re-read here, host blocked)"
+  },
+  {
+   "id": "Besant-2-18",
+   "role": "ENGLISH ch.2-18 (second-hand)",
+   "repo": "https://github.com/thedeepakreddy/Gita.AI",
+   "commit": "8bd2c864d6e3050364095f2d4295ae9caad9f44f",
+   "files": "raw/gitaai_besant/chapter-01..18.json (field translations.en)",
+   "license": "repo has no LICENSE file; text is Besant 1922 via en.wikisource API (its build script)",
+   "verification": "its chapter 1 (47 verses) is identical to our own parse of the raw Wikisource response",
+   "caveats": [
+    "re-fetch ch.2-18 from en.wikisource before shipping",
+    "6.33 and 11.32 lack the 'X said:' label that the Sanskrit has",
+    "Besant numbers Arjuna's question as 13.1 (35 verses) -> renumbered"
+   ]
+  },
+  {
+   "id": "Swarupananda",
+   "role": "ENGLISH alternative (first-hand)",
+   "repo": "https://github.com/sarvesh-astrophile/hinduism-sacred-texts (sacred-texts/raw/hin/sbg)",
+   "commit": "83aa6b20f703587b0fd0a40d9ba70e0eb5d57418",
+   "second_mirror": "https://github.com/druvx13/Hinduism (sbg/) - all 26 pages text-identical (only Cloudflare script tokens differ)",
+   "notice_verbatim": "Scanned, Proofed and formatted by John Bruno Hare at sacred-texts.com, March 2008. This text is in the public domain in the US because it was published prior to 1923.",
+   "caveats": [
+    "23 units cover several verses (e.g. 1.4-6, 6.20-23)",
+    "no unit numbered 1.28; ch.1 v20-30 divided differently from the vulgate",
+    "Arjuna's 13.0 question unnumbered (kept apart)",
+    "sacred-texts omitted the book's Sanskrit and any word-gloss; footnotes (commentary) kept per verse",
+    "scattered OCR slips, e.g. 2.20 'This in never born'"
+   ]
+  },
+  {
+   "id": "Telang",
+   "role": "English, not aligned",
+   "files": "raw/sacred_texts/sbe08/ (same GitHub mirror)",
+   "notice_verbatim": "Scanned at sacred-texts.com, April-May, 2002. J.B. Hare, Redactor. This text is in the public domain. These files may be used for any non-commercial purpose, provided this notice of attribution is left intact.",
+   "caveats": [
+    "SBE vol. 8 prints the Gita as continuous prose: 150 paragraphs, 0 verse numbers, 55 speaker lines -> cannot be split per verse mechanically",
+    "SBE transliteration (Arguna, Sañgaya, K for c)"
+   ]
+  },
+  {
+   "id": "Arnold",
+   "role": "English, not aligned",
+   "files": "raw/sacred_texts/gita/ (Song Celestial, 1885)",
+   "caveats": [
+    "verse paraphrase, no verse numbers"
+   ]
+  },
+  {
+   "id": "Besant-Das-1905",
+   "role": "NOT OBTAINED",
+   "caveats": [
+    "only on archive.org / HathiTrust (blocked); no GitHub copy found by code search",
+    "joint work: check Bhagavan Das's death year before relying on it outside the US/India (life+70 jurisdictions)"
+   ]
+  }
+ ]
+}

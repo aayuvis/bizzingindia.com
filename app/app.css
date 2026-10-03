@@ -3005,3 +3005,96 @@ body.drilling .hivebtn { visibility: hidden; }
 .plancard { display: grid; gap: 4px; margin: 10px 0 0; padding: 12px 14px; border-radius: 14px;
   background: var(--accent-soft); color: var(--text); font-size: 14px; }
 .plancard b:first-child { font-family: var(--display); font-size: 16px; }
+
+/* ================================================================ THE GITA (app/gita.js, docs/21)
+   A verse is the screen's subject: the painting on top with only the camera moving, the guru's
+   line, six steps, then the verse itself set large in Devanagari with its Roman letters under it.
+   Colours are the world's tokens only, so every world, day and night, passes check-contrast. */
+.gt-draft { margin: 0 0 12px; padding: 10px 14px; border-radius: var(--radius-md); border: 1px dashed var(--line2);
+  background: var(--card); color: var(--text); font-size: 14px; }
+.gt-hold h1 { margin: 6px 0 10px; }
+.gt-head h1 { margin: 6px 0 8px; }
+.gt-art { position: relative; margin: -4px 0 12px; border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 16 / 9; background: var(--line); }
+.gt-art img { display: block; width: 100%; height: 100%; object-fit: cover;
+  transform: translate(var(--x0), var(--y0)) scale(var(--s0)); }
+@media (prefers-reduced-motion: no-preference) {
+  .gt-art img { animation: gtcam var(--dur, 30s) linear both paused; }
+  .gt-head .gt-art img { animation-play-state: running; animation-duration: 60s; animation-direction: alternate; animation-iteration-count: infinite; }
+  .gt-art.on img { animation-play-state: running; }
+}
+:root[data-calm] .gt-art img { animation: none !important; }
+@keyframes gtcam { from { transform: translate(var(--x0), var(--y0)) scale(var(--s0)); }
+                   to   { transform: translate(var(--x1), var(--y1)) scale(var(--s1)); } }
+.gt-cap { margin: -4px 2px 12px; font-size: 14px; color: var(--text2); }
+.gt-guru { display: flex; gap: 12px; align-items: flex-start; margin: 10px 0 14px; }
+.gt-guru p { margin: 0; flex: 1; font-size: 16px; line-height: 1.55; }
+.gt-mark { flex: 0 0 auto; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 17px; line-height: 1; font-weight: 700; }
+.gt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.gt-go { align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.gt-where blockquote, .gt-en, .gt-en2 blockquote { margin: 10px 0; padding: 4px 0 4px 14px; border-left: 3px solid var(--accent); font-size: 16px; line-height: 1.6; }
+.gt-sixes { margin: 18px 4px 6px; }
+.gt-part { margin: 14px 0 6px; }
+.gt-partline { margin: 2px 0 10px; }
+.gt-chtile { display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%; }
+.gt-chn { flex: 0 0 auto; font-family: var(--display); font-weight: 800; font-size: 26px; line-height: 1; color: var(--accent); min-width: 30px; }
+.gt-cht { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.gt-cht .deva { font-size: 18px; line-height: 1.7; }
+.gt-bar { display: block; height: 5px; border-radius: 3px; background: var(--line); margin-top: 6px; overflow: hidden; }
+.gt-bar i { display: block; height: 100%; background: var(--accent); }
+.gt-chname .deva { font-size: 30px; line-height: 1.7; }
+.gt-iast { margin: -6px 0 6px; font-style: italic; color: var(--text2); }
+.gt-who { gap: 6px; align-items: center; flex-wrap: wrap; margin: 6px 0; }
+.gt-music { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.gt-link { border: 0; background: none; padding: 0; color: var(--accent); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.gt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; margin: 12px 0 8px; }
+.gt-vn { min-height: 44px; border-radius: 10px; border: 1px solid var(--line2); background: var(--card); color: var(--text); font-weight: 700; cursor: pointer; }
+.gt-vn:hover, .gt-vn:focus-visible { border-color: var(--accent); }
+.gt-vn.lv1 { box-shadow: inset 0 -4px 0 color-mix(in srgb, var(--accent) 35%, transparent); }
+.gt-vn.lv2 { box-shadow: inset 0 -4px 0 color-mix(in srgb, var(--accent) 70%, transparent); }
+.gt-vn.lv3 { background: color-mix(in srgb, var(--accent) 16%, var(--card)); border-color: var(--accent); }
+.gt-vn.lv4 { background: var(--accent); color: #fff; border-color: transparent; }
+.gt-key i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; margin: 0 4px 0 10px; vertical-align: middle; border: 1px solid var(--line2); }
+.gt-key i.lv1 { box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--accent) 35%, transparent); }
+.gt-key i.lv2 { box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--accent) 70%, transparent); }
+.gt-key i.lv3 { background: color-mix(in srgb, var(--accent) 16%, var(--card)); border-color: var(--accent); }
+.gt-key i.lv4 { background: var(--accent); }
+.gt-steps { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 10px; scrollbar-width: none; }
+.gt-step { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 6px 12px 6px 6px;
+  border-radius: var(--radius-pill); border: 1px solid var(--line2); background: var(--card); color: var(--text); font-weight: 700; cursor: pointer; }
+.gt-step.on { background: var(--accent); color: #fff; border-color: transparent; }
+.gt-stepn { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--line); color: var(--text); font-size: 13px; }
+.gt-step.on .gt-stepn { background: #fff; color: var(--accent); }
+.gt-ctl { gap: 8px; flex-wrap: wrap; align-items: center; margin: 4px 0 12px; }
+.gt-play.on, .gt-rec.on { background: var(--text); color: var(--card); }
+.gt-lines { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 12px; }
+.gt-line { padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid transparent; transition: background .25s, border-color .25s; }
+.gt-line.lit { background: color-mix(in srgb, var(--accent) 12%, var(--card)); border-color: var(--accent); }
+.gt-line.spl .gt-sa { font-size: 19px; color: var(--text2); }
+.gt-sa { margin: 0; font-size: 25px; line-height: 1.8; color: var(--text); }
+.gt-ia { margin: 2px 0 0; font-size: 16px; line-height: 1.5; color: var(--text); }
+.gt-rd { margin: 2px 0 0; font-size: 14px; color: var(--text2); }
+.gt-linebtn { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+.gt-linebtn:hover .gt-line, .gt-linebtn:focus-visible .gt-line { border-color: var(--line2); }
+.gt-lines.rep .gt-past { opacity: .6; }
+.gt-lines.rep .gt-cur .gt-line { border-color: var(--accent); }
+.gt-gap { display: inline-block; width: 2.2em; border-bottom: 2px solid var(--line2); margin-left: 2px; vertical-align: baseline; }
+.gt-blank { display: block; height: 30px; border-bottom: 2px dashed var(--line2); }
+.gt-turn { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-weight: 800; }
+.gt-turn i { flex: 1; height: 8px; border-radius: 4px; background: var(--line); position: relative; overflow: hidden; }
+.gt-turn i::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: var(--accent); transform-origin: left; animation: gtturn var(--t, 2s) linear both; }
+.gt-turn.you span { color: var(--accent); }
+@keyframes gtturn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .gt-turn i::after { animation: none; transform: none; } }
+.gt-next { margin-top: 8px; }
+.gt-nav { justify-content: space-between; align-items: center; margin: 12px 0 6px; gap: 8px; }
+.gt-src, .gt-keys { margin: 8px 2px; }
+.gt-promise { margin-top: 10px; }
+.gt-about p { margin: 8px 0; font-size: 14.5px; }
+@media (max-width: 520px) { .gt-sa { font-size: 22px; } .gt-chname .deva { font-size: 26px; } }
+/* on a wide screen the verse is the subject, not the picture: a letterbox, so the text is above the fold */
+@media (min-width: 700px) { .gt-verse .gt-art { aspect-ratio: 2.6 / 1; } }
+.gt-music { display: inline; }
+.gt-say { flex: 0 0 auto; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--line2); background: var(--card); color: var(--text); cursor: pointer; }
+.gt-say:hover, .gt-say:focus-visible { border-color: var(--accent); color: var(--accent); }

@@ -1,0 +1,121 @@
+{
+ "heart": {
+  "d": 0,
+  "heard": "By heart. You have said it from memory on two different days. It is yours now.",
+  "of": 16,
+  "sec": 7.2,
+  "txt": "1c35d74a5faa"
+ },
+ "listen": {
+  "d": 0,
+  "heard": "Just listen first. Do not try to say it yet. Let the sound settle.",
+  "of": 14,
+  "sec": 5.0,
+  "txt": "e51db4381330"
+ },
+ "mean": {
+  "d": 0,
+  "heard": "This is what it says in Annie Besant's English of 1922: Old words like thou and thy just mean you and your.",
+  "of": 21,
+  "sec": 9.2,
+  "txt": "fe35b19429d4"
+ },
+ "mid-arjuna": {
+  "d": 0,
+  "heard": "Then Arjuna speaks in the middle of the verse.",
+  "of": 9,
+  "sec": 3.6,
+  "txt": "fa0563cdf097"
+ },
+ "notyet": {
+  "d": 0,
+  "heard": "Good. That is what practice is. Go back a step, listen once more, and try again.",
+  "of": 16,
+  "sec": 6.4,
+  "txt": "c7dd22582c3e"
+ },
+ "read": {
+  "d": 0,
+  "heard": "Now read along. On top is the Sanskrit. Under it the same sounds in Roman letters with their marks. A line over a vowel makes it long, and a dot under an S or an N curls the tongue back. Under that an easier spelling to say it by. Tap a line to hear just that line.",
+  "of": 57,
+  "sec": 18.8,
+  "txt": "4396fcabac82"
+ },
+ "record": {
+  "d": 0,
+  "heard": "Say the whole verse yourself and record it. Then listen to yours and to mine, one after the other.",
+  "of": 19,
+  "sec": 6.7,
+  "txt": "9086eb586142"
+ },
+ "remember": {
+  "d": 0,
+  "heard": "Read it through once more. Then hide a little of it.",
+  "of": 11,
+  "sec": 4.2,
+  "txt": "2372a6be3c57"
+ },
+ "remember1": {
+  "d": 0,
+  "heard": "Only the first sound of each word is left. Say the whole verse.",
+  "of": 13,
+  "sec": 4.7,
+  "txt": "fe09da24187b"
+ },
+ "remember2": {
+  "d": 0,
+  "heard": "Nothing to look at now, say it from memory, out loud. Then tell me how it went.",
+  "of": 17,
+  "sec": 7.0,
+  "txt": "4f64931d44fd"
+ },
+ "repeat": {
+  "d": 0,
+  "heard": "Now we take it in pieces. I chant one line, you say it back before the next. That is how a teacher teaches a verse. One line at a time.",
+  "of": 30,
+  "sec": 10.3,
+  "txt": "a956b992cd5e"
+ },
+ "said": {
+  "d": 0,
+  "heard": "Said from memory today. Say it again on another day, tomorrow is good, and it is yours by heart.",
+  "of": 19,
+  "sec": 8.0,
+  "txt": "d65cb68d6f65"
+ },
+ "sp-arjuna": {
+  "d": 0,
+  "heard": "Arjuna is speaking to Krishna.",
+  "of": 5,
+  "sec": 2.5,
+  "txt": "ff9ca4877aab"
+ },
+ "sp-dhritarashtra": {
+  "d": 0,
+  "heard": "The blind king Dhritarashtra asks Sanjaya what happened.",
+  "of": 8,
+  "sec": 3.8,
+  "txt": "7e6829327db7"
+ },
+ "sp-krishna": {
+  "d": 0,
+  "heard": "Krishna is speaking to Arjuna",
+  "of": 5,
+  "sec": 2.4,
+  "txt": "39e476bb1b42"
+ },
+ "sp-sanjaya": {
+  "d": 0,
+  "heard": "Sanjaya is telling the blind king, Dhritarashtra, what he sees.",
+  "of": 10,
+  "sec": 4.3,
+  "txt": "05cc76f052ac"
+ },
+ "welcome": {
+  "d": 0,
+  "heard": "I will take you through the Gita one verse at a time. First you listen to it chanted. Then we read it. The Sanskrit, the sounds in Roman letters and an easier spelling to say it by. Then what it means in English. Then you repeat after me line by line, record yourself, and try it from memory.",
+  "of": 58,
+  "sec": 20.5,
+  "txt": "91820f7b9e3a"
+ }
+}

@@ -182,6 +182,14 @@ Gita module specifically. Four rules bind anyone touching them:
 resolves, nothing sensitive claims to be finished, the project is gated, and the app's
 claim about how it marked a thing matches what it actually did.
 
+- **The whole Gita is built from sources and chanted by a labelled computer voice** (docs/21 §8,
+  owner 3 Oct 2026): `app/gita.js`, `#/gita` · `#/gitach/<n>` · `#/gitav/<c.v>`. All 700 verses come
+  out of `tools/build-gita.js` (never typed); English is Besant 1922 / Swarupananda 1909, titles
+  Swarupananda's; the guru's lines are instructions, never a gloss. Every verse says it is a
+  computer voice and how a blind second listener checked it; a file in `voice/gita/human/` replaces
+  it. Change a verse and its chant is stale (`check-gita voice`). The microphone opens only from
+  Record, the clip never leaves the device and is never scored; nothing pays coins. It opens in
+  **tester mode only** until `tools/gita-src/review.json` names a reviewer. `tools/check-gita.js`.
 - **The family's shared code is copied, never edited** (docs/29): `app/family/` holds
   Bizzing_Schedule's `bizzing-wallet.js`, `bizzing-activity.js`, `bizzing-avatars.js` and `.css`,
   `bizzing-shell.js` and `.css` (and `tools/lib/shell-check.mjs`)

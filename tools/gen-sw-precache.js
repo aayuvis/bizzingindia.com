@@ -55,6 +55,10 @@ for (const u of lazySrc) later.add(u);
 /* the big install icons are the launcher's, not the first screen's: after the first tap */
 for (const u of ['./icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png']) later.add(u);
 for (const u of [...urls]) if (/data-bhasha-hi-passages\.js|data-feed-(?!index)[^/]*\.js/.test(u)) { urls.delete(u); later.add(u); }
+/* THE GITA is not warmed for everyone: 0.7 MB of verses for a module only some families open (and,
+   until a reviewer signs it off, only tester mode). Its files are cached as a child opens them —
+   the fetch handler keeps whatever it serves — so a chapter once opened works offline. */
+for (const u of [...later]) if (/(^|\/)(data-gita[^/]*|gita)\.js/.test(u)) later.delete(u);
 /* the music is lazy too: composed in code, fetched only when a child turns it on */
 if (fs.existsSync(path.join(APP, 'music', 'engine.js'))) later.add('./music/engine.js');
 /* the logo the header shows on first paint */

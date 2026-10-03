@@ -62,3 +62,47 @@ function simple(i) {
 }
 
 module.exports = { iast, simple };
+
+/* IAST → IPA, for telling a synthetic voice exactly which sound is meant (the retroflex ṇ is not
+   the dental n; ph is an aspirated p, never f). Classical values; deterministic. */
+const IPA = [['ai', 'ɐi'], ['au', 'ɐu'], ['kh', 'kʰ'], ['gh', 'ɡʱ'], ['ch', 't͡ɕʰ'], ['jh', 'd͡ʑʱ'], ['ṭh', 'ʈʰ'],
+  ['ḍh', 'ɖʱ'], ['th', 't̪ʰ'], ['dh', 'd̪ʱ'], ['ph', 'pʰ'], ['bh', 'bʱ'], ['m̐', '̃'],
+  ['ā', 'aː'], ['ī', 'iː'], ['ū', 'uː'], ['ṝ', 'r̩ː'], ['ṛ', 'r̩'], ['ḹ', 'l̩ː'], ['ḷ', 'l̩'], ['e', 'eː'], ['o', 'oː'],
+  ['a', 'ɐ'], ['i', 'i'], ['u', 'u'], ['ṃ', 'ⁿ'], ['ḥ', 'h'], ['k', 'k'], ['g', 'ɡ'], ['ṅ', 'ŋ'], ['c', 't͡ɕ'], ['j', 'd͡ʑ'],
+  ['ñ', 'ɲ'], ['ṭ', 'ʈ'], ['ḍ', 'ɖ'], ['ṇ', 'ɳ'], ['t', 't̪'], ['d', 'd̪'], ['n', 'n̪'], ['p', 'p'], ['b', 'b'], ['m', 'm'],
+  ['y', 'j'], ['r', 'ɾ'], ['l', 'l'], ['v', 'ʋ'], ['ś', 'ɕ'], ['ṣ', 'ʂ'], ['s', 's'], ['h', 'ɦ'], ['’', '']];
+function ipa(i) {
+  let s = String(i).normalize('NFC'), out = '';
+  for (let k = 0; k < s.length;) {
+    let hit = null;
+    for (const [a, b] of IPA) if (s.startsWith(a, k)) { hit = [a, b]; break; }
+    if (hit) { out += hit[1]; k += hit[0].length; } else { out += s[k]; k++; }
+  }
+  return out;
+}
+module.exports.ipa = ipa;
+
+/* HOW FAR WHAT WAS HEARD IS FROM WHAT WAS WRITTEN, fairly (the Gita's chant check, docs/21 §8).
+   Letters only, edit distance — except that an anusvāra (ṃ) is SAID as the nasal of the sound after
+   it (sāṃkhya is said sāṅkhya, yogaṃ ca is said yogañ ca), so a listener who writes m, n, ṅ or ñ
+   where the text has ṃ heard it right; likewise a visarga before a sibilant said as that sibilant.
+   Everything else counts: n for ṇ, s for ṣ, f for ph, a short vowel for a long one. */
+const HEARD_NASAL = { m: 1, n: 1, 'ṅ': 1, 'ñ': 1, 'ṃ': 1 };
+function letters(s) { return String(s).normalize('NFC').toLowerCase().replace(/[^a-zāīūṛṝḷḹṃḥṅñṭḍṇśṣ]/g, ''); }
+function heardDistance(heard, want) {
+  const a = letters(heard), b = letters(want);
+  let p = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const c = [i];
+    for (let j = 1; j <= b.length; j++) {
+      /* and a visarga before a sibilant is said as that sibilant (tataḥ śaṅkhāḥ → tataś śaṅkhāḥ) */
+      const same = a[i - 1] === b[j - 1] || (b[j - 1] === 'ṃ' && HEARD_NASAL[a[i - 1]]) ||
+        (b[j - 1] === 'ḥ' && /[śṣs]/.test(a[i - 1]) && b[j] === a[i - 1]);
+      c.push(Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (same ? 0 : 1)));
+    }
+    p = c;
+  }
+  return { dist: p[b.length], of: b.length };
+}
+module.exports.letters = letters;
+module.exports.heardDistance = heardDistance;

@@ -1,0 +1,20 @@
+{
+ "_": "The guru's own words (docs/21 §8.1): instructions only, never a gloss of what a verse means. Shown on screen AND spoken, word for word, by tools/gita-guru.py in the voice that chants — so the guru is one person. Change a line here and its clip is stale until it is spoken again (check-gita guru).",
+ "welcome": "I will take you through the Gita one verse at a time. First you listen to it chanted. Then we read it: the Sanskrit, the sounds in Roman letters, and an easier spelling to say it by. Then what it means in English. Then you repeat after me, line by line, record yourself, and try it from memory.",
+ "sp-krishna": "Krishna is speaking to Arjuna.",
+ "sp-arjuna": "Arjuna is speaking to Krishna.",
+ "sp-sanjaya": "Sanjaya is telling the blind king Dhritarashtra what he sees.",
+ "sp-dhritarashtra": "The blind king Dhritarashtra asks Sanjaya what happened.",
+ "mid-arjuna": "Then Arjuna speaks, in the middle of the verse.",
+ "listen": "Just listen first. Do not try to say it yet. Let the sound settle.",
+ "read": "Now read along. On top is the Sanskrit. Under it, the same sounds in Roman letters, with their marks: a line over a vowel makes it long, and a dot under an s or an n curls the tongue back. Under that, an easier spelling to say it by. Tap a line to hear just that line.",
+ "mean": "This is what it says, in Annie Besant's English of 1922. Old words like thou and thy just mean you and your.",
+ "repeat": "Now we take it in pieces. I chant one line; you say it back before the next. That is how a teacher teaches a verse: one line at a time.",
+ "record": "Say the whole verse yourself and record it. Then listen to yours and to mine, one after the other.",
+ "remember": "Read it through once more. Then hide a little of it.",
+ "remember1": "Only the first sound of each word is left. Say the whole verse.",
+ "remember2": "Nothing to look at now. Say it from memory, out loud. Then tell me how it went.",
+ "said": "Said from memory today. Say it again on another day, tomorrow is good, and it is yours by heart.",
+ "heart": "By heart. You have said it from memory on two different days. It is yours now.",
+ "notyet": "Good. That is what practice is. Go back a step, listen once more, and try again."
+}

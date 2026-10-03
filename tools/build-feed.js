@@ -58,6 +58,7 @@
 const fs = require('fs'), path = require('path'), vm = require('vm');
 const { load, APP } = require('./lib/corpus');
 const { nearPairs } = require('./lib/feed-near');
+const { fill } = require('./lib/feed-facts');
 const C = load();
 
 /* the ladder, read from app.js, never retyped */
@@ -76,10 +77,26 @@ const items = [];
    ("You lit Kerala on the map") can never say the answer either (check-feed \`noleak\`). */
 const leaks = it => it.play && !/^geo:.*:capital$/.test(it.src) &&
   [it.play.q, it.title, it.text, it.roman, it.why].join(' ').toLowerCase().indexOf(String(it.play.opts[it.play.a]).toLowerCase()) >= 0;
-const add = it => { if ((it.body !== undefined && !String(it.body).trim()) || leaks(it)) return null; items.push(it); return it; };
+/* MORE OF THE THING, AND THE DOOR TO THAT THING (owner, 3 Oct 2026).
+   fx    facts — [label, template, [corpus paths]] — read by tools/lib/feed-facts.js, never typed;
+         one with anything missing is simply not written.
+   route the screen of THAT thing: the verse inside its collection, the letter inside the chart,
+         the sentence on its rung, the dish on its state's page — never the tool's front door.
+   land  what that screen must show first (check-feed \`lands\` opens every route and looks). */
+const add = it => {
+  if ((it.body !== undefined && !String(it.body).trim()) || leaks(it)) return null;
+  if (it.fx) {
+    const out = [], proof = [];
+    it.fx.forEach(spec => { const f = fill(C, spec); if (f) { out.push(f); proof.push(spec); } });
+    if (out.length) it.facts = out;
+    it._fx = proof; delete it.fx;
+  }
+  items.push(it); return it;
+};
+const first = (t, n) => String(t || '').replace(/\s+/g, ' ').trim().slice(0, n || 40);
 /* a quotation is cut at a sentence end, never rewritten — so it is always a substring */
 function clip(text, max) {
-  text = String(text || '').trim(); max = max || 280;
+  text = String(text || '').trim(); max = max || 400;
   if (text.length <= max) return text;
   const parts = text.match(/[^.!?]+[.!?]+["”’)]*\s*/g) || [text];
   let out = '';
@@ -116,8 +133,8 @@ C.IND_PAATH.courses.filter(c => !(c.id === 'gita-course')).forEach(c => {
 const levelAt = (key, i, n) => Math.min(deal(i, n), COURSE_LV[key] == null ? NL : COURSE_LV[key]);
 
 /* ---------------------------------------------------------------- stories */
-const COLL = {};
-[].concat(...Object.keys(C).filter(k => /^IND_COLLECTIONS/.test(k)).map(k => C[k] || [])).forEach(x => { COLL[x.id] = x.name; });
+const COLL = {}, COLL_KEY = {};
+Object.keys(C).filter(k => /^IND_COLLECTIONS/.test(k)).forEach(k => (C[k] || []).forEach(x => { COLL[x.id] = x.name; if (!COLL_KEY[x.id]) COLL_KEY[x.id] = k; }));
 const STORY_ART = new Set(fs.readdirSync(path.join(APP, 'art', 'story')).map(f => f.replace(/\.jpg$/, '')));
 const okStories = C.stories.filter(s => !s.needs_review && s.source && s.scenes && s.scenes.length);
 const WORD_SEEN = {};          /* one question per Hindi word, at the first story or night that teaches it */
@@ -137,27 +154,31 @@ function castCard(base, id, why) {
   if (CAST_SEEN[id]) return; CAST_SEEN[id] = 1;
   const E = C.IND_EPIC_CAST[id];
   if (E && E.desc) return add(Object.assign({}, base, { kind: 'cast', badge: 'katha', src: 'cast:' + id + ':desc', title: E.name, body: E.desc,
-    route: '#/avcard/' + id, cta: 'Open their card', why }));
+    route: '#/avcard/' + id, cta: 'Open their card', why, land: E.name }));
   const c = C.IND_AV_CARD(id);
   if (!c || c.sacred || c.kind === 'sacred') return;
   if (c.kind === 'character' && c.lore) return add(Object.assign({}, base, { kind: 'cast', badge: 'katha', src: 'avatar:' + id + ':lore', title: c.name,
-    body: c.lore, route: '#/avcard/' + id, cta: 'Open their card', why }));
+    body: c.lore, route: '#/avcard/' + id, cta: 'Open their card', why, land: c.name }));
   if (c.kind === 'real' && (c.achievements || [])[0] && base.badge !== 'katha') return add(Object.assign({}, base, { kind: 'person', src: 'avatar:' + id + ':achievements:0',
-    title: c.name, body: c.achievements[0], route: '#/avcard/' + id, cta: 'Open their card', why }));
+    title: c.name, body: c.achievements[0], route: '#/avcard/' + id, cta: 'Open their card', why, land: c.name }));
 }
 okStories.forEach((s, si) => {
   const places = (s.place || []).map(p => String(p).replace('IN-', ''));
   const art = STORY_ART.has(s.id.replace(/\./g, '-')) ? 'art/story/' + s.id.replace(/\./g, '-') + '.jpg' : null;
   const topics = ['story:' + s.id, 'coll:' + s.collection].concat(places.map(p => 'place:' + p));
+  const sp = 'stories/[id=' + s.id + ']/';
   const base = { badge: s.badge, bands: bandsFor(4), level: levelAt('story:' + s.id, si, okStories.length), topics, story: s.id,
-    route: '#/story/' + s.id, art: null, cta: 'Read the story' };
+    route: '#/story/' + s.id, art: null, cta: 'Read the story', land: s.title,
+    fx: [['From', '{0}', [COLL_KEY[s.collection] + '/[id=' + s.collection + ']/name']], ['Lights up', '{0}', [sp + 'place|names']],
+         ['Read', '{0} min', [sp + 'minutes']], ['Told from', '{0}', [sp + 'source']]] };
   const from = 'From ' + (COLL[s.collection] || 'the story shelves');
   add(Object.assign({}, base, { id: 'st-' + s.id, kind: 'story', news: 1, src: 'story:' + s.id + ':scenes:0:text', title: s.title, body: clip(s.scenes[0].text), art, why: from }));
   if (s.hook) add(Object.assign({}, base, { id: 'sh-' + s.id, kind: 'hook', news: 1, src: 'story:' + s.id + ':hook', title: s.title, body: s.hook, why: from }));
   if (s.scenes.length >= 5) {
     const i = Math.floor(s.scenes.length / 2);
     add(Object.assign({}, base, { id: 'sm-' + s.id, kind: 'moment', src: 'story:' + s.id + ':scenes:' + i + ':text', title: s.title + ' — the middle',
-      body: clip(s.scenes[i].text), why: 'A moment from ' + s.title }));
+      body: clip(s.scenes[i].text), why: 'A moment from ' + s.title, route: '#/story/' + s.id + '|s' + i, cta: 'Read from this moment',
+      land: first(String(s.scenes[i].text).replace(/\*/g, '')) }));
   }
   if (s.moral) add(Object.assign({}, base, { id: 'sl-' + s.id, kind: 'moral', src: 'story:' + s.id + ':moral', title: 'What ' + s.title + ' says',
     body: clip(s.moral), why: 'The story’s own lesson' }));
@@ -177,8 +198,10 @@ okStories.forEach((s, si) => {
     if (!ep.cards || !ep.cards[0] || ep.needs_review) return;
     const gate = Math.max(E.age_gate || 4, ep.gate || 0);
     if (gate >= 11) return;
+    const EK = Object.keys(C).filter(k => C[k] === E)[0], ep0 = EK + '/episodes/[n=' + ep.n + ']/';
     const base = { badge: E.badge || 'katha', bands: bandsFor(gate), level: levelAt('epic:' + E.id + ':' + ep.n, ei, E.episodes.length),
-      topics: ['epic:' + E.id], route: '#/epic/' + E.id, act: { a: 'episode', id: E.id, n: ep.n }, art: null, cta: 'Hear this night' };
+      topics: ['epic:' + E.id], route: '#/epic/' + E.id + '|' + ep.n, act: { a: 'episode', id: E.id, n: ep.n }, art: null, cta: 'Hear this night',
+      land: ep.title, fx: [['Epic', '{0}', [EK + '/title']], ['Night', '{0} of {1}', [ep0 + 'n', EK + '/episodes|len']], ['Hear it', '{0} min', [ep0 + 'minutes']]] };
     const t = E.title + ' · ' + ep.title, why = E.title + ', night ' + ep.n, at = 'epic:' + E.id + ':episodes:' + ei + ':';
     add(Object.assign({}, base, { id: 'ep-' + E.id + '-' + ep.n, kind: 'night', src: at + 'cards:0:text', title: t, body: clip(ep.cards[0].text), why }));
     if (ep.hook) add(Object.assign({}, base, { id: 'eh-' + E.id + '-' + ep.n, kind: 'nighthook', src: at + 'hook', title: t, body: ep.hook, why }));
@@ -202,10 +225,12 @@ const VLANG = { kural: 'ta', dhammapada: 'pi', subhashita: 'sa', gita: 'sa' };
 const VERSE_BADGE = 'aaj';
 C.IND_SHLOK.verses.filter(v => v.source && v.text_original && !v.unsure && !v.needs_original).forEach(v => {
   const coll = C.IND_SHLOK.collections.filter(x => x.id === v.collection)[0] || {};
+  const cp = 'IND_SHLOK/collections/[id=' + v.collection + ']/', vp = 'IND_SHLOK/verses/[id=' + v.id + ']/';
   const base = { badge: v.badge || VERSE_BADGE, bands: bandsFor(v.gate), level: null, topics: ['verse:' + v.collection].concat(v.collection === 'kural' ? ['lang:ta'] : []),
-    route: '#/verses/' + v.collection, source: v.source, art: null, cta: 'More verses', why: 'A verse from ' + (coll.name || 'the verses') };
+    route: '#/verses/' + v.collection + '|' + v.id, source: v.source, art: null, cta: 'Open this verse', why: 'A verse from ' + (coll.name || 'the verses'),
+    land: first(v.text_original, 14), fx: [['From', '{0}', [cp + 'name']], ['Verse', '{0}', [vp + 'n']], ['Language', '{0}', [cp + 'language']]] };
   add(Object.assign({}, base, { id: 'vs-' + v.id, kind: 'verse', src: 'verse:' + v.id + ':text_original', title: coll.name || v.collection,
-    text: v.text_original, lang: VLANG[v.collection], roman: v.translit }));
+    text: v.text_original, lang: VLANG[v.collection], roman: v.translit, fx: base.fx.concat([['It means', '{0}', [vp + 'meaning_kid']]]) }));
   add(Object.assign({}, base, { id: 'vm-' + v.id, kind: 'versemeaning', src: 'verse:' + v.id + ':meaning_kid', title: 'What it means · ' + (coll.name || ''),
     body: v.meaning_kid }));
   if (v.why) add(Object.assign({}, base, { id: 'vy-' + v.id, kind: 'versewhy', src: 'verse:' + v.id + ':why', title: 'Why carry it', body: clip(v.why) }));
@@ -214,31 +239,37 @@ C.IND_SHLOK.verses.filter(v => v.source && v.text_original && !v.unsure && !v.ne
 /* ---------------------------------------------------------------- Itihaas */
 const ERAS = C.IND_ITIHAAS.eras.filter(e => !e.needs_review && (e.gate || 4) < 11 && (e.sources || []).length);
 ERAS.forEach((e, ei) => {
+  const ep = 'IND_ITIHAAS/eras/[id=' + e.id + ']/';
   const base = { badge: 'itihaas', bands: bandsFor(e.gate), level: levelAt('era:' + e.id, ei, ERAS.length), route: '#/era/' + e.id,
-    cta: 'Sail to ' + e.title, art: null, sources: e.sources, why: e.title + ', ' + e.when };
+    cta: 'Sail to ' + e.title, art: null, sources: e.sources, why: e.title + ', ' + e.when, land: e.title,
+    fx: [['When', '{0}', [ep + 'when']], ['Where', '{0}', [ep + 'place|names']]] };
   const topics = ['era:' + e.id].concat(e.place ? ['place:' + e.place] : []), at = 'era:' + e.id + ':';
   if (e.hook) add(Object.assign({}, base, { id: 'ih-' + e.id, kind: 'era', topics, src: at + 'hook', title: e.title + ' · ' + e.when, body: e.hook }));
   if (e.kid) add(Object.assign({}, base, { id: 'ik-' + e.id, kind: 'erakid', topics, src: at + 'kid', title: e.title, body: clip(e.kid) }));
   if (e.big) add(Object.assign({}, base, { id: 'ib-' + e.id, kind: 'erabig', topics, bands: bandsFor(Math.max(8, e.gate || 4)), src: at + 'big', title: e.title + ' — more', body: clip(e.big) }));
   if (e.wonder) add(Object.assign({}, base, { id: 'iw-' + e.id, kind: 'erawonder', topics, src: at + 'wonder', title: 'Nobody knows yet', body: clip(e.wonder) }));
   (e.objects || []).forEach((o, i) => add(Object.assign({}, base, { id: 'io-' + e.id + '-' + i, kind: 'found', topics, src: at + 'objects:' + i,
-    title: 'Found from ' + e.title, body: o })));
+    title: 'Found from ' + e.title, body: o, route: '#/era/' + e.id + '|objects:' + i, cta: 'See it in ' + e.title, land: first(o) })));
   (e.moments || []).forEach((m, i) => add(Object.assign({}, base, { id: 'it-' + e.id + '-m' + i, kind: 'moment-era', topics,
-    src: at + 'moments:' + i + ':what', title: m.when, body: clip(m.what) })));
+    src: at + 'moments:' + i + ':what', title: m.when, body: clip(m.what), route: '#/era/' + e.id + '|moments:' + i, land: m.when })));
   /* what is still there today is a place, not a claim about the era's evidence: it carries its
      own state, and not the era's sources list */
   (e.today || []).forEach((t, i) => add(Object.assign({}, base, { id: 'it-' + e.id + '-t' + i, kind: 'today', sources: undefined, badge: 'aaj',
     topics: ['era:' + e.id].concat(t.state ? ['place:' + t.state] : []), src: at + 'today:' + i + ':what',
-    title: 'Still there today · ' + t.where, body: clip(t.what) })));
+    title: 'Still there today · ' + t.where, body: clip(t.what), route: '#/era/' + e.id + '|today:' + i, land: t.where,
+    fx: [['Where', '{0}', [ep + 'today/' + i + '/where']], ['In', '{0}', [ep + 'today/' + i + '/state|names']], ['From', '{0}', [ep + 'title']]] })));
   (e.figures || []).forEach((f, i) => f.line && add(Object.assign({}, base, { id: 'it-' + e.id + '-f' + i, kind: 'figure', topics,
-    src: at + 'figures:' + i + ':line', title: f.name, body: clip(f.line) })));
+    src: at + 'figures:' + i + ':line', title: f.name, body: clip(f.line), route: '#/era/' + e.id + '|figures:' + i, land: f.name })));
 });
 
 /* ---------------------------------------------------------------- Bhasha: every rung */
 Object.keys(C.IND_PACKS).forEach(id => {
   const p = C.IND_PACKS[id], sc = C.IND_SCRIPTS[p.script], lex = {}, met = {};
   (p.lexicon || []).forEach(w => { lex[w.word] = w; });
-  const L = p.name.en, base = { badge: 'aaj', bands: bandsFor(4), topics: ['lang:' + id], lang: id, art: null };
+  const L = p.name.en, pp = 'IND_PACKS/' + id + '/', base = { badge: 'aaj', bands: bandsFor(4), topics: ['lang:' + id], lang: id, art: null };
+  /* the rung by its name and what it is for: the path counts rungs from 1 and the data from 0,
+     and a fact may only read, never add one */
+  const rungFx = st => [['Language', '{0}', [pp + 'name/en']], ['On the path', '{0} — {1}', [pp + 'stages/[id=' + st.id + ']/name', pp + 'stages/[id=' + st.id + ']/en']]];
   const rungOf = st => (p.stages || []).indexOf(st);
   const at = (st, extra) => Object.assign({}, base, { level: levelOf(rungOf(st)), unlock: rungOf(st) ? { lang: id, rung: rungOf(st) } : null }, extra);
   const words = [];
@@ -250,35 +281,39 @@ Object.keys(C.IND_PACKS).forEach(id => {
         words.push([w, st]);
         add(at(st, { id: 'bw-' + id + '-' + words.length, kind: 'word', key: id + '|word:' + w.word, src: 'word:' + id + ':' + w.word,
           route: '#/wordcard/' + encodeURIComponent(id + ':' + w.word), title: L + ' word', text: w.word, roman: w.roman, body: w.en,
-          cta: 'Open the word card', why: 'A word from the ' + L + ' path, ' + st.name }));
+          cta: 'Open the word card', why: 'A word from the ' + L + ' path, ' + st.name, land: w.word,
+          fx: rungFx(st).concat([['Theme', '{0}', [pp + 'lexicon/[word=' + w.word + ']/theme']]]) }));
         return;
       }
       if (st.id === 's1' && typeof x === 'string' && sc && !met['l:' + x]) {
         const l = (sc.vowels || []).concat(sc.consonants || []).filter(y => y.char === x)[0];
         if (!l || !l.name) return; met['l:' + x] = 1;
         add(at(st, { id: 'bl-' + id + '-' + k, kind: 'letter', bands: bandsFor(4), key: id + '|letter:' + l.char, src: 'letter:' + p.script + ':' + l.char,
-          route: '#/chart/' + id, title: L + ' letter', text: l.char, roman: l.roman || l.r || '', body: 'Its name is “' + l.name + '”.',
-          cta: 'See the whole chart', why: 'A letter from the ' + L + ' script' }));
+          route: '#/chart/' + id + '|' + l.char, title: L + ' letter', text: l.char, roman: l.roman || l.r || '', body: 'Its name is “' + l.name + '”.',
+          cta: 'Open this letter', why: 'A letter from the ' + L + ' script', land: l.char,
+          fx: [['Script', '{0}', ['IND_SCRIPTS/' + p.script + '/name']], ['Language', '{0}', [pp + 'name/en']]] }));
         return;
       }
       if (st.id === 's2' && typeof x === 'string' && sc && !met['m:' + x]) {
         const m = (sc.matras || []).filter(y => y.sign === x)[0];
         if (!m || !m.name || !m.example) return; met['m:' + x] = 1;
-        add(at(st, { id: 'bm-' + id + '-' + k, kind: 'matra', bands: bandsFor(6), src: 'matra:' + p.script + ':' + m.sign, route: '#/chart/' + id,
+        add(at(st, { id: 'bm-' + id + '-' + k, kind: 'matra', bands: bandsFor(6), src: 'matra:' + p.script + ':' + m.sign, route: '#/chart/' + id + '|' + m.sign,
           title: L + ' vowel sign', text: m.example, roman: m.name, body: 'The sign for “' + m.name + '”, as in ' + m.example + '.',
-          cta: 'See the whole chart', why: 'A vowel sign from the ' + L + ' script' }));
+          cta: 'Open this sign', why: 'A vowel sign from the ' + L + ' script', land: m.example,
+          fx: [['Script', '{0}', ['IND_SCRIPTS/' + p.script + '/name']], ['Language', '{0}', [pp + 'name/en']]] }));
         return;
       }
       if (x && typeof x === 'object' && x.hi && x.en && (st.id === 's4' || st.id === 's5')) {
         add(at(st, { id: 'bs-' + id + '-' + x.id, kind: st.id === 's4' ? 'sentence' : 'talk', bands: bandsFor(6), src: 'stage:' + id + ':' + st.id + ':' + x.id,
-          route: '#/pack/' + id, title: st.id === 's4' ? L + ' sentence' : L + ' conversation', text: x.hi, roman: x.roman, body: x.en,
-          cta: 'Open the ' + L + ' path', why: (st.id === 's4' ? 'A sentence' : 'A line to say') + ' from the ' + L + ' path' }));
+          route: '#/pack/' + id + '|' + st.id + ':' + x.id, title: st.id === 's4' ? L + ' sentence' : L + ' conversation', text: x.hi, roman: x.roman, body: x.en,
+          cta: 'Open it on the path', why: (st.id === 's4' ? 'A sentence' : 'A line to say') + ' from the ' + L + ' path', land: x.hi, fx: rungFx(st) }));
         return;
       }
       if (x && typeof x === 'object' && x.kind === 'conjunct' && x.hi && x.parts && x.word) {
-        add(at(st, { id: 'bc-' + id + '-' + x.id, kind: 'conjunct', bands: bandsFor(8), src: 'stage:' + id + ':' + st.id + ':' + x.id, route: '#/chart/' + id,
+        add(at(st, { id: 'bc-' + id + '-' + x.id, kind: 'conjunct', bands: bandsFor(8), src: 'stage:' + id + ':' + st.id + ':' + x.id,
+          route: '#/pack/' + id + '|' + st.id + ':' + x.id,
           title: L + ' joined letters', text: x.hi, roman: x.roman, body: x.parts.join(' + ') + ' = ' + x.hi + ', as in ' + x.word + '.',
-          cta: 'See the whole chart', why: 'Joined letters from the ' + L + ' path' }));
+          cta: 'Open it on the path', why: 'Joined letters from the ' + L + ' path', land: x.hi, fx: rungFx(st) }));
       }
     });
   });
@@ -291,7 +326,7 @@ Object.keys(C.IND_PACKS).forEach(id => {
     add(at(st, { id: 'pw-' + id + '-' + i, kind: 'wordq', key: id + '|word:' + w.word, src: 'word:' + id + ':' + w.word,
       route: '#/wordcard/' + encodeURIComponent(id + ':' + w.word), title: 'What does it mean?', text: w.word, roman: w.roman,
       play: { q: 'What does this ' + L + ' word mean?', opts: [w.en, wr[0], wr[1]], a: 0, after: w.word + ' (' + w.roman + ') means “' + w.en + '”.' },
-      cta: 'Open the word card', why: 'A word to try in ' + L }));
+      cta: 'Open the word card', why: 'A word to try in ' + L, land: w.word, fx: rungFx(st) }));
   });
 });
 
@@ -299,16 +334,19 @@ Object.keys(C.IND_PACKS).forEach(id => {
 const FEST = C.IND_UTSAV.festivals.filter(f => !f.needs_review && f.kid);
 FEST.forEach((f, fi) => {
   const topics = ['festival:' + f.id, 'faith:' + f.faith].concat((f.states || []).map(s => 'place:' + s));
-  const base = { badge: f.badge || 'aaj', bands: bandsFor(4), level: null, topics, route: '#/festival/' + f.id, art: null, cta: 'Open ' + f.name };
+  const fp = 'IND_UTSAV/festivals/[id=' + f.id + ']/';
+  const base = { badge: f.badge || 'aaj', bands: bandsFor(4), level: null, topics, route: '#/festival/' + f.id, art: null, cta: 'Open ' + f.name,
+    land: f.name, fx: [['When', '{0}', [fp + 'months']], ['Kept in', '{0}', [fp + 'states|names']], ['Said', '{0}', [fp + 'roman']]] };
   add(Object.assign({}, base, { id: 'fe-' + f.id, kind: 'festival', src: 'festival:' + f.id + ':kid', title: f.name + ' · ' + (f.months || []).join(', '),
     text: f.script, body: clip(f.kid), why: f.name + ' falls in ' + (f.months || [])[0] }));
   (f.do || []).forEach((d, i) => add(Object.assign({}, base, { id: 'fd-' + f.id + '-' + i, kind: 'festdo', src: 'festival:' + f.id + ':do:' + i,
-    title: 'Something to do for ' + f.name, body: clip(d), why: 'One thing to try at home' })));
+    title: 'Something to do for ' + f.name, body: clip(d), why: 'One thing to try at home', route: '#/festival/' + f.id + '|do:' + i, land: first(d) })));
   (f.variations || []).forEach((d, i) => add(Object.assign({}, base, { id: 'fv-' + f.id + '-' + i, kind: 'festways', bands: bandsFor(6),
-    src: 'festival:' + f.id + ':variations:' + i, title: f.name + ', in many families', body: clip(d), why: 'Every family keeps it its own way' })));
+    src: 'festival:' + f.id + ':variations:' + i, title: f.name + ', in many families', body: clip(d), why: 'Every family keeps it its own way',
+    route: '#/festival/' + f.id + '|variations:' + i, land: first(d) })));
   if ((f.states || []).length) {
     const wr = wrongs(f.states[0], ALLSTATES.filter(s => f.states.indexOf(s) < 0), fi);
-    if (wr) add(Object.assign({}, base, { id: 'pf-' + f.id, kind: 'festwhere', bands: bandsFor(8), topics: ['festival:' + f.id],
+    if (wr) add(Object.assign({}, base, { id: 'pf-' + f.id, kind: 'festwhere', bands: bandsFor(8), topics: ['festival:' + f.id], fx: [['When', '{0}', [fp + 'months']]],
       src: 'festival:' + f.id + ':states:0', title: 'Where is it kept?',
       play: { q: f.name + ' is kept in one of these. Which?', opts: [f.states[0], wr[0], wr[1]].map(stateName), a: 0,
         after: f.name + ' is kept in ' + f.states.map(stateName).join(', ') + '.' }, why: 'A festival question' }));
@@ -322,27 +360,30 @@ Object.keys(C.IND_STATES).forEach(c => (C.IND_STATES[c].food || []).forEach(d =>
 Object.keys(C.IND_MAP.paths).sort().forEach((c, ci) => {
   const g = C.IND_GEO.states[c], s = C.IND_STATES[c] || {};
   if (!g) return;
-  const base = { badge: 'aaj', bands: bandsFor(4), level: null, topics: ['place:' + c], route: '#/state/' + c, art: null, cta: 'Open ' + g.name, why: 'From ' + g.name };
+  const stp = 'IND_STATES/' + c + '/';
+  const base = { badge: 'aaj', bands: bandsFor(4), level: null, topics: ['place:' + c], route: '#/state/' + c, art: null, cta: 'Open ' + g.name, why: 'From ' + g.name,
+    land: g.name, fx: [['Languages', '{0}', [stp + 'languages']], ['Formed', '{0}', [stp + 'formed']]] };
   if (g.fact) add(Object.assign({}, base, { id: 'pl-' + c, kind: 'place', src: 'geo:' + c + ':fact', title: g.name, body: clip(g.fact),
     art: STATE_ART.has(c) ? 'art/state/' + c + '.jpg' : null }));
   (s.trivia || []).forEach((t, i) => add(Object.assign({}, base, { id: 'pt-' + c + '-' + i, kind: 'trivia', src: 'state:' + c + ':trivia:' + i,
-    title: g.name, body: clip(t) })));
+    title: g.name, body: clip(t), route: '#/state/' + c + '|trivia:' + i, land: first(t) })));
   (s.places || []).forEach((p, i) => add(Object.assign({}, base, { id: 'pp-' + c + '-' + i, kind: 'see', src: 'state:' + c + ':places:' + i + ':what',
-    title: p.name + ', ' + g.name, body: clip(p.what) })));
+    title: p.name + ', ' + g.name, body: clip(p.what), route: '#/state/' + c + '|places:' + i, cta: 'Open ' + p.name, land: p.name })));
   (s.food || []).forEach((d, i) => add(Object.assign({}, base, { id: 'pd-' + c + '-' + i, kind: 'food', src: 'state:' + c + ':food:' + i + ':what',
-    title: d.dish + ' · ' + g.name, body: clip(d.what), why: 'From ' + g.name + '’s kitchen' })));
+    title: d.dish + ' · ' + g.name, body: clip(d.what), why: 'From ' + g.name + '’s kitchen', route: '#/state/' + c + '|food:' + i, cta: 'Open ' + d.dish, land: d.dish })));
   /* a food question, only for a dish one state alone claims */
   const solo = (s.food || []).map((d, i) => [d, i]).filter(([d]) => DISH_STATES[d.dish].length === 1)[0];
   if (solo) {
     const wr = wrongs(c, ALLSTATES.filter(x => x !== c), ci + 5);
     if (wr) add(Object.assign({}, base, { id: 'pq-' + c, kind: 'foodq', bands: bandsFor(6), topics: ['map'], src: 'state:' + c + ':food:' + solo[1] + ':dish', title: 'Whose kitchen?',
+      fx: [], route: '#/state/' + c + '|food:' + solo[1], land: solo[0].dish,
       play: { q: solo[0].dish + ' is on one of these places’ tables. Which?', opts: [c, wr[0], wr[1]].map(stateName), a: 0,
         after: solo[0].dish + ': ' + solo[0].what }, why: 'A map question' }));
   }
   if (g.capital) {
     const others = ALLSTATES.filter(x => x !== c && C.IND_GEO.states[x].capital !== g.capital);
     const opts = [g.name, stateName(others[(ci * 7) % others.length]), stateName(others[(ci * 7 + 13) % others.length])];
-    if (new Set(opts).size === 3) add(Object.assign({}, base, { id: 'pc-' + c, kind: 'capital', bands: bandsFor(8), topics: ['map'], src: 'geo:' + c + ':capital', title: 'Which state?',
+    if (new Set(opts).size === 3) add(Object.assign({}, base, { id: 'pc-' + c, kind: 'capital', bands: bandsFor(8), topics: ['map'], src: 'geo:' + c + ':capital', title: 'Which state?', fx: [],
       play: { q: g.capital + ' is the capital of which ' + (g.type === 'ut' ? 'place' : 'state') + '?', opts, a: 0,
         after: g.capital + ' is the capital of ' + g.name + '.' }, why: 'A map question' }));
   }
@@ -351,8 +392,9 @@ const BT = C.IND_BHUGOL.types || {};
 C.IND_BHUGOL.features.forEach(f => {
   if (!f.f || !C.IND_GEO.states[f.st]) return;
   add({ id: 'bg-' + f.id, kind: 'feature', badge: 'aaj', bands: bandsFor(4), level: null, topics: ['place:' + f.st], src: 'bhugol:' + f.id + ':f',
-    route: '#/state/' + f.st, title: f.n + ' · ' + stateName(f.st), body: clip(f.f), art: null, cta: 'Open ' + stateName(f.st),
-    why: ((BT[f.t] || {}).n || 'On the map') + ' in ' + stateName(f.st) });
+    route: '#/state/' + f.st + '|feature:' + f.id, title: f.n + ' · ' + stateName(f.st), body: clip(f.f), art: null, cta: 'Open ' + f.n,
+    why: ((BT[f.t] || {}).n || 'On the map') + ' in ' + stateName(f.st), land: f.n,
+    fx: [['Kind', '{0}', ['IND_BHUGOL/types/' + f.t + '/n']], ['In', '{0}', ['IND_BHUGOL/features/[id=' + f.id + ']/st|names']]] });
 });
 
 /* ---------------------------------------------------------------- games (no level) */
@@ -361,11 +403,14 @@ C.IND_GAMES.forEach(gm => {
   if (!how) return;
   add({ id: 'gm-' + gm.id, kind: 'game', badge: 'aaj', bands: bandsFor(4), level: null, topics: ['game:' + gm.id], src: 'game:' + gm.id, route: '#/game/' + gm.id,
     title: gm.name, body: how, art: (C.IND_GAME_PLATES || []).indexOf(gm.id) >= 0 ? 'art/games/' + gm.id + '.webp' : null,
-    cta: 'Play', why: C.TEACHES.indexOf(gm.id) >= 0 ? 'A game that teaches' : 'A game for fun — it pays no coins' });
+    cta: 'Play', why: C.TEACHES.indexOf(gm.id) >= 0 ? 'A game that teaches' : 'A game for fun — it pays no coins', land: gm.name,
+    fx: [['You practise', '{0}', ['GAME_FRAME/' + gm.id + '/1']], ['About', '{0} min', ['IND_GAMES/[id=' + gm.id + ']/minutes']]] });
 });
 C.IND_GULLY.games.filter(gm => !gm.needs_review && gm.kid).forEach(gm => {
+  const gp = 'IND_GULLY/games/[id=' + gm.id + ']/';
   const base = { badge: C.IND_GULLY.badge || 'aaj', bands: bandsFor(parseInt(gm.age, 10) || 4), level: null, topics: ['gully:' + gm.id],
-    route: '#/gullygame/' + gm.id, art: null, cta: 'How to play' };
+    route: '#/gullygame/' + gm.id, art: null, cta: 'How to play', land: gm.name,
+    fx: [['Players', '{0}', [gp + 'players']], ['Age', '{0}', [gp + 'age']], ['Played in', '{0}', [gp + 'region']], ['To win', '{0}', [gp + 'win']]] };
   add(Object.assign({}, base, { id: 'gu-' + gm.id, kind: 'gully', src: 'gully:' + gm.id + ':kid', title: gm.name + ' · ' + gm.where, text: gm.script,
     body: clip(gm.kid), why: 'A game for the street or the courtyard' }));
   if (gm.setup) add(Object.assign({}, base, { id: 'gs-' + gm.id, kind: 'gullyhow', src: 'gully:' + gm.id + ':setup', title: 'How ' + gm.name + ' starts',
@@ -378,19 +423,21 @@ C.IND_GULLY.games.filter(gm => !gm.needs_review && gm.kid).forEach(gm => {
 C.IND_NANI.questions.forEach(q => {
   if (!q.en) return;
   add({ id: 'nq-' + q.id.replace(/^q\./, ''), kind: 'ask', badge: 'aaj', bands: bandsFor(4), level: null, topics: ['nani:' + q.tag, 'lang:' + (q.lang || 'hi')],
-    src: 'nani:' + q.id + ':en', route: '#/nani', title: 'A question to ask', text: q.hi, roman: q.roman, lang: q.lang, body: q.en, art: null,
-    cta: 'Open Ask Nani', why: 'Ask your family' });
+    src: 'nani:' + q.id + ':en', route: '#/nani/' + q.id, title: 'A question to ask', text: q.hi, roman: q.roman, lang: q.lang, body: q.en, art: null,
+    cta: 'Ask this one', why: 'Ask your family', land: q.hi, fx: [['Then ask', '{0}', ['IND_NANI/questions/[id=' + q.id + ']/follow']]] });
 });
 C.IND_RISHTEY.terms.forEach(t => {
   if (!t.en || !t.hi) return;
   add({ id: 'rt-' + t.id, kind: 'family', badge: 'aaj', bands: bandsFor(4), level: null, topics: ['lang:hi', 'rishtey'], src: 'rishtey:' + t.id + ':en',
-    route: '#/rishtey', title: 'A family word', text: t.hi, roman: t.roman, lang: 'hi', body: t.en, art: null, cta: 'Open Rishtey',
-    why: 'What your family calls each other — in many families' });
+    route: '#/rishtey/' + t.id, title: 'A family word', text: t.hi, roman: t.roman, lang: 'hi', body: t.en, art: null, cta: 'Open this word',
+    why: 'What your family calls each other — in many families', land: t.hi,
+    fx: [['In many families it is also', '{0}', ['IND_RISHTEY/terms/[id=' + t.id + ']/also|vals']]] });
 });
 C.IND_NEETI.values.forEach(v => {
   if (!v.kid) return;
   add({ id: 'nv-' + v.id, kind: 'value', badge: 'aaj', bands: bandsFor(4), level: null, topics: ['value:' + v.id], src: 'value:' + v.id + ':kid',
-    route: '#/value/' + v.id, title: v.roman + ' · ' + v.en, text: v.term, lang: 'hi', body: v.kid, art: null, cta: 'Open ' + v.roman, why: 'A value to try today' });
+    route: '#/value/' + v.id, title: v.roman + ' · ' + v.en, text: v.term, lang: 'hi', body: v.kid, art: null, cta: 'Open ' + v.roman, why: 'A value to try today',
+    land: v.term, fx: [['Do it today', '{0}', ['IND_NEETI/values/[id=' + v.id + ']/doit']]] });
 });
 
 /* ---------------------------------------------------------------- ids, near-duplicates */
@@ -423,7 +470,9 @@ const head = '/* GENERATED by tools/build-feed.js from the corpus — never edit
 for (const f of fs.readdirSync(APP)) if (/^data-feed-.*\.js$/.test(f)) fs.unlinkSync(path.join(APP, f));
 fs.writeFileSync(path.join(APP, 'data-feed-index.js'), head + 'window.IND_FEED_INDEX = ' + JSON.stringify({ v: 2, bands: BANDS.map(b => b[0]),
   ranks: RANKS, kinds: K.a, badges: B.a, topics: T.a, groups: G.a, rows }) + ';\n');
-const INDEX_ONLY = ['id', 'kind', 'badge', 'bands', 'level', 'unlock', 'topics', 'g', 'key', 'news', 'story'];
+const INDEX_ONLY = ['id', 'kind', 'badge', 'bands', 'level', 'unlock', 'topics', 'g', 'key', 'news', 'story', 'land', '_fx'];
+const PROOF = { facts: {}, land: {} };
+kept.forEach(it => { if (it._fx && it._fx.length) PROOF.facts[it.id] = it._fx; if (it.land) PROOF.land[it.id] = it.land; });
 GROUPS.forEach(g => {
   const body = {};
   kept.filter(it => it.g === g).forEach(it => { const o = Object.assign({}, it); INDEX_ONLY.forEach(k => { if (k !== 'id') delete o[k]; }); delete o.id; body[it.id] = o; });
@@ -436,7 +485,9 @@ const html = fs.readFileSync(HTML, 'utf8'), A = '<!-- feed:groups -->', Z = '<!-
 if (html.indexOf(A) < 0 || html.indexOf(Z) < 0) throw new Error('index.html has no feed markers');
 const tpl = GROUPS.map(g => '<template id="lazy-feed-' + g + '">\n<script src="data-feed-' + g + '.js"></script>\n</template>').join('\n');
 fs.writeFileSync(HTML, html.slice(0, html.indexOf(A) + A.length) + '\n' + tpl + '\n' + html.slice(html.indexOf(Z)));
+fs.writeFileSync(path.join(__dirname, 'lib', 'feed-proof.json'), JSON.stringify(PROOF) + '\n');
 fs.writeFileSync(path.join(__dirname, 'lib', 'feed-manifest.json'), JSON.stringify({ total: kept.length, cut: items.length, nearDropped: dropped.size,
+  withFacts: kept.filter(it => it.facts).length,
   byLevel, byKind, groups: GROUPS.map(g => [g, kept.filter(it => it.g === g).length]) }, null, 1) + '\n');
 console.log('feed: ' + kept.length + ' cards (' + dropped.size + ' near-duplicates dropped of ' + items.length + ')');
 console.log('  by level: ' + RANKS.map(r => r + ' ' + (byLevel[r] || 0)).join(' · ') + ' · any ' + (byLevel.any || 0));

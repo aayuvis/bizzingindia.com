@@ -88,6 +88,29 @@ Each object gives several honest **angles**, each its own `kind` with its own `s
 | games | the Mela games' how-to (game 13) · each street game, how it starts and its other names (gully 28 · gullyhow 28 · gullyname 127) |
 | the family | questions to ask Nani and Dada (ask 52) · family words (family 26) · the values (value 12) |
 
+**More to say, all of it read.** A card carries up to four **facts** — a label and a value, like
+*From: Panchatantra* · *Lights up: West Bengal* · *Read: 6 min* — and 7,747 of the 7,836 do. The
+label is the app's own word for the slot; the value is whatever the corpus holds at a path the
+builder names (`tools/lib/feed-facts.js`: `stories/[id=pt.lion-rabbit]/minutes`, `IND_UTSAV/festivals/[id=lohri]/states|names`).
+The builder writes the paths to `tools/lib/feed-proof.json` (not shipped) and `check-feed facts`
+reads every one again and must get the same value — so a fact is never typed, and a fact whose
+path finds nothing is not written. Short facts sit in a two-column list; long ones (a verse's
+meaning, "In many families it is also …") as a line under it. On a question the facts and the
+door stay hidden until it is answered, because a fact like "Capital: …" would be the answer.
+
+**Every door opens on that very thing.** A card's route names the thing, not the tool:
+`#/verses/<collection>|<verse>`, `#/chart/<pack>|<letter>`, `#/pack/<pack>|<stage>:<item>`,
+`#/state/<code>|trivia:2`, `#/era/<id>|objects:1`, `#/festival/<id>|do:3`, `#/story/<id>|s4` (the
+moment its middle turns on), `#/epic/<id>|<night>`, `#/nani/<question>`, `#/rishtey/<term>`. The part
+after `|` is the **focus**: the screen opens with a card for exactly that thing at the top ("From
+your feed"), above the list it belongs to, and the rest of the screen as before. No feed card opens a
+front door (`#/nani`, `#/verses/gita`) when it is about one thing inside it (`check-feed specific`),
+and `check-feed lands` opens all 5,339 distinct routes in a browser and finds the card's own words
+in the focus card, which must be first. On a phone the thing is shown whole (`check-feed whole`): the
+story reader used to keep 120px of picture and shrink the words, so 158 landings, most of them a
+story's turning moment with its question under it, opened on a clipped line. Now the picture takes
+only the room the words leave, and a scene that asks may be taller than the screen.
+
 **Near-duplicates.** Two cards whose words — title, script, romanisation, body and question — are
 ≥ 80% the same are one card: the builder drops the later as it cuts (18 went: Marathi vowel signs
 that are Hindi's, a sentence that is also a conversation line, a street game's two names for one
@@ -186,9 +209,12 @@ Each check was watched to fail by breaking what it holds.
 | mix | never three of a kind in a row, at most five questions | (inherited) |
 | ends | at most twenty cards; this week's cards sink | (inherited) |
 | screen | page head, finished card, no counts or sound, fits 390px, loads only the groups it needs | #/feed loading every group |
-| play | keyboard and touch; wrong holds, right pays once | (inherited) |
+| play | keyboard and touch; wrong holds, right pays once; no fact or door before the answer | the door shown on an unanswered question |
 | keys | j / k and the arrows step card to card | (inherited) |
-| routes | all 2,889 routes open a real screen | (inherited) |
+| facts | every fact is the corpus value at the path the builder named; ≥ 1 fact a card on average | a fact's value typed into the card |
+| specific | no card's door is a tool's front door; a thing inside a list names itself in its route | the verse cards routed to `#/verses/<coll>` |
+| lands | all 5,339 routes open their thing, with a focus card for it first and its words in it | the focused verse put under the collection's head |
+| whole | on a 390×844 phone, none of the 2,469 focused landings clips its thing inside its own box | the story reader's old sizing, where the picture kept 120px and the words gave way (158 clipped) |
 | pin | the grown-up's switch takes the feed away | (inherited) |
 | demo | the sample feed writes nothing | (inherited) |
 

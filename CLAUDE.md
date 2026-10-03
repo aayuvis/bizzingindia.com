@@ -81,7 +81,8 @@ The short version:
   needs_review or gated 11+, no two ≥ 80% the same words — on the Gurukul rank as the level (≥ 100
   per rank, 214–2,311 today) plus 1,638 with no level. ONE engine: the family's
   `family/bizzing-feed.js` (byte for byte, via `bridge.js`); `app/feed.js` only adapts India's
-  signals to it. About twenty a session, mostly at the child's rank, then a finished card; lazy
+  signals to it. A card's facts are read from corpus paths, never typed, and its door opens on that very
+  thing — `#/<view>/<arg>|<focus>` puts a card for it first — never a tool's front door. About twenty a session, mostly at the child's rank, then a finished card; lazy
   groups by level, only those the session needs. No likes, counts, streaks, autoplay or sound
   before a tap; only a right answer to a card's question pays, once, as `answer`. A grown-up can
   switch it off behind the PIN. Change the corpus → rerun `node tools/build-feed.js`.

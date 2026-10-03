@@ -2331,7 +2331,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* The art yields first — it is the most compressible thing on the page, and a
    scene that has to lose something should lose picture, never words. */
-.reader .stage { flex: 1 1 auto; min-height: 120px; max-height: 34vh; margin: 0; }
+/* Measured against every scene a feed card opens on: with the art's basis at its own height,
+   flex shrank the words alongside it and 37 scenes landed with their text cut short on a phone.
+   A zero basis means the picture takes only the room the words leave, so the words shrink (and
+   scroll) only when they alone are taller than the screen. */
+.reader .stage { flex: 1 1 0; min-height: 0; max-height: 34vh; margin: 0; }
 .reader .stage img, .reader .stage svg { max-height: 26vh; width: auto; height: auto; }
 
 .reader .speech {
@@ -2339,6 +2343,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
   padding: 16px 18px; font-size: 16.5px;
 }
 .reader .speech p { margin: 0; }
+/* A SCENE THAT ASKS keeps its words whole. Its question card is tall, and squeezed into one
+   screen the speech panel was what gave way: a child sent from My Feed to the moment a story
+   turns on landed on one clipped line of it. A question is answered after reading, so this one
+   scene may be taller than the screen: the words keep their height, a strip of the picture
+   stays, and the page scrolls to the options. */
+.reader.asks { height: auto; min-height: calc(100dvh - var(--readerchrome, 210px)); }
+.reader.asks .stage { flex-shrink: 0; min-height: 80px; }
+.reader.asks .speech { flex-shrink: 0; overflow: visible; }
 .reader .speech .sen + .sdeva, .reader .speech .sdeva + .sen { margin-top: 10px; }
 .rfoot { flex: none; }
 .rfoot .card { margin-top: 0; }
@@ -2951,3 +2963,10 @@ body.drilling .hivebtn { visibility: hidden; }
 .ldots i:nth-child(2) { animation-delay: .15s; } .ldots i:nth-child(3) { animation-delay: .3s; }
 @keyframes ldot { 0%, 100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
 @media (prefers-reduced-motion: reduce) { .ldots i { animation: none; opacity: .7; } }
+
+/* THE THING YOU CAME FOR, FIRST: a screen opened on one of its things leads with it */
+.focuscard { border: 2px solid var(--accent); box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow); }
+.focuscard > .mono:first-child { color: var(--accent-ink, var(--accent)); margin-bottom: 6px; }
+.focuscard h2 { margin: 2px 0 6px; }
+.focusglyph { font-size: 72px; line-height: 1.5; margin: 4px 0; }
+.focusline { font-size: 26px; line-height: 1.75; margin: 6px 0 2px; }

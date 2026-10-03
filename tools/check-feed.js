@@ -16,6 +16,10 @@
                 a card wears its object's badge (a Katha never reads as Itihaas), a verse 🧭 Aaj
      near       no two cards' words are ≥ 80% the same
      distinct   no two items share the same src + kind + text
+     facts      every fact on a card is the corpus's value at the path the builder named
+                (tools/lib/feed-proof.json) — read again here, never typed
+     specific   no card's door is a tool's front door (#/nani, #/chart/hi, #/verses/kural …):
+                a card about one thing inside a list names that thing in its route
    THE RANKING (node: app/feed.js over the family's engine, family/bizzing-feed.js)
      engine     app/feed.js ranks nothing itself: it hands the family engine India's signals
      bands      a 4–7 child never sees a card whose bands leave them out, across many children
@@ -33,7 +37,9 @@
      play       a question by keyboard (wrong holds for Continue, nothing leaked) and by touch
                 (right pays one coin, once, through 'answer')
      keys       j / k and the arrows move card to card
-     routes     every card's route opens a real screen
+     lands      every card's route opens the screen of THAT thing, with that thing first: the
+                verse inside its collection, the letter inside the chart, the sentence on its rung,
+                the dish on its state, the night in its epic (owner, 3 Oct 2026)
      pin        the grown-up's switch takes the tab and the ☰ row away, and #/feed says so
      demo       ?demo shows a sample feed and leaves the household untouched
 
@@ -52,6 +58,8 @@ const vm = require('vm');
 const { load, APP } = require('./lib/corpus');
 const { nearPairs, NEAR } = require('./lib/feed-near');
 const { skipOnboarding } = require('./lib/onboard');
+const { fill } = require('./lib/feed-facts');
+const PROOF = JSON.parse(fs.readFileSync(path.join(__dirname, 'lib', 'feed-proof.json'), 'utf8'));
 
 const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
 const C = load();
@@ -248,6 +256,35 @@ const KIDS = [];
     world: ['delhi6', 'diwali', 'rajasthan', 'antariksh'][i % 4],
     recent: [{ k: 'story', id: s.id, t: s.title, place: ((s.place || [])[0] || '').replace('IN-', ''), coll: s.collection, at: NOW - 3600e3 }] }));
 }));
+check('facts', 'every fact on a card is the corpus value at the path the builder named', () => {
+  let n = 0;
+  for (const it of ITEMS) {
+    const want = (PROOF.facts[it.id] || []).map(spec => fill(C, spec)).filter(Boolean);
+    const got = it.facts || [];
+    if (JSON.stringify(got) !== JSON.stringify(want))
+      throw new Error(`${it.id}: the card says ${JSON.stringify(got).slice(0, 140)} but the corpus gives ${JSON.stringify(want).slice(0, 140)}`);
+    n += got.length;
+  }
+  if (n < ITEMS.length) throw new Error(`only ${n} facts across ${ITEMS.length} cards — the cards have not got more to say`);
+});
+
+/* the front doors: a card's route may be one of these only if the card is about the whole tool */
+const FRONT_DOOR = /^#\/(nani|rishtey|map|stories|bhasha|utsav|itihaas|mela|khel|gully|shlok|neeti|epics|play|feed|home)$|^#\/(verses|chart|pack)\/[^|]*$/;
+/* a card about one thing inside a list must name it in its route */
+const IN_A_LIST = { verse: 1, versemeaning: 1, versewhy: 1, letter: 1, matra: 1, sentence: 1, talk: 1, conjunct: 1, ask: 1, family: 1,
+  feature: 1, trivia: 1, see: 1, food: 1, found: 1, 'moment-era': 1, today: 1, figure: 1, festdo: 1, festways: 1, moment: 1,
+  night: 1, nighthook: 1, nightmoment: 1, wonder: 1 };
+check('specific', 'no card\'s door is a tool\'s front door; a thing inside a list is named in its route', () => {
+  const bad = [];
+  for (const it of ITEMS) {
+    if (!it.route) { bad.push(it.id + ' has no route'); continue; }
+    if (FRONT_DOOR.test(it.route)) bad.push(it.id + ' → ' + it.route);
+    else if (IN_A_LIST[it.kind] && !/\|/.test(it.route) && !/^#\/(nani|rishtey)\/./.test(it.route)) bad.push(it.id + ' (' + it.kind + ') → ' + it.route + ' names no item');
+    if (!PROOF.land[it.id]) bad.push(it.id + ' says nothing about what its screen must show');
+  }
+  if (bad.length) throw new Error(bad.length + ' cards open a generic screen: ' + bad.slice(0, 5).join('; '));
+});
+
 check('engine', 'app/feed.js ranks nothing itself: the family engine decides, and it is the family\'s copy', () => {
   const src = fs.readFileSync(path.join(APP, 'feed.js'), 'utf8');
   if (/\.sort\(|MAX_PLAY|MAX_KIND|SPREAD/.test(src)) throw new Error('app/feed.js sorts or caps cards itself — there must be one engine');
@@ -410,6 +447,11 @@ check('play', 'a question: wrong by keyboard holds for Continue and leaks nothin
   if (!q) throw new Error('no question in today\'s feed');
   if (/right|correct|data-a=/.test(q.html.replace(/class="[^"]*"/g, '')) && q.html.indexOf('data-o="' + q.a + '"') < 0) throw new Error('the card marks its answer');
   if (/\bright\b/.test((q.html.match(/class="[^"]*"/g) || []).join(' '))) throw new Error('an option is styled right before any answer');
+  /* NO DOOR AND NO FACTS UNTIL IT IS ANSWERED: "Open Kerala →" under "Which state has
+     Thiruvananthapuram as its capital?" was the answer, printed before it was asked */
+  const shut = await p.evaluate(() => [...document.querySelectorAll('.fd-card[data-play]')].map(c => ({ id: c.getAttribute('data-fid'),
+    door: !!c.querySelector('.fd-go'), facts: !!c.querySelector('.fd-facts, .fd-more') })).filter(x => x.door || x.facts));
+  if (shut.length) throw new Error('a question shows its door or its facts before it is answered: ' + shut.map(x => x.id).join(', '));
   const wrongO = await p.evaluate(q => [...document.querySelectorAll(`.fd-card[data-fid="${q.id}"] [data-act="feedans"]`)].map(b => +b.getAttribute('data-o')).filter(o => o !== q.a)[0], q);
   const coins0 = await p.evaluate(() => window.BI.coins());
   await p.focus(`.fd-card[data-fid="${q.id}"] [data-act="feedans"][data-o="${wrongO}"]`); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
@@ -429,6 +471,7 @@ check('play', 'a question: wrong by keyboard holds for Continue and leaks nothin
     paid: window.BI.S.feed.paid[q2.id] }), q2);
   if (r.coins !== c1 + 1) throw new Error(`a right answer paid ${r.coins - c1}, the standard 'answer' is 1`);
   if (!/Right!/.test(r.text) || !r.paid) throw new Error('a right answer was not marked');
+  if (!(await p.$(`.fd-card[data-fid="${q2.id}"] .fd-go`))) throw new Error('answered, the question still has no way to the thing it asked about');
   /* the same card again pays nothing */
   await p.evaluate(() => window.BI.go('home')); await openFeed(p);
   await p.evaluate(q2 => { const b = document.querySelector(`.fd-card[data-fid="${q2.id}"] [data-act="feedans"][data-o="${q2.a}"]`); if (b) b.click(); }, q2);
@@ -446,20 +489,62 @@ check('keys', 'j / k and the arrows move from card to card', async ({ p }) => {
   if (!f0 || f2 !== 2 || f1 !== 1) throw new Error(`j/k moved focus to ${f2} then ${f1}, not 2 then 1`);
 });
 
-check('routes', 'every card\'s route opens a real screen', async ({ p }) => {
-  const routes = [...new Set(ITEMS.map(it => it.route))];
+check('lands', 'every card opens the screen of that very thing, with that thing first', async ({ p }) => {
+  /* every distinct route, and everything it must show — a story's opening and its middle share
+     no route; its hook and its moral do, and both land on the story */
+  const want = {};
+  for (const it of ITEMS) (want[it.route] = want[it.route] || new Set()).add(PROOF.land[it.id]);
+  const routes = Object.keys(want).map(r => ({ r, land: [...want[r]].filter(Boolean), focus: /\|/.test(r) || /^#\/(nani|rishtey)\/./.test(r) }));
   await p.evaluate(() => window.IND_LOAD(window.IND_GROUPS()));
   const bad = [];
-  for (const r of routes) {
-    const res = await p.evaluate(async r => {
-      location.hash = r; await new Promise(ok => setTimeout(ok, 30));
-      if (window.BI.ready) await window.BI.ready();
-      const m = document.getElementById('main'), t = m ? m.innerText : '';
-      return { ok: !!m && !!m.querySelector('h1, h2, h3, .gframe .gf-title') && !/That page is not here|not in this pack|could not load/.test(t), hash: location.hash };
-    }, r);
-    if (!res.ok) bad.push(r);
+  for (let i = 0; i < routes.length; i += 150) {
+    const res = await p.evaluate(async batch => {
+      const norm = t => String(t || '').replace(/\s+/g, ' ').trim();
+      const out = [];
+      for (const x of batch) {
+        location.hash = x.r; await new Promise(ok => setTimeout(ok, 0));
+        if (window.BI.ready) await window.BI.ready();
+        const m = document.getElementById('main');
+        if (!m || /That page is not here|not in this pack|could not load|^(Story|Pack) not found\./m.test(m.innerText.slice(0, 400))) { out.push(x.r + ' opens nothing'); continue; }
+        const fc = m.querySelector('[data-focus]');
+        if (x.focus && !fc) { out.push(x.r + ' has no card for the thing it names'); continue; }
+        /* and it is FIRST: no other card stands between the way back and the thing itself
+           (the story is the exception — its scene is the whole screen) */
+        if (fc && !/^#\/story\//.test(x.r)) { const c0 = m.querySelector('.card, .statehero'); if (c0 && c0 !== fc && !fc.contains(c0)) { out.push(x.r + ' puts something else above the thing it names'); continue; } }
+        /* where the thing must be: the focus card, or the top of the screen (its first heading
+           and what sits right under it) — never somewhere down the page */
+        const top = fc ? norm(fc.innerText) : norm(m.innerText).slice(0, 700);
+        const miss = x.land.filter(l => top.indexOf(norm(l)) < 0);
+        if (miss.length) out.push(x.r + ' does not lead with "' + miss[0].slice(0, 40) + '"');
+      }
+      return out;
+    }, routes.slice(i, i + 150));
+    bad.push(...res);
   }
-  if (bad.length) throw new Error(bad.length + ' of ' + routes.length + ' routes do not open a screen: ' + bad.slice(0, 4).join(' '));
+  if (bad.length) throw new Error(bad.length + ' of ' + routes.length + ' routes do not land on their thing: ' + bad.slice(0, 4).join(' · '));
+});
+
+/* WHOLE ON A PHONE. A child sent from a card to the moment a story turns on landed on one clipped
+   line of it: the question under that scene is tall, the picture held its 120px, and the words
+   were what gave way. Every route that names a thing, on a phone: the thing is not cut short. */
+check('whole', 'on a phone, the thing a card opens on is shown whole, never clipped inside its own box', async ({ p }) => {
+  const routes = [...new Set(ITEMS.map(it => it.route))].filter(r => /\|/.test(r) || /^#\/(nani|rishtey)\/./.test(r));
+  await p.setViewportSize(PHONE);
+  await p.evaluate(() => window.IND_LOAD(window.IND_GROUPS()));
+  const bad = [];
+  for (let i = 0; i < routes.length; i += 150) {
+    bad.push(...await p.evaluate(async batch => {
+      const out = [];
+      for (const r of batch) {
+        location.hash = r; await new Promise(ok => setTimeout(ok, 0));
+        if (window.BI.ready) await window.BI.ready();
+        const fc = document.querySelector('#main [data-focus]');
+        if (fc && fc.scrollHeight > fc.clientHeight + 2) out.push(r + ' shows ' + fc.clientHeight + 'px of ' + fc.scrollHeight);
+      }
+      return out;
+    }, routes.slice(i, i + 150)));
+  }
+  if (bad.length) throw new Error(bad.length + ' of ' + routes.length + ' landings clip the thing they name: ' + bad.slice(0, 4).join(' · '));
 });
 
 check('pin', 'the grown-up\'s switch takes the tab and the ☰ row away, and #/feed says it is off', async ({ p }) => {

@@ -327,6 +327,21 @@
   S.own.worlds = S.own.worlds || []; S.own.packs = S.own.packs || []; S.own.avatars = S.own.avatars || [];
 
   var view = { name: 'home', arg: null };
+  /* A ROUTE MAY NAME ONE THING INSIDE ITS SCREEN (owner, 3 Oct 2026: "wherever there is a
+     navigation to something, it goes to that specific topic, not the generic tool or
+     collection"). #/verses/kural|kural-7 is the Kural with verse 7 first; #/chart/hi|क is the
+     chart opened on क; #/nani/q.morning-first is that question to ask. The focus is split off
+     HERE, once, so view.arg keeps meaning exactly what it always meant to every other line. */
+  var FOCUS_VIEWS = { verses: 1, chart: 1, pack: 1, state: 1, era: 1, festival: 1, story: 1, nani: 1, rishtey: 1, epic: 1 };
+  var FOCUS_ONLY = { nani: 1, rishtey: 1 };      /* screens with no argument of their own */
+  function mkView(n, a) {
+    var v = { name: n, arg: a };
+    if (!FOCUS_VIEWS[n] || a == null || a === '') return v;
+    var str = String(a), k = str.indexOf('|');
+    if (FOCUS_ONLY[n]) { v.arg = null; v.focus = k >= 0 ? str.slice(k + 1) : str; }
+    else if (k >= 0) { v.arg = str.slice(0, k) || null; v.focus = str.slice(k + 1) || null; }
+    return v;
+  }
   var lastScrollSig = '';
   var soundOn = Store.loadDevice('sound', true);
   /* the one mute (standard §9): sfx.js asks here before every sound */
@@ -1328,6 +1343,14 @@
   var BADGE_WORD = { katha: ['🪔', 'Katha'], itihaas: ['📜', 'Itihaas'], aaj: ['🧭', 'Aaj'] };
   /* a card whose script is a line, not a letter, is set smaller (family.css .fd-card.fd-line) */
   var FEED_LINE = { verse: 1, festival: 1, gully: 1, sentence: 1, talk: 1, ask: 1, value: 1, family: 1 };
+  /* THE THING YOU CAME FOR, FIRST. A screen opened on one of its things leads with it, in a
+     card that says where it came from; the rest of the screen is still all there below. */
+  function focusCard(kick, title, inner) {
+    return '<div class="card focuscard" data-focus="1"><div class="mono">' + esc(kick) + '</div>' +
+      (title ? '<h2>' + esc(title) + '</h2>' : '') + inner + '</div>';
+  }
+  var focusFrom = '';      /* 'feed' when the last door was a card on My Feed */
+  function focusKick() { return focusFrom === 'feed' ? 'From your feed' : 'You came for this'; }
   function feedCard(x, i) {
     var it = (window.IND_FEED_BODY || {})[x.id], ix = feedIndexOf(x.id);
     if (!it || !ix) return '';
@@ -1337,6 +1360,22 @@
     var btn = it.act
       ? '<button class="btn fd-go" data-act="' + esc(it.act.a) + '" data-id="' + esc(it.act.id) + '" data-n="' + esc(it.act.n) + '">' + esc(it.cta) + ' →</button>'
       : '<a class="btn fd-go" href="' + esc(it.route) + '">' + esc(it.cta) + ' →</a>';
+    /* A QUESTION'S DOOR OPENS WHEN IT IS ANSWERED. "Open Kerala →" under "Which state has
+       Thiruvananthapuram as its capital?" was the answer, printed before it was asked. */
+    var PQ = it.play ? (feedPlay[x.id] || {}) : null;
+    if (PQ && PQ.st !== 'right' && PQ.st !== 'shown') btn = '';
+    /* MORE OF THE THING ITSELF (owner, 3 Oct): what the corpus already knows about it — where a
+       story comes from and what it lights, a night's place in its epic, an era's when and
+       where, a festival's months — every value read from the corpus by tools/build-feed.js,
+       never typed. Short ones sit as chips; a line of its own (a value's "do it today", a
+       street game's way to win, Nani's follow-up) reads as a line. */
+    var facts = (it.facts || []).filter(function (f) { return f && f[1]; });
+    var chips = facts.filter(function (f) { return String(f[1]).length <= 48; });
+    var lines = facts.filter(function (f) { return String(f[1]).length > 48; });
+    var factHTML = (chips.length ? '<dl class="fd-facts">' + chips.map(function (f) {
+        return '<div><dt>' + esc(f[0]) + '</dt><dd' + (f[2] ? ' lang="' + esc(f[2]) + '"' : '') + '>' + esc(f[1]) + '</dd></div>'; }).join('') + '</dl>' : '') +
+      lines.map(function (f) { return '<p class="fd-more"><b>' + esc(f[0]) + '</b> ' + esc(f[1]) + '</p>'; }).join('');
+    if (PQ && PQ.st !== 'right' && PQ.st !== 'shown') factHTML = '';
     var body = '';
     if (it.play) {
       var P = feedPlay[x.id] || {}, ord = ord0;
@@ -1363,7 +1402,7 @@
       (it.art ? '<img class="fd-art" src="' + esc(it.art) + '" alt="" loading="lazy" decoding="async">' : '') +
       '<div class="fd-in"><div class="fd-top"><span class="badge ' + esc(ix.badge) + '"><span aria-hidden="true">' + b[0] + '</span> ' + b[1] + '</span>' +
         '<span class="fd-why">' + esc(x.why || it.why || '') + '</span></div>' +
-        '<h3>' + esc(it.title) + '</h3>' + body + '<div class="fd-row">' + btn + '</div></div></article>';
+        '<h3>' + esc(it.title) + '</h3>' + body + factHTML + (btn ? '<div class="fd-row">' + btn + '</div>' : '') + '</div></article>';
   }
   var feedIdx = null;
   function feedIndexOf(id) {
@@ -2583,7 +2622,18 @@
         body + '</div>';
     }
 
-    return '<button class="backlink" data-act="go" data-v="map">' + icon('back', 18) + ' The map</button>' +
+    var sfc = '';
+    if (view.name === 'state' && view.focus) {
+      var sf = String(view.focus).split(':'), sk = sf[0], si = +sf[1];
+      if (sk === 'trivia' && (X.trivia || [])[si]) sfc = focusCard(focusKick() + ' · ' + s.name, null, '<p>' + esc(X.trivia[si]) + '</p>');
+      if (sk === 'places' && (X.places || [])[si]) sfc = focusCard(focusKick() + ' · a place to see', X.places[si].name, '<p>' + esc(X.places[si].what) + '</p>');
+      if (sk === 'food' && (X.food || [])[si]) sfc = focusCard(focusKick() + ' · from ' + s.name + '’s kitchen', X.food[si].dish, '<p>' + esc(X.food[si].what) + '</p>');
+      if (sk === 'feature') {
+        var BH = window.IND_BHUGOL, bf = BH && BH.features.filter(function (x) { return x.id === sf.slice(1).join(':'); })[0];
+        if (bf) sfc = focusCard(focusKick() + ' · ' + (((BH.types || {})[bf.t] || {}).n || 'on the map') + ' in ' + s.name, bf.n, '<p>' + esc(bf.f) + '</p>');
+      }
+    }
+    return '<button class="backlink" data-act="go" data-v="map">' + icon('back', 18) + ' The map</button>' + sfc +
       (img ? '<div class="statehero" style="background-image:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.55)),url(' + img + ')">' +
         '<div class="cap"><h1>' + esc(s.name) + '</h1>' +
         '<div class="row" style="gap:8px">' +
@@ -2931,6 +2981,12 @@
   V.story = function (id) {
     var st = allStories().filter(function (s) { return s.id === id; })[0];
     if (!st) return '<div class="card">Story not found.</div>';
+    /* a card that quoted the middle opens there — once per arrival, even if this story was
+       already open, and never again on the same visit (Next must still move on) */
+    if (view.name === 'story' && view.focus && /^s\d+$/.test(view.focus) && !view.focusDone) {
+      view.focusDone = true;
+      play.story = st; play.i = Math.min(+view.focus.slice(1), st.scenes.length - 1); play.answered = false; play.from = null;
+    }
     if (!play.story || play.story.id !== id) {
       /* Continue opens a story at the scene the child left it, never back at the start */
       var from = play.from && play.from.id === id ? Math.min(play.from.i || 0, st.scenes.length - 1) : 0;
@@ -2947,7 +3003,7 @@
     var hi = (S.hindi && sc.hi) ? sc.hi : null;
     var sayKey = storyClip(st, play.i);
 
-    return '<div class="reader' + (hi ? ' twoup' : '') + '">' +
+    return '<div class="reader' + (hi ? ' twoup' : '') + (sc.ask ? ' asks' : '') + '">' +
       '<h1 class="sr-only">' + esc(st.title) + '</h1>' +
       '<div class="rhead">' +
       '<button class="backlink" style="padding:0" data-act="go" data-v="stories">' + icon('back', 18) +
@@ -2963,7 +3019,8 @@
           cast.map(function (c, i) { return '<div class="' + (i === 0 ? 'speaking' : '') + '">' + art(c, i === 0 ? 128 : 100) + '</div>'; }).join(''))) + '</div>' +
 
       /* Bubble when somebody is talking, plain panel when the storyteller is. */
-      '<div class="speech' + (hasDialogue(sc.text) ? ' bubble' : '') + '">' +
+      '<div class="speech' + (hasDialogue(sc.text) ? ' bubble' : '') + '"' +
+        (view.name === 'story' && view.focus === 's' + play.i ? ' data-focus="1"' : '') + '>' +
       (teller ? '<span class="who">' + (img ? '<span class="whoface">' + mascot('mithu', 'talk', 30) + '</span>' : '') + 'Mithu</span>'
               : (cast[0] && avatarName(cast[0]) ? '<span class="who">' + (img ? '<span class="whoface">' + art(cast[0], 30) + '</span>' : '') + esc(avatarName(cast[0])) + '</span>' : '')) +
       (hi ? '<p class="sdeva" lang="hi">' + esc(hi) + '</p>' : '') +
@@ -3096,7 +3153,15 @@
     if (!e) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var big = (S.age || 8) >= 9;
     var img = eraArt(e);
-    return '<button class="backlink" data-act="go" data-v="itihaas">' + icon('back', 18) + ' Itihaas</button>' +
+    var efc = '';
+    if (view.name === 'era' && view.focus) {
+      var ef = String(view.focus).split(':'), ek = ef[0], ei = +ef[1];
+      if (ek === 'objects' && (e.objects || [])[ei]) efc = focusCard(focusKick() + ' · found from ' + e.title, null, '<p>' + esc(e.objects[ei]) + '</p>');
+      if (ek === 'moments' && (e.moments || [])[ei]) efc = focusCard(focusKick() + ' · ' + e.title, e.moments[ei].when, '<p>' + esc(e.moments[ei].what) + '</p>');
+      if (ek === 'today' && (e.today || [])[ei]) efc = focusCard(focusKick() + ' · still there today', e.today[ei].where, '<p>' + esc(e.today[ei].what) + '</p>');
+      if (ek === 'figures' && (e.figures || [])[ei]) efc = focusCard(focusKick() + ' · ' + e.title, e.figures[ei].name, '<p>' + esc(e.figures[ei].line || '') + '</p>');
+    }
+    return '<button class="backlink" data-act="go" data-v="itihaas">' + icon('back', 18) + ' Itihaas</button>' + efc +
 
       (img ? '<div class="statehero" style="background-image:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.6)),url(' + img + ')">' +
         '<div class="cap"><span class="badge itihaas">itihaas</span>' +
@@ -3324,7 +3389,13 @@
     var f = festById(id);
     if (!f) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var st = f.story ? allStories().filter(function (s) { return s.id === f.story; })[0] : null;
-    return '<button class="backlink" data-act="go" data-v="utsav">' + icon('back', 18) + ' Utsav</button>' +
+    var ffc = '';
+    if (view.name === 'festival' && view.focus) {
+      var ff = String(view.focus).split(':'), fi = +ff[1];
+      if (ff[0] === 'do' && (f.do || [])[fi]) ffc = focusCard(focusKick() + ' · something to do for ' + f.name, null, '<p>' + esc(f.do[fi]) + '</p>');
+      if (ff[0] === 'variations' && (f.variations || [])[fi]) ffc = focusCard(focusKick() + ' · ' + f.name + ', in many families', null, '<p>' + esc(f.variations[fi]) + '</p>');
+    }
+    return '<button class="backlink" data-act="go" data-v="utsav">' + icon('back', 18) + ' Utsav</button>' + ffc +
       '<div class="card">' +
         '<h1 style="margin-bottom:2px">' + esc(f.name) + '</h1>' +
         (f.script ? '<p class="chello" style="margin:0 0 6px">' + esc(f.script) +
@@ -3476,18 +3547,20 @@
     Store.listClips(function (list) { nani.clips = list; then && then(); });
   }
 
-  V.nani = function () {
+  V.nani = function (fq) {
     var N = window.IND_NANI;
     if (!N) return emptyState('Nothing here yet — it is on its way.', 'Back to Home');
-    var q = naniWeek();
+    var qf = fq && (N.questions || []).filter(function (x) { return x.id === fq; })[0];
+    var q = qf || naniWeek();
     if (nani.clips === null) { loadClips(render); }
     var n = (nani.clips || []).length;
 
+    var nhead = '<div class="card"><h1>' + esc(naniTitle()) + '</h1><p>' + esc(N.archive.tagline) + '</p></div>';
     return '<button class="backlink" data-act="go" data-v="home">' + icon('back', 18) + ' Home</button>' +
-      '<div class="card"><h1>' + esc(naniTitle()) + '</h1><p>' + esc(N.archive.tagline) + '</p></div>' +
+      (qf ? '' : nhead) +
 
-      (q ? '<div class="card askcard">' +
-          '<span class="mono">This week, ask ' + esc(kinTerm(q.to)) + '</span>' +
+      (q ? '<div class="card askcard' + (qf ? ' focuscard" data-focus="1' : '') + '">' +
+          '<span class="mono">' + (qf ? esc(focusKick()) + ' · ask ' : 'This week, ask ') + esc(kinTerm(q.to)) + '</span>' +
           '<h2 style="margin:8px 0">' + esc(kinEn(q)) + '</h2>' +
           '<p lang="' + esc(q.lang || 'hi') + '" style="margin-bottom:4px">' + esc(naniFill(q.hi)) + '</p>' +
           '<p class="tiny muted">' + esc(naniFill(q.roman)) + '</p>' +
@@ -3495,6 +3568,7 @@
           '<button class="btn" data-act="go" data-v="shelf">' + icon('mic', 18) + ' Record the answer</button>' +
         '</div>' : '') +
 
+      (qf ? nhead : '') +
       '<div class="grid g2">' +
         hubCard('shelf', naniTitle(), n ? n + (n === 1 ? ' voice kept here' : ' voices kept here')
                                             : 'Nothing on the shelf yet.', 'mic') +
@@ -3750,8 +3824,13 @@
     var st = (S.epic && S.epic[id]) || { done: {} };
     var byBook = {};
     e.episodes.forEach(function (ep) { (byBook[ep.book] = byBook[ep.book] || []).push(ep); });
+    /* opened on one night (#/epic/ramayana|3): that night first, one tap from hearing it */
+    var enf = view.name === 'epic' && view.focus ? e.episodes.filter(function (x) { return String(x.n) === String(view.focus); })[0] : null;
+    var epfc = enf ? focusCard(focusKick() + ' · ' + e.title + ', night ' + enf.n + ' of ' + e.episodes.length, enf.title,
+      (enf.hook ? '<p>' + esc(enf.hook) + '</p>' : '') +
+      '<button class="btn" data-act="episode" data-id="' + esc(e.id) + '" data-n="' + esc(enf.n) + '">Hear this night →</button>') : '';
 
-    return '<button class="backlink" data-act="go" data-v="epics">' + icon('back', 18) + ' The Epics</button>' +
+    return '<button class="backlink" data-act="go" data-v="epics">' + icon('back', 18) + ' The Epics</button>' + epfc +
       '<div class="card"><div class="row" style="flex-wrap:nowrap;align-items:flex-start">' + art(e.avatar, 84) +
       '<div style="flex:1"><h1 style="margin:0">' + esc(e.title) + '</h1>' +
       '<div class="mono">' + esc(e.subtitle || '') + '</div>' +
@@ -4025,14 +4104,17 @@
     /* Every verse is listed. A verse a child cannot yet carry is still a verse they should
        know is waiting, and hiding it just made the collection look shorter than it is. */
     var mine = K.verses.filter(function (v) { return v.collection === cid; });
+    var fid = view.name === 'verses' ? view.focus : null;
+    if (fid) mine = mine.filter(function (v) { return v.id === fid; }).concat(mine.filter(function (v) { return v.id !== fid; }));
     var big = (S.age || 8) >= 9;
-    return '<button class="backlink" data-act="go" data-v="shlok">' + icon('back', 18) + ' Shlok</button>' +
-      '<div class="card"><h1>' + esc(c.name) + '</h1>' +
+    var vhead = '<div class="card"><h1>' + esc(c.name) + '</h1>' +
       '<div class="mono">' + esc(c.language || '') + '</div>' +
       '<p style="margin-top:10px">' + esc(c.blurb || '') + '</p>' +
-      '<div class="tiny muted">' + esc(c.source || '') + '</div></div>' +
-      mine.map(function (v) {
-        return '<div class="card">' +
+      '<div class="tiny muted">' + esc(c.source || '') + '</div></div>';
+    var vcards = mine.map(function (v) {
+        var isF = fid && v.id === fid;
+        return '<div class="card' + (isF ? ' focuscard" data-focus="1' : '') + '">' +
+          (isF ? '<div class="mono">' + esc(focusKick()) + '</div>' : '') +
           '<div class="spread"><span class="mono">' + (v.n_local ? '' : esc(c.name) + ' ' + v.n) + '</span>' +
           (v.unsure || v.needs_original ? '<span class="badge">wording to check</span>' : '') + '</div>' +
           (v.text_original ?
@@ -4048,7 +4130,11 @@
           '<div class="tiny muted" style="margin-top:10px">' + esc(v.source) + '</div>' +
           (v.note ? '<div class="tiny muted" style="margin-top:5px"><i>' + esc(v.note) + '</i></div>' : '') +
           '</div>';
-      }).join('');
+      });
+    /* opened on one verse: that verse first, above the collection's own introduction */
+    var lead = fid && mine.length && mine[0].id === fid;
+    return '<button class="backlink" data-act="go" data-v="shlok">' + icon('back', 18) + ' Shlok</button>' +
+      (lead ? vcards[0] + vhead + vcards.slice(1).join('') : vhead + vcards.join(''));
   };
 
   /* ---------------------------------------------------------------- NEETI */
@@ -4378,12 +4464,20 @@
      learn it Saturday, use it on Sunday's call. */
   var rish = { i: 0, picked: null, right: 0 };
 
-  V.rishtey = function () {
+  var LANG_EN = { hi: 'Hindi', pa: 'Punjabi', ta: 'Tamil', bn: 'Bengali', gu: 'Gujarati', te: 'Telugu', mr: 'Marathi', kn: 'Kannada', ml: 'Malayalam', ur: 'Urdu', or: 'Odia' };
+  V.rishtey = function (ft) {
     var R = window.IND_RISHTEY;
     if (!R) return '<div class="card"><h1>Rishtey</h1><p>Not loaded.</p></div>';
+    var tf = ft && R.terms.filter(function (x) { return x.id === ft; })[0];
+    var rfc = tf ? focusCard(focusKick(), null,
+      '<p class="focusline" lang="hi">' + esc(tf.hi) + '</p><p class="tiny muted">' + esc(tf.roman) + '</p>' +
+      '<p><b>' + esc(tf.en) + '</b></p>' +
+      (tf.also ? '<p class="tiny"><b>In many families it is also</b> ' + Object.keys(tf.also).map(function (l) {
+        return '<span lang="' + esc(l) + '">' + esc(tf.also[l]) + '</span> (' + esc(LANG_EN[l] || l) + ')'; }).join(' · ') + '</p>' : '') +
+      '<p class="tiny muted">Ask your family what they call them — every family has its own words.</p>') : '';
     var byTier = R.terms.slice().sort(function (a, b) { return a.tier - b.tier; });
     var week = R.ask[new Date().getDay() % R.ask.length];
-    return '<div class="card"><h1>Rishtey</h1><p>' + esc(R.intro) + '</p>' +
+    return rfc + '<div class="card"><h1>Rishtey</h1><p>' + esc(R.intro) + '</p>' +
       '<button class="btn" data-act="rishquiz">Build your family tree →</button></div>' +
 
       '<div class="card tint notch"><div class="mono">Ask a grown-up this week</div>' +
@@ -5278,8 +5372,27 @@
         }).join('') + '</div>';
     }).join('');
 
+    /* opened on one line of the path (#/pack/hi|s4:<item>): the line, its rung, and the way to it */
+    var pfc = '';
+    if (view.name === 'pack' && view.focus) {
+      var pf = String(view.focus).split(':'), pst = stageById[pf[0]];
+      var pit = pst && (pst.items || []).filter(function (x) { return x && typeof x === 'object' && x.id === pf[1]; })[0];
+      if (pit) {
+        var pi = stages.indexOf(pst), pOpen = stageUnlocked(id, pi, stages);
+        pfc = focusCard(focusKick(), null,
+          '<p class="focusline" lang="' + esc(id) + '">' + esc(pit.hi) + '</p>' +
+          (pit.roman ? '<p class="tiny muted">' + esc(pit.roman) + '</p>' : '') +
+          (pit.en ? '<p>' + esc(pit.en) + '</p>' : '') +
+          (pit.parts && pit.word ? '<p>' + esc(pit.parts.join(' + ')) + ' = ' + esc(pit.hi) + ', as in ' + esc(pit.word) + '</p>' : '') +
+          '<p class="tiny">On the path: <b>Rung ' + (pi + 1) + ' · ' + esc(pst.name) + '</b>' + (pst.en ? ' — ' + esc(pst.en) : '') + '</p>' +
+          '<div class="row"><button class="pill" data-act="say" data-t="' + esc(pit.hi) + '" data-l="' + esc(id + '-IN') + '">' + icon('sound', 16) + ' hear it</button>' +
+          (pOpen ? '<button class="btn sm" data-act="quiz" data-s="' + esc(pst.id) + '">Practise ' + esc(pst.name) + ' →</button>'
+                 : '<span class="tiny muted">Opens after ' + esc((stages[pi - 1] || {}).name || 'the rung before') + ' — or </span>' +
+                   '<button class="btn sm ghost" data-act="testout" data-s="' + esc(pst.id) + '">test out</button>') + '</div>');
+      }
+    }
     return '<button class="backlink" data-act="go" data-v="bhasha">' + icon('back', 18) + ' Bhasha</button>' +
-      opener + offerCard + overCard + nextCard + slippedCard(id) +
+      pfc + opener + offerCard + overCard + nextCard + slippedCard(id) +
       '<div class="bh-path">' +
         '<div class="bh-secthead"><h3>The path</h3>' +
         '<span>The same eight rungs in every language</span></div>' +
@@ -5492,8 +5605,23 @@
           '<span lang="' + esc(p.id || 'hi') + '">' + esc(v.char) + '</span><small>' + esc(v.name) + '</small></button>';
       }).join('') + '</div>';
     };
+    var fch = view.name === 'chart' ? view.focus : null, fcard = '';
+    if (fch && sc) {
+      var fl = (sc.vowels || []).concat(sc.consonants || []).filter(function (x) { return x.char === fch; })[0];
+      var fm = !fl && (sc.matras || []).filter(function (x) { return x.sign === fch || x.char === fch; })[0];
+      var hj = (sc.hardConjuncts || []).filter(function (x) { return x && (x.hi === fch || x.char === fch); })[0];
+      if (fl) fcard = focusCard(focusKick(), null,
+        '<p class="focusglyph" lang="' + esc(p.id || 'hi') + '">' + esc(fl.char) + '</p>' +
+        '<p><b>' + esc(fl.name) + '</b>' + (fl.roman || fl.r ? ' · sounds like “' + esc(fl.roman || fl.r) + '”' : '') + '</p>' +
+        '<button class="pill" data-act="say" data-k="' + esc(fl.audio || '') + '" data-t="' + esc(fl.char) + '" data-l="' + esc((p.id || 'hi') + '-IN') + '">' +
+          icon('sound', 16) + ' hear it</button>');
+      else if (fm) fcard = focusCard(focusKick(), null,
+        '<p class="focusglyph" lang="' + esc(p.id || 'hi') + '">' + esc(fm.example || fm.sign) + '</p>' +
+        '<p><b>The sign for “' + esc(fm.name) + '”</b>' + (fm.example ? ', as in ' + esc(fm.example) : '') + '</p>');
+      else if (hj) fcard = focusCard(focusKick(), null, '<p class="focusglyph" lang="' + esc(p.id || 'hi') + '">' + esc(hj.hi || hj.char) + '</p>');
+    }
     return '<button class="backlink" data-act="pack" data-id="' + id + '">' + icon('back', 18) +
-      ' ' + esc(p.name.en) + '</button>' +
+      ' ' + esc(p.name.en) + '</button>' + fcard +
       '<div class="card"><h1>' + esc(sc.name) + '</h1>' +
       '<div class="mono">tap any letter to hear it</div>' +
       '<h3 style="margin-top:20px">Vowels</h3>' + grid(sc.vowels) +
@@ -7978,14 +8106,14 @@
       case 'ghar': h = V.ghar(); break;
       case 'people': h = V.people(); break;
       case 'value': h = V.value(view.arg); break;
-      case 'rishtey': h = V.rishtey(); break;
+      case 'rishtey': h = V.rishtey(view.focus); break;
       case 'rishquiz': h = V.rishquiz(); break;
       case 'itihaas': h = V.itihaas(); break;
       case 'era': h = V.era(view.arg); break;
       case 'dharma': h = V.dharma(); break;
       case 'utsav': h = V.utsav(); break;
       case 'gully': h = V.gully(); break;
-      case 'nani': h = V.nani(); break;
+      case 'nani': h = V.nani(view.focus); break;
       case 'geet': h = V.geet(); break;
       case 'song': h = V.song(view.arg); break;
       case 'shelf': h = V.shelf(); break;
@@ -8156,7 +8284,7 @@
       S.resume = S.resume || {};
       S.resume.paath = { id: String(a).split('|')[0], at: Date.now() }; save();
     }
-    stopAudio(); killGame(); view = { name: n, arg: a }; render();
+    stopAudio(); killGame(); view = mkView(n, a); render();
     /* HOME IS THE ROOT (FIX-INDIA §1: "repeated Back from Home landed on #/neeti"). Going
        Home does not push a new entry on top of the trail; it walks back to the root entry,
        so the trail behind Home is empty and Back from Home has nowhere else to go. */
@@ -8181,7 +8309,9 @@
      history.state carries the arg with its own type, so a number stays a number; the
      hash is only parsed for a link typed or shared from outside. */
   function hashOf(v) {
-    return '#/' + v.name + (v.arg != null && v.arg !== '' ? '/' + encodeURIComponent(String(v.arg)) : '');
+    var a = v.arg != null && v.arg !== '' ? String(v.arg) : '';
+    if (v.focus) a = FOCUS_ONLY[v.name] ? v.focus : a + '|' + v.focus;
+    return '#/' + v.name + (a ? '/' + encodeURIComponent(a) : '');
   }
   function route(push) {
     if (!S.started || !window.history || !history.pushState) return;
@@ -8226,8 +8356,9 @@
     }
     if (cont) r = continueTarget();     /* primed already: prepView would undo it */
     if (!known(r.n)) r = { n: 'home', a: null };
-    if (!cont) prepView(r.n, r.a);
-    stopAudio(); killGame(); view = { name: r.n, arg: r.a }; render();
+    var nv = mkView(r.n, r.a);
+    if (!cont) prepView(nv.name, nv.arg);
+    stopAudio(); killGame(); view = nv; render();
     /* a link typed or followed (no state of its own) takes its proper name in history */
     if (!fromState) route(false);
   });
@@ -8486,6 +8617,7 @@
     /* THE SHELL'S LINKS ARE THE APP'S ROUTES. A tab, a drawer row or a home tile is an <a href="#/…">;
        taken here and through go(), so it keeps the trail Back walks (Home stays the root). */
     var ln = e.target.closest && e.target.closest('a[href^="#/"]');
+    if (ln) focusFrom = ln.closest('.fd-card') ? 'feed' : '';
     if (ln && !ln.hasAttribute('data-act') && !e.defaultPrevented && !e.metaKey && !e.ctrlKey && S.started) {
       var hr = parseHash(ln.getAttribute('href'));
       if (hr && (known(hr.n) || hr.n === 'continue')) {
@@ -9458,14 +9590,14 @@
     try {
       var rs = JSON.parse(sessionStorage.getItem('bi_resume') || 'null');
       sessionStorage.removeItem('bi_resume');
-      if (rs && rs.n && known(rs.n)) { view = { name: rs.n, arg: rs.a }; resumed = true; }
+      if (rs && rs.n && known(rs.n)) { view = mkView(rs.n, rs.a); resumed = true; }
     } catch (e) {}
     /* or to the screen the link names: a shared #/state/KL, the Hive's #/continue */
     if (!resumed && S.started) {
       var hr = parseHash(location.hash);
       var hc = hr && hr.n === 'continue';
       if (hc) hr = continueTarget();
-      if (hr && known(hr.n)) { if (!hc) prepView(hr.n, hr.a); view = { name: hr.n, arg: hr.a }; }
+      if (hr && known(hr.n)) { var hv = mkView(hr.n, hr.a); if (!hc) prepView(hv.name, hv.arg); view = hv; }
     }
     /* THE TRAIL STARTS AT HOME, with a guard under it: Back from the first screen of a visit
        lands on Home, and Back from Home stays on Home (FIX-INDIA §1; standard §4). The way

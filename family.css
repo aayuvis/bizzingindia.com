@@ -396,6 +396,14 @@ html[data-bz-dark] { --bz-accent-ink: var(--ground); }
 .fd-held, .fd-after { margin: 8px 0; color: var(--text); }
 .fd-after.ok { font-weight: 700; }
 .fd-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+/* more of the thing itself: facts read from the corpus, as chips; a longer one as a line */
+.fd-facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+.fd-facts > div { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 10px; border-radius: 999px;
+  background: var(--card2); border: 1px solid var(--line); font-size: 13px; line-height: 1.3; max-width: 100%; }
+.fd-facts dt { margin: 0; font-weight: 700; color: var(--text2); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
+.fd-facts dd { margin: 0; color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
+.fd-more { margin: 8px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--text); }
+.fd-more b { color: var(--accent-ink, var(--accent)); margin-right: 2px; }
 .fd-end { text-align: center; padding: 22px 18px; }
 .fd-end .fd-row { justify-content: center; }
 /* the app's Katha chip is 4.2:1 at chip size; on a feed card it is read, so it is darkened to AA */

@@ -2,6 +2,11 @@
 /* Bizzing India — the platform (FIX-INDIA N2, N3, L4, M1, M2; family standard §7, §11, §12, §15).
    docs/27-platform.md says why each one exists.
 
+     untouched  before any tap, a phone is sent ≤ 1.5 MB in all — page and service worker, six
+              seconds, as a stranger and as a returning child — and no corpus group; one tap
+              starts the warm-up and the offline cache
+     install  the manifest and icons: any 192/512, a maskable 512 whose bird is inside the safe
+              zone, an opaque 180 for iOS, a brand-coloured bar, a label a launcher will not cut
      weight   a phone's first screen — a returning child's Home, and the landing — transfers
               ≤ 1.5 MB, of which JavaScript ≤ 400 KB gzipped (measured as GitHub Pages serves:
               text gzipped, pictures as they are), and no route group loads for Home
@@ -38,11 +43,14 @@ function serve() {
     if (p.endsWith('/')) p += 'index.html';
     const f = path.join(APP, p);
     if (!f.startsWith(APP) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404).end('no'); return; }
+    SERVED.push({ p: p.replace(/^\//, ''), at: Date.now(), sw: req.headers['service-worker'] === 'script' || req.headers['sec-fetch-dest'] === 'serviceworker' });
     res.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' });
     fs.createReadStream(f).pipe(res);
   });
   return new Promise(r => s.listen(0, '127.0.0.1', () => r(s)));
 }
+/* every file the server sent, page and service worker alike — the network's view, not the page's */
+const SERVED = [];
 const PHONE = { width: 390, height: 844 }, DESK = { width: 1280, height: 860 };
 const CHECKS = [];
 const check = (id, what, fn, o) => CHECKS.push(Object.assign({ id, what, fn }, o || {}));
@@ -84,6 +92,93 @@ check('weight', 'a phone\'s first screen ≤ 1.5 MB, JavaScript ≤ 400 KB gzipp
   if (home.groups.length) throw new Error('Home loaded route groups before its first screen: ' + home.groups.join(', '));
   console.log(`         Home ${kb(home.bytes)} (JS ${kb(home.js)}, ${home.n} files) · landing ${kb(landing.bytes)} (JS ${kb(landing.js)})`);
 }, { vp: PHONE, fresh: true });
+
+/* BEFORE ANY TAP (audit R2/R3, 3 Oct 2026). 'weight' measured the page's own requests for
+   0.7 s with the service worker blocked — and so it passed while a phone that opened the app
+   and was put down fetched 6.5 MB: the page warmed every story and both epics at 1.5 s, and the
+   worker precached every script at install. This one counts what the SERVER sends, page and
+   worker alike, for six seconds with nobody touching anything, worker on, as a stranger and as
+   a returning child; then taps once and requires the warm-up to begin, so offline still comes. */
+check('untouched', 'before any tap a phone is sent ≤ 1.5 MB in all, worker included, and no corpus group; one tap starts the warm-up', async ({ p, base }) => {
+  const lazy = new Set();
+  const html = fs.readFileSync(path.join(APP, 'index.html'), 'utf8');
+  for (const t of html.match(/<template id="lazy-[^"]+">[\s\S]*?<\/template>/g) || []) for (const m of t.matchAll(/src="([^"]+)"/g)) lazy.add(m[1].replace(/^\.\//, '').split('?')[0]);
+  /* a returning child's household, made once in a worker-less page and carried over */
+  await p.goto(base, { waitUntil: 'networkidle' }); await skipOnboarding(p); await p.waitForTimeout(300);
+  const house = await p.evaluate(() => { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); o[k] = localStorage.getItem(k); } return o; });
+  const kb = n => Math.round(n / 1024) + ' KB';
+  const out = [];
+  for (const [who, ls] of [['a stranger', null], ['a returning child', house]]) {
+    const ctx = await p.context().browser().newContext({ viewport: PHONE, isMobile: true, hasTouch: true, serviceWorkers: 'allow' });
+    if (ls) await ctx.addInitScript(o => { if (!localStorage.length) for (const k in o) localStorage.setItem(k, o[k]); }, ls);
+    const q = await ctx.newPage();
+    SERVED.length = 0;
+    await q.goto(base, { waitUntil: 'load' });
+    await q.waitForTimeout(6000);
+    const sent = SERVED.slice(), seen = {}; let bytes = 0, js = 0;
+    sent.forEach(x => { const k = x.p.split('?')[0]; if (seen[k]) return; seen[k] = 1; const w = wire(k); bytes += w.bytes; js += w.js; });
+    const early = Object.keys(seen).filter(k => lazy.has(k));
+    if (early.length) throw new Error(`${who}: ${early.length} corpus files were sent before any tap (${early.slice(0, 3).join(', ')}…)`);
+    if (bytes > 1.5 * 1048576) throw new Error(`${who}: ${kb(bytes)} sent before any tap (budget 1.5 MB)`);
+    out.push(`${who} ${kb(bytes)} (JS ${kb(js)}, ${Object.keys(seen).length} files)`);
+    /* one tap, and the warm-up and the offline cache begin */
+    SERVED.length = 0;
+    await q.touchscreen.tap(5, 300); await q.waitForTimeout(8000);
+    const after = new Set(SERVED.map(x => x.p.split('?')[0]).filter(k => lazy.has(k)));
+    if (after.size < 5) throw new Error(`${who}: one tap started no warm-up — ${after.size} corpus files in 8 s, so nothing would be there offline`);
+    await ctx.close();
+  }
+  console.log('         before a tap: ' + out.join(' · '));
+}, { vp: PHONE, fresh: true });
+
+/* INSTALLED (audit U11/R1, 3 Oct 2026): the home screen is the app's front door on a phone. The
+   old manifest named one cream-on-cream peacock at 45% for both jobs ("any maskable"), so a round
+   launcher cut the tail off, iOS had no 180px icon, the bar was the page's own cream, and the
+   label was the full name, which a launcher truncates. Read the PNGs' own pixels: a maskable
+   icon's bird must sit wholly inside the centre 80% circle, and iOS's must have no alpha. */
+function pngInfo(f) {
+  const b = fs.readFileSync(f);
+  if (b.readUInt32BE(0) !== 0x89504e47) throw new Error(path.basename(f) + ' is not a PNG');
+  return { w: b.readUInt32BE(16), h: b.readUInt32BE(20), colour: b[25] };   /* 2 = RGB, 6 = RGBA */
+}
+check('install', 'the manifest and the icons: any 192 + 512, a maskable 512 inside its safe zone, an opaque 180 for iOS, a brand bar, a short label', async ({ p, base }) => {
+  const M = JSON.parse(fs.readFileSync(path.join(APP, 'manifest.webmanifest'), 'utf8'));
+  if (!M.name || !M.short_name || M.short_name.length > 12) throw new Error(`short_name "${M.short_name}" — a launcher shows about 12 characters`);
+  const lum = h => { const n = parseInt(h.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255].map(v => v / 255); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  if (!/^#[0-9a-f]{6}$/i.test(M.theme_color || '') || lum(M.theme_color) > 0.5) throw new Error(`theme_color ${M.theme_color} is a page colour, not a brand bar`);
+  const want = [['192x192', 'any'], ['512x512', 'any'], ['512x512', 'maskable']];
+  for (const [sz, pu] of want) {
+    const i = (M.icons || []).find(x => x.sizes === sz && String(x.purpose).split(/\s+/).includes(pu));
+    if (!i) throw new Error(`no ${sz} icon for "${pu}"`);
+    const f = path.join(APP, i.src), info = pngInfo(f);
+    if (info.w + 'x' + info.h !== sz) throw new Error(`${i.src} is ${info.w}x${info.h}, not ${sz}`);
+  }
+  if ((M.icons || []).some(x => /any/.test(x.purpose) && /maskable/.test(x.purpose))) throw new Error('one icon claims both any and maskable — a round launcher crops the picture made for a square');
+  const html = fs.readFileSync(path.join(APP, 'index.html'), 'utf8');
+  const ap = (html.match(/<link rel="apple-touch-icon"[^>]*href="([^"]+)"/) || [])[1];
+  if (!ap) throw new Error('no apple-touch-icon');
+  const ai = pngInfo(path.join(APP, ap));
+  if (ai.w !== 180 || ai.h !== 180) throw new Error(`apple-touch-icon is ${ai.w}x${ai.h}, not 180x180`);
+  if (ai.colour !== 2) throw new Error('apple-touch-icon has an alpha channel — iOS draws transparency black');
+  const tc = (html.match(/<meta name="theme-color" content="([^"]+)"/g) || []);
+  if (tc.length !== 1 || tc[0].indexOf(M.theme_color) < 0) throw new Error('index.html says ' + tc.length + ' theme colours, not the manifest\'s one');
+  /* the maskable bird's pixels — blue, teal or dark outline — all inside the 0.4n circle */
+  const mk = M.icons.find(x => /maskable/.test(x.purpose));
+  await p.goto(base + mk.src);
+  const out = await p.evaluate(async () => {
+    const im = document.querySelector('img'); await im.decode();
+    const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+    const g = c.getContext('2d'); g.drawImage(im, 0, 0);
+    const d = g.getImageData(0, 0, c.width, c.height).data, n = c.width, r = 0.4 * n; let bad = 0;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const k = (y * n + x) * 4, R = d[k], G = d[k + 1], B = d[k + 2];
+      const bird = B > R + 20 || (R + G + B) < 200;
+      if (bird && Math.hypot(x + 0.5 - n / 2, y + 0.5 - n / 2) > r) bad++;
+    }
+    return bad;
+  });
+  if (out > 20) throw new Error(`${out} pixels of the bird lie outside the maskable icon's safe zone — a round launcher cuts them off`);
+}, { vp: DESK, fresh: true });
 
 check('routes', 'a story loads the stories, not the games; the language path loads Bhasha; each screen paints', async ({ p, base }) => {
   await p.goto(base, { waitUntil: 'networkidle' }); await skipOnboarding(p);

@@ -3,8 +3,9 @@
  * Offline-first is a hard requirement (CLAUDE.md, docs/07): the best moment this
  * app has is a bored child on a plane. Strategy, kept deliberately simple:
  *
- *   CORE  (~11MB: html, every script, styles, fonts, icons) — precached at install
- *         into 'core-<build>'; old core caches deleted on activate. Network-first
+ *   CORE  (the shell: html, the scripts index.html runs, styles, fonts, icons) — precached
+ *         at install into 'core-<build>'; the corpus groups follow after the child's
+ *         first tap (the second list, below); old core caches deleted on activate. Network-first
  *         on fetch so updates flow when online; cache answers when the network
  *         cannot.
  *   MEDIA (voice/, art/ — hundreds of MB) — NEVER precached. Cache-first into
@@ -25,7 +26,7 @@ var MEDIA_CACHE = 'ind-media-v1';
    registers it as sw.js?v=<build>, which is a different script URL each time;
    this line is the belt to that pair of braces, and tools/stamp.sh rewrites
    it. It has to come FIRST, because the imports below hang off it. */
-var SW_BUILD = '202610030508';
+var SW_BUILD = '202610030527';
 
 /* AND THE IMPORTS ARE STAMPED TOO. importScripts goes through the HTTP cache
    like anything else, so a fresh worker asking for a bare 'build.js' was
@@ -61,21 +62,31 @@ self.addEventListener('activate', function (e) {
       }));
     }).then(function () { return self.clients.claim(); })
   );
-  /* THE SECOND LIST (FIX-INDIA R2): the per-script faces, the reading passages and the music,
-     fetched one at a time well after the first visit has settled — so the app is offline in
-     every script without a first visit paying for nine scripts it did not draw. */
-  setTimeout(function () {
-    caches.open(CORE_CACHE).then(function (c) {
-      return (self.IND_PRECACHE_LATER || []).reduce(function (p, u) {
-        return p.then(function () {
-          return c.match(u).then(function (hit) {
-            if (hit) return;
-            return fetch(u).then(function (r) { if (r && r.ok) return c.put(u, r); }).catch(function () {});
-          });
+});
+
+/* THE SECOND LIST (FIX-INDIA R2; audit R2/R3): the corpus groups, the per-script faces, the
+   reading passages and the music — fetched one at a time, and only when the page says so
+   (loader.js posts 'warm' after the child's first tap). It used to run on a 30-second timer
+   from activate, which on a first visit meant megabytes nobody had asked for yet. Offline
+   still arrives: the first tap starts it, and everything the page loads meanwhile is cached
+   on its way through the fetch handler below. */
+var warming = null;
+function warmLater() {
+  if (warming) return warming;
+  warming = caches.open(CORE_CACHE).then(function (c) {
+    return (self.IND_PRECACHE_LATER || []).reduce(function (p, u) {
+      return p.then(function () {
+        return c.match(u).then(function (hit) {
+          if (hit) return;
+          return fetch(u).then(function (r) { if (r && r.ok) return c.put(u, r); }).catch(function () {});
         });
-      }, Promise.resolve());
-    }).catch(function () {});
-  }, 30000);
+      });
+    }, Promise.resolve());
+  }).catch(function () { warming = null; });
+  return warming;
+}
+self.addEventListener('message', function (e) {
+  if (e.data === 'warm') { var w = warmLater(); if (e.waitUntil) e.waitUntil(w); }
 });
 
 function isMedia(path) {

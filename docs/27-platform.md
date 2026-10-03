@@ -27,14 +27,34 @@ when a screen asks (`IND_LOAD`), in page order, once.
   — until the course and language engines are here — the rank and the next step *as last measured*
   (`S.grown`, `S.resume.*.step`). Continue always recomputes fresh before it opens anything. When
   those engines arrive, growth is measured and Home repaints if it changed.
-- **After the first screen, the rest is warmed** in the background, in the order a child is likeliest
-  to go — never on a data-saver connection. These are the same bytes the offline cache was already
-  fetching (offline-first stays a hard rule: the service worker still precaches every script).
+- **After the child's first tap, the rest is warmed** in the background, in the order a child is
+  likeliest to go — never on a data-saver or 2G connection. Nothing moves before a tap (audit R2/R3,
+  3 Oct 2026): the warm-up used to start at 1.5 s whether anyone touched the phone or not, and the
+  service worker precached every script at install, so a phone that opened the app and was put down
+  had been sent every story and both epics — 6.5 MB against this budget of 1.5. Now the worker
+  precaches only the shell; a `<template id="lazy-…">` group's scripts are its *second* list, which
+  it fetches when `loader.js` posts `warm` after the first tap. Offline-first still holds: one tap
+  and the corpus comes down, and everything the page loads meanwhile is cached on its way through.
 - **The demo** is built from the real corpus, so `?demo` waits for all of it.
 
 **Measured** (`check-platform weight`, a 390 × 844 phone, as GitHub Pages serves — text gzipped,
 pictures as they are): a returning child's Home **966 KB, of which JavaScript 329 KB gzipped**; the
 landing 585 KB. Budgets 1.5 MB and 400 KB. Home loads no route group at all.
+
+**And everything before a tap** (`check-platform untouched`, the server's own count — page *and*
+worker, six seconds, worker on, nobody touching anything): a stranger **1,104 KB**, a returning child
+**1,369 KB**, no corpus file for either; one tap and the warm-up and offline cache begin. The old
+`weight` passed throughout because it watched the page's own requests for 0.7 s with the worker
+blocked — the gap the audit found.
+
+## Installed (U11, R1)
+
+`tools/gen-icons.py` makes the icons from the peacock mark on a marigold ground: `icon-192`/`-512`
+for *any*, `icon-maskable-512` with the whole bird inside the centre 80% circle, an opaque 180px
+`apple-touch-icon` (iOS draws transparency black) and a 32px favicon. The manifest's label is
+**India** — the family's habit is the app's own word under the icon (Schedule, Bizzington) — and
+its bar is a deep saffron, `#b4471f`, not the page's cream. `check-platform install` reads the PNGs'
+own pixels.
 
 ## The gate (N3)
 
@@ -114,6 +134,8 @@ stories, verses or eras share an id.
 | check | holds | broken to prove it |
 |---|---|---|
 | `check-platform weight` | phone first screen ≤ 1.5 MB, JS ≤ 400 KB gz, no group for Home | the Hindi passages put in the shell |
+| `check-platform untouched` | before any tap ≤ 1.5 MB sent, worker included, no corpus file; one tap starts the warm-up | the old loader (27 corpus files before a tap); the old precache list (74) |
+| `check-platform install` | any 192/512, maskable 512 inside its safe zone, opaque 180 for iOS, a brand bar, a ≤ 12-character label | the old manifest (label cut); the bird at 82% in the maskable (1,727 pixels outside) |
 | `check-platform routes` | a story loads the stories and not the games; the Hindi path loads Bhasha; both paint | the stories screen asking for everything |
 | `check-platform index` | `shell-index.js` equals what the data files say | a place count edited |
 | `check-platform report` | Time · Progress · Mastery, 7 active minutes from the feed, an objective with its day, no minutes under Mastery | the Time card renamed |

@@ -554,6 +554,11 @@
   }
 
   /* the hero painting for a story, when one exists */
+  /* HOME'S PLATES ARE 100px TALL: drawn from a plate-size copy (tools/gen-plate-thumbs.py),
+     not the full painting — two of the biggest things a phone was sent before a tap */
+  function plateOf(src) {
+    return String(src || '').replace(/^art\/(story|banner)\/([^/]+\.jpg)$/, 'art/$1/sm/$2');
+  }
   function storyArt(id) {
     var k = slug(id);
     return (window.IND_STORY_ART && window.IND_STORY_ART.indexOf(k) >= 0) ? 'art/story/' + k + '.jpg' : null;
@@ -1536,15 +1541,15 @@
         '<p>' + (ringDone ? 'Everything from here is extra shine.' : 'A story, a lesson, a game or the day’s deed — each one fills a notch.') + '</p>' +
         '<p class="ind-ringgoal">' + goal + ' a day · ' + goodDays() + ' good day' + (goodDays() === 1 ? '' : 's') + ' this week</p></div></div>';
     var homeHTML = window.IND_SHELL.home({
-      greet: { mascot: A ? A.art : 'art/logo.png', hello: greet, name: (S.name || 'Yatri') + (window.IND_DEMO ? ' · sample' : ''), line: helloLine() },
+      greet: { mascot: A ? smFace(A.art) : 'art/logo.png', hello: greet, name: (S.name || 'Yatri') + (window.IND_DEMO ? ' · sample' : ''), line: helloLine() },
       ring: { html: ring, foot: { kicker: 'Your level', title: rank() + (lv < RANKS.length - 1 ? ' · ' + (RANK_AT[lv + 1] - mN) + ' to ' + RANKS[lv + 1] : ''), href: '#/me' } },
       hour: { kicker: 'Word of the hour', title: w[0], sub: '/ ' + w[1] + ' / · ' + w[2], icon: 'clock',
               href: (window.IND_PACKS && window.IND_PACKS[wLang] && lexWord(window.IND_PACKS[wLang], w[0]))
                 ? '#/wordcard/' + encodeURIComponent(wLang + ':' + w[0]) : '#/bhasha' },
-      next: { plate: stp.art || 'art/banner/stories.jpg', chip: stp.meter || '', kicker: stp.kick, title: stp.title, sub: stp.sub || '',
+      next: { plate: plateOf(stp.art || 'art/banner/stories.jpg'), chip: stp.meter || '', kicker: stp.kick, title: stp.title, sub: stp.sub || '',
               href: '#/continue', cta: 'Continue', icon: 'path',
               progress: { pct: Math.round(Math.min(1, (stp.n || 0) / Math.max(1, stp.of || 1)) * 100), label: stp.plabel && stp.plabel !== stp.meter ? stp.plabel : '' } },
-      second: { plate: 'art/banner/map.jpg', chip: lit + ' of ' + places + ' places', kicker: 'Your journey across India',
+      second: { plate: plateOf('art/banner/map.jpg'), chip: lit + ' of ' + places + ' places', kicker: 'Your journey across India',
                 title: 'The map of India', sub: 'Every story you finish lifts the mist off the place it came from.',
                 href: '#/map', cta: 'Open the map', ctaIcon: 'map', progress: { pct: Math.round(lit / Math.max(1, places) * 100) } },
       tip: { kicker: 'Aaj ka · five minutes', href: '#/aaj',
@@ -7994,7 +7999,7 @@
     var FEEDROW = feedOn() ? { icon: 'feed', label: 'My Feed', sub: 'about twenty cards from across the app, and then it ends', href: '#/feed' }
                            : { icon: 'globe', label: 'Family language', sub: tongue() ? tongue().en : 'tell us once, and everything leans your way', href: '#/tongue' };
     var A = (window.IND_AVATAR_BY_ID || {})[S.buddy];
-    var face = A ? A.art : 'art/' + S.buddy + '.png';
+    var face = A ? smFace(A.art) : 'art/' + S.buddy + '.png';
     return {
       app: 'india', name: 'India', mascot: 'art/logo.png', coins: coins(), dark: !!night,
       kid: { name: S.name || '', avatar: face },
@@ -8072,8 +8077,11 @@
      list a child reads in one look. The face is the top bar's own, so the two never differ. */
   function faceOf(buddy, size) {
     var A = (window.IND_AVATAR_BY_ID || {})[buddy];
-    return A ? '<img src="' + esc(A.art) + '" width="' + size + '" height="' + size + '" alt="" decoding="async">' : art(buddy, size);
+    return A ? '<img src="' + esc(size <= 96 ? smFace(A.art) : A.art) + '" width="' + size + '" height="' + size + '" alt="" decoding="async">' : art(buddy, size);
   }
+  /* a face drawn at 96px or less is its 192px copy (tools/gen-av-thumbs.py) — the top bar's
+     34px face was the 512px portrait, on every screen, before a tap */
+  function smFace(src) { return String(src || '').replace(/^art\/av\/([^/]+\.webp)$/, 'art/av/sm/$1'); }
   var TICK = '<svg class="km-tick" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" ' +
     'stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   function kidMenuHTML() {

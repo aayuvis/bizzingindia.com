@@ -50,10 +50,16 @@ def icon(n, frac, alpha=False):
     return g if alpha else g.convert('RGB')
 
 
-icon(192, 0.82).save(os.path.join(APP, 'icon-192.png'), optimize=True)
-icon(512, 0.82).save(os.path.join(APP, 'icon-512.png'), optimize=True)
+# A browser fetches the manifest's icons on the first visit to judge installability, so they are
+# part of the first load (check-platform untouched): a 256-colour palette takes icon-512 from
+# 192 KB to 72 with no difference anyone can see. iOS's own icon stays plain RGB.
+def small(im):
+    return im.quantize(colors=256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.FLOYDSTEINBERG)
+
+small(icon(192, 0.82)).save(os.path.join(APP, 'icon-192.png'), optimize=True)
+small(icon(512, 0.82)).save(os.path.join(APP, 'icon-512.png'), optimize=True)
 # the safe zone is a circle of diameter 0.8n; a square-ish bird of side s fits it when s*sqrt(2) <= 0.8n
-icon(512, 0.56).save(os.path.join(APP, 'icon-maskable-512.png'), optimize=True)
+small(icon(512, 0.56)).save(os.path.join(APP, 'icon-maskable-512.png'), optimize=True)
 icon(180, 0.80).save(os.path.join(APP, 'apple-touch-icon.png'), optimize=True)
-icon(32, 0.92).save(os.path.join(APP, 'favicon-32.png'), optimize=True)
+small(icon(32, 0.92)).save(os.path.join(APP, 'favicon-32.png'), optimize=True)
 print('icons: 192, 512, maskable 512, apple 180, favicon 32')

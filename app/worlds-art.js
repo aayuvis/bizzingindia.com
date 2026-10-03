@@ -3716,16 +3716,22 @@
     var bgs = window.IND_WORLD_BG || [];
     if (bgs.indexOf(id + '-day') >= 0) {
       back.classList.add('haspaint');
+      /* ONE PLATE, THE RIGHT SIZE (check-platform untouched): only the mode that is showing is
+         fetched — the other waits in data-src until the moon is pressed — and a screen under
+         900px gets the 960px copy (tools/gen-plate-sm.py). Both full plates used to arrive on a
+         phone before any tap: 322 KB of a 1.5 MB budget, half of it never seen. */
+      var dir = (window.innerWidth || 1280) <= 900 ? 'art/worlds/sm/' : 'art/worlds/';
       slots.bd.innerHTML =
-        '<img class="wa-bgimg wa-bgday" src="art/worlds/' + id + '-day.jpg" alt="">' +
+        '<img class="wa-bgimg wa-bgday" data-src="' + dir + id + '-day.jpg" alt="">' +
         (bgs.indexOf(id + '-night') >= 0
-          ? '<img class="wa-bgimg wa-bgnight" src="art/worlds/' + id + '-night.jpg" alt="">' : '') +
+          ? '<img class="wa-bgimg wa-bgnight" data-src="' + dir + id + '-night.jpg" alt="">' : '') +
         '<div class="wa-fxday">' + (BGFX[id] && BGFX[id].day ? BGFX[id].day() : '') + '</div>' +
         '<div class="wa-fxnight">' + (BGFX[id] && BGFX[id].night ? BGFX[id].night() : '') + '</div>';
       slots.air.innerHTML = '';
       slots.sky.innerHTML = '';
       slots.foot.innerHTML = '';
       slots.band.innerHTML = '';   /* the old frieze reads as a barcode on paint */
+      wakePlate();
       return;
     }
     back.classList.remove('haspaint');
@@ -3736,6 +3742,15 @@
     slots.sky.innerHTML = sc.sky ? sc.sky() : '';
     slots.foot.innerHTML = sc.foot ? sc.foot() : '';
   }
+
+  /* the plate for the mode now showing gets its src; the other stays a promise */
+  function wakePlate() {
+    var night = document.documentElement.getAttribute('data-mode') === 'night';
+    var im = slots.bd && slots.bd.querySelector(night ? '.wa-bgnight' : '.wa-bgday');
+    if (im && !im.getAttribute('src') && im.getAttribute('data-src')) im.setAttribute('src', im.getAttribute('data-src'));
+  }
+  if (window.MutationObserver) new MutationObserver(function () { if (slots.bd) wakePlate(); })
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-mode'] });
 
   function onResize() {
     if (rafPending) return;

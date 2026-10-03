@@ -42,10 +42,19 @@ pictures as they are): a returning child's Home **966 KB, of which JavaScript 32
 landing 585 KB. Budgets 1.5 MB and 400 KB. Home loads no route group at all.
 
 **And everything before a tap** (`check-platform untouched`, the server's own count — page *and*
-worker, six seconds, worker on, nobody touching anything): a stranger **1,104 KB**, a returning child
-**1,369 KB**, no corpus file for either; one tap and the warm-up and offline cache begin. The old
-`weight` passed throughout because it watched the page's own requests for 0.7 s with the worker
-blocked — the gap the audit found.
+worker, six seconds, worker on, nobody touching anything): a stranger **988 KB**, a returning child **1,134 KB**, no
+corpus file for either; one tap and the warm-up and offline cache begin. The old `weight` passed
+throughout because it watched the page's own requests for 0.7 s with the worker blocked — the gap
+the audit found.
+
+It went red once, on CI, the day all fifteen worlds were painted (a returning child 1,639 KB): the
+page set *both* plates' `src`, day and night, at 1600 px, and the new install icons were 192 KB of
+unpalettised PNG in the worker's install list. Now only the plate for the mode showing is fetched
+(the other waits in `data-src` for the moon), a screen under 900 px takes the 960 px copy
+(`tools/gen-plate-sm.py`, ~64 KB), Home's two 100 px plates come from plate-size copies
+(`tools/gen-plate-thumbs.py`), every face at 96 px or less is its 192 px copy, the icons are
+palettised in `tools/gen-icons.py` and the big ones wait for the first tap with the corpus. CI's
+browser has measured up to ~270 KB more than this one, which is why the margin is kept.
 
 ## Installed (U11, R1)
 

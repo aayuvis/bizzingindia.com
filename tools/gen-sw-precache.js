@@ -16,7 +16,7 @@ const fs = require('fs'), path = require('path');
 const APP = path.join(__dirname, '..', 'app');
 const html = fs.readFileSync(path.join(APP, 'index.html'), 'utf8');
 
-const urls = new Set(['./index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon-32.png']);
+const urls = new Set(['./index.html', './manifest.webmanifest', './icon-192.png', './favicon-32.png']);
 /* NOTHING BEYOND THE SHELL BEFORE A TAP (audit R2/R3, 3 Oct 2026). The worker used to precache
    every script index.html names, the lazy groups included — stories, epics, games, about 11 MB
    — at install, on a first visit, before the child had touched anything: 6.5 MB on a phone
@@ -52,6 +52,8 @@ for (const f of fs.readdirSync(path.join(APP, 'font'))) {
   (/^(mukta|noto)/.test(f) ? later : urls).add('./font/' + f);
 }
 for (const u of lazySrc) later.add(u);
+/* the big install icons are the launcher's, not the first screen's: after the first tap */
+for (const u of ['./icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png']) later.add(u);
 for (const u of [...urls]) if (/data-bhasha-hi-passages\.js|data-feed-(?!index)[^/]*\.js/.test(u)) { urls.delete(u); later.add(u); }
 /* the music is lazy too: composed in code, fetched only when a child turns it on */
 if (fs.existsSync(path.join(APP, 'music', 'engine.js'))) later.add('./music/engine.js');

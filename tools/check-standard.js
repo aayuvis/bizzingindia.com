@@ -349,7 +349,7 @@ check('emoji', 'zero emoji inside controls, tabs, nav, headings and chips', asyn
 /* PAINTED WORLDS (audit U9/D3/D4, 3 Oct 2026): three of fifteen worlds had painted day and night
    plates and twelve were drawn shapes. Every world the child can choose has both, 1600 × 900,
    listed in the manifest the page reads, under the 420 KB a plate is allowed. */
-check('plates', 'every world has a painted day and night plate, in the manifest, 1600 × 900, ≤ 420 KB', async ({ p }) => {
+check('plates', 'every world has a painted day and night plate, in the manifest, 1600 × 900, ≤ 420 KB, with a phone copy ≤ 120 KB', async ({ p }) => {
   const r = await p.evaluate(() => ({ list: ((window.IND_WORLDS || {}).list || []).map(w => w.id || w), bg: window.IND_WORLD_BG || [] }));
   if (r.list.length < 15) throw new Error('only ' + r.list.length + ' worlds');
   const bad = [];
@@ -361,6 +361,19 @@ check('plates', 'every world has a painted day and night plate, in the manifest,
     while (i < b.length) { if (b[i] !== 0xff) { i++; continue; } const mk = b[i + 1]; if (mk >= 0xc0 && mk <= 0xc3) { h = b.readUInt16BE(i + 5); w = b.readUInt16BE(i + 7); break; } i += 2 + b.readUInt16BE(i + 2); }
     if (w !== 1600 || h !== 900) bad.push(`${id}-${m} is ${w}×${h}`);
     if (b.length > 420 * 1024) bad.push(`${id}-${m} is ${Math.round(b.length / 1024)} KB`);
+    /* and its phone copy, no older than the plate (tools/gen-plate-sm.py) */
+    const sm = path.join(APP, 'art', 'worlds', 'sm', id + '-' + m + '.jpg');
+    if (!fs.existsSync(sm) || fs.statSync(sm).mtimeMs < fs.statSync(f).mtimeMs - 1000) bad.push(`${id}-${m} has no phone copy, or an older one — run python3 tools/gen-plate-sm.py`);
+    else if (fs.statSync(sm).size > 120 * 1024) bad.push(`${id}-${m}'s phone copy is ${Math.round(fs.statSync(sm).size / 1024)} KB`);
+  }
+  /* Home's plates are drawn from plate-size copies of the story paintings and banners
+     (tools/gen-plate-thumbs.py): a painting with no copy would be a blank plate */
+  for (const sub of ['story', 'banner']) {
+    const dir = path.join(APP, 'art', sub);
+    for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.jpg'))) {
+      const sm = path.join(dir, 'sm', f);
+      if (!fs.existsSync(sm) || fs.statSync(sm).mtimeMs < fs.statSync(path.join(dir, f)).mtimeMs - 1000) bad.push(`art/${sub}/${f} has no plate copy — run python3 tools/gen-plate-thumbs.py`);
+    }
   }
   if (bad.length) throw new Error(bad.length + ': ' + bad.slice(0, 5).join('; '));
 });

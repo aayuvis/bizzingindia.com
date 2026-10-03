@@ -117,6 +117,7 @@ check('untouched', 'before any tap a phone is sent ≤ 1.5 MB in all, worker inc
     await q.waitForTimeout(6000);
     const sent = SERVED.slice(), seen = {}; let bytes = 0, js = 0;
     sent.forEach(x => { const k = x.p.split('?')[0]; if (seen[k]) return; seen[k] = 1; const w = wire(k); bytes += w.bytes; js += w.js; });
+    if (process.env.WEIGHT_TOP) console.log('         ' + who + ': ' + Object.keys(seen).map(k => [k, wire(k).bytes]).sort((a, b) => b[1] - a[1]).slice(0, 14).map(x => x[0] + ' ' + kb(x[1])).join(' · '));
     const early = Object.keys(seen).filter(k => lazy.has(k));
     if (early.length) throw new Error(`${who}: ${early.length} corpus files were sent before any tap (${early.slice(0, 3).join(', ')}…)`);
     if (bytes > 1.5 * 1048576) throw new Error(`${who}: ${kb(bytes)} sent before any tap (budget 1.5 MB)`);

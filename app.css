@@ -3000,3 +3000,8 @@ body.drilling .hivebtn { visibility: hidden; }
 .herocard.live .reader .stage { flex: none; height: 200px; max-height: 32vh; }
 .herocard.live .reader .speech { overflow: visible; }
 .herocard.live .storyend, .herocard.live .card { margin-top: 0; }
+
+/* the family plan's price — on the grown-ups' page only (check-trust price) */
+.plancard { display: grid; gap: 4px; margin: 10px 0 0; padding: 12px 14px; border-radius: 14px;
+  background: var(--accent-soft); color: var(--text); font-size: 14px; }
+.plancard b:first-child { font-family: var(--display); font-size: 16px; }

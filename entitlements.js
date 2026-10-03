@@ -30,6 +30,13 @@
 
   var FREE_PACKS = { 'lang-hi': true };
 
+  /* THE PRICE (owner, 3 Oct 2026: "India $59/yr · ₹1,999"; docs/06). One household, up to four
+     children. Said ONLY on the grown-ups' page, behind the PIN — a child's screen never shows
+     real money (check-trust price). There is no checkout yet: the family server that takes the
+     payment and grants the plan is still the owner's decision, so nothing here charges anyone. */
+  var PLAN = { name: 'The family plan', kids: 4,
+               INR: { month: 299, year: 1999 }, USD: { month: 7.99, year: 59 } };
+
   function state() {
     /* the household's, not a child's: through the Store seam's family keys */
     try { return JSON.parse((W.IND_STORE ? W.IND_STORE.famGet(KEY) : localStorage.getItem(KEY)) || 'null'); } catch (e) { return null; }
@@ -55,6 +62,7 @@
             else this.clear(); } catch (e) {}
     },
     clear: function () { try { if (W.IND_STORE) W.IND_STORE.famDel(KEY); else localStorage.removeItem(KEY); } catch (e) {} },
+    plan: function () { return PLAN; },
     planName: function () {
       var s = state();
       return s && s.plan === 'family' ? 'The family plan' : null;

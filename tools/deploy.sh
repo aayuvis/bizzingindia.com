@@ -123,7 +123,11 @@ if [ -n "$PARENT" ]; then
   while read -r mode type sha name; do
     [ -z "$name" ] && continue
     case "$name" in .nojekyll|README.md|CNAME) continue ;; esac
-    if printf '%s\n' "$APP_NAMES" | grep -qxF "$name"; then continue; fi
+    # a here-string, not `printf | grep -q`: under pipefail grep -q exits on its first match,
+    # printf can die of SIGPIPE, the pipeline "fails", and one of OUR files was then taken for
+    # a neighbour's and replaced with the live (older) copy. It happened to data-epic-cast.js on
+    # 4 Oct 2026 -- harmless only because that file had not changed.
+    if grep -qxF -- "$name" <<<"$APP_NAMES"; then continue; fi
     if [ "$type" = tree ]; then
       git read-tree --prefix="$name/" "$PARENT:$name"
     else

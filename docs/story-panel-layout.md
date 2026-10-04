@@ -1,6 +1,6 @@
 # Story panels: the layout recommendation for every Bizzing app
 
-**Status:** recommended family standard · proven in Bizzing India, 4 Oct 2026 (docs/31, `tools/check-fold.js`)
+**Status:** recommended family standard · proven in Bizzing India, 4 Oct 2026 (docs/31, `tools/check-reading.js`)
 **Applies to:** any screen that shows *a picture and the words that go with it, one page at a
 time* — a story scene, an epic card, a verse, a lesson card, a chapter of a money story.
 
@@ -169,7 +169,7 @@ is in a text field. Same buttons as touch: one code path, one set of gates.
 ## 7. The check
 
 Write it before you trust the layout, and **watch every rule fail once** before you trust the
-check. India's is `tools/check-fold.js` (a Playwright file; copy it):
+check. India's is `tools/check-reading.js` (a Playwright file; copy it):
 
 - **Sizes:** 1440×900, 1280×720, 1180×820 (iPad sideways), 820×1180 (iPad upright),
   390×760, 375×667 (iPhone SE).
@@ -209,4 +209,4 @@ failed their own check.
 
 Reference implementation: Bizzing India — `app/app.css` ("THE READING SPREAD"), `app/app.js`
 (`openFull`, the swipe block, `fullAttrs`), `app/gita.js` (a verse as a reading screen),
-`tools/check-fold.js`, `docs/31-reading-spread.md`.
+`tools/check-reading.js`, `docs/31-reading-spread.md`.

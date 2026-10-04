@@ -98,7 +98,7 @@ The short version:
   left and words right when landscape; picture capped at 38% upright on a tablet; on a phone a
   band that never collapses, words never clipped, the page-turn pinned above the tab bar. Nothing
   is drawn over a painting. A swipe presses the same `[data-swipe]` button a tap would (so it
-  cannot skip a question); a painting opens full screen. `tools/check-fold.js` holds it at six sizes.
+  cannot skip a question); a painting opens full screen. `tools/check-reading.js` holds it at six sizes.
 - **The landing works as a page**: tonight's story plays inside its hero card, beside Start free
   — no screenshots, no feature grid (`check-home firstlearn`). A phone is sent nothing beyond the
   shell before its first tap, service worker included (`check-platform untouched`).

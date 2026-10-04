@@ -52,7 +52,7 @@ turns the page underneath.
 
 ## The check
 
-`tools/check-fold.js`, in `npm test`, at 1440×900, 1280×720, 1180×820, 820×1180, 390×760 and
+`tools/check-reading.js`, in `npm test`, at 1440×900, 1280×720, 1180×820, 820×1180, 390×760 and
 375×667, on a story scene, a question scene, an epic card and a Gita verse:
 
 - the words start on the first screen with ≥ 2 lines showing, and on a landscape screen in the

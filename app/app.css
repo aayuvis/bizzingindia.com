@@ -3109,7 +3109,7 @@ body.drilling .hivebtn { visibility: hidden; }
      a phone: the painting a band that never collapses, the words whole under it (the page
        scrolls; nothing is clipped inside a box), the page-turn pinned above the tab bar.
    The landing page's story card is not #main's direct child and keeps its own layout.
-   tools/check-fold.js holds all of it, at six screen sizes. */
+   tools/check-reading.js holds all of it, at six screen sizes. */
 .stage[data-full] { cursor: zoom-in; }
 .stage[data-full]:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .rspread.ep > .stage.painted { aspect-ratio: 16 / 9; padding: 0; }   /* the epic paintings are 16:9: shown whole */

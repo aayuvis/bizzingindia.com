@@ -7,6 +7,7 @@
      · no name, place or proper noun that is not in either translation (beyond the four speakers)
      · no number that is not in them
      · no Sanskrit (no Devanagari, no IAST letters): the verse is set in its own script above it
+     · names written plain (Vyasa, not Vyâsa), matched to the translations with the marks folded
      · nothing that ranks or dismisses a faith ("myth", "superstition", …)
      · short: 8 to 45 words
    What it cannot — whether the meaning is faithful — is the reviewer's, and the page says so.
@@ -26,13 +27,18 @@ const STARTERS = new Set(('a an the when if you your he she they it its this tha
   'god lord great wise those whose look listen hear speak see do').split(/\s+/));
 const BANNED = /\b(myths?|mythical|superstitio\w*|primitive|pagan|heathen|false gods?|idol worship|the true religion|better religion)\b/i;
 const INDIC = /[ऀ-ॿ஀-௿]|[āīūṛṝḷḹṃḥṅñṭḍṇśṣĀĪŪṚṜḶṂḤṄÑṬḌṆŚṢ]/;
+/* Besant writes names with a circumflex (Brâhmanas, Vyâsa); a child's reading writes them plain,
+   and a name is matched with the marks folded away on both sides */
+const MARKED = /[âêîôûÂÊÎÔÛäëïöüàèìòùáéíóú]/;
+const fold = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 function lint(kid, en, en2) {
-  const why = [], src = (String(en || '') + ' ' + String(en2 || '')).toLowerCase();
+  const why = [], src = fold(String(en || '') + ' ' + String(en2 || '')).toLowerCase();
   const text = String(kid || '').trim();
   const words = text.split(/\s+/).filter(Boolean);
   if (words.length < 8 || words.length > 45) why.push(words.length + ' words (8 to 45)');
   if (INDIC.test(text)) why.push('Sanskrit or Indic letters in an English reading');
+  if (MARKED.test(text)) why.push('a name written with an accent mark — write it plain: ' + text.match(MARKED)[0]);
   if (BANNED.test(text)) why.push('a word that ranks or dismisses a faith: ' + text.match(BANNED)[0]);
   for (const n of text.match(/\d+/g) || []) if (src.indexOf(n) < 0) why.push('the number ' + n + ' is not in either translation');
   const caps = text.match(/\b[A-Z][a-zA-Z'’-]*/g) || [];

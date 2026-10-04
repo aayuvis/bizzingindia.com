@@ -121,7 +121,7 @@ check('readings', 'each child\'s reading is flagged, from the two translations o
     const w = lint(x.kid, x.en, x.en2); if (w.length) throw new Error(c + '.' + x.v + ' reading: ' + w.join('; '));
   }
   const ui = fs.readFileSync(path.join(APP, 'gita.js'), 'utf8');
-  if (shown && !/drafted by a computer from the two translations below, and not yet checked by a person/.test(ui)) throw new Error('readings are shown without saying who drafted them');
+  if (shown && !/drafted by a computer from the two translations on this page, and not yet checked by a person/.test(ui)) throw new Error('readings are shown without saying who drafted them');
   console.log('         ' + shown + ' of 700 verses have a child\'s reading, every one an unchecked draft');
 });
 

@@ -200,7 +200,9 @@ claim about how it marked a thing matches what it actually did.
 - **The whole Gita is built from sources and chanted by a labelled computer voice** (docs/21 §8,
   owner 3 Oct 2026): `app/gita.js`, `#/gita` · `#/gitach/<n>` · `#/gitav/<c.v>`. All 700 verses come
   out of `tools/build-gita.js` (never typed); English is Besant 1922 / Swarupananda 1909, titles
-  Swarupananda's; the guru's lines are instructions, never a gloss. Every verse says it is a
+  Swarupananda's; the guru's lines are instructions, never a gloss. A child's reading of each verse
+  sits under Besant: drafted by a computer from the two translations only, through
+  `tools/lib/gita-gloss-lint.js`, flagged `needs_review`, and labelled so on the page (`check-gita readings`). Every verse says it is a
   computer voice and how a blind second listener checked it; a file in `voice/gita/human/` replaces
   it. Change a verse and its chant is stale (`check-gita voice`). The microphone opens only from
   Record, the clip never leaves the device and is never scored; nothing pays coins. It opens in

@@ -234,10 +234,10 @@ own word, pays nothing, and is "by heart" only when said on two different days).
 
 Keys: space plays, ← → walk verses (across chapters), 1–6 choose a step. Every step is a tap too.
 
-**A child's reading, first, on Meaning** (owner, 4 Oct 2026: "draft, flagged needs_review").
-Above Besant, one short plain reading for a child of 8–12 — drafted by a computer from the two
+**A child's reading, on Meaning** (owner, 4 Oct 2026: "draft, flagged needs_review").
+Under Besant (whom the guru's line introduces), one short plain reading for a child of 8–12 — drafted by a computer from the two
 translations on that same page and nothing else, and the page says exactly that: *"In simpler
-words — drafted by a computer from the two translations below, and not yet checked by a person."*
+words — drafted by a computer from the two translations on this page, and not yet checked by a person."*
 Every draft passed `tools/lib/gita-gloss-lint.js` before it was kept (no name or number that is in
 neither translation, no Sanskrit, nothing that ranks or dismisses a faith, 8–45 words); a verse
 whose drafts kept failing has no reading rather than a bad one. Each sits in

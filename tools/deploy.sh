@@ -123,6 +123,10 @@ if [ -n "$PARENT" ]; then
   while read -r mode type sha name; do
     [ -z "$name" ] && continue
     case "$name" in .nojekyll|README.md|CNAME) continue ;; esac
+    # ...except a name only we ever make: tools/build-feed.js writes the whole data-feed-*.js set
+    # anew each build, so one no longer in app/ is a group the feed dropped, never a neighbour's
+    # (four were carried forward for nothing on 4 Oct 2026)
+    case "$name" in data-feed-*.js) continue ;; esac
     # a here-string, not `printf | grep -q`: under pipefail grep -q exits on its first match,
     # printf can die of SIGPIPE, the pipeline "fails", and one of OUR files was then taken for
     # a neighbour's and replaced with the live (older) copy. It happened to data-epic-cast.js on

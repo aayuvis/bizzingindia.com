@@ -516,13 +516,14 @@
         nextStep('mean', 'What does it mean?');
     }
     if (s === 'mean') {
-      /* A CHILD'S READING first, when there is one — and it says what it is: drafted by a computer
-         from the two translations under it, and not yet checked by a person (owner, 4 Oct 2026) */
+      /* A CHILD'S READING, under Besant (whom the guru's line introduces), when there is one — and it
+         says what it is: drafted by a computer from the two translations on this page, and not yet
+         checked by a person (owner, 4 Oct 2026) */
       return guru(['mean']) +
-        (x.kid ? '<div class="gt-kid"><p class="gt-kidtxt">' + esc(x.kid) + '</p>' +
-          '<p class="tiny gt-draft">In simpler words — drafted by a computer from the two translations below, and not yet checked by a person.</p></div>' : '') +
         '<blockquote class="gt-en">' + esc(x.en) + '</blockquote>' +
         '<p class="tiny muted">Annie Besant, <i>The Bhagavad-Gita</i>, 4th edition (1922).</p>' +
+        (x.kid ? '<div class="gt-kid"><p class="gt-kidtxt">' + esc(x.kid) + '</p>' +
+          '<p class="tiny gt-draft">In simpler words — drafted by a computer from the two translations on this page, and not yet checked by a person.</p></div>' : '') +
         (x.en2 ? '<details class="gt-en2"><summary>Another translation</summary><blockquote>' + esc(x.en2) + '</blockquote>' +
           '<p class="tiny muted">Swami Swarupananda, <i>Srimad-Bhagavad-Gita</i> (1909)' +
           (x.en2r ? ' — he translates verses ' + esc(x.en2r) + ' together as one' : '') + '.</p></details>' : '') +

@@ -8,8 +8,9 @@
    SEPARATE FROM TEACHING — because the check that happens straight after a card measures
    attention, not learning.
 
-   THE ECONOMICS, STATED PLAINLY. Ten courses at 21-30 hours is 240 hours of child time.
-   It is NOT 240 hours of authoring, and if anyone tries to make it so the project dies —
+   THE ECONOMICS, STATED PLAINLY. Ten courses here at 21-42 hours is 264 hours of child time,
+   and the advanced Gita year (data-paath-gita-year.js, generated) adds 156. It is NOT 420
+   hours of authoring, and if anyone tries to make it so the project dies —
    that failure is already written down in the sibling repo. The hours come from:
 
        ~40%  teaching        (new, and the only part that costs authoring)
@@ -103,7 +104,7 @@ window.IND_PAATH = {
        written from memory, which is the exact thing docs/05 §3 forbids. Part 13 says so
        to the child rather than hiding it. */
     {
-      id: 'gita-course', name: 'Arjuna\'s Questions', sub: 'The Gita, as the questions a boy asks',
+      id: 'gita-course', level: 'Basic', name: 'Arjuna\'s Questions', sub: 'Basic · the Gita as the questions a boy asks',
       hours: 42, ages: [9, 12], badge: 'dharma', icon: 'star', colour: '#8E6AC8',
       cover: 'art/epic/mahabharata-26-3.jpg', coverAlt: 'The chariot between the armies',
       premium: true, ready: 40,
@@ -132,10 +133,10 @@ window.IND_PAATH = {
                     'editions and translations and nothing is written from memory, but nobody who ' +
                     'reads Sanskrit has signed it off yet — it is open now because the family who made ' +
                     'this app chose to open it before that check.',
-                    'Its parts are built around five verses — 2.47, 2.63, 6.5, 6.17 and 12.13 — and the ' +
-                    'whole Gita, all seven hundred verses chanted with a guru, is one tap away below.'],
-      /* the door to the whole Gita (app/gita.js, #/gita), right under that note */
-      door: { v: 'gita', label: 'All 700 verses, chanted, with a guru' },
+                    'Its parts are built around five verses — 2.47, 2.63, 6.5, 6.17 and 12.13. The advanced ' +
+                    'course, The Whole Gita, walks all seven hundred, a week at a time, for a year.'],
+      /* the door on to the advanced course (Course 2, tools/build-gita-year.js), right under that note */
+      door: { v: 'paath', arg: 'gita-year', label: 'Next: The Whole Gita — the advanced course, a year' },
       modules: [
         { id: 'q1', name: 'The war this interrupts', hours: 3,
           objective: 'say what is about to happen when the chariot stops',

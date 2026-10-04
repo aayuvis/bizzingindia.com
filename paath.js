@@ -445,6 +445,113 @@
     '.pa-afoot p{margin:0 0 8px}',
     '.pa-afoot b{color:var(--text2)}',
     '.pa-afoot ul{margin:0;padding-left:18px}',
+    /* THE YEAR (gita-year): this week on its painting, the eighteen chapters as tiles */
+    '.py-hero{position:relative;display:flex;align-items:flex-end;gap:22px;min-height:340px;margin:0 0 12px;' +
+      'padding:26px 28px;border-radius:24px;overflow:hidden;color:#fff;' +
+      'background:var(--plate) center 32%/cover no-repeat;background-color:#2a1d10;' +
+      'box-shadow:0 0 0 1px var(--line),0 18px 44px rgba(20,12,4,.22)}',
+    '.py-scrim{position:absolute;top:0;right:0;bottom:0;left:0;background:' +
+      'linear-gradient(90deg,rgba(18,10,4,.88) 0%,rgba(18,10,4,.72) 46%,rgba(18,10,4,.18) 100%),' +
+      'linear-gradient(0deg,rgba(18,10,4,.55) 0%,rgba(18,10,4,0) 45%)}',
+    '.py-herobody{position:relative;flex:1;min-width:0;max-width:640px}',
+    '.py-kick{margin:0 0 6px;font:800 11.5px/1.3 var(--body);letter-spacing:.18em;text-transform:uppercase;color:#FFD9A0}',
+    '.py-deva{margin:0;font:700 clamp(30px,4.4vw,44px)/1.7 "Mukta","Noto Sans Devanagari",var(--body);color:#fff;' +
+      'text-shadow:0 2px 12px rgba(0,0,0,.5)}',
+    '.py-deva.small{font-size:24px;color:var(--text);text-shadow:none;line-height:1.7}',
+    '.py-chtitle{margin:0 0 4px;font:800 clamp(19px,2.4vw,24px)/1.2 var(--display,Georgia,serif);color:#fff}',
+    '.py-range{margin:0 0 16px;font:600 14px/1.5 var(--body);color:rgba(255,255,255,.88)}',
+    '.py-strip{display:flex;gap:6px;flex-wrap:wrap;list-style:none;margin:0 0 16px;padding:0}',
+    '.py-step{display:flex;align-items:center;gap:8px;padding:7px 11px 7px 8px;border-radius:12px;' +
+      'background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(3px);min-width:0}',
+    '.py-step.cur{background:rgba(255,210,77,.22);border-color:#FFD24D}',
+    '.py-step.done{background:rgba(123,211,161,.20);border-color:rgba(123,211,161,.7)}',
+    '.py-step.locked{opacity:.78}',
+    '.py-stepdot{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;' +
+      'font:800 11px/1 var(--body);background:rgba(255,255,255,.18);color:#fff}',
+    '.py-step.cur .py-stepdot{background:#FFD24D;color:#2a1d10}',
+    '.py-step.done .py-stepdot{background:#7BD3A1;color:#10301f}',
+    '.py-steptxt{display:grid;min-width:0}',
+    '.py-steptxt i{font:800 10px/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;font-style:normal;color:rgba(255,255,255,.75)}',
+    '.py-steptxt b{font:700 12.5px/1.3 var(--body);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}',
+    '.py-gorow{display:flex;gap:10px;flex-wrap:wrap}',
+    '.py-go{display:inline-flex;align-items:center;min-height:48px;padding:0 22px;border:0;border-radius:999px;' +
+      'background:#FFD24D;color:#2a1d10;font:800 15px/1.2 var(--body);cursor:pointer;' +
+      'box-shadow:0 6px 18px rgba(0,0,0,.35)}',
+    '.py-go:hover{background:#ffdd70}',
+    '.py-go:focus-visible{outline:3px solid #fff;outline-offset:3px}',
+    '.py-go.done{background:#7BD3A1;color:#10301f;cursor:default}',
+    '.py-ring{position:relative;flex:none;width:150px;height:150px;display:grid;place-items:center}',
+    '.py-ring svg{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%}',
+    '.py-ringface{position:relative;display:block;margin-bottom:26px}',
+    '.py-ringface svg,.py-ringface img{position:static;width:52px;height:52px}',
+    '.py-ringtxt{position:absolute;bottom:30px;left:0;right:0;text-align:center;font:600 11px/1.2 var(--body);color:rgba(255,255,255,.9)}',
+    '.py-ringtxt b{display:block;font:800 22px/1 var(--display,Georgia,serif);color:#fff}',
+    '.py-warn{margin:0 0 14px;padding:12px 16px;border-radius:14px;border:1px dashed var(--line2,var(--line));' +
+      'background:var(--card);color:var(--text);font-size:13.5px;line-height:1.55}',
+    '.py-warn summary{cursor:pointer;color:var(--text2)}',
+    '.py-warn p{margin:8px 0 0;color:var(--text)}',
+    '.py-head{margin:18px 0 10px;padding:12px 16px;border-radius:16px;background:var(--card);box-shadow:0 0 0 1px var(--line)}',
+    '.py-h{margin:0;font:800 21px/1.2 var(--display,Georgia,serif);color:var(--text)}',
+    '.py-sub{margin:2px 0 0;font-size:13.5px;color:var(--text2)}',
+    '.py-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px;margin:4px 0 14px}',
+    '.py-ch{position:relative;display:flex;flex-direction:column;text-align:left;padding:0;border:0;cursor:pointer;' +
+      'border-radius:18px;overflow:hidden;background:var(--card);color:var(--text);font:inherit;' +
+      'box-shadow:0 0 0 1px var(--line),0 8px 22px rgba(20,12,4,.08);transition:transform .15s,box-shadow .15s}',
+    '.py-ch:hover{transform:translateY(-2px);box-shadow:0 0 0 1px var(--line),0 14px 30px rgba(20,12,4,.14)}',
+    '.py-ch:focus-visible{outline:3px solid var(--ja);outline-offset:2px}',
+    '.py-ch.here{box-shadow:0 0 0 3px var(--ja),0 14px 30px rgba(20,12,4,.16)}',
+    '.py-ch.open{box-shadow:0 0 0 3px color-mix(in srgb,var(--ja) 70%,#fff),0 14px 30px rgba(20,12,4,.16)}',
+    '.py-chimg{display:block;aspect-ratio:16/10;overflow:hidden;background:#2a1d10}',
+    '.py-chimg img{display:block;width:100%;height:100%;object-fit:cover}',
+    '.py-chno{position:absolute;top:10px;left:10px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;' +
+      'background:rgba(255,255,255,.94);color:#1d1a16;font:800 15px/1 var(--display,Georgia,serif);box-shadow:0 3px 8px rgba(0,0,0,.35)}',
+    '.py-ch.done .py-chno{background:#7BD3A1;color:#10301f}',
+    '.py-chface{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;overflow:hidden;' +
+      'box-shadow:0 0 0 3px var(--ja),0 3px 8px rgba(0,0,0,.35);background:#fff}',
+    '.py-chface svg,.py-chface img{width:36px;height:36px;display:block}',
+    '.py-chbody{display:grid;gap:2px;padding:10px 12px 12px}',
+    '.py-chdeva{font:700 17px/1.7 "Mukta","Noto Sans Devanagari",var(--body);color:var(--text)}',
+    '.py-chbody b{font:800 14.5px/1.25 var(--display,Georgia,serif)}',
+    '.py-chbody i{font:600 12px/1.3 var(--body);font-style:normal;color:var(--text2)}',
+    '.py-dots{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}',
+    '.py-dots span{width:11px;height:11px;border-radius:50%;border:2px solid var(--line2,var(--line));background:transparent}',
+    '.py-dots .done{background:#3fa66b;border-color:#3fa66b}',
+    '.py-dots .part{background:color-mix(in srgb,var(--ja) 45%,transparent);border-color:var(--ja)}',
+    '.py-dots .here{background:var(--ja);border-color:var(--ja);box-shadow:0 0 0 3px color-mix(in srgb,var(--ja) 30%,transparent)}',
+    '.py-panel{margin:6px 0 0;padding:16px;border-radius:22px;background:var(--card);' +
+      'box-shadow:0 0 0 1px var(--line),0 14px 34px rgba(20,12,4,.08);scroll-margin-top:84px}',
+    '.py-panelhead{display:flex;gap:14px;align-items:center;margin:0 0 12px}',
+    '.py-panelimg{flex:none;width:96px;height:72px;border-radius:14px;background:var(--plate) center/cover no-repeat;' +
+      'box-shadow:0 0 0 1px var(--line)}',
+    '.py-panelhead h3{margin:0;font:800 20px/1.2 var(--display,Georgia,serif)}',
+    '.py-week{border-radius:16px;margin:0 0 8px;background:var(--card);box-shadow:0 0 0 1px var(--line);scroll-margin-top:84px}',
+    '.py-week.here{box-shadow:0 0 0 2px var(--ja)}',
+    '.py-weekhead{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:0;background:none;' +
+      'cursor:pointer;text-align:left;font:inherit;color:var(--text);min-height:56px}',
+    '.py-weekhead:focus-visible{outline:3px solid var(--ja);outline-offset:-3px;border-radius:16px}',
+    '.py-wdot{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;overflow:hidden;' +
+      'font:800 13px/1 var(--display,Georgia,serif);background:var(--surface,#f4efe6);color:var(--text);box-shadow:0 0 0 1px var(--line)}',
+    '.py-wdot svg,.py-wdot img{width:34px;height:34px;display:block}',
+    '.py-week.done .py-wdot{background:#3fa66b;color:#fff;box-shadow:none}',
+    '.py-week.here .py-wdot{box-shadow:0 0 0 3px var(--ja)}',
+    '.py-wtxt{flex:1;min-width:0;display:grid}',
+    '.py-wtxt b{font:800 15px/1.3 var(--body)}',
+    '.py-wtxt i{font:600 12px/1.4 var(--body);font-style:normal;color:var(--text2)}',
+    '.py-wbar{flex:none;width:72px;height:6px;border-radius:99px;background:var(--line);overflow:hidden}',
+    '.py-wbar span{display:block;height:100%;background:var(--ja);border-radius:99px}',
+    '.py-week .pa-railwrap{border-top:1px solid var(--line)}',
+    '@media (max-width:720px){' +
+      '.py-hero{flex-direction:column-reverse;align-items:stretch;min-height:0;padding:18px 16px 18px;gap:6px;' +
+        'background-position:center 20%}' +
+      '.py-scrim{background:linear-gradient(0deg,rgba(18,10,4,.94) 0%,rgba(18,10,4,.80) 58%,rgba(18,10,4,.25) 100%)}' +
+      '.py-ring{width:104px;height:104px;align-self:flex-end;margin-bottom:-6px}' +
+      '.py-ringface svg,.py-ringface img{width:36px;height:36px}.py-ringface{margin-bottom:22px}' +
+      '.py-ringtxt{bottom:20px;font-size:10px}.py-ringtxt b{font-size:17px}' +
+      '.py-steptxt b{max-width:150px}' +
+      '.py-go{width:100%;justify-content:center}' +
+      '.py-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}' +
+      '.py-chbody{padding:8px 10px 10px}.py-chdeva{font-size:15px}.py-chbody b{font-size:13.5px}' +
+      '.py-wbar{width:44px}.py-panel{padding:12px 10px}.py-panelimg{width:72px;height:56px}}',
     '@media (max-width:620px){' +
       '.pa-actban{height:80px}.pa-act.open .pa-actban{height:116px}' +
       '.pa-acttext b{font-size:16px}.pa-railwrap{padding:12px 10px 14px}' +
@@ -513,6 +620,7 @@
     '.pl-goalbar span{font-size:13.5px;line-height:1.45;color:var(--text2)}',
     /* a practice question: the picture, a clue, three names */
     '.pl-clue{margin:0 0 4px;font-size:14px;color:var(--muted)}',
+    '.pl-note{margin:6px 0 0;font-size:12px;line-height:1.45;color:var(--muted);font-style:italic}',
     '.pl-opts{display:grid;gap:10px;margin-top:14px}',
     '.pl-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:12px 16px;text-align:left;' +
       'border-radius:16px;border:2px solid var(--line2);background:var(--card);color:var(--text);' +
@@ -1139,9 +1247,164 @@
       '</section>';
   }
 
+  /* ================================================================ THE YEAR (gita-year)
+     A course of fifty-two weeks does not fit a board of pins — fifty-two of them is a crowd,
+     not a map. So the advanced Gita is drawn as the year it is: THIS WEEK, large, on its
+     chapter's painting, with one button that goes on; then the eighteen chapters as painted
+     tiles, each carrying a dot per week; then the chapter you open, its weeks, and the open
+     week's rail — the same stops, the same test on another day, the same workshop as every
+     other course, because they are the engine's. Nothing here is a second engine. */
+  var yearCh = {};            /* per course: the chapter a child opened, if they did */
+  function yearArt(c, ch) {
+    var U = W.IND_GITA_UI;
+    return U && U.artOf ? U.artOf(ch, 1) : c.cover;
+  }
+  function devaNum(n) { return String(n).replace(/\d/g, function (d) { return '०१२३४५६७८९'.charAt(+d); }); }
+  function yearPage(c) {
+    var st = stopsOf(c), s = stats(c), lk = locked(c);
+    var i0 = 0; P.courses.forEach(function (x, i) { if (x.id === c.id) i0 = i; });
+    var cur = st.frontier >= 0 ? st.list[st.frontier] : null;
+    var curMi = cur ? cur.mi : c.modules.length - 1, curM = c.modules[curMi];
+    var weekState = c.modules.map(function (m, mi) {
+      var ps = partStat(st, mi);
+      return ps.cleared ? 'done' : ps.here ? 'here' : ps.done ? 'part' : 'ahead';
+    });
+    var weeksDone = weekState.filter(function (x) { return x === 'done'; }).length;
+    var versesWalked = 0;
+    c.modules.forEach(function (m, mi) {
+      var learnt = st.list.filter(function (x) { return x.mi === mi && x.kind === 'learn'; });
+      if (learnt.length && learnt.every(function (x) { return x.done; })) versesWalked += m.verses || 0;
+    });
+    var chOpen = yearCh[c.id] || curM.ch;
+    var chOf = function (n) { return (c.chapters || []).filter(function (x) { return x.n === n; })[0] || { n: n, title: '', name: '', verses: 0, weeks: 0 }; };
+    var curC = chOf(curM.ch);
+    var weekNo = function (mi) { return mi + 1; };
+    var LBL = { learn: 'Learn', practise: 'Practise', test: 'Test', make: 'Make' };
+
+    /* THIS WEEK: its five stops as a strip, and the one button that goes on */
+    var mine = st.list.filter(function (x) { return x.mi === curMi; });
+    var strip = mine.map(function (x) {
+      var cls = x.done ? 'done' : x.cur ? 'cur' : x.locked ? 'locked' : 'open';
+      var name = x.kind === 'make' ? x.m.project.name : x.l.n;
+      return '<li class="py-step ' + cls + '"><span class="py-stepdot" aria-hidden="true">' +
+        (x.done ? '✓' : x.cur ? '●' : x.locked ? api.icon('lock', 11) : '') + '</span>' +
+        '<span class="py-steptxt"><i>' + LBL[x.kind] + '</i><b>' + esc(name) + '</b></span></li>';
+    }).join('');
+    var go = '';
+    if (cur && cur.kind === 'make') {
+      go = '<button class="py-go" data-pa="part" data-id="' + esc(c.id) + '" data-m="' + esc(curM.id) + '">Make: ' +
+        esc(curM.project.name) + ' →</button>';
+    } else if (cur) {
+      go = '<button class="py-go" data-pa="lesson" data-id="' + esc(c.id) + '" data-m="' + esc(cur.m.id) + '" data-l="' +
+        esc(cur.l.n) + '">' + (cur.kind === 'test' ? 'Test yourself' : 'Continue: ' + esc(cur.l.n)) + ' →</button>';
+    } else {
+      go = '<span class="py-go done">All fifty-two weeks walked ✓</span>';
+    }
+    var R = 46, C = 2 * Math.PI * R, pct = weeksDone / c.modules.length;
+    var ringSvg = '<svg viewBox="0 0 108 108" aria-hidden="true"><circle cx="54" cy="54" r="' + R + '" fill="none" ' +
+      'stroke="rgba(255,255,255,.22)" stroke-width="7"/>' +
+      /* no arc at nought: a round cap on a zero-length stroke draws a stray dot */
+      (pct > 0 ? '<circle cx="54" cy="54" r="' + R + '" fill="none" stroke="#FFD24D" ' +
+      'stroke-width="7" stroke-linecap="round" stroke-dasharray="' + (C * pct).toFixed(1) + ' ' + C.toFixed(1) + '" ' +
+      'transform="rotate(-90 54 54)"/>' : '') + '</svg>';
+    var hero = '<section class="py-hero" style="--plate:url(\'' + esc(yearArt(c, curM.ch)) + '\')">' +
+      '<span class="py-scrim" aria-hidden="true"></span>' +
+      '<div class="py-herobody">' +
+        '<p class="py-kick">This week · week ' + weekNo(curMi) + ' of ' + c.modules.length + '</p>' +
+        (curC.name ? '<p class="py-deva" lang="sa">' + esc(curC.name) + '</p>' : '') +
+        '<h3 class="py-chtitle">Chapter ' + curM.ch + (curC.title ? ' · ' + esc(curC.title) : '') + '</h3>' +
+        '<p class="py-range">Verses ' + curM.from + '–' + curM.to + ' · ' + curM.verses + ' verses' +
+          (curM.speakers && curM.speakers.length ? ' · ' + esc(curM.speakers.join(', ')) + (curM.speakers.length > 1 ? ' speak' : ' speaks') : '') + '</p>' +
+        '<ol class="py-strip">' + strip + '</ol>' +
+        '<div class="py-gorow">' + go + '</div>' +
+      '</div>' +
+      '<div class="py-ring" aria-label="' + weeksDone + ' of ' + c.modules.length + ' weeks walked">' + ringSvg +
+        '<span class="py-ringface">' + (face(52) || '') + '</span>' +
+        '<span class="py-ringtxt"><b>' + weeksDone + '</b>of ' + c.modules.length + ' weeks</span></div>' +
+    '</section>';
+
+    /* THE EIGHTEEN CHAPTERS: a painted tile each, a dot per week, the one you are in marked */
+    var tiles = (c.chapters || []).map(function (ch) {
+      var wk = [];
+      c.modules.forEach(function (m, mi) { if (m.ch === ch.n) wk.push(mi); });
+      var states = wk.map(function (mi) { return weekState[mi]; });
+      var here = wk.indexOf(curMi) >= 0, all = states.length && states.every(function (x) { return x === 'done'; });
+      return '<button class="py-ch' + (here ? ' here' : '') + (all ? ' done' : '') + (chOpen === ch.n ? ' open' : '') +
+        '" data-pa="ych" data-id="' + esc(c.id) + '" data-n="' + ch.n + '" aria-expanded="' + (chOpen === ch.n) + '" ' +
+        'aria-label="Chapter ' + ch.n + ', ' + esc(ch.title) + ': ' + ch.verses + ' verses, ' + wk.length + ' weeks' +
+        (here ? ', you are here' : all ? ', walked' : '') + '">' +
+        '<span class="py-chimg"><img src="' + esc(yearArt(c, ch.n)) + '" alt="" loading="lazy" decoding="async"></span>' +
+        '<span class="py-chno">' + (all ? '★' : ch.n) + '</span>' +
+        (here && face(30) ? '<span class="py-chface">' + face(30) + '</span>' : '') +
+        '<span class="py-chbody">' +
+          '<span class="py-chdeva" lang="sa">' + esc(ch.name) + '</span>' +
+          '<b>' + esc(ch.title) + '</b>' +
+          '<i>' + ch.verses + ' verses · ' + wk.length + (wk.length === 1 ? ' week' : ' weeks') + '</i>' +
+          '<span class="py-dots" aria-hidden="true">' + states.map(function (x) { return '<span class="' + x + '"></span>'; }).join('') + '</span>' +
+        '</span></button>';
+    }).join('');
+
+    /* THE OPEN CHAPTER: its weeks, and the open week's rail (the engine's stopRow) */
+    var oc = chOf(chOpen), owk = [];
+    c.modules.forEach(function (m, mi) { if (m.ch === chOpen) owk.push(mi); });
+    /* the open week: the one tapped (or none, if it was tapped shut), else the week you are in */
+    var op = openPart[c.id];
+    var openMi = op == null ? (owk.indexOf(curMi) >= 0 ? curMi : -1)
+      : (op >= 0 && c.modules[op] && c.modules[op].ch === chOpen ? op : -1);
+    var weeks = owk.map(function (mi) {
+      var m = c.modules[mi], ps = partStat(st, mi), ws = weekState[mi], open = mi === openMi;
+      var ns = st.list.filter(function (x) { return x.mi === mi; });
+      var pctW = ns.length ? Math.round(ps.done / ns.length * 100) : 0;
+      return '<section class="py-week ' + ws + (open ? ' open' : '') + '" id="pa-part-' + esc(m.id) + '">' +
+        '<button class="py-weekhead pa-actban" data-pa="part" data-id="' + esc(c.id) + '" data-m="' + esc(m.id) + '" aria-expanded="' + open + '">' +
+          '<span class="py-wdot" aria-hidden="true">' + (ws === 'done' ? '★' : ws === 'here' && face(26) ? face(26) : weekNo(mi)) + '</span>' +
+          '<span class="py-wtxt"><b>Week ' + weekNo(mi) + ' · verses ' + m.from + '–' + m.to + '</b>' +
+            '<i>' + m.verses + ' verses · ' + ps.done + ' of ' + ps.total + ' stops' + (ws === 'here' ? ' · you are here' : '') + '</i></span>' +
+          '<span class="py-wbar" aria-hidden="true"><span style="width:' + pctW + '%"></span></span>' +
+        '</button>' +
+        (open ? '<div class="pa-railwrap"><p class="pa-obj">After this week you can <b>' + esc(m.objective) + '</b>.</p>' +
+          '<div class="pa-rail"><span class="pa-railline" aria-hidden="true"><span style="height:' + pctW + '%"></span></span>' +
+          ns.map(function (x) { return stopRow(c, x); }).join('') + '</div></div>' : '') +
+      '</section>';
+    }).join('');
+
+    var warn = (c.needsReview && c.needsReview.length)
+      ? '<details class="py-warn"><summary><b>Not yet checked by a Sanskrit reader.</b> What that means</summary>' +
+        c.needsReview.map(function (x) { return '<p>' + esc(x) + '</p>'; }).join('') + '</details>' : '';
+
+    return '<div class="pa-wrap pa-atlas py-year" style="--ja:' + esc(c.colour || '#C9822B') + '">' +
+      '<button class="backlink" data-pa="hub">' + api.icon('back', 18) + ' Paathshala</button>' +
+      '<div class="pa-atitle">' +
+        '<div><p class="pa-kick">Course ' + (i0 + 1) + ' of ' + P.courses.length + ' · ' + esc(c.sub) + '</p>' +
+        '<h2>' + esc(c.name) + '</h2></div>' +
+        '<div class="pa-atools">' +
+          '<span class="pa-tpill">' + versesWalked + ' of 700 verses</span>' +
+          '<span class="pa-tpill">' + s.mastered + ' of ' + s.objectives + ' learned</span>' +
+          badge(c) +
+          (lk ? '<span class="pa-tpill lock">' + api.icon('lock', 12) + ' a grown-up unlocks this</span>' : '') +
+          '<button class="pa-tpill act" data-pa="pack" data-id="' + esc(c.id) + '">' + api.icon('print', 13) + ' Take-home pack</button>' +
+        '</div></div>' +
+      hero + warn +
+      '<div class="py-head"><h3 class="py-h">Eighteen chapters, fifty-two weeks</h3>' +
+      '<p class="py-sub">A dot for every week. Tap a chapter to see its weeks.</p></div>' +
+      '<div class="py-grid">' + tiles + '</div>' +
+      '<section class="py-panel" id="py-panel"><div class="py-panelhead">' +
+        '<span class="py-panelimg" style="--plate:url(\'' + esc(yearArt(c, chOpen)) + '\')" aria-hidden="true"></span>' +
+        '<div><p class="pa-kick">Chapter ' + chOpen + ' · ' + oc.verses + ' verses · ' + owk.length + (owk.length === 1 ? ' week' : ' weeks') + '</p>' +
+        (oc.name ? '<p class="py-deva small" lang="sa">' + esc(oc.name) + '</p>' : '') +
+        '<h3>' + esc(oc.title) + '</h3></div></div>' + weeks +
+        '<p class="pa-door"><button class="btn ghost" data-pa="door" data-v="gitach" data-arg="' + chOpen + '">Read all of chapter ' + chOpen + ' with the guru →</button></p>' +
+      '</section>' +
+      (c.door ? '<p class="pa-door"><button class="btn" data-pa="door" data-v="' + esc(c.door.v) + '"' +
+        (c.door.arg ? ' data-arg="' + esc(c.door.arg) + '"' : '') + '>' + esc(c.door.label) + ' →</button></p>' : '') +
+      '<div class="pa-afoot"><p><b>Sources.</b> ' + (c.sources || []).map(esc).join(' · ') + '</p></div>' +
+    '</div>';
+  }
+
   function coursePage(id) {
     styles();
     var c = get(id); if (!c) return hub();
+    if (c.layout === 'year') return yearPage(c);
     var st = stopsOf(c), s = stats(c), lk = locked(c);
     var i0 = 0; P.courses.forEach(function (x, i) { if (x.id === c.id) i0 = i; });
     var cur = st.frontier >= 0 ? st.list[st.frontier] : null;
@@ -1247,7 +1510,7 @@
 
   var KIND_LABEL = { st: 'A story', it: 'History', mb: 'The Mahabharata', ra: 'The Ramayana',
                      sh: 'A verse', ge: 'A song', ut: 'A festival', va: 'A value', dh: 'A faith',
-                     ri: 'A family word', bg: 'A place', state: 'A state', na: 'Ask at home' };
+                     ri: 'A family word', bg: 'A place', state: 'A state', na: 'Ask at home', gv: 'The Gita' };
 
   function cardHTML(cd, c) {
     if (cd.kind === 'bh') {
@@ -1277,11 +1540,13 @@
     return '<div class="pl-card">' + plate +
       '<div class="pl-body">' +
         '<p class="pl-kind">' + esc(KIND_LABEL[cd.kind] || '') + (cd.sub ? ' · ' + esc(cd.sub) : '') + '</p>' +
-        '<h3>' + esc(cd.title) + '</h3>' +
+        /* a Gita verse's name IS its opening words, and the whole verse is right under it */
+        (cd.kind === 'gv' ? '' : '<h3>' + esc(cd.title) + '</h3>') +
         (showScript || (cd.kind === 'sh' && cd.script)
           ? '<p class="pl-script"' + (cd.lang ? ' lang="' + esc(cd.lang) + '"' : '') + '>' + esc(cd.script) + '</p>' : '') +
         (cd.extra ? '<p class="pl-extra">' + esc(cd.extra) + '</p>' : '') +
         (cd.body ? '<p class="pl-text">' + esc(cd.body) + '</p>' : '') +
+        (cd.note ? '<p class="pl-note">' + esc(cd.note) + '</p>' : '') +
         '<div class="pl-acts">' +
           (cd.audio ? '<button class="pl-hear" data-act="say" data-k="' + esc(cd.audio) + '">' +
             api.icon('sound', 16) + ' Hear it</button>' : '') +
@@ -1328,6 +1593,7 @@
   var ASK = { st: 'Which story is this?', it: 'Which is this?', mb: 'Which episode is this?',
               ra: 'Which episode is this?', ge: 'Which song is this?', ut: 'Which festival is this?',
               bg: 'Which place is this?', state: 'Which state is this?', sh: 'Which verse is this?',
+              gv: 'Which verse says this?',
               dh: 'Which faith is this?', va: 'Which value is this?', ri: 'Who is this?' };
   var PLAIN = /^(the|and|of|at|in|on|river|lake|falls|national|park|hills|range|valley|plateau|desert|coast|delta|source|glacier|who|a|an|to)$/i;
   function hashOf(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -1342,7 +1608,7 @@
   /* a card can be asked about only if its picture is a picture */
   function askable(cd) { return cd && cd.title && (cd.art || cd.face) && ASK[cd.kind]; }
   function clueOf(cd) {
-    var c = cd.kind === 'state' ? cd.sub : cd.kind === 'bg' ? cd.sub : (cd.sub || '');
+    var c = cd.clue || (cd.kind === 'state' ? cd.sub : cd.kind === 'bg' ? cd.sub : (cd.sub || ''));
     return c && !leaks(c, cd.title) ? c : '';
   }
   function roundOf(cards, key) {
@@ -1379,7 +1645,7 @@
       return '<div class="pl-card ask">' + plateOf(cd) +
         '<div class="pl-body"><p class="pl-kind">Practise · ' + (i + 1) + '</p>' +
         '<h3>' + esc(ASK[cd.kind]) + '</h3>' +
-        (clue ? '<p class="pl-clue">' + esc(clue) + '</p>' : '') +
+        (clue ? '<p class="pl-clue">' + esc(clue) + '</p>' + (cd.clueNote && clue === cd.clue ? '<p class="pl-note">' + esc(cd.clueNote) + '</p>' : '') : '') +
         '<div class="pl-opts" role="group" aria-label="Three answers">' +
           q.opts.map(function (o, j) {
             return '<button class="pl-opt" data-pa="ppick" data-k="' + esc(key) + '" data-q="' + i +
@@ -1715,6 +1981,22 @@
     }
     if (a === 'pack')  { api.go('paathp', el.getAttribute('data-id')); return true; }
     /* a pin or a banner: open that part's rail, and bring it into view */
+    /* bring a panel or a week to the top of the screen, BELOW the sticky bar: a fixed
+       scroll-margin guessed its height and hid the panel's first line under it on both a
+       phone (bar + search) and a desktop (bar + tabs). Measured, it cannot be wrong. */
+    function bringIn(t) {
+      if (!t) return;
+      var bar = D.querySelector('.bz-hdr'), top = bar ? Math.max(0, bar.getBoundingClientRect().bottom) : 0;
+      var y = t.getBoundingClientRect().top + (W.pageYOffset || 0) - top - 10;
+      if (W.scrollTo) W.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    }
+    if (a === 'ych') {
+      var yc = el.getAttribute('data-id'), yn = +el.getAttribute('data-n');
+      yearCh[yc] = yn; delete openPart[yc];
+      api.go('paath', yc);
+      setTimeout(function () { bringIn(D.getElementById('py-panel')); }, 30);
+      return true;
+    }
     if (a === 'part') {
       var pc = el.getAttribute('data-id'), pm = el.getAttribute('data-m');
       var PC = get(pc); if (!PC) return true;
@@ -1723,11 +2005,9 @@
         D.getElementById('pa-part-' + pm).classList.contains('open');
       /* tapping the open banner closes it; a pin always opens */
       openPart[pc] = (wasOpen && el.classList.contains('pa-actban')) ? -1 : mi;
+      if (PC.layout === 'year' && PC.modules[mi]) yearCh[pc] = PC.modules[mi].ch;   /* the week's own chapter opens with it */
       api.go('paath', pc);
-      setTimeout(function () {
-        var t = D.getElementById('pa-part-' + pm);
-        if (t && t.scrollIntoView) t.scrollIntoView({ block: 'start', behavior: 'smooth' });
-      }, 30);
+      setTimeout(function () { bringIn(D.getElementById('pa-part-' + pm)); }, 30);
       return true;
     }
     if (a === 'karya') {

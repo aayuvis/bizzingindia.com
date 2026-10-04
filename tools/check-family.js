@@ -191,7 +191,13 @@ check('shelf', 'the Collection draws all 96 faces at once, from their small copi
     fs.statSync(path.join(AV, 'sm', id + '.webp')).mtimeMs < fs.statSync(path.join(AV, id + '.webp')).mtimeMs - 1000);
   if (miss.length) throw new Error(`${miss.length} avatars have no small copy, or an older one (${miss.slice(0, 3).join(', ')}) — run python3 tools/gen-av-thumbs.py`);
   await p.click('[data-bz=theme]'); await p.waitForTimeout(300);
-  await p.evaluate(() => window.BI.go('collection')); await p.waitForTimeout(1500);
+  /* WAIT ON THE PICTURES, NOT ON A CLOCK (v4: "34 of 96 blank at 1.5 s" when five suites ran
+     side by side). The promise is "without a scroll": a face that waits for a scroll never
+     arrives however long this waits, so waiting until every face has finished — or 12 s,
+     on a machine with other work — holds the same promise without timing a busy disk. */
+  await p.evaluate(() => window.BI.go('collection'));
+  await p.waitForFunction(() => { const im = [...document.querySelectorAll('#main .bzcard img')];
+    return im.length >= 90 && im.every(i => i.complete); }, null, { timeout: 12000, polling: 200 }).catch(() => {});
   const r = await p.evaluate(() => {
     const im = [...document.querySelectorAll('#main .bzcard img')];
     return { n: im.length, blank: im.filter(i => !i.complete || !i.naturalWidth).length,
@@ -199,7 +205,7 @@ check('shelf', 'the Collection draws all 96 faces at once, from their small copi
   });
   if (r.night !== 'night') throw new Error('could not switch to night');
   if (r.n < 90) throw new Error(`the Collection drew ${r.n} cards`);
-  if (r.blank) throw new Error(`${r.blank} of ${r.n} cards are still blank 1.5 s after opening, without a scroll`);
+  if (r.blank) throw new Error(`${r.blank} of ${r.n} cards are still blank, without a scroll, once the page has stopped loading them`);
   if (r.big) throw new Error(`${r.big} cards draw the full 512px portrait at 96px`);
 });
 

@@ -480,24 +480,26 @@ W.IND_SCRIPTS = { devanagari: DEVANAGARI, gurmukhi: GURMUKHI };
    the first eight; Hindi covers all seventeen. A theme with no words in a
    pack is a gap in that pack, never a difference in the theme list — that is
    what keeps two lexicons comparable in the parent report. */
+/* icon: a name in the app's own line-icon set (art.js IND_ICONS), never an emoji — an emoji is
+   a different drawing on every phone, and a control's icon is part of the control (v4). */
 var THEMES = [
-  { id: 'greetings', en: 'Greetings', icon: '🙏' },
-  { id: 'family',   en: 'Family',  icon: '👪' },
-  { id: 'food',     en: 'Food',    icon: '🍛' },
-  { id: 'body',     en: 'Body',    icon: '👤' },
-  { id: 'home',     en: 'Home',    icon: '🏠' },
-  { id: 'basics',   en: 'Everyday words', icon: '🧩' },
-  { id: 'actions',  en: 'Doing words', icon: '🏃' },
-  { id: 'animals',  en: 'Animals', icon: '🐘' },
-  { id: 'colours',  en: 'Colours', icon: '🎨' },
-  { id: 'numbers',  en: 'Numbers', icon: '🔢' },
-  { id: 'school',   en: 'School',  icon: '🎒' },
-  { id: 'clothes',  en: 'Clothes', icon: '👕' },
-  { id: 'weather',  en: 'Weather and sky', icon: '🌦️' },
-  { id: 'time',     en: 'Time and days', icon: '⏰' },
-  { id: 'places',   en: 'Places and outdoors', icon: '🌳' },
-  { id: 'transport', en: 'Getting around', icon: '🚌' },
-  { id: 'feelings', en: 'Feelings', icon: '💛' }
+  { id: 'greetings', en: 'Greetings', icon: 'namaste' },
+  { id: 'family',   en: 'Family',  icon: 'people' },
+  { id: 'food',     en: 'Food',    icon: 'bowl' },
+  { id: 'body',     en: 'Body',    icon: 'body' },
+  { id: 'home',     en: 'Home',    icon: 'home' },
+  { id: 'basics',   en: 'Everyday words', icon: 'puzzle' },
+  { id: 'actions',  en: 'Doing words', icon: 'run' },
+  { id: 'animals',  en: 'Animals', icon: 'paw' },
+  { id: 'colours',  en: 'Colours', icon: 'palette' },
+  { id: 'numbers',  en: 'Numbers', icon: 'numbers' },
+  { id: 'school',   en: 'School',  icon: 'satchel' },
+  { id: 'clothes',  en: 'Clothes', icon: 'shirt' },
+  { id: 'weather',  en: 'Weather and sky', icon: 'cloud' },
+  { id: 'time',     en: 'Time and days', icon: 'clock' },
+  { id: 'places',   en: 'Places and outdoors', icon: 'tree' },
+  { id: 'transport', en: 'Getting around', icon: 'bus' },
+  { id: 'feelings', en: 'Feelings', icon: 'heart' }
 ];
 
 /* The ladder is shared shape, per-pack content. `types` is the list of

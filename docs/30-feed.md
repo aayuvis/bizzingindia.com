@@ -55,7 +55,7 @@ at most a quarter review from ranks passed ("To keep: from Shishya", what slippe
 peeks at the next rank ("Coming up on Khoji"), and at most a quarter with no level. Nothing beyond the
 next rank ever appears. A child who climbs gets a different feed (`check-feed climb`).
 
-## The cards: 7,836
+## The cards: 6,308
 
 Every card carries `src`, the address of the words it quotes, and `tools/check-feed.js resolves`
 finds them in that object on every run. Change a story, verse or fact and the check fails until
@@ -63,15 +63,15 @@ finds them in that object on every run. Change a story, verse or fact and the ch
 
 | rank | cards |
 |---|---|
-| Shishya | 1,467 |
-| Vidyarthi | 868 |
-| Sadhak | 2,311 |
+| Shishya | 1,339 |
+| Vidyarthi | 866 |
+| Sadhak | 918 |
 | Khoji | 386 |
 | Pandit | 315 |
 | Vidwan | 301 |
 | Acharya | 336 |
 | Rishi | 214 |
-| no level | 1,638 |
+| no level | 1,633 |
 
 Each object gives several honest **angles**, each its own `kind` with its own `src`:
 
@@ -81,15 +81,25 @@ Each object gives several honest **angles**, each its own `kind` with its own `s
 | its cast | an invented character's own line (cast, with the epic cast: 23) · a real person's first achievement, only from a story that is not 🪔 Katha (person 35). Never a deity |
 | an epic night (57) | its opening (night 57) · its hook (nighthook 57) · its middle (nightmoment 57) · what it asks you to wonder about (wonder 57) |
 | an era (11 with sources, not held, under 11+) | its hook (era 11) · what a child is told (erakid 11) · what a bigger child is told (erabig 11) · what nobody knows yet (erawonder 11) · each thing found (found 34) · each dated moment (moment-era 63) · each "still there today" (today 33) · each figure (figure 37) |
-| a language (9 packs, every rung) | words (word 2,349) · a question on each first-rung word (wordq 491) · letters (letter 406) · vowel signs (matra 89) · Hindi sentences (sentence 102) and conversation lines (talk 70) · joined letters (conjunct 42) |
+| a language (9 packs, every rung) | words (word 826: in a pack of more than forty, only a word the corpus also has **in a sentence**, which the card carries — v4 found 2,840 bare glosses; 319 remain, from the small packs) · a question on each first-rung word (wordq 491) · letters (letter 406) · vowel signs (matra 89) · Hindi sentences (sentence 102) and conversation lines (talk 70) · joined letters (conjunct 42) |
 | a verse (34 not flagged) | the verse in its own script (verse 34) · its meaning (versemeaning 34) · why carry it (versewhy 34) |
-| a place (36) | its map fact (place 36) · every trivia line (trivia 144) · every place to see (see 178) · every food (food 171) · every feature on the map (feature 399) · a capital question (capital 36) · a food question, for a dish one state alone claims (foodq 36) |
+| a place (36) | its map fact (place 36) · every trivia line (trivia 144) · every place to see (see 178) · every food (food 171) · every feature on the map (feature 399) · a capital question (capital 31: never where the capital's name is inside the place's own, which answered itself — Chandigarh, New Delhi, Puducherry; `check-feed selfanswer`) · a food question, for a dish one state alone claims (foodq 36) |
 | a festival (27 not held) | what it is (festival 27) · every thing to do at home (festdo 118) · every "in many families" line (festways 78) · where it is kept (festwhere 27) |
 | games | the Mela games' how-to (game 13) · each street game, how it starts and its other names (gully 28 · gullyhow 28 · gullyname 127) |
 | the family | questions to ask Nani and Dada (ask 52) · family words (family 26) · the values (value 12) |
 
+**A picture where the corpus has one.** 2,487 of the 6,308 cards (39%; v4 measured 5%) carry a
+painting: a story's card its own painting at plate size (`art/story/sm`), an epic night's card its
+cover (`art/epic/sm`, `tools/gen-plate-thumbs.py`). No picture is drawn for the feed.
+
+**One thing, at most two cards a session.** The cards cut from one story, one epic night, one verse,
+one era, one festival, one state or one street game are one object (`objectOf` in `app/feed.js`,
+read from the card's id). The family engine is not edited: India's adapter asks it again with an
+object's third card set aside, until no object has more than two — so the engine's own tiers and
+kinds still hold (`check-feed object`; without it, one Ramayana night came four times).
+
 **More to say, all of it read.** A card carries up to four **facts** — a label and a value, like
-*From: Panchatantra* · *Lights up: West Bengal* · *Read: 6 min* — and 7,747 of the 7,836 do. The
+*From: Panchatantra* · *Lights up: West Bengal* · *Read: 6 min* — and 6,224 of the 6,308 do. The
 label is the app's own word for the slot; the value is whatever the corpus holds at a path the
 builder names (`tools/lib/feed-facts.js`: `stories/[id=pt.lion-rabbit]/minutes`, `IND_UTSAV/festivals/[id=lohri]/states|names`).
 The builder writes the paths to `tools/lib/feed-proof.json` (not shipped) and `check-feed facts`
@@ -182,8 +192,12 @@ new, or climbed a rank.
 - It ends with a finished card. There is no infinite scroll, no autoplay, no auto-advance and no
   sound before a tap.
 - There are no likes, counts, comments or streaks. Scrolling earns nothing and is not learning.
-- Only a right answer to a card's question pays, once per card, through `earn('answer')`.
-- A wrong answer holds until Continue, and the answer is never in the page before it is given.
+- Only a right answer to a card's question **on the first try** pays, once per card, through
+  `earn('answer')`. Every question has three options, so a second try is a coin toss — and coins are
+  for learning, never for luck.
+- **Two tries, then the answer and why** (owner, 4 Oct 2026; v4 E5). A first miss sets that option
+  aside and asks again, saying nothing about which is right. A second miss names the answer and the
+  card's own "why", and holds until Continue. The answer is never in the page before it is given.
 - A grown-up can switch My Feed off behind the PIN. The tab and the ☰ row go with it.
 - `?demo` shows a sample feed from the sandbox and writes nothing.
 
@@ -209,7 +223,7 @@ Each check was watched to fail by breaking what it holds.
 | mix | never three of a kind in a row, at most five questions | (inherited) |
 | ends | at most twenty cards; this week's cards sink | (inherited) |
 | screen | page head, finished card, no counts or sound, fits 390px, loads only the groups it needs | #/feed loading every group |
-| play | keyboard and touch; wrong holds, right pays once; no fact or door before the answer | the door shown on an unanswered question |
+| play | keyboard and touch; a first miss asks again and tells nothing, a second names the answer and holds; right first time pays once, a second try never; no fact or door before the answer | the door shown on an unanswered question; a first miss holding; a second try paying |
 | keys | j / k and the arrows step card to card | (inherited) |
 | facts | every fact is the corpus value at the path the builder named; ≥ 1 fact a card on average | a fact's value typed into the card |
 | specific | no card's door is a tool's front door; a thing inside a list names itself in its route | the verse cards routed to `#/verses/<coll>` |

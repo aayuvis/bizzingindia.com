@@ -189,6 +189,10 @@ The rules that follow from it:
 3. **Never animate or gamify a boundary.** No borders that draw themselves, pulse, get
    conquered, get captured, or move as a reward. Boundaries are undramatised background, not
    a mechanic.
+   *The one mark allowed* (owner, 4 Oct 2026): the state the child's next story will light
+   glows on its **fill** — a static warm wash; its outline is drawn exactly as its neighbours',
+   nothing animates, and the glow is gone once the state is lit. `tools/check-home.js frontier`
+   fails if the glow moves or the outline changes.
 4. The depiction is reviewed before launch, and the reviewer's sign-off is recorded.
 
 ### Known geometry gaps *(in the shipped data, needing better source geometry before launch)*

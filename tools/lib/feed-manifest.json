@@ -1,18 +1,18 @@
 {
- "total": 7836,
- "cut": 7854,
+ "total": 6308,
+ "cut": 6326,
  "nearDropped": 18,
- "withFacts": 7747,
+ "withFacts": 6224,
  "byLevel": {
-  "Shishya": 1467,
-  "Vidyarthi": 868,
-  "Sadhak": 2311,
+  "Shishya": 1339,
+  "Vidyarthi": 866,
+  "Sadhak": 918,
   "Khoji": 386,
   "Pandit": 315,
   "Vidwan": 301,
   "Acharya": 336,
   "Rishi": 214,
-  "any": 1638
+  "any": 1633
  },
  "byKind": {
   "story": 336,
@@ -38,7 +38,7 @@
   "moment-era": 63,
   "today": 33,
   "figure": 37,
-  "word": 2349,
+  "word": 826,
   "letter": 406,
   "matra": 89,
   "sentence": 102,
@@ -54,7 +54,7 @@
   "see": 178,
   "food": 171,
   "foodq": 36,
-  "capital": 36,
+  "capital": 31,
   "feature": 399,
   "game": 13,
   "gully": 28,
@@ -83,7 +83,7 @@
   ],
   [
    "L0-4",
-   267
+   139
   ],
   [
    "L1-0",
@@ -95,7 +95,7 @@
   ],
   [
    "L1-2",
-   268
+   266
   ],
   [
    "L2-0",
@@ -111,23 +111,7 @@
   ],
   [
    "L2-3",
-   300
-  ],
-  [
-   "L2-4",
-   300
-  ],
-  [
-   "L2-5",
-   300
-  ],
-  [
-   "L2-6",
-   300
-  ],
-  [
-   "L2-7",
-   211
+   18
   ],
   [
    "L3-0",
@@ -187,7 +171,7 @@
   ],
   [
    "any-5",
-   138
+   133
   ]
  ]
 }

@@ -39,6 +39,14 @@ body::before {
   background-size: 22px 22px;
 }
 .wpreview b { width: 28px; height: 28px; border-radius: 50%; flex: none; }
+/* the world's own painting, one 16:9 shape for all fifteen; the mode not on screen is not fetched */
+.wpreview.plate { height: auto; aspect-ratio: 16 / 9; padding: 0; display: block; position: relative; background: var(--ground); }
+.wpreview.plate img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.wpreview.plate .wp-night { display: none; }
+/* a button centres what is in it; a row of worlds reads as a row only if every picture starts at the top */
+.tile.wtile { display: flex; flex-direction: column; justify-content: flex-start; }
+html[data-mode="night"] .wpreview.plate .wp-night { display: block; }
+html[data-mode="night"] .wpreview.plate.dn .wp-day { display: none; }
 .wpreview .aa { margin-left: auto; font-family: var(--display); font-weight: 800; font-size: 19px; color: var(--text); }
 
 @keyframes drift { to { transform: translate3d(60px, 60px, 0); } }
@@ -594,6 +602,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* the family's home state(s): a STATIC warm outline — never animated, never pulsing;
    the boundary rules in CLAUDE.md forbid any boundary that moves or performs */
 .mapsvg .terrg.home .terr { stroke: var(--accent2, var(--accent)); stroke-width: 2.2; }
+/* THE NEXT PLACE (owner, 4 Oct 2026: "allow a glow"; v4 D8): the one state the next story will
+   light comes up a little, with a warm wash on its fill. STATIC — no animation, no pulse, no
+   transition of its own — and its outline is every other state's: the fill glows, the boundary
+   never performs. */
+.mapsvg .terrg.next .terr { opacity: .5; }
+.mapsvg .terrg.next .mist { display: block; fill: var(--accent); opacity: .2; pointer-events: none; animation: none; transition: none; }
 
 /* The Mela shelf — cover cards in the Bizzing Bee arcade idiom: gradient cover,
    self-animating scene, tag chip, facts underneath. Scene motion lives inside
@@ -1580,12 +1594,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .statehero .cap { padding: var(--space-xl); color: #fff; }
 .statehero h1 { color: #fff; margin: 0 0 10px; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
-.statehero .pill { background: rgba(255,255,255,.92); border-color: transparent; color: var(--text); }
+/* chips ON A PAINTING: dark glass, white words, in day and night alike. They were a white pill
+   in the theme's text colour, which at night is light: white on white (v4 audit, Kerala). */
+.statehero .pill, .statehero .pill.stat { background: rgba(20, 14, 40, .66); border-color: rgba(255, 255, 255, .22); color: #fff;
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.statehero .pill:hover { color: #fff; }
 @media (max-width: 560px) { .statehero { height: 220px; } }
 
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-md); }
-.fct { display: grid; gap: 2px; padding: 12px 14px; background: var(--card2); border-radius: var(--radius-md); }
-.fct b { font-family: var(--display); font-size: 17px; line-height: 1.25; }
+.fct { display: grid; gap: 2px; padding: 12px 14px; background: var(--card2); border-radius: var(--radius-md); min-width: 0; }
+/* a long name wraps inside its tile instead of being cut off (Thiruvananthapuram, v4 audit) */
+.fct b { font-family: var(--display); font-size: 17px; line-height: 1.25; overflow-wrap: anywhere; }
+.fct b.long { font-size: 15px; }
 /* The rank and the caveat sit under the number, quieter than it — the figure is the fact,
    where it places is the context. */
 .fct .tiny { line-height: 1.35; margin-top: 1px; }
@@ -3205,3 +3225,25 @@ html.lbox-open, html.lbox-open body { overflow: hidden; }
 html { overscroll-behavior-x: none; }
 #main > .reader, .rspread.ep, .gt-verse { touch-action: pan-y pinch-zoom; }
 .gt-steps { touch-action: pan-x pan-y; }
+
+/* THE LANDING'S THREE PHOTOGRAPHS (owner, 4 Oct 2026): a story, the map, a lesson — the app
+   itself, at phone size, in a row. Lazy; never a grid of feature claims. */
+.lshots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 2vw, 24px);
+  margin: var(--space-lg) 0 0; padding: clamp(14px, 2.4vw, 26px) clamp(10px, 2.4vw, 30px);
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+.lshots figure { margin: 0; text-align: center; }
+.lshots img { display: block; width: 100%; max-width: 240px; height: auto; margin: 0 auto; aspect-ratio: 300 / 554;
+  border-radius: 18px; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--card); }
+.lshots figcaption { margin-top: 10px; font-size: 14px; line-height: 1.45; color: var(--text2); }
+.lshots figcaption b { display: block; color: var(--text); font-size: 15.5px; }
+@media (max-width: 520px) { .lshots img { border-radius: 12px; } .lshots figcaption { font-size: 12.5px; } .lshots figcaption b { font-size: 13.5px; } }
+
+/* a bonus mode in the shop: the ladder's star and its fifteen rungs */
+.xart.xmode { display: inline-grid; place-items: center; width: 80px; height: 80px; border-radius: 14px;
+  background: linear-gradient(160deg, #3b1d6e, #8b5cf6); color: #fde68a; position: relative; }
+.xart.xmode b { position: absolute; bottom: 8px; right: 10px; font: 800 14px/1 var(--display); color: #fff; }
+.gf-ways { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 2px; }
+/* a child's reading of a verse: first, larger, and labelled as a computer's unchecked draft */
+.gt-kid { margin: 0 0 14px; }
+.gt-kidtxt { font-size: 1.12em; line-height: 1.6; margin: 0 0 8px; color: var(--text); }
+.gt-kid .gt-draft { margin: 0; }

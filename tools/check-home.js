@@ -188,7 +188,53 @@ check('progress', 'rank, a bar and the map\'s own place count sit on Home, the m
   if (m.text.indexOf('of ' + m.total + ' places') < 0) throw new Error(`the place count is not the map's ${m.total}: "${m.text.slice(0, 80)}"`);
 }, { vp: DESK });
 
+/* THE NEXT PLACE GLOWS — ITS FILL, NEVER ITS BOUNDARY (owner, 4 Oct 2026; v4 D8): on the map the
+   one state Continue's story will light is marked, it is the state the companion stands on, and
+   nothing about it moves: no animation or transition of its own, and its outline is drawn exactly
+   as its neighbours' are. Once lit, it no longer glows. */
+check('frontier', 'the map marks the state the next story lights — by its fill, static, the outline untouched', async ({ p }) => {
+  const look = () => p.evaluate(async () => { window.BI.go('map'); if (window.BI.ready) await window.BI.ready(); await new Promise(r => setTimeout(r, 400));
+    const g = [...document.querySelectorAll('.mapsvg .terrg.next')], plain = document.querySelector('.mapsvg .terrg:not(.next):not(.home):not(.on) .terr');
+    const one = g[0], t = one && one.querySelector('.terr'), m = one && one.querySelector('.mist');
+    const cs = t && getComputedStyle(t), ps = plain && getComputedStyle(plain), ms = m && getComputedStyle(m);
+    const you = document.querySelector('.mapyou'), yr = you && you.getBoundingClientRect(), tr = t && t.getBoundingClientRect();
+    return { n: g.length, code: one && one.getAttribute('data-code'),
+      stroke: cs && [cs.stroke, cs.strokeWidth].join(' '), plain: ps && [ps.stroke, ps.strokeWidth].join(' '),
+      moves: [cs, ms].filter(Boolean).some(x => (x.animationName && x.animationName !== 'none') || parseFloat(x.transitionDuration) > 0 && x.transitionProperty !== 'opacity'),
+      mistMoves: !!(ms && ((ms.animationName && ms.animationName !== 'none') || parseFloat(ms.transitionDuration) > 0)),
+      washed: !!(ms && ms.display !== 'none' && +ms.opacity > 0.05),
+      under: !!(yr && tr && yr.left + yr.width / 2 >= tr.left && yr.left + yr.width / 2 <= tr.right && yr.top + yr.height / 2 >= tr.top && yr.top + yr.height / 2 <= tr.bottom),
+      legend: (document.querySelector('.maplegend') || {}).textContent || '', lit: Object.keys(window.BI.S.lit || {}) }; });
+  const a = await look();
+  if (a.n !== 1) throw new Error(`${a.n} states glow; the next one alone should`);
+  if (a.lit.includes(a.code)) throw new Error('a state already lit glows as the next one');
+  if (!a.washed) throw new Error('the next state has no wash on its fill');
+  if (a.stroke !== a.plain) throw new Error(`the next state's outline is drawn differently (${a.stroke} vs ${a.plain}) — the boundary is never the mark`);
+  if (a.moves || a.mistMoves) throw new Error('the glow moves — an animation or transition of its own');
+  if (!a.under) throw new Error('the glowing state is not where the companion stands');
+  if (!/glowing/.test(a.legend)) throw new Error('the legend does not say what the glow means');
+  /* light it: it stops glowing */
+  await p.evaluate(c => { window.BI.S.lit[c] = true; }, a.code);
+  const b = await look();
+  if (b.code === a.code) throw new Error('a lit state still glows');
+}, { vp: DESK });
+
 check('firstlearn', 'Read it plays a story in the landing itself, before any setup; setup keeps it; a story is one tap after setup', async ({ p }) => {
+  /* THE THREE PHOTOGRAPHS (owner, 4 Oct 2026: "allow screenshots"; v4 A1): the landing names the
+     ages it is for, and shows three photographs of the app — a story, the map, a lesson — below
+     the hero, lazy, from tools/gen-landing-shots.js. Three, not a gallery; never a feature grid. */
+  const shots = await p.evaluate(() => { const h = document.querySelector('.hero'), hb = h ? h.getBoundingClientRect().bottom : 0;
+    const im = [...document.querySelectorAll('.lshots img')];
+    return { ages: /4 to 12|4–12/.test((document.querySelector('.hero') || {}).textContent || ''),
+      n: im.length, src: im.map(i => i.getAttribute('src')), lazy: im.every(i => i.getAttribute('loading') === 'lazy'),
+      alt: im.every(i => (i.getAttribute('alt') || '').length > 10), below: im.every(i => i.getBoundingClientRect().top >= hb - 1),
+      other: [...document.querySelectorAll('#app img, .wrap img')].filter(i => !i.closest('.lshots') && /art\/landing\//.test(i.getAttribute('src') || '')).length }; });
+  if (!shots.ages) throw new Error('the landing does not say the ages it is for');
+  if (shots.n !== 3 || shots.src.join() !== 'art/landing/story.webp,art/landing/map.webp,art/landing/lesson.webp')
+    throw new Error('the landing should show three photographs — a story, the map, a lesson: ' + shots.src.join(', '));
+  if (!shots.lazy || !shots.alt || !shots.below || shots.other) throw new Error('the photographs must be lazy, described, and below the hero: ' + JSON.stringify(shots));
+  for (const f of shots.src) if (!fs.existsSync(path.join(APP, f)) || fs.statSync(path.join(APP, f)).size > 40 * 1024)
+    throw new Error(f + ' is missing or over 40 KB — run node tools/gen-landing-shots.js');
   const id = await p.evaluate(() => { const b = document.querySelector('.herocard [data-act="guest"]'); return b && b.getAttribute('data-id'); });
   if (!id) throw new Error('the landing\'s "Read it" does not open a story');
   await tap(p, '.herocard [data-act="guest"]');
@@ -199,8 +245,8 @@ check('firstlearn', 'Read it plays a story in the landing itself, before any set
   if (!g.reader || g.started || g.onboard) throw new Error('"Read it" did not play the story before setup: ' + JSON.stringify(g));
   /* THE LANDING WORKS AS A PAGE (owner, 3 Oct 2026; Bizzing Bee's hero lets a stranger spell a real
      word): the story plays INSIDE the landing's own card, beside Start free, on the same page —
-     not on a screen of its own — and the landing is the thing itself: no screenshots, no grid of
-     feature claims */
+     not on a screen of its own — and the landing is the thing itself: no mock-ups, no grid of
+     feature claims (its three photographs are checked above) */
   const L = await p.evaluate(() => ({ inHero: !!document.querySelector('.herocard .reader'), start: !!document.querySelector('.hero [data-act="begin"]'),
     grid: document.querySelectorAll('.grid.g3 .card').length,
     shots: [...document.querySelectorAll('img')].map(i => i.getAttribute('src') || '').filter(s => /shot|screen|mock/i.test(s)) }));

@@ -264,7 +264,10 @@ check('voice', 'nothing on screen is a note to ourselves', async ({ C }) => {
       if (c[k]) { n++; seen(`${c.id}.${k}`, c[k]); }
     });
     (c.needsReview || []).forEach((t, i) => { n++; seen(`${c.id}.needsReview[${i}]`, t); });
-    (c.sources || []).forEach(() => n++);   /* a source is a citation: it may name a book */
+    /* A source is a citation and may name a book — but it reaches the family too (the course
+       page and the printed pack), so it may not name a repo file: v4 audit, 4 Oct 2026, found
+       'docs/11-what-is-missing.md §4.1' and 'data-rishtey.js' on three course pages. */
+    (c.sources || []).forEach((t, i) => { n++; seen(`${c.id}.sources[${i}]`, t); });
     (c.assignments || []).forEach(a => { n++; seen(`${c.id}.assignment`, a.brief); });
     c.modules.forEach(m => {
       ['name', 'objective', 'needsReview', 'talk', 'home'].forEach(k => {

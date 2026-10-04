@@ -103,7 +103,7 @@ check('deadends', 'a screen opened on nothing is its shelf; on a thing not there
   const HUB = require('vm').runInNewContext('(' + lit[1] + ')');
   /* every render() case that reads view.arg must have a shelf */
   const takes = [...new Set([...src.matchAll(/case '([a-z0-9]+)':\s*h = V\.\w+\(view\.arg\)/g)].map(m => m[1]))];
-  const OWN = { paath: 1, shop: 1, search: 1 };   /* with no arg these ARE the hub */
+  const OWN = { paath: 1, shop: 1, search: 1, lost: 1 };   /* with no arg these ARE the hub; lost IS the not-here page */
   const orphan = takes.filter(n => !HUB[n] && !OWN[n]);
   if (orphan.length) throw new Error('screens with no shelf to fall back to: ' + orphan.join(', '));
   await p.evaluate(() => window.IND_LOAD(window.IND_GROUPS()));
@@ -115,16 +115,30 @@ check('deadends', 'a screen opened on nothing is its shelf; on a thing not there
         if (window.BI.ready) await window.BI.ready();
         const m = document.getElementById('main'), o = m.querySelector('.bz-oops');
         const b = o && [...o.querySelectorAll('[data-act="go"]')].map(x => x.getAttribute('data-v'));
+        /* the Gita before its reviewer signs is a gate, not a dead end: it says why, with a door */
+        const hold = m.querySelector('.gt-hold [data-act="go"]');
+        if (hold) return { hold: true };
         return { oops: !!o, face: !!(o && o.querySelector('img, svg')), doors: b || [], text: m.innerText.slice(0, 120),
                  bare: /^(Pack not found\.|This shelf is not here\.)/.test(m.innerText.trim()) };
       }, '#/' + n + arg);
+      if (r.hold) continue;
       if (r.bare) bad.push(`#/${n}${arg} says only "${r.text.slice(0, 30)}"`);
       else if (want === 'shelf' && r.oops) bad.push(`#/${n} with nothing named is the error page`);
-      else if (want === 'oops' && !r.oops) { /* a screen may show a default for an unknown name; that is not a dead end */ }
+      /* v4 audit: "Story not found." with no button slipped past a check that accepted any
+         default. A name that is not there now gets the peacock and a door, every time. */
+      else if (want === 'oops' && !r.oops) bad.push(`#/${n}${arg} shows "${r.text.slice(0, 40).replace(/\s+/g, ' ')}" instead of the peacock and a door`);
       else if (want === 'oops' && (!r.face || !r.doors.some(d => d && d !== 'home'))) bad.push(`#/${n}${arg} has no peacock or no door but Home`);
     }
   }
-  if (bad.length) throw new Error(bad.length + ' dead ends: ' + bad.slice(0, 5).join(' · '));
+  /* an address the app does not have: said, with Home and Search — never silently Home */
+  const lost = await p.evaluate(async () => {
+    location.hash = '#/zz-no-such-page'; await new Promise(ok => setTimeout(ok, 30));
+    if (window.BI.ready) await window.BI.ready();
+    const o = document.querySelector('#main .bz-oops');
+    return { oops: !!o, doors: o ? [...o.querySelectorAll('[data-act="go"]')].map(x => x.getAttribute('data-v')) : [] };
+  });
+  if (!lost.oops || lost.doors.indexOf('home') < 0) bad.push('#/zz-no-such-page is not said: ' + JSON.stringify(lost));
+  if (bad.length) throw new Error(bad.length + ' dead ends: ' + bad.join(' · '));
 });
 
 check('continue', '#/continue opens the one next thing', async ({ p, base }) => {

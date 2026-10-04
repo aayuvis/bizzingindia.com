@@ -622,9 +622,13 @@
     injectCSS();
     var slow = reducedMotion();
     var bands = bandLists(buildBank());
+    /* THE HARD LADDER (a bonus mode a child opens with coins, at a printed price — owner, 4 Oct
+       2026): five middle rungs, then ten hard ones. The classic ladder stays free and unchanged. */
+    var HARD = !!(opts && opts.skin === 'mode-gyanpati-hard');
     /* five from each band; a thin band borrows from its neighbour so the
        ladder still stands while the data files are filling out */
-    var qs = pickFresh(bands.easy, 5).concat(pickFresh(bands.mid, 5), pickFresh(bands.hard, 5));
+    var qs = HARD ? pickFresh(bands.mid, 5).concat(pickFresh(bands.hard, 10))
+                  : pickFresh(bands.easy, 5).concat(pickFresh(bands.mid, 5), pickFresh(bands.hard, 5));
     if (qs.length < 15) {
       var spare = pickFresh(bands.mid.concat(bands.easy, bands.hard), 45), si = 0, have = {}, qi;
       for (qi = 0; qi < qs.length; qi++) have[qs[qi].key] = 1;
@@ -650,7 +654,7 @@
 
     function hook() {
       host.__qzState = {
-        game: 'gyanpati', phase: phase, qIndex: idx, total: total,
+        game: 'gyanpati', ladder: HARD ? 'hard' : 'classic', bands: qs.map(function (q) { return q.band; }), phase: phase, qIndex: idx, total: total,
         question: current ? current.q : '', options: deal ? deal.options : [],
         answerIndex: deal ? deal.answer : -1, selected: selected,
         correct: got, marks: marks.slice(),
@@ -664,7 +668,7 @@
       for (i = total - 1; i >= 0; i--) {
         var cls = 'qz-rung' + (marks[i] === 1 ? ' past' : '') + (i === idx && phase !== 'end' ? ' now' : '');
         h += '<div class="' + cls + '"><span>' + (i + 1) + '</span><span>' +
-             (marks[i] === 1 ? '✓ knew it' : marks[i] === 0 ? 'learned it' : (i < 5 ? 'easy' : i < 10 ? 'middle' : 'hard')) +
+             (marks[i] === 1 ? '✓ knew it' : marks[i] === 0 ? 'learned it' : (qs[i] ? ({ easy: 'easy', mid: 'middle', hard: 'hard' })[qs[i].band] : '')) +
              '</span></div>';
       }
       return h + '</div>';
@@ -683,7 +687,7 @@
       host.innerHTML =
         '<div class="qz-wrap">' +
           '<div class="qz-hud">' +
-            '<div><span class="qz-kicker">Mela · the ladder quiz</span><b>Kaun Banega Gyanpati?</b></div>' +
+            '<div><span class="qz-kicker">Mela · ' + (HARD ? 'the hard ladder' : 'the ladder quiz') + '</span><b>Kaun Banega Gyanpati?</b></div>' +
             '<div style="display:flex;gap:8px;align-items:center">' +
               '<span class="qz-pot">Knew <b>' + got + '</b> of ' + total + '</span>' +
               '<button type="button" class="qz-railbtn" data-go="rail" aria-expanded="' + railOpen + '">Ladder</button>' +

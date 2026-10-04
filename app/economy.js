@@ -50,6 +50,16 @@
     { id: 'frame-diya',    kind: 'frame', name: 'Diya frame',    price: 120, note: 'Little lamps that glow when the app is in night mode.' },
     { id: 'board-rosewood', kind: 'board', game: 'carrom', name: 'Rosewood carrom board', price: 100, note: 'A dark polished board for Carrom.' },
     { id: 'board-teak',    kind: 'board', game: 'carrom', name: 'Teak carrom board',     price: 100, note: 'A pale, warm board for Carrom.' },
+    /* BONUS MODES AND THEMES (owner, 4 Oct 2026: "coin-opened bonus modes"; v4 G9). Each is a
+       second way to play a game whose first way stays free and whole — never a lesson, never a
+       stop, never the only way in. Bought at the printed price, chosen, switched on and off like
+       a board. A theme names the tradition its colours come from. */
+    { id: 'mode-gyanpati-hard', kind: 'mode', game: 'gyanpati', name: 'Gyanpati: the hard ladder', price: 150,
+      note: 'Five middle rungs, then ten hard ones. The classic ladder stays as it is.' },
+    { id: 'theme-rangoli-kolam', kind: 'theme', game: 'rangoli', name: 'Rangoli in kolam colours', price: 80,
+      note: 'Rice-flour white, turmeric and kumkum on a red-earth doorstep — as kolam is drawn in Tamil Nadu.' },
+    { id: 'theme-rangoli-diwali', kind: 'theme', game: 'rangoli', name: 'Rangoli on a Diwali night', price: 80,
+      note: 'Marigold, lamp-gold and vermilion on a dark courtyard, the way a threshold is lit for Diwali.' },
     /* OUTFITS (audit K6, 3 Oct 2026: "cosmetics beyond avatars are 6 items"). Worn by the child's
        companion, from the textile traditions — each named with where it is made. Nothing marks
        a faith, a caste or a community; cloth and flowers only. */

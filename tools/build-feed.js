@@ -162,13 +162,16 @@ function castCard(base, id, why) {
   if (c.kind === 'real' && (c.achievements || [])[0] && base.badge !== 'katha') return add(Object.assign({}, base, { kind: 'person', src: 'avatar:' + id + ':achievements:0',
     title: c.name, body: c.achievements[0], route: '#/avcard/' + id, cta: 'Open their card', why, land: c.name }));
 }
+const storySm = id => { const k = id.replace(/\./g, '-'); return fs.existsSync(path.join(APP, 'art', 'story', 'sm', k + '.jpg')) ? 'art/story/sm/' + k + '.jpg' : null; };
 okStories.forEach((s, si) => {
   const places = (s.place || []).map(p => String(p).replace('IN-', ''));
   const art = STORY_ART.has(s.id.replace(/\./g, '-')) ? 'art/story/' + s.id.replace(/\./g, '-') + '.jpg' : null;
   const topics = ['story:' + s.id, 'coll:' + s.collection].concat(places.map(p => 'place:' + p));
   const sp = 'stories/[id=' + s.id + ']/';
   const base = { badge: s.badge, bands: bandsFor(4), level: levelAt('story:' + s.id, si, okStories.length), topics, story: s.id,
-    route: '#/story/' + s.id, art: null, cta: 'Read the story', land: s.title,
+    /* the story's own painting, at the small size Home's plates use (480px, ~27 KB): v4 found
+       5% of cards with a picture and 1,680 story cards with none, though 688 are painted */
+    route: '#/story/' + s.id, art: storySm(s.id), cta: 'Read the story', land: s.title,
     fx: [['From', '{0}', [COLL_KEY[s.collection] + '/[id=' + s.collection + ']/name']], ['Lights up', '{0}', [sp + 'place|names']],
          ['Read', '{0} min', [sp + 'minutes']], ['Told from', '{0}', [sp + 'source']]] };
   const from = 'From ' + (COLL[s.collection] || 'the story shelves');
@@ -200,7 +203,8 @@ okStories.forEach((s, si) => {
     if (gate >= 11) return;
     const EK = Object.keys(C).filter(k => C[k] === E)[0], ep0 = EK + '/episodes/[n=' + ep.n + ']/';
     const base = { badge: E.badge || 'katha', bands: bandsFor(gate), level: levelAt('epic:' + E.id + ':' + ep.n, ei, E.episodes.length),
-      topics: ['epic:' + E.id], route: '#/epic/' + E.id + '|' + ep.n, act: { a: 'episode', id: E.id, n: ep.n }, art: null, cta: 'Hear this night',
+      topics: ['epic:' + E.id], route: '#/epic/' + E.id + '|' + ep.n, act: { a: 'episode', id: E.id, n: ep.n },
+      art: fs.existsSync(path.join(APP, 'art', 'epic', 'sm', E.id + '-' + ep.n + '-0.jpg')) ? 'art/epic/sm/' + E.id + '-' + ep.n + '-0.jpg' : null, cta: 'Hear this night',
       land: ep.title, fx: [['Epic', '{0}', [EK + '/title']], ['Night', '{0} of {1}', [ep0 + 'n', EK + '/episodes|len']], ['Hear it', '{0} min', [ep0 + 'minutes']]] };
     const t = E.title + ' · ' + ep.title, why = E.title + ', night ' + ep.n, at = 'epic:' + E.id + ':episodes:' + ei + ':';
     add(Object.assign({}, base, { id: 'ep-' + E.id + '-' + ep.n, kind: 'night', src: at + 'cards:0:text', title: t, body: clip(ep.cards[0].text), why }));
@@ -279,10 +283,18 @@ Object.keys(C.IND_PACKS).forEach(id => {
       if (typeof x === 'string' && lex[x] && lex[x].en && !met['w:' + x]) {
         met['w:' + x] = 1; const w = lex[x];
         words.push([w, st]);
+        /* A WORD IN ITS SENTENCE, not a gloss (v4 audit: 36% of the feed was "Hindi word ·
+           कोहरा · kohra · fog"). Where the app holds the word's own example sentence it rides on
+           the card as a fact read from that bank; a language with no sentences yet keeps only its
+           first forty words on the feed, so the bare glosses fall to about one card in twenty
+           without the feed turning Hindi-only (docs/05: never imply Hindi = Indian). */
+        const sent = ((C.IND_BHASHA_SENTENCES || {})[id] || {})[w.word];
+        if (!sent && words.length > 40) return;
         add(at(st, { id: 'bw-' + id + '-' + words.length, kind: 'word', key: id + '|word:' + w.word, src: 'word:' + id + ':' + w.word,
           route: '#/wordcard/' + encodeURIComponent(id + ':' + w.word), title: L + ' word', text: w.word, roman: w.roman, body: w.en,
           cta: 'Open the word card', why: 'A word from the ' + L + ' path, ' + st.name, land: w.word,
-          fx: rungFx(st).concat([['Theme', '{0}', [pp + 'lexicon/[word=' + w.word + ']/theme']]]) }));
+          fx: (sent ? [['In a sentence', '{0} — {1}', ['IND_BHASHA_SENTENCES/' + id + '/' + w.word + '/s', 'IND_BHASHA_SENTENCES/' + id + '/' + w.word + '/en']]] : [])
+            .concat(rungFx(st)).concat([['Theme', '{0}', [pp + 'lexicon/[word=' + w.word + ']/theme']]]) }));
         return;
       }
       if (st.id === 's1' && typeof x === 'string' && sc && !met['l:' + x]) {
@@ -380,7 +392,11 @@ Object.keys(C.IND_MAP.paths).sort().forEach((c, ci) => {
       play: { q: solo[0].dish + ' is on one of these places’ tables. Which?', opts: [c, wr[0], wr[1]].map(stateName), a: 0,
         after: solo[0].dish + ': ' + solo[0].what }, why: 'A map question' }));
   }
-  if (g.capital) {
+  /* never a question that answers itself: "Chandigarh is the capital of which place?" with
+     Chandigarh as the answer (v4 audit: Chandigarh, New Delhi, Puducherry). The same rule the
+     quiz games keep (games-quiz.js leaks()): any word of three letters or more shared. */
+  const shares = (a, b) => String(a).split(/[^A-Za-z]+/).some(w => w.length >= 3 && new RegExp('\\b' + w + '\\b', 'i').test(String(b)));
+  if (g.capital && !shares(g.capital, g.name) && !shares(g.name, g.capital)) {
     const others = ALLSTATES.filter(x => x !== c && C.IND_GEO.states[x].capital !== g.capital);
     const opts = [g.name, stateName(others[(ci * 7) % others.length]), stateName(others[(ci * 7 + 13) % others.length])];
     if (new Set(opts).size === 3) add(Object.assign({}, base, { id: 'pc-' + c, kind: 'capital', bands: bandsFor(8), topics: ['map'], src: 'geo:' + c + ':capital', title: 'Which state?', fx: [],

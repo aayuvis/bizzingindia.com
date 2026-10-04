@@ -38,7 +38,9 @@ function serve() {
   return new Promise(r => s.listen(0, '127.0.0.1', () => r(s)));
 }
 
-const VIEWS = [['home'], ['stories'], ['bhasha'], ['pack', 'hi'], ['paath'], ['paath', 'neeti-course'], ['neeti'], ['khel'], ['me'], ['aaj'], ['feed']];
+const VIEWS = [['home'], ['stories'], ['bhasha'], ['pack', 'hi'], ['paath'], ['paath', 'neeti-course'], ['neeti'], ['khel'], ['me'], ['aaj'], ['feed'],
+  /* a state page: its hero chips sit on a painting, and were white on white at night (v4, Kerala) */
+  ['state', 'KL']];
 
 /* THE MEASURE IS PIXELS. Walking up the CSS backgrounds was wrong for this app: a caption
    on a painting sits over an <img> with a scrim element or a ::after gradient, none of which

@@ -61,5 +61,56 @@ small(icon(512, 0.82)).save(os.path.join(APP, 'icon-512.png'), optimize=True)
 # the safe zone is a circle of diameter 0.8n; a square-ish bird of side s fits it when s*sqrt(2) <= 0.8n
 small(icon(512, 0.56)).save(os.path.join(APP, 'icon-maskable-512.png'), optimize=True)
 icon(180, 0.80).save(os.path.join(APP, 'apple-touch-icon.png'), optimize=True)
-small(icon(32, 0.92)).save(os.path.join(APP, 'favicon-32.png'), optimize=True)
-print('icons: 192, 512, maskable 512, apple 180, favicon 32')
+# THE TAB ICON IS THE BIRD ALONE (owner, 4 Oct 2026: "the bee icon has no background square —
+# do so here too"): in a browser tab the mark stands on the tab itself, the way Bizzing Bee's bee
+# does. Transparent, the peacock filling the square. The home-screen icons above keep their
+# ground, because a launcher draws a transparent pixel as black or as its own plate.
+def bare():
+    """the mark without its cream halo or loose sparkles: the halo is flooded away from outside
+    (cream pixels only, so the bird's own whites, ringed by its outline, stay), then only the
+    largest connected shape — the bird — is kept"""
+    from collections import deque
+    m = MARK.copy(); W, H = m.size; px = m.load()
+    def cream(p):
+        r, g, b, a = p
+        return a < 40 or (r > 225 and g > 205 and b > 150 and r - b < 95 and abs(r - g) < 45)
+    gone = [[False] * H for _ in range(W)]; q = deque()
+    for x in range(W):
+        for y in range(H):
+            if px[x, y][3] == 0: gone[x][y] = True; q.append((x, y))
+    while q:
+        x, y = q.popleft()
+        for a, b in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if 0 <= a < W and 0 <= b < H and not gone[a][b] and cream(px[a, b]):
+                gone[a][b] = True; q.append((a, b))
+    comp, best, label = {}, None, 0
+    for x in range(W):
+        for y in range(H):
+            if gone[x][y] or (x, y) in comp: continue
+            label += 1; q = deque([(x, y)]); comp[(x, y)] = label; size = 0
+            while q:
+                cx, cy = q.popleft(); size += 1
+                for a, b in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                    if 0 <= a < W and 0 <= b < H and not gone[a][b] and (a, b) not in comp:
+                        comp[(a, b)] = label; q.append((a, b))
+            if not best or size > best[1]: best = (label, size)
+    for x in range(W):
+        for y in range(H):
+            if gone[x][y] or comp.get((x, y)) != best[0]: px[x, y] = (0, 0, 0, 0)
+    return m.crop(m.getbbox())
+
+
+def tab(n):
+    c = Image.new('RGBA', (n, n), (0, 0, 0, 0))
+    m = bare(); k = n / max(m.size)
+    b = m.resize((max(1, round(m.width * k)), max(1, round(m.height * k))), Image.LANCZOS)
+    c.alpha_composite(b, (round((n - b.width) / 2), round((n - b.height) / 2)))
+    return c
+
+# a palette keeps the alpha and takes the 96 from 19 KB to a few: it is sent on every first visit
+def tabsmall(im):
+    return im.quantize(colors=128, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE)
+
+tabsmall(tab(32)).save(os.path.join(APP, 'favicon-32.png'), optimize=True)
+tabsmall(tab(96)).save(os.path.join(APP, 'favicon-96.png'), optimize=True)
+print('icons: 192, 512, maskable 512, apple 180; tab icons 32 and 96, transparent')

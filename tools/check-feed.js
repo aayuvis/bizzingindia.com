@@ -363,6 +363,19 @@ check('noleak', 'the reason a question is on the feed never says its answer, for
   }));
   if (qs < 50) throw new Error('only ' + qs + ' questions across every child built — the check sees too little');
 });
+check('selfanswer', 'no question\'s own words contain its answer (the capital that answers itself)', () => {
+  /* v4 audit: "Chandigarh is the capital of which place?" — answer: Chandigarh. Also New Delhi,
+     Puducherry. The rule the quiz games keep (games-quiz.js leaks()): any word of three
+     letters or more the question and the right option share is a leak. */
+  /* names only — a capitalised word or one in an Indian script — so "What does this Hindi word
+     mean?" and "the respectful word" do not count; "Chandigarh … ?" → Chandigarh does */
+  const names = t => String(t).split(/[^A-Za-z\u0900-\u0DFF]+/).filter(w => w.length >= 3 && (/^[A-Z]/.test(w) || /[\u0900-\u0DFF]/.test(w)));
+  const shares = (a, b) => { const q = names(b).map(w => w.toLowerCase()); return names(a).some(w => q.indexOf(w.toLowerCase()) >= 0 && !/^(What|Which|Where|Who|The|This|These|Hindi|India|Indian)$/.test(w)); };
+  const bad = ITEMS.filter(it => it.play && shares(it.play.opts[it.play.a], it.play.q)).map(it => it.id + ': "' + it.play.q + '" → ' + it.play.opts[it.play.a]);
+  if (ITEMS.filter(it => it.play).length < 200) throw new Error('too few questions read');
+  if (bad.length) throw new Error(bad.length + ' questions say their own answer: ' + bad.slice(0, 4).join(' · '));
+});
+
 check('mix', 'never three cards of one kind in a row; at most five questions', () => {
   KIDS.forEach(k => {
     const l = run(k);
@@ -370,6 +383,21 @@ check('mix', 'never three cards of one kind in a row; at most five questions', (
       throw new Error(`three ${l[i].kind} cards in a row for a ${k.band} child`);
     if (l.filter(x => byId[x.id].play).length > 5) throw new Error('more than five questions in a session');
   });
+});
+/* ONE OBJECT, AT MOST TWO CARDS (v4 V4): a Mahabharata night came as the episode, its hook and its
+   moment in one session. The cards cut from one story, night, verse, era, festival, state or street
+   game are one object; no session holds more than two of them — for every child built. */
+check('object', 'no session holds more than two cards about one thing — a story, a night, a verse, an era, a festival, a state', () => {
+  const same = [['ep-ramayana-1', 'eh-ramayana-1', 'em-ramayana-1', 'ew-ramayana-1'], ['st-pt.lion-rabbit', 'sw-pt.lion-rabbit-2', 'sp-pt.lion-rabbit'],
+                ['pl-KL', 'pt-KL-0', 'pc-KL', 'pd-KL-3'], ['fe-lohri', 'fd-lohri-1', 'pf-lohri'], ['ih-maurya', 'iw-maurya']];
+  for (const g of same) if (new Set(g.map(F.objectOf)).size !== 1) throw new Error('these are one thing and are not read as one: ' + g.join(', '));
+  if (F.objectOf('ep-ramayana-1') === F.objectOf('ep-ramayana-2')) throw new Error('two nights of the Ramayana are read as one thing');
+  let worst = 0, at = '';
+  KIDS.forEach(k => {
+    const per = {}; run(k).forEach(x => { const o = F.objectOf(x.id); per[o] = (per[o] || 0) + 1; if (per[o] > worst) { worst = per[o]; at = o + ' for a ' + k.band + ' child at rank ' + k.level; } });
+    if (run(k).length < 12) throw new Error('the cap starved a session: ' + run(k).length + ' cards');
+  });
+  if (worst > 2) throw new Error(`${worst} cards about ${at}`);
 });
 check('ends', 'a session is at most twenty cards, and what was seen this week sinks', () => {
   const k = kid({ band: '10-12' }), a = run(k);
@@ -436,7 +464,7 @@ check('screen', 'the page head, about twenty cards, the finished card; no counts
   }
 });
 
-check('play', 'a question: wrong by keyboard holds for Continue and leaks nothing; right by touch pays one coin, once', async ({ p }) => {
+check('play', 'a question: a first miss asks again and leaks nothing; a second names the answer and holds for Continue; right first time by touch pays one coin, once', async ({ p }) => {
   await openFeed(p);
   const q = await p.evaluate(() => {
     const c = document.querySelector('.fd-card[data-play]');
@@ -452,13 +480,26 @@ check('play', 'a question: wrong by keyboard holds for Continue and leaks nothin
   const shut = await p.evaluate(() => [...document.querySelectorAll('.fd-card[data-play]')].map(c => ({ id: c.getAttribute('data-fid'),
     door: !!c.querySelector('.fd-go'), facts: !!c.querySelector('.fd-facts, .fd-more') })).filter(x => x.door || x.facts));
   if (shut.length) throw new Error('a question shows its door or its facts before it is answered: ' + shut.map(x => x.id).join(', '));
-  const wrongO = await p.evaluate(q => [...document.querySelectorAll(`.fd-card[data-fid="${q.id}"] [data-act="feedans"]`)].map(b => +b.getAttribute('data-o')).filter(o => o !== q.a)[0], q);
+  /* TWO TRIES, THEN THE ANSWER AND WHY (owner, 4 Oct 2026): a first miss sets that option aside
+     and asks again, telling nothing; a second names the answer and why, and holds for Continue */
+  const wrongs = await p.evaluate(q => [...document.querySelectorAll(`.fd-card[data-fid="${q.id}"] [data-act="feedans"]`)].map(b => +b.getAttribute('data-o')).filter(o => o !== q.a), q);
   const coins0 = await p.evaluate(() => window.BI.coins());
-  await p.focus(`.fd-card[data-fid="${q.id}"] [data-act="feedans"][data-o="${wrongO}"]`); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
-  const held = await p.evaluate(q => { const c = document.querySelector(`.fd-card[data-fid="${q.id}"]`);
-    return { cont: !!c.querySelector('[data-act="feedcont"]'), text: c.innerText, coins: window.BI.coins() }; }, q);
-  if (!held.cont) throw new Error('a wrong answer did not hold for Continue');
-  if (held.text.indexOf('Right!') >= 0) throw new Error('a wrong answer was called right');
+  const look = () => p.evaluate(q => { const c = document.querySelector(`.fd-card[data-fid="${q.id}"]`);
+    return { cont: !!c.querySelector('[data-act="feedcont"]'), text: c.innerText, coins: window.BI.coins(),
+             marked: [...c.querySelectorAll('.fd-opt.right')].map(b => +b.getAttribute('data-o')),
+             live: [...c.querySelectorAll('[data-act="feedans"]:not([disabled])')].map(b => +b.getAttribute('data-o')),
+             door: !!c.querySelector('.fd-go'), said: [...c.querySelectorAll('[role=status]')].map(e => e.innerText).join(' ') }; }, q);
+  await p.focus(`.fd-card[data-fid="${q.id}"] [data-act="feedans"][data-o="${wrongs[0]}"]`); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
+  const once = await look();
+  if (once.cont) throw new Error('a first miss held for Continue instead of a second try');
+  if (once.marked.length || once.said.indexOf(q.right) >= 0) throw new Error('a first miss gave the answer away: ' + once.said);
+  if (once.live.includes(wrongs[0]) || !once.live.includes(q.a)) throw new Error('a first miss did not set that option aside and leave the rest: ' + JSON.stringify(once.live));
+  if (once.coins !== coins0 || once.door) throw new Error('a first miss paid, or opened the door');
+  await p.focus(`.fd-card[data-fid="${q.id}"] [data-act="feedans"][data-o="${wrongs[1]}"]`); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
+  const held = await look();
+  if (!held.cont) throw new Error('a second miss did not hold for Continue');
+  if (held.text.indexOf('Right') >= 0) throw new Error('a wrong answer was called right');
+  if (held.text.indexOf(q.right) < 0 || !held.marked.includes(q.a)) throw new Error('two misses, and the answer was not shown');
   if (held.coins !== coins0) throw new Error('a wrong answer paid');
   await p.focus(`.fd-card[data-fid="${q.id}"] [data-act="feedcont"]`); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
   /* the next question, by touch */
@@ -477,6 +518,17 @@ check('play', 'a question: wrong by keyboard holds for Continue and leaks nothin
   await p.evaluate(q2 => { const b = document.querySelector(`.fd-card[data-fid="${q2.id}"] [data-act="feedans"][data-o="${q2.a}"]`); if (b) b.click(); }, q2);
   await p.waitForTimeout(300);
   if ((await p.evaluate(() => window.BI.coins())) !== c1 + 1) throw new Error('the same question paid twice');
+  /* right on the second go is marked right — and pays nothing: with three options it is a coin toss */
+  const q3 = await p.evaluate(ids => { const c = [...document.querySelectorAll('.fd-card[data-play]')].filter(x => !ids.includes(x.getAttribute('data-fid')))[0];
+    if (!c) return null; const id = c.getAttribute('data-fid'), it = window.IND_FEED_BODY[id]; return { id, a: it.play.a, w: [0, 1, 2].filter(o => o !== it.play.a)[0] }; }, [q.id, q2.id]);
+  if (q3) {
+    const c3 = await p.evaluate(() => window.BI.coins());
+    await p.tap(`.fd-card[data-fid="${q3.id}"] [data-act="feedans"][data-o="${q3.w}"]`); await p.waitForTimeout(250);
+    await p.tap(`.fd-card[data-fid="${q3.id}"] [data-act="feedans"][data-o="${q3.a}"]`); await p.waitForTimeout(250);
+    const r3 = await p.evaluate(q3 => ({ coins: window.BI.coins(), text: document.querySelector(`.fd-card[data-fid="${q3.id}"]`).innerText }), q3);
+    if (!/second go/.test(r3.text)) throw new Error('a right second try was not marked');
+    if (r3.coins !== c3) throw new Error('a right second try paid ' + (r3.coins - c3));
+  }
 }, { touch: true });
 
 check('keys', 'j / k and the arrows move from card to card', async ({ p }) => {

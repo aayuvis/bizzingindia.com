@@ -62,7 +62,10 @@ The short version:
   `earn('answer'|'stop'|'contest'|'mastery')` at 1 · 5 · 10 · 20, ≤ 100 a day. Never for
   time, taps, self-report, dice or luck; only a game in `TEACHES` pays. Rank counts mastery
   evidence, never coins. Nothing is random (no draws — a child chooses at a printed price).
-  No streak counts — "good days this week". A wrong answer holds until Continue.
+  No streak counts — "good days this week". A wrong answer holds until Continue. A bonus mode or
+  theme (the hard Gyanpati ladder, Rangoli's kolam and Diwali chalk) is a *second* way to play a game
+  whose free way stays whole — bought at its printed price, switched in the game's own title card
+  (owner, 4 Oct 2026; `check-standard modes`).
   `tools/check-rewards.js` holds all of it.
 - **Home is Bee's three rows, and Continue is one function** (docs/24, docs/29): `home()` from
   `family/bizzing-shell.js` — greeting · ring · word of the hour / ONE Continue · the map / tip ·
@@ -76,15 +79,16 @@ The short version:
   six tabs Home · India · Paathshala · Bhasha · Play · My Feed (owner, 2 Oct 2026: My Feed last); everything else lives in ☰. `checkShell`
   must return [] (check-standard `shell`). `bizzing.activity` gets
   active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
-- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts 7,836 cards
+- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts 6,308 cards
   from the corpus — several honest angles per object, each with a `src` that must resolve, nothing
-  needs_review or gated 11+, no two ≥ 80% the same words — on the Gurukul rank as the level (≥ 100
-  per rank, 214–2,311 today) plus 1,638 with no level. ONE engine: the family's
-  `family/bizzing-feed.js` (byte for byte, via `bridge.js`); `app/feed.js` only adapts India's
-  signals to it. A card's facts are read from corpus paths, never typed, and its door opens on that very
+  needs_review or gated 11+, no two ≥ 80% the same words, no question whose words hold its answer —
+  on the Gurukul rank as the level (≥ 100 per rank, 214–1,339 today) plus 1,633 with no level. ONE
+  engine: the family's `family/bizzing-feed.js` (byte for byte, via `bridge.js`); `app/feed.js` only
+  adapts India's signals to it, and asks it again until no object has more than two cards a session. A card's facts are read from corpus paths, never typed, and its door opens on that very
   thing — `#/<view>/<arg>|<focus>` puts a card for it first — never a tool's front door. About twenty a session, mostly at the child's rank, then a finished card; lazy
   groups by level, only those the session needs. No likes, counts, streaks, autoplay or sound
-  before a tap; only a right answer to a card's question pays, once, as `answer`. A grown-up can
+  before a tap; a first miss asks once more, a second names the answer and why and holds until
+  Continue; only a right answer on the first try pays, once, as `answer`. A grown-up can
   switch it off behind the PIN. Change the corpus → rerun `node tools/build-feed.js`.
   `tools/check-feed.js` holds it.
 - **Medals, sound and the game frame** (docs/26): medals only from what the app saw, each
@@ -100,7 +104,9 @@ The short version:
   is drawn over a painting. A swipe presses the same `[data-swipe]` button a tap would (so it
   cannot skip a question); a painting opens full screen. `tools/check-reading.js` holds it at six sizes.
 - **The landing works as a page**: tonight's story plays inside its hero card, beside Start free
-  — no screenshots, no feature grid (`check-home firstlearn`). A phone is sent nothing beyond the
+  — no mock-ups, no feature grid; it names the ages (4 to 12), and below the hero shows exactly three
+  photographs of the app — a story, the map, a lesson — made by `tools/gen-landing-shots.js` from the
+  sample child, never drawn (owner, 4 Oct 2026) (`check-home firstlearn`). A phone is sent nothing beyond the
   shell before its first tap, service worker included (`check-platform untouched`).
 - **The first screen carries only the shell** (docs/27). New data goes in a `<template id="lazy-…">`
   group in index.html, never as a shell `<script>`; a screen lists its groups in `NEEDS`. Home
@@ -124,6 +130,9 @@ The short version:
   region-varying geometry. Pre-modern boundaries on the time slider are **soft zones of
   influence**, never crisp modern borders. **Never animate or gamify a boundary** — no
   border draws itself, pulses, gets conquered or moves as a reward. Reviewed before shipping.
+  One mark is allowed (owner, 4 Oct 2026): the state the next story will light **glows on its
+  fill** — a static warm wash, its outline drawn exactly as its neighbours', nothing moving, gone
+  once it is lit (`check-home frontier`).
   Known geometry gaps to fix before launch (Telangana, Ladakh, Lakshadweep) are listed in
   [docs/07-tech-architecture.md](docs/07-tech-architecture.md#7-the-living-map-technically).
 - **Devanagari is set correctly or not at all** — real Devanagari face (Mukta / Noto Sans

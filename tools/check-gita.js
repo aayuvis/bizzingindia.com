@@ -106,6 +106,25 @@ check('english', 'every verse has Besant\'s English; Swarupananda\'s grouped ver
   }
 });
 
+/* A CHILD'S READING (owner, 4 Oct 2026: "draft, flagged needs_review"): every one drafted by a
+   computer from Besant and Swarupananda only, still flagged, still passing the lint against its own
+   verse's English, and the page says so wherever one is shown. The Gita stays in tester mode. */
+check('readings', 'each child\'s reading is flagged, from the two translations only, lint-clean, and labelled on the page', () => {
+  const G = fs.existsSync(path.join(SRC, 'gloss.json')) ? JSON.parse(fs.readFileSync(path.join(SRC, 'gloss.json'), 'utf8')) : {};
+  const { lint } = require('./lib/gita-gloss-lint.js');
+  let shown = 0;
+  for (const [c, x] of all()) {
+    if (!x.kid) continue; shown++;
+    const g = G[c + '-' + x.v];
+    if (!g || g.kid !== x.kid) throw new Error(c + '.' + x.v + ' shows a reading that is not gloss.json\'s');
+    if (!g.needs_review || g.by !== 'computer-drafted' || String(g.from) !== 'Besant 1922,Swarupananda 1909') throw new Error(c + '.' + x.v + ' reading is not flagged as an unchecked computer draft from the two translations');
+    const w = lint(x.kid, x.en, x.en2); if (w.length) throw new Error(c + '.' + x.v + ' reading: ' + w.join('; '));
+  }
+  const ui = fs.readFileSync(path.join(APP, 'gita.js'), 'utf8');
+  if (shown && !/drafted by a computer from the two translations below, and not yet checked by a person/.test(ui)) throw new Error('readings are shown without saying who drafted them');
+  console.log('         ' + shown + ' of 700 verses have a child\'s reading, every one an unchecked draft');
+});
+
 check('titles', 'chapter titles are Swarupananda\'s; the foreword is quoted word for word; no unsourced summaries', () => {
   const F = JSON.parse(fs.readFileSync(path.join(SRC, 'swarupananda-front.json'), 'utf8'));
   G.chapters.forEach((c, i) => { if (c.title !== F.titles[i]) throw new Error('chapter ' + (i + 1) + ' title is not Swarupananda\'s'); if (c.summary || c.meaning) throw new Error('chapter ' + (i + 1) + ' carries an unsourced summary'); });

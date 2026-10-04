@@ -234,6 +234,21 @@ own word, pays nothing, and is "by heart" only when said on two different days).
 
 Keys: space plays, ← → walk verses (across chapters), 1–6 choose a step. Every step is a tap too.
 
+**A child's reading, first, on Meaning** (owner, 4 Oct 2026: "draft, flagged needs_review").
+Above Besant, one short plain reading for a child of 8–12 — drafted by a computer from the two
+translations on that same page and nothing else, and the page says exactly that: *"In simpler
+words — drafted by a computer from the two translations below, and not yet checked by a person."*
+Every draft passed `tools/lib/gita-gloss-lint.js` before it was kept (no name or number that is in
+neither translation, no Sanskrit, nothing that ranks or dismisses a faith, 8–45 words); a verse
+whose drafts kept failing has no reading rather than a bad one. Each sits in
+`tools/gita-src/gloss.json` with `needs_review: true`, `by: computer-drafted`, `from: [Besant 1922,
+Swarupananda 1909]`, and `build-gita.js` writes it only while it is flagged and still passes the
+lint against *that* verse's English. Whether a reading is faithful is the reviewer's to say, not a
+program's — it is on the Sanskrit reviewer's list in §8.5. `tools/gita-gloss.py` drafts with a
+Gemini text model (key and model from the environment) or `--import`s drafts made elsewhere under
+the same rules; the first 700 were drafted by the AI assistant that builds this app, on 4 Oct 2026, when the Gemini text
+models answered 402 on this key. `check-gita readings` holds it.
+
 ### 8.4 Music and pictures
 
 Six themes in `music/engine.js`, no drums under a chant: the field (ch. 1, Darbari), a teacher

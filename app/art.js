@@ -206,7 +206,21 @@ window.IND_ICONS = {
   drop:    '<path d="M6 9l6 6 6-6"/>',
   wallet:  '<path d="M4 7h14a2 2 0 012 2v9a2 2 0 01-2 2H4zM4 7l11-3v3M15 13.5h2"/>',
   moon:    '<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>',
-  sun:     '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/>'
+  sun:     '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/>',
+  /* THE WORD ROOMS (v4: Kosh rooms and Bhasha units wore emoji as their control icons — a praying hand, a family, a bowl —
+     a different artist and weight on every platform). Drawn in the same 2px line as the rest. */
+  namaste: '<path d="M12 21V9.5L10.2 4.6c-.5-1.2-2.2-.9-2.2.4V12l-3 4.2V21M12 9.5l1.8-4.9c.5-1.2 2.2-.9 2.2.4V12l3 4.2V21"/>',
+  bowl:    '<path d="M3 11h18a9 9 0 01-18 0zM8 20h8M8.5 7.5c0-1.5 1-1.8 1-3.3M12 7.5c0-1.5 1-1.8 1-3.3M15.5 7.5c0-1.5 1-1.8 1-3.3"/>',
+  body:    '<circle cx="12" cy="4.8" r="2.4"/><path d="M12 8v7.5M6.5 10.5h11M12 15.5L9 21.5M12 15.5l3 6"/>',
+  puzzle:  '<path d="M4 8h4a2 2 0 014 0h4v4a2 2 0 010 4v4H4v-4a2 2 0 000-4z"/>',
+  paw:     '<circle cx="6.5" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14.5" cy="6" r="1.8"/><circle cx="18" cy="10" r="1.8"/><path d="M8 17.5c0-3 2-5.5 4.3-5.5s4.3 2.5 4.3 5.5c0 1.8-1.3 2.8-2.7 2.8-.9 0-1.6-.6-1.6-.6s-.7.6-1.6.6c-1.4 0-2.7-1-2.7-2.8z"/>',
+  palette: '<path d="M12 3a9 9 0 100 18c1.2 0 1.8-1 1.3-2-.6-1.2.2-2.5 1.5-2.5H17a4 4 0 004-4C21 7.2 17 3 12 3z"/><circle cx="7.5" cy="11.5" r="1.2"/><circle cx="10" cy="7.3" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/>',
+  numbers: '<path d="M9.5 3L7.5 21M16.5 3l-2 18M4 8.5h17M3 15.5h17"/>',
+  satchel: '<rect x="5" y="7" width="14" height="14" rx="3"/><path d="M9 7V5.5a3 3 0 016 0V7M5 13h14M10 13v2.5h4V13"/>',
+  shirt:   '<path d="M8.5 3L3 6.2l2 4 2.2-1.1V21h9.6V9.1L19 10.2l2-4L15.5 3c-.6 1.5-2 2.4-3.5 2.4S9.1 4.5 8.5 3z"/>',
+  cloud:   '<path d="M7 19h10a4 4 0 00.6-8 5.5 5.5 0 00-10.6 1.5A3.3 3.3 0 007 19zM17 2.5V4M21.3 6l-1.1 1.1M22.5 11h-1"/>',
+  bus:     '<rect x="4" y="3" width="16" height="15" rx="2.5"/><path d="M4 8h16M4 12.5h16M8 18v2.5M16 18v2.5M8 15.3h.01M16 15.3h.01"/>',
+  heart:   '<path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0112 7.2a4.2 4.2 0 017.5 2.6C19.5 15.4 12 20 12 20z"/>'
 };
 
 window.IND_ICON = function (name, size) {

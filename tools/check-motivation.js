@@ -110,16 +110,20 @@ check('games', 'every game: a title card with a folding how-to; Gyanpati sounds 
   await p.exposeFunction('__gfMotion', () => { motions++; });
   await p.evaluate(() => { const f = document.getElementById('gframe');
     new MutationObserver(() => { if (/gf-(yes|no)/.test(f.className)) window.__gfMotion(); }).observe(f, { attributes: true, attributeFilter: ['class'] }); });
+  /* the first answer is a miss on purpose: a miss reveals the right option, and the frame once
+     counted that reveal (and the "Shabaash" line under a right one) as rights of their own —
+     "27 right" at the end of a ten-question game (fix brief v4) */
   let answers = 0;
   for (let k = 0; k < 40; k++) {
     if (await p.$('#gamehost [data-go="out"]')) break;
-    const did = await p.evaluate(() => {
+    const did = await p.evaluate(miss => {
       const host = document.getElementById('gamehost'), s = host.__qzState;
       const aage = host.querySelector('[data-go="aage"], [data-go="next"]');
       if (aage) { aage.click(); return 'next'; }
-      if (s && s.phase === 'ask') { const o = host.querySelectorAll('.qz-opt')[s.answerIndex]; if (o) { o.click(); host.querySelector('[data-go="lock"]').click(); return 'ans'; } }
+      if (s && s.phase === 'ask') { const os = host.querySelectorAll('.qz-opt'), o = os[miss ? (s.answerIndex + 1) % os.length : s.answerIndex];
+        if (o) { o.click(); host.querySelector('[data-go="lock"]').click(); return 'ans'; } }
       return 'wait';
-    });
+    }, answers === 0);
     if (did === 'ans') answers++;
     await p.waitForTimeout(did === 'wait' ? 400 : 250);
   }
@@ -129,7 +133,10 @@ check('games', 'every game: a title card with a folding how-to; Gyanpati sounds 
   if (!end.out) throw new Error('Gyanpati did not reach its end card');
   if (!/What you practised/.test(end.practised)) throw new Error('the end card does not say what was practised');
   const rights = pl.filter(x => x === 'right').length;
-  if (rights < answers) throw new Error(`${answers} answers, ${rights} right sounds`);
+  if (rights < answers - 1) throw new Error(`${answers - 1} right answers, ${rights} right sounds`);
+  if (pl.indexOf('wrong') < 0) throw new Error('the miss made no sound');
+  const said = +((end.practised.match(/(\d+) right/) || [])[1] || 0);
+  if (said !== answers - 1) throw new Error(`${answers} answers, ${answers - 1} of them right, and the finish says ${said} right`);
   if (pl.indexOf('win') < 0 && pl.indexOf('finish') < 0) throw new Error('the finish made no sound');
   if (motions < answers) throw new Error(`${answers} answers, ${motions} motions`);
   /* THE FINISH STAYS (audit F4/G9): pressing the end card's button lands on the host's finish —
@@ -244,6 +251,17 @@ check('medals', 'a story earns a medal, celebrated once; self-report earns none;
   if (!c.anim || c.anim === 'none') throw new Error('the medal does not move');
   if ((await played(p)).indexOf('medal') < 0) throw new Error('the medal made no sound');
   if (/other|than .* (friend|child)|leaderboard|rank(ed)? #/i.test(c.txt)) throw new Error('the celebration compares children');
+  /* A CHILD'S MOMENT WAITS FOR THE CHILD (fix brief v4): a grown-up who opens the PIN while it is
+     up, or waiting, gets the report — and the medal is still there when the child is back */
+  await p.evaluate(() => window.BI.go('grown')); await p.waitForTimeout(300);
+  for (let k = 0; k < 2; k++) for (const d of '2468') { await p.evaluate(d => document.querySelector(`.pinkey[data-d="${d}"]`).click(), d); await p.waitForTimeout(40); }
+  await p.waitForTimeout(900);
+  const behind = await p.evaluate(() => ({ cel: !!document.getElementById('celebrate'), pad: document.querySelectorAll('.pinkey').length }));
+  if (behind.pad) throw new Error('the PIN did not open the grown-ups\' page');
+  if (behind.cel) throw new Error('a child\'s medal sits over the grown-ups\' page');
+  await p.evaluate(() => window.BI.go('home')); await p.waitForTimeout(900);
+  const back = await p.evaluate(() => (document.getElementById('celebrate') || {}).textContent || '');
+  if (!/First story/.test(back)) throw new Error('the medal held behind the PIN never came back to the child');
   await tap(p, '[data-act="celok"]');
   /* once: a reload and another story bring no second "First story" */
   await p.goto(base, { waitUntil: 'networkidle' }); await p.waitForTimeout(500);

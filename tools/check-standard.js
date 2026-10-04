@@ -328,7 +328,9 @@ check('emoji', 'zero emoji inside controls, tabs, nav, headings and chips', asyn
   const bad = [];
   /* #/worlds and the map's chip were missed (audit, 3 Oct 2026: 13 🪙 prices on #/worlds, a 🪔 on
      the map) — because the screen was not on this list and a price is a .badge, a count a .pill */
-  for (const [v, a] of [['home'], ['map'], ['paath'], ['bhasha'], ['khel'], ['me'], ['shop'], ['collection'], ['settings'], ['medals'], ['search', 'goa'], ['worlds']]) {
+  /* and the word rooms (v4: 🙏👪🍛 on 20 controls in Kosh and the Bhasha units) */
+  for (const [v, a] of [['home'], ['map'], ['paath'], ['bhasha'], ['khel'], ['me'], ['shop'], ['collection'], ['settings'], ['medals'], ['search', 'goa'], ['worlds'],
+                        ['kosh', 'hi'], ['kosh', 'ta'], ['pack', 'hi'], ['wordcard', 'hi:नमस्ते']]) {
     await go(p, v, a); await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(200);
     await openMenu(p);
     const hits = await p.evaluate(src => {
@@ -365,7 +367,26 @@ check('plates', 'every world has a painted day and night plate, in the manifest,
     const sm = path.join(APP, 'art', 'worlds', 'sm', id + '-' + m + '.jpg');
     if (!fs.existsSync(sm) || fs.statSync(sm).mtimeMs < fs.statSync(f).mtimeMs - 1000) bad.push(`${id}-${m} has no phone copy, or an older one — run python3 tools/gen-plate-sm.py`);
     else if (fs.statSync(sm).size > 120 * 1024) bad.push(`${id}-${m}'s phone copy is ${Math.round(fs.statSync(sm).size / 1024)} KB`);
+    /* and the Worlds page's thumbnail of it (v4 D3/D4) */
+    const th = path.join(APP, 'art', 'worlds', 'th', id + '-' + m + '.jpg');
+    if (!fs.existsSync(th) || fs.statSync(th).mtimeMs < fs.statSync(sm).mtimeMs - 1000) bad.push(`${id}-${m} has no Worlds thumbnail, or an older one — run python3 tools/gen-plate-thumbs.py`);
+    else if (fs.statSync(th).size > 40 * 1024) bad.push(`${id}-${m}'s thumbnail is ${Math.round(fs.statSync(th).size / 1024)} KB`);
   }
+  /* THE WORLDS PAGE SHOWS THE PAINTINGS (v4: "flat vector insets of uneven size"): every world's
+     card is its own plate, every one the same shape, and the picture of the mode on screen loads */
+  for (const mode of ['day', 'night']) {
+    await go(p, 'worlds'); await p.evaluate(m => document.documentElement.setAttribute('data-mode', m), mode);
+    await p.evaluate(() => window.scrollTo(0, 99999)); await p.waitForTimeout(900); await p.evaluate(() => window.scrollTo(0, 0));
+    const wv = await p.evaluate(() => [...document.querySelectorAll('#main .wpreview')].map(e => {
+      const r = e.getBoundingClientRect(), im = [...e.querySelectorAll('img')].filter(i => getComputedStyle(i).display !== 'none');
+      return { w: e.getAttribute('data-world'), plate: e.classList.contains('plate'), ratio: r.width / r.height,
+               shown: im.map(i => i.getAttribute('src')), ok: im.length === 1 && im[0].complete && im[0].naturalWidth > 0 }; }));
+    if (wv.length < r.list.length) bad.push(`#/worlds shows ${wv.length} thumbnails for ${r.list.length} worlds`);
+    wv.filter(x => !x.plate).forEach(x => bad.push(`#/worlds: ${x.w} is a drawn inset, not its painting`));
+    wv.filter(x => x.plate && Math.abs(x.ratio - 16 / 9) > 0.05).forEach(x => bad.push(`#/worlds: ${x.w} is ${x.ratio.toFixed(2)}:1, not 16:9`));
+    wv.filter(x => x.plate && (!x.ok || !x.shown.every(s => s.indexOf('-' + mode + '.') > 0))).forEach(x => bad.push(`#/worlds (${mode}): ${x.w} shows ${x.shown.join(',') || 'no picture'}`));
+  }
+  await p.evaluate(() => document.documentElement.setAttribute('data-mode', 'day'));
   /* Home's plates are drawn from plate-size copies of the story paintings and banners
      (tools/gen-plate-thumbs.py): a painting with no copy would be a blank plate */
   for (const sub of ['story', 'banner']) {
@@ -444,6 +465,51 @@ check('shop', 'a Rare costs 120 through the wallet, a Legendary waits for its mi
   if (ex < 3) throw new Error('only ' + ex + ' extras');
 });
 
+/* BONUS MODES (owner, 4 Oct 2026: "coin-opened bonus modes"; v4 G9): a second way to play a game
+   whose first way stays free and whole. Bought at its printed price through the one wallet, chosen
+   — never drawn — and switched on and off in the game's own title card. The hard ladder really is
+   harder; a Rangoli theme really changes the chalk. */
+check('modes', 'a bonus mode costs its printed price, is chosen in the game, and does what it says; the free way stays', async ({ p }) => {
+  const who = await p.evaluate(() => window.BI.S.name);
+  await p.evaluate(who => { for (let d = 0; d < 4; d++) for (let i = 0; i < 20; i++) window.IND_WALLET.earn('india', who, 'stop', Date.now() - d * 864e5 - i); }, who);
+  const X = await p.evaluate(() => window.IND_ECONOMY.EXTRAS.filter(x => x.kind === 'mode' || x.kind === 'theme').map(x => ({ id: x.id, game: x.game, price: x.price, kind: x.kind })));
+  const games = await p.evaluate(async () => { if (window.IND_LOAD) await window.IND_LOAD(['games']); return (window.IND_GAMES || []).map(g => g.id); });
+  if (!X.find(x => x.id === 'mode-gyanpati-hard') || X.filter(x => x.game === 'rangoli').length < 2) throw new Error('the hard ladder and the Rangoli themes are not on sale: ' + JSON.stringify(X));
+  for (const x of X) if (!games.includes(x.game) || !(x.price > 0)) throw new Error(x.id + ' has no game or no printed price');
+  /* before buying: the free way, the classic ladder, and no picker */
+  await go(p, 'game', 'gyanpati'); await p.waitForTimeout(500);
+  const free = await p.evaluate(() => ({ ways: !!document.querySelector('.gf-ways'), st: (document.getElementById('gamehost') || {}).__qzState }));
+  if (free.ways) throw new Error('a picker of ways shows before anything is opened');
+  if (!free.st || free.st.ladder !== 'classic' || free.st.bands.slice(0, 5).some(b => b !== 'easy')) throw new Error('the free ladder is not the classic one: ' + JSON.stringify(free.st && free.st.bands));
+  /* buy it in the Shop, at the printed price */
+  const bal0 = await p.evaluate(who => window.IND_WALLET.balance(who), who);
+  await go(p, 'shop', 'extras');
+  await p.evaluate(() => document.querySelector('#main [data-act="buyextra"][data-id="mode-gyanpati-hard"]').click()); await p.waitForTimeout(300);
+  const bal1 = await p.evaluate(who => window.IND_WALLET.balance(who), who);
+  const price = X.find(x => x.id === 'mode-gyanpati-hard').price;
+  if (bal0 - bal1 !== price) throw new Error(`the hard ladder cost ${bal0 - bal1}, its price is ${price}`);
+  /* in the game: the picker, and the hard ladder when chosen */
+  await go(p, 'game', 'gyanpati'); await p.waitForTimeout(500);
+  const pick = await p.evaluate(() => [...document.querySelectorAll('.gf-ways [data-act="gameway"]')].map(b => b.getAttribute('data-id')));
+  if (pick.length !== 2 || pick[0] !== '' || pick[1] !== 'mode-gyanpati-hard') throw new Error('the game does not offer the free way and the hard ladder: ' + JSON.stringify(pick));
+  await p.evaluate(() => document.querySelector('.gf-ways [data-id="mode-gyanpati-hard"]').click()); await p.waitForTimeout(600);
+  const hard = await p.evaluate(() => (document.getElementById('gamehost') || {}).__qzState);
+  if (!hard || hard.ladder !== 'hard' || hard.bands.includes('easy') || hard.bands.filter(b => b === 'hard').length < 10)
+    throw new Error('the hard ladder is not hard: ' + JSON.stringify(hard && hard.bands));
+  /* and back to the free way, one tap */
+  await p.evaluate(() => document.querySelector('.gf-ways [data-id=""]').click()); await p.waitForTimeout(600);
+  const back = await p.evaluate(() => (document.getElementById('gamehost') || {}).__qzState);
+  if (!back || back.ladder !== 'classic') throw new Error('the classic ladder did not come back');
+  /* a Rangoli theme changes the chalk and the ground, and nothing else is needed to play */
+  await go(p, 'shop', 'extras');
+  await p.evaluate(() => document.querySelector('#main [data-act="buyextra"][data-id="theme-rangoli-kolam"]').click()); await p.waitForTimeout(300);
+  await go(p, 'game', 'rangoli'); await p.waitForTimeout(400);
+  await p.evaluate(() => document.querySelector('.gf-ways [data-id="theme-rangoli-kolam"]').click()); await p.waitForTimeout(600);
+  const rg = await p.evaluate(() => { const w = document.querySelector('#gamehost .mela-wrap'); const cs = w && getComputedStyle(w);
+    return { on: w && w.getAttribute('data-theme-rg'), c1: cs && cs.getPropertyValue('--rg1').trim(), ground: cs && cs.getPropertyValue('--rg-ground').trim() }; });
+  if (rg.on !== 'theme-rangoli-kolam' || !rg.c1 || !rg.ground) throw new Error('the kolam theme did not reach the board: ' + JSON.stringify(rg));
+});
+
 /* ------------------------------------------------------------------ search (C4) */
 check('search', 'one search finds a story, a state, an era, a word and a festival — and opens them', async ({ p }) => {
   /* the bar's own search box: type, Enter, and the results screen opens on it */
@@ -454,8 +520,11 @@ check('search', 'one search finds a story, a state, an era, a word and a festiva
   const probe = await p.evaluate(() => ({
     story: (window.IND_STORIES || [])[0], era: ((window.IND_ITIHAAS || {}).eras || [])[0],
     fest: ((window.IND_UTSAV || {}).festivals || [])[0], word: ((window.IND_PACKS.hi || {}).lexicon || [])[5] }));
+  /* and by what a child actually types for history and verse (v4 C4): a dynasty, a person in
+     an era, a verse collection */
   const want = [[probe.story.title, 'story'], ['Kerala', 'state'], [probe.era.title || probe.era.name, 'era'],
-                [probe.word.word, 'wordcard'], [probe.fest.name, 'festival']];
+                [probe.word.word, 'wordcard'], [probe.fest.name, 'festival'],
+                ['Maurya', 'era'], ['Chola', 'era'], ['Mughal', 'era'], ['Chanakya', 'era'], ['Thirukkural', 'verses'], ['Dhammapada', 'verses']];
   for (const [q, v] of want) {
     await p.fill('#sq', q); await p.waitForTimeout(250);
     const hit = await p.evaluate(v => !!document.querySelector(`#sres .sres[data-v="${v}"]`), v);

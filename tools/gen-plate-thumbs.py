@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plate-size copies of the story paintings and the banners, for Home's two journey plates.
+"""Plate-size copies of the story paintings, the banners, the epic covers and the world plates.
 
 Home draws its Continue and map plates 100px tall. They were drawn from the full paintings
 (story art 760px, ~100 KB; banners 1200px, ~100 KB) — two of the biggest things a returning
@@ -23,4 +23,22 @@ for sub, w in (('story', 480), ('banner', 640)):
         dst = os.path.join(out, os.path.basename(f))
         im.save(dst, 'JPEG', quality=64, optimize=True, progressive=True)
         n += 1; total += os.path.getsize(dst)
+# THE EPICS' NIGHT COVERS for My Feed's cards (v4: 5% of feed cards had a picture): card 0 of
+# each episode, the painting the episode list already uses as its thumbnail, at story size.
+out = os.path.join(ART, 'epic', 'sm'); os.makedirs(out, exist_ok=True)
+for f in sorted(glob.glob(os.path.join(ART, 'epic', '*-0.jpg'))):
+    im = Image.open(f).convert('RGB')
+    im = im.resize((480, round(im.height * 480 / im.width)), Image.LANCZOS)
+    dst = os.path.join(out, os.path.basename(f))
+    im.save(dst, 'JPEG', quality=64, optimize=True, progressive=True)
+    n += 1; total += os.path.getsize(dst)
+# THE WORLDS PAGE'S THUMBNAILS (v4 D3/D4): each world's own painted plate, day and night, in
+# place of the flat vector insets — the same picture the world paints behind the app, small.
+out = os.path.join(ART, 'worlds', 'th'); os.makedirs(out, exist_ok=True)
+for f in sorted(glob.glob(os.path.join(ART, 'worlds', 'sm', '*.jpg'))):
+    im = Image.open(f).convert('RGB')
+    im = im.resize((480, round(im.height * 480 / im.width)), Image.LANCZOS)
+    dst = os.path.join(out, os.path.basename(f))
+    im.save(dst, 'JPEG', quality=62, optimize=True, progressive=True)
+    n += 1; total += os.path.getsize(dst)
 print('plate thumbs: %d, %d KB' % (n, total // 1024))

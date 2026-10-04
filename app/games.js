@@ -80,6 +80,8 @@
 
     /* rangoli board */
     '.mela-boardwrap{position:relative;width:min(100%,340px);margin:8px auto 0}',
+    '.mela-wrap[data-theme-rg] .mela-boardwrap{background:var(--rg-ground);padding:12px;border-radius:16px}',
+    '.mela-wrap[data-theme-rg] .mela-dot{background:var(--rg-dot);border-color:transparent}',
     '.mela-grid{display:grid;grid-template-columns:repeat(var(--n,4),1fr);gap:8px}',
     '.mela-dot{position:relative;aspect-ratio:1/1;min-width:34px;padding:0;cursor:pointer;border-radius:50%;',
     'background:var(--surface);border:1px solid var(--line);transition:transform .12s ease,background .12s ease,border-color .12s ease}',
@@ -539,7 +541,13 @@
      real lesson is: remember half (or a quarter) and reflect the rest.
      ================================================================== */
 
-  var RG_COLOURS = ['var(--accent2)', 'var(--accent3)', 'var(--good)', 'var(--accent)'];
+  var RG_COLOURS = ['var(--rg1, var(--accent2))', 'var(--rg2, var(--accent3))', 'var(--rg3, var(--good))', 'var(--rg4, var(--accent))'];
+  /* THE THEMES a child can open with coins (economy.js EXTRAS, kind 'theme'): the chalk colours and
+     the ground they are drawn on, from the tradition each is named for. Without one, the world's own. */
+  var RG_THEMES = {
+    'theme-rangoli-kolam':  { c: ['#fbf6ea', '#f2c14e', '#e0452d', '#86b85c'], ground: '#7d3520', dot: '#96452a' },
+    'theme-rangoli-diwali': { c: ['#f59e0b', '#fcd34d', '#e4572e', '#f472b6'], ground: '#1d1838', dot: '#2c2752' }
+  };
 
   /* ============== RANGOLI RUSH: THE HUNDRED THRESHOLDS ==============
      A hundred levels, remembered between sittings, three a sitting.
@@ -622,6 +630,12 @@
   function rangoli(host, opts, done) {
     var sc = scope();
     var ref = shell(host, 'Rangoli Rush', 'Mela · a hundred thresholds', 3);
+    var theme = RG_THEMES[(opts && opts.skin) || ''], wrap = host.querySelector('.mela-wrap');
+    if (theme && wrap) {
+      wrap.setAttribute('data-theme-rg', opts.skin);
+      theme.c.forEach(function (c, i) { wrap.style.setProperty('--rg' + (i + 1), c); });
+      wrap.style.setProperty('--rg-ground', theme.ground); wrap.style.setProperty('--rg-dot', theme.dot);
+    }
     var slow = reducedMotion();
     var SLOTS = 3;
     var slot = 0, lvl = rgLoad(), score = 0, kauris = 0, passedN = 0, finished = false;

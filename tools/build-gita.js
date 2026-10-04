@@ -42,6 +42,11 @@ const FRONT = JSON.parse(fs.readFileSync(path.join(SRC, 'swarupananda-front.json
 const REVIEW = JSON.parse(fs.readFileSync(path.join(SRC, 'review.json'), 'utf8'));
 const readIf = f => fs.existsSync(path.join(SRC, f)) ? JSON.parse(fs.readFileSync(path.join(SRC, f), 'utf8')) : {};
 const CHANT = readIf('chant.json'), LINES = readIf('chant-lines.json');
+/* A CHILD'S READING of each verse (owner, 4 Oct 2026: "draft, flagged needs_review"): drafted by a
+   computer from Besant and Swarupananda only, through tools/lib/gita-gloss-lint.js (tools/gita-gloss.py).
+   Written only while it is flagged, and only if it still passes the lint against THIS verse's English. */
+const GLOSS = readIf('gloss.json');
+const { lint: glossLint } = require('./lib/gita-gloss-lint.js');
 /* THE GURU'S WORDS: shown and spoken word for word; a line counts as voiced only if its clip was
    made from these exact words (tools/gita-guru.py records a hash of them) */
 const GURU = JSON.parse(fs.readFileSync(path.join(SRC, 'guru.json'), 'utf8')), GV = readIf('guru-voice.json');
@@ -109,7 +114,9 @@ for (const e of ALL) {
     en: String(e.en || '').trim(), en2: String(e.en_swarupananda || '').trim() || null,
     /* Swarupananda sometimes translates two or three verses as one sentence: say which */
     en2r: e.en_swarupananda_range ? String(e.en_swarupananda_range) : null,
-    rv
+    rv,
+    kid: (() => { const g = GLOSS[ch + '-' + v], en = String(e.en || '').trim(), en2 = String(e.en_swarupananda || '').trim();
+      return g && g.needs_review && g.by === 'computer-drafted' && !glossLint(g.kid, en, en2).length ? g.kid : null; })()
   });
 }
 /* the counts are the vulgate's, or nothing is written */

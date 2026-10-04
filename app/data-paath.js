@@ -293,8 +293,8 @@ window.IND_PAATH = {
           brief: 'Once a fortnight, send one voice note in Hindi to a relative who does not ' +
                  'live with you. Any length. Even one sentence.' }
       ],
-      sources: ['data-bhasha-hi-*.js — passages, grammar, dialogues and sentences, with the ' +
-                'script engine documented in docs/09-language-engine.md']
+      sources: ['This app\'s Hindi lessons in Bhasha: reading passages, grammar, dialogues and sentences, ' +
+                'with the letter-by-letter script engine that builds every word']
     },
 
     /* ================================================================ 2 · NEETI */
@@ -472,8 +472,8 @@ window.IND_PAATH = {
           brief: 'The house picks one value a month. At dinner on the last day, everyone says ' +
                  'one time they managed it and one time they did not.' }
       ],
-      sources: ['data-neeti.js — twelve values with their traditions and stories',
-                'data-shlok.js — Thirukkural, Dhammapada and Gita verses, each with attribution']
+      sources: ['The twelve values in Moral Science, each with its traditions and stories',
+                'The Verses shelf: Thirukkural, Dhammapada and Gita verses, each with where it comes from']
     },
 
     /* ================================================================ 3 · RISHTEY */
@@ -633,8 +633,9 @@ window.IND_PAATH = {
           brief: 'Record one elder telling one story. Any story. The recording is the point, ' +
                  'not the story.' }
       ],
-      sources: ['data-rishtey.js — 26 kinship terms',
-                'docs/11-what-is-missing.md §4.1 — why this pillar exists']
+      sources: ['The 26 kinship words in Rishtey',
+                'Why this course exists: a child with one word, "uncle", for chacha, mama, taya and the ' +
+                'rest cannot greet a relative correctly on a family call; these thirty-odd words fix that']
     },
 
     /* ================================================================ 4 · ITIHAAS */
@@ -884,8 +885,8 @@ window.IND_PAATH = {
           brief: 'Each week, find one real photograph, document or object from any period in ' +
                  'this course. Say where it is kept.' }
       ],
-      sources: ['data-itihaas.js — 34 anchored figures and eras, each with its own sources',
-                'data-sabhyata.js — the strategy game used as the laboratory for modules 1 and 7']
+      sources: ['The 34 anchored figures and eras in Itihaas, each with its own sources',
+                'Sabhyata, the city-building game, used as the laboratory for modules 1 and 7']
     },
 
     /* ================================================================ 5 · BHUGOL */
@@ -1036,8 +1037,9 @@ window.IND_PAATH = {
         { id: 'ba1', name: 'A state a week', family: true,
           brief: 'One state a week at dinner — whoever finds the most surprising fact wins.' }
       ],
-      sources: ['data-states.js and data-bhugol.js — states, rivers, features',
-                'docs/07 §7 — the map rules, including the boundary rule that governs this course']
+      sources: ['The states, rivers and features on this app\'s map',
+                'The map rule this course follows: India is shown whole, as the Survey of India draws it, ' +
+                'and old kingdoms appear as soft zones of influence, never as hard borders']
     },
 
     /* ================================================================ 6 · EPICS */
@@ -1270,8 +1272,8 @@ window.IND_PAATH = {
         { id: 'ea1', name: 'One episode a week, out loud', family: true,
           brief: 'One episode read aloud at home each week, by a different person each time.' }
       ],
-      sources: ['data-epic-ramayana.js and data-epic-mahabharata.js — both epics, with the ' +
-                'regional tellings named where they differ']
+      sources: ['The Ramayana and the Mahabharata in Epics, with the regional tellings named ' +
+                'where they differ']
     },
 
     /* ================================================================ 7 · UTSAV */
@@ -1433,7 +1435,7 @@ window.IND_PAATH = {
           brief: 'Whenever a festival comes that a friend or relative keeps and you do not, ' +
                  'phone them on the day.' }
       ],
-      sources: ['data-utsav.js — 38 festivals across faiths and regions']
+      sources: ['The 38 festivals in Festivals, across faiths and regions']
     },
 
     /* ================================================================ 8 · GEET */
@@ -1577,8 +1579,8 @@ window.IND_PAATH = {
         { id: 'ga1', name: 'One song a week in the car', family: true,
           brief: 'One song a week, sung in the car or at bath time. Rotate who picks.' }
       ],
-      sources: ['data-geet.js — 54 songs and 10 bhajans, with recorded voices',
-                'data-tongue.js — the mother-tongue list this course leans on']
+      sources: ['The 54 songs and 10 bhajans in Songs, with recorded voices',
+                'The list of mother tongues this course leans on']
     },
 
     /* ================================================================ 9 · VIGYAN */
@@ -1766,8 +1768,8 @@ window.IND_PAATH = {
           brief: 'Measure one thing a week that nobody asked you to measure, and write the ' +
                  'number down.' }
       ],
-      sources: ['data-stories-vigyan.js — the science stories',
-                'data-itihaas.js — Aryabhata, the Gupta period, Kalam and Kalpana Chawla']
+      sources: ['The science stories on the Stories shelf',
+                'Itihaas: Aryabhata, the Gupta period, Kalam and Kalpana Chawla']
     },
 
     /* ================================================================ 10 · GITA */
@@ -2102,16 +2104,14 @@ window.IND_PAATH = {
           brief: 'Find one adult who reads this text differently from the adults in your ' +
                  'house, and ask them why. Listen without arguing.' }
       ],
-      sources: ['data-shlok.js — the five sourced Gita verses (2.47, 2.63, 6.5, 6.17, ' +
-                '12.13), each with chapter and verse attribution, and the collection note ' +
-                'placing the Gita inside the Bhishma Parva of the Mahabharata',
-                'data-epic-mahabharata.js episode 26 "A Talk Between Friends" — the ' +
-                'conversation retold in the storyteller\'s own words, which states outright ' +
-                'that the verses themselves are in Sanskrit on the verse shelf and that ' +
-                'nobody should hand a child a made-up version of them',
-                'data-epic-mahabharata.js — the parva list, for where the Gita sits',
-                'docs/21-gita.md — what is sourced, what is blocked, and the worklist for a ' +
-                'human reviewer']
+      sources: ['The Verses shelf: the five sourced Gita verses (2.47, 2.63, 6.5, 6.17, ' +
+                '12.13), each with chapter and verse, and the note placing the Gita inside the ' +
+                'Bhishma Parva of the Mahabharata',
+                'The Mahabharata, episode 26 "A Talk Between Friends": the conversation retold in ' +
+                'the storyteller\'s own words, which says outright that the verses themselves are ' +
+                'in Sanskrit on the verse shelf and that nobody should hand a child a made-up version',
+                'The Mahabharata\'s list of its books, for where the Gita sits',
+                'A person who reads Sanskrit is still checking this course before it opens']
     },
   ]
 };

@@ -437,7 +437,12 @@
      with motion and a sound, and never a word about any other child */
   function showCelebration() {
     if ($('#celebrate') || !celebrating.length) return;
+    /* A CHILD'S MOMENT WAITS FOR THE CHILD (fix brief v4: a medal popped over the grown-ups'
+       report the moment the PIN opened it). Behind the PIN the queue holds; the first screen
+       after it — the child's — shows what is waiting. */
+    if (view && view.name === 'grown') return;
     var m = celebrating.shift(), d = document.createElement('div');
+    d.__m = m;
     d.id = 'celebrate'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
     if (m.rank != null) {
       d.setAttribute('aria-label', 'A new rank: ' + RANKS[m.rank]);
@@ -1066,6 +1071,8 @@
   }
 
   V.avcard = function (id) {
+    /* a card the app can draw (IND_AV_CARD knows the mascots too — Mithu has no avatar name) */
+    if (!id || !(window.IND_AV_CARD ? window.IND_AV_CARD(id) : (window.IND_AVATAR_NAMES || {})[id])) return errorState('That companion is not here.');
     return '<button class="backlink" data-act="back">' + icon('back', 18) + ' Back</button>' +
       '<div class="avcardwrap">' + avCardHTML(id) + '</div>';
   };
@@ -1100,7 +1107,7 @@
     return '<div class="wrap">' +
       '<div class="hero">' +
         '<div>' +
-          '<span class="eyebrow">' + mascot('gattu', 'happy', 26) + 'For Indian kids growing up anywhere</span>' +
+          '<span class="eyebrow">' + mascot('gattu', 'happy', 26) + 'For Indian kids aged 4 to 12, growing up anywhere</span>' +
           '<h1 style="margin-top:18px">Give your child<br>the India they<br>have not lived in.</h1>' +
           '<p class="lede">' + nStories + ' stories, a map of every state, and Hindi taught properly — ' +
           'read aloud from the first tap, so a four-year-old can use it on their own.</p>' +
@@ -1136,6 +1143,19 @@
           '</div>' +
         '</div>') +
       '</div>' +
+
+      /* WHAT A CHILD ACTUALLY DOES HERE (owner, 4 Oct 2026: "allow screenshots"; v4 A1): three
+         photographs of the app itself — a story, the map, a lesson — taken from the sample child by
+         tools/gen-landing-shots.js, never drawn. Below the hero, where the story still plays; lazy,
+         and 42 KB for all three — inside the phone's first-load budget (check-platform untouched). */
+      '<section class="lshots" aria-label="What a child does here">' + [
+        ['story', 'Read a story', 'aloud, a scene at a time, in its own painting'],
+        ['map', 'Light up the map', 'every story finished lights the place it comes from'],
+        ['lesson', 'Learn a language', 'in its own script, a few words at a sitting']
+      ].map(function (x) {
+        return '<figure><img src="art/landing/' + x[0] + '.webp" width="300" height="554" loading="lazy" decoding="async" ' +
+          'alt="The app on a phone: ' + esc(x[1].toLowerCase()) + '"><figcaption><b>' + esc(x[1]) + '</b> ' + esc(x[2]) + '</figcaption></figure>';
+      }).join('') + '</section>' +
 
       /* The one thing every diaspora parent is actually worried about, answered straight. */
       '<div class="card tint" style="margin-top:var(--space-lg);text-align:center">' +
@@ -1451,14 +1471,18 @@
       body = '<p class="fd-q">' + esc(it.play.q) + '</p>' +
         (it.text ? '<p class="fd-script"' + lang + '>' + esc(it.text) + '</p>' + (it.roman ? '<p class="fd-roman">' + esc(it.roman) + '</p>' : '') : '') +
         '<div class="fd-opts" role="group" aria-label="' + esc(it.play.q) + '">' + ord.map(function (o) {
-          var cls = P.st && P.o === o ? (P.st === 'right' ? ' right' : ' wrong') : '';
+          /* the answer is marked only once it has been given — or found, or told after two misses */
+          var told = (P.st === 'wrong' || P.st === 'shown') && o === it.play.a;
+          var cls = told ? ' right' : P.st && (P.o === o || P.miss === o) ? (P.st === 'right' && P.o === o ? ' right' : ' wrong') : '';
+          var off = P.st === 'right' || P.st === 'shown' || P.st === 'wrong' || (P.st === 'again' && P.o === o);
           return '<button class="opt fd-opt' + cls + '" data-act="feedans" data-id="' + esc(x.id) + '" data-o="' + o + '"' +
-            (P.st === 'right' || P.st === 'shown' ? ' disabled' : '') + '>' + esc(it.play.opts[o]) + '</button>';
+            (off ? ' disabled' : '') + '>' + esc(it.play.opts[o]) + '</button>';
         }).join('') + '</div>' +
-        (P.st === 'wrong' ? '<p class="fd-held" role="status">Not quite. Have a think, then Continue.</p>' +
+        (P.st === 'again' ? '<p class="fd-held" role="status">Not that one — one more try.</p>' : '') +
+        (P.st === 'wrong' ? '<p class="fd-held" role="status">Not this time — it is “' + esc(it.play.opts[it.play.a]) + '”. ' + esc(it.play.after) + '</p>' +
           '<button class="btn ghost" data-act="feedcont" data-id="' + esc(x.id) + '">Continue</button>' : '') +
-        (P.st === 'right' ? '<p class="fd-after ok" role="status">Right! ' + esc(it.play.after) + '</p>' : '') +
-        (P.st === 'shown' ? '<p class="fd-after" role="status">' + esc(it.play.after) + '</p>' : '');
+        (P.st === 'right' ? '<p class="fd-after ok" role="status">' + (P.second ? 'Right, on the second go. ' : 'Right! ') + esc(it.play.after) + '</p>' : '') +
+        (P.st === 'shown' ? '<p class="fd-after" role="status">It is “' + esc(it.play.opts[it.play.a]) + '”. ' + esc(it.play.after) + '</p>' : '');
     } else {
       body = (it.text ? '<p class="fd-script"' + lang + '>' + esc(it.text).replace(/\n/g, '<br>') + '</p>' : '') +
         (it.roman ? '<p class="fd-roman">' + esc(it.roman).replace(/\n/g, '<br>') + '</p>' : '') +
@@ -1496,16 +1520,23 @@
         '<div class="fd-row"><a class="btn" href="#/stories">Go read →</a> <a class="btn ghost" href="#/khel">Go play →</a></div></article></div>';
   };
   /* a card's question: right pays once (the standard 'answer' event) and says why; wrong holds */
+  /* TWO TRIES, THEN THE ANSWER AND WHY (owner, 4 Oct 2026; v4 E5). A first miss sets that option
+     aside and asks once more, saying nothing about which is right; a second miss names the
+     answer and why, and holds until Continue. Only a right answer on the FIRST try pays: with
+     three options, a second try is a coin toss, and coins are for learning, never for luck.
+     A question with two options gets no second try — it would be no question at all. */
   function feedAnswer(id, o) {
     var it = (window.IND_FEED_BODY || {})[id]; if (!it || !it.play) return;
     var P = feedPlay[id] || {};
-    if (P.st === 'right' || P.st === 'shown') return;
+    if (P.st === 'right' || P.st === 'shown' || P.st === 'wrong') return;
+    if (P.st === 'again' && o === P.o) return;
     if (o === it.play.a) {
-      feedPlay[id] = { st: 'right', o: o };
+      feedPlay[id] = P.st === 'again' ? { st: 'right', o: o, second: true, miss: P.o } : { st: 'right', o: o };
       var F = feedState();
-      if (!F.paid[id]) { F.paid[id] = Math.floor(Date.now() / 864e5); earn('answer', 'a question in My Feed'); save(); }
+      if (P.st !== 'again' && !F.paid[id]) { F.paid[id] = Math.floor(Date.now() / 864e5); earn('answer', 'a question in My Feed'); save(); }
       sfx('right');
-    } else { feedPlay[id] = { st: 'wrong', o: o }; sfx('wrong'); }
+    } else if (!P.st && it.play.opts.length > 2) { feedPlay[id] = { st: 'again', o: o }; sfx('wrong'); }
+    else { feedPlay[id] = { st: 'wrong', o: o, miss: P.o }; sfx('wrong'); }
   }
 
   V.home = function () {
@@ -2479,16 +2510,20 @@
         '" height="' + b[3] + '" preserveAspectRatio="xMidYMid slice"/></pattern>';
     }).join('');
 
+    var nextC = nextPlace(); if (nextC && S.lit[nextC]) nextC = null;
     var paths = codes.map(function (c) {
       var isLit = !!S.lit[c], has = stateArt(c) && bb[c];
       var fill = has ? 'url(#pt' + c + ')' : 'var(--mist)';
       /* .home is the family's own state — a STATIC warm outline, set in CSS.
          Nothing about it animates, pulses or rewards; the boundary rules in
          CLAUDE.md are absolute and a glow that breathes would break them. */
+      /* .next is the state the next story will light: its painting comes up a little, with a
+         warm wash on its FILL. Static — nothing pulses, draws or moves, and its outline is every
+         other state's: the boundary is never the reward (CLAUDE.md, map boundaries). */
       return '<g class="terrg' + (isLit ? ' lit' : '') + (mapFocus === c ? ' on' : '') +
-          (isHome(c) ? ' home' : '') +
+          (isHome(c) ? ' home' : '') + (nextC === c ? ' next' : '') +
           '" data-act="peek" data-code="' + c + '" tabindex="0" role="button" ' +
-          'aria-label="' + esc(stateName(c)) + '">' +
+          'aria-label="' + esc(stateName(c) + (nextC === c ? ' — your next story lights it' : '')) + '">' +
         '<title>' + esc(stateName(c)) + '</title>' +
         '<path class="terr" d="' + M.paths[c] + '" fill="' + fill + '"/>' +
         /* the mist itself: a second copy of the same shape, faded out as the state is met */
@@ -2618,6 +2653,7 @@
       '<div class="legend maplegend" style="margin-top:14px">' +
         '<span><i class="sw sw-lit"></i>remembered — painted in</span>' +
         '<span><i class="sw sw-you">' + art(S.buddy, 18) + '</i>you — your next story is from here</span>' +
+        (nextC ? '<span><i class="sw sw-next"></i>glowing — ' + esc(stateName(nextC)) + ', which that story lights</span>' : '') +
         '<span><i class="sw sw-mist"></i>still misty — finish a story from here to light it</span>' +
         '<span><i class="dot lg-cap"></i>a capital city</span>' +
         '<span><i class="dot" style="background:var(--accent3)"></i>a place to visit</span></div></div>' +
@@ -2672,7 +2708,7 @@
   V.state = function (code) {
     var G = window.IND_GEO, s = G && G.states[code];
     var X = (window.IND_STATES || {})[code] || {};
-    if (!s) return emptyState('Nothing here yet — it is on its way.', 'Back to Home');
+    if (!s) return errorState('That place is not on the map.');
     var img = stateArt(code);
     var stories = allStories().filter(function (t) { return (t.place || []).indexOf('IN-' + code) >= 0; });
     var mons = (G.monuments || []).filter(function (m) { return m.state === code; });
@@ -2681,7 +2717,7 @@
 
     function fact(k, v, sub) {
       if (!v) return '';
-      return '<div class="fct"><span class="mono">' + esc(k) + '</span><b>' + esc(v) + '</b>' +
+      return '<div class="fct"><span class="mono">' + esc(k) + '</span><b' + (String(v).length > 14 ? ' class="long"' : '') + '>' + esc(v) + '</b>' +
         (sub ? '<span class="tiny muted">' + esc(sub) + '</span>' : '') + '</div>';
     }
     function callout(title, note, body) {
@@ -3049,7 +3085,8 @@
 
   V.story = function (id) {
     var st = allStories().filter(function (s) { return s.id === id; })[0];
-    if (!st) return '<div class="card">Story not found.</div>';
+    /* no id, or one that is not a story: the shelf, or the peacock with a door to it (v4 C5) */
+    if (!st) return errorState('That story is not here. It may have moved, or the link was cut short.');
     /* a card that quoted the middle opens there — once per arrival, even if this story was
        already open, and never again on the same visit (Next must still move on) */
     if (view.name === 'story' && view.focus && /^s\d+$/.test(view.focus) && !view.focusDone) {
@@ -4314,6 +4351,15 @@
     }
     return window.IND_GITA_UI;
   }
+  /* AN ADDRESS THE APP DOES NOT HAVE (v4 audit: #/nonsense silently became Home). Said, with
+     the two doors a child can use: Home, and Search for what they were after. */
+  V.lost = function () {
+    return '<div class="card bz-empty bz-oops" role="alert">' + peacock('oops', 112) +
+      '<h2>That page is not here</h2><p>The link may be old, or cut short.</p>' +
+      '<div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap">' +
+      '<button class="btn" data-act="go" data-v="home">Home</button>' +
+      '<button class="btn ghost" data-act="go" data-v="search">Search</button></div></div>';
+  };
   var GITA_LOST = 'The Gita did not load. It may be the connection — once it has loaded once, it works offline.';
   V.gita = function () { var U = gitaUI(); return U ? U.journey() : errorState(GITA_LOST, 'gita'); };
   V.gitach = function (a) { var U = gitaUI(); return U ? U.chapter(a) : errorState(GITA_LOST, 'gitach', a); };
@@ -4731,6 +4777,19 @@
      worlds (five active; ten more archived in place), their palettes, tiles
      and credit lines. The old hardcoded WORLDS array stays only as the
      fallback for a build without it. */
+  /* A WORLD'S THUMBNAIL IS ITS OWN PAINTING (v4 D3/D4): the plate the world paints behind the
+     app, day and night, small (art/worlds/th, tools/gen-plate-thumbs.py) — one shape for every
+     world. Only the mode on screen is fetched: the other is display:none, and lazy. A world
+     with no plate yet keeps its drawn tile. */
+  function worldThumb(w) {
+    var bgs = window.IND_WORLD_BG || [];
+    if (bgs.indexOf(w.id + '-day') >= 0)
+      return '<div class="wpreview plate' + (bgs.indexOf(w.id + '-night') >= 0 ? ' dn' : '') + '" data-world="' + w.id + '">' +
+        '<img class="wp-day" src="art/worlds/th/' + w.id + '-day.jpg" alt="" loading="lazy" decoding="async">' +
+        (bgs.indexOf(w.id + '-night') >= 0 ? '<img class="wp-night" src="art/worlds/th/' + w.id + '-night.jpg" alt="" loading="lazy" decoding="async">' : '') +
+        '</div>';
+    return w.tile ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>' : '';
+  }
   function worldList() {
     return (window.IND_WORLDS && window.IND_WORLDS.list) || WORLDS;
   }
@@ -4761,10 +4820,10 @@
         var E = window.IND_ECONOMY;
         var open = !E || E.worldOpen(S, w.id);
         var price = E ? E.worldPrice(w.id) : 0;
-        return '<button class="tile' + (S.world === w.id ? ' on' : '') + (open ? '' : ' locked') +
+        return '<button class="tile wtile' + (S.world === w.id ? ' on' : '') + (open ? '' : ' locked') +
           '" data-act="' + (open ? 'world' : 'buyworld') + '" data-w="' + w.id + '">' +
-          (w.tile
-            ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>'
+          (worldThumb(w)
+            ? worldThumb(w)
             : '<div class="wpreview" data-world="' + w.id + '">' +
               '<b style="background:var(--accent)"></b>' +
               '<b style="background:var(--accent2);width:24px;height:24px"></b>' +
@@ -5515,7 +5574,7 @@
           '<div class="bh-units mini">' + r.units.map(function (u) {
             return '<button class="bh-uchip' + (u.done === u.lessons.length ? ' full' : '') +
               '" data-act="bunit" data-u="' + esc(u.id) + '">' +
-              (u.icon ? '<span>' + u.icon + '</span>' : '') + esc(u.title) +
+              (u.icon ? '<span>' + icon(u.icon, 15) + '</span>' : '') + esc(u.title) +
               ' <i>' + u.done + '/' + u.lessons.length + '</i></button>';
           }).join('') + '</div></div>';
       }
@@ -5531,7 +5590,7 @@
           var open = (openU ? openU === u.id : cur === u.id);
           var uhead = '<button class="bh-uhead' + (open ? ' open' : '') + '" data-act="bunit" ' +
             'data-u="' + esc(u.id) + '" aria-expanded="' + open + '">' +
-            (u.icon ? '<span class="bh-uicon">' + u.icon + '</span>' : '') +
+            (u.icon ? '<span class="bh-uicon">' + icon(u.icon, 18) + '</span>' : '') +
             '<b>' + esc(u.title) + '</b>' +
             '<span class="bh-ubar"><i style="width:' +
               Math.round(u.done / u.lessons.length * 100) + '%"></i></span>' +
@@ -5614,6 +5673,7 @@
      Deliberately not a quiz screen. This is the page you send a child to when they ask
      "why is it की and not का", and the page a grown-up reads before they try to help. */
   V.vyakaran = function (packId) {
+    if (packId && !(window.IND_PACKS || {})[packId]) return errorState('That language is not here.');
     var B = window.IND_BHASHA;
     var pack = packId || 'hi';
     var bank = B && B.grammar ? B.grammar(pack) : null;
@@ -5896,7 +5956,7 @@
     return '<div class="wcard' + (o.flat ? ' flat' : '') + (o.mask ? ' covered' : '') + '">' +
       '<div class="wchead">' +
         (th ? '<button class="wctheme" data-act="kosh" data-id="' + esc(packId) + '" data-t="' + esc(th.id) + '">' +
-          esc(th.icon) + ' ' + esc(th.en) + '</button>' : '<span></span>') +
+          icon(th.icon, 15) + ' ' + esc(th.en) + '</button>' : '<span></span>') +
         '<i class="rc ' + st[1] + '">' + st[0] + '</i></div>' +
       (o.mask
         ? '<div class="wcword covered" role="img" aria-label="the word, covered up">' +
@@ -5927,8 +5987,7 @@
   V.wordcard = function (arg) {
     var bits = String(arg || '').split(':'), packId = bits[0], word = bits.slice(1).join(':');
     var p = window.IND_PACKS[packId], w = p ? lexWord(p, word) : null;
-    if (!w) return '<div class="card"><h1>Word</h1><p>That word is not in this pack.</p>' +
-      '<button class="btn" data-act="go" data-v="bhasha">Bhasha</button></div>';
+    if (!w) return errorState('That word is not in this pack.');
     var th = themeOf(p, w.theme);
     /* the neighbours in its own theme, so the card is a place you can carry
        on from rather than a dead end */
@@ -5983,7 +6042,7 @@
         var n = (byTheme[t.id] || []).length;
         if (!n) return '';
         return '<button class="pill' + (open === t.id ? ' on' : '') + '" data-act="kosh" data-id="' + esc(id) +
-          '" data-t="' + esc(t.id) + '">' + esc(t.icon) + ' ' + esc(t.en) + ' ' + n + '</button>';
+          '" data-t="' + esc(t.id) + '">' + icon(t.icon, 15) + ' ' + esc(t.en) + ' ' + n + '</button>';
       }).join('') + '</div>' +
       /* Room by room. The front door shows every room with the first dozen
          words in it, because a dictionary that opens on nothing but folders
@@ -5993,7 +6052,7 @@
         var list = byTheme[t.id] || [];
         if (!list.length || (open && open !== t.id)) return '';
         var all = !!open || list.length <= 12, shown = all ? list : list.slice(0, 12);
-        return '<div class="card"><div class="spread"><h3 style="margin:0">' + esc(t.icon) + ' ' + esc(t.en) + '</h3>' +
+        return '<div class="card"><div class="spread"><h3 style="margin:0">' + icon(t.icon, 20) + ' ' + esc(t.en) + '</h3>' +
           '<span class="pill stat" style="flex:none">' + list.length + '</span></div>' +
           '<div class="koshgrid">' + shown.map(function (x) { return koshRow(id, x); }).join('') + '</div>' +
           (all ? '' : '<button class="btn ghost sm koshmore" data-act="kosh" data-id="' + esc(id) +
@@ -6504,8 +6563,24 @@
         '<span class="gf-txt"><b>' + esc(g.name) + '</b><span class="gf-how">' + esc(f[0]) + '</span>' +
         '<span class="gf-keys tiny muted">Tap to play — or use the keyboard: Tab, the arrows and Enter.</span></span>' +
         '<i class="gf-bar" aria-hidden="true"></i></button>' : '') +
+      gameWays(g) +
       '<div id="gamehost"></div></div>';
   };
+  /* THE WAYS TO PLAY IT (owner, 4 Oct 2026): the free way, and any bonus mode or theme the child
+     has opened with coins for this game — chosen here, before playing, as well as in the Shop.
+     Nothing shows for a game with nothing opened; nothing here is for sale. */
+  function gameWays(g) {
+    var E = window.IND_ECONOMY; if (!g || !E || !E.EXTRAS) return '';
+    var mine = E.EXTRAS.filter(function (x) { return x.game === g.id && (x.kind === 'mode' || x.kind === 'theme') && E.extraOwned(S, x.id); });
+    if (!mine.length) return '';
+    var cur = (S.skin || {})[g.id] || null;
+    var opt = function (id, label) {
+      return '<button class="pill' + (cur === id ? ' on' : '') + '" data-act="gameway" data-g="' + esc(g.id) + '" data-id="' + esc(id || '') + '" aria-pressed="' + (cur === id) + '">' + esc(label) + '</button>';
+    };
+    return '<div class="gf-ways" role="group" aria-label="How to play it">' +
+      opt(null, mine[0].kind === 'mode' ? 'The classic way' : 'The world’s own colours') +
+      mine.map(function (x) { return opt(x.id, x.name.replace(/^[^:]+:\s*/, '')); }).join('') + '</div>';
+  }
 
   /* -------------------------------------------------------------------- ME */
   var DLC = {};                       /* packId -> {have,total,done} last known */
@@ -6996,9 +7071,17 @@
           '<span><b>Moral Science</b><span class="tiny muted">Values, faiths, festivals and verses — and the day’s deed.</span></span></button>' +
       '</div>' + U.hub();
   };
+  /* a stop, a workshop or a pack of a course that is not here: the peacock and a door, never
+     the Paathshala front page passed off as an answer (v4 C5). A known course with a stop
+     name that is not in it still opens on that course, which is its shelf. */
+  function paathCourseKnown(arg) {
+    var cid = String(arg || '').split('|')[0];
+    return !!(window.IND_PAATH && window.IND_PAATH.courses.some(function (c) { return c.id === cid; }));
+  }
   V.paathl = function (arg) {
     var U = paathUI();
     if (!U) return V.paath();
+    if (!paathCourseKnown(arg)) return errorState('That lesson is not here. It may have moved.');
     return U.lesson(arg);
   };
   /* ------------------------------------------------- one corpus object, as a lesson card
@@ -7128,12 +7211,14 @@
   V.paathk = function (arg) {
     var U = paathUI();
     if (!U) return V.paath();
+    if (!paathCourseKnown(arg)) return errorState('That workshop is not here. It may have moved.');
     return U.karya(arg);
   };
   /* the printable take-home pack — the half of a course that leaves the screen */
   V.paathp = function (arg) {
     var U = paathUI();
     if (!U) return V.paath();
+    if (!paathCourseKnown(arg)) return errorState('That take-home pack is not here. It may have moved.');
     return U.pack(arg);
   };
 
@@ -7517,15 +7602,20 @@
   /* YOU ARE HERE (FIX-INDIA J6, D8): the child's own face on the map, on the place their
      next story comes from — or, with no story waiting, the last place they lit. A pin over
      the map, never a mark on a boundary: nothing on the map's geometry moves. */
-  function mapYou(M) {
-    var code = null;
+  /* the place Continue's story is set in — where the companion stands, and, if it is not lit
+     yet, the one state that glows (owner, 4 Oct 2026: "allow a glow"; v4 D8) */
+  function nextPlace() {
     try {
       var stp = nextStep();
       if (stp && stp.go && stp.go.n === 'story') {
         var st = storyById(stp.go.a), pl = st && st.place && st.place[0];
-        if (pl) code = String(pl).replace('IN-', '');
+        if (pl) return String(pl).replace('IN-', '');
       }
     } catch (e) {}
+    return null;
+  }
+  function mapYou(M) {
+    var code = nextPlace();
     if (!code || !(M.anchors || {})[code]) { var lk = Object.keys(S.lit || {}); code = lk.length ? lk[lk.length - 1] : null; }
     if (!code || !(M.anchors || {})[code]) return '';
     var vb = M.viewBox.split(/[\s,]+/).map(Number), a = M.anchors[code];
@@ -7773,7 +7863,7 @@
       body = '<div class="grid g2">' + worldList().map(function (w) {
         var open = !E || E.worldOpen(S, w.id), n = E ? E.worldNum(w.id) : 0;
         return '<div class="card wshop' + (open ? '' : ' locked') + '">' +
-          (w.tile ? '<div class="wpreview live" data-world="' + w.id + '">' + w.tile + '</div>' : '') +
+          worldThumb(w) +
           '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3><span class="mono">World ' + n + '</span></div>' +
           '<p class="tiny muted" style="margin:4px 0 10px">' + esc(w.region) + (n <= 6 ? ' · two avatar packs live here' : '') + '</p>' +
           (open ? (S.world === w.id ? '<span class="pill stat">You are in this world</span>'
@@ -7815,6 +7905,13 @@
         '<rect x="10" y="10" width="60" height="60" fill="' + c[2] + '"/><circle cx="40" cy="40" r="11" fill="none" stroke="' + c[0] + '" stroke-width="2"/>' +
         '<circle cx="14" cy="14" r="4" fill="#222"/><circle cx="66" cy="14" r="4" fill="#222"/><circle cx="14" cy="66" r="4" fill="#222"/><circle cx="66" cy="66" r="4" fill="#222"/></svg>';
     }
+    if (x.kind === 'theme') {
+      var T = { 'theme-rangoli-kolam': ['#7d3520', '#fbf6ea', '#f2c14e', '#e0452d'], 'theme-rangoli-diwali': ['#1d1838', '#f59e0b', '#fcd34d', '#e4572e'] }[x.id] || ['#444', '#fff', '#ccc', '#999'];
+      var d = ''; [[24, 24, 1], [40, 24, 2], [56, 24, 1], [24, 40, 3], [40, 40, 2], [56, 40, 3], [24, 56, 1], [40, 56, 2], [56, 56, 1]].forEach(function (q) {
+        d += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="6" fill="' + T[q[2]] + '"/>'; });
+      return '<svg class="xart" viewBox="0 0 80 80" aria-hidden="true"><rect x="4" y="4" width="72" height="72" rx="14" fill="' + T[0] + '"/>' + d + '</svg>';
+    }
+    if (x.kind === 'mode') return '<span class="xart xmode" aria-hidden="true">' + icon('star', 40) + '<b>15</b></span>';
     return '<span class="xart framed fr-' + esc(x.id) + '">' + art(S.buddy, 64) + '</span>';
   }
 
@@ -7936,7 +8033,19 @@
     epics().forEach(function (e) { add('Epic', e.title || e.name, e.tagline || '', 'epic', e.id); });
     var ST = window.IND_STATES || {};
     Object.keys(ST).forEach(function (c) { var s = ST[c] || {}; add('Place', s.name || stateName(c), s.capital ? 'capital ' + s.capital : '', 'state', c, (s.known || '') + ' ' + c); });
-    ((window.IND_ITIHAAS || {}).eras || []).forEach(function (e) { add('Era', e.name || e.title, e.when || e.dates || '', 'era', e.id, e.summary || ''); });
+    /* AN ERA IS FOUND BY ITS DYNASTY AND ITS PEOPLE (v4 C4): "Maurya", "Chola", "Mughal" and
+       "Ashoka" are what a child types; the chapter is called "The Emperor Who Was Sorry". The
+       era's own id, its first paragraph and the names of its people are what it is found by. */
+    ((window.IND_ITIHAAS || {}).eras || []).forEach(function (e) {
+      add('Era', e.name || e.title, e.when || e.dates || '', 'era', e.id,
+        String(e.id || '').replace(/-/g, ' ') + ' ' + (e.kid || e.summary || '') + ' ' + (e.figures || []).map(function (f) { return f.name; }).join(' '));
+    });
+    /* the verse collections, by name, language and where they come from */
+    var SK = window.IND_SHLOK || {};
+    (SK.collections || []).forEach(function (c) {
+      var mine = (SK.verses || []).filter(function (v) { return v.collection === c.id; }).length;
+      if (mine) add('Verses', c.name, (c.language || '') + ' · ' + mine + ' here', 'verses', c.id, (c.source || '') + ' ' + (c.language || '') + ' verses shlok');
+    });
     ((window.IND_UTSAV || {}).festivals || []).forEach(function (f) { add('Festival', f.name, f.month || '', 'festival', f.id, (f.states || []).join(' ') + ' ' + (f.why || '')); });
     ((window.IND_DHARMA || {}).faiths || []).forEach(function (f) { add('Faith', f.name, '', 'faith', f.id); });
     var P = window.IND_PACKS || {};
@@ -8375,6 +8484,7 @@
       case 'help': h = V.help(); break;
       case 'search': h = V.search(view.arg); break;
       case 'feed': h = V.feed(); break;
+      case 'lost': h = V.lost(view.arg); break;
       default: h = V.home();
     }
     /* named nothing: this screen is its shelf (HUB_OF, by errorState) */
@@ -8423,6 +8533,9 @@
       if (t.classList.contains('active')) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
     });
     if (view.name === 'game') mountGame(view.arg);
+    var celOpen = $('#celebrate');
+    if (view.name === 'grown' && celOpen && celOpen.__m) { celebrating.unshift(celOpen.__m); celOpen.remove(); }
+    if (celebrating.length && view.name !== 'grown') setTimeout(showCelebration, 400);
     /* the PIN pad paints at once; the report behind it starts loading while the PIN is typed */
     if (view.name === 'grown' && !grownOpen && window.IND_LOAD) window.IND_LOAD(NEEDS.grown).catch(function () {});
     /* the reading passages (3.5 MB) follow a child INTO a language, never ahead of them: the
@@ -8573,7 +8686,8 @@
     return !!ROUTES[n];
   }
   function parseHash(h) {
-    var m = String(h || '').match(/^#\/([a-z0-9]+)(?:\/(.*))?$/i);
+    /* any name, so an address the app does not have reaches the not-here page (V.lost) */
+    var m = String(h || '').match(/^#\/([^\/?#]+)(?:\/(.*))?$/i);
     if (!m) return null;
     var a = m[2] != null ? decodeURIComponent(m[2]) : null;
     return { n: m[1], a: a };
@@ -8599,7 +8713,7 @@
       return;
     }
     if (cont) r = continueTarget();     /* primed already: prepView would undo it */
-    if (!known(r.n)) r = { n: 'home', a: null };
+    if (!known(r.n)) r = { n: 'lost', a: r.n };
     var nv = mkView(r.n, r.a);
     if (!cont) prepView(nv.name, nv.arg);
     stopAudio(); killGame(); view = nv; render();
@@ -8641,7 +8755,7 @@
     paathk: ['paath', 'content', 'voice', 'map', 'bhasha'], paathp: ['paath', 'content', 'voice', 'map', 'bhasha'],
     grown: ['paath', 'content', 'voice', 'map', 'bhasha', 'packs'],
     /* the family layer: the collection, the shop and settings draw only the shell */
-    collection: [], shop: [], medals: [], settings: [], privacy: [], help: [],
+    collection: [], shop: [], medals: [], settings: [], privacy: [], help: [], lost: [],
     search: ['content', 'map', 'bhasha', 'paath'], avcard: [],
     feed: ['feed'],
     gita: ['gita'], gitach: ['gita'], gitav: ['gita']    /* + the chapter's own group: needsOf */
@@ -8840,23 +8954,33 @@
        sound — and shook — on nearly every action in it. */
     var OWN_VOICE = { sabhyata: 1 };
     var listen = !OWN_VOICE[g.id];
+    /* ONE ANSWER IS ONE VERDICT (fix brief v4: "27 right" in a ten-question game). A quiz marks
+       several things at once — a miss shows the right option in green beside the child's own in
+       amber, and a hit greens the option *and* the line under it — so the frame reads a batch of
+       class changes as one answer, a miss outweighs the green it reveals, and a second verdict
+       inside a third of a second is the same answer still landing. */
+    var lastVerdict = 0;
     var obs = window.MutationObserver ? new MutationObserver(function (muts) {
+      var yes = false, no = false, outs = [];
       muts.forEach(function (m) {
         if (m.type === 'attributes') {
           if (!listen) return;
           var c = typeof m.target.className === 'string' ? m.target.className : '', was = m.oldValue || '';
           var fresh = c !== was || /feed/.test(c);
-          if (fresh && TOK_OK.test(c) && !(TOK_OK.test(was) && !/feed/.test(c))) pulse(true);
-          else if (fresh && TOK_NO.test(c) && !(TOK_NO.test(was) && !/feed/.test(c))) pulse(false);
+          if (fresh && TOK_OK.test(c) && !(TOK_OK.test(was) && !/feed/.test(c))) yes = true;
+          else if (fresh && TOK_NO.test(c) && !(TOK_NO.test(was) && !/feed/.test(c))) no = true;
         } else {
           for (var i = 0; i < m.addedNodes.length; i++) {
             var n = m.addedNodes[i];
             if (n.nodeType !== 1) continue;
             var out = (n.matches && n.matches('[data-go="out"]')) ? n : (n.querySelector && n.querySelector('[data-go="out"]'));
-            if (out) ended(out);
+            if (out) outs.push(out);
           }
         }
       });
+      if ((yes || no) && Date.now() - lastVerdict > 330) { lastVerdict = Date.now(); pulse(!no); }
+      /* the last answer and the end card can land in one batch: count it before the card says how many */
+      outs.forEach(ended);
     }) : null;
     if (obs) obs.observe(host, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
     var unframe = function () { clearTimeout(foldT); if (obs) obs.disconnect(); };
@@ -8966,6 +9090,13 @@
       if (!BE2.buy(S, bid)) { toast('That did not go through — nothing was spent.'); return; }
       save(); paintChrome(); sfx('unlock');
       toast('You met ' + (avatarName(bid) || bid) + '!');
+      return render();
+    }
+    if (a === 'gameway') {
+      var gw = t.getAttribute('data-g'), gid = t.getAttribute('data-id') || null, GE = window.IND_ECONOMY;
+      if (gid && !(GE && GE.extraOwned(S, gid))) return;
+      S.skin = S.skin || {}; S.skin[gw] = gid; save();
+      killGame();
       return render();
     }
     if (a === 'buyextra' || a === 'useextra') {
@@ -9557,7 +9688,7 @@
       return;
     }
     if (a === 'feedcont') {
-      var fid2 = t.getAttribute('data-id'); feedPlay[fid2] = { st: 'shown', o: (feedPlay[fid2] || {}).o }; render();
+      var fp2 = feedPlay[t.getAttribute('data-id')] || {}, fid2 = t.getAttribute('data-id'); feedPlay[fid2] = { st: 'shown', o: fp2.o, miss: fp2.miss }; render();
       var fc2 = document.querySelector('.fd-card[data-fid="' + fid2 + '"]'); if (fc2) fc2.focus({ preventScroll: true });
       return;
     }
@@ -9895,6 +10026,8 @@
       var hc = hr && hr.n === 'continue';
       if (hc) hr = continueTarget();
       if (hr && known(hr.n)) { var hv = mkView(hr.n, hr.a); if (!hc) prepView(hv.name, hv.arg); view = hv; }
+      /* an address the app does not have says so, with the way home, never silently Home (v4 C5) */
+      else if (hr && hr.n) view = mkView('lost', hr.n);
     }
     /* THE TRAIL STARTS AT HOME, with a guard under it: Back from the first screen of a visit
        lands on Home, and Back from Home stays on Home (FIX-INDIA §1; standard §4). The way

@@ -81,6 +81,20 @@
     return out;
   }
 
+  /* ONE OBJECT, AT MOST TWO CARDS A SESSION (v4 V4: one Mahabharata night came three times —
+     as the episode, its hook and its moment). A card's object is read from its id: the cards
+     cut from one story, one epic night, one verse, one era, one festival, one state or one street
+     game share it (tools/build-feed.js names them so); every other card is its own object. */
+  var FAMILY = { st: 's', sh: 's', sm: 's', sl: 's', sp: 's', sw: 's*', ep: 'e', eh: 'e', em: 'e', ew: 'e',
+    vs: 'v', vm: 'v', vy: 'v', ih: 'i', ik: 'i', ib: 'i', iw: 'i', fe: 'f', fd: 'f*', fv: 'f*', pf: 'f',
+    pl: 'p', pt: 'p*', pp: 'p*', pd: 'p*', pq: 'p', pc: 'p', gu: 'g', gs: 'g', ga: 'g*' };
+  var PER_OBJECT = 2;
+  function objectOf(id) {
+    var m = /^([a-z]{2})-(.+)$/.exec(String(id)), f = m && FAMILY[m[1]];
+    if (!f) return String(id);
+    return f.charAt(0) + ':' + (f.length > 1 ? m[2].replace(/-\d+$/, '') : m[2]);
+  }
+
   /* child = { band, level, read:{id}, rungs:{lang:n}, langs:[], tongue, world, recent:[…], lang, seen:{id:day}, lit }
      ctx   = { now, items (decoded), names, ranks:[…], limit, engine } */
   function feedFor(child, ctx) {
@@ -91,27 +105,35 @@
       due[s.lang + '|' + s.key] = s.at ? 'A word that slipped on ' + WEEKDAY[new Date(s.at).getDay()] + ' — its gap is over' : 'A word that slipped — its gap is over';
     });
     var byId = {}; ctx.items.forEach(function (it) { byId[it.id] = it; });
-    var list = E.feedFor({
-      items: ctx.items, band: child.band, now: now, limit: ctx.limit, seen: child.seen || {},
-      level: child.level == null ? null : child.level,
-      levelName: function (n) { return ranks[n] || ('Level ' + (n + 1)); },
-      signals: signalsOf(child, names), due: due,
-      unlocked: function (it) { var u = it.unlock; return !u || (rungs[u.lang] || 0) >= u.rung || !!(it.key && due[it.key]); },
-      skip: function (it) { return it.news && read[(it.topics[0] || '').replace('story:', '')]; },
-      extra: function (it) {
-        var u = it.unlock;
-        if (u && (rungs[u.lang] || 0) === u.rung) return { s: 4, why: 'New: you reached Rung ' + u.rung + ' in ' + (names['lang:' + u.lang] || u.lang) };
-        return null;
-      },
-      fallbackWhy: 'New for you'
-    });
+    /* the engine is the family's and is not edited here: it is asked again with an object's third
+       card set aside, until no object has more than two — so its own tiers and kinds still hold */
+    var aside = {}, signals = signalsOf(child, names), list;
+    for (var round = 0; round < 8; round++) {
+      list = E.feedFor({
+        items: ctx.items, band: child.band, now: now, limit: ctx.limit, seen: child.seen || {},
+        level: child.level == null ? null : child.level,
+        levelName: function (n) { return ranks[n] || ('Level ' + (n + 1)); },
+        signals: signals, due: due,
+        unlocked: function (it) { var u = it.unlock; return !u || (rungs[u.lang] || 0) >= u.rung || !!(it.key && due[it.key]); },
+        skip: function (it) { return !!aside[it.id] || (it.news && read[(it.topics[0] || '').replace('story:', '')]); },
+        extra: function (it) {
+          var u = it.unlock;
+          if (u && (rungs[u.lang] || 0) === u.rung) return { s: 4, why: 'New: you reached Rung ' + u.rung + ' in ' + (names['lang:' + u.lang] || u.lang) };
+          return null;
+        },
+        fallbackWhy: 'New for you'
+      });
+      var per = {}, over = false;
+      list.forEach(function (x) { var o = objectOf(x.id); per[o] = (per[o] || 0) + 1; if (per[o] > PER_OBJECT) { aside[x.id] = 1; over = true; } });
+      if (!over) break;
+    }
     return list.map(function (x) { var it = byId[x.id]; return { id: x.id, kind: x.kind, g: it.g, why: x.why, tier: x.tier, level: it.level, score: x.score }; });
   }
 
   /* the options of a question, in an order taken from the card's id (the engine's own rule) */
   function order(id, n, ctx) { return engine(ctx).order(id, n); }
 
-  var API = { feedFor: feedFor, decode: decode, bandOf: bandOf, slippedOf: slippedOf, signalsOf: signalsOf, order: order };
+  var API = { feedFor: feedFor, decode: decode, bandOf: bandOf, slippedOf: slippedOf, signalsOf: signalsOf, order: order, objectOf: objectOf, PER_OBJECT: PER_OBJECT };
   W.IND_FEED = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })(typeof window !== 'undefined' ? window : this);

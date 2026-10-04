@@ -19,7 +19,7 @@ needs_review: true, and the page says it was drafted by a computer and not yet c
       this way (4 Oct 2026), by the AI assistant that builds this app, when the Gemini text models
       answered 402 on this key.
 
-  TEXT_MODEL=<model> python3 tools/gita-gloss.py --audit
+  TEXT_MODEL=<model> python3 tools/gita-gloss.py --audit [--ids 1-10,18-73]
       a blind second check of every reading against its two translations by the text model; each
       one it rejects is redrafted (told why) and kept only if it passes the lint and the same check;
       what is still rejected is marked disputed and left off the page. Writes gloss-audit.json.
@@ -162,7 +162,8 @@ def audited():
     from concurrent.futures import ThreadPoolExecutor
     have = json.load(open(OUT))
     by = {v['id']: v for v in verses()}
-    rows = [dict(by[k], kid=e['kid']) for k, e in have.items() if k in by]
+    ids = set(sys.argv[sys.argv.index('--ids') + 1].split(',')) if '--ids' in sys.argv else None
+    rows = [dict(by[k], kid=e['kid']) for k, e in have.items() if k in by and (ids is None or k in ids)]
     batches = [rows[i:i + 25] for i in range(0, len(rows), 25)]
     verdict = {}
     with ThreadPoolExecutor(4) as ex:
@@ -172,8 +173,11 @@ def audited():
         for got in map(audit, [[dict(by[k], kid=have[k]['kid'])] for k in unchecked]): verdict.update(got)
     flagged = {k: w for k, (ok, w) in verdict.items() if not ok}
     print('blind check: %d readings, %d faithful, %d flagged, %d unanswered' % (len(rows), len(verdict) - len(flagged), len(flagged), len(rows) - len(verdict)), flush=True)
-    log = {k: {'first': ('ok' if ok else 'flagged: ' + w)} for k, (ok, w) in verdict.items()}
-    for k, e in have.items(): e['check'] = 'passed' if verdict.get(k, (False,))[0] else ('unanswered' if k not in verdict else 'flagged')
+    old_log = json.load(open(AUDIT_OUT)) if (ids is not None and os.path.exists(AUDIT_OUT)) else {}
+    log = dict(old_log, **{k: dict({'first': ('ok' if ok else 'flagged: ' + w)}, **({'earlier': old_log[k]} if k in old_log else {}))
+                           for k, (ok, w) in verdict.items()})   # a re-check keeps what the last one said
+    for r in rows:
+        k = r['id']; have[k]['check'] = 'passed' if verdict.get(k, (False,))[0] else ('unanswered' if k not in verdict else 'flagged')
     # redraft the flagged ones, telling the drafter why the first was turned down
     todo = [by[k] for k in flagged]
     redrafts = {}

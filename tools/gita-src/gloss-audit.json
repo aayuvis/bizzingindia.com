@@ -1,0 +1,2132 @@
+{
+ "1-1": {
+  "first": "ok"
+ },
+ "1-2": {
+  "first": "ok"
+ },
+ "1-3": {
+  "first": "ok"
+ },
+ "1-4": {
+  "first": "ok"
+ },
+ "1-5": {
+  "first": "ok"
+ },
+ "1-6": {
+  "first": "ok"
+ },
+ "1-7": {
+  "first": "ok"
+ },
+ "1-8": {
+  "first": "ok"
+ },
+ "1-9": {
+  "first": "ok"
+ },
+ "1-10": {
+  "first": "flagged: The reading leaves out the main point of the verse, which is the actual comparison of the armies' sizes or strengths.",
+  "second": "flagged: The reading adds that Sanjaya is speaking to the king, which neither translation mentions.",
+  "redraft": "Sanjaya tells the king that their army is defended by Bhishma, and the other army is defended by Bhima. He compares them, saying one army seems limited while the other appears much greater.",
+  "translations_disagree": "Besant reads the prince's own army as insufficient and the other as sufficient; Swarupananda reads his own as impossible to count and the other as easy to number. A plain reading would have to choose between them, so this verse has none until a reviewer decides."
+ },
+ "1-11": {
+  "first": "ok"
+ },
+ "1-12": {
+  "first": "ok"
+ },
+ "1-13": {
+  "first": "ok"
+ },
+ "1-14": {
+  "first": "ok"
+ },
+ "1-15": {
+  "first": "ok"
+ },
+ "1-16": {
+  "first": "ok"
+ },
+ "1-17": {
+  "first": "ok"
+ },
+ "1-18": {
+  "first": "ok"
+ },
+ "1-19": {
+  "first": "ok"
+ },
+ "1-20": {
+  "first": "ok"
+ },
+ "1-21": {
+  "first": "ok"
+ },
+ "1-22": {
+  "first": "ok"
+ },
+ "1-23": {
+  "first": "ok"
+ },
+ "1-24": {
+  "first": "ok"
+ },
+ "1-25": {
+  "first": "ok"
+ },
+ "1-26": {
+  "first": "ok"
+ },
+ "1-27": {
+  "first": "ok"
+ },
+ "1-28": {
+  "first": "ok"
+ },
+ "1-29": {
+  "first": "ok"
+ },
+ "1-30": {
+  "first": "ok"
+ },
+ "1-31": {
+  "first": "ok"
+ },
+ "1-32": {
+  "first": "ok"
+ },
+ "1-33": {
+  "first": "ok"
+ },
+ "1-34": {
+  "first": "ok"
+ },
+ "1-35": {
+  "first": "ok"
+ },
+ "1-36": {
+  "first": "ok"
+ },
+ "1-37": {
+  "first": "ok"
+ },
+ "1-38": {
+  "first": "ok"
+ },
+ "1-39": {
+  "first": "ok"
+ },
+ "1-40": {
+  "first": "ok"
+ },
+ "1-41": {
+  "first": "ok"
+ },
+ "1-42": {
+  "first": "ok"
+ },
+ "1-43": {
+  "first": "ok"
+ },
+ "1-44": {
+  "first": "ok"
+ },
+ "1-45": {
+  "first": "ok"
+ },
+ "1-46": {
+  "first": "ok"
+ },
+ "1-47": {
+  "first": "ok"
+ },
+ "2-1": {
+  "first": "ok"
+ },
+ "2-2": {
+  "first": "ok"
+ },
+ "2-3": {
+  "first": "ok"
+ },
+ "2-4": {
+  "first": "ok"
+ },
+ "2-5": {
+  "first": "ok"
+ },
+ "2-6": {
+  "first": "ok"
+ },
+ "2-7": {
+  "first": "ok"
+ },
+ "2-8": {
+  "first": "ok"
+ },
+ "2-9": {
+  "first": "ok"
+ },
+ "2-10": {
+  "first": "ok"
+ },
+ "2-11": {
+  "first": "ok"
+ },
+ "2-12": {
+  "first": "ok"
+ },
+ "2-13": {
+  "first": "ok"
+ },
+ "2-14": {
+  "first": "ok"
+ },
+ "2-15": {
+  "first": "ok"
+ },
+ "2-16": {
+  "first": "ok"
+ },
+ "2-17": {
+  "first": "ok"
+ },
+ "2-18": {
+  "first": "ok"
+ },
+ "2-19": {
+  "first": "ok"
+ },
+ "2-20": {
+  "first": "ok"
+ },
+ "2-21": {
+  "first": "ok"
+ },
+ "2-22": {
+  "first": "ok"
+ },
+ "2-23": {
+  "first": "ok"
+ },
+ "2-24": {
+  "first": "ok"
+ },
+ "2-25": {
+  "first": "ok"
+ },
+ "2-26": {
+  "first": "ok"
+ },
+ "2-27": {
+  "first": "ok"
+ },
+ "2-28": {
+  "first": "ok"
+ },
+ "2-29": {
+  "first": "ok"
+ },
+ "2-30": {
+  "first": "ok"
+ },
+ "2-31": {
+  "first": "ok"
+ },
+ "2-32": {
+  "first": "ok"
+ },
+ "2-33": {
+  "first": "ok"
+ },
+ "2-34": {
+  "first": "ok"
+ },
+ "2-35": {
+  "first": "ok"
+ },
+ "2-36": {
+  "first": "ok"
+ },
+ "2-37": {
+  "first": "ok"
+ },
+ "2-38": {
+  "first": "ok"
+ },
+ "2-39": {
+  "first": "ok"
+ },
+ "2-40": {
+  "first": "ok"
+ },
+ "2-41": {
+  "first": "ok"
+ },
+ "2-42": {
+  "first": "ok"
+ },
+ "2-43": {
+  "first": "ok"
+ },
+ "2-44": {
+  "first": "ok"
+ },
+ "2-45": {
+  "first": "ok"
+ },
+ "2-46": {
+  "first": "ok"
+ },
+ "2-47": {
+  "first": "ok"
+ },
+ "2-48": {
+  "first": "flagged: The reading leaves out the verse's definition of Yoga, changing it to a statement about what Krishna is teaching.",
+  "redraft": "Krishna tells Dhananjaya to do his actions without attachment, staying perfectly balanced in both success and failure. Krishna explains that this evenness of mind is known as Yoga.",
+  "second": "ok"
+ },
+ "2-49": {
+  "first": "ok"
+ },
+ "2-50": {
+  "first": "ok"
+ },
+ "2-51": {
+  "first": "ok"
+ },
+ "2-52": {
+  "first": "ok"
+ },
+ "2-53": {
+  "first": "ok"
+ },
+ "2-54": {
+  "first": "ok"
+ },
+ "2-55": {
+  "first": "ok"
+ },
+ "2-56": {
+  "first": "ok"
+ },
+ "2-57": {
+  "first": "ok"
+ },
+ "2-58": {
+  "first": "ok"
+ },
+ "2-59": {
+  "first": "ok"
+ },
+ "2-60": {
+  "first": "ok"
+ },
+ "2-61": {
+  "first": "ok"
+ },
+ "2-62": {
+  "first": "ok"
+ },
+ "2-63": {
+  "first": "ok"
+ },
+ "2-64": {
+  "first": "ok"
+ },
+ "2-65": {
+  "first": "ok"
+ },
+ "2-66": {
+  "first": "ok"
+ },
+ "2-67": {
+  "first": "ok"
+ },
+ "2-68": {
+  "first": "ok"
+ },
+ "2-69": {
+  "first": "ok"
+ },
+ "2-70": {
+  "first": "ok"
+ },
+ "2-71": {
+  "first": "ok"
+ },
+ "2-72": {
+  "first": "ok"
+ },
+ "3-1": {
+  "first": "ok"
+ },
+ "3-2": {
+  "first": "ok"
+ },
+ "3-3": {
+  "first": "ok"
+ },
+ "3-4": {
+  "first": "ok"
+ },
+ "3-5": {
+  "first": "ok"
+ },
+ "3-6": {
+  "first": "ok"
+ },
+ "3-7": {
+  "first": "ok"
+ },
+ "3-8": {
+  "first": "ok"
+ },
+ "3-9": {
+  "first": "ok"
+ },
+ "3-10": {
+  "first": "ok"
+ },
+ "3-11": {
+  "first": "ok"
+ },
+ "3-12": {
+  "first": "ok"
+ },
+ "3-13": {
+  "first": "ok"
+ },
+ "3-14": {
+  "first": "ok"
+ },
+ "3-15": {
+  "first": "ok"
+ },
+ "3-16": {
+  "first": "ok"
+ },
+ "3-17": {
+  "first": "ok"
+ },
+ "3-18": {
+  "first": "ok"
+ },
+ "3-19": {
+  "first": "ok"
+ },
+ "3-20": {
+  "first": "ok"
+ },
+ "3-21": {
+  "first": "ok"
+ },
+ "3-22": {
+  "first": "ok"
+ },
+ "3-23": {
+  "first": "ok"
+ },
+ "3-24": {
+  "first": "ok"
+ },
+ "3-25": {
+  "first": "ok"
+ },
+ "3-26": {
+  "first": "ok"
+ },
+ "3-27": {
+  "first": "ok"
+ },
+ "3-28": {
+  "first": "ok"
+ },
+ "3-29": {
+  "first": "ok"
+ },
+ "3-30": {
+  "first": "ok"
+ },
+ "3-31": {
+  "first": "ok"
+ },
+ "3-32": {
+  "first": "ok"
+ },
+ "3-33": {
+  "first": "ok"
+ },
+ "3-34": {
+  "first": "ok"
+ },
+ "3-35": {
+  "first": "ok"
+ },
+ "3-36": {
+  "first": "ok"
+ },
+ "3-37": {
+  "first": "ok"
+ },
+ "3-38": {
+  "first": "ok"
+ },
+ "3-39": {
+  "first": "ok"
+ },
+ "3-40": {
+  "first": "ok"
+ },
+ "3-41": {
+  "first": "ok"
+ },
+ "3-42": {
+  "first": "ok"
+ },
+ "3-43": {
+  "first": "ok"
+ },
+ "4-1": {
+  "first": "ok"
+ },
+ "4-2": {
+  "first": "ok"
+ },
+ "4-3": {
+  "first": "ok"
+ },
+ "4-4": {
+  "first": "ok"
+ },
+ "4-5": {
+  "first": "ok"
+ },
+ "4-6": {
+  "first": "ok"
+ },
+ "4-7": {
+  "first": "ok"
+ },
+ "4-8": {
+  "first": "ok"
+ },
+ "4-9": {
+  "first": "ok"
+ },
+ "4-10": {
+  "first": "flagged: The reading leaves out the requirement to be freed from passion or attachment.",
+  "redraft": "Krishna says that many have reached his being by becoming free from attachment, fear, and anger. He says they did this by taking refuge in him and being purified by the fire of knowledge.",
+  "second": "ok"
+ },
+ "4-11": {
+  "first": "ok"
+ },
+ "4-12": {
+  "first": "ok"
+ },
+ "4-13": {
+  "first": "ok"
+ },
+ "4-14": {
+  "first": "ok"
+ },
+ "4-15": {
+  "first": "ok"
+ },
+ "4-16": {
+  "first": "ok"
+ },
+ "4-17": {
+  "first": "ok"
+ },
+ "4-18": {
+  "first": "ok"
+ },
+ "4-19": {
+  "first": "ok"
+ },
+ "4-20": {
+  "first": "ok"
+ },
+ "4-21": {
+  "first": "ok"
+ },
+ "4-22": {
+  "first": "ok"
+ },
+ "4-23": {
+  "first": "ok"
+ },
+ "4-24": {
+  "first": "ok"
+ },
+ "4-25": {
+  "first": "ok"
+ },
+ "4-26": {
+  "first": "ok"
+ },
+ "4-27": {
+  "first": "ok"
+ },
+ "4-28": {
+  "first": "ok"
+ },
+ "4-29": {
+  "first": "ok"
+ },
+ "4-30": {
+  "first": "ok"
+ },
+ "4-31": {
+  "first": "ok"
+ },
+ "4-32": {
+  "first": "ok"
+ },
+ "4-33": {
+  "first": "ok"
+ },
+ "4-34": {
+  "first": "ok"
+ },
+ "4-35": {
+  "first": "ok"
+ },
+ "4-36": {
+  "first": "ok"
+ },
+ "4-37": {
+  "first": "ok"
+ },
+ "4-38": {
+  "first": "ok"
+ },
+ "4-39": {
+  "first": "ok"
+ },
+ "4-40": {
+  "first": "ok"
+ },
+ "4-41": {
+  "first": "ok"
+ },
+ "4-42": {
+  "first": "ok"
+ },
+ "5-1": {
+  "first": "ok"
+ },
+ "5-2": {
+  "first": "ok"
+ },
+ "5-3": {
+  "first": "ok"
+ },
+ "5-4": {
+  "first": "ok"
+ },
+ "5-5": {
+  "first": "ok"
+ },
+ "5-6": {
+  "first": "ok"
+ },
+ "5-7": {
+  "first": "ok"
+ },
+ "5-8": {
+  "first": "ok"
+ },
+ "5-9": {
+  "first": "ok"
+ },
+ "5-10": {
+  "first": "ok"
+ },
+ "5-11": {
+  "first": "ok"
+ },
+ "5-12": {
+  "first": "ok"
+ },
+ "5-13": {
+  "first": "ok"
+ },
+ "5-14": {
+  "first": "ok"
+ },
+ "5-15": {
+  "first": "ok"
+ },
+ "5-16": {
+  "first": "ok"
+ },
+ "5-17": {
+  "first": "ok"
+ },
+ "5-18": {
+  "first": "ok"
+ },
+ "5-19": {
+  "first": "ok"
+ },
+ "5-20": {
+  "first": "ok"
+ },
+ "5-21": {
+  "first": "ok"
+ },
+ "5-22": {
+  "first": "ok"
+ },
+ "5-23": {
+  "first": "ok"
+ },
+ "5-24": {
+  "first": "ok"
+ },
+ "5-25": {
+  "first": "ok"
+ },
+ "5-26": {
+  "first": "ok"
+ },
+ "5-27": {
+  "first": "ok"
+ },
+ "5-28": {
+  "first": "ok"
+ },
+ "5-29": {
+  "first": "ok"
+ },
+ "6-1": {
+  "first": "ok"
+ },
+ "6-2": {
+  "first": "ok"
+ },
+ "6-3": {
+  "first": "ok"
+ },
+ "6-4": {
+  "first": "ok"
+ },
+ "6-5": {
+  "first": "ok"
+ },
+ "6-6": {
+  "first": "ok"
+ },
+ "6-7": {
+  "first": "ok"
+ },
+ "6-8": {
+  "first": "ok"
+ },
+ "6-9": {
+  "first": "ok"
+ },
+ "6-10": {
+  "first": "ok"
+ },
+ "6-11": {
+  "first": "ok"
+ },
+ "6-12": {
+  "first": "ok"
+ },
+ "6-13": {
+  "first": "ok"
+ },
+ "6-14": {
+  "first": "ok"
+ },
+ "6-15": {
+  "first": "ok"
+ },
+ "6-16": {
+  "first": "ok"
+ },
+ "6-17": {
+  "first": "ok"
+ },
+ "6-18": {
+  "first": "ok"
+ },
+ "6-19": {
+  "first": "ok"
+ },
+ "6-20": {
+  "first": "ok"
+ },
+ "6-21": {
+  "first": "ok"
+ },
+ "6-22": {
+  "first": "ok"
+ },
+ "6-23": {
+  "first": "ok"
+ },
+ "6-24": {
+  "first": "ok"
+ },
+ "6-25": {
+  "first": "ok"
+ },
+ "6-26": {
+  "first": "ok"
+ },
+ "6-27": {
+  "first": "ok"
+ },
+ "6-28": {
+  "first": "ok"
+ },
+ "6-29": {
+  "first": "ok"
+ },
+ "6-30": {
+  "first": "ok"
+ },
+ "6-31": {
+  "first": "ok"
+ },
+ "6-32": {
+  "first": "ok"
+ },
+ "6-33": {
+  "first": "ok"
+ },
+ "6-34": {
+  "first": "ok"
+ },
+ "6-35": {
+  "first": "ok"
+ },
+ "6-36": {
+  "first": "ok"
+ },
+ "6-37": {
+  "first": "ok"
+ },
+ "6-38": {
+  "first": "ok"
+ },
+ "6-39": {
+  "first": "ok"
+ },
+ "6-40": {
+  "first": "ok"
+ },
+ "6-41": {
+  "first": "ok"
+ },
+ "6-42": {
+  "first": "ok"
+ },
+ "6-43": {
+  "first": "ok"
+ },
+ "6-44": {
+  "first": "ok"
+ },
+ "6-45": {
+  "first": "ok"
+ },
+ "6-46": {
+  "first": "ok"
+ },
+ "6-47": {
+  "first": "ok"
+ },
+ "7-1": {
+  "first": "ok"
+ },
+ "7-2": {
+  "first": "ok"
+ },
+ "7-3": {
+  "first": "ok"
+ },
+ "7-4": {
+  "first": "ok"
+ },
+ "7-5": {
+  "first": "ok"
+ },
+ "7-6": {
+  "first": "ok"
+ },
+ "7-7": {
+  "first": "ok"
+ },
+ "7-8": {
+  "first": "ok"
+ },
+ "7-9": {
+  "first": "ok"
+ },
+ "7-10": {
+  "first": "flagged: The reading leaves out that Krishna is also the splendour of splendid things or the heroism of the heroic.",
+  "redraft": "Krishna tells the son of Pritha to know him as the eternal seed of all beings. He says he is the intellect of the intelligent, and the splendor or heroism of the heroic.",
+  "second": "ok"
+ },
+ "7-11": {
+  "first": "ok"
+ },
+ "7-12": {
+  "first": "ok"
+ },
+ "7-13": {
+  "first": "ok"
+ },
+ "7-14": {
+  "first": "ok"
+ },
+ "7-15": {
+  "first": "ok"
+ },
+ "7-16": {
+  "first": "ok"
+ },
+ "7-17": {
+  "first": "ok"
+ },
+ "7-18": {
+  "first": "ok"
+ },
+ "7-19": {
+  "first": "ok"
+ },
+ "7-20": {
+  "first": "ok"
+ },
+ "7-21": {
+  "first": "ok"
+ },
+ "7-22": {
+  "first": "ok"
+ },
+ "7-23": {
+  "first": "ok"
+ },
+ "7-24": {
+  "first": "ok"
+ },
+ "7-25": {
+  "first": "ok"
+ },
+ "7-26": {
+  "first": "ok"
+ },
+ "7-27": {
+  "first": "ok"
+ },
+ "7-28": {
+  "first": "ok"
+ },
+ "7-29": {
+  "first": "ok"
+ },
+ "7-30": {
+  "first": "ok"
+ },
+ "8-1": {
+  "first": "ok"
+ },
+ "8-2": {
+  "first": "ok"
+ },
+ "8-3": {
+  "first": "ok"
+ },
+ "8-4": {
+  "first": "ok"
+ },
+ "8-5": {
+  "first": "ok"
+ },
+ "8-6": {
+  "first": "ok"
+ },
+ "8-7": {
+  "first": "ok"
+ },
+ "8-8": {
+  "first": "ok"
+ },
+ "8-9": {
+  "first": "ok"
+ },
+ "8-10": {
+  "first": "ok"
+ },
+ "8-11": {
+  "first": "ok"
+ },
+ "8-12": {
+  "first": "ok"
+ },
+ "8-13": {
+  "first": "ok"
+ },
+ "8-14": {
+  "first": "ok"
+ },
+ "8-15": {
+  "first": "ok"
+ },
+ "8-16": {
+  "first": "ok"
+ },
+ "8-17": {
+  "first": "ok"
+ },
+ "8-18": {
+  "first": "ok"
+ },
+ "8-19": {
+  "first": "ok"
+ },
+ "8-20": {
+  "first": "ok"
+ },
+ "8-21": {
+  "first": "ok"
+ },
+ "8-22": {
+  "first": "ok"
+ },
+ "8-23": {
+  "first": "ok"
+ },
+ "8-24": {
+  "first": "ok"
+ },
+ "8-25": {
+  "first": "ok"
+ },
+ "8-26": {
+  "first": "ok"
+ },
+ "8-27": {
+  "first": "ok"
+ },
+ "8-28": {
+  "first": "ok"
+ },
+ "9-1": {
+  "first": "ok"
+ },
+ "9-2": {
+  "first": "ok"
+ },
+ "9-3": {
+  "first": "ok"
+ },
+ "9-4": {
+  "first": "ok"
+ },
+ "9-5": {
+  "first": "ok"
+ },
+ "9-6": {
+  "first": "ok"
+ },
+ "9-7": {
+  "first": "ok"
+ },
+ "9-8": {
+  "first": "ok"
+ },
+ "9-9": {
+  "first": "ok"
+ },
+ "9-10": {
+  "first": "ok"
+ },
+ "9-11": {
+  "first": "ok"
+ },
+ "9-12": {
+  "first": "ok"
+ },
+ "9-13": {
+  "first": "ok"
+ },
+ "9-14": {
+  "first": "ok"
+ },
+ "9-15": {
+  "first": "ok"
+ },
+ "9-16": {
+  "first": "ok"
+ },
+ "9-17": {
+  "first": "ok"
+ },
+ "9-18": {
+  "first": "ok"
+ },
+ "9-19": {
+  "first": "ok"
+ },
+ "9-20": {
+  "first": "ok"
+ },
+ "9-21": {
+  "first": "ok"
+ },
+ "9-22": {
+  "first": "ok"
+ },
+ "9-23": {
+  "first": "ok"
+ },
+ "9-24": {
+  "first": "ok"
+ },
+ "9-25": {
+  "first": "ok"
+ },
+ "9-26": {
+  "first": "ok"
+ },
+ "9-27": {
+  "first": "ok"
+ },
+ "9-28": {
+  "first": "ok"
+ },
+ "9-29": {
+  "first": "ok"
+ },
+ "9-30": {
+  "first": "ok"
+ },
+ "9-31": {
+  "first": "ok"
+ },
+ "9-32": {
+  "first": "ok"
+ },
+ "9-33": {
+  "first": "ok"
+ },
+ "9-34": {
+  "first": "ok"
+ },
+ "10-1": {
+  "first": "ok"
+ },
+ "10-2": {
+  "first": "ok"
+ },
+ "10-3": {
+  "first": "ok"
+ },
+ "10-4": {
+  "first": "ok"
+ },
+ "10-5": {
+  "first": "ok"
+ },
+ "10-6": {
+  "first": "ok"
+ },
+ "10-7": {
+  "first": "ok"
+ },
+ "10-8": {
+  "first": "ok"
+ },
+ "10-9": {
+  "first": "ok"
+ },
+ "10-10": {
+  "first": "ok"
+ },
+ "10-11": {
+  "first": "ok"
+ },
+ "10-12": {
+  "first": "ok"
+ },
+ "10-13": {
+  "first": "ok"
+ },
+ "10-14": {
+  "first": "ok"
+ },
+ "10-15": {
+  "first": "ok"
+ },
+ "10-16": {
+  "first": "ok"
+ },
+ "10-17": {
+  "first": "ok"
+ },
+ "10-18": {
+  "first": "ok"
+ },
+ "10-19": {
+  "first": "ok"
+ },
+ "10-20": {
+  "first": "ok"
+ },
+ "10-21": {
+  "first": "ok"
+ },
+ "10-22": {
+  "first": "ok"
+ },
+ "10-23": {
+  "first": "ok"
+ },
+ "10-24": {
+  "first": "ok"
+ },
+ "10-25": {
+  "first": "ok"
+ },
+ "10-26": {
+  "first": "ok"
+ },
+ "10-27": {
+  "first": "ok"
+ },
+ "10-28": {
+  "first": "ok"
+ },
+ "10-29": {
+  "first": "ok"
+ },
+ "10-30": {
+  "first": "ok",
+  "earlier": {
+   "first": "ok",
+   "earlier": {
+    "first": "flagged: It leaves out that he is Prahlada among the Daityas.",
+    "second": "lint: “Among” is in neither translation (a fault in the lint, since fixed)"
+   }
+  }
+ },
+ "10-31": {
+  "first": "ok"
+ },
+ "10-32": {
+  "first": "ok"
+ },
+ "10-33": {
+  "first": "ok"
+ },
+ "10-34": {
+  "first": "flagged: It leaves out that he is the origin of all to come, and omits speech from the list of feminine qualities.",
+  "redraft": "Krishna says he is all-devouring Death and the origin of all to come. Of feminine qualities, he is fame, prosperity, speech or inspiration, memory, intelligence, constancy, and forgiveness.",
+  "second": "ok"
+ },
+ "10-35": {
+  "first": "flagged: It leaves out the specific names of the hymn, metre, and month, which are the main point of the verse.",
+  "redraft": "Krishna says that of hymns he is the Brihatsaman, and of meters he is the Gayatri. Of months he is Margasirsha, and of seasons he is the flowery season.",
+  "second": "ok"
+ },
+ "10-36": {
+  "first": "ok"
+ },
+ "10-37": {
+  "first": "flagged: It leaves out the specific names Vasudeva and Vyasa.",
+  "redraft": "Krishna says that among the Vrishnis he is Vasudeva, and among the Pandavas he is Dhananjaya. Of the sages he is Vyasa, and of the poets he is Ushanas.",
+  "second": "ok"
+ },
+ "10-38": {
+  "first": "ok"
+ },
+ "10-39": {
+  "first": "ok"
+ },
+ "10-40": {
+  "first": "ok"
+ },
+ "10-41": {
+  "first": "ok"
+ },
+ "10-42": {
+  "first": "ok"
+ },
+ "11-1": {
+  "first": "ok"
+ },
+ "11-2": {
+  "first": "ok"
+ },
+ "11-3": {
+  "first": "ok"
+ },
+ "11-4": {
+  "first": "ok"
+ },
+ "11-5": {
+  "first": "ok"
+ },
+ "11-6": {
+  "first": "ok"
+ },
+ "11-7": {
+  "first": "ok"
+ },
+ "11-8": {
+  "first": "ok"
+ },
+ "11-9": {
+  "first": "ok"
+ },
+ "11-10": {
+  "first": "ok"
+ },
+ "11-11": {
+  "first": "ok"
+ },
+ "11-12": {
+  "first": "ok"
+ },
+ "11-13": {
+  "first": "ok"
+ },
+ "11-14": {
+  "first": "ok"
+ },
+ "11-15": {
+  "first": "ok"
+ },
+ "11-16": {
+  "first": "ok"
+ },
+ "11-17": {
+  "first": "ok"
+ },
+ "11-18": {
+  "first": "ok"
+ },
+ "11-19": {
+  "first": "ok"
+ },
+ "11-20": {
+  "first": "ok"
+ },
+ "11-21": {
+  "first": "ok"
+ },
+ "11-22": {
+  "first": "ok"
+ },
+ "11-23": {
+  "first": "ok"
+ },
+ "11-24": {
+  "first": "ok"
+ },
+ "11-25": {
+  "first": "ok"
+ },
+ "11-26": {
+  "first": "ok"
+ },
+ "11-27": {
+  "first": "ok"
+ },
+ "11-28": {
+  "first": "ok"
+ },
+ "11-29": {
+  "first": "ok"
+ },
+ "11-30": {
+  "first": "ok"
+ },
+ "11-31": {
+  "first": "ok"
+ },
+ "11-32": {
+  "first": "ok"
+ },
+ "11-33": {
+  "first": "ok"
+ },
+ "11-34": {
+  "first": "ok"
+ },
+ "11-35": {
+  "first": "ok"
+ },
+ "11-36": {
+  "first": "ok"
+ },
+ "11-37": {
+  "first": "ok"
+ },
+ "11-38": {
+  "first": "ok"
+ },
+ "11-39": {
+  "first": "ok"
+ },
+ "11-40": {
+  "first": "ok"
+ },
+ "11-41": {
+  "first": "ok"
+ },
+ "11-42": {
+  "first": "ok"
+ },
+ "11-43": {
+  "first": "ok"
+ },
+ "11-44": {
+  "first": "ok"
+ },
+ "11-45": {
+  "first": "ok"
+ },
+ "11-46": {
+  "first": "ok"
+ },
+ "11-47": {
+  "first": "ok"
+ },
+ "11-48": {
+  "first": "ok"
+ },
+ "11-49": {
+  "first": "ok"
+ },
+ "11-50": {
+  "first": "ok"
+ },
+ "11-51": {
+  "first": "ok"
+ },
+ "11-52": {
+  "first": "ok"
+ },
+ "11-53": {
+  "first": "ok"
+ },
+ "11-54": {
+  "first": "ok"
+ },
+ "11-55": {
+  "first": "ok"
+ },
+ "12-1": {
+  "first": "ok"
+ },
+ "12-2": {
+  "first": "ok"
+ },
+ "12-3": {
+  "first": "ok"
+ },
+ "12-4": {
+  "first": "ok"
+ },
+ "12-5": {
+  "first": "ok"
+ },
+ "12-6": {
+  "first": "ok"
+ },
+ "12-7": {
+  "first": "ok"
+ },
+ "12-8": {
+  "first": "ok"
+ },
+ "12-9": {
+  "first": "ok"
+ },
+ "12-10": {
+  "first": "ok"
+ },
+ "12-11": {
+  "first": "ok"
+ },
+ "12-12": {
+  "first": "ok"
+ },
+ "12-13": {
+  "first": "ok"
+ },
+ "12-14": {
+  "first": "ok"
+ },
+ "12-15": {
+  "first": "ok"
+ },
+ "12-16": {
+  "first": "ok"
+ },
+ "12-17": {
+  "first": "ok"
+ },
+ "12-18": {
+  "first": "ok"
+ },
+ "12-19": {
+  "first": "ok"
+ },
+ "12-20": {
+  "first": "ok"
+ },
+ "13-1": {
+  "first": "ok"
+ },
+ "13-2": {
+  "first": "ok"
+ },
+ "13-3": {
+  "first": "ok"
+ },
+ "13-4": {
+  "first": "ok"
+ },
+ "13-5": {
+  "first": "ok"
+ },
+ "13-6": {
+  "first": "ok"
+ },
+ "13-7": {
+  "first": "ok"
+ },
+ "13-8": {
+  "first": "ok"
+ },
+ "13-9": {
+  "first": "ok"
+ },
+ "13-10": {
+  "first": "ok"
+ },
+ "13-11": {
+  "first": "ok"
+ },
+ "13-12": {
+  "first": "ok"
+ },
+ "13-13": {
+  "first": "ok"
+ },
+ "13-14": {
+  "first": "ok"
+ },
+ "13-15": {
+  "first": "ok"
+ },
+ "13-16": {
+  "first": "ok"
+ },
+ "13-17": {
+  "first": "ok"
+ },
+ "13-18": {
+  "first": "ok"
+ },
+ "13-19": {
+  "first": "ok"
+ },
+ "13-20": {
+  "first": "ok"
+ },
+ "13-21": {
+  "first": "ok"
+ },
+ "13-22": {
+  "first": "ok"
+ },
+ "13-23": {
+  "first": "ok"
+ },
+ "13-24": {
+  "first": "ok"
+ },
+ "13-25": {
+  "first": "ok"
+ },
+ "13-26": {
+  "first": "ok"
+ },
+ "13-27": {
+  "first": "ok"
+ },
+ "13-28": {
+  "first": "ok"
+ },
+ "13-29": {
+  "first": "ok"
+ },
+ "13-30": {
+  "first": "ok"
+ },
+ "13-31": {
+  "first": "ok"
+ },
+ "13-32": {
+  "first": "ok"
+ },
+ "13-33": {
+  "first": "ok"
+ },
+ "13-34": {
+  "first": "ok"
+ },
+ "14-1": {
+  "first": "ok"
+ },
+ "14-2": {
+  "first": "ok"
+ },
+ "14-3": {
+  "first": "flagged: The reading leaves out the main point that the womb is the great Eternal or Prakriti, instead just saying he 'has a great womb'.",
+  "redraft": "Krishna tells the descendant of Bharata that his womb is the great Eternal or Prakriti. He places the germ inside it, and from there all beings are born.",
+  "second": "ok"
+ },
+ "14-4": {
+  "first": "flagged: The reading says 'the great womb is their womb' instead of identifying the womb as the great Eternal or Prakriti, missing the verse's meaning.",
+  "redraft": "Krishna tells the son of Kunti that whatever forms are produced in all wombs, the great Eternal or Prakriti is their true womb, and he is the seed-giving father.",
+  "second": "ok"
+ },
+ "14-5": {
+  "first": "ok"
+ },
+ "14-6": {
+  "first": "ok"
+ },
+ "14-7": {
+  "first": "ok"
+ },
+ "14-8": {
+  "first": "ok"
+ },
+ "14-9": {
+  "first": "ok"
+ },
+ "14-10": {
+  "first": "ok"
+ },
+ "14-11": {
+  "first": "ok"
+ },
+ "14-12": {
+  "first": "ok"
+ },
+ "14-13": {
+  "first": "ok"
+ },
+ "14-14": {
+  "first": "ok"
+ },
+ "14-15": {
+  "first": "ok"
+ },
+ "14-16": {
+  "first": "ok"
+ },
+ "14-17": {
+  "first": "ok"
+ },
+ "14-18": {
+  "first": "ok"
+ },
+ "14-19": {
+  "first": "ok"
+ },
+ "14-20": {
+  "first": "ok"
+ },
+ "14-21": {
+  "first": "ok"
+ },
+ "14-22": {
+  "first": "ok"
+ },
+ "14-23": {
+  "first": "ok"
+ },
+ "14-24": {
+  "first": "ok"
+ },
+ "14-25": {
+  "first": "ok"
+ },
+ "14-26": {
+  "first": "ok"
+ },
+ "14-27": {
+  "first": "ok"
+ },
+ "15-1": {
+  "first": "ok"
+ },
+ "15-2": {
+  "first": "ok"
+ },
+ "15-3": {
+  "first": "ok"
+ },
+ "15-4": {
+  "first": "ok"
+ },
+ "15-5": {
+  "first": "ok"
+ },
+ "15-6": {
+  "first": "ok"
+ },
+ "15-7": {
+  "first": "ok"
+ },
+ "15-8": {
+  "first": "ok"
+ },
+ "15-9": {
+  "first": "ok"
+ },
+ "15-10": {
+  "first": "ok"
+ },
+ "15-11": {
+  "first": "ok"
+ },
+ "15-12": {
+  "first": "ok"
+ },
+ "15-13": {
+  "first": "ok"
+ },
+ "15-14": {
+  "first": "ok"
+ },
+ "15-15": {
+  "first": "ok"
+ },
+ "15-16": {
+  "first": "ok"
+ },
+ "15-17": {
+  "first": "ok"
+ },
+ "15-18": {
+  "first": "ok"
+ },
+ "15-19": {
+  "first": "ok"
+ },
+ "15-20": {
+  "first": "ok"
+ },
+ "16-1": {
+  "first": "ok"
+ },
+ "16-2": {
+  "first": "ok"
+ },
+ "16-3": {
+  "first": "ok"
+ },
+ "16-4": {
+  "first": "ok"
+ },
+ "16-5": {
+  "first": "ok"
+ },
+ "16-6": {
+  "first": "ok"
+ },
+ "16-7": {
+  "first": "ok"
+ },
+ "16-8": {
+  "first": "ok"
+ },
+ "16-9": {
+  "first": "ok"
+ },
+ "16-10": {
+  "first": "ok"
+ },
+ "16-11": {
+  "first": "ok"
+ },
+ "16-12": {
+  "first": "ok"
+ },
+ "16-13": {
+  "first": "ok"
+ },
+ "16-14": {
+  "first": "ok"
+ },
+ "16-15": {
+  "first": "ok"
+ },
+ "16-16": {
+  "first": "ok"
+ },
+ "16-17": {
+  "first": "ok"
+ },
+ "16-18": {
+  "first": "ok"
+ },
+ "16-19": {
+  "first": "ok"
+ },
+ "16-20": {
+  "first": "ok"
+ },
+ "16-21": {
+  "first": "ok"
+ },
+ "16-22": {
+  "first": "ok"
+ },
+ "16-23": {
+  "first": "ok"
+ },
+ "16-24": {
+  "first": "ok"
+ },
+ "17-1": {
+  "first": "ok"
+ },
+ "17-2": {
+  "first": "ok"
+ },
+ "17-3": {
+  "first": "ok"
+ },
+ "17-4": {
+  "first": "ok"
+ },
+ "17-5": {
+  "first": "ok"
+ },
+ "17-6": {
+  "first": "ok"
+ },
+ "17-7": {
+  "first": "ok"
+ },
+ "17-8": {
+  "first": "ok"
+ },
+ "17-9": {
+  "first": "ok"
+ },
+ "17-10": {
+  "first": "ok"
+ },
+ "17-11": {
+  "first": "ok"
+ },
+ "17-12": {
+  "first": "ok"
+ },
+ "17-13": {
+  "first": "ok"
+ },
+ "17-14": {
+  "first": "ok"
+ },
+ "17-15": {
+  "first": "ok"
+ },
+ "17-16": {
+  "first": "ok"
+ },
+ "17-17": {
+  "first": "ok"
+ },
+ "17-18": {
+  "first": "ok"
+ },
+ "17-19": {
+  "first": "ok"
+ },
+ "17-20": {
+  "first": "ok"
+ },
+ "17-21": {
+  "first": "ok"
+ },
+ "17-22": {
+  "first": "ok"
+ },
+ "17-23": {
+  "first": "ok"
+ },
+ "17-24": {
+  "first": "ok"
+ },
+ "17-25": {
+  "first": "ok"
+ },
+ "17-26": {
+  "first": "ok"
+ },
+ "17-27": {
+  "first": "ok"
+ },
+ "17-28": {
+  "first": "ok"
+ },
+ "18-1": {
+  "first": "ok"
+ },
+ "18-2": {
+  "first": "ok"
+ },
+ "18-3": {
+  "first": "ok"
+ },
+ "18-4": {
+  "first": "ok"
+ },
+ "18-5": {
+  "first": "ok"
+ },
+ "18-6": {
+  "first": "ok"
+ },
+ "18-7": {
+  "first": "ok"
+ },
+ "18-8": {
+  "first": "ok"
+ },
+ "18-9": {
+  "first": "ok"
+ },
+ "18-10": {
+  "first": "ok"
+ },
+ "18-11": {
+  "first": "ok"
+ },
+ "18-12": {
+  "first": "ok"
+ },
+ "18-13": {
+  "first": "ok"
+ },
+ "18-14": {
+  "first": "ok"
+ },
+ "18-15": {
+  "first": "ok"
+ },
+ "18-16": {
+  "first": "ok"
+ },
+ "18-17": {
+  "first": "ok"
+ },
+ "18-18": {
+  "first": "ok"
+ },
+ "18-19": {
+  "first": "ok"
+ },
+ "18-20": {
+  "first": "ok"
+ },
+ "18-21": {
+  "first": "ok"
+ },
+ "18-22": {
+  "first": "ok"
+ },
+ "18-23": {
+  "first": "ok"
+ },
+ "18-24": {
+  "first": "ok"
+ },
+ "18-25": {
+  "first": "ok"
+ },
+ "18-26": {
+  "first": "ok"
+ },
+ "18-27": {
+  "first": "ok"
+ },
+ "18-28": {
+  "first": "ok"
+ },
+ "18-29": {
+  "first": "ok"
+ },
+ "18-30": {
+  "first": "ok"
+ },
+ "18-31": {
+  "first": "ok"
+ },
+ "18-32": {
+  "first": "ok"
+ },
+ "18-33": {
+  "first": "ok"
+ },
+ "18-34": {
+  "first": "ok"
+ },
+ "18-35": {
+  "first": "ok"
+ },
+ "18-36": {
+  "first": "ok"
+ },
+ "18-37": {
+  "first": "ok"
+ },
+ "18-38": {
+  "first": "ok"
+ },
+ "18-39": {
+  "first": "ok"
+ },
+ "18-40": {
+  "first": "ok"
+ },
+ "18-41": {
+  "first": "ok"
+ },
+ "18-42": {
+  "first": "ok"
+ },
+ "18-43": {
+  "first": "ok"
+ },
+ "18-44": {
+  "first": "ok"
+ },
+ "18-45": {
+  "first": "ok"
+ },
+ "18-46": {
+  "first": "ok"
+ },
+ "18-47": {
+  "first": "ok"
+ },
+ "18-48": {
+  "first": "ok"
+ },
+ "18-49": {
+  "first": "ok"
+ },
+ "18-50": {
+  "first": "ok"
+ },
+ "18-51": {
+  "first": "ok"
+ },
+ "18-52": {
+  "first": "ok"
+ },
+ "18-53": {
+  "first": "ok"
+ },
+ "18-54": {
+  "first": "ok"
+ },
+ "18-55": {
+  "first": "ok"
+ },
+ "18-56": {
+  "first": "ok"
+ },
+ "18-57": {
+  "first": "ok"
+ },
+ "18-58": {
+  "first": "ok"
+ },
+ "18-59": {
+  "first": "ok"
+ },
+ "18-60": {
+  "first": "ok"
+ },
+ "18-61": {
+  "first": "ok"
+ },
+ "18-62": {
+  "first": "ok"
+ },
+ "18-63": {
+  "first": "ok"
+ },
+ "18-64": {
+  "first": "ok"
+ },
+ "18-65": {
+  "first": "ok"
+ },
+ "18-66": {
+  "first": "ok"
+ },
+ "18-67": {
+  "first": "ok"
+ },
+ "18-68": {
+  "first": "ok"
+ },
+ "18-69": {
+  "first": "ok"
+ },
+ "18-70": {
+  "first": "ok"
+ },
+ "18-71": {
+  "first": "ok"
+ },
+ "18-72": {
+  "first": "ok"
+ },
+ "18-73": {
+  "first": "ok",
+  "earlier": {
+   "first": "flagged: The reading leaves out Arjuna's important statement that he has gained knowledge or regained his memory.",
+   "second": "lint: “Krishna's” is in neither translation (a fault in the lint, since fixed)"
+  }
+ },
+ "18-74": {
+  "first": "ok"
+ },
+ "18-75": {
+  "first": "ok"
+ },
+ "18-76": {
+  "first": "ok"
+ },
+ "18-77": {
+  "first": "ok"
+ },
+ "18-78": {
+  "first": "ok"
+ }
+}

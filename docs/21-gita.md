@@ -249,6 +249,20 @@ Gemini text model (key and model from the environment) or `--import`s drafts mad
 the same rules; the first 700 were drafted by the AI assistant that builds this app, on 4 Oct 2026, when the Gemini text
 models answered 402 on this key. `check-gita readings` holds it.
 
+**Then a blind second check** (owner, 4 Oct 2026: "try gemini now"), the way the chant has a second
+listener: `tools/gita-gloss.py --audit` shows a different model (a Gemini text model) each reading
+beside its two translations — not who wrote it — and asks only whether it is faithful: nothing
+added, the main point kept, the right speaker, no harsher or softer than the translations, no lesson
+the verse does not draw. Of 700, **689 passed as written**; 11 were flagged, each was redrafted told
+why, and kept only if it passed the lint *and* the same check. Result: **691 passed, 8 redrafted,
+1 disputed**. The disputed one, **1.10**, is left off the page — no reading rather than a doubted one
+— because the two translations disagree about it (Besant: the prince's own army is insufficient;
+Swarupananda: it is beyond counting), and a plain reading would have to choose. Every verdict, and
+every earlier verdict a re-check replaced, is in `tools/gita-src/gloss-audit.json` for the reviewer.
+Two things the run taught: the second model's verdict is not perfectly stable (two flags did not
+recur on a re-check, and both are recorded), and two of its "disputes" were the lint's own faults
+("Among" opening a sentence, "Krishna's"), since fixed — a check is only as good as what checks it.
+
 ### 8.4 Music and pictures
 
 Six themes in `music/engine.js`, no drums under a chant: the field (ch. 1, Darbari), a teacher

@@ -24,7 +24,8 @@ const STARTERS = new Set(('a an the when if you your he she they it its this tha
   'where which whose until unless or nor yet whether instead rather most more less few others other another same true real ' +
   'good bad i i\'m i\'ll it\'s that\'s there\'s he\'s she\'s you\'re they\'re we\'re can can\'t will won\'t would should could must may might ' +
   'is are was were has have had does did am being been get give take make go come say says said tell tells asks ask answers ' +
-  'god lord great wise those whose look listen hear speak see do').split(/\s+/));
+  'god lord great wise those whose look listen hear speak see do ' +
+  'among through over under into upon within beyond above below between during whenever wherever however therefore thus hence').split(/\s+/));
 const BANNED = /\b(myths?|mythical|superstitio\w*|primitive|pagan|heathen|false gods?|idol worship|the true religion|better religion)\b/i;
 const INDIC = /[ऀ-ॿ஀-௿]|[āīūṛṝḷḹṃḥṅñṭḍṇśṣĀĪŪṚṜḶṂḤṄÑṬḌṆŚṢ]/;
 /* Besant writes names with a circumflex (Brâhmanas, Vyâsa); a child's reading writes them plain,
@@ -44,7 +45,7 @@ function lint(kid, en, en2) {
   const caps = text.match(/\b[A-Z][a-zA-Z'’-]*/g) || [];
   for (const w of caps) {
     const lw = w.toLowerCase().replace(/[’]/g, '\'');
-    if (SPEAKERS.includes(w) || STARTERS.has(lw)) continue;
+    if (SPEAKERS.includes(w.replace(/['’]s$/, '')) || STARTERS.has(lw)) continue;   /* Krishna's is Krishna */
     if (src.indexOf(lw.replace(/'s$/, '')) >= 0) continue;
     why.push('“' + w + '” is in neither translation');
   }

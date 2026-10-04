@@ -178,6 +178,7 @@ unset GIT_INDEX_FILE
 if [ -n "$PARENT" ]; then
   LOST=""
   for name in $(git ls-tree --name-only "$PARENT"); do
+    case "$name" in data-feed-*.js) continue ;; esac   # the feed build's own set (see above)
     git cat-file -e "$TREE:$name" 2>/dev/null || LOST="$LOST $name"
   done
   if [ -n "$LOST" ]; then

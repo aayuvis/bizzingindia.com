@@ -654,6 +654,8 @@
   W.IND_GITA_UI = {
     init: function (host) { H = host; },
     journey: journey, chapter: chapter, verse: verse, act: act, mount: mount, stop: stop,
+    /* the painting a verse is shown with — the year course's cards and chapter tiles use the same */
+    artOf: artOf,
     /* which loop plays under a screen: the chapter's mood */
     theme: function (name, arg) {
       if (name === 'gita') return 'gitateach';

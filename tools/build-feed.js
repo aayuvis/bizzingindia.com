@@ -116,7 +116,7 @@ function wrongs(right, pool, seed) {
 /* ---------------------------------------------------------------- where the courses put things */
 const COURSE_LV = {};
 const pull = (k, lv) => { if (COURSE_LV[k] == null || lv < COURSE_LV[k]) COURSE_LV[k] = lv; };
-C.IND_PAATH.courses.filter(c => !(c.id === 'gita-course')).forEach(c => {
+C.IND_PAATH.courses.filter(c => !(c.id === 'gita-course' || c.id === 'gita-year')).forEach(c => {   /* the Gita courses are not levels of the feed */
   const M = c.modules.length;
   c.modules.forEach((m, mi) => {
     if (m.needsReview) return;

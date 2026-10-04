@@ -157,20 +157,25 @@ The short version:
 
 ## Courses (Paathshala)
 
-Ten courses, 264 hours, laid over the corpus rather than written from scratch — see
+Eleven courses, 420 hours, laid over the corpus rather than written from scratch — see
 [docs/20-courses.md](docs/20-courses.md), and [docs/21-gita.md](docs/21-gita.md) for the
 Gita module specifically. Four rules bind anyone touching them:
 
 - **A check on the same day as its teaching is practice, not learning.** `ledger()` in
   `app/paath.js` is the only door into the mastery record, and it writes only when the
   check happens on a later day. The grown-up's report shows objectives, never minutes.
-- **A course may only quote a verse that already exists, sourced, in `data-shlok.js`.**
-  The Gita course is built on the five Gita verses this app has and says so. Anywhere a
+- **A course may only quote a verse that already exists, sourced, in `data-shlok.js`** — or,
+  for the advanced Gita course, in the built 700 (`data-gita-NN.js`, as `gv` refs). Arjuna's
+  Questions is built on the five Gita verses in `data-shlok.js` and says so. Anywhere a
   course wants a verse it does not have, `needsVerse` renders an honest screen.
 - **Sensitive modules carry `needsReview` and do not publish.** Colonial rule, Partition,
   contested claims in the history of science. The Gita course is the owner's exception (4 Oct 2026):
-  it is **Course 1**, open, still flagged, and says on screen that a Sanskrit reader has not checked it;
-  its page has a door to all 700 verses.
+  it is **Course 1**, open, still flagged, and says on screen that a Sanskrit reader has not checked it.
+  The Gita is **two courses** (owner, 4 Oct 2026): **Arjuna's Questions** (Basic, 42 h) and **The Whole
+  Gita** (Advanced, 52 weeks, all 700 verses once, in order — `tools/build-gita-year.js` →
+  `data-paath-gita-year.js`, never typed). The advanced one draws as a year journey (`layout: 'year'`):
+  this week's painting, a weeks ring, eighteen chapter tiles with a dot per week. Basic's door leads to
+  Advanced; Advanced's door to the free Gita. `check-paath verses` holds the 700, `atlas` the journey.
 - **A verse is set in its own script.** The courses cite Tamil and Pali alongside Sanskrit
   on purpose — the same quality in three traditions is the lesson — so the take-home pack
   derives each card's language from its collection. Setting Thirukkural in a Devanagari

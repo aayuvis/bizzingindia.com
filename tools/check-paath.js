@@ -47,8 +47,10 @@ function corpus() {
   const need = ['data-shlok.js', 'data-neeti.js', 'data-dharma.js', 'data-utsav.js',
                 'data-rishtey.js', 'data-itihaas.js', 'data-geet.js',
                 'data-epic-mahabharata.js', 'data-epic-ramayana.js', 'data-bhugol.js',
-                'data-geo.js', 'data-nani.js', 'data-paath.js'];
+                'data-geo.js', 'data-nani.js', 'data-paath.js', 'data-paath-gita-year.js'];
   need.forEach(f => require(path.join(APP, f)));
+  /* the whole Gita, chapter by chapter: what the year course's `gv` references must find */
+  for (let n = 1; n <= 18; n++) require(path.join(APP, 'data-gita-' + String(n).padStart(2, '0') + '.js'));
   const W = global.window;
   /* stories live across a dozen files and two epics; scrape their ids textually rather
      than loading 3MB of narration to ask for a list of keys */
@@ -82,6 +84,9 @@ function corpus() {
     bg: new Set(arr(W.IND_BHUGOL, 'features').map(f => f.id)),
     state: new Set(Object.keys((W.IND_GEO || {}).states || {})),
     na: new Set(arr(W.IND_NANI, 'questions').map(q => q.id)),
+    /* a verse of the whole Gita, '2.47', out of the built chapter files (tools/build-gita.js) */
+    gv: new Set([].concat(...Object.keys(W.IND_GITA_V || {}).map(c => W.IND_GITA_V[c].map(x => c + '.' + x.v)))),
+    gvList: [].concat(...Object.keys(W.IND_GITA_V || {}).sort((a, b) => a - b).map(c => W.IND_GITA_V[c].map(x => c + '.' + x.v))),
   };
 }
 
@@ -115,7 +120,10 @@ check('shape', 'a course is what it says it is', async ({ C }) => {
       });
     });
   });
-  if (C.P.courses.length !== 10) bad.push(`there are ${C.P.courses.length} courses, not 10`);
+  if (C.P.courses.length !== 11) bad.push(`there are ${C.P.courses.length} courses, not 11`);
+  /* the two Gita courses lead (owner, 4 Oct 2026): the basic one first, the advanced year second */
+  if (C.P.courses[0].id !== 'gita-course' || C.P.courses[1].id !== 'gita-year')
+    bad.push('the Gita courses are not Course 1 (basic) and Course 2 (advanced): ' + C.P.courses.slice(0, 2).map(c => c.id).join(', '));
   if (bad.length) throw new Error(bad.join('; '));
 });
 
@@ -177,6 +185,25 @@ check('verses', 'no course quotes a verse this app cannot attribute', async ({ C
     });
   }));
   if (!have.length) throw new Error('no sourced Gita verses at all — the course cannot be honest');
+  /* THE YEAR: its learning stops walk every one of the 700 verses, once each, in order — and cite
+     nothing but verses of the built text; every week stays inside one chapter */
+  const year = C.P.courses.find(c => c.id === 'gita-year');
+  if (!year) throw new Error('the year course (gita-year) is missing');
+  const walked = [];
+  year.modules.forEach(m => {
+    m.lessons.forEach(l => (l.use && l.use.gv ? l.use.gv : []).forEach(id => {
+      if (!C.gv.has(id)) bad.push(`gita-year/${m.id} cites ${id}, which is not in the built Gita`);
+      if (String(id).split('.')[0] !== String(m.ch)) bad.push(`gita-year/${m.id} (chapter ${m.ch}) cites ${id}`);
+    }));
+    m.lessons.filter(l => l.k === 't').forEach((l, i, T) => {
+      /* the second learning stop repeats the first only when a week is too short to split */
+      if (i === 1 && T[0].use.gv.join() === l.use.gv.join()) return;
+      walked.push(...l.use.gv);
+    });
+  });
+  if (year.modules.length !== 52) bad.push(`the year course has ${year.modules.length} weeks, not 52`);
+  if (walked.join() !== C.gvList.join()) bad.push(`the year's learning stops walk ${walked.length} verses, not the 700 in order` +
+    (walked.length ? ` (first difference near ${walked.find((v, i) => v !== C.gvList[i])})` : ''));
   if (bad.length) throw new Error(bad.join('; '));
 });
 
@@ -189,6 +216,7 @@ check('review', 'nothing sensitive claims to be finished', async ({ C }) => {
     ['itihaas-course', 'i8', 'colonial'],
     ['itihaas-course', 'i9', 'Partition and the freedom movement'],
     ['gita-course', null, 'doctrinal content'],
+    ['gita-year', null, 'the whole sacred text, opened before a Sanskrit reader has checked it'],
   ];
   mustFlag.forEach(([cid, mid, why]) => {
     const c = C.P.courses.find(x => x.id === cid);
@@ -917,6 +945,42 @@ check('atlas', 'every course is a map you walk', async ({ p, C }) => {
     if (back) { await back.click(); await p.waitForTimeout(200); }
     await p.evaluate(id => document.querySelector(`.pa-card[data-id="${id}"]`).click(), c.id);
     await p.waitForTimeout(400);
+    /* THE YEAR COURSE IS DRAWN AS A YEAR, not a board of 52 pins (owner, 4 Oct 2026: "the journey
+       beautiful and graphical"): this week on its chapter's painting with one button that goes on, a
+       painted tile per chapter with a dot per week, the chapter you are in wearing your companion,
+       and the week you are in open on its rail. */
+    if (c.layout === 'year') {
+      await p.waitForSelector('.py-hero', { timeout: 15000 }).catch(() => {});
+      await p.waitForTimeout(600);
+      const y = await p.evaluate(() => ({
+        hero: !!document.querySelector('.py-hero') && /url\(/.test(getComputedStyle(document.querySelector('.py-hero')).backgroundImage),
+        week: ((document.querySelector('.py-kick') || {}).textContent || ''),
+        go: !!document.querySelector('.py-go[data-pa="lesson"], .py-go[data-pa="part"]'),
+        tiles: document.querySelectorAll('.py-ch').length,
+        tileImgs: [...document.querySelectorAll('.py-ch .py-chimg img')].filter(i => i.getAttribute('src')).length,
+        dots: document.querySelectorAll('.py-dots > span').length,
+        here: document.querySelectorAll('.py-ch.here').length,
+        hereFace: !!document.querySelector('.py-ch.here .py-chface img, .py-ch.here .py-chface svg'),
+        open: document.querySelectorAll('.py-week.open').length,
+        openHere: !!document.querySelector('.py-week.open.here'),
+        curStop: document.querySelectorAll('.py-week.open .pa-stop.cur').length,
+        sideways: document.documentElement.scrollWidth > window.innerWidth + 1,
+        text: document.getElementById('main').innerText.replace(/\s+/g, ' ')
+      }));
+      for (const k of ['why', 'note']) {
+        const t = String(c[k] || '').replace(/\s+/g, ' ').slice(0, 48);
+        if (t && y.text.indexOf(t) >= 0) bad.push(`${c.id} shows its ${k} to the child`);
+      }
+      if (!y.hero) bad.push(`${c.id}: this week is not on its chapter's painting`);
+      if (!/week 1 of 52/i.test(y.week)) bad.push(`${c.id}: a new child is not told this is week 1 of 52 ("${y.week}")`);
+      if (!y.go) bad.push(`${c.id}: this week has no one button that goes on`);
+      if (y.tiles !== c.chapters.length || y.tileImgs !== c.chapters.length) bad.push(`${c.id}: ${y.tiles} chapter tiles, ${y.tileImgs} painted, for ${c.chapters.length} chapters`);
+      if (y.dots !== c.modules.length) bad.push(`${c.id}: ${y.dots} week dots for ${c.modules.length} weeks`);
+      if (y.here !== 1 || !y.hereFace) bad.push(`${c.id}: ${y.here} chapters marked "you are here", companion ${y.hereFace}`);
+      if (y.open !== 1 || !y.openHere || y.curStop !== 1) bad.push(`${c.id}: open weeks ${y.open}, the one you are in ${y.openHere}, current stops ${y.curStop}`);
+      if (y.sideways) bad.push(`${c.id}: the page scrolls sideways`);
+      continue;
+    }
     const r = await p.evaluate(() => ({
       board: !!document.querySelector('.pa-board > img'),
       pins: document.querySelectorAll('.pa-pin').length,
@@ -968,6 +1032,7 @@ check('pictures', 'every part has its own picture, or its own words — never a 
      that is only a flat colour. */
   const bad = [];
   for (const c of C.P.courses) {
+    if (c.layout === 'year') continue;   /* its parts are weeks on painted chapter tiles — `atlas` holds those */
     const back = await p.$('.backlink[data-pa="hub"]');
     if (back) { await back.click(); await p.waitForTimeout(200); }
     await p.evaluate(id => document.querySelector(`.pa-card[data-id="${id}"]`).click(), c.id);

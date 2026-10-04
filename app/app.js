@@ -861,9 +861,16 @@
     speak(storyClip(st, i), hi || (sc && sc.text), hi ? 'hi-IN' : 'en-IN');
   }
 
+  /* a Gita verse's chant, by key 'gita/<c>-<v>': a family's own recording first, then the
+     labelled computer voice (app/gita.js reads the same manifest) */
+  function gitaChant(key) {
+    var m = /^gita\/(\d+-\d+)$/.exec(String(key || '')); if (!m) return null;
+    var x = (window.IND_GITA_VOICE || {})[m[1]];
+    return x ? 'voice/gita/' + (x.human ? 'human/' : '') + m[1] + '.mp3' : null;
+  }
   function speak(key, text, lang) {
     if (!narrationOn()) return;
-    var src = key ? humanClip(key) : null;
+    var src = key ? (gitaChant(key) || humanClip(key)) : null;
     if (src || (key && (!window.IND_VOICE || window.IND_VOICE.indexOf(key) >= 0))) {
       try {
         if (audio) audio.pause();
@@ -6920,9 +6927,32 @@
         var alt = epicArt('mahabharata', n, ac);
         if (alt) alts.push(alt);
       }
+    } else if (kind === 'gv') {
+      /* A VERSE OF THE WHOLE GITA (the year course): out of the chapter's own built file, with
+         the chapter's painting. Its name is its opening words in its own script — what a child
+         learns to know it by — and its number is how the course finds it. */
+      var gv = gitaVerse(id);
+      if (!gv) return null;
+      name = gitaOpening(gv.x); script = String(gv.x.sa || ''); lang = 'sa';
+      sub = 'Chapter ' + gv.c + ' · verse ' + gv.v;
+      src = window.IND_GITA_UI && window.IND_GITA_UI.artOf ? window.IND_GITA_UI.artOf(gv.c, gv.v) : null;
+      cap = src ? 'Gita ' + id : '';
     } else return null;
     return { name: name || String(id), sub: sub, art: src, face: face, alts: alts,
              script: script, lang: lang, cap: cap };
+  }
+  /* '2.47' → its verse in the chapter's built file (data-gita-02.js), or null */
+  function gitaVerse(id) {
+    var m = /^(\d+)\.(\d+)$/.exec(String(id)); if (!m) return null;
+    var c = +m[1], v = +m[2], L = (window.IND_GITA_V || {})[c] || [], x = null;
+    L.forEach(function (y) { if (y.v === v) x = y; });
+    return x ? { c: c, v: v, x: x } : null;
+  }
+  /* the opening words, as tools/build-gita-year.js cuts them for the order task */
+  function gitaOpening(x) {
+    var line = String(x.sa || '').split('\n')[0].replace(/[।॥|]/g, ' ').trim(), w = line.split(/\s+/), o = w[0];
+    for (var i = 1; i < w.length && (o + ' ' + w[i]).length <= 22; i++) o += ' ' + w[i];
+    return o + (o.length < line.length ? '…' : '');
   }
 
   /* ---------------------------------------------- A LEARN STOP THAT TEACHES (FIX-INDIA E3)
@@ -7125,6 +7155,19 @@
          link handed the epic page a bare number, which was 10 more dead ends */
       c.deep = { act: 'episode', id: kind === 'mb' ? 'mahabharata' : 'ramayana', n: Number(id),
                  label: 'Watch the episode' };
+    } else if (kind === 'gv') {
+      var gvx = gitaVerse(id);
+      if (gvx) {
+        c.extra = gvx.x.iast || '';
+        /* the plain reading where there is one — labelled as the computer's unchecked draft,
+           as it is on the verse page — and Besant's published English where there is not */
+        c.body = gvx.x.kid || gvx.x.en || '';
+        c.note = gvx.x.kid ? 'In simpler words — drafted by a computer from Besant and Swarupananda, and not yet checked by a person.'
+                           : 'Annie Besant, The Bhagavad-Gita (1922).';
+        c.clue = c.body; c.clueNote = c.note;
+        c.audio = 'gita/' + gvx.c + '-' + gvx.v;
+        c.deep = { v: 'gitav', arg: id, label: 'Open it with the guru' };
+      }
     } else if (kind === 'sh') {
       var v = find((window.IND_SHLOK || {}).verses);
       if (v) {
@@ -7190,7 +7233,7 @@
     /* "Hear it" only where there is something to hear. The songs are human voice or
        nothing (V.song says so), and a button that plays silence teaches a child that
        the button is broken — 51 of them did, before the QC walk pressed them. */
-    if (c.audio && !hasVoice(c.audio) && !(window.IND_VOICE_HUMAN && window.IND_VOICE_HUMAN[c.audio])) c.audio = '';
+    if (c.audio && !gitaChant(c.audio) && !hasVoice(c.audio) && !(window.IND_VOICE_HUMAN && window.IND_VOICE_HUMAN[c.audio])) c.audio = '';
     return c;
   }
 
@@ -8765,6 +8808,12 @@
     if (n === 'gita' || n === 'gitach' || n === 'gitav') {
       var gc = parseInt(String(a === undefined ? view.arg : a || ''), 10);
       return gc >= 1 && gc <= 18 && n !== 'gita' ? ['gita', 'gita-' + (gc < 10 ? '0' : '') + gc] : ['gita'];
+    }
+    /* THE YEAR COURSE (gita-year): its page needs the Gita's index; a week's stop, the one chapter
+       that week walks — its part id says which (c02a is chapter 2's first week) */
+    if ((n === 'paath' || n === 'paathl' || n === 'paathk') && /^gita-year(\||$)/.test(String(a === undefined ? view.arg : a || ''))) {
+      var ym = /^gita-year\|c(\d\d)/.exec(String(a === undefined ? view.arg : a || ''));
+      return (NEEDS[n] || ALLG).concat(['gita'], ym && n === 'paathl' ? ['gita-' + ym[1]] : []);
     }
     return NEEDS[n] || ALLG;
   }

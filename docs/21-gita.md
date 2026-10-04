@@ -284,7 +284,12 @@ until a person who reads Sanskrit signs it, and until then every Gita page carri
 *"Not yet checked by a Sanskrit reader…"* — and the computer voice stays labelled. The owner and
 their daughter will record the verses over the coming year; each recording replaces the computer's
 chant for that verse with no code change (`voice/gita/human/`). `check-gita gate` holds both states:
-open with the note on every page, or closed with the reason. What follows is how it stood before:
+open with the note on every page, or closed with the reason.
+
+The same day the owner split it into **two courses**: *Arjuna's Questions* stays Course 1 (Basic),
+and **The Whole Gita** is Course 2 (Advanced) — a year, fifty-two weeks, every one of the 700 verses
+once, in order, drawn as a year journey. Its weeks are generated from the built text, so it can cite
+no verse that is not here. docs/20 §11 has the shape. What follows is how it stood before:
 
 `tools/gita-src/review.json` says `needs_review`. Until a reviewer who reads Sanskrit writes
 their name there — having checked the text against a printed edition, the two held readings,

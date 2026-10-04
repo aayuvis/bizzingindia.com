@@ -275,7 +275,16 @@ with lettering painted in** (26-0, 26-2, 26-7, 25-3 are excluded). Each verse ge
 chapter's paintings and its own slow camera; nothing in a painting moves. Still under
 reduced motion and Calm.
 
-### 8.5 It does not publish until a person has read it
+### 8.5 Who it opens for
+
+**Owner, 4 Oct 2026: "deploy as is."** The owner opened the whole Gita — and the Gita course, now
+**Course 1** in Paathshala — to every child before the Sanskrit review. That is recorded in
+`review.json` as `open: {to: everyone, by: owner}`, *not* as a review: `status` stays `needs_review`
+until a person who reads Sanskrit signs it, and until then every Gita page carries a plain note —
+*"Not yet checked by a Sanskrit reader…"* — and the computer voice stays labelled. The owner and
+their daughter will record the verses over the coming year; each recording replaces the computer's
+chant for that verse with no code change (`voice/gita/human/`). `check-gita gate` holds both states:
+open with the note on every page, or closed with the reason. What follows is how it stood before:
 
 `tools/gita-src/review.json` says `needs_review`. Until a reviewer who reads Sanskrit writes
 their name there — having checked the text against a printed edition, the two held readings,

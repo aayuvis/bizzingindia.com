@@ -168,7 +168,9 @@ Gita module specifically. Four rules bind anyone touching them:
   The Gita course is built on the five Gita verses this app has and says so. Anywhere a
   course wants a verse it does not have, `needsVerse` renders an honest screen.
 - **Sensitive modules carry `needsReview` and do not publish.** Colonial rule, Partition,
-  contested claims in the history of science, and the whole Gita course.
+  contested claims in the history of science. The Gita course is the owner's exception (4 Oct 2026):
+  it is **Course 1**, open, still flagged, and says on screen that a Sanskrit reader has not checked it;
+  its page has a door to all 700 verses.
 - **A verse is set in its own script.** The courses cite Tamil and Pali alongside Sanskrit
   on purpose — the same quality in three traditions is the lesson — so the take-home pack
   derives each card's language from its collection. Setting Thirukkural in a Devanagari
@@ -205,8 +207,11 @@ claim about how it marked a thing matches what it actually did.
   `tools/lib/gita-gloss-lint.js`, flagged `needs_review`, and labelled so on the page (`check-gita readings`). Every verse says it is a
   computer voice and how a blind second listener checked it; a file in `voice/gita/human/` replaces
   it. Change a verse and its chant is stale (`check-gita voice`). The microphone opens only from
-  Record, the clip never leaves the device and is never scored; nothing pays coins. It opens in
-  **tester mode only** until `tools/gita-src/review.json` names a reviewer. `tools/check-gita.js`.
+  Record, the clip never leaves the device and is never scored; nothing pays coins. **The owner opened it
+  to every child on 4 Oct 2026, before the Sanskrit review** ("deploy as is"; review.json `open` — the
+  publisher's decision, never recorded as a sign-off): every page says the text has not been checked by a
+  Sanskrit reader until someone has, and the owner will record the verses themselves over the coming year.
+  `tools/check-gita.js` (`gate`).
 - **The family's shared code is copied, never edited** (docs/29): `app/family/` holds
   Bizzing_Schedule's `bizzing-wallet.js`, `bizzing-activity.js`, `bizzing-avatars.js` and `.css`,
   `bizzing-shell.js` and `.css` (and `tools/lib/shell-check.mjs`)

@@ -225,18 +225,32 @@ function serve() {
 const DESK = { width: 1280, height: 860 }, PHONE = { width: 390, height: 844 };
 const firstChanted = () => Object.keys(VO).filter(k => !VO[k][4]).sort((a, b) => { const [c1, v1] = a.split('-').map(Number), [c2, v2] = b.split('-').map(Number); return c1 - c2 || v1 - v2; })[0];
 
-check('gate', 'not signed off: a child cannot open it, and is told why; nothing of the verse is shown', async ({ p, base }) => {
+/* WHO IT OPENS FOR. Signed by a Sanskrit reviewer: everyone, no note. Opened by the owner before
+   that review (review.json `open`; owner, 4 Oct 2026, "deploy as is"): everyone, and EVERY page says
+   the text has not been checked by a Sanskrit reader yet. Neither: a child is shown nothing of a
+   verse and told why — and the shelf's door leads to that explanation. */
+check('gate', 'a child sees the Gita only when it is signed or opened by the owner, and an unchecked text says so on every page', async ({ p, base }) => {
   if (G.review && G.review.status === 'reviewed' && G.review.by) return;
+  const opened = !!(G.review && G.review.open && G.review.open.by);
+  const RAW = JSON.parse(fs.readFileSync(path.join(SRC, 'review.json'), 'utf8'));
+  if (opened !== !!(RAW.open && RAW.open.to === 'everyone' && RAW.open.by)) throw new Error('the built data and review.json disagree about whether the Gita is open');
+  if (opened && RAW.status === 'reviewed') throw new Error('an owner\'s decision to open it is recorded as a review');
   for (const r of [['gita'], ['gitach', '2'], ['gitav', '2.47']]) {
-    await p.evaluate(a => window.BI.go(a[0], a[1]), r); await p.waitForTimeout(700);
-    const t = await p.evaluate(() => ({ text: document.getElementById('main').innerText, verse: !!document.querySelector('[data-gverse], .gt-grid, .gt-chtile') }));
-    if (t.verse) throw new Error('#/' + r.join('/') + ' opened for a child before review');
-    if (!/checking it first/.test(t.text)) throw new Error('#/' + r.join('/') + ' does not say why it is closed');
-    if (/कर्मण्येवाधिकारस्ते/.test(t.text)) throw new Error('verse text shown behind the gate');
+    await p.evaluate(a => window.BI.go(a[0], a[1]), r); await p.waitForTimeout(800);
+    const t = await p.evaluate(() => ({ text: document.getElementById('main').innerText, verse: !!document.querySelector('[data-gverse], .gt-grid, .gt-chtile, .gt-lines, .gt-steps') }));
+    if (opened) {
+      if (!t.verse) throw new Error('#/' + r.join('/') + ' is closed to a child, but the owner opened the Gita');
+      if (!/Not yet checked by a Sanskrit reader/.test(t.text)) throw new Error('#/' + r.join('/') + ' is open and does not say the text is unchecked');
+      if (/tester mode only/i.test(t.text)) throw new Error('#/' + r.join('/') + ' still calls itself tester-only');
+    } else {
+      if (t.verse) throw new Error('#/' + r.join('/') + ' opened for a child before review');
+      if (!/checking it first/.test(t.text)) throw new Error('#/' + r.join('/') + ' does not say why it is closed');
+      if (/कर्मण्येवाधिकारस्ते/.test(t.text)) throw new Error('verse text shown behind the gate');
+    }
   }
   await p.evaluate(() => window.BI.go('verses', 'gita')); await p.waitForTimeout(500);
-  const door = await p.evaluate(() => !!document.querySelector('[data-v="gita"]'));
-  if (door) throw new Error('the Gita shelf offers the door outside tester mode');
+  const door = await p.evaluate(() => !!document.querySelector('#main [data-v="gita"]'));
+  if (!door) throw new Error('the Gita shelf has no door to the whole Gita');
 });
 
 check('screen', 'tester: journey, chapter, verse; six steps; keys; label; raga; fits 390', async ({ p, base }) => {

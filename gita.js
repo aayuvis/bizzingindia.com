@@ -23,9 +23,10 @@
    and its track stops the moment recording ends. Nobody scores it — not the app, not a server.
    "From memory" is the child's own word for it, so it pays nothing and is never called mastery.
 
-   IT DOES NOT PUBLISH UNTIL A PERSON HAS READ IT (CLAUDE.md: the whole Gita course carries
-   needsReview). Until tools/gita-src/review.json names a reviewer, it opens in tester mode only,
-   and everyone else is told plainly why it is not open yet. */
+   WHO IT OPENS FOR. Until tools/gita-src/review.json names a Sanskrit reviewer it opened in tester mode
+   only, and everyone else was told plainly why. On 4 Oct 2026 the owner opened it to everyone before
+   that review ("deploy as is"; review.json `open`) — the publisher's decision, not a sign-off — so every
+   page says the text has not yet been checked by a Sanskrit reader, until someone has. */
 (function (W, D) {
   'use strict';
 
@@ -120,7 +121,10 @@
 
   /* --------------------------------------------------------------- the gates */
   function reviewed() { var r = G().review; return !!(r && r.status === 'reviewed' && r.by); }
-  function open() { return H.tester() || reviewed(); }
+  /* OPENED BY THE OWNER BEFORE REVIEW (4 Oct 2026, "deploy as is"): the publisher's decision, recorded
+     in review.json as `open` — never as a sign-off. Every page then says the text is unchecked. */
+  function ownerOpened() { var r = G().review; return !!(r && r.open && r.open.by); }
+  function open() { return H.tester() || reviewed() || ownerOpened(); }
   function holding() {
     return '<button class="backlink" data-act="go" data-v="verses" data-arg="gita">' + icon('back', 18) + ' The Gita verses</button>' +
       '<div class="card gt-hold"><div class="mono">Bhagavad Gita · all 700 verses</div>' +
@@ -132,7 +136,11 @@
       '<button class="btn" data-act="go" data-v="verses" data-arg="gita">The five Gita verses →</button></div>';
   }
   function draftBar() {
-    return reviewed() ? '' : '<div class="gt-draft" role="note"><b>Draft — tester mode only.</b> Nobody has signed this off yet ' +
+    if (reviewed()) return '';
+    if (ownerOpened()) return '<div class="gt-draft" role="note"><b>Not yet checked by a Sanskrit reader.</b> Every verse here is taken ' +
+      'from published editions and two published translations, and nothing is written from memory — but nobody who reads Sanskrit ' +
+      'has checked it against a printed edition yet. The chanting is a computer voice. Ask a grown-up who knows it.</div>';
+    return '<div class="gt-draft" role="note"><b>Draft — tester mode only.</b> Nobody has signed this off yet ' +
       '(tools/gita-src/review.json). Children do not see it.</div>';
   }
   function youngNote() {

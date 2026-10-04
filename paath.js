@@ -300,6 +300,7 @@
       'color:var(--text2);min-height:32px}',
     '.pa-tpill.act{cursor:pointer;color:var(--accent);border-color:var(--accent)}',
     '.pa-tpill.act:hover{background:var(--accent-soft)}',
+    '.pa-door{margin:12px 0 4px}',
 
     /* the board */
     '.pa-boardwrap{border-radius:22px;overflow-x:auto;overflow-y:hidden;' +
@@ -1180,6 +1181,9 @@
       '</p>' +
 
       warn +
+      /* a course's door to the larger thing it is built beside (the Gita course → all 700 verses) */
+      (c.door ? '<p class="pa-door"><button class="btn" data-pa="door" data-v="' + esc(c.door.v) + '"' +
+        (c.door.arg ? ' data-arg="' + esc(c.door.arg) + '"' : '') + '>' + esc(c.door.label) + ' →</button></p>' : '') +
       c.modules.map(function (m, mi) { return partSection(c, st, mi, mi === open); }).join('') +
 
       /* the week's family assignments and the sources — for the grown-up, at the foot. NOT the
@@ -1686,6 +1690,7 @@
      <button>, so Enter and Space already work and Tab already reaches them. */
   function act(a, el) {
     if (a === 'hub')    { api.go('paath'); return true; }
+    if (a === 'door')   { api.go(el.getAttribute('data-v'), el.getAttribute('data-arg') || undefined); return true; }
     if (a === 'course') { api.go('paath', el.getAttribute('data-id')); return true; }
     if (a === 'lesson') {
       var lk = el.getAttribute('data-id') + '|' + el.getAttribute('data-m') + '|' + el.getAttribute('data-l');

@@ -4296,12 +4296,10 @@
       '<div class="mono">' + esc(c.language || '') + '</div>' +
       '<p style="margin-top:10px">' + esc(c.blurb || '') + '</p>' +
       '<div class="tiny muted">' + esc(c.source || '') + '</div>' +
-      /* THE WHOLE GITA (docs/21) is built and held for a reviewer: tester mode opens it, and
-         everyone else is told it exists and why it is not open yet */
-      (cid === 'gita' ? (tester()
-        ? '<button class="btn" style="margin-top:12px" data-act="go" data-v="gita">All 700 verses, chanted, with a guru →</button>'
-        : '<p class="tiny muted" style="margin-top:10px">All 700 verses, chanted, with a guru to take you through them, are ' +
-          'built — and a person who reads Sanskrit is checking them before they open here.</p>') : '') + '</div>';
+      /* THE WHOLE GITA (docs/21): the door is always here, and #/gita alone decides who it opens
+         for (tester, a signed review, or the owner's decision to open it — 4 Oct 2026); anyone it
+         is not open for is told why there, in one place */
+      (cid === 'gita' ? '<button class="btn" style="margin-top:12px" data-act="go" data-v="gita">All 700 verses, chanted, with a guru →</button>' : '') + '</div>';
     var vcards = mine.map(function (v) {
         var isF = fid && v.id === fid;
         return '<div class="card' + (isF ? ' focuscard" data-focus="1' : '') + '">' +
@@ -4317,7 +4315,7 @@
           '<div class="row" style="margin-top:12px">' +
           '<button class="pill" data-act="say" data-k="' + esc(v.audio || '') + '">' + icon('sound', 16) + ' hear it</button>' +
           '<button class="pill" data-act="recite" data-id="' + esc(v.id) + '">' + icon('mic', 16) + ' say it back</button>' +
-          (v.collection === 'gita' && tester() && /^gita-\d+-\d+$/.test(v.id)
+          (v.collection === 'gita' && /^gita-\d+-\d+$/.test(v.id)
             ? '<button class="pill" data-act="go" data-v="gitav" data-arg="' + esc(v.id.slice(5).replace('-', '.')) + '">' + icon('music', 16) + ' chanted, with the guru</button>' : '') +
           '</div>' +
           '<div class="tiny muted" style="margin-top:10px">' + esc(v.source) + '</div>' +

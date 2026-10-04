@@ -3098,3 +3098,110 @@ body.drilling .hivebtn { visibility: hidden; }
 .gt-say { flex: 0 0 auto; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
   border: 1px solid var(--line2); background: var(--card); color: var(--text); cursor: pointer; }
 .gt-say:hover, .gt-say:focus-visible { border-color: var(--accent); color: var(--accent); }
+
+/* ================================================================ THE READING SPREAD (docs/31)
+   One reading layout for the story reader, an epic episode and a Gita verse, chosen by the
+   SHAPE of the screen, not its width — the problem it fixes was height (owner, 4 Oct 2026):
+   on a 1280×720 laptop an epic card showed a painting and not one line of its words.
+     landscape (desktop, laptop, iPad sideways, a phone on its side): a picture-book spread,
+       the painting on the left in its own shape, the words and the page-turn on the right.
+     an upright tablet: picture on top, capped at 38% of the screen, words larger.
+     a phone: the painting a band that never collapses, the words whole under it (the page
+       scrolls; nothing is clipped inside a box), the page-turn pinned above the tab bar.
+   The landing page's story card is not #main's direct child and keeps its own layout.
+   tools/check-fold.js holds all of it, at six screen sizes. */
+.stage[data-full] { cursor: zoom-in; }
+.stage[data-full]:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.rspread.ep > .stage.painted { aspect-ratio: 16 / 9; padding: 0; }   /* the epic paintings are 16:9: shown whole */
+.rspread.ep .rcol { min-width: 0; }
+
+@media (min-width: 640px) and (min-aspect-ratio: 6/5) {
+  #main > .reader {
+    --readerchrome: 150px;
+    max-width: 1240px; display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(300px, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    column-gap: clamp(18px, 2.4vw, 32px); row-gap: 12px;
+  }
+  #main > .reader > .rhead { grid-column: 1 / -1; }
+  #main > .reader > .stage {
+    grid-column: 1; grid-row: 2 / 4; align-self: center; flex: none;
+    width: 100%; height: auto; max-height: 100%; min-height: 0; aspect-ratio: 3 / 2; margin: 0;
+  }
+  #main > .reader.asks > .stage { min-height: 0; }
+  #main > .reader > .stage img, #main > .reader > .stage svg { max-height: 70%; }
+  #main > .reader > .speech {
+    grid-column: 2; grid-row: 2; align-self: center; max-height: 100%; overflow-y: auto;
+    font-size: clamp(17.5px, .5vw + 11px, 21px); line-height: 1.7; padding: 20px 22px;
+  }
+  #main > .reader.twoup .sen { font-size: clamp(15.5px, .35vw + 11px, 18px); }
+  #main > .reader > .rfoot { grid-column: 2; grid-row: 3; }
+  #main > .reader > .rfoot .card { margin-top: 0; }
+  /* the epic episode: the same spread, the painting held while the words scroll */
+  #main > .dots, #main > .deckhead { max-width: 1240px; }
+  .rspread.ep {
+    display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, 1fr);
+    column-gap: clamp(18px, 2.4vw, 32px); align-items: start; max-width: 1240px; margin: 14px auto 0;
+  }
+  .rspread.ep > .stage { position: sticky; top: 124px; width: 100%; max-width: none; max-height: calc(100dvh - 150px); margin: 0; }
+  .rspread.ep .rcol > * { max-width: none; }
+  .rspread.ep .rcol > .speech { margin-top: 0 !important; font-size: clamp(17.5px, .5vw + 11px, 21px); line-height: 1.7; }
+  /* the Gita verse: the painting left, the steps and the verse right */
+  .gt-verse { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); column-gap: clamp(18px, 2.4vw, 28px); align-items: start; }
+  .gt-verse > .gt-art { grid-column: 1; grid-row: 1 / span 6; position: sticky; top: 124px; aspect-ratio: 4 / 3; margin: 0; }
+  .gt-verse > :not(.gt-art) { grid-column: 2; }
+  .gt-verse > .gt-cap { grid-row: 1; margin: 0 0 8px; }
+}
+
+@media (min-width: 721px) and (max-aspect-ratio: 6/5) {
+  #main > .reader > .stage { max-height: 38vh; }
+  #main > .reader > .speech { font-size: 19.5px; line-height: 1.7; }
+  .rspread.ep > .stage { max-height: 38vh; }
+  .rspread.ep .rcol > .speech { font-size: 19.5px; }
+  .gt-verse .gt-art { aspect-ratio: 2.4 / 1; }
+}
+
+@media (max-width: 720px) and (max-aspect-ratio: 6/5) {
+  /* the words whole, the page scrolling; the painting a band that does not give way */
+  #main > .reader { height: auto; min-height: 0; }
+  #main > .reader > .stage { flex: none; }
+  #main > .reader > .stage.painted { height: min(26vh, calc((100vw - 30px) / 1.5)); max-height: none; min-height: 0; aspect-ratio: auto; padding: 0; }
+  /* a scene that asks gives its question the room: the band narrows, it does not vanish */
+  #main > .reader.asks > .stage.painted { height: min(19vh, calc((100vw - 30px) / 1.5)); }
+  #main > .reader > .speech { flex: none; overflow: visible; }
+  /* the page-turn under the thumb, on its own strip above the tab bar */
+  #main > .reader:not(.asks) > .rfoot, .rspread.ep .deckbar {
+    position: sticky; bottom: calc(74px + env(safe-area-inset-bottom)); z-index: 6;
+    padding: 6px; border-radius: var(--radius-pill); background: var(--card);
+    box-shadow: 0 6px 22px rgba(30, 20, 70, .16); border: 1px solid var(--line);
+  }
+  #main > .reader:not(.asks) > .rfoot .btn, .rspread.ep .deckbar .btn { min-height: 46px; }
+  .rspread.ep > .stage { max-height: none; }
+  .rspread.ep .rcol > .speech { font-size: 17px; }
+  /* the Gita: the verse right under its picture, the guru's line and the controls after it */
+  .gt-verse .gt-art { aspect-ratio: 21 / 9; margin-bottom: 8px; }
+  .gt-verse .gt-body { display: flex; flex-direction: column; }
+  .gt-verse .gt-body > .gt-lines { order: -2; margin-top: 0; }
+  .gt-verse .gt-body > .gt-ctl { order: -1; }
+}
+
+/* the painting, full screen (openFull in app.js) */
+.lbox { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 200; display: grid; place-items: center;
+  background: rgba(12, 8, 26, .94); padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
+.lbox-img { max-width: 100%; max-height: calc(100dvh - 90px); object-fit: contain; border-radius: 10px; cursor: zoom-in;
+  transition: transform .25s ease; touch-action: none; user-select: none; -webkit-user-select: none; }
+.lbox.zoomed .lbox-img { transform: scale(2.2); cursor: zoom-out; }
+.lbox-x { position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .3); background: rgba(255, 255, 255, .12); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.lbox-x:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.lbox-hint { position: absolute; bottom: calc(10px + env(safe-area-inset-bottom)); left: 0; right: 0; margin: 0; text-align: center;
+  color: rgba(255, 255, 255, .78); font-size: 13.5px; }
+.lbox.zoomed { overflow: hidden; }
+html.lbox-open, html.lbox-open body { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .lbox-img { transition: none; } }
+.gt-art[data-full] { cursor: zoom-in; } .gt-art[data-full]:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+/* a sideways swipe on a reading screen turns the page; it is the page's, not the browser's
+   history gesture (which took a right swipe on an epic card back to the episode list) */
+html { overscroll-behavior-x: none; }
+#main > .reader, .rspread.ep, .gt-verse { touch-action: pan-y pinch-zoom; }
+.gt-steps { touch-action: pan-x pan-y; }

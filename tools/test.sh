@@ -16,7 +16,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 REPO="${BIZZING_REPO:-$ROOT}"
 cd "$ROOT"
 SUITES="check-facts check-css-compat check-subpath check-trust check-rewards check-home check-family check-motivation
-        check-platform check-contrast check-onboard check-paath check-bhasha-path test-bhasha check-standard check-deploy check-feed check-names check-gita"
+        check-platform check-contrast check-onboard check-paath check-bhasha-path test-bhasha check-standard check-deploy check-feed check-names check-gita check-fold"
 [ "${1:-}" = "--full" ] && SUITES="$SUITES verify qc-paath check-sabhyata"
 fail=0
 for t in $SUITES; do

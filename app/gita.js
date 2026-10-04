@@ -148,7 +148,7 @@
     return '--s0:' + k[0] + ';--s1:' + k[1] + ';--x0:' + k[2] + '%;--y0:' + k[3] + '%;--x1:' + k[4] + '%;--y1:' + k[5] + '%;--dur:' + (dur || 30) + 's';
   }
   function picture(c, v, cap, dur, eager) {
-    return '<figure class="gt-art" data-cam="1" style="' + camOf(c, v, dur) + '">' +
+    return '<figure class="gt-art" data-cam="1" data-full="' + artOf(c, v) + '" role="button" tabindex="0" aria-label="See the painting full screen" style="' + camOf(c, v, dur) + '">' +
       '<img src="' + artOf(c, v) + '" alt="" width="900" height="506"' + (eager ? '' : ' loading="lazy"') + ' decoding="async"></figure>' +
       (cap ? '<p class="gt-cap">' + cap + '</p>' : '');
   }
@@ -459,9 +459,9 @@
       '<nav class="gt-steps" aria-label="Steps">' + steps + '</nav>' +
       '<section class="card gt-body" data-gstep="' + ui.step + '">' + body(p, x, L, vo) + '</section>' +
       '<div class="row gt-nav">' +
-        (pv ? '<button class="btn ghost" data-act="go" data-v="gitav" data-arg="' + pv + '">← ' + pv + '</button>' : '<span></span>') +
+        (pv ? '<button class="btn ghost" data-act="go" data-v="gitav" data-arg="' + pv + '" data-swipe="back">← ' + pv + '</button>' : '<span></span>') +
         '<span class="tiny muted">' + p.v + ' of ' + ch.verses + '</span>' +
-        (nx ? '<button class="btn' + (lv >= 2 ? '' : ' ghost') + '" data-act="go" data-v="gitav" data-arg="' + nx + '">' + nx + ' →</button>' : '<span></span>') +
+        (nx ? '<button class="btn' + (lv >= 2 ? '' : ' ghost') + '" data-act="go" data-v="gitav" data-arg="' + nx + '" data-swipe="next">' + nx + ' →</button>' : '<span></span>') +
       '</div>' +
       '<p class="tiny muted gt-src">' + esc(voiceLabel(p.id)) + ' ' + musicLine(THEME[p.c]) + '</p>' +
       '<p class="tiny muted gt-keys">Keys: space plays, ← → move between verses, 1–6 choose a step.</p>' +

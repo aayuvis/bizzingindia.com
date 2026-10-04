@@ -93,6 +93,17 @@ if README_BLOB=$(git rev-parse HEAD:README.md 2>/dev/null); then
   git update-index --add --cacheinfo 100644,"$README_BLOB",README.md
 fi
 
+# WHAT THE APP NEVER ASKS FOR STAYS OFF THE LIVE SITE (owner, 4 Oct 2026: "where can we reduce
+# size?" -- GitHub Pages stops at 1 GB). tools/unpublished.js names each such file and why
+# (today: 408 city-kit vector traces shadowed by the PNG the game loads, 27 MB). The repo keeps
+# them; only the published tree drops them, and the rule reads the app's own code, so a file
+# the app starts asking for is published again without anyone remembering to come back here.
+OFF=$(node tools/unpublished.js)
+if [ -n "$OFF" ]; then
+  printf '%s\n' "$OFF" | tr '\n' '\0' | git update-index --force-remove -z --stdin
+  echo "left off the live site: $(printf '%s\n' "$OFF" | wc -l) files the app never requests (tools/unpublished.js)"
+fi
+
 # THIS BRANCH IS NOT OURS ALONE. Bizzing Schedule publishes to schedule/ on this same
 # gh-pages branch, and this script builds the published tree from HEAD:app plus a couple
 # of named files -- so every deploy from here deleted it, and its next deploy deleted

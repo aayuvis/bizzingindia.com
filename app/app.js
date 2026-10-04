@@ -3083,7 +3083,7 @@
       /* NO STICKERS OVER A PAINTING (FIX-INDIA D4, N2). A scene with its own painted plate
          shows the painting whole; the speaker's face moves down beside their name in the
          speech panel. A scene with no plate keeps the cast on the stage, as before. */
-      '<div class="stage' + (img ? ' painted' : '') + '"' + (img ? ' style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(' + img + ')"' : '') + '>' +
+      '<div class="stage' + (img ? ' painted' : '') + '"' + (img ? ' style="background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(' + img + ')"' + fullAttrs(img) : '') + '>' +
         (img ? '' : (teller ? '<div class="speaking">' + mascot('mithu', 'talk', 128) + '</div>' :
           cast.map(function (c, i) { return '<div class="' + (i === 0 ? 'speaking' : '') + '">' + art(c, i === 0 ? 128 : 100) + '</div>'; }).join(''))) + '</div>' +
 
@@ -3099,13 +3099,13 @@
         '<div class="rfoot"><div class="row">' +
         '<button class="btn ghost" data-act="say" data-k="' + sayKey + '" data-t="' + esc(hi || '') +
         '" data-l="' + (hi ? 'hi-IN' : 'en-IN') + '">' + icon('sound', 18) + ' Again</button>' +
-        '<button class="btn" style="flex:1" data-act="next">Then what happened? →</button></div></div>') +
+        '<button class="btn" style="flex:1" data-act="next" data-swipe="next">Then what happened? →</button></div></div>') +
       '</div>';
   };
 
   V.ask = function (a) {
     if (play.answered) return '<div class="card" style="margin-top:14px;border-color:var(--accent)">' + esc(play.answered) +
-      '<button class="btn block" style="margin-top:14px" data-act="next">Go on →</button></div>';
+      '<button class="btn block" style="margin-top:14px" data-act="next" data-swipe="next">Go on →</button></div>';
     return '<div class="card" style="margin-top:14px"><h3>' + esc(a.q) + '</h3>' +
       a.options.map(function (o, i) { return '<button class="opt" data-act="answer" data-i="' + i + '">' + esc(o) + '</button>'; }).join('') +
       '<div class="tiny muted">There is no wrong answer here — have a guess.</div></div>';
@@ -3931,6 +3931,96 @@
 
   var deck = { epic: null, n: 0, i: 0 };
 
+  /* ================================================ THE PAINTING, FULL SCREEN (docs/31)
+     A painted stage is a button: tap it, click it, or Enter on it, and the painting fills the
+     screen. Tap the picture to look closer (2×, following the finger or the pointer); tap
+     outside it, ✕, Escape or Back to close. It is an overlay, not the Fullscreen API — an
+     iPhone has no Fullscreen API outside video — and it lives on <body>, so a re-render under
+     it cannot take it away. Focus goes to ✕ and comes back to the painting on close. */
+  function fullAttrs(src) {
+    return ' data-full="' + esc(src) + '" role="button" tabindex="0" aria-label="See the painting full screen"';
+  }
+  var lbox = null;
+  function openFull(src, from) {
+    closeFull();
+    var d = document.createElement('div');
+    d.className = 'lbox'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
+    d.setAttribute('aria-label', 'The painting, full screen');
+    d.innerHTML = '<img class="lbox-img" src="' + esc(src) + '" alt="">' +
+      '<button class="lbox-x" aria-label="Close">' + icon('close', 22) + '</button>' +
+      '<p class="lbox-hint">Tap the picture to look closer · tap outside it to close</p>';
+    document.body.appendChild(d);
+    lbox = { el: d, from: from, zoom: false };
+    var img = d.querySelector('.lbox-img');
+    var aim = function (x, y) {
+      var r = img.getBoundingClientRect();
+      img.style.transformOrigin = Math.max(0, Math.min(100, (x - r.left) / r.width * 100)) + '% ' + Math.max(0, Math.min(100, (y - r.top) / r.height * 100)) + '%';
+    };
+    d.addEventListener('click', function (e) {
+      if (e.target === img) {
+        lbox.zoom = !lbox.zoom;
+        if (lbox.zoom) aim(e.clientX, e.clientY);
+        d.classList.toggle('zoomed', lbox.zoom);
+        return;
+      }
+      closeFull();
+    });
+    /* zoomed in, the picture follows the pointer (a mouse) or the finger (a drag) */
+    d.addEventListener('pointermove', function (e) { if (lbox && lbox.zoom && (e.pointerType === 'mouse' || e.buttons)) aim(e.clientX, e.clientY); });
+    d.addEventListener('touchmove', function (e) { if (lbox && lbox.zoom && e.touches[0]) { e.preventDefault(); aim(e.touches[0].clientX, e.touches[0].clientY); } }, { passive: false });
+    d.querySelector('.lbox-x').focus();
+    document.documentElement.classList.add('lbox-open');
+  }
+  function closeFull() {
+    if (!lbox) return;
+    var from = lbox.from;
+    lbox.el.remove(); lbox = null;
+    document.documentElement.classList.remove('lbox-open');
+    if (from && document.body.contains(from)) from.focus();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (!lbox) return;
+    /* the overlay owns the keyboard while it is open: nothing turns the page under it */
+    e.stopImmediatePropagation();
+    if (e.key === 'Escape') { e.preventDefault(); closeFull(); }
+    else if (e.key === 'Tab') { e.preventDefault(); lbox.el.querySelector('.lbox-x').focus(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') e.preventDefault();
+  }, true);
+  window.addEventListener('popstate', function () { closeFull(); });
+  document.addEventListener('click', function (e) {
+    var f = e.target.closest && e.target.closest('#main [data-full]');
+    if (!f || lbox) return;
+    e.preventDefault(); e.stopPropagation();
+    openFull(f.getAttribute('data-full'), f);
+  }, true);
+  document.addEventListener('keydown', function (e) {
+    if ((e.key !== 'Enter' && e.key !== ' ') || !document.activeElement || !document.activeElement.hasAttribute ||
+        !document.activeElement.hasAttribute('data-full')) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    openFull(document.activeElement.getAttribute('data-full'), document.activeElement);
+  }, true);
+
+  /* ================================================ SWIPE TO TURN THE PAGE (docs/31)
+     A sideways swipe on a reading screen presses the SAME button a tap would — [data-swipe=
+     next|back] — so a swipe can never get past what a tap cannot: a question still waits for
+     its answer, because until it is answered there is no next button to press. Sideways
+     only: mostly-horizontal, ≥ 60px, under 0.7s, and never starting inside something that
+     scrolls sideways itself (the Gita's step strip) or while the painting is full screen. */
+  var swipe0 = null;
+  document.addEventListener('touchstart', function (e) {
+    var t = e.touches && e.touches[0];
+    swipe0 = (t && e.touches.length === 1 && !lbox && /^(story|episode|gitav)$/.test(view.name) &&
+      !(e.target.closest && e.target.closest('[data-noswipe], .gt-steps, input, textarea'))) ? { x: t.clientX, y: t.clientY, at: Date.now() } : null;
+  }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    var t = e.changedTouches && e.changedTouches[0], s0 = swipe0; swipe0 = null;
+    if (!t || !s0 || lbox) return;
+    var dx = t.clientX - s0.x, dy = t.clientY - s0.y;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6 || Date.now() - s0.at > 700) return;
+    var b = document.querySelector('#main [data-swipe="' + (dx < 0 ? 'next' : 'back') + '"]');
+    if (b && !b.disabled) b.click();
+  }, { passive: true });
+
   function avatarName(id) { return (window.IND_AVATAR_NAMES || {})[id] || ''; }
 
   /* Characters named in a card's text, in the order they appear, plus the card's own speaker
@@ -3945,6 +4035,10 @@
      Characters with no painting yet stand as an initial in a disc rather than being dropped,
      because the whole point of the cast layer is that it works before the art does. */
   function stageBlock(img, ids, speakerId) {
+    /* NO STICKERS OVER A PAINTING, here too (FIX-INDIA D4; the reading spread, 4 Oct 2026). A card
+       with its own painting already shows who is in it; a lettered disc on top of Vyasa's face
+       was the epics' last sticker. The names stay, in the who's-who row under the words. */
+    if (img) return '<div class="stage painted" style="background-image:url(' + img + ')"' + fullAttrs(img) + '></div>';
     var who = ids.slice(0, 3);
     var figs = who.map(function (id, i) {
       var lead = id === speakerId || (!speakerId && i === 0);
@@ -4089,8 +4183,9 @@
       '</div>' +
       '<div class="dots">' + ep.cards.map(function (_, i) { return '<i class="' + (i <= deck.i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
 
-      /* The stage, then the words — the same shape as a story card. */
-      stageBlock(epArt, cast, speaker) +
+      /* The stage, then the words — the same shape as a story card. On a landscape screen the
+         two sit side by side as a spread (docs/31); everywhere else, one above the other. */
+      '<div class="rspread ep">' + stageBlock(epArt, cast, speaker) + '<div class="rcol">' +
       /* THE SAME TWO LANES AS A STORY CARD. The epics were the one place in the app that
          did not follow the story template: no Hindi lane, so the Toggle Hindi switch in
          the top bar did nothing at all on the two longest things a child will read here.
@@ -4114,11 +4209,11 @@
         : '') +
 
       '<div class="deckbar" style="margin-top:14px">' +
-        (deck.i > 0 ? '<button class="iconbtn" data-act="cardback" aria-label="Back">' + icon('back', 20) + '</button>' : '') +
+        (deck.i > 0 ? '<button class="iconbtn" data-act="cardback" data-swipe="back" aria-label="Back">' + icon('back', 20) + '</button>' : '') +
         '<button class="iconbtn" data-act="readcard" aria-label="Read it to me">' + icon('sound', 20) + '</button>' +
-        '<button class="btn" style="flex:1" data-act="cardnext">' +
+        '<button class="btn" style="flex:1" data-act="cardnext" data-swipe="next">' +
           (deck.i === ep.cards.length - 1 ? 'End of episode \u2192' : 'Turn the page \u2192') + '</button>' +
-      '</div>';
+      '</div></div></div>';
   };
 
   /* ---------------------------------------------------------------- SHLOK */
@@ -9738,7 +9833,12 @@
     if (e.key === 'Escape' && $('#kidmenu')) { closeKidMenu(); var kb = $('[data-bz=kid]'); if (kb) kb.focus(); return; }
     if (e.key === 'Escape' && document.querySelector('[data-bz=drawer]:not([hidden])')) return;   /* the shell closes its own drawer */
     if (e.key === 'Escape' && S.started && view.name !== 'home') go('home');
-    if (e.key === 'ArrowRight' && view.name === 'story') { var n = document.querySelector('[data-act="next"]'); if (n) n.click(); }
+    /* ← → turn the page on every reading screen, through the same buttons a tap and a swipe use */
+    if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && (view.name === 'story' || view.name === 'episode') &&
+        !/INPUT|TEXTAREA|SELECT/.test((e.target && e.target.tagName) || '')) {
+      var turn = document.querySelector('#main [data-swipe="' + (e.key === 'ArrowRight' ? 'next' : 'back') + '"]');
+      if (turn) { e.preventDefault(); turn.click(); }
+    }
     /* Map states are SVG <g>, which a browser will focus but will not activate on Enter the
        way it does a <button>. Everything in this app has to work from the keyboard as well
        as by touch, so wire it up by hand. */

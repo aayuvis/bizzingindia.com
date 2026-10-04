@@ -19,6 +19,11 @@ needs_review: true, and the page says it was drafted by a computer and not yet c
       this way (4 Oct 2026), by the AI assistant that builds this app, when the Gemini text models
       answered 402 on this key.
 
+  TEXT_MODEL=<model> python3 tools/gita-gloss.py --audit
+      a blind second check of every reading against its two translations by the text model; each
+      one it rejects is redrafted (told why) and kept only if it passes the lint and the same check;
+      what is still rejected is marked disputed and left off the page. Writes gloss-audit.json.
+
 The key and the model's name come from the environment, never from this file.
 """
 import os, re, sys, json, time, subprocess, urllib.request
@@ -59,27 +64,60 @@ process.stdout.write(JSON.stringify(out));'''
     return json.loads(subprocess.check_output(['node', '-e', js], cwd=ROOT))
 
 
-def ask(batch):
+def call(body, temperature):
+    """one request to the text model; the parsed JSON it returns, or None"""
     key, model = os.environ.get('GEMKEY'), os.environ.get('TEXT_MODEL')
     if not key or not model:
         sys.exit('GEMKEY and TEXT_MODEL must be set (source keys.env; TEXT_MODEL=<model>)')
-    body = RULES + '\n\nThe verses:\n' + json.dumps(
-        [{'id': v['id'], 'speaker': v['sp'], 'besant': v['en'], 'swarupananda': v['en2']} for v in batch], ensure_ascii=False)
     req = urllib.request.Request(
         'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent' % model,
         data=json.dumps({'contents': [{'parts': [{'text': body}]}],
-                         'generationConfig': {'temperature': 0.3, 'responseMimeType': 'application/json'}}).encode(),
+                         'generationConfig': {'temperature': temperature, 'responseMimeType': 'application/json'}}).encode(),
         headers={'Content-Type': 'application/json', 'X-goog-api-key': key})
     for attempt in range(4):
         try:
-            with urllib.request.urlopen(req, timeout=240) as r:
+            with urllib.request.urlopen(req, timeout=300) as r:
                 d = json.load(r)
-            txt = d['candidates'][0]['content']['parts'][0]['text']
-            return {x['id']: x['kid'].strip() for x in json.loads(txt) if x.get('id') and x.get('kid')}
+            return json.loads(d['candidates'][0]['content']['parts'][0]['text'])
         except Exception as e:  # network, quota, or a malformed answer: wait and ask again
             print('  retry (%s)' % str(e)[:120], flush=True)
             time.sleep(4 * (attempt + 1))
-    return {}
+    return None
+
+
+def ask(batch, notes=None):
+    body = RULES + '\n\nThe verses:\n' + json.dumps(
+        [dict({'id': v['id'], 'speaker': v['sp'], 'besant': v['en'], 'swarupananda': v['en2']},
+              **({'an_earlier_reading_was_rejected_because': notes[v['id']]} if notes and v['id'] in notes else {})) for v in batch],
+        ensure_ascii=False)
+    out = call(body, 0.3) or []
+    return {x['id']: x['kid'].strip() for x in out if isinstance(x, dict) and x.get('id') and x.get('kid')}
+
+
+# THE BLIND SECOND CHECK (owner, 4 Oct 2026: "try gemini now"). Like the chant's second listener:
+# a different model is shown a reading and the two translations — not who wrote the reading, not
+# that anyone thinks it is good — and asked only whether it is faithful.
+AUDIT = """You check short plain-English readings of Bhagavad Gita verses written for children aged 8 to 12.
+For each verse you get two public-domain translations (Annie Besant 1922, Swami Swarupananda 1909) and
+the reading. Judge ONLY whether the reading is faithful to the translations.
+
+Mark it NOT ok if the reading does any of these:
+  a) says something that neither translation says (an added idea, teaching, example or claim);
+  b) leaves out or changes the verse's main point;
+  c) gets who is speaking, or who is spoken to, wrong;
+  d) is more vivid or harsher than the translations, or softens them into something they do not say;
+  e) preaches or draws a lesson the verse does not draw.
+Simplifying words, dropping minor epithets, or shortening a list of names to "great warriors" is fine.
+Be strict about meaning and relaxed about wording.
+
+Return only JSON: an array of {"id": "<id>", "ok": true|false, "why": "<one short sentence when not ok, else empty>"}."""
+
+
+def audit(rows):
+    body = AUDIT + '\n\nThe readings:\n' + json.dumps(
+        [{'id': r['id'], 'besant': r['en'], 'swarupananda': r['en2'], 'reading': r['kid']} for r in rows], ensure_ascii=False)
+    out = call(body, 0.0) or []
+    return {x['id']: (bool(x.get('ok')), (x.get('why') or '').strip()) for x in out if isinstance(x, dict) and x.get('id')}
 
 
 def lint(rows):
@@ -113,9 +151,60 @@ def imported(files):
     print('%d of 700 verses have a reading%s' % (700 - len(missing), (' — without: ' + ', '.join(missing[:30])) if missing else ''))
 
 
+AUDIT_OUT = os.path.join(ROOT, 'tools', 'gita-src', 'gloss-audit.json')
+
+
+def audited():
+    """--audit: the blind check on every reading, then a redraft of each one it rejects — kept only if
+    it passes the lint AND the same blind check. A reading still rejected after its redraft is
+    marked `check: disputed`: build-gita.js leaves it off the page (no reading rather than a doubted
+    one) and the reviewer sees why in gloss-audit.json."""
+    from concurrent.futures import ThreadPoolExecutor
+    have = json.load(open(OUT))
+    by = {v['id']: v for v in verses()}
+    rows = [dict(by[k], kid=e['kid']) for k, e in have.items() if k in by]
+    batches = [rows[i:i + 25] for i in range(0, len(rows), 25)]
+    verdict = {}
+    with ThreadPoolExecutor(4) as ex:
+        for got in ex.map(audit, batches): verdict.update(got)
+    unchecked = [r['id'] for r in rows if r['id'] not in verdict]
+    if unchecked:  # a batch that never came back is asked again, once, on its own
+        for got in map(audit, [[dict(by[k], kid=have[k]['kid'])] for k in unchecked]): verdict.update(got)
+    flagged = {k: w for k, (ok, w) in verdict.items() if not ok}
+    print('blind check: %d readings, %d faithful, %d flagged, %d unanswered' % (len(rows), len(verdict) - len(flagged), len(flagged), len(rows) - len(verdict)), flush=True)
+    log = {k: {'first': ('ok' if ok else 'flagged: ' + w)} for k, (ok, w) in verdict.items()}
+    for k, e in have.items(): e['check'] = 'passed' if verdict.get(k, (False,))[0] else ('unanswered' if k not in verdict else 'flagged')
+    # redraft the flagged ones, telling the drafter why the first was turned down
+    todo = [by[k] for k in flagged]
+    redrafts = {}
+    with ThreadPoolExecutor(4) as ex:
+        for got in ex.map(lambda b: ask(b, flagged), [todo[i:i + 15] for i in range(0, len(todo), 15)]): redrafts.update(got)
+    bad = lint([{'id': k, 'kid': t, 'en': by[k]['en'], 'en2': by[k]['en2']} for k, t in redrafts.items() if k in by])
+    clean = {k: t for k, t in redrafts.items() if k in by and k not in bad}
+    second = {}
+    rb = [[dict(by[k], kid=t) for k, t in list(clean.items())[i:i + 25]] for i in range(0, len(clean), 25)]
+    with ThreadPoolExecutor(4) as ex:
+        for got in ex.map(audit, rb): second.update(got)
+    fixed = disputed = 0
+    for k in flagged:
+        if k in clean and second.get(k, (False,))[0]:
+            have[k] = dict(entry(clean[k]), check='redrafted')
+            log[k]['redraft'] = clean[k]; log[k]['second'] = 'ok'; fixed += 1
+        else:
+            have[k]['check'] = 'disputed'
+            log[k]['second'] = ('lint: ' + '; '.join(bad[k])) if k in bad else ('flagged: ' + second[k][1]) if k in second else 'no faithful redraft came back'
+            if k in clean: log[k]['redraft'] = clean[k]
+            disputed += 1
+    store(have)
+    json.dump(dict(sorted(log.items(), key=lambda kv: [int(n) for n in kv[0].split('-')])), open(AUDIT_OUT, 'w'), ensure_ascii=False, indent=1)
+    print('redrafted and passed: %d · still disputed (left off the page): %d' % (fixed, disputed))
+
+
 def main():
     if '--import' in sys.argv:
         return imported(sys.argv[sys.argv.index('--import') + 1:])
+    if '--audit' in sys.argv:
+        return audited()
     only = int(sys.argv[sys.argv.index('--only') + 1]) if '--only' in sys.argv else None
     have = json.load(open(OUT)) if os.path.exists(OUT) else {}
     todo = [v for v in verses() if (only is None or v['ch'] == only)]

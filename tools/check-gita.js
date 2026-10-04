@@ -117,6 +117,7 @@ check('readings', 'each child\'s reading is flagged, from the two translations o
     if (!x.kid) continue; shown++;
     const g = G[c + '-' + x.v];
     if (!g || g.kid !== x.kid) throw new Error(c + '.' + x.v + ' shows a reading that is not gloss.json\'s');
+    if (g.check === 'disputed') throw new Error(c + '.' + x.v + ' shows a reading the blind second check disputes');
     if (!g.needs_review || g.by !== 'computer-drafted' || String(g.from) !== 'Besant 1922,Swarupananda 1909') throw new Error(c + '.' + x.v + ' reading is not flagged as an unchecked computer draft from the two translations');
     const w = lint(x.kid, x.en, x.en2); if (w.length) throw new Error(c + '.' + x.v + ' reading: ' + w.join('; '));
   }

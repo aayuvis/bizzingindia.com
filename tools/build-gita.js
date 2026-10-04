@@ -116,7 +116,9 @@ for (const e of ALL) {
     en2r: e.en_swarupananda_range ? String(e.en_swarupananda_range) : null,
     rv,
     kid: (() => { const g = GLOSS[ch + '-' + v], en = String(e.en || '').trim(), en2 = String(e.en_swarupananda || '').trim();
-      return g && g.needs_review && g.by === 'computer-drafted' && !glossLint(g.kid, en, en2).length ? g.kid : null; })()
+      /* a reading the blind second check still disputes after its redraft is left off the page:
+         no reading rather than a doubted one (tools/gita-gloss.py --audit, gloss-audit.json) */
+      return g && g.needs_review && g.by === 'computer-drafted' && g.check !== 'disputed' && !glossLint(g.kid, en, en2).length ? g.kid : null; })()
   });
 }
 /* the counts are the vulgate's, or nothing is written */

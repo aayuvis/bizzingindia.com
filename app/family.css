@@ -154,6 +154,68 @@ body.drawer-open { overflow: hidden; }
 .segtabs .seg { min-height: 44px; padding: 0 20px; border: 0; border-radius: var(--radius-pill); background: none; color: var(--text2);
   font: 700 15px 'Fraunces', var(--display), serif; cursor: pointer; }
 .segtabs .seg.on { background: var(--accent); color: #fff; }
+/* THE COLLECTION, as Bee's (owner, 5 Oct 2026): three tabs with their counts, a pack header
+   that names its world, and every card carrying its one thing to do — Wear, Wearing, or a price. */
+.bz-collhead { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.bz-collhead h1 { margin: 0; }
+.bz-collacts { margin-left: auto; display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bz-collhead p { flex-basis: 100%; }
+.bz-colltabs { display: flex; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
+.bz-colltab { flex: 1; min-width: 96px; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 0 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text2);
+  font: 800 14px 'Hanken Grotesk', var(--body), system-ui, sans-serif; cursor: pointer; }
+.bz-colltab.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+:root[data-mode="night"] .bz-colltab.on { color: var(--ground); }
+.bz-collnote { margin: 0 0 14px; padding: 10px 14px; border-radius: 12px; background: var(--card); color: var(--text2);
+  font-size: 14px; line-height: 1.55; box-shadow: 0 0 0 1px var(--line); }
+.bz-linkbtn { background: none; border: 0; padding: 0 2px; min-height: 32px; color: var(--accent); font: inherit; font-weight: 800;
+  text-decoration: underline; cursor: pointer; }
+.bz-pack { padding: 16px; margin: 0 0 14px; }
+.bz-pack-h { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin: 0 0 12px; }
+.bz-pack-h h3 { margin: 0; font: 800 18px 'Fraunces', var(--display), serif; }
+.bz-pack-sw { width: 16px; height: 16px; border-radius: 5px; flex: none; }
+.bz-pack-n { font: 700 13px 'Sono', var(--mono), monospace; color: var(--text2); }
+.bz-pack-w { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 700; color: var(--text2); }
+.bz-av-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 10px; }
+.bz-av-row .bz-av { align-content: start; gap: 5px; padding: 10px 6px 10px; }
+.bz-av-row .bz-av[data-on] { box-shadow: 0 0 0 3px color-mix(in srgb, var(--tier) 30%, transparent); }
+.bz-av .bz-av-art { background: none; border: 0; padding: 0; width: 84px; height: 84px; cursor: pointer; border-radius: 14px; }
+.bz-av .bz-av-art img, .bz-av .bz-av-art svg { width: 100%; height: 100%; object-fit: contain; }
+.bz-av[data-state="world"] .bz-av-art, .bz-av[data-state="milestone"] .bz-av-art { filter: grayscale(.85) brightness(.95); opacity: .72; }
+.bz-av[data-state="world"] .bz-av-art img, .bz-av[data-state="milestone"] .bz-av-art img { filter: none; opacity: 1; }
+.bz-av-say { font-size: 12px; line-height: 1.35; font-weight: 700; color: var(--text2); text-align: center; min-height: 2.7em; }
+.bz-av-btn { min-height: 40px; min-width: 64px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--ground);
+  color: var(--accent); font: 800 13px 'Hanken Grotesk', var(--body), system-ui, sans-serif; display: inline-flex; align-items: center;
+  justify-content: center; gap: 5px; cursor: pointer; }
+.bz-av-btn.buy { background: #FFF3D6; border-color: #F0B429; color: #7A4F00; font-family: 'Sono', var(--mono), monospace; }
+:root[data-mode="night"] .bz-av-btn.buy { background: rgba(240, 180, 41, .16); color: #FFD47A; }
+/* not yet affordable: the price stays readable (the line above says how many more), the edge goes dashed */
+.bz-av-btn[aria-disabled="true"] { border-style: dashed; background: transparent; }
+.bz-av-on { min-height: 40px; display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 13px; color: var(--good); }
+@media (max-width: 560px) {
+  .bz-pack { padding: 12px; }
+  .bz-av-row { grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 8px; }
+  .bz-av .bz-av-art { width: 72px; height: 72px; }
+  .bz-colltab { min-width: 0; font-size: 12.5px; padding: 0 6px; gap: 5px; }
+  .bz-pack-w { margin-left: 25px; flex-basis: 100%; }
+  .bz-collacts .coinchip { display: none; }   /* the coins are already in the bar above */
+}
+@media (max-width: 420px) { .bz-colltab .ic, .bz-colltab svg { display: none; } }
+/* PRINT MY CARDS: cut-out cards, four across on paper, nothing of the app's chrome */
+.avprint { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.avp { --tier: #7B8794; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 10px; text-align: center;
+  border: 3px solid var(--tier); border-radius: 16px; background: var(--card); break-inside: avoid; }
+.avp[data-tier="rare"] { --tier: #3D7DF0; } .avp[data-tier="epic"] { --tier: #B14FC4; } .avp[data-tier="legendary"] { --tier: #F0B429; }
+.avp img, .avp svg { width: 110px; height: 110px; object-fit: contain; }
+.avp b { font: 800 16px 'Fraunces', var(--display), serif; }
+.avp-t { font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--tier); }
+.avp-l { font-size: 12px; color: var(--text2); line-height: 1.35; }
+@media print {
+  html, body { background: #fff !important; }
+  .bz-hdr, .bz-tabbar, .topbar, .nav, .navtab, .wa-layer, .backlink, .bz-collacts, #navmoresheet, .bz-foot { display: none !important; }
+  .avprint { grid-template-columns: repeat(4, 1fr); gap: 0; }
+  .avp { border-radius: 0; border: 1px dashed #999; border-top: 6px solid var(--tier); background: #fff; color: #111; }
+}
 .wshop .wpreview { height: 110px; border-radius: 14px; overflow: hidden; margin-bottom: 10px; }
 .wshop.locked .wpreview { filter: saturate(.55); }
 .xshop { display: flex; gap: 14px; align-items: center; }

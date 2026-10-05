@@ -105,7 +105,7 @@ check('steps', 'one question per screen, and every answer moves on', async ({ p 
   await ask();
   await tap(p, '[data-act="obplace"][data-v="home:no"]', 'the placement question');
   await ask();
-  await tap(p, '[data-act="obbuddy"][data-id="royal_elephant"]', 'the companions');
+  await tap(p, '[data-act="obbuddy"][data-id="mor"]', 'the companions');
   await ask();
   const uniq = new Set(seen);
   if (uniq.size !== seen.length)

@@ -222,7 +222,12 @@ claim about how it marked a thing matches what it actually did.
   `bizzing-shell.js` and `.css` (and `tools/lib/shell-check.mjs`)
   byte for byte; `family/bridge.js` hands them to the classic scripts. Avatars are the family's
   96 = 12 × 8 at 2/3/2/1 (`avatar-catalogue.js`, validated in `check-standard`); worlds 1–2 are
-  free and the rest open with the family plan or 240 coins. Music is composed in code
+  free and the rest open with the family plan or 240 coins. **The Collection is Bee's** (owner, 5 Oct
+  2026): one page, three tabs — Medals · Avatars · Worlds with their counts (☰ Medals is its tab) —
+  each pack naming its world, every card carrying exactly one thing to do (Wear · Wearing · its printed
+  price · or the reason it is locked), and Print my cards for the child's own. **Mor, the peacock on the
+  app icon, is a free avatar** — the first Common of pack 1, as Bizzy Bee is Bee's; the Royal Elephant
+  stepped into `arch`, kept and still drawn (`check-family collection`). Music is composed in code
   (`music/engine.js`, `music/CREDITS.md`), lazy, ducked under the voice, off in Calm mode.
   `tools/check-standard.js` holds the v2 standard.
 

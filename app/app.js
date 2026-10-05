@@ -1209,7 +1209,7 @@
      These five are also all free on day one (economy.js: `panch` is free, `devas` is
      never purchasable), so nothing here can be tapped and refused. */
   /* five Commons, free to every child from the first minute (standard §8, §16) */
-  var OB_BUDDIES = ['pt_tortoise', 'pt_monkey', 'ganesha', 'royal_elephant', 'rocket'];
+  var OB_BUDDIES = ['mor', 'pt_tortoise', 'pt_monkey', 'ganesha', 'rocket'];   /* Mor: the app's own peacock (5 Oct 2026) */
 
   /* TWO WORLDS, AND THEY ARE THE TWO FURTHEST APART — a real street in Old Delhi and a
      painting tradition from Mithila. Three are free (economy.js), but a choice between
@@ -1758,12 +1758,12 @@
   }
 
   /* THE MEDAL SHELF: earned ones in their metal, with the day; the rest say how to earn them */
-  V.medals = function () {
+  V.medals = function (bare) {
     var got = S.medals || {}, n = MEDALS.filter(function (m) { return got[m.id]; }).length;
-    return '<div class="card medalshelf"><div class="spread"><h3 style="margin:0">Medals</h3>' +
-      '<span class="pill stat">' + n + ' of ' + MEDALS.length + '</span></div>' +
-      '<p class="tiny muted" style="margin:4px 0 12px">Each one is earned by something the app saw you do — ' +
-        'a story finished, a place lit, a test passed on a later day. None of them is for showing up.</p>' +
+    return '<div class="card medalshelf">' + (bare ? '' : '<div class="spread"><h3 style="margin:0">Medals</h3>' +
+      '<span class="pill stat">' + n + ' of ' + MEDALS.length + '</span></div>') +
+      '<p class="tiny muted" style="margin:' + (bare ? 0 : 4) + 'px 0 12px">Each one is earned by something the app saw you do — ' +
+        'a story finished, a place lit, a test passed on a later day. None of them is for showing up, and none is ever bought or taken back.</p>' +
       '<div class="mdgrid">' + MEDALS.map(function (m) {
         return '<div class="mdcell' + (got[m.id] ? '' : ' locked') + '">' + medalHTML(m, 64, !!got[m.id]) +
           '<b>' + esc(m.name) + '</b><span class="tiny muted">' +
@@ -7863,20 +7863,117 @@
       '<span class="bzsay' + (st.state === 'owned' ? ' own' : '') + '">' + esc(st.say) + '</span></button>';
   }
 
-  /* ---- COLLECTION (standard §8): all 96 by pack, owned and locked, each with its path */
-  V.collection = function () {
-    var P = window.IND_AVATAR_PACKS || [], C = window.IND_AVATARS || [], WO = (window.IND_ECONOMY || {}).WORLD_ORDER || [];
-    return '<div class="phead"><h1>Collection</h1><span class="pill stat">' + collectionCount() + ' of 96</span>' +
-        '<p>Twelve packs of eight. Every card says how it opens — nothing is drawn by chance, and nothing is for sale for real money.</p></div>' +
+  /* ---- COLLECTION, laid out as Bee's (owner, 5 Oct 2026: "we should have collections like
+     this — ref bizzing bee"). One page, three tabs — Medals · Avatars · Worlds, each with its
+     count — because a medal, a face and a world are all things a child has, and three pages for
+     them made the shelf look like three shelves. On the Avatars tab a pack's header says its
+     count and the world it lives in, and every card says what it is and what it does: Wear,
+     Wearing, or its printed price. The rules are the family's and nothing here changes them —
+     fixed prices, nothing drawn by chance, a Legendary after its learning milestone. */
+  var TIER_ORDER = { common: 0, rare: 1, epic: 2, legendary: 3 };
+  var COLL_TABS = ['medals', 'avatars', 'worlds'];
+  function packWorld(i) {
+    var WO = (window.IND_ECONOMY || {}).WORLD_ORDER || [];
+    return (window.IND_WORLDS && window.IND_WORLDS.get(WO[Math.floor(i / 2)])) || null;
+  }
+  function packAvatars(i) {
+    return (window.IND_AVATARS || []).filter(function (a) { return a.pack === i + 1; })
+      .sort(function (x, y) { return (TIER_ORDER[x.tier] || 0) - (TIER_ORDER[y.tier] || 0); });
+  }
+  /* one card: the face (opens the card), its name and tier, the line, and the one thing to do */
+  function collTile(a) {
+    var E = window.IND_ECONOMY, st = E ? E.stateOf(S, a.id) : { state: 'owned', say: '', label: a.tier };
+    var own = st.state === 'owned', on = S.buddy === a.id, label = st.label || a.tier;
+    var say = own ? (a.tier === 'common' ? 'Free for everyone' : 'Yours') : st.say;
+    var act = on ? '<span class="bz-av-on">✓ Wearing</span>'
+      : own ? '<button class="bz-av-btn" data-act="pick" data-id="' + esc(a.id) + '" aria-label="Wear ' + esc(a.name) + '">Wear</button>'
+      : st.state === 'buy' ? '<button class="bz-av-btn buy" data-act="buyav" data-id="' + esc(a.id) + '"' + (st.short ? ' aria-disabled="true"' : '') +
+          ' aria-label="' + esc(a.name + ' — ' + st.price + ' coins' + (st.short ? ', ' + st.short + ' more to go' : '')) + '">' + coinSvg(14) + ' ' + st.price + '</button>'
+      : '';
+    return '<figure class="bz-av" data-tier="' + a.tier + '" data-state="' + (own ? 'owned' : st.state) + '" data-av="' + esc(a.id) + '"' + (on ? ' data-on="1"' : '') + '>' +
+      '<button class="bz-av-art" data-act="go" data-v="avcard" data-arg="' + esc(a.id) + '" aria-label="' +
+        esc(a.name + ' — ' + label + '. ' + say + '. See the card') + '">' + art(a.id, 96, true) + '</button>' +
+      '<figcaption>' + esc(a.name) + ' <b>' + esc(label) + '</b></figcaption>' +
+      '<span class="bz-av-say">' + esc(say) + '</span>' + act + '</figure>';
+  }
+  function collAvatars() {
+    var E = window.IND_ECONOMY, P = window.IND_AVATAR_PACKS || [];
+    /* the printed prices, read from the family engine through a card of each tier — never typed here */
+    var price = function (t, d) {
+      var a = (window.IND_AVATARS || []).filter(function (x) { return x.tier === t; })[0];
+      var st = a && E ? E.stateOf(S, a.id) : null;
+      return (st && st.price) || d;
+    };
+    return '<p class="bz-collnote">Commons are free for everyone. Rares are ' + price('rare', 120) + ' Bizzing coins and Epics ' +
+        price('epic', 250) + ' once their world is open; a Legendary is ' + price('legendary', 500) + ' after its learning milestone. ' +
+        'Every price is fixed, and nothing here is left to chance. ' +
+        '<button class="bz-linkbtn" data-act="go" data-v="shop" data-arg="avatars">Open the Shop</button></p>' +
       P.map(function (p, i) {
-        var w = window.IND_WORLDS && window.IND_WORLDS.get(WO[Math.floor(i / 2)]);
-        return '<section class="card bzpack"><div class="spread"><h2 style="margin:0">' + esc(p.name) + '</h2>' +
-            '<span class="mono">' + (w ? esc(w.name) + ' world' : '') + '</span></div>' +
-          '<p class="tiny muted" style="margin:4px 0 12px">' + esc(p.note || '') + '</p>' +
-          '<div class="bzgrid">' + C.filter(function (a) { return a.pack === i + 1; }).map(function (a) { return bzCard(a); }).join('') + '</div></section>';
+        var avs = packAvatars(i), w = packWorld(i), open = !w || !E || E.worldOpen(S, w.id);
+        var n = avs.filter(function (a) { return !E || E.avatarOpen(S, a.id); }).length;
+        var t = (w && w.t) || {};
+        return '<section class="card bz-pack" data-pack="' + esc(p.id) + '">' +
+          '<div class="bz-pack-h"><span class="bz-pack-sw" style="background:linear-gradient(135deg,' + (t.accent || 'var(--accent)') + ',' + (t.accent2 || 'var(--accent2)') + ')"></span>' +
+            '<h3>' + esc(p.name) + '</h3><span class="bz-pack-n">' + n + '/' + avs.length + '</span>' +
+            (w ? '<span class="bz-pack-w">' + icon(open ? 'compass' : 'lock', 13) + ' ' + esc(w.name) + (open ? '' : ' — opens with its world') + '</span>' : '') +
+          '</div>' +
+          '<div class="bz-av-row">' + avs.map(collTile).join('') + '</div></section>';
       }).join('') +
       '<div class="card flat tiny"><b>About these cards.</b> Real people carry a line about what they actually did, from their own sourced card. ' +
         'Figures from the faiths and the epics are drawn the way families keep them, and none of them is ever drawn as a villain.</div>';
+  }
+  /* the worlds, as the Shop shows them — one function, so the two can never disagree */
+  function worldCards() {
+    var E = window.IND_ECONOMY;
+    return '<div class="grid g2">' + worldList().map(function (w) {
+      var open = !E || E.worldOpen(S, w.id), n = E ? E.worldNum(w.id) : 0;
+      return '<div class="card wshop' + (open ? '' : ' locked') + '">' +
+        worldThumb(w) +
+        '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3><span class="mono">World ' + n + '</span></div>' +
+        '<p class="tiny muted" style="margin:4px 0 10px">' + esc(w.region) + (n <= 6 ? ' · two avatar packs live here' : '') + '</p>' +
+        (open ? (S.world === w.id ? '<span class="pill stat">You are in this world</span>'
+                                  : '<button class="btn sm ghost" data-act="world" data-w="' + w.id + '">Go there</button>')
+              : '<button class="btn sm" data-act="buyworld" data-w="' + w.id + '">' + coinSvg(16) + ' ' + E.worldPrice() + '</button>' +
+                '<p class="tiny" style="margin:6px 0 0">' + esc(E.worldSay(S, w.id)) + '</p>') +
+        '</div>';
+    }).join('') + '</div>';
+  }
+  V.collection = function (tab) {
+    tab = COLL_TABS.indexOf(tab) >= 0 ? tab : 'avatars';
+    var E = window.IND_ECONOMY, got = S.medals || {}, WL = worldList();
+    var nMed = MEDALS.filter(function (m) { return got[m.id]; }).length;
+    var nWorld = WL.filter(function (w) { return !E || E.worldOpen(S, w.id); }).length;
+    var tabs = [['medals', 'medal', 'Medals · ' + nMed + '/' + MEDALS.length],
+                ['avatars', 'cards', 'Avatars · ' + collectionCount() + '/' + (window.IND_AVATARS || []).length],
+                ['worlds', 'palette', 'Worlds · ' + nWorld + '/' + WL.length]];
+    var body = tab === 'avatars' ? collAvatars()
+      : tab === 'worlds' ? '<p class="bz-collnote">Each world repaints the app — its colours, its type and its painting — and two of its avatar ' +
+          'packs live in each of the first six. The first two are free; the rest open with the family plan or ' + (E ? E.worldPrice() : 240) +
+          ' coins, and switch any time.</p>' + worldCards()
+      : V.medals(true);
+    return '<div class="phead bz-collhead"><h1>Collection</h1><span class="bz-collacts">' +
+        (tab === 'avatars' ? '<button class="pill" data-act="go" data-v="avprint">' + icon('print', 16) + ' Print my cards</button>' : '') +
+        '<button class="pill coinchip" data-act="wallet" title="Bizzing coins — one wallet for every Bizzing app">' + coinSvg(18) + ' ' + coins() + '</button></span></div>' +
+      '<div class="bz-colltabs" role="tablist" aria-label="What to look at">' + tabs.map(function (t) {
+        return '<button role="tab" aria-selected="' + (t[0] === tab) + '" class="bz-colltab' + (t[0] === tab ? ' on' : '') +
+          '" data-act="go" data-v="collection" data-arg="' + t[0] + '">' + icon(t[1], 16) + ' ' + esc(t[2]) + '</button>';
+      }).join('') + '</div>' + body;
+  };
+  /* PRINT MY CARDS (Bee's): every face this child has, as cut-out trading cards — the name, the
+     tier, and the card's own title. Only what is theirs; a card they have not met stays off it. */
+  V.avprint = function () {
+    var E = window.IND_ECONOMY, mine = (window.IND_AVATARS || []).filter(function (a) { return !E || E.avatarOpen(S, a.id); })
+      .sort(function (x, y) { return (x.pack - y.pack) || ((TIER_ORDER[x.tier] || 0) - (TIER_ORDER[y.tier] || 0)); });
+    return '<button class="backlink" data-act="go" data-v="collection" data-arg="avatars">' + icon('back', 18) + ' Collection</button>' +
+      '<div class="phead"><h1>My cards</h1><span class="bz-collacts">' +
+        '<button class="btn" data-act="printnow">' + icon('print', 18) + ' Print</button></span>' +
+        '<p>' + mine.length + ' cards, one for every face you have met. Print them, cut along the lines, and keep them.</p></div>' +
+      '<div class="avprint">' + mine.map(function (a) {
+        var C = window.IND_AV_CARD ? window.IND_AV_CARD(a.id) : null, st = E ? E.stateOf(S, a.id) : { label: a.tier };
+        return '<div class="avp" data-tier="' + a.tier + '">' + art(a.id, 120, true) +
+          '<b>' + esc(a.name) + '</b><span class="avp-t">' + esc(st.label || a.tier) + '</span>' +
+          (C && C.title ? '<span class="avp-l">' + esc(C.title) + '</span>' : '') + '</div>';
+      }).join('') + '</div>';
   };
 
   /* ---- SHOP (standard §1): Avatars · Worlds · Extras, then the wallet history */
@@ -7901,18 +7998,7 @@
           }).join('') + '</div></section>';
       }).join('') || emptyState('You have every card there is. Every one of them was earned.', 'See your Collection', 'go', 'collection');
     } else if (tab === 'worlds') {
-      body = '<div class="grid g2">' + worldList().map(function (w) {
-        var open = !E || E.worldOpen(S, w.id), n = E ? E.worldNum(w.id) : 0;
-        return '<div class="card wshop' + (open ? '' : ' locked') + '">' +
-          worldThumb(w) +
-          '<div class="spread"><h3 style="margin:0">' + esc(w.name) + '</h3><span class="mono">World ' + n + '</span></div>' +
-          '<p class="tiny muted" style="margin:4px 0 10px">' + esc(w.region) + (n <= 6 ? ' · two avatar packs live here' : '') + '</p>' +
-          (open ? (S.world === w.id ? '<span class="pill stat">You are in this world</span>'
-                                    : '<button class="btn sm ghost" data-act="world" data-w="' + w.id + '">Go there</button>')
-                : '<button class="btn sm" data-act="buyworld" data-w="' + w.id + '">' + coinSvg(16) + ' ' + E.worldPrice() + '</button>' +
-                  '<p class="tiny" style="margin:6px 0 0">' + esc(E.worldSay(S, w.id)) + '</p>') +
-          '</div>';
-      }).join('') + '</div>';
+      body = worldCards();
     } else {
       body = '<div class="grid g2">' + ((E && E.EXTRAS) || []).map(function (x) {
         var have = E.extraOwned(S, x.id), worn = x.kind === 'outfit' || x.kind === 'sash';
@@ -7956,11 +8042,7 @@
     return '<span class="xart framed fr-' + esc(x.id) + '">' + art(S.buddy, 64) + '</span>';
   }
 
-  /* ---- MEDALS, as their own page (☰ → Medals) */
-  V.medalsPage = function () {
-    return '<div class="phead"><h1>Medals</h1><p>Earned by something the app saw you do. Never for showing up, never for days in a row.</p></div>' +
-      V.medals();
-  };
+  /* MEDALS have no page of their own now: ☰ → Medals opens the Collection's Medals tab */
 
   /* ---- SETTINGS (standard §5): Bee's centred sheet, five sections in the family order:
      Me · Sound & music · Look · Comfort · Grown-ups 🔒, then Privacy · About · version. */
@@ -8517,9 +8599,10 @@
       case 'grown': h = V.grown(); break;
       case 'aaj': h = V.aaj(); break;
       /* the family layer (standard v2) */
-      case 'collection': h = V.collection(); break;
+      case 'collection': h = V.collection(view.arg); break;
+      case 'avprint': h = V.avprint(); break;
       case 'shop': h = V.shop(view.arg); break;
-      case 'medals': h = V.medalsPage(); break;
+      case 'medals': h = V.collection('medals'); break;
       case 'settings': h = V.settings(); break;
       case 'privacy': h = V.privacy(); break;
       case 'help': h = V.help(); break;
@@ -8796,7 +8879,7 @@
     paathk: ['paath', 'content', 'voice', 'map', 'bhasha'], paathp: ['paath', 'content', 'voice', 'map', 'bhasha'],
     grown: ['paath', 'content', 'voice', 'map', 'bhasha', 'packs'],
     /* the family layer: the collection, the shop and settings draw only the shell */
-    collection: [], shop: [], medals: [], settings: [], privacy: [], help: [], lost: [],
+    collection: [], avprint: [], shop: [], medals: [], settings: [], privacy: [], help: [], lost: [],
     search: ['content', 'map', 'bhasha', 'paath'], avcard: [],
     feed: ['feed'],
     gita: ['gita'], gitach: ['gita'], gitav: ['gita']    /* + the chapter's own group: needsOf */
@@ -9506,8 +9589,11 @@
     if (a === 'pick')   {
       var pid = t.getAttribute('data-id');
       if (view.name !== 'onboard' && window.IND_ECONOMY && !window.IND_ECONOMY.avatarOpen(S, pid)) { toast(window.IND_ECONOMY.stateOf(S, pid).say); return; }
-      S.buddy = pid; save(); paintChrome(); return render();
+      S.buddy = pid; save(); paintChrome();
+      if (view.name === 'collection') toast('Now travelling with ' + (avatarName(pid) || pid) + '.');
+      return render();
     }
+    if (a === 'printnow') { window.print(); return; }
 
     /* ---------------------------------------------------------------- onboarding
        One handler per question, and every one of them ADVANCES. A step that answers

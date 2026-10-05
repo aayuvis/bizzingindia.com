@@ -72,7 +72,9 @@
   /* THE 96 IN THE FAMILY STICKER STYLE (standard §8; FIX-INDIA J2): 512px WebP under art/av/,
      drawn from each character's own earlier portrait so every identifying attribute stays,
      and looked at, one by one, before shipping. art() prefers these everywhere. */
-  W.IND_AV_WEBP = out.map(function (a) { return a.id; });
+  /* a face that left the 96 keeps its sticker: the Royal Elephant stepped aside for the peacock
+     (5 Oct 2026) and still speaks in the Mahabharata, and a child may still be wearing it */
+  W.IND_AV_WEBP = out.map(function (a) { return a.id; }).concat(['royal_elephant']);
   W.IND_AVATAR_WORLDS = WORLDS;
   W.IND_LEGEND_MILESTONES = {};
   Object.keys(MS).forEach(function (k) { W.IND_LEGEND_MILESTONES[MS[k].id] = MS[k]; });

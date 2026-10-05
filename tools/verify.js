@@ -248,7 +248,7 @@ async function main() {
         // is exactly the collectible-loot problem docs/05 §7 forbids.
         asuras: 'epic'
       };
-      const NOT_PEOPLE = ['rocket', 'unicorn', 'courtier', 'guard', 'royal_elephant'];
+      const NOT_PEOPLE = ['rocket', 'unicorn', 'courtier', 'guard', 'royal_elephant', 'mor'];
       (window.IND_AVATAR_PACKS || []).forEach(p => {
         const want = EXPECT[p.id];
         if (!want) { out.push(`pack "${p.id}" is not covered by the no-scores rule — decide what it is`); return; }

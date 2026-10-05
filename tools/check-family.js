@@ -11,6 +11,12 @@
                 finished story writes a 'stop' milestone — through the family's own row shape
      seam       nothing outside the Store seam touches localStorage directly, a v1 profile is
                 walked up, and a profile from a NEWER build is never stamped older
+     collection Bee's Collection (owner, 5 Oct 2026): Medals · Avatars · Worlds as three tabs with
+                their counts; twelve packs of eight, each naming its world, the app's own peacock
+                first and free; every card carries
+                exactly the one thing it can do — Wear, Wearing, its printed price, or nothing
+                with the reason why; Wear by touch and by keys; ☰ Medals is the Medals tab;
+                Print my cards prints only what is the child's own; nothing sideways on a phone
      dropins    the family's shared files in app/family/ (and tools/lib/shell-check.mjs) are
                 byte for byte the ones recorded in tools/lib/family-dropins.json — and, where
                 Bizzing_Schedule is checked out beside this repo, byte for byte its integration/
@@ -196,10 +202,10 @@ check('shelf', 'the Collection draws all 96 faces at once, from their small copi
      arrives however long this waits, so waiting until every face has finished — or 12 s,
      on a machine with other work — holds the same promise without timing a busy disk. */
   await p.evaluate(() => window.BI.go('collection'));
-  await p.waitForFunction(() => { const im = [...document.querySelectorAll('#main .bzcard img')];
+  await p.waitForFunction(() => { const im = [...document.querySelectorAll('#main .bz-av-art img')];
     return im.length >= 90 && im.every(i => i.complete); }, null, { timeout: 12000, polling: 200 }).catch(() => {});
   const r = await p.evaluate(() => {
-    const im = [...document.querySelectorAll('#main .bzcard img')];
+    const im = [...document.querySelectorAll('#main .bz-av-art img')];
     return { n: im.length, blank: im.filter(i => !i.complete || !i.naturalWidth).length,
              big: im.filter(i => i.naturalWidth > 256).length, night: document.documentElement.getAttribute('data-mode'), y: scrollY };
   });
@@ -207,6 +213,85 @@ check('shelf', 'the Collection draws all 96 faces at once, from their small copi
   if (r.n < 90) throw new Error(`the Collection drew ${r.n} cards`);
   if (r.blank) throw new Error(`${r.blank} of ${r.n} cards are still blank, without a scroll, once the page has stopped loading them`);
   if (r.big) throw new Error(`${r.big} cards draw the full 512px portrait at 96px`);
+});
+
+/* ------------------------------------------------------------------ collection (owner, 5 Oct 2026) */
+check('collection', 'Bee\'s Collection: three tabs with counts, 12 packs × 8 naming their world, one action per card, Wear by tap and by keys, Print my cards', async ({ p }) => {
+  const look = () => p.evaluate(() => {
+    const E = window.IND_ECONOMY, S = window.BI.S, A = window.IND_AVATARS;
+    const tabs = [...document.querySelectorAll('#main .bz-colltab')].map(t => ({ t: t.textContent.trim(), on: t.classList.contains('on') }));
+    const packs = [...document.querySelectorAll('#main .bz-pack')].map(pk => ({
+      head: pk.querySelector('.bz-pack-h').textContent, n: (pk.querySelector('.bz-pack-n') || {}).textContent,
+      cards: [...pk.querySelectorAll('.bz-av')].map(c => {
+        const id = c.getAttribute('data-av'), st = E.stateOf(S, id);
+        return { id, st: st.state, price: st.price, mine: S.buddy === id, say: (c.querySelector('.bz-av-say') || {}).textContent || '',
+          wear: !!c.querySelector('.bz-av-btn[data-act=pick]'), on: !!c.querySelector('.bz-av-on'),
+          buy: (c.querySelector('.bz-av-btn.buy') || {}).textContent || null, art: !!c.querySelector('.bz-av-art[data-act=go][data-v=avcard] img') };
+      }) }));
+    const over = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth;
+    return { tabs, packs, over, total: A.length, owned: A.filter(a => E.avatarOpen(S, a.id)).length };
+  });
+  /* coins enough for one rare, so a card can be bought, and one card that cannot */
+  await p.evaluate(() => window.BI.go('collection'));
+  await p.waitForSelector('#main .bz-pack');
+  let r = await look();
+  const want = [/^Medals · \d+\/\d+$/, new RegExp('^Avatars · ' + r.owned + '/' + r.total + '$'), /^Worlds · \d+\/15$/];
+  if (r.tabs.length !== 3 || !r.tabs.every((t, i) => want[i].test(t.t))) throw new Error('tabs: ' + JSON.stringify(r.tabs));
+  if (!r.tabs[1].on) throw new Error('the Collection does not open on Avatars');
+  if (r.packs.length !== 12) throw new Error(r.packs.length + ' packs');
+  const bad = [];
+  r.packs.forEach(pk => {
+    if (pk.cards.length !== 8) bad.push(pk.head + ': ' + pk.cards.length + ' cards');
+    if (!/\d\/8/.test(pk.n || '')) bad.push(pk.head + ': no n/8');
+    if (!/Delhi 6|Madhubani|Diwali|Durga Pujo|Cricket|Antariksh/.test(pk.head)) bad.push(pk.head + ': names no world');
+    pk.cards.forEach(c => {
+      const acts = [c.wear, c.on, !!c.buy].filter(Boolean).length;
+      if (!c.art) bad.push(c.id + ': the face does not open its card');
+      if (c.st === 'owned' && (c.buy || acts !== 1)) bad.push(c.id + ': owned but ' + JSON.stringify(c));
+      if (c.mine !== c.on) bad.push(c.id + ': Wearing says ' + c.on + ' for ' + (c.mine ? 'the' : 'not the') + ' face worn');
+      if (c.st === 'buy' && (!c.buy || c.buy.trim() !== String(c.price))) bad.push(c.id + ': buy shows ' + c.buy + ', price ' + c.price);
+      if ((c.st === 'world' || c.st === 'milestone') && (acts || !c.say.trim())) bad.push(c.id + ': locked, ' + JSON.stringify(c));
+    });
+  });
+  /* the app's own peacock is a free avatar, first in the first pack (owner, 5 Oct 2026) */
+  const first = r.packs[0].cards[0];
+  if (!first || first.id !== 'mor' || first.st !== 'owned' || first.say.trim() !== 'Free for everyone')
+    bad.push('the peacock is not the first, free card: ' + JSON.stringify(first));
+  if (bad.length) throw new Error(bad.slice(0, 6).join(' · '));
+  /* WEAR by touch: a common that is not worn */
+  const pick = r.packs.flatMap(pk => pk.cards).filter(c => c.wear)[0];
+  if (!pick) throw new Error('no card offers Wear');
+  await p.evaluate(id => document.querySelector(`#main .bz-av[data-av="${id}"] .bz-av-btn[data-act=pick]`).dispatchEvent(new MouseEvent('click', { bubbles: true })), pick.id);
+  await p.waitForTimeout(350);
+  r = await look();
+  const worn = r.packs.flatMap(pk => pk.cards).filter(c => c.on);
+  if ((await S(p)).buddy !== pick.id || worn.length !== 1 || worn[0].id !== pick.id) throw new Error('Wear did not move Wearing to ' + pick.id + ': ' + worn.map(c => c.id));
+  /* and by keys: Tab to another Wear button, Enter */
+  const next = r.packs.flatMap(pk => pk.cards).filter(c => c.wear)[0];
+  await p.focus(`#main .bz-av[data-av="${next.id}"] .bz-av-btn[data-act=pick]`); await p.keyboard.press('Enter'); await p.waitForTimeout(350);
+  if ((await S(p)).buddy !== next.id) throw new Error('Enter on Wear did not wear ' + next.id);
+  /* ☰ Medals opens the Medals tab, and its grid has no second title */
+  await p.evaluate(() => window.BI.go('medals')); await p.waitForTimeout(300);
+  const m = await p.evaluate(() => ({ on: (document.querySelector('#main .bz-colltab.on') || {}).textContent || '',
+    cells: document.querySelectorAll('#main .mdcell').length, n: (window.IND_MEDALS || []).length,
+    dup: [...document.querySelectorAll('#main .medalshelf h3')].length }));
+  if (!/^Medals/.test(m.on.trim()) || !m.cells || m.dup) throw new Error('☰ Medals: ' + JSON.stringify(m));
+  /* Print my cards: exactly the child's own, and on paper nothing of the app */
+  await p.evaluate(() => window.BI.go('collection', 'avatars')); await p.waitForTimeout(250);
+  await p.click('#main [data-v=avprint]'); await p.waitForTimeout(400);
+  const own = (await look()).owned;
+  await p.emulateMedia({ media: 'print' });
+  const pr = await p.evaluate(() => ({ n: document.querySelectorAll('#main .avp').length,
+    chrome: [...document.querySelectorAll('[data-bz=header], [data-bz=tabbar], #main .backlink')].filter(e => e.offsetParent !== null).length }));
+  await p.emulateMedia({ media: 'screen' });
+  if (pr.n !== own) throw new Error(`Print my cards drew ${pr.n} cards for ${own} owned`);
+  if (pr.chrome) throw new Error(pr.chrome + ' pieces of the app print on the cards');
+  /* a phone: nothing sideways, and each tab one line */
+  await p.setViewportSize(PHONE); await p.evaluate(() => window.BI.go('collection')); await p.waitForTimeout(400);
+  const ph = await p.evaluate(() => ({ over: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth,
+    tall: [...document.querySelectorAll('#main .bz-colltab')].map(t => t.getBoundingClientRect().height) }));
+  if (ph.over > 1) throw new Error('the phone Collection scrolls sideways by ' + ph.over + 'px');
+  if (ph.tall.some(h => h > 52)) throw new Error('a tab wraps on a phone: ' + ph.tall.join(', '));
 });
 
 check('activity', 'bizzing.activity gets active minutes and a story\'s milestone', async ({ p }) => {

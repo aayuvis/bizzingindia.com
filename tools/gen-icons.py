@@ -111,6 +111,16 @@ def tab(n):
 def tabsmall(im):
     return im.quantize(colors=128, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE)
 
+# THE PEACOCK IS AN AVATAR TOO (owner, 5 Oct 2026: "app icon should be a free avatar too"): the
+# same bare bird, at the 512 every avatar sticker is drawn at, with the margin they keep.
+def sticker(n=512, frac=0.9):
+    c = Image.new('RGBA', (n, n), (0, 0, 0, 0))
+    m = bare(); k = n * frac / max(m.size)
+    b = m.resize((max(1, round(m.width * k)), max(1, round(m.height * k))), Image.LANCZOS)
+    c.alpha_composite(b, (round((n - b.width) / 2), round((n - b.height) / 2)))
+    return c
+
+sticker().save(os.path.join(APP, 'art', 'av', 'mor.webp'), 'WEBP', quality=90, method=6)
 tabsmall(tab(32)).save(os.path.join(APP, 'favicon-32.png'), optimize=True)
 tabsmall(tab(96)).save(os.path.join(APP, 'favicon-96.png'), optimize=True)
-print('icons: 192, 512, maskable 512, apple 180; tab icons 32 and 96, transparent')
+print('icons: 192, 512, maskable 512, apple 180; tab icons 32 and 96, transparent; avatar art/av/mor.webp')

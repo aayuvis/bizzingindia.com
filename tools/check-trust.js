@@ -103,7 +103,7 @@ check('deadends', 'a screen opened on nothing is its shelf; on a thing not there
   const HUB = require('vm').runInNewContext('(' + lit[1] + ')');
   /* every render() case that reads view.arg must have a shelf */
   const takes = [...new Set([...src.matchAll(/case '([a-z0-9]+)':\s*h = V\.\w+\(view\.arg\)/g)].map(m => m[1]))];
-  const OWN = { paath: 1, shop: 1, search: 1, lost: 1 };   /* with no arg these ARE the hub; lost IS the not-here page */
+  const OWN = { paath: 1, shop: 1, collection: 1, search: 1, lost: 1 };   /* with no arg these ARE the hub (an unknown tab opens the first); lost IS the not-here page */
   const orphan = takes.filter(n => !HUB[n] && !OWN[n]);
   if (orphan.length) throw new Error('screens with no shelf to fall back to: ' + orphan.join(', '));
   await p.evaluate(() => window.IND_LOAD(window.IND_GROUPS()));
@@ -212,7 +212,10 @@ check('tester', 'the developer unlock exists only in tester mode', async ({ p, b
    the grown-ups' page, behind the PIN, from the one place it is kept (IND_ENT.plan()) — and no
    screen a child can reach shows real money at all, not a ₹ or a $ next to a number. */
 check('price', 'the family plan\'s price is on the grown-ups\' page, from IND_ENT.plan(); no child\'s screen shows real money', async ({ p }) => {
-  const MONEY = /[₹$]\s?\d/;
+  /* a price, not a banknote: "Rani ki Vav is on the ₹100 note" is a fact about a thing a child
+     can hold (the map's fact of the hour, 5 Oct 2026), and it fired this. A note or a coin named
+     as an object is not money asked for; anything else with a sign and a number still is. */
+  const MONEY = /[₹$]\s?\d[\d,.]*(?!\d|[\d,.]*\s+(?:note|coin|banknote)s?\b)/;
   const bad = [];
   for (const [v, a] of [['home'], ['me'], ['shop', 'avatars'], ['shop', 'worlds'], ['shop', 'extras'], ['worlds'], ['collection'], ['settings'], ['help'], ['privacy'], ['play'], ['feed'], ['map'], ['paath']]) {
     await p.evaluate(([v, a]) => window.BI.go(v, a), [v, a]); await p.waitForTimeout(250);

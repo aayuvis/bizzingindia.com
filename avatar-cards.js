@@ -143,7 +143,9 @@
   var MASCOTS = {
     gattu:    { name: 'Gattu',    title: 'the Memory Keeper' },
     mithu:    { name: 'Mithu',    title: 'the Storyteller' },
-    vismriti: { name: 'Vismriti', title: 'the Forgetting' }
+    vismriti: { name: 'Vismriti', title: 'the Forgetting' },
+    /* the peacock on the app's icon — and, since 5 Oct 2026, the first free avatar in the darbar */
+    mor:      { name: 'Mor the Peacock', title: 'the peacock who shows the way' }
   };
   var MASCOT_PACK = { id: 'saathi', label: 'The Companions' };
 
@@ -219,6 +221,8 @@
       fact: 'Akbar kept a translation bureau at court — its scholars rendered the Mahabharata into Persian as the richly painted Razmnama, the Book of War.' },
     guard: { lore: 'The palace guard who has seen every visitor, and bows only to the truth.',
       fact: 'Akbar built an entire new capital city, Fatehpur Sikri, and later moved the court away — the red sandstone city still stands, a World Heritage Site you can walk through today.' },
+    mor: { lore: 'The peacock on the front of this app — the one who waves you in, and cheers when you finish.',
+      fact: 'The Indian peacock is India’s national bird — it is on the government’s own list of national symbols.' },
     royal_elephant: { lore: 'The emperor’s own elephant, wearing the jhool of honour and the patience of mountains.',
       fact: 'The Ain-i-Akbari, the great record of Akbar’s court, lists the imperial elephants by name and rank — each with its own keepers and its own food allowance.' },
 

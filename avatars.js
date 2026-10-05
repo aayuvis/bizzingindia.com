@@ -601,9 +601,13 @@ sarojini: '<circle cx="60" cy="60" r="54" fill="#2FA89B" opacity=".2"/>' +
    pack can change its eight without losing anyone. No pack is a villains' pack: the Asuras'
    own note says why, and a sacred figure is never drawn as an antagonist (docs/05 §7). */
 window.IND_AVATAR_PACKS = [
-  { id: 'darbar', shelf: 'people', name: 'Kings, Queens & Courts', note: 'Emperors, a queen who rode to war, and the cleverest court in the world.',
-    ids: ['birbal','royal_elephant','tansen','akbar','chanakya','shivaji','lakshmibai','ashoka'],
-    arch: ['courtier','guard'] },
+  /* THE APP'S OWN BIRD IS A FREE AVATAR (owner, 5 Oct 2026: "app icon should be a free avatar
+     too"), as Bizzy Bee is the first Common in Bee's first pack. Mor — the peacock on the icon,
+     the tab and every empty page — takes the pack's first Common, so the family's 12 × 8 shape
+     holds; the Royal Elephant, an unnamed court animal, steps into `arch`, kept and still drawn. */
+  { id: 'darbar', shelf: 'people', name: 'Kings, Queens & Courts', note: 'Emperors, a queen who rode to war, the cleverest court in the world — and the peacock who brought you here.',
+    ids: ['mor','birbal','tansen','akbar','chanakya','shivaji','lakshmibai','ashoka'],
+    arch: ['courtier','guard','royal_elephant'] },
   { id: 'mahabharata', shelf: 'sacred', name: 'The Mahabharata', note: 'One family that could not stop. Nobody here is only a villain.',
     ids: ['bhima','arjuna','yudhishthira','draupadi','ekalavya','karna','gandhari','bhishma'],
     arch: ['nakula','sahadeva','drona','dhritarashtra','kunti','duryodhana','shakuni','vidura','abhimanyu'] },
@@ -660,7 +664,7 @@ window.IND_AVATAR_NAMES = {
   pt_deer:'Chitranga the Deer', pt_crocodile:'The Crocodile', pt_monkey:'The Monkey',
   pt_rabbit:'The Clever Rabbit', pt_heron:'The Heron', pt_elephant:'The Elephant',
   akbar:'Emperor Akbar', birbal:'Birbal', tansen:'Tansen', courtier:'A Courtier',
-  guard:'The Palace Guard', royal_elephant:'The Royal Elephant',
+  guard:'The Palace Guard', royal_elephant:'The Royal Elephant', mor:'Mor the Peacock',
   ashoka:'Ashoka', chanakya:'Chanakya', shivaji:'Shivaji', lakshmibai:'Rani Lakshmibai',
   gandhi:'Mohandas Gandhi', ambedkar:'B. R. Ambedkar', bhagat:'Bhagat Singh',
   kalam:'A. P. J. Abdul Kalam', aryabhata:'Aryabhata', tagore:'Rabindranath Tagore',
@@ -749,7 +753,7 @@ window.IND_AVATAR_RARITY = {
   pt_monkey:'epic', pt_rabbit:'legendary', pt_heron:'free', pt_elephant:'rare',
   /* Darbar */
   akbar:'legendary', birbal:'legendary', tansen:'epic', courtier:'free',
-  guard:'free', royal_elephant:'epic',
+  guard:'free', royal_elephant:'epic', mor:'free',
   /* Great Indians */
   ashoka:'legendary', chanakya:'epic', shivaji:'legendary', lakshmibai:'legendary',
   gandhi:'legendary', ambedkar:'legendary', bhagat:'epic', kalam:'legendary',

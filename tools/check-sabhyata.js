@@ -11,6 +11,7 @@
  *
  *   node tools/check-sabhyata.js            # all checks
  *   node tools/check-sabhyata.js --only adj # one
+ *   node tools/check-sabhyata.js --only cardtext   # the city's cards read at AA, day and night
  *   CHROME=/path/to/chrome node tools/check-sabhyata.js
  */
 const { chromium } = require('playwright');
@@ -72,6 +73,65 @@ async function boot(browser, port) {
 
 const CHECKS = [];
 const check = (id, what, fn) => CHECKS.push({ id, what, fn });
+
+/* -------------------------------------------- the city's cards can be read (owner, 8 Oct 2026) */
+/* "can't read the text in Sabhyata cities": the fact tiles took the page's dark-brown text onto
+   the city's dark teak card, about 2:1. Every line of every card a city offers is measured on
+   pixels, day and night, the way check-contrast measures the app (tools/lib/contrast.js) — and
+   the open card must stop above the Build handle, which it used to run over. */
+const { measureView } = require('./lib/contrast');
+check('cardtext', 'every line on every city card reads at AA, day and night; an open card never covers Build', async ({ p }) => {
+  /* day or night is set FIRST: switching it redraws the app, and the game starts again at its
+     first screen — so the city is entered afresh for each */
+  const enter = async mode => {
+    for (let i = 0; i < 3; i++) {
+      const night = await p.evaluate(() => document.documentElement.getAttribute('data-mode') === 'night');
+      if ((mode === 'night') === night) break;
+      await p.evaluate(() => document.querySelector('[data-bz=theme]').click()); await p.waitForTimeout(500);
+    }
+    const ov = await p.$('#sab-ovhost .sab-btn'); if (ov) { await ov.click(); await p.waitForTimeout(300); }
+    await p.evaluate(() => { const g = window.__SABG(); g.res.anna = 500; g.res.kala = 500; g.res.katha = 500; });
+    if (!await p.evaluate(() => !!window.__SAB().city)) await openCity(p, 'dholavira');
+    if (!await p.evaluate(() => !!window.__SAB().city)) throw new Error(mode + ': the city never opened, so this proves nothing');
+    await p.evaluate(() => { const b = document.querySelector('[data-sab-act=calls]'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click(); });
+    await p.waitForTimeout(350);
+  };
+  const bad = [];
+  for (const mode of ['day', 'night']) {
+    await enter(mode);
+    const rows = await p.evaluate(() => [...document.querySelectorAll('.sab-callrow')].map(r => r.getAttribute('data-c')));
+    if (!rows.includes('about')) throw new Error(mode + ': the city offers no card of its own telling: ' + rows.join(', '));
+    for (const k of rows) {
+      await p.evaluate(k => { const r = document.querySelector(`.sab-callrow[data-c="${k}"]`); if (r) r.click(); }, k);
+      await p.waitForTimeout(450);
+      if (!await p.evaluate(() => !!document.querySelector('.sab-calllist.iscard'))) { bad.push(`${mode}/${k}: the card did not open`); continue; }
+      /* a long card scrolls inside itself; for the colours it is unrolled, so the last line is
+         measured against the card and not against the board it is scrolled over */
+      const unroll = await p.addStyleTag({ content: '.sab-calllist.iscard{max-height:none!important;overflow:visible!important}' });
+      await p.waitForTimeout(60);
+      const m = await measureView(p, '.sab-calllist *');
+      await unroll.evaluate(e => e.remove()); await p.waitForTimeout(60);
+      if (!m.checked) bad.push(`${mode}/${k}: nothing measured`);
+      m.fails.forEach(f => bad.push(`${mode}/${k}: "${f.t}" ${f.ratio}:1 (needs ${f.need}) ${f.tag}`));
+      const lap = await p.evaluate(() => { const c = document.querySelector('.sab-calllist.iscard'), d = document.querySelector('.sab-dhandle');
+        if (!c || !d || !d.offsetParent) return 0; const a = c.getBoundingClientRect(), b = d.getBoundingClientRect();
+        return a.left < b.right && b.left < a.right ? Math.max(0, Math.round(a.bottom - b.top)) : 0; });
+      if (lap > 0) bad.push(`${mode}/${k}: the open card covers Build by ${lap}px`);
+      await p.evaluate(() => { const b = document.querySelector('[data-sab-act=callback]'); if (b) b.click(); });
+      await p.waitForTimeout(250);
+    }
+  }
+  /* and on a phone, the long one */
+  await p.setViewportSize({ width: 390, height: 844 }); await p.waitForTimeout(500);
+  await p.evaluate(() => { const r = document.querySelector('.sab-callrow[data-c="about"]'); if (r) r.click(); });
+  await p.waitForTimeout(450);
+  const ph = await p.evaluate(() => { const c = document.querySelector('.sab-calllist.iscard'), d = document.querySelector('.sab-dhandle');
+    if (!c) return { none: true }; const a = c.getBoundingClientRect(), b = d && d.offsetParent ? d.getBoundingClientRect() : null;
+    return { lap: b && a.left < b.right && b.left < a.right ? Math.round(a.bottom - b.top) : 0, over: Math.round(a.right - innerWidth) }; });
+  if (ph.none) bad.push('phone: the telling card did not open');
+  else { if (ph.lap > 0) bad.push(`phone: the open card covers Build by ${ph.lap}px`); if (ph.over > 0) bad.push(`phone: the card runs ${ph.over}px off the screen`); }
+  if (bad.length) throw new Error(bad.slice(0, 8).join(' · ') + (bad.length > 8 ? ` (+${bad.length - 8})` : ''));
+});
 
 /* ---------------------------------------------------------------- boots at all */
 check('boot', 'the game boots, takes a turn, and logs nothing', async ({ p, errs }) => {

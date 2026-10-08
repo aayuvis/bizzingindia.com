@@ -791,7 +791,7 @@
     '.sab-callrow .go{flex:0 0 auto;font:700 17px/1 var(--body);opacity:.5}',
     '.sab-callrow.hot{background:rgba(230,160,60,.18);border-color:rgba(230,160,60,.5)}',
     /* the card, in the panel's own place */
-    '.sab-calllist.iscard{width:min(340px,86vw);max-height:calc(100% - 118px);overflow:auto;',
+    '.sab-calllist.iscard{width:min(340px,86vw);max-height:calc(100% - 158px);overflow:auto;',
     '  -webkit-overflow-scrolling:touch}',
     '.sab-callback{align-self:flex-start;min-height:34px;padding:0 10px;border-radius:9px;',
     '  border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#f6efe1;',
@@ -801,13 +801,26 @@
     '.sab-cardbody{padding:0 4px 4px;color:#f6efe1;font-size:12.5px;line-height:1.5}',
     '.sab-cardbody p{margin:6px 0}',
     '.sab-cardbody .sab-btn{margin:4px 0}',
+    /* THE CARD IS DARK, SO ITS WORDS ARE LIGHT — every one of them, said here. A fact tile
+       took the page's own .sab-cfact colour (the world's dark brown, made for a light card)
+       and sat at about 2:1 on the teak; the whisper and the notes took --muted the same way
+       (owner, 8 Oct 2026: "can't read the text in Sabhyata cities"). check-sabhyata
+       `cardtext` measures every line of every card, day and night. */
     '.sab-cardbody .sab-cfact{background:rgba(255,255,255,.06);border-radius:9px;padding:7px 9px;',
-    '  margin:6px 0;font-size:12px;line-height:1.5}',
+    '  margin:6px 0;font-size:12.5px;line-height:1.5;color:var(--hud-tx,#f6efe1)}',
+    '.sab-note{color:var(--muted)}',
+    '.sab-cardbody .sab-note,.sab-cardbody .tiny{color:rgba(248,240,225,.84)}',
     '.sab-cardbody img{max-width:100%;border-radius:9px}',
     '.sab-cardbody .mch{display:inline-block;margin:2px 3px 2px 0;padding:3px 7px;border-radius:8px;',
-    '  background:rgba(255,255,255,.08);font:700 10.5px/1.3 var(--body)}',
+    '  background:rgba(255,255,255,.08);font:700 10.5px/1.3 var(--body);color:var(--hud-tx,#f6efe1);',
+    '  border:1px solid rgba(255,255,255,.22)}',
+    /* the milestone chips' own colours are made for a light card (.mch.done is the world's accent,
+       .mch.next its ink) and outrank the line above — so on the teak card each says it again */
+    '.sab-cardbody .mch.done{color:var(--hud-up,#a9df9e);border-color:rgba(169,223,158,.55)}',
+    '.sab-cardbody .mch.next{color:var(--hud-tx,#f8f0e1);border-color:var(--brass,#d4a650)}',
+    '.sab-cardbody .mch.star{color:#f3d48c;border-color:var(--brass,#d4a650)}',
     '.sab-cardbody .sab-treshint{background:rgba(230,160,60,.14);border-radius:9px;padding:7px 9px;',
-    '  margin:6px 0;font-size:11.5px;font-style:italic}',
+    '  margin:6px 0;font-size:12px;font-style:italic;color:#f5dcaa}',
     '.sab-scene.iskit{overflow:hidden;position:relative;',
     '  height:min(66vh,620px);min-height:340px;touch-action:none}',
     '@media (max-width:560px){.sab-scene.iskit{height:min(60vh,480px)}}',
@@ -2824,7 +2837,7 @@
             riddleOptions(byId[quiz.of], quiz.qi).map(function (o) {
               return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" data-sab-act="quiz" data-o="' + esc(o) + '">' + esc(o) + '</button>';
             }).join('') +
-            (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — think of the city’s own telling. Another go.</p>' : '')
+            (riddleWrong ? '<p class="tiny sab-note">Not that one — think of the city’s own telling. Another go.</p>' : '')
           : '<p>The teacher will take a question' + (G.tech.script ? ' about any woken city' : '') + '.</p>' +
             '<button class="sab-btn" data-sab-act="quizstart"' + (cd > 0 ? ' disabled' : '') + '>' +
             (cd > 0 ? 'The teacher rests (' + cd + 's)' : 'Ask me one (+' +
@@ -2845,9 +2858,9 @@
         h2 += riddleOptions(s2).map(function (o) {
           return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" ' +
             'data-sab-act="qriddle" data-o="' + esc(o) + '">' + esc(o) + '</button>';
-        }).join('') + (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — the city’s own telling has it. Another go.</p>' : '');
+        }).join('') + (riddleWrong ? '<p class="tiny sab-note">Not that one — the city’s own telling has it. Another go.</p>' : '');
       } else {
-        h2 += '<p class="tiny" style="color:var(--muted)">This one is done out on the map — the scroll will close itself.</p>';
+        h2 += '<p class="tiny sab-note">This one is done out on the map — the scroll will close itself.</p>';
       }
       return { t: esc(FOLK[s2.kind]) + ' asks', h: h2 };
     }
@@ -2879,17 +2892,17 @@
           '<span class="mch' + (q2.mon ? ' star' : (q2.lv >= 3 ? ' next' : '')) + '">★ ' +
           esc(s2.works[2]) + '</span></div>' +
           (q2.mon
-            ? '<p class="tiny" style="color:var(--muted)">The monument stands — +2 📜 every turn, and the mist can never touch this town.</p>'
+            ? '<p class="tiny sab-note">The monument stands — +2 📜 every turn, and the mist can never touch this town.</p>'
             : q2.lv >= 3
               ? '<p>The city is big enough. Raise it on the scaffolding out there, or here:</p>' +
                 '<button class="sab-btn go" data-sab-act="mon"' + (canPay(mc) ? '' : ' disabled') +
                 '>Build the monument (' + costStr(mc) + ')</button>'
-              : '<p class="tiny" style="color:var(--muted)">A level-3 city may raise its monument. Grow first.</p>') };
+              : '<p class="tiny sab-note">A level-3 city may raise its monument. Grow first.</p>') };
     }
     /* THE CITY'S OWN TELLING — the facts, and the whisper that hides a treasure. */
     function callAbout(id) {
       var s2 = byId[id], q2 = G.sites[id];
-      if (!q2.seen) return { t: esc(nameOf(s2)), h: '<p class="tiny" style="color:var(--muted)">Nobody has walked here yet.</p>' };
+      if (!q2.seen) return { t: esc(nameOf(s2)), h: '<p class="tiny sab-note">Nobody has walked here yet.</p>' };
       var trez = (DATA.treasures || {})[id];
       return { t: esc(nameOf(s2)),
         h: (W.IND_CITY_PHOTO_HTML ? W.IND_CITY_PHOTO_HTML(id) : '') +
@@ -2898,7 +2911,7 @@
           (trez && !(q2.tre && q2.tre.got)
             ? '<div class="sab-treshint">🔍 ' + esc(FOLK[s2.kind]) + ' whispers: “' +
               esc(trez.hint) + '”</div>' : '') +
-          (q2.mon ? '' : '<p class="tiny" style="color:var(--muted)">The city as it could be — raise the monument, ' +
+          (q2.mon ? '' : '<p class="tiny sab-note">The city as it could be — raise the monument, ' +
             'the scaffolding comes down, and the colours come back.</p>') };
     }
     /* Which of them are waiting, cheaply — the bell only needs to count.

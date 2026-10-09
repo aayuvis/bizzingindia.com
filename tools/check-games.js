@@ -332,6 +332,8 @@ check('lineup', 'Play: ≤ 13 cards in groups, none retired, each with a subtitl
   /* one in, one out: a replacement in review waits; released, it takes the slot; a stray engine never shows */
   await p.evaluate(() => {
     const mk = (id, review) => ({ id, name: 'New ' + id, sub: 'test', blurb: '', review, teaches: true, engine: h => { h.innerHTML = '<p>new</p>'; } });
+    /* the real Naksha (if this build has it) steps out, so the test owns the slot */
+    window.IND_GAMES = window.IND_GAMES.filter(g => g.id !== 'naksha');
     window.IND_GAMES.push(mk('naksha', true), mk('zzstray', false));
   });
   const b = await hub();
@@ -345,7 +347,8 @@ check('lineup', 'Play: ≤ 13 cards in groups, none retired, each with a subtitl
   /* tester mode sees the one in review, in the legacy's slot */
   await p.evaluate(() => window.BI.Store.saveDevice('tester', true));
   const t = await hub();
-  if (!t.ids.includes('naksha') || t.ids.includes('statehunt') || t.ids.length !== a.ids.length) throw new Error('in tester mode the replacement did not take the slot: ' + t.ids.join(','));
+  /* (tester mode also opens every other engine still in review, so only the slot and the cap are held) */
+  if (!t.ids.includes('naksha') || t.ids.includes('statehunt') || t.ids.length > 13) throw new Error('in tester mode the replacement did not take the slot: ' + t.ids.join(','));
   await p.evaluate(() => window.BI.Store.saveDevice('tester', false));
   await p.evaluate(() => { window.IND_GAMES.find(g => g.id === 'naksha').review = false; });
   const c = await hub();

@@ -1839,4 +1839,60 @@
   };
 
   injectCSS();
+
+  /* EACH GAME'S TWO LINES for the host's frame — how to play it, and what it practises — for the
+     games that predate a registration's own `how` / `practised` (docs/32). The host's frameOf() reads
+     them on a game's page and on Play; build-feed reads them for a game's card (tools/lib/corpus.js). */
+  W.IND_GAME_FRAME = {
+    rangoli:      ['Watch the pattern, then draw it back in colour before it blows away.',
+                   'Pattern memory and symmetry — remember half, complete the whole.'],
+    statehunt:    ['Read the clue — a capital, a fort, an animal, a mountain — and pick the state it points to.',
+                   'Where India’s states are, and what each is known for.'],
+    festival:     ['Match each festival to its month, its home state and the reason people keep it.',
+                   'Twelve festivals: when they fall, where, and why.'],
+    jataka:       ['Hear the fable, then pick the lesson hiding in it.',
+                   'Finding the lesson inside a Jataka tale.'],
+    saapsidi:     ['Roll, count your squares, and climb the ladders to 100.',
+                   'Counting on a hundred-square board. Played for fun, so it pays no coins.'],
+    ludo:         ['Roll, choose a token, and bring all four home before Gattu — or play Saap-Sidi inside it.',
+                   'Counting moves and choosing which token to move. Played for fun.'],
+    kancha:       ['Slide to aim, pull back, and flick — whatever leaves the ring is yours.',
+                   'Aim and judging distance. A street game, played for fun.'],
+    pallanguzhi:  ['Pick one of your pits; its shells are sown one by one around the board.',
+                   'Counting ahead — which pit will end where you want it to.'],
+    gutte:        ['Toss the mother stone, snatch the stones the rung asks for, and catch her.',
+                   'Timing and counting. A courtyard game, played for fun.'],
+    carrom:       ['Aim the striker, choose the strength, and pocket your pieces.',
+                   'Angles and aim. Played for fun.'],
+    gyanpati:     ['Fifteen questions, easy to hard. Pick an answer and lock it in.',
+                   'What you know about India — and the ones you met for the first time today.'],
+    triviamaster: ['Ten questions from the topics you switch on.',
+                   'Quick recall across maps, history, festivals, food and the epics.'],
+    shabd:        ['Hear or read the word, then pick what it means.',
+                   'Words in your family’s language, and what they mean.'],
+    sabhyata:     ['Build, grow and learn — each era asks for one thing.',
+                   'How India’s first cities grew, era by era.'],
+    /* the cards coming in, one in for one out (games spec §3.1) — each engine may say it better
+       with its own `how` / `practised` */
+    naksha:       ['Read what to find, then tap it on the map of India.',
+                   'Where India’s states, capitals and rivers are — on the map itself.'],
+    panchang:     ['Turn the year and set each festival in its month.',
+                   'When festivals fall, and how one season has many names.'],
+    kaalnadi:     ['Set history in order along the River of Time — tap or drag a card onto its stretch of river; on a keyboard, arrows and Enter.',
+                   'Chronology and evidence — what came first, and how we know.'],
+    akshar:       ['Hear a letter, put its vowel sign on, build a word — tap or drag the tiles; on a keyboard, number keys and Enter.',
+                   'Reading your family’s script — letters, vowel signs, words and joined letters.'],
+    katha:        ['Put a tale back in order, say what happens next, and find its lesson — tap two panels to swap; on a keyboard, Space, arrows and Enter.',
+                   'Reading a story closely — order, prediction, who said it, and the lesson.'],
+    saga:         ['Follow Gattu and Mithu; each chapter is played as one of the games.',
+                   'Bringing back what the mist made a village forget, skill by skill.']
+  };
+
+  /* THE NOTE ON A GAME THE OWNER OPENED BEFORE REVIEW (9 Oct 2026; docs/32): the host's game page
+     shows it under the how-to. It lives here, in the games group, so the first screen never carries it. */
+  W.IND_GAME_UNCHECKED = function (g, esc) {
+    return '<p class="gf-unchecked" role="note"><b>Not yet checked by its reviewer.</b> Everything in this game comes from the ' +
+      'app\u2019s own sourced pages, and nothing is written from memory \u2014 but ' + esc(g.open.who || 'the person who checks what this app tells children') +
+      ' has not checked it yet. The family who made this app opened it anyway. Ask a grown-up if anything seems wrong.</p>';
+  };
 })();

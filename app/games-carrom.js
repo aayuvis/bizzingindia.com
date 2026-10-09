@@ -677,14 +677,16 @@
       st.dbg.think0 = vclock;
       var plan = planGattu();
       say('Gattu is thinking…');
-      wait(reduced ? 200 : 320, function () {
+      /* both beats are set from the moment he starts, so a slow frame can late one, not both */
+      var slide = reduced ? 200 : 320, shoot = reduced ? 400 : 700;
+      wait(slide, function () {
         if (st.phase !== 'think') return;
         st.gPlan = plan; st.gSx = plan.sx; st.gT0 = vclock;
-        wait(reduced ? 200 : 380, function () {
-          if (st.phase !== 'think') return;
-          say('');
-          fire(plan.sx, GATTU_Y, plan.a, plan.v, 'gattu');
-        });
+      });
+      wait(shoot, function () {
+        if (st.phase !== 'think') return;
+        say('');
+        fire(plan.sx, GATTU_Y, plan.a, plan.v, 'gattu');
       });
     }
 
@@ -790,14 +792,14 @@
     function pause() {
       cancelShot('');
       coachHide();
-      st.paused = st.phase;
+      st.paused = true;
       goFull(false);
       over.innerHTML = '<div class="car-panel" role="dialog" aria-label="Paused"><h3>Paused</h3>' +
         '<p>The board waits exactly as you left it.</p>' +
         '<div class="car-row"><button type="button" class="car-btn" data-go="resume">Resume</button>' +
         '<button type="button" class="car-btn ghost" data-go="out">Finish</button></div></div>';
       over.hidden = false;
-      wait(60, function () { focusSoft(over.querySelector('[data-go="resume"]')); });
+      focusSoft(over.querySelector('[data-go="resume"]'));   /* now: the paused clock runs no waits */
     }
     function settings() {
       cancelShot('');
@@ -1234,6 +1236,8 @@
       if (detached(host)) { teardown(); return; }
       var dt = lastT ? Math.min(0.1, (ts - lastT) / 1000) : 1 / 60;
       lastT = ts;
+      /* paused: the board waits exactly as it was — no time passes, nothing moves */
+      if (st.paused) { draw(1); rafId = W.requestAnimationFrame(loop); return; }
       vclock += dt * 1000;
       for (var i = 0; i < waits.length;) {
         if (waits[i].at <= vclock) { var w = waits.splice(i, 1)[0]; w.fn(); } else i++;
@@ -1435,7 +1439,7 @@
       else if (what === 'again') startMatch(lastMode);
       else if (what === 'out') bail();
       else if (what === 'pause') pause();
-      else if (what === 'resume') { over.hidden = true; goFull(true); focusSoft(canvas); }
+      else if (what === 'resume') { st.paused = false; over.hidden = true; goFull(true); focusSoft(canvas); }
       else if (what === 'coach') { cancelShot(''); coachStart(); }
       else if (what === 'settings') settings();
       else if (what === 'closeset') { over.hidden = true; focusSoft(canvas); }

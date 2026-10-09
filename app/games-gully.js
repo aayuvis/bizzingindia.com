@@ -816,10 +816,10 @@
      Every wait and every flight runs on one requestAnimationFrame clock with delta time
      (clamped at 50 ms), and it stops while the page is hidden — a hidden tab changes nothing. */
   function pzClock() {
-    var vt = 0, last = 0, raf = 0, dead = false, q = [], tw = [];
+    var vt = 0, last = 0, raf = 0, dead = false, held = false, q = [], tw = [];
     function frame(ts) {
       raf = 0;
-      if (dead) return;
+      if (dead || held) { last = 0; return; }
       var dt = last ? Math.min(100, ts - last) : 16;
       last = ts; vt += dt;
       var i;
@@ -845,6 +845,7 @@
       tween: function (ms, fn, end, delay) { tw.push({ at: vt + (delay || 0), dur: Math.max(1, ms), fn: fn, end: end }); kick(); },
       clear: function () { q = []; tw = []; },
       busy: function () { return q.length + tw.length; },
+      hold: function (on) { held = !!on; if (!held) kick(); },
       kill: function () { dead = true; q = []; tw = []; if (raf) cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', onVis); }
     };
   }
@@ -1463,13 +1464,15 @@
     }
     function pause() {
       cancel();
+      clock.hold(true);
       goFull(false);
       overEl.innerHTML = '<div class="pz-card" role="dialog" aria-label="Paused"><h3>Paused</h3>' +
         '<p>The board waits exactly as you left it.</p>' +
         '<div class="pz-row"><button type="button" class="pz-go" data-pz="resume">Resume</button>' +
         '<button type="button" class="pz-go ghost" data-go="out">Finish</button></div></div>';
       overEl.hidden = false;
-      clock.wait(60, function () { var b = overEl.querySelector('[data-pz="resume"]'); if (b) try { b.focus({ preventScroll: true }); } catch (e) {} });
+      var rb = overEl.querySelector('[data-pz="resume"]');   /* now: the held clock runs no waits */
+      if (rb) try { rb.focus({ preventScroll: true }); } catch (e) {}
     }
 
     /* ---------------- input: press-and-hold or hover previews, lift away cancels, tap again sows */
@@ -1534,7 +1537,7 @@
       var a = t.getAttribute('data-pz');
       if (t.getAttribute('data-go') === 'out') return bail();
       if (a === 'exit') pause();
-      else if (a === 'resume') { overEl.hidden = true; goFull(true); }
+      else if (a === 'resume') { overEl.hidden = true; clock.hold(false); goFull(true); }
       else if (a === 'again') { newGame(); }
       else if (a === 'jaldi') { jaldi = !jaldi; t.setAttribute('aria-pressed', String(jaldi)); store.set('pz.jaldi', jaldi); }
       else if (a === 'coach') coach(0);

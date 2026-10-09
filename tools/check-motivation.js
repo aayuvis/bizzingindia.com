@@ -99,6 +99,8 @@ check('games', 'every game: a title card with a folding how-to; the host sounds 
   const own = await p.evaluate(() => Object.fromEntries((window.IND_GAMES || []).map(g => [g.id, [g.how || '', g.practised || '']])));
   const missing = ids.filter(id => !((frame[id] && frame[id][0]) || own[id][0]) || !((frame[id] && frame[id][1]) || own[id][1]));
   if (missing.length) throw new Error('games with no how-to or no "what you practised": ' + missing.join(', '));
+  /* an engine still in review opens only in tester mode (docs/32): walk them all there */
+  await p.evaluate(() => window.BI.Store.saveDevice('tester', true));
   for (const id of ids) {
     if (id === 'sabhyata') continue;          /* a full-screen game window with its own coach */
     await p.evaluate(i => window.BI.go('game', i), id); await p.waitForTimeout(400);
@@ -112,6 +114,7 @@ check('games', 'every game: a title card with a folding how-to; the host sounds 
     const f = await p.evaluate(() => document.getElementById('gftitle').classList.contains('folded'));
     if (!f) throw new Error(id + ': the how-to did not fold after three seconds');
   }
+  await p.evaluate(() => window.BI.Store.saveDevice('tester', false));
   /* A GAME TO THE END, THROUGH THE CONTRACT (games spec §1.1, docs/32). The host used to count
      answers by watching the page's classes, which gave "27 right" in a ten-question game and both
      sounds on one miss (fix brief v4); it now reads only what an engine reports. So this is held

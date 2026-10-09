@@ -3194,6 +3194,13 @@
       presetIds(P, 'techs', ch.era).concat(bandOf(ch).techs || []).forEach(function (t) { G.tech[t] = true; });
       presetIds(P, 'riti', ch.era).forEach(function (r) { G.riti[r] = true; });
       G.pol = (P.pol || []).slice();
+      /* THE GREAT ONES AND THE THREADS OF EARLIER AGES WERE MET IN EARLIER CHAPTERS: a chapter
+         hears its own age's darshan and its own age's beads, never the Buddha again in the age
+         of the Taj */
+      (DATA.darshan || []).forEach(function (d) { if (d.era < ch.era) G.darshan[d.id] = true; });
+      (DATA.sutras || []).forEach(function (t3) {
+        t3.beats.forEach(function (bd, bi) { if (bd.era < ch.era) G.sutra[t3.id + ':' + bi] = true; });
+      });
       if (P.capital) G.capital = P.capital;
       G.res = { anna: P.res.anna, kala: P.res.kala, katha: P.res.katha };
       G.lastraid = 0;

@@ -4,8 +4,8 @@
    Shape (mirrors Bizzing Bee's ACTS / CH_META / SB_SAGA_SCRIPT so tooling ports):
 
      window.IND_SAGA = { acts: [ {n, id, title, blurb, place, banner} ],
-                         chapters: [ {n, act, title, world, blurb,
-                                      engine, opts, script, reward:{kauris}} ] }
+                         chapters: [ {n, act, title, world, blurb, skill,
+                                      engine, opts, retarget, script} ] }
      window.IND_SAGA_SCRIPT = { <script-key>: { title, intro[], win[], lose[] } }
 
    A dialogue beat is [speakerId, 'line']. Speaker ids are either avatar ids from
@@ -15,10 +15,21 @@
    be worse than staging the villagers in reported speech, which is what Gattu and
    Mithu do. The child of the village who finally tells the story is the player.
 
-   `engine` is an id in window.IND_GAMES (games.js), contract engine(host, opts, done)
-   -> done({win, score, kauris}). None of the four shipped engines read `opts`, so every
-   chapter passes {} — the field is kept because the contract has it and later engines
-   (and later acts) will want it.
+   `engine` is an id in window.IND_GAMES, played to docs/32-games-contract.md by app/saga.js:
+   engine(host, { level, band, scope: <this chapter's opts>, answer, calm, reduced }, done).
+   `opts` is the chapter's SCOPE, { mode, set }: ask only this. An empty `set` means the
+   engine's whole pool for that mode; an engine that does not know a mode yet ignores it
+   (the four shipped engines read no opts at all until the games-contract work lands).
+   `retarget` is where the games spec (§2.2) moves a chapter once that engine ships —
+   Naksha for State Hunt, Panchang for the festival round, Katha Chain for the endings.
+   Nothing is retargeted yet: the runner plays `engine`, and turns to `retarget` only when
+   `engine` is not on this device at all.
+
+   THERE IS NO REWARD FIELD (games spec §1.2, G4). The saga's old in-game currency was a
+   second money, and the family has one wallet. A chapter restored pays `stop` 5, once per
+   chapter per child, and its round pays `answer` 1 per first-try right — both through the
+   app's one earn(), in saga.js. Watching a scene pays nothing.
+   `skill` is the "what you practised" line; like all the dialogue it claims no fact.
 
    Editorial (docs/05, binding):
      · Badge 🪔 katha throughout. This is a told story, and it says so.
@@ -44,7 +55,10 @@ window.IND_SAGA = {
       banner: 'art/banner/saga.jpg',
       badge: 'katha',
       age_gate: 4,
-      recovers: 'That a story only survives if somebody tells it.' }
+      recovers: 'That a story only survives if somebody tells it.',
+      /* G5: the act's text opens to children only when the named reviewer signs here,
+         { status: 'reviewed', by: '<name>', on: '<date>' }. Until then: tester mode only. */
+      review: null }
   ],
 
   chapters: [
@@ -53,41 +67,49 @@ window.IND_SAGA = {
       title: 'Forty-One Empty Doorways',
       world: 'gond',
       blurb: 'Every door in the village should be wearing a rangoli by now. Every door is bare, and the woman who has drawn hers since she was six is standing in front of it with the colours in her hand.',
-      engine: 'rangoli', opts: {}, script: 'ch1',
-      badge: 'katha',
-      reward: { kauris: 12 } },
+      skill: 'Remembering a pattern, and drawing it back.',
+      engine: 'rangoli', opts: { mode: 'memory', set: [] },
+      script: 'ch1',
+      badge: 'katha' },
 
     { n: 2, act: 'act1',
       title: 'The Bus With a Blank Board',
       world: 'chitrakatha',
       blurb: 'Tonight is the night everybody comes home. The bus that brings them has been standing at the turning for two hours, because nobody can remember where its passengers live now.',
-      engine: 'statehunt', opts: {}, script: 'ch2',
-      badge: 'katha',
-      reward: { kauris: 14 } },
+      skill: 'Working out a state from what somebody remembers about it.',
+      engine: 'statehunt', opts: { mode: 'clues', set: [] },
+      retarget: 'naksha',
+      script: 'ch2',
+      badge: 'katha' },
 
     { n: 3, act: 'act1',
       title: 'The Shop That Sold Everything',
       world: 'gond',
       blurb: 'Lamps, colours, kites, sugar and a bucket of water, all stacked outside one small shop — because the shopkeeper has given up asking what the festival needs.',
-      engine: 'festival', opts: {}, script: 'ch3',
-      badge: 'katha',
-      reward: { kauris: 16 } },
+      skill: 'What a festival is for: why people keep it.',
+      engine: 'festival', opts: { mode: 'why', set: [] },
+      retarget: 'panchang',
+      script: 'ch3',
+      badge: 'katha' },
 
     { n: 4, act: 'act1',
       title: 'The Endings Under the Tree',
       world: 'chitrakatha',
       blurb: 'The old stories are still here, every animal and every joke. It is the last lines that have gone — and the last line is the part you are supposed to carry home.',
-      engine: 'jataka', opts: {}, script: 'ch4',
-      badge: 'katha',
-      reward: { kauris: 18 } },
+      skill: 'Finding the last line a story is meant to carry home.',
+      engine: 'jataka', opts: { mode: 'ending', set: [] },
+      retarget: 'katha',
+      script: 'ch4',
+      badge: 'katha' },
 
     { n: 5, act: 'act1',
       title: 'The Night Somebody Told It',
       world: 'gond',
       blurb: 'Every lamp is filled. Every door has its pattern. The whole village is sitting in the courtyard waiting for someone to begin, and Mithu is not allowed to be the one.',
-      engine: 'rangoli', opts: {}, script: 'ch5',
-      badge: 'katha',
-      reward: { kauris: 30 } }
+      skill: 'Putting the whole pattern down again, from memory.',
+      engine: 'rangoli', opts: { mode: 'memory', set: [] },
+      script: 'ch5',
+      badge: 'katha' }
 
   ]
 };

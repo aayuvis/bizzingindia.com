@@ -4365,6 +4365,27 @@
       '<button class="btn" data-act="go" data-v="home">Home</button>' +
       '<button class="btn ghost" data-act="go" data-v="search">Search</button></div></div>';
   };
+  /* ---------------------------------------------------------------- THE SAGA (fenced)
+     Gattu aur Vismriti — app/saga.js, games spec §2.2, docs/32. It owns its map, its scenes and
+     its round; the host hands it this child's record (S.saga), the toast and the ONE wallet path
+     (earn), and nothing else. Its Play card registers itself in IND_GAMES. */
+  function sagaUI() {
+    var U = window.IND_SAGA_UI;
+    if (!U) return null;
+    if (!U.ready) U.init({
+      state: function () { S.saga = S.saga || {}; return S.saga; },
+      save: save, toast: toast, esc: esc, icon: icon, tester: tester, earn: earn, error: errorState,
+      band: function () { var a = S.age || 8; return a <= 7 ? '4-7' : a <= 10 ? '8-10' : '11-12'; },
+      calm: function () { return !!dev.calm; }, reduced: function () { return !!dev.motion; }
+    });
+    return U;
+  }
+  window.addEventListener('ind-group', function (e) { if (e.detail === 'games') sagaUI(); });
+  V.saga = function (a) {
+    var U = sagaUI();
+    return U ? U.screen(a) : '<div class="card"><h1>The saga</h1><p>The story did not load. It may be the connection — once it has loaded once, it works offline.</p></div>';
+  };
+  /* ---------------------------------------------------------------- /THE SAGA */
   var GITA_LOST = 'The Gita did not load. It may be the connection — once it has loaded once, it works offline.';
   V.gita = function () { var U = gitaUI(); return U ? U.journey() : errorState(GITA_LOST, 'gita'); };
   V.gitach = function (a) { var U = gitaUI(); return U ? U.chapter(a) : errorState(GITA_LOST, 'gitach', a); };
@@ -7754,7 +7775,8 @@
     era: ['itihaas', 'Open Itihaas'], song: ['geet', 'All the songs'], gullygame: ['gully', 'All the street games'],
     festival: ['utsav', 'All the festivals'], faith: ['dharma', 'Open Dharma'], avcard: ['collection', 'Your collection'],
     paathl: ['paath', 'Open Paathshala'], paathp: ['paath', 'Open Paathshala'], paathk: ['paath', 'Open Paathshala'],
-    gitach: ['gita', 'All eighteen chapters'], gitav: ['gita', 'All eighteen chapters']
+    gitach: ['gita', 'All eighteen chapters'], gitav: ['gita', 'All eighteen chapters'],
+    saga: ['saga', 'The saga map']     /* THE SAGA: #/saga is its own map; a chapter not there says so */
   };
 
   /* The ☰ drawer is the family shell's (family/bizzing-shell.js), wired by bindShell. */
@@ -8557,6 +8579,7 @@
       case 'mela': h = V.play(); break;   /* old names for Play (one hub, audit C5) */
       case 'khel': h = V.play(); break;
       case 'game': h = V.game(); break;
+      case 'saga': h = V.saga(view.arg); break;   /* Gattu aur Vismriti: the map, and #/saga/<n> a chapter */
       case 'learn': h = V.map(); break;   /* the Learn hub is gone; old links land on the map */
       case 'play': h = V.play(); break;
       case 'epics': h = V.epics(); break;
@@ -8638,7 +8661,7 @@
                   dharma: 'neeti', faith: 'neeti', utsav: 'neeti', festival: 'neeti',
                   gully: 'neeti', gullygame: 'neeti', geet: 'neeti', song: 'neeti',
                   story: 'stories', pack: 'bhasha', chart: 'bhasha', kosh: 'bhasha', wordcard: 'bhasha',
-                  game: 'khel', mela: 'khel', play: 'khel', rishtey: 'khel', rishquiz: 'khel',
+                  game: 'khel', mela: 'khel', play: 'khel', rishtey: 'khel', rishquiz: 'khel', saga: 'khel',
                   nani: 'stories', shelf: 'stories', invite: 'stories', kahani: 'stories',
                   value: 'neeti', shlok: 'neeti', verses: 'neeti', epics: 'stories', epic: 'stories', episode: 'stories',
                   worlds: 'me', tongue: 'home', avcard: 'me',
@@ -8679,6 +8702,9 @@
     /* the Gita's keys (space, arrows, 1–6), same contract */
     if (gitaOff) { try { gitaOff(); } catch (err) {} gitaOff = null; }
     if (view.name === 'gitav' && window.IND_GITA_UI) gitaOff = window.IND_GITA_UI.mount();
+    /* THE SAGA's verbs and its round, same contract: torn down first, mounted after the paint */
+    if (sagaOff) { try { sagaOff(); } catch (err) {} sagaOff = null; }
+    if (view.name === 'saga' && sagaUI()) sagaOff = sagaUI().mount(view.arg);
     if (view.name === 'paathk' && window.IND_PAATH_UI && window.IND_PAATH_UI.mount)
       karyaOff = window.IND_PAATH_UI.mount(view.arg);
     if (view.name === 'pack' && quiz.q && quiz.q.type === 'trace' &&
@@ -8743,7 +8769,8 @@
   var gameTeardown = null;
   var traceOff = null;      /* teardown for the mounted Likhna tracing canvas */
   var karyaOff = null;
-  var gitaOff = null;       /* and for the Gita's verse keys */      /* the same, for the one the workshop mounts */
+  var gitaOff = null;       /* and for the Gita's verse keys */
+  var sagaOff = null;       /* and for the saga's chapter runner (app/saga.js) */      /* the same, for the one the workshop mounts */
   function killGame() {
     if (!gameTeardown) return;
     try { if (typeof gameTeardown === 'function') gameTeardown(); else if (gameTeardown.destroy) gameTeardown.destroy(); } catch (e) {}
@@ -8882,7 +8909,8 @@
     collection: [], avprint: [], shop: [], medals: [], settings: [], privacy: [], help: [], lost: [],
     search: ['content', 'map', 'bhasha', 'paath'], avcard: [],
     feed: ['feed'],
-    gita: ['gita'], gitach: ['gita'], gitav: ['gita']    /* + the chapter's own group: needsOf */
+    gita: ['gita'], gitach: ['gita'], gitav: ['gita'],   /* + the chapter's own group: needsOf */
+    saga: ['games']     /* THE SAGA: its map and data ride with the games; a chapter loads its round's groups itself */
   };
   /* the PIN pad needs nothing; only the report behind it needs the record */
   function needsOf(n, a) {

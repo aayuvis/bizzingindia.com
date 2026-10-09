@@ -84,6 +84,15 @@
     '.sh-opt.is-off{opacity:.45}',
     '.sh-opt.is-warm{border-style:dashed;border-color:var(--accent2)}',
     '.sh-small{font-size:13px;color:var(--muted)}',
+    /* the pre-readers' picture options (§4.2.3): two by two at every width, big enough for a small finger */
+    '.sh-opts.sh-pics{grid-template-columns:1fr 1fr}',
+    '.sh-opt.sh-pic{position:relative;justify-content:center;min-height:116px;padding:12px}',
+    '.sh-pic .sh-num{position:absolute;top:8px;left:8px}',
+    '.sh-pic-art{display:grid;place-items:center;width:84px;height:84px}',
+    '.sh-pic-art img,.sh-pic-art svg,.sh-pic-ans img,.sh-pic-ans svg{display:block;width:100%;height:100%;object-fit:contain}',
+    '.sh-ink{display:grid;place-items:center;width:100%;height:100%}',
+    '.sh-pic-ans{display:block;width:72px;height:72px;margin:0 auto 4px}',
+    '@media(max-width:400px){.sh-opt.sh-pic{min-height:104px}.sh-pic-art{width:76px;height:76px}}',
     /* THE MISS CARD (docs/32) */
     '.sh-wrap .gm-miss{margin-top:12px;background:var(--surface2);border:1px solid var(--line);border-left:4px solid var(--accent2);border-radius:var(--radius-lg);padding:var(--space-lg);font-size:15.5px;line-height:1.7;text-align:center}',
     '.sh-wrap .gm-ans{font-weight:600}',
@@ -303,6 +312,107 @@
     return String(word).charAt(0);
   }
 
+  /* ==================================================================
+     PICTURES FOR PRE-READERS (games spec §4.2.3). A child of 4–7 may not
+     read English, so in band 4-7 the meaning options are pictures — and a
+     word is only ever offered as a picture when the app already holds a
+     drawing of exactly that meaning: the painted tales animals (art/pt_*,
+     Mor), the city kit's painted animals and things (art/kit), the app's
+     own line icons (art.js IND_ICONS), a paint swatch for a colour word and
+     a count of dots for a number word. Nothing here is an emoji and nothing
+     is drawn for the occasion. A gloss that names two things (ox and bull,
+     sun and sunshine) gets no picture rather than a guess.
+
+     Keyed by the gloss's head word ("lion — the Gir lion" → lion), so a
+     tenth pack with the same meanings is pictured with no edit here.
+     ================================================================== */
+
+  var PIC_IMG = {
+    elephant: 'art/pt_elephant.png', lion: 'art/av/sm/pt_lion.webp', monkey: 'art/av/sm/pt_monkey.webp',
+    crow: 'art/av/sm/pt_crow.webp', tortoise: 'art/av/sm/pt_tortoise.webp', rabbit: 'art/av/sm/pt_rabbit.webp',
+    mouse: 'art/av/sm/pt_mouse.webp', deer: 'art/pt_deer.png', crocodile: 'art/pt_crocodile.png',
+    peacock: 'art/av/sm/mor.webp', parrot: 'art/mithu.png',
+    cow: 'art/kit/an-cow/0.png', horse: 'art/kit/an-horse/0.png', camel: 'art/kit/an-camel/0.png',
+    goat: 'art/kit/an-goat/0.png', buffalo: 'art/kit/an-buffalo/0.png', dog: 'art/kit/an-dog/3.png',
+    tree: 'art/kit/tr-mango/1.png', boat: 'art/kit/vh-boat-river/0.png'
+  };
+  /* the app's own line icons, each in a colour that reads on a light card and a dark one */
+  var PIC_ICON = {
+    sun: ['sun', '#d98a0b'], moon: ['moon', '#6f7fc8'], star: ['star', '#d9a514'], cloud: ['cloud', '#5f8fb0'],
+    house: ['home', '#c0563a'], home: ['home', '#c0563a'], book: ['book', '#2f8a7a'], bus: ['bus', '#d0702a'],
+    shirt: ['shirt', '#4a6fd0'], heart: ['heart', '#d0453b'], clock: ['clock', '#7a6a9a']
+  };
+  var PIC_SWATCH = {
+    red: '#d3302a', blue: '#2f5fd0', green: '#2e9a4a', yellow: '#f2c21b', black: '#1b1b1b', white: '#ffffff',
+    pink: '#f28dbb', purple: '#7d3fb8', brown: '#7b4a26', orange: '#f07d1a', grey: '#8a8a8a', gray: '#8a8a8a'
+  };
+  var NUM_WORD = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+
+  /* "lion — the Gir lion" → "lion"; "orange (the colour)" → "orange"; "wind, air" → "wind" */
+  function glossHead(entry) {
+    return String(entry.en || '').toLowerCase().split(/\s+[—–(]|,|;/)[0].replace(/[^a-z ]/g, '').trim();
+  }
+  /* The picture for one lexicon row, or null. `key` is what makes two pictures the same picture:
+     two options may never share one, so two words drawn alike can never both be on screen. */
+  function picOf(entry) {
+    if (!entry) return null;
+    var h = glossHead(entry);
+    if (entry.theme === 'colours') return PIC_SWATCH[h] ? { kind: 'swatch', key: 'sw:' + h, label: h, fill: PIC_SWATCH[h] } : null;
+    if (entry.theme === 'numbers') {
+      var n = typeof entry.value === 'number' ? entry.value : NUM_WORD[h];
+      return n >= 1 && n <= 10 && n === Math.floor(n) ? { kind: 'dots', key: 'n:' + n, label: h || String(n), n: n } : null;
+    }
+    if (PIC_IMG[h]) return { kind: 'img', key: 'img:' + h, label: h, src: PIC_IMG[h] };
+    if (PIC_ICON[h] && W.IND_ICONS && W.IND_ICONS[PIC_ICON[h][0]]) return { kind: 'icon', key: 'ic:' + PIC_ICON[h][0], label: h, icon: PIC_ICON[h][0], ink: PIC_ICON[h][1] };
+    return null;
+  }
+  /* ten-frame dots: rows of five, the way a child counts on fingers */
+  function dotsSVG(n) {
+    var s = '<svg viewBox="0 0 100 64" aria-hidden="true" focusable="false">', rows = n > 5 ? 2 : 1, k = 0, r, c;
+    for (r = 0; r < rows; r++) {
+      var inRow = rows === 1 ? n : (r === 0 ? 5 : n - 5), y = rows === 1 ? 32 : 18 + r * 28, x0 = 50 - (inRow - 1) * 9;
+      for (c = 0; c < inRow; c++, k++) s += '<circle cx="' + (x0 + c * 18) + '" cy="' + y + '" r="7.2" fill="#e0452d" stroke="#7a1f12" stroke-width="1.4"/>';
+    }
+    return s + '</svg>';
+  }
+  /* a dab of paint, not a perfect circle — and ringed, so white shows on a light card and black on a dark one */
+  function swatchSVG(fill) {
+    return '<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
+      '<path d="M50 9c18 0 37 9 39 29 2 17-6 33-20 42-12 8-31 9-44 0C11 71 6 54 11 38 16 21 32 9 50 9z" fill="' + fill + '" stroke="#6b6152" stroke-width="3"/>' +
+      '<path d="M30 30c6-7 15-10 24-9" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/></svg>';
+  }
+  function picHTML(p, size) {
+    if (!p) return '';
+    var px = size || 84;
+    if (p.kind === 'img') return '<img src="' + esc(p.src) + '" width="' + px + '" height="' + px + '" alt="" draggable="false" decoding="async">';
+    if (p.kind === 'icon') return '<span class="sh-ink" style="color:' + p.ink + '">' + W.IND_ICON(p.icon, px) + '</span>';
+    if (p.kind === 'swatch') return swatchSVG(p.fill);
+    return dotsSVG(p.n);
+  }
+  /* is there enough to picture at all? Fewer than four, and the round plays in words — and says nothing */
+  function picturable(lex) {
+    var keys = {}, n = 0, i, p;
+    for (i = 0; i < lex.length; i++) { p = picOf(lex[i]); if (p && !keys[p.key]) { keys[p.key] = 1; n++; } }
+    return n >= 4;
+  }
+  /* three picture distractors: same theme first, every picture different, every meaning different */
+  function picDistractors(target, lex) {
+    var tp = picOf(target), keys = {}, seen = {}, same = [], other = [], out = [], i, c, p;
+    keys[tp.key] = 1; seen[lowEn(target)] = 1;
+    for (i = 0; i < lex.length; i++) {
+      c = lex[i];
+      if (c.word === target.word || !(p = picOf(c))) continue;
+      (c.theme === target.theme ? same : other).push(c);
+    }
+    var bag = shuffle(same).concat(shuffle(other));
+    for (i = 0; i < bag.length && out.length < 3; i++) {
+      p = picOf(bag[i]);
+      if (keys[p.key] || seen[lowEn(bag[i])]) continue;
+      keys[p.key] = 1; seen[lowEn(bag[i])] = 1; out.push(bag[i]);
+    }
+    return out.length === 3 ? out : null;
+  }
+
   /* Three distractors for one target. Same theme first (a food word among
      food words is a fair question), other themes when thin. A distractor
      never shares the target's meaning — two right answers is a broken
@@ -421,7 +531,7 @@
     ['b', 'c', 'b', 'c', 'a', 'b', 'c', 'b', 'c', 'b']
   ];
 
-  function buildRound(pack, level) {
+  function buildRound(pack, level, pre) {
     var lex = [], L = pack.lexicon || [], i, w, now = Date.now();
     for (i = 0; i < L.length; i++) {
       w = L[i];
@@ -467,14 +577,47 @@
       }
     }
 
+    /* PRE-READERS (band 4-7, games spec §4.2.3): wherever the options would be English meanings
+       — Read it (a) and Suno (c) — they are pictures, when the pack holds four or more pictured
+       words. A slot whose word has no picture takes an unseen pictured word instead; a word the
+       child's review queue asked for is kept, and traded with a pictured word in a text slot
+       only when it cannot leak there. Whatever is left unpictured plays as it always did. */
+    var pics = pre ? picturable(lex) : false;
+    if (pics) {
+      var pool = reach.filter(function (x) { return picOf(x); }), all = lex.filter(function (x) { return picOf(x); });
+      /* the loanword guard still holds: Read it shows the roman, so a word that leaks there never goes there */
+      var nextPic = function (mode) {
+        var bags = [shuffle(pool), shuffle(all), shuffle(pool)], b, k2, x;
+        for (b = 0; b < 3; b++) for (k2 = 0; k2 < bags[b].length; k2++) {
+          x = bags[b][k2];
+          if (used[x.word] || (b < 2 && srs['word:' + x.word]) || (mode === 'a' && textLeaks(x))) continue;
+          used[x.word] = 1; return x;
+        }
+        return null;
+      };
+      for (i = 0; i < targets.length; i++) {
+        if (modes[i] === 'b' || picOf(targets[i])) continue;
+        if (fromReview[targets[i].word]) {
+          for (var j2 = 0; j2 < targets.length; j2++) {
+            if (modes[j2] === 'b' && picOf(targets[j2]) && !textLeaks(targets[i])) {
+              var tt = targets[i]; targets[i] = targets[j2]; targets[j2] = tt; break;
+            }
+          }
+          continue;
+        }
+        var np = nextPic(modes[i]);
+        if (np) targets[i] = np;
+      }
+    }
+
     var qs = [];
     for (i = 0; i < targets.length; i++) {
-      var t = targets[i];
-      var opts = shuffle([t].concat(distractorsFor(modes[i], t, lex)));
+      var t = targets[i], pd = pics && modes[i] !== 'b' && picOf(t) ? picDistractors(t, lex) : null;
+      var opts = shuffle([t].concat(pd || distractorsFor(modes[i], t, lex)));
       var answer = 0;
       for (var k = 0; k < opts.length; k++) if (opts[k].word === t.word) answer = k;
       qs.push({ kind: 'word', id: pack.id + ':' + t.word, mode: modes[i], target: t, options: opts, answer: answer,
-                review: !!fromReview[t.word] });
+                review: !!fromReview[t.word], pic: !!pd });
     }
     return qs;
   }
@@ -569,12 +712,15 @@
     var ST = { phase: 'intro', pack: null, kind: 'words', i: 0, total: 0, mode: null, answer: -1, id: null,
                locked: false, score: 0, asked: 0, wroteBack: 0, result: null };
     host.__shState = ST;
+    host.__shPicOf = picOf;   /* the same seam: which words have a picture, for the check */
 
     var PK = null, QS = null, score = 0, asked = 0, wrote = 0, result = null;
     var tonguePid = tonguePackId();
     var scopeKind = opts.scope && opts.scope.mode === 'parivaar' ? 'parivaar' : null;
     var selPack = tonguePid || 'hi';
     var kind = scopeKind || 'words';
+    /* the pre-readers' band: meanings are shown as pictures where the app has them (§4.2.3) */
+    var pre = opts.band === '4-7';
 
     host.innerHTML =
       '<div class="sh-wrap">' +
@@ -653,7 +799,7 @@
     function start() {
       PK = packOf(selPack) || packOf(tonguePid) || packOf(packIds()[0]);
       if (!PK) { renderNoPacks(); return; }
-      QS = kind === 'parivaar' ? buildParivaar(PK, level) : buildRound(PK, level);
+      QS = kind === 'parivaar' ? buildParivaar(PK, level) : buildRound(PK, level, pre);
       if (!QS) { renderNoPacks(); return; }
       score = 0; asked = 0; wrote = 0; result = null;
       ST.score = 0; ST.asked = 0; ST.total = QS.length; ST.pack = PK.id; ST.kind = kind; ST.result = null;
@@ -679,7 +825,7 @@
       if (sc.dead) return;
       var q = QS[i];
       if (!q) return renderDone();
-      ST.phase = 'q'; ST.i = i; ST.mode = q.mode; ST.answer = q.answer; ST.id = q.id; ST.locked = false;
+      ST.phase = 'q'; ST.i = i; ST.mode = q.mode; ST.answer = q.answer; ST.id = q.id; ST.locked = false; ST.pic = !!q.pic;
       markPips(i);
       say('');
 
@@ -699,7 +845,7 @@
       } else if (q.mode === 'a') {
         prompt += '<div class="sh-big">' + wordSpan(q.target, '') + '</div>' +
           '<div class="sh-roman">' + esc(q.target.roman) + '</div>' +
-          '<h3 class="sh-q">What does it mean?</h3>' +
+          '<h3 class="sh-q">' + (q.pic ? 'Which picture is it?' : 'What does it mean?') + '</h3>' +
           '<div class="sh-row" style="margin-top:6px"><button type="button" class="sh-btn ghost" data-go="replay">' + soundLabel('Hear it again') + '</button></div>';
       } else if (q.mode === 'b') {
         prompt += '<div class="sh-meaning">&ldquo;' + esc(q.target.en) + '&rdquo;</div>' +
@@ -712,9 +858,18 @@
 
       /* THE OPTIONS. Suno shows script only — the roman would spell out
          the sound the child just heard and hand the answer over. */
-      var optsH = '<div class="sh-opts" role="group" aria-label="Choose an answer">', k, o;
+      var optsH = '<div class="sh-opts' + (q.pic ? ' sh-pics' : '') + '" role="group" aria-label="' + (q.pic ? 'Choose a picture' : 'Choose an answer') + '">', k, o;
       for (k = 0; k < q.options.length; k++) {
         o = q.options[k];
+        /* A PICTURE OPTION carries no word on screen. Its name for a screen reader is its own
+           meaning — every option named the same way, so the names say nothing about which is
+           right; the child heard the word, the name is the picture's. */
+        if (q.pic) {
+          var pp = picOf(o);
+          optsH += '<button type="button" class="sh-opt sh-pic" data-i="' + k + '" aria-label="' + (k + 1) + ': ' + esc(pp.label) + '">' +
+            '<span class="sh-num" aria-hidden="true">' + (k + 1) + '</span><span class="sh-pic-art" aria-hidden="true">' + picHTML(pp, 84) + '</span></button>';
+          continue;
+        }
         optsH += '<button type="button" class="sh-opt" data-i="' + k + '">' +
           '<span class="sh-num" aria-hidden="true">' + (k + 1) + '</span><span class="sh-opt-t">';
         if (q.mode === 'a') {
@@ -729,7 +884,7 @@
       optsH += '</div>';
 
       stage.innerHTML = prompt + optsH +
-        '<p class="sh-hint">Tap an answer &mdash; or press 1&ndash;4 (A&ndash;D work too), then Enter for the next word.' + (q.mode === 'c' ? ' R plays the word again.' : '') + '</p>' +
+        '<p class="sh-hint">Tap ' + (q.pic ? 'a picture' : 'an answer') + ' &mdash; or press 1&ndash;4 (A&ndash;D work too), then Enter for the next word.' + (q.mode === 'c' || q.pic ? ' R plays the word again.' : '') + '</p>' +
         '<div class="sh-teach-slot"></div>';
 
       /* Warm audio on show — modes a and c only. In meaning→word and in the
@@ -776,6 +931,8 @@
       var last = ST.i >= QS.length - 1;
       var slot = stage.querySelector('.sh-teach-slot');
       var pair = wordSpan(q.target, '') + ' &middot; ' + esc(q.target.roman) + ' &mdash; &ldquo;' + esc(q.target.en) + '&rdquo;';
+      /* a picture question shows the right picture with the word, on the miss card and after a right one */
+      if (q.pic) pair = '<span class="sh-pic-ans" aria-hidden="true">' + picHTML(picOf(q.target), 72) + '</span>' + pair;
       if (slot) {
         if (right) {
           say(one(CHEERS), 'good');

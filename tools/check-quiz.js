@@ -28,6 +28,9 @@
                        distinct words in the family's language; "in many families"; the finish line
      writeback  W1     a missed Shabd word is in Bhasha's slipped deck, ready, a day later; it comes
                        back in the next round as one of the review words
+     pictures   §4.2.3 band 4-7: Read it and Suno offer pictures the app holds — no English word on an
+                       option, each named by its own meaning so no name leaks; the miss card shows the
+                       right picture and the word; 8–10 is untouched; a pack with < 4 pictures plays in words
      phone      §1.6   at 390×844 the start button of Shabd and Gyanpati sits above the tab bar
 
    Each was watched to fail by breaking the thing it holds.
@@ -507,6 +510,104 @@ check('writeback', 'a missed Shabd word goes into Bhasha\'s review: in Words tha
     const c0 = Object.assign({}, window.BI.S.lang.hi.srs['word:' + w]);
     return { c0, i: st.i, on: h.querySelector('.sh-opt') ? true : false }; }, r.word);
   if (up.c0.lapses < 1) throw new Error('the slipped card lost its miss');
+});
+
+/* §4.2.3 PICTURES FOR PRE-READERS. In band 4-7 the meaning options of Read it and Suno are
+   pictures the app already holds, wherever the pack has four or more — never an English word on
+   screen, and every option's name for a screen reader is its own meaning, formed alike, so the
+   names cannot say which one is right. A pack with fewer than four pictured words plays in words,
+   and the older bands are untouched. A miss shows the right picture with the word. */
+check('pictures', 'band 4-7: Read it and Suno offer pictures, no English word on screen, no label that leaks; a thin pack plays in words', async ({ p }) => {
+  const glossHead = en => String(en || '').toLowerCase().split(/\s+[—–(]|,|;/)[0].replace(/[^a-z ]/g, '').trim();
+  const pictured = {};
+  for (const pack of ['hi', 'ta', 'bn', 'ur']) {
+    await mount(p, 'shabd', { level: 1, band: '4-7' });
+    await p.evaluate(id => { const h = document.getElementById('qhost'); h.querySelector(`[data-go="pick"][data-id="${id}"]`).click(); h.querySelector('[data-go="start"]').click(); }, pack);
+    await p.waitForTimeout(150);
+    let n = 0, pics = 0;
+    for (let k = 0; k < 60 && n < 10; k++) {
+      const s = await p.evaluate(() => {
+        const h = document.getElementById('qhost'), st = h.__shState;
+        if (st.phase !== 'q' || st.locked) return { phase: st.phase, locked: st.locked };
+        const os = [...h.querySelectorAll('.sh-opt')];
+        return { phase: 'q', pic: st.pic, mode: st.mode, answer: st.answer, id: st.id,
+          texts: os.map(o => o.innerText.trim()), labels: os.map(o => o.getAttribute('aria-label')),
+          arts: os.map(o => !!o.querySelector('.sh-pic-art img, .sh-pic-art svg')),
+          attrs: os.map(o => [...o.querySelectorAll('*')].concat(o).flatMap(e => [...e.attributes].map(a => a.name)).filter(a => a === 'title' || (/^data-/.test(a) && a !== 'data-i'))),
+          heights: os.map(o => o.getBoundingClientRect().height), stage: h.querySelector('.sh-prompt').innerText };
+      });
+      if (s.phase === 'done') break;
+      if (s.phase !== 'q') { await step(p, 'random'); await p.waitForTimeout(20); continue; }
+      n++;
+      const word = s.id.slice(s.id.indexOf(':') + 1);
+      const target = await p.evaluate(([pk, w]) => window.IND_PACKS[pk].lexicon.find(x => x.word === w), [pack, word]);
+      if (s.mode !== 'b' && s.pic) {
+        pics++;
+        if (s.arts.some(a => !a)) throw new Error(`${pack}: a picture option has no picture`);
+        /* nothing to read on a picture option but its number */
+        const wordy = s.texts.find(t => /[^\d\s]/.test(t));
+        if (wordy !== undefined) throw new Error(`${pack}: a picture option shows text: "${wordy}"`);
+        /* every name is "n: its own meaning", all formed alike, all different */
+        if (s.labels.some((l, i) => !new RegExp('^' + (i + 1) + ': [a-z ]+$').test(l || ''))) throw new Error(`${pack}: an option's name is not "n: meaning": ${JSON.stringify(s.labels)}`);
+        if (new Set(s.labels.map(l => l.replace(/^\d: /, ''))).size !== s.labels.length) throw new Error(`${pack}: two picture options share a meaning: ${JSON.stringify(s.labels)}`);
+        if (s.labels.some(l => /right|correct|answer|yes|this one/i.test(l))) throw new Error(`${pack}: an option's name gives the answer away: ${JSON.stringify(s.labels)}`);
+        if (s.labels[s.answer].replace(/^\d: /, '') !== glossHead(target.en)) throw new Error(`${pack}: the right picture is named "${s.labels[s.answer]}", the word means "${target.en}"`);
+        if (s.attrs.some(a => a.length)) throw new Error(`${pack}: a picture option carries ${JSON.stringify(s.attrs)} — a place the answer could hide`);
+        if (s.heights.some(h => h < 44)) throw new Error(`${pack}: a picture option is ${Math.min(...s.heights)}px tall`);
+        /* Suno shows nothing of the word; Read it shows the word, never its meaning */
+        /* as a whole word: "sun" is not in "Suno — listen" */
+        if (new RegExp('\\b' + glossHead(target.en) + '\\b', 'i').test(s.stage)) throw new Error(`${pack}: the prompt shows the meaning "${target.en}": ${JSON.stringify(s.stage)}`);
+        if (s.mode === 'c' && s.stage.includes(target.word)) throw new Error(`${pack}: Suno shows the word it says`);
+        pictured[pack] = (pictured[pack] || 0) + 1;
+      }
+      await step(p, 'random'); await p.waitForTimeout(20);
+      for (let j = 0; j < 4; j++) { const r = await step(p, 'random'); if (r === 'aage') break; await p.waitForTimeout(20); }
+    }
+    if (pics < 6) throw new Error(`${pack}: a level-1 round for a 4–7 child had only ${pics} picture questions of 10`);
+  }
+  /* the miss card shows the right picture and the word; a number key picks a picture */
+  await mount(p, 'shabd', { level: 1, band: '4-7' });
+  await p.evaluate(() => document.querySelector('#qhost [data-go="start"]').click()); await p.waitForTimeout(150);
+  for (let k = 0; k < 12; k++) { if (await p.evaluate(() => document.getElementById('qhost').__shState.pic)) break; await step(p, 'right'); await p.waitForTimeout(30); await step(p, 'right'); await p.waitForTimeout(30); }
+  const before = await p.evaluate(() => { const st = document.getElementById('qhost').__shState; return { pic: st.pic, answer: st.answer, n: window.__q.answers.length }; });
+  if (!before.pic) throw new Error('no picture question came up to miss');
+  await p.evaluate(() => document.activeElement && document.activeElement.blur());
+  await p.keyboard.press(String(((before.answer + 1) % 4) + 1)); await p.waitForTimeout(200);
+  const miss = await p.evaluate(() => { const m = document.querySelector('#qhost .gm-miss'); return m ? { art: !!m.querySelector('.sh-pic-ans img, .sh-pic-ans svg'), word: !!m.querySelector('.gm-ans [lang]'), n: window.__q.answers.length } : null; });
+  if (!miss || miss.n !== before.n + 1) throw new Error('a number key did not pick a picture, or the miss card did not show');
+  if (!miss.art || !miss.word) throw new Error('the miss card on a picture question does not show the right picture and the word: ' + JSON.stringify(miss));
+  /* the older bands are untouched */
+  await mount(p, 'shabd', { level: 1, band: '8-10' });
+  const older = [];
+  for (let k = 0; k < 60; k++) {
+    const s = await p.evaluate(() => { const st = document.getElementById('qhost').__shState; return { phase: st.phase, pic: st.pic, n: document.querySelectorAll('#qhost .sh-pic').length }; });
+    if (s.phase === 'done') break;
+    if (s.phase === 'q') older.push(s);
+    await step(p, 'random'); await p.waitForTimeout(15);
+  }
+  if (!older.length || older.some(s => s.pic || s.n)) throw new Error('an 8–10 round showed pictures');
+  /* a pack with fewer than four pictured words plays in words, and says nothing about it */
+  await mount(p, 'shabd', { level: 1, band: '4-7' });
+  const thin = await p.evaluate(() => {
+    const P = window.IND_PACKS, hi = P.hi, h = document.getElementById('qhost');
+    const keep = hi.lexicon.filter(w => !h.__shPicOf(w)).slice(0, 40).concat(hi.lexicon.filter(w => h.__shPicOf(w) && w.theme === 'animals').slice(0, 3));
+    P.zz = Object.assign({}, hi, { id: 'zz', lexicon: keep, name: { native: 'zz', en: 'Thin' } });
+    return keep.filter(w => h.__shPicOf(w)).length;
+  });
+  if (thin !== 3) throw new Error('could not build a thin pack (' + thin + ' pictured)');
+  await mount(p, 'shabd', { level: 1, band: '4-7' });
+  await p.evaluate(() => { const h = document.getElementById('qhost'); h.querySelector('[data-go="pick"][data-id="zz"]').click(); h.querySelector('[data-go="start"]').click(); });
+  await p.waitForTimeout(120);
+  const tq = [];
+  for (let k = 0; k < 60; k++) {
+    const s = await p.evaluate(() => { const h = document.getElementById('qhost'), st = h.__shState; return { phase: st.phase, pic: st.pic, n: h.querySelectorAll('.sh-pic').length, text: h.innerText }; });
+    if (s.phase === 'done') break;
+    if (s.phase === 'q') tq.push(s);
+    await step(p, 'random'); await p.waitForTimeout(15);
+  }
+  await p.evaluate(() => { delete window.IND_PACKS.zz; });
+  if (!tq.length || tq.some(s => s.pic || s.n)) throw new Error('a pack with three pictured words still dealt pictures');
+  if (tq.some(s => /picture/i.test(s.text))) throw new Error('a round in words talks about pictures');
 });
 
 check('phone', 'at 390×844 the start buttons sit above the tab bar', async ({ p }) => {

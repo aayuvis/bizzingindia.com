@@ -23,6 +23,19 @@
      night      the prompt and the miss card read at ≥ 4.5:1 in day and in night
      clock      a right answer's beat does not run while the tab is hidden
      copy       no streak copy ("in a row", "streak", × multipliers) in the engine
+     rivers     L5's data (app/data-rivers.js): every river has a source with a URL, a title and a
+                publisher; every state on its course is on the map, none twice; and each state
+                touches the next one on the map's own outlines (data-naksha.js) — a course that
+                jumps a state was mis-typed. It loads lazily, in the games group
+     L5         a whole rivers round played right by mouse: reachable at level 5, ≥ 6 rivers, one
+                report each (naksha.river), the prompt names no state, the lit labels carry no
+                order and do not sit in the page in the river's order every time
+     L5miss     a tap out of order holds: "Not quite.", the whole course in order, a source line;
+                no new prompt for 3 s; a tap off the river is not an answer; Enter is Aage
+     L5keys     a whole rivers round with the arrows and Enter alone
+     L5touch    a whole rivers round on a touch phone (390 × 844), every tap a touch, Aage above
+                the tab bar; and a touch that misses holds — the browser's own click after the
+                touch must not land on the miss card drawn under the finger and press Aage
 
    Each check was watched to fail by breaking the thing it holds — see the end of this file.
    Run:  CHROME=/opt/pw-browsers/chromium NODE_PATH=…/node_modules node tools/check-naksha.js [--only N2] [--shots DIR]
@@ -80,6 +93,7 @@ const PAGE_HELPERS = () => {
     if (mode === 'find') return [window.__byName(t)];
     if (mode === 'capital') return Object.keys(G).filter(c => G[c].capital === t);
     if (mode === 'neighbours') return window.IND_NAKSHA.neighbours[window.__byName(t)];
+    if (mode === 'river') { const r = window.IND_RIVERS.rivers.filter(r => r.name === t)[0]; return r ? r.course.slice() : null; }
     return null;
   };
   window.__pt = function (c) {
@@ -102,7 +116,7 @@ async function boot(p, base, o) {
   await p.goto(base + (o && o.q || ''), { waitUntil: 'networkidle' });
   await skipOnboarding(p);
   await p.evaluate(() => window.IND_LOAD(['map', 'content', 'games']));
-  await p.waitForFunction(() => (window.IND_GAMES || []).some(g => g.id === 'naksha') && window.IND_MAP && window.IND_GEO && window.IND_NAKSHA, null, { timeout: 30000 });
+  await p.waitForFunction(() => (window.IND_GAMES || []).some(g => g.id === 'naksha') && window.IND_MAP && window.IND_GEO && window.IND_NAKSHA && window.IND_RIVERS, null, { timeout: 30000 });
   await p.evaluate(() => window.BI.go('game', 'naksha')).catch(() => {});
   await p.waitForTimeout(500);
   await p.evaluate(PAGE_HELPERS);
@@ -169,7 +183,7 @@ check('N3', 'every outline is map-data.js’s — J&K whole, the national outlin
 });
 
 check('N2', 'across whole rounds no boundary path’s d or stroke changes, and none animates', async ({ p }) => {
-  for (const level of [1, 2, 4]) {
+  for (const level of [1, 2, 4, 5]) {
     await mount(p, { level });
     const base0 = await p.evaluate(() => window.__snap());
     const anim = base0.filter(s => { const f = s.split('|'); return f[6] !== 'none' || f[7] !== 'none'; });
@@ -180,7 +194,9 @@ check('N2', 'across whole rounds no boundary path’s d or stroke changes, and n
       /* alternate: a wrong tap, then right ones, so both the grey and the warm fills are seen */
       const all = await p.evaluate(() => Object.keys(window.IND_MAP.paths));
       const tgt = await p.evaluate(() => { const e = document.querySelector('.nk-st.nk-tgt'); return e && e.getAttribute('data-c'); });
-      const wrong = all.find(c => !want.includes(c) && c !== 'LD' && !['CH', 'DL', 'DD', 'DN', 'GA', 'PY', 'SK'].includes(c) && c !== tgt);
+      /* at L5 the wrong tap is one of the river's own states, out of order (a tap off the river is no answer) */
+      const wrong = level === 5 ? want[want.length - 1]
+        : all.find(c => !want.includes(c) && c !== 'LD' && !['CH', 'DL', 'DD', 'DN', 'GA', 'PY', 'SK'].includes(c) && c !== tgt);
       if (i % 3 === 1) { await tapCode(p, wrong); if (await p.$('#gamehost .gm-miss')) miss++; else throw new Error('tapping ' + wrong + ' for ' + want + ' showed no miss card'); }
       else for (const c of want) { await tapCode(p, c); if (await p.$('#gamehost .gm-miss')) break; }
       await p.keyboard.press('ArrowRight'); await p.keyboard.press('ArrowRight');
@@ -328,6 +344,9 @@ check('touch', 'on a touch phone a tap answers; zoom buttons zoom and no border 
     await p.touchscreen.tap(pt.x, pt.y); await p.waitForTimeout(80);
     const r = await rec(p);
     if (r.answers.length !== 1 || !r.answers[0].right) throw new Error('a touch tap on ' + want + ' did not answer it: ' + JSON.stringify(r.answers));
+    /* the right answer's card may sit over the zoom row on a phone (it goes to the top when the
+       answer is in the south); wait — polling, not sleeping — for the next prompt, then zoom */
+    await p.waitForFunction(() => !document.querySelector('#gamehost .nk-fb').children.length, null, { timeout: 15000 });
     const s0 = await p.evaluate(() => window.__snap()), vb0 = await p.evaluate(() => document.querySelector('.nk-map').getAttribute('viewBox'));
     const zb = await p.$('.nk-zb[data-nk="zin"]'); const bb = await zb.boundingBox();
     await p.touchscreen.tap(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.waitForTimeout(80);
@@ -404,6 +423,197 @@ check('clock', 'a right answer’s beat does not run while the tab is hidden', a
   if (q2 === q0) throw new Error('the game did not move on once the tab came back');
 });
 
+/* ------------------------------------------------------------------ L5: rivers in order */
+
+check('rivers', 'L5 data: sourced, lazy, on the map, and each state touches the next on the map’s own outlines', async () => {
+  const load = f => { const w = {}; new Function('window', fs.readFileSync(path.join(APP, f), 'utf8'))(w); return w; };
+  const R = load('data-rivers.js').IND_RIVERS, NB = load('data-naksha.js').IND_NAKSHA.neighbours, M = load('map-data.js').IND_MAP;
+  const html = fs.readFileSync(path.join(APP, 'index.html'), 'utf8');
+  const games = (html.match(/<template id="lazy-games">[\s\S]*?<\/template>/) || [''])[0];
+  if (!/src="data-rivers\.js/.test(games)) throw new Error('data-rivers.js is not in the lazy games group');
+  if (/src="data-rivers\.js/.test(html.replace(/<template[\s\S]*?<\/template>/g, ''))) throw new Error('data-rivers.js is a shell script — it must load lazily');
+  if (!R || !Array.isArray(R.rivers) || R.rivers.length < 8) throw new Error('fewer than 8 rivers in data-rivers.js');
+  const bad = [], ids = new Set();
+  for (const r of R.rivers) {
+    if (ids.has(r.id)) bad.push('two rivers are ' + r.id); ids.add(r.id);
+    const src = (r.sources || []).filter(x => x && /^https?:\/\/[^\s/]+\.[^\s/]+\//.test(x.url || '') && x.title && x.publisher && x.accessed);
+    if (!src.length) bad.push(r.id + ': no source with a URL, a title, a publisher and the day it was read');
+    if (!r.badge) bad.push(r.id + ': no badge');
+    if (!Array.isArray(r.course) || r.course.length < 2) { bad.push(r.id + ': a course of fewer than two states'); continue; }
+    r.course.forEach((c, i) => {
+      if (!M.paths[c]) bad.push(r.id + ': ' + c + ' is not on the map');
+      if (r.course.indexOf(c) !== i) bad.push(r.id + ': ' + c + ' twice');
+      if (i && !(NB[r.course[i - 1]] || []).includes(c)) bad.push(r.id + ': ' + r.course[i - 1] + ' → ' + c + ' do not touch on the map');
+    });
+    (r.along || []).forEach(c => { if (!r.course.includes(c)) bad.push(r.id + ': along ' + c + ' is not on its course'); });
+    if (!r.teach) bad.push(r.id + ': no teach line');
+  }
+  if (bad.length) throw new Error(bad.slice(0, 4).join('; '));
+});
+
+/* play one rivers item right, by whatever input `tap` is */
+async function riverItem(p, tap) {
+  const want = await p.evaluate(() => window.__want());
+  if (!want || want.length < 2) throw new Error('an L5 item without a course of two or more: ' + JSON.stringify(want));
+  for (const c of want) await tap(c);
+  return want;
+}
+
+check('L5', 'a whole rivers round by mouse: reachable, one report a river, no order on screen before the taps', async ({ p }) => {
+  await mount(p, { level: 5 });
+  const n = await p.evaluate(() => document.querySelectorAll('.nk-pip').length);
+  if (n < 6) throw new Error('an L5 round of ' + n + ' rivers');
+  if ((await p.evaluate(() => document.querySelector('.nk').getAttribute('data-mode'))) !== 'river') throw new Error('level 5 is not the rivers mode');
+  for (let i = 0; i < 12 && !(await rec(p)).done; i++) {
+    const pre = await p.evaluate(() => {
+      const want = window.__want(), G = window.IND_GEO.states;
+      const ask = document.querySelector('.nk-ask').innerText + ' ' + document.querySelector('.nk-fb').innerText;
+      const labs = [...document.querySelectorAll('.nk-over .nk-lab')].map(t => t.textContent);
+      const lit = [...document.querySelectorAll('.nk-st.nk-tgt')].map(e => e.getAttribute('data-c'));
+      return { want, names: want.map(c => G[c].name), ask, labs, lit, river: document.querySelector('.nk-q b').textContent };
+    });
+    const named = pre.names.filter(nm => pre.ask.includes(nm));
+    if (named.length) throw new Error('before any tap the prompt names ' + named.join(', '));
+    if (pre.labs.some(t => /\d/.test(t))) throw new Error('a lit label carries a number before any tap: ' + pre.labs.join('|'));
+    if (JSON.stringify(pre.lit.slice().sort()) !== JSON.stringify(pre.want.slice().sort())) throw new Error(pre.river + ': the lit states are not its course');
+    const missing = pre.names.filter(nm => !pre.labs.includes(nm));
+    if (missing.length) throw new Error(pre.river + ': a lit state is not named on the map: ' + missing.join(', '));
+    await riverItem(p, c => tapCode(p, c));
+    const yes = await p.evaluate(() => { const y = document.querySelector('#gamehost .nk-yes'); return y ? y.innerText : ''; });
+    if (!/Yes/.test(yes) || !/Source:/.test(yes)) throw new Error(pre.river + ' (' + pre.want.join(' ') + '): no "Yes" card with its source after tapping its course in order — ' +
+      (yes || await p.evaluate(() => document.querySelector('.nk-q').innerText + ' / ' + document.querySelector('.nk-clue').innerText)));
+    await aage(p);
+  }
+  const r = await rec(p);
+  if (!r.done) throw new Error('the rivers round never ended');
+  if (r.done.asked !== n || r.done.firstTryRight !== n) throw new Error('rivers round: ' + JSON.stringify(r.done));
+  if (r.answers.length !== n || r.answers.some(a => a.skill !== 'naksha.river' || !a.right || !/^river:/.test(a.id))) throw new Error('reports: ' + JSON.stringify(r.answers.slice(0, 3)));
+  if (new Set(r.answers.map(a => a.id)).size !== n) throw new Error('a river was asked twice in one round');
+  if (r.done.levelNext !== 5) throw new Error('a perfect L5 round should keep the top level, got ' + r.done.levelNext);
+  /* the labels' page order is shuffled: over a few mounts the Ganga's labels are not always in its order */
+  let same = 0, seen = 0;
+  for (let k = 0; k < 8; k++) {
+    await mount(p, { level: 5, scope: { mode: 'rivers', set: ['ganga'] } });
+    const t = await p.evaluate(() => [...document.querySelectorAll('.nk-over .nk-lab')].map(t => t.textContent).join('|'));
+    const g = await p.evaluate(() => window.IND_RIVERS.rivers.filter(r => r.id === 'ganga')[0].course.map(c => window.IND_GEO.states[c].name).join('|'));
+    seen++; if (t === g) same++;
+  }
+  if (same === seen) throw new Error('the lit labels always sit in the page in the river’s own order');
+  /* every river in the data plays: each of its states takes a tap at its own middle (a zoom button
+     once stood on Arunachal Pradesh and swallowed the Brahmaputra's first tap) */
+  const ids = await p.evaluate(() => window.IND_RIVERS.rivers.map(r => r.id));
+  for (const id of ids) {
+    await mount(p, { level: 5, scope: { mode: 'rivers', set: [id] } });
+    await riverItem(p, c => tapCode(p, c));
+    const a = (await rec(p)).answers;
+    if (a.length !== 1 || !a[0].right || a[0].id !== 'river:' + id) throw new Error(id + ': its course tapped in order is not one right answer: ' + JSON.stringify(a));
+  }
+});
+
+check('L5miss', 'a tap out of order holds with the whole course and its source; a tap off the river is no answer', async ({ p }) => {
+  await p.evaluate(() => { window.IND_SFX && (window.IND_SFX.played.length = 0); });
+  await mount(p, { level: 5 });
+  const want = await p.evaluate(() => window.__want());
+  /* a big state well away from the river: not on its course and touching none of it */
+  const off = await p.evaluate(w => Object.keys(window.IND_MAP.paths).filter(c => !w.includes(c) && !['CH', 'DL', 'DD', 'DN', 'GA', 'PY', 'SK', 'LD', 'AN'].includes(c))
+    .filter(c => w.every(x => !(window.IND_NAKSHA.neighbours[x] || []).includes(c)))[0], want);
+  await tapCode(p, off);
+  let r = await rec(p);
+  if (r.answers.length || (await p.$('#gamehost .gm-miss'))) throw new Error('a tap off the river (' + off + ') was taken as an answer');
+  const hint = await p.evaluate(() => document.querySelector('.nk-clue').innerText);
+  if (!/lit states/.test(hint)) throw new Error('a tap off the river says nothing: ' + hint);
+  const q0 = await p.evaluate(() => document.querySelector('.nk-q').textContent);
+  await tapCode(p, want[want.length - 1]);
+  const m = await p.evaluate(w => {
+    const miss = document.querySelector('#gamehost .gm-miss'), G = window.IND_GEO.states;
+    const ans = miss && miss.querySelector('.gm-ans') ? miss.querySelector('.gm-ans').innerText : '';
+    const tail = ans.slice(ans.indexOf('In order:'));
+    const pos = w.map(c => tail.indexOf(G[c].name));
+    return { miss: !!miss, text: miss ? miss.innerText : '', ordered: ans.indexOf('In order:') >= 0 && pos.every((x, i) => x >= 0 && (!i || x > pos[i - 1])),
+      src: !!(miss && miss.querySelector('.nk-src') && /Source: \S/.test(miss.querySelector('.nk-src').innerText)),
+      teach: !!(miss && miss.querySelector('.gm-teach')), aage: !!(miss && miss.querySelector('.gm-aage[data-gm="aage"]')),
+      nums: [...document.querySelectorAll('.nk-over .nk-lab[data-n]')].map(t => t.getAttribute('data-n') + ':' + t.textContent) };
+  }, want);
+  if (!m.miss || !/Not quite\./.test(m.text) || !m.teach || !m.aage) throw new Error('no full miss card: ' + JSON.stringify(m));
+  if (!m.ordered) throw new Error('the miss card does not name the course in order: ' + m.text);
+  if (!m.src) throw new Error('the miss card names no source');
+  if (m.nums.length !== want.length) throw new Error('the map does not number the whole course after a miss: ' + m.nums.join(' '));
+  if (shotDir) await p.screenshot({ path: path.join(shotDir, 'naksha-desk-L5-miss.png') });
+  await p.waitForTimeout(3000);
+  await tapCode(p, want[0]);
+  r = await rec(p);
+  const q1 = await p.evaluate(() => document.querySelector('.nk-q').textContent);
+  if (q1 !== q0 || !(await p.$('#gamehost .gm-miss'))) throw new Error('the miss did not hold');
+  if (r.answers.length !== 1 || r.answers[0].right !== false || r.answers[0].skill !== 'naksha.river') throw new Error('answers after a miss and a retry: ' + JSON.stringify(r.answers));
+  await p.keyboard.press('Enter');
+  if ((await p.evaluate(() => document.querySelector('.nk-q').textContent)) === q0) throw new Error('Enter did not press Aage');
+  const played = await p.evaluate(() => (window.IND_SFX ? window.IND_SFX.played : []).filter(k => k === 'right' || k === 'wrong'));
+  if (played.length) throw new Error('the engine played ' + played.join(', ') + ' itself');
+});
+
+check('L5keys', 'a whole rivers round with the arrows and Enter alone', async ({ p }) => {
+  await mount(p, { level: 5 });
+  await p.evaluate(() => document.activeElement && document.activeElement.blur());
+  const cur = () => p.evaluate(() => { const e = document.querySelector('.nk-cur[data-cur]'); return e && e.getAttribute('data-cur'); });
+  for (let i = 0; i < 12 && !(await rec(p)).done; i++) {
+    await riverItem(p, async c => {
+      for (let s = 0; s < 40 && (await cur()) !== c; s++) await p.keyboard.press('ArrowRight');
+      if ((await cur()) !== c) throw new Error('the arrows never reached ' + c);
+      await p.keyboard.press('Enter'); await p.waitForTimeout(20);
+    });
+    await p.keyboard.press('Enter'); await p.waitForTimeout(30);
+  }
+  const r = await rec(p);
+  if (!r.done || r.done.asked < 6 || r.done.firstTryRight !== r.done.asked) throw new Error('keyboard rivers round: ' + JSON.stringify(r.done));
+});
+
+check('L5touch', 'a whole rivers round on a touch phone; Aage above the tab bar', async ({ browser, base }) => {
+  const ctx = await browser.newContext({ viewport: PHONE, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
+  const p = await ctx.newPage();
+  try {
+    await boot(p, base);
+    const touch = async c => { const pt = await p.evaluate(c => window.__pt(c), c); await p.touchscreen.tap(pt.x, pt.y); await p.waitForTimeout(60); };
+    /* the ghost click: the browser sends a touch on as a click too, and a miss card drawn under the
+       finger once took it as a press of Aage — the Krishna's last state sits where the card's Aage
+       lands, so touching it first must leave the miss card holding */
+    await mount(p, { level: 5, scope: { mode: 'rivers', set: ['krishna'] } });
+    const q0 = await p.evaluate(() => document.querySelector('.nk-q').innerText);
+    await touch('AP');
+    await p.waitForTimeout(800);
+    const g = await p.evaluate(() => ({ miss: !!document.querySelector('#gamehost .gm-miss'), q: document.querySelector('.nk-q').innerText, done: !!window.__rec.done }));
+    if (!g.miss || g.q !== q0 || g.done) throw new Error('a touch that missed did not hold: the miss card took the touch’s own click as Aage (' + JSON.stringify(g) + ')');
+    await mount(p, { level: 5 });
+    await p.waitForTimeout(300);
+    let first = true;
+    for (let i = 0; i < 12 && !(await rec(p)).done; i++) {
+      if (first) {
+        /* the first river is missed on purpose, so the miss card's place on a phone is measured */
+        const want = await p.evaluate(() => window.__want());
+        await touch(want[want.length - 1]);
+        const m = await p.evaluate(() => {
+          const bar = document.querySelector('[data-bz=tabbar]'), barTop = bar && getComputedStyle(bar).display !== 'none' ? bar.getBoundingClientRect().top : innerHeight;
+          const a = document.querySelector('#gamehost .gm-aage'), b = a && a.getBoundingClientRect();
+          return { barTop, b: b && { t: b.top, bo: b.bottom, w: b.width, h: b.height }, over: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth };
+        });
+        if (!m.b) throw new Error('no Aage after a miss on the phone — touched ' + want[want.length - 1] + ' of ' + want.join(' ') + ' at ' +
+          JSON.stringify(await p.evaluate(c => window.__pt(c), want[want.length - 1])) + '; ' +
+          await p.evaluate(() => document.querySelector('.nk-q').innerText + ' / ' + document.querySelector('.nk-clue').innerText + ' / ' + innerHeight + ' / ' +
+            JSON.stringify(document.querySelector('.nk-map').getBoundingClientRect())));
+        if (m.b.t < 0 || m.b.bo > m.barTop + 0.5) throw new Error(`Aage is off-screen or under the tab bar (${Math.round(m.b.t)}–${Math.round(m.b.bo)}, bar ${Math.round(m.barTop)})`);
+        if (m.b.w < 44 || m.b.h < 44) throw new Error('Aage is under 44 px');
+        if (m.over > 0) throw new Error('the page is ' + m.over + 'px wider than the phone');
+        if (shotDir) await p.screenshot({ path: path.join(shotDir, 'naksha-phone-L5-miss.png') });
+        first = false;
+      } else await riverItem(p, touch);
+      const ab = await p.$('#gamehost .gm-aage');
+      if (ab) { const bb = await ab.boundingBox(); if (bb) { await p.touchscreen.tap(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.waitForTimeout(60); } }
+    }
+    const r = await rec(p);
+    if (!r.done) throw new Error('the touch rivers round did not finish');
+    if (r.done.asked < 6 || r.done.firstTryRight !== r.done.asked - 1) throw new Error('touch rivers round: ' + JSON.stringify(r.done));
+  } finally { await ctx.close(); }
+});
+
 check('copy', 'no streak copy in the engine', async () => {
   const s = fs.readFileSync(path.join(APP, 'games-naksha.js'), 'utf8');
   const m = s.match(/in a row|streak|×\s*\d|\d\s*×|multiplier|biggest/i);
@@ -441,6 +651,20 @@ check('copy', 'no streak copy in the engine', async () => {
      N2        a stroke added to `.nk-st.nk-ok` — "a boundary changed mid-round"
      leak      the capital dot drawn before the tap — "the capital dot shows before the tap"
      N5        Uttar Pradesh dropped from Madhya Pradesh's neighbours in data-naksha.js
+     rivers    the Ganga's course typed UK, BR, UP… — "ganga: UK → BR do not touch on the map";
+               the Beas's URLs stripped — "beas: no source with a URL…"
+     L5        the lit labels left in course order — "always sit in the page in the river's own
+               order"; the course written into the prompt — "the prompt names Madhya Pradesh…";
+               the zoom buttons back in a column — "brahmaputra: its course tapped in order is
+               not one right answer"
+     L5miss    the source line dropped — "names no source"; the river's miss moving on by itself
+               — "the miss did not hold"
+     L5keys    keyboard taps ignored at L5 — "keyboard rivers round: null"
+     L5touch   the miss card padded below the fold — "Aage is off-screen or under the tab bar";
+               the map's touchend guard removed — "the miss card took the touch's own click as Aage"
+     N2 (L5)   a found river state's stroke thickened — "L5: a boundary changed mid-round"
    Caught real faults while the game was built: phone (the map ran under the tab bar before the
    stage fitted itself to the screen), N2 (an L2 round of one item — the capital filter dropped
-   every capital as "leaking" its own name). */
+   every capital as "leaking" its own name), L5 (the zoom column stood on Arunachal Pradesh's
+   middle and swallowed the Brahmaputra's first tap), L5touch (on a phone the touch's own click
+   pressed Aage on a miss card drawn under the finger, so a miss there never held — every level). */

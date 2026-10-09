@@ -4,7 +4,8 @@
 
    A data lint over the files exactly as the page loads them. It fails when:
      sources   an era, a faith, a course, a verse or a story has nothing saying where it
-               comes from — "never write history from memory" is checkable, so it is checked
+               comes from — "never write history from memory" is checkable, so it is checked;
+               a river's course or a holiday's date (the games' data) has no source with a URL
      places    the map, the place names and the state facts disagree about which places exist
      counts    a number the app shows is typed instead of counted (the landing once said 11
                stories and 34 places when there were 344 and 36), or the shell index the first
@@ -37,6 +38,17 @@ const has = x => Array.isArray(x) ? x.filter(s => String(s || '').trim()).length
 const STORY_KEYS = Object.keys(ctx).filter(k => /^IND_STORIES/.test(k));
 const stories = [].concat(...STORY_KEYS.map(k => ctx[k] || []));
 stories.forEach(s => need(has(s.source), `story "${s.id}" does not say where it comes from`));
+/* the games' own facts: every river course (Naksha L5) and every dated holiday (Panchang L3)
+   carries at least one source with a URL — the place it was read, not just a name */
+const withUrl = xs => (xs || []).some(x => x && /^https?:\/\/\S+\.\S+/.test(x.url || '') && has(x.title));
+const RIVERS = (ctx.IND_RIVERS || {}).rivers || [], HOLS = (ctx.IND_FESTIVAL_DATES || {}).holidays || [];
+need(RIVERS.length, 'no river courses loaded (data-rivers.js)');
+need(HOLS.length, 'no dated holidays loaded (data-festival-dates.js)');
+RIVERS.forEach(r => need(withUrl(r.sources), `river "${r.id}" has no source with a URL`));
+HOLS.forEach(h => (h.dates || []).forEach(d => {
+  need(withUrl(d.sources), `holiday "${h.id}" ${d.year} has no source with a URL`);
+  (d.moved || []).forEach(m => need(withUrl(m.sources), `holiday "${h.id}" ${d.year}: a change of date has no source with a URL`));
+}));
 
 /* places: every mapped place has a name and a page of facts */
 const mapped = Object.keys(ctx.IND_MAP.paths), named = ctx.IND_GEO.states, facts = ctx.IND_STATES || {};

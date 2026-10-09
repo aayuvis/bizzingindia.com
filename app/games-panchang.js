@@ -8,9 +8,13 @@
      L2 Mausam     The harvest and new-year festivals only (the ones whose own entry says
                    harvest or new year), and the teach shows the other names the same
                    season goes by in other homes — one harvest moment, many names.
-     L3 Chaand     The moon's drift — Eid placed in two years side by side. NOT SCORED and
-                   not playable yet: data-utsav.js holds month windows only, no dated year,
-                   and a date is never typed here from memory. The level says so.
+     L3 Chaand     The moon's drift. A holiday that follows the moon — Id-ul-Fitr, Id-ul-Zuha,
+                   Muharram — on its date one year, from the Government of India's own holiday
+                   list (app/data-festival-dates.js, each year's DoPT O.M. as its source); the
+                   child picks its date the next year from four, spaced evenly so no option
+                   stands out. The wheel shows both years side by side. "About N days earlier"
+                   is worked out HERE from the listed dates, never typed; and the teach card
+                   says the moon decides, so the list may move by a day.
      L4 Kyon?      What many families do — a line from the festival's own entry — and the
                    child picks the festival it belongs to.
      L5 Mera saal  The child picks the festivals their family keeps. "Ask your family."
@@ -91,6 +95,15 @@
     '.pc-opt .pc-num{font:700 12px var(--body);color:var(--muted)}',
     '.pc-opt.pc-win{background:var(--accent2);background:rgba(233,161,59,.35);border-color:var(--accent2)}',
     '.pc-opt.pc-no{background:var(--mist);border-color:var(--mist)}',
+    /* Chaand — the wheel holds both years: last year's date on the rim, the next one inside */
+    '.pc-moonq{display:flex;flex-direction:column;gap:8px}',
+    '.pc[data-mode="chaand"] .pc-m{cursor:default}',
+    '@media (hover:hover){.pc[data-mode="chaand"] .pc-m:hover{fill:var(--card2);fill-opacity:1}}',
+    '.pc-moonq .pc-quote{text-align:center}.pc-moonq .pc-opts{margin-top:0}',
+    '.pc-mdot.pc-was{fill:var(--card);stroke:var(--accent);stroke-width:3}',
+    '.pc-mdot.pc-now{fill:var(--accent);stroke:var(--card);stroke-width:2}',
+    '.pc-moonhub{font-size:12.5px;line-height:1.3}.pc-moonhub b{font-size:15px;margin-bottom:2px}',
+    '.pc-fb .pc-src{font-size:13px;margin-top:-4px;color:var(--muted)}',
     /* Mera saal — every festival a chip of one size */
     '.pc-pick{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-md,14px);padding:10px;box-shadow:var(--shadow)}',
     '.pc-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));grid-auto-rows:56px;gap:8px;max-height:var(--pc-chips,320px);overflow:auto;padding:2px}',
@@ -271,6 +284,48 @@
       });
     }
     function wheelItem(f, skill) { return { id: (skill === 'panchang.when' ? 'when:' : 'season:') + f.id, f: f, win: windowOf(f), skill: skill }; }
+
+    /* ------------------------------------------------------------------ L3 Chaand: the moon's drift
+       Every figure here is data-festival-dates.js's. A pair is one holiday's listed date in a year
+       and in the next; its drift is how many days earlier the second falls in the calendar. DRIFT
+       is the average over every pair the lists hold — the "about N days" the card says. */
+    var FD = W.IND_FESTIVAL_DATES || null, DAY = 864e5;
+    function utc(iso) { var q = String(iso).split('-').map(Number); return Date.UTC(q[0], q[1] - 1, q[2]); }
+    function dayText(t) { var d = new Date(t); return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()].long; }
+    function earlierBy(a, b) {   /* how many days earlier in its year b falls than a did in a's */
+      var A = new Date(utc(a)), B = new Date(utc(b));
+      return Math.round((Date.UTC(B.getUTCFullYear(), A.getUTCMonth(), A.getUTCDate()) - utc(b)) / DAY);
+    }
+    var MOON = [], DRIFT = 0, DAYS = 0;
+    if (FD && FD.holidays) {
+      FD.holidays.forEach(function (h) {
+        if (h.calendar !== 'hijri' || !h.dates) return;
+        var ds = h.dates.filter(function (d) { return d && d.date && (d.sources || []).some(function (x) { return x && x.url; }); })
+          .slice().sort(function (a, b) { return a.year - b.year; });
+        for (var i = 1; i < ds.length; i++) if (ds[i].year === ds[i - 1].year + 1)
+          MOON.push({ h: h, from: ds[i - 1], to: ds[i], by: earlierBy(ds[i - 1].date, ds[i].date) });
+      });
+      if (MOON.length) { DRIFT = MOON.reduce(function (n, x) { return n + x.by; }, 0) / MOON.length; DAYS = Math.round(DRIFT); }
+    }
+    function moonItem(x) {
+      var right = utc(x.to.date), y = x.to.year, ks = shuffle([0, 1, 2, 3]), k = -1, opts = null;
+      /* four dates DAYS apart with the right one at a random place — all inside the asked year */
+      for (var i = 0; i < ks.length && k < 0; i++) {
+        var o = [0, 1, 2, 3].map(function (j) { return right + (j - ks[i]) * DAYS * DAY; });
+        if (o.every(function (t) { return new Date(t).getUTCFullYear() === y; })) { k = ks[i]; opts = o; }
+      }
+      if (k < 0) return null;
+      return { id: 'moon:' + x.h.id + ':' + y, skill: 'panchang.moon', pair: x, options: opts, right: k };
+    }
+    if (mode === 'chaand' && DAYS > 0) {
+      /* a round of eight pairs, at most three of any one holiday */
+      var per = {}, pickM = [];
+      shuffle(MOON).forEach(function (x) {
+        if (pickM.length >= 8 || (only && only.indexOf(x.h.id) < 0)) return;
+        if ((per[x.h.id] = (per[x.h.id] || 0) + 1) <= 3) pickM.push(x);
+      });
+      items = pickM.map(moonItem).filter(Boolean);
+    }
     function listOf(n) { return n.length < 2 ? n.join('') : n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1]; }
 
     /* ------------------------------------------------------------------ the wheel */
@@ -305,7 +360,8 @@
     if (mode === 'kab' || mode === 'mausam') {
       center = '<div class="pc-wheelbox">' + wheelSVG() + '<div class="pc-card" tabindex="-1" aria-live="polite"></div></div>';
     } else if (mode === 'chaand') {
-      center = '<div class="pc-wheelbox">' + wheelSVG() + '<div class="pc-hubtext"><b>Coming</b>once the year’s dates are checked</div></div>';
+      /* the wheel in the middle; the date and the four choices sit under the question (set below) */
+      center = '<div class="pc-wheelbox">' + wheelSVG() + '<div class="pc-hubtext pc-moonhub" aria-hidden="true"></div></div>';
     } else if (mode === 'kyon') {
       center = '<div class="pc-kyon"><div class="pc-quote" aria-live="polite"></div><div class="pc-opts" role="group" aria-label="Which festival?"></div></div>';
     } else {
@@ -346,7 +402,7 @@
         root.style.setProperty('--pc-w', Math.round(w) + 'px');
         if (chips) root.style.setProperty('--pc-chips', Math.max(160, W.innerHeight - (chips.getBoundingClientRect().top + (W.scrollY || 0)) - 90 + 0) + 'px');
       } else {
-        var reserve = (mode === 'kab' || mode === 'mausam') ? 150 : 0;
+        var reserve = (mode === 'kab' || mode === 'mausam') ? 150 : mode === 'chaand' ? 200 : 0;
         w = Math.min(W.innerWidth - 24, e.bar - e.hdr - askH - reserve - 32);
         if (chips) root.style.setProperty('--pc-chips', Math.max(150, e.bar - e.hdr - askH - 80 - 40) + 'px');
       }
@@ -398,6 +454,7 @@
         }).join('');
         return;
       }
+      if (mode === 'chaand') { showMoon(); return; }
       clearWheel(); focusM = -1;
       qEl.textContent = mode === 'mausam' ? 'A harvest or new-year festival. Which month does it come in?' : 'Which month does it come in?';
       subEl.hidden = false;
@@ -435,6 +492,7 @@
       }
     }
     function choose(id) {
+      if (mode === 'chaand') { pickMoon(parseInt(id, 10)); return; }
       if (dead || !it || judged || hold || mode !== 'kyon') return;
       judged = true;
       var right = id === it.f.id;
@@ -458,9 +516,60 @@
         var b = fb.querySelector('.gm-aage'); if (b && kb) try { b.focus({ preventScroll: true }); } catch (e) {}
       }
     }
+    /* ------------------------------------------------------------ L3 Chaand */
+    /* a date's place on the wheel: the earlier year a ring on the rim, the next a dot inside */
+    function moonDot(t, cls) {
+      var d = new Date(t), m = d.getUTCMonth(), dim = new Date(Date.UTC(d.getUTCFullYear(), m + 1, 0)).getUTCDate();
+      var a = (-105 + 30 * (m + (d.getUTCDate() - 0.5) / dim)) * Math.PI / 180;
+      var p = pt(cls === 'pc-was' ? R1 - 14 : R0 + 16, a);
+      return '<circle class="pc-mdot ' + cls + '" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="7"/>';
+    }
+    function drawMoon(after) {
+      var g = wheel.querySelector('.pc-moondots');
+      if (!g) { g = D.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'pc-moondots'); wheel.appendChild(g); }
+      var x = it.pair;
+      g.innerHTML = moonDot(utc(x.from.date), 'pc-was') + (after ? moonDot(utc(x.to.date), 'pc-now') : '');
+      var hub = host.querySelector('.pc-moonhub');
+      if (hub) hub.innerHTML = after ? '<b>○ ' + esc(x.from.year) + ' · ● ' + esc(x.to.year) + '</b>' + esc(x.by) + ' days earlier'
+        : '<b>○ ' + esc(x.from.year) + '</b>' + esc(dayText(utc(x.from.date)));
+    }
+    function showMoon() {
+      var x = it.pair;
+      qEl.textContent = 'Which date does it fall on in ' + x.to.year + '?';
+      subEl.hidden = false; subEl.textContent = 'Tap a date, or press 1 to 4.';
+      host.querySelector('.pc-quote').innerHTML = '<b>' + esc(x.h.name) + '</b> · ' + esc(x.from.year) + ': ' + esc(dayText(utc(x.from.date)));
+      host.querySelector('.pc-opts').innerHTML = it.options.map(function (t, i) {
+        return '<button type="button" class="pc-opt" data-pc="opt" data-id="' + i + '"><span class="pc-num">' + (i + 1) + '</span>' + esc(dayText(t)) + '</button>';
+      }).join('');
+      drawMoon(false);
+    }
+    function movedText(d) {
+      if (!d || !d.moved || !d.moved.length) return '';
+      return ' In ' + d.year + ' the list was changed after it came out: ' + d.moved.map(function (m) { return 'to ' + dayText(utc(m.to)); }).join(', then ') + '.';
+    }
+    function pickMoon(i) {
+      if (dead || !it || judged || hold || mode !== 'chaand' || !(i >= 0 && i < 4)) return;
+      judged = true;
+      var right = i === it.right, x = it.pair, L = FD.lists && FD.lists[x.to.year];
+      report(right);
+      Array.prototype.forEach.call(host.querySelectorAll('.pc-opt'), function (b, j) {
+        if (j === it.right) b.classList.add('pc-win'); else if (j === i) b.classList.add('pc-no');
+        b.setAttribute('aria-disabled', 'true');
+      });
+      drawMoon(true);
+      var ans = 'In ' + esc(x.to.year) + ' the government list gives <b>' + esc(dayText(utc(x.to.date))) + '</b>: ' + esc(x.by) + ' days earlier than in ' + esc(x.from.year) + '.';
+      var teach = ((FD.why && FD.why.text) || '') + ' Across these lists, these holidays come about ' + DAYS + ' days earlier each year.' +
+        ' Decided by the moon’s sighting; the government list may move by a day.' + movedText(x.to) + movedText(x.from);
+      var src = L ? 'Source: Government of India holiday list for ' + x.to.year + ' — DoPT O.M. ' + L.om + ', ' + L.issued + '.' : '';
+      fb.innerHTML = '<div class="' + (right ? 'pc-yes' : 'gm-miss') + '" role="status">' + (right ? '' : '<b>Not quite.</b> ') +
+        '<span class="gm-ans">' + (right ? 'Yes — ' : '') + ans + '</span><p class="gm-teach">' + esc(teach) + '</p>' +
+        (src ? '<p class="gm-teach pc-src">' + esc(src) + '</p>' : '') + '<button type="button" class="btn gm-aage" data-gm="aage">Aage →</button></div>';
+      reveal();
+      if (right) wait(3200);
+      else { hold = true; var b = fb.querySelector('.gm-aage'); if (b && kb) try { b.focus({ preventScroll: true }); } catch (e) {} }
+    }
     function aage() {
       if (dead) return;
-      if (mode === 'chaand') { finish({ win: false, score: 0, asked: 0, firstTryRight: 0, level: level, levelNext: level, unscored: true }); return; }
       if (mode === 'mera') { finish({ win: false, score: 0, asked: 0, firstTryRight: 0, level: level, levelNext: level, unscored: true }); return; }
       if (!items.length) { finish({ win: false, score: 0, asked: 0, firstTryRight: 0, level: level, levelNext: level }); return; }
       if (hold || judged) next();
@@ -546,12 +655,11 @@
       if (t && !inHost && t !== D.body && t.tagName !== 'HTML' && /^(A|BUTTON)$/.test(t.tagName)) return;
       var k = e.key;
       if (hold || (judged && timer)) {
-        if (k === 'Enter' || k === ' ' || (k === 'ArrowRight' && mode !== 'kyon')) { e.preventDefault(); aage(); }
+        if (k === 'Enter' || k === ' ' || (k === 'ArrowRight' && mode !== 'kyon' && mode !== 'chaand')) { e.preventDefault(); aage(); }
         return;
       }
-      if (mode === 'chaand') { if (k === 'Enter') { e.preventDefault(); aage(); } return; }
       if (mode === 'mera') return;   /* chips and Done are buttons: Tab and Enter work natively */
-      if (mode === 'kyon') {
+      if (mode === 'kyon' || mode === 'chaand') {
         if (/^[1-4]$/.test(k)) { var o = host.querySelectorAll('.pc-opt')[+k - 1]; if (o) { e.preventDefault(); kb = true; choose(o.getAttribute('data-id')); } return; }
         var opts2 = host.querySelectorAll('.pc-opt'), cur = Array.prototype.indexOf.call(opts2, D.activeElement);
         if (/^Arrow/.test(k)) {
@@ -600,16 +708,22 @@
 
     /* ------------------------------------------------------------ set the stage */
     if (mode === 'chaand') {
-      var note = (U && U.calendarNote) || {}, eidLine = '';
-      String(note.text || '').split(/(?<=[.!?])\s+/).forEach(function (s2) { if (/\bEid\b/.test(s2) && !eidLine) eidLine = s2; });
-      qEl.textContent = 'Which festivals follow the moon?';
-      subEl.hidden = false;
-      subEl.textContent = 'This level puts Eid on the wheel in two years side by side, so you can watch it walk. It opens once the year’s dates are checked — this app never types a festival date from memory.';
-      fb.innerHTML = '<div class="pc-yes" role="status"><span class="gm-ans"><b>Coming soon.</b></span>' +
-        (eidLine ? '<p class="gm-teach">' + esc(eidLine) + '</p>' : '') +
-        (note.childLine ? '<p class="gm-teach">' + esc(note.childLine) + '</p>' : '') +
-        '<button type="button" class="btn gm-aage" data-gm="aage">Aage →</button></div>';
-      hold = true;
+      /* for contrast, from the same lists: where Diwali and Holi fell — no claim beyond the dates */
+      root.setAttribute('data-drift', String(DAYS));
+      var cn = ((FD && FD.holidays) || []).filter(function (h) { return h.contrast && h.dates && h.dates.length; }).map(function (h) {
+        var ms = [], ys = h.dates.map(function (d) { return d.year; });
+        h.dates.forEach(function (d) { var m = new Date(utc(d.date)).getUTCMonth(); if (ms.indexOf(m) < 0) ms.push(m); });
+        ms.sort(function (a, b) { return a - b; });
+        return esc(h.name) + ' is in ' + esc(ms.map(function (m) { return MONTHS[m].long; }).join(' or ')) + ' every year, ' + Math.min.apply(null, ys) + '–' + Math.max.apply(null, ys);
+      });
+      host.querySelector('.pc-left').insertAdjacentHTML('beforeend',
+        '<div class="pc-moonq"><div class="pc-quote" aria-live="polite"></div><div class="pc-opts" role="group" aria-label="Which date?"></div></div>');
+      if (cn.length) host.querySelector('.pc-right').insertAdjacentHTML('beforeend', '<div class="pc-note pc-contrast"><b>For contrast, in the same lists:</b> ' + cn.join('; ') + '.</div>');
+      if (!items.length) {
+        qEl.textContent = 'Nothing to ask here yet.';
+        fb.innerHTML = '<div class="pc-yes"><p class="gm-teach">The dated holiday lists have not loaded.</p><button type="button" class="btn gm-aage" data-gm="aage">Aage →</button></div>';
+        hold = true;
+      }
     } else if (mode === 'mera') {
       qEl.textContent = 'Which festivals does your family keep?';
       subEl.hidden = false;
@@ -668,7 +782,7 @@
     minutes: 4,
     tag: 'Utsav',
     teaches: true,
-    levels: ['when: the month', 'harvest and new year', 'the moon (coming)', 'what families do', 'my year (never marked)'],
+    levels: ['when: the month', 'harvest and new year', 'the moon’s drift', 'what families do', 'my year (never marked)'],
     review: true,
     c: '#c2563a',
     c2: '#e9a13b',

@@ -28,7 +28,29 @@
 
    What a chapter says that the data does NOT hold was cut, not typed: master Part F's
    [NEEDS SOURCE] list. Where a beat wanted one of those (a date, a carver's name, the Dandi
-   march's days), the beat says nothing historical and lets its `ref` speak.
+   march's days), the beat says nothing historical and lets its `ref` speak. Cut or reworded
+   against the master draft, for the reviewer:
+     ch 3   "the same words reached Sopara" → his edicts reached it, a piece found in the soil
+            (the data says a fragment); no claim that Dhauli's letters are Brahmi; the lion
+            distractor is "a lion on a pillar" (the data never says four faces); Ashoka is
+            never quoted.
+     ch 4   Xuanzang "came", not "walked"; the granary that "softens the locusts" (untrue of the
+            game too).
+     ch 5   Mamallapuram is "across on the other coast", not "up the coast"; no monsoon craft
+            beyond the age's own aha; Rome only in told lines.
+     ch 6   no height, no dates for the stages or the lightning; the four dynasties only as
+            builders, in the data's words.
+     ch 7   no goods of the bazaar but pearls and gems; "a restless realm is pushed harder" (untrue).
+     ch 8   no Taj years, no founding year for Amritsar; the Taj and Harmandir Sahib are never
+            built here; the langar's ladle is not the keepsake.
+     ch 9   no years for the warehouses; no Company.
+     ch 10  Roshni is "an apprentice to a printer", not placed on College Street; "Asia's first
+            passenger train", as the data says, not "India's"; no first printing date.
+     ch 11  no Dandi dates, no "Britain ruled India…", no satyagraha, no 15 August — the ending
+            is the age's own note; the salt answer is the data's own words.
+     ch 12  no construction dates or planners' names; placement waits for Chandigarh's board.
+     ch 13  no ISRO founding date, no Mangalyaan, nothing of Dr Kalam beyond his darshan; "a phone
+            in nearly every hand" is not used; the countdown is Kiran's line, not a mechanic.
 
    Plain script, no modules, no build. */
 window.IND_SABHYATA_CAMPAIGN = {

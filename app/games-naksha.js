@@ -9,10 +9,13 @@
                    with every clue that names its own state dropped.
      L4 Padosi     "Tap every state that touches Madhya Pradesh." The neighbours are
                    app/data-naksha.js, computed from the outlines by tools/build-naksha.js.
-     L5 Nadi       A stretch of river from data-bhugol.js (sourced) — tap the state it runs
-                   through. Rivers source-to-sea IN ORDER wait for data that lists each river's
-                   course in order; data-bhugol holds one place per state, and the older list in
-                   data-geo.js predates Telangana and Ladakh, so it would mark a true answer wrong.
+     L5 Nadi       Rivers in order. The states a river passes are lit and named; the child taps
+                   them in the order the river flows through them, going downstream. The order
+                   is app/data-rivers.js, each course read from a government source (CWC,
+                   India-WRIS, the states' own pages) and checked against the map's own
+                   neighbours. The names are on the map, the ORDER is the question, so the
+                   prompt never lists them. No river line is drawn — the map data has none, and
+                   a line typed here would be a boundary-like mark nobody sourced.
 
    THE MAP RULES (CLAUDE.md, binding). The outlines are map-data.js's, byte for byte: the
    Survey of India depiction, J&K whole, for every child in every locale. No border ever draws
@@ -64,8 +67,9 @@
     '.nk-cur2{fill:none;stroke:var(--card);stroke-width:6;vector-effect:non-scaling-stroke;pointer-events:none}',
     '.nk-lab{fill:var(--text);stroke:var(--card);stroke-width:4px;paint-order:stroke;stroke-linejoin:round;font-family:var(--body);font-weight:800;text-anchor:middle;pointer-events:none}',
     '.nk-cap{fill:var(--accent3,var(--accent));stroke:var(--card);stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}',
-    '.nk-riv{fill:#2f6fc4;stroke:var(--card);stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}',
-    '.nk-zoom{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:6px;z-index:2}',
+    /* a ROW across the top right: over the empty corner outside the outline at every size, where a column
+       stood on Arunachal Pradesh and took the taps meant for it (the Brahmaputra starts there) */
+    '.nk-zoom{position:absolute;top:8px;right:8px;display:flex;flex-direction:row;gap:6px;z-index:2}',
     '.nk-zb{width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--text);font:800 20px/1 var(--body);',
     '  display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow);padding:0}',
     '.nk-zb:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
@@ -77,6 +81,7 @@
     '.nk-fb .gm-ans{font-size:16px}',
     '.nk-fb .gm-teach{margin:6px 0 8px;font-size:15px;line-height:1.45;color:var(--text2)}',
     '.nk-fb .gm-aage{min-height:44px;min-width:120px;font-size:16px}',
+    '.nk-fb .nk-src{font-size:13px;margin-top:-4px;color:var(--muted)}',
     '.nk-soon{font-size:13px;color:var(--muted);margin:6px 0 0}',
     '.nk-legend{display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--text2)}',
     '.nk-legend i{display:inline-block;width:18px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px;border:1px solid var(--line2)}',
@@ -141,7 +146,7 @@
     capital: 'Each state’s capital city, and where the state is.',
     clue: 'What each state is known for — its animals, places and food.',
     neighbours: 'Which states share a border. The neighbours come from the map’s own outlines.',
-    river: 'Where India’s rivers run. Rivers in order, source to sea, come when the data lists each river’s course in order.',
+    river: 'Where India’s rivers run — the states each one passes, in order, going downstream. Every course comes from a government source.',
     yatra: 'A journey across India, one state after the next.'
   };
   var TINY_MAX = 40;   /* map units: a territory smaller than this gets an enlarged hit zone and a callout */
@@ -203,7 +208,7 @@
     }
 
     /* ---------------------------------------------------------------- the round */
-    var ITEMS_N = 10;
+    var ITEMS_N = 10, RIVER_N = 8;
     function build() {
       var pool, items = [];
       if (mode === 'find') {
@@ -254,21 +259,28 @@
             teach: name(c) + ' shares a border with ' + listNames(NB[c]) + '.' };
         });
       } else if (mode === 'river') {
-        var B = (W.IND_BHUGOL && W.IND_BHUGOL.features) || [];
-        var bases = {};
-        B.forEach(function (f) { if (f.t === 'river') { var k = baseOf(f.n); (bases[k] = bases[k] || []).push(f.st); } });
-        pool = B.filter(function (f) {
-          if (f.t !== 'river' || !f.st || ALL.indexOf(f.st) < 0 || !f.f) return false;
-          if (/gorge|rocks|ravines|canal|sangam|devprayag/i.test(f.n)) return false;
-          if (only && only.indexOf(f.st) < 0 && only.indexOf(f.id) < 0) return false;
-          return !leaks(clean(f.n), f.st) && !leaks(f.f, f.st);
+        /* RIVERS IN ORDER (data-rivers.js). A river is asked only if it is sourced (a source with
+           a URL), every state on its course is on this map, and it passes at least two. The
+           round leans on the longer courses: up to five of three or more states, then two-state
+           ones to fill it. */
+        var RV = (W.IND_RIVERS && W.IND_RIVERS.rivers) || [];
+        pool = RV.filter(function (r) {
+          if (!r || !r.id || !r.name || !r.course || r.course.length < 2) return false;
+          if (!(r.sources || []).some(function (x) { return x && /^https?:\/\//.test(x.url || ''); })) return false;
+          if (r.course.some(function (c, i, a) { return CODES.indexOf(c) < 0 || a.indexOf(c) !== i; })) return false;
+          return !only || only.indexOf(r.id) >= 0 || only.indexOf(r.name) >= 0;
         });
-        items = shuffle(pool).slice(0, ITEMS_N).map(function (f) {
-          var others = (bases[baseOf(f.n)] || []).filter(function (s, i, a) { return s !== f.st && a.indexOf(s) === i; });
-          return { id: 'river:' + f.id, accept: [f.st], answer: f.st, skill: 'naksha.river', feat: f,
-            q: 'Which state does this stretch of the <b>' + esc(clean(f.n)) + '</b> run through?', clue: f.f, speak: clean(f.n) + '. ' + f.f,
-            ans: 'This stretch of the ' + esc(clean(f.n)) + ' is in <b>' + esc(name(f.st)) + '</b>.',
-            teach: others.length ? 'On this map the ' + baseOf(f.n) + ' also runs through ' + listNames(others) + '.' : '' };
+        var longer = shuffle(pool.filter(function (r) { return r.course.length >= 3; }));
+        var two = shuffle(pool.filter(function (r) { return r.course.length === 2; }));
+        var pickR = longer.slice(0, 5);
+        pickR = pickR.concat(two.slice(0, RIVER_N - pickR.length));
+        if (pickR.length < RIVER_N) pickR = pickR.concat(longer.slice(5, 5 + RIVER_N - pickR.length));
+        items = shuffle(pickR).map(function (r) {
+          return { id: 'river:' + r.id, river: r, accept: r.course.slice(), lit: r.course.slice(), answer: r.course[0], multi: true, ordered: true,
+            skill: 'naksha.river',
+            q: 'The <b>' + esc(r.name) + '</b> flows through the lit states. Tap them in order, going downstream.',
+            speak: 'The ' + r.name + ' flows through the lit states. Tap them in order, going downstream.',
+            teach: r.teach || '', src: (r.sources[0] || {}).publisher || '' };
         });
       } else if (mode === 'yatra') {
         var route = (only || []).filter(function (c) { return ALL.indexOf(c) >= 0; });
@@ -278,8 +290,6 @@
       }
       return items;
     }
-    function clean(n) { return String(n).replace(/\s*\([^)]*\)/g, '').trim(); }
-    function baseOf(n) { return clean(n).replace(/\s+(river|source|delta|estuary)$/i, '').replace(/\s+at\s+.*$/i, '').trim(); }
     function listNames(cs) {
       var n = cs.map(name);
       return n.length < 2 ? n.join('') : n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1];
@@ -303,9 +313,10 @@
         '<div class="nk-side nk-left">' +
           '<div class="nk-ask" aria-live="polite"><div class="nk-kick"><span>' + esc(MODE_NAME[mode] || 'Naksha') + '</span><span class="nk-count"></span></div>' +
             '<p class="nk-q"></p><p class="nk-clue" hidden></p><div class="nk-pips" aria-hidden="true"></div>' +
-            (mode === 'river' ? '<p class="nk-soon">Rivers in order, source to sea, come when the map’s data lists each river’s course in order.</p>' : '') +
           '</div>' +
-          '<div class="nk-note nk-legend" aria-hidden="true"><span><i class="l-ok"></i>✓ the right state</span><span><i class="l-no"></i>✕ the state you tapped</span>' +
+          '<div class="nk-note nk-legend" aria-hidden="true">' +
+            (mode === 'river' ? '<span><i class="l-tgt"></i>the river’s states, still to order</span><span><i class="l-ok"></i>1 · 2 · 3 the order it flows</span>'
+              : '<span><i class="l-ok"></i>✓ the right state</span><span><i class="l-no"></i>✕ the state you tapped</span>') +
             (mode === 'neighbours' ? '<span><i class="l-tgt"></i>the state asked about</span>' : '') +
             '<span>Keys: arrows move · Enter taps' + (mode === 'find' ? '' : ' · a letter jumps') + ' · + − zoom</span></div>' +
         '</div>' +
@@ -416,14 +427,10 @@
         out += '<circle class="nk-cap" cx="' + cp[0] + '" cy="' + cp[1] + '" r="' + (6 / kk).toFixed(1) + '"/>' +
           '<text class="nk-lab" x="' + cp[0] + '" y="' + (cp[1] + 20 / kk).toFixed(1) + '" font-size="' + (13 / kk).toFixed(1) + '">' + esc(cp[2]) + '</text>';
       }
-      if (it && it.feat && judged) {
-        out += '<circle class="nk-riv" cx="' + it.feat.x + '" cy="' + it.feat.y + '" r="' + (6 / kk).toFixed(1) + '"/>' +
-          '<text class="nk-lab" x="' + it.feat.x + '" y="' + (it.feat.y - 12 / kk).toFixed(1) + '" font-size="' + (13 / kk).toFixed(1) + '">' + esc(clean(it.feat.n)) + '</text>';
-      }
       marks.forEach(function (m) {
-        var a = anchor(m.c), up = (it && judged && ((it.cap && it.cap === m.c) || (it.feat && it.feat.st === m.c))) ? fs * 1.5 : 0;
-        out += '<text class="nk-lab" x="' + a[0] + '" y="' + (a[1] + fs * 0.35 - up).toFixed(1) + '" font-size="' + fs.toFixed(1) + '">' +
-          (m.kind === 'no' ? '✕ ' : m.kind === 'ok' ? '✓ ' : '') + esc(name(m.c)) + '</text>';
+        var a = anchor(m.c), up = (it && judged && it.cap && it.cap === m.c) ? fs * 1.5 : 0;
+        out += '<text class="nk-lab" x="' + a[0] + '" y="' + (a[1] + fs * 0.35 - up).toFixed(1) + '" font-size="' + fs.toFixed(1) + '"' + (m.n ? ' data-n="' + m.n + '"' : '') + '>' +
+          (m.kind === 'no' ? '✕ ' : m.kind === 'ok' ? (m.n ? m.n + ' · ' : '✓ ') : '') + esc(name(m.c)) + '</text>';
       });
       if (kb && cursor >= 0) {
         var c = ORDER[cursor], a = anchor(c), r = 15 / kk;
@@ -458,9 +465,12 @@
       }
       it = items[idx]; judged = false; hold = false;
       clearBoard(); fb.innerHTML = '';
-      qEl.innerHTML = it.q + (it.multi && !it.ordered ? ' <span class="nk-found">(' + 0 + ' of ' + it.accept.length + ')</span>' : '');
+      qEl.innerHTML = it.q + (it.multi && (!it.ordered || it.lit) ? ' <span class="nk-found">(' + 0 + ' of ' + it.accept.length + ')</span>' : '');
       if (it.clue) { clueEl.hidden = false; clueEl.textContent = it.clue; } else { clueEl.hidden = true; clueEl.textContent = ''; }
       if (it.target) { EL[it.target].classList.add('nk-tgt'); marks.push({ c: it.target, kind: 'tgt' }); }
+      /* a river's states are lit and named — never in the river's order: shuffled, so even the
+         order the labels sit in the page (what a screen reader reads) says nothing */
+      if (it.lit) shuffle(it.lit).forEach(function (c) { if (EL[c]) EL[c].classList.add('nk-tgt'); marks.push({ c: c, kind: 'lit' }); });
       pips(); overlay();
     }
     function report(right) {
@@ -469,8 +479,36 @@
         try { opts.answer({ id: it.id, right: right, firstTry: true, skill: it.skill, objective: null }); } catch (e) {}
       }
     }
+    function setMark(c, kind, n) {
+      for (var i = 0; i < marks.length; i++) if (marks[i].c === c) { marks[i].kind = kind; marks[i].n = n || 0; return; }
+      marks.push({ c: c, kind: kind, n: n || 0 });
+    }
+    function riverOrder() { return it.accept.map(function (c) { return '<b>' + esc(name(c)) + '</b>'; }).join(' → '); }
+    function ordinal(n) { return n + (n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th'); }
+    function tapRiver(c) {
+      if (found[c]) return;
+      if (it.lit.indexOf(c) < 0) {
+        /* not on the river's way: not an answer, just a pointer back to the lit states */
+        clueEl.hidden = false; clueEl.textContent = name(c) + ' is not on the ' + it.river.name + '’s way — tap one of the lit states.';
+        return;
+      }
+      clueEl.hidden = true; clueEl.textContent = '';
+      var k = Object.keys(found).length;
+      if (c === it.accept[k]) {
+        found[c] = true;
+        if (EL[c]) { EL[c].classList.remove('nk-tgt'); EL[c].classList.add('nk-ok'); }
+        setMark(c, 'ok', k + 1);
+        var fe = qEl.querySelector('.nk-found'); if (fe) fe.textContent = '(' + (k + 1) + ' of ' + it.accept.length + ')';
+        if (W.IND_SFX && k + 1 < it.accept.length) W.IND_SFX.play('tap');
+        overlay();
+        if (k + 1 >= it.accept.length) { judged = true; report(true); showRight(); }
+        return;
+      }
+      judged = true; report(false); showMiss(c);
+    }
     function tapCode(c) {
       if (dead || !it || hold || judged || !c) return;
+      if (it.lit) { tapRiver(c); return; }
       if (it.multi) {
         if (c === it.target || found[c]) return;
         var want = it.ordered ? it.accept[Object.keys(found).length] : null;
@@ -492,18 +530,35 @@
       if (right) { EL[c] && EL[c].classList.add('nk-ok'); marks.push({ c: c, kind: 'ok' }); showRight(); }
       else showMiss(c);
     }
+    function srcLine() { return it.src ? '<p class="gm-teach nk-src">Source: ' + esc(it.src) + '.</p>' : ''; }
     function showRight() {
       var ans = it.ans || ('<b>' + esc(name(it.answer)) + '</b>' + (it.multi ? '' : ' — yes.'));
       if (it.multi) ans = 'All of them — <b>' + esc(listNames(it.accept)) + '</b>.';
+      if (it.lit) ans = 'Yes — the ' + esc(it.river.name) + ' flows ' + riverOrder() + '.';
       placeCard();
       fb.innerHTML = '<div class="nk-yes" role="status"><span class="gm-ans">' + ans + '</span>' +
-        (it.teach ? '<p class="gm-teach">' + esc(it.teach) + '</p>' : '') +
+        (it.teach ? '<p class="gm-teach">' + esc(it.teach) + '</p>' : '') + srcLine() +
         '<button type="button" class="btn gm-aage" data-gm="aage">Aage →</button></div>';
       overlay();
       wait(1800);
     }
     function showMiss(c) {
       hold = true;
+      if (it.lit) {
+        /* the whole course, numbered in its order; the card says where the tapped state comes */
+        var k = Object.keys(found).length, at = it.accept.indexOf(c);
+        it.accept.forEach(function (x, i) { if (EL[x]) { EL[x].classList.remove('nk-tgt'); EL[x].classList.add('nk-ok'); } setMark(x, 'ok', i + 1); });
+        var lead = k === 0 ? 'The ' + esc(it.river.name) + ' starts in <b>' + esc(name(it.accept[0])) + '</b>'
+          : 'After ' + esc(name(it.accept[k - 1])) + ' the ' + esc(it.river.name) + ' reaches <b>' + esc(name(it.accept[k])) + '</b>';
+        placeCard();
+        fb.innerHTML = '<div class="gm-miss" role="status"><b>Not quite.</b> <span class="gm-ans">' + lead + ' — ' + esc(name(c)) + ' comes ' + ordinal(at + 1) +
+          '. In order: ' + riverOrder() + '.</span>' +
+          (it.teach ? '<p class="gm-teach">' + esc(it.teach) + '</p>' : '') + srcLine() +
+          '<button type="button" class="btn gm-aage" data-gm="aage">Aage →</button></div>';
+        overlay();
+        var bR = fb.querySelector('.gm-aage'); if (bR && kb) try { bR.focus({ preventScroll: true }); } catch (e) {}
+        return;
+      }
       if (EL[c]) EL[c].classList.add('nk-no');
       marks.push({ c: c, kind: 'no' });
       var show = it.multi ? it.accept.filter(function (x) { return !found[x]; }) : it.accept;
@@ -721,7 +776,7 @@
     minutes: 4,
     tag: 'Bhugol',
     teaches: true,
-    levels: ['big states by name', 'capitals', 'clues', 'neighbours', 'rivers'],
+    levels: ['big states by name', 'capitals', 'clues', 'neighbours', 'rivers in order'],
     review: false,
     c: '#2f8f6b',
     c2: '#e9a13b',

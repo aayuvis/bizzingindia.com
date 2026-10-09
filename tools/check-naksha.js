@@ -634,6 +634,18 @@ check('copy', 'no streak copy in the engine', async () => {
      N2        a stroke added to `.nk-st.nk-ok` — "a boundary changed mid-round"
      leak      the capital dot drawn before the tap — "the capital dot shows before the tap"
      N5        Uttar Pradesh dropped from Madhya Pradesh's neighbours in data-naksha.js
+     rivers    the Ganga's course typed UK, BR, UP… — "ganga: UK → BR do not touch on the map";
+               the Beas's URLs stripped — "beas: no source with a URL…"
+     L5        the lit labels left in course order — "always sit in the page in the river's own
+               order"; the course written into the prompt — "the prompt names Madhya Pradesh…";
+               the zoom buttons back in a column — "brahmaputra: its course tapped in order is
+               not one right answer"
+     L5miss    the source line dropped — "names no source"; the river's miss moving on by itself
+               — "the miss did not hold"
+     L5keys    keyboard taps ignored at L5 — "keyboard rivers round: null"
+     L5touch   the miss card padded below the fold — "Aage is off-screen or under the tab bar"
+     N2 (L5)   a found river state's stroke thickened — "L5: a boundary changed mid-round"
    Caught real faults while the game was built: phone (the map ran under the tab bar before the
    stage fitted itself to the screen), N2 (an L2 round of one item — the capital filter dropped
-   every capital as "leaking" its own name). */
+   every capital as "leaking" its own name), L5 (the zoom column stood on Arunachal Pradesh's
+   middle and swallowed the Brahmaputra's first tap). */

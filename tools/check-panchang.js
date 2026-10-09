@@ -621,5 +621,14 @@ check('copy', 'no streak copy in the engine', async () => {
 /* PROVED BY BREAKING (each watched to fail, then restored):
      P1        a round of two-month windows only, no one-month cards — "a random placer's odds are 16.7%"
      holds     the miss card moving on by itself like a right answer — "the miss did not hold"
+     P3        2026's Id-ul-Fitr mis-copied as 1 April — "not a Saturday… Chaitra 11, not Phalguna
+               30… 1 days LATER than the year before"; the drift typed as 11 in the engine — "re-dated
+               20 days apart, the game still says 11"
+     L3        the right date always first — "sat only at 1"; the distractors spaced off last year's
+               date — "the four dates are not evenly spaced"
+     L3miss    the moon line dropped — "the miss card does not say the moon decides"
+     L3keys    the number keys left to Kyon? only — "L3 by keys: null"
+     L3touch   the dates padded down the phone — "wheel is off-screen or under the tab bar"
+     facts     (tools/check-facts.js) the Beas's URLs stripped — "river "beas" has no source with a URL"
    Caught real faults while the game was built: phone (Aage under the tab bar), P4 (Mera saal's
    chips one height for one-line names and another for two). */

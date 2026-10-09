@@ -94,6 +94,7 @@ window.IND_RIVERS = (function () {
         teach: 'It enters India at Shipki in Kinnaur, Himachal Pradesh, leaves the hills at Bhakra to enter Punjab, and is joined there by the Beas near Harike.',
         sources: [
           s('Satluj', 'https://indiawris.gov.in/wiki/doku.php?id=satluj', WRIS),
+          s('About Kinnaur — the Satluj enters at Shipki', 'https://hpkinnaur.nic.in/about-district/', 'District Administration Kinnaur, Government of Himachal Pradesh'),
           s('Rivers of Himachal Pradesh', 'https://hpenvis.nic.in/Database/Rivers_3769.aspx', 'HP ENVIS Hub, Government of Himachal Pradesh'),
           s('Harike Wildlife Sanctuary — the barrage below the meeting of the Beas and the Sutlej', 'https://wildlife.punjab.gov.in/tourism_page/1/protected-area-detail/index.html', 'Department of Forests & Wildlife Preservation, Government of Punjab')
         ] },
@@ -115,7 +116,7 @@ window.IND_RIVERS = (function () {
         ] },
       { id: 'teesta', name: 'Teesta', badge: 'aaj', age_gate: 4,
         course: ['SK', 'WB'], start: 'rises',
-        teach: 'It rises in the snows of North Sikkim, forms the border between Sikkim and West Bengal from Rangpo, comes down to the plains at Sevoke, and flows on into Bangladesh.',
+        teach: 'It rises high in North Sikkim, forms the border between Sikkim and West Bengal from Rangpo, comes down to the plains at Sevoke, and flows on into Bangladesh.',
         sources: [
           s('Basin Details: Teesta and Bhagirathi Damodar Basin Organisation', 'https://www.cwc.gov.in/tbo/about-basins', CWC),
           s('Annual Flood Report 2007 — the Teesta enters the plains at Sevoke', 'https://wbiwd.gov.in/uploads/anual_flood_report/ANNUAL_FLOOD_REPORT_2007.pdf', 'Irrigation & Waterways Directorate, Government of West Bengal')

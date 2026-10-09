@@ -8141,6 +8141,15 @@
         d += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="6" fill="' + T[q[2]] + '"/>'; });
       return '<svg class="xart" viewBox="0 0 80 80" aria-hidden="true"><rect x="4" y="4" width="72" height="72" rx="14" fill="' + T[0] + '"/>' + d + '</svg>';
     }
+    /* Pachisi's cowries: three fallen mouth up, three on their backs, on a madder-red cloth */
+    if (x.kind === 'mode' && x.game === 'ludo') {
+      var cw = ''; [[22, 30, 1], [40, 26, 0], [58, 30, 1], [22, 54, 0], [40, 50, 1], [58, 54, 0]].forEach(function (q) {
+        cw += '<ellipse cx="' + q[0] + '" cy="' + q[1] + '" rx="7" ry="9.5" fill="' + (q[2] ? '#f6ecd4' : '#d6b27a') + '" stroke="#5a3a18" stroke-width="1.2"/>' +
+          (q[2] ? '<path d="M' + q[0] + ' ' + (q[1] - 7.5) + 'q-1.4 7.5 0 15" fill="none" stroke="#4a2e12" stroke-width="1.6" stroke-linecap="round"/>'
+                : '<ellipse cx="' + (q[0] - 1.5) + '" cy="' + (q[1] - 2.5) + '" rx="3" ry="4.2" fill="#f1ddb4" opacity=".75"/>'); });
+      return '<svg class="xart" viewBox="0 0 80 80" aria-hidden="true"><rect x="4" y="4" width="72" height="72" rx="14" fill="#7a1f1a"/>' +
+        '<rect x="9" y="9" width="62" height="62" rx="10" fill="none" stroke="#e6b95c" stroke-width="1.2" stroke-dasharray="3 2"/>' + cw + '</svg>';
+    }
     if (x.kind === 'mode') return '<span class="xart xmode" aria-hidden="true">' + icon('star', 40) + '<b>15</b></span>';
     return '<span class="xart framed fr-' + esc(x.id) + '">' + art(S.buddy, 64) + '</span>';
   }

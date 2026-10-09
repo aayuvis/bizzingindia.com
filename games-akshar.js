@@ -589,4 +589,71 @@
   REG.engine.packs = packs; REG.engine.open = open; REG.engine.canTrace = canTrace; REG.engine.tonguePack = tonguePack; REG.engine.build = build;
   W.IND_GAMES = W.IND_GAMES || [];
   W.IND_GAMES.push(REG);
+
+  /* ==================================================================
+     THE COVER (Play's shelf; games spec §5.0: "a slate and chalk").
+     No image key is in this environment, so the plate is drawn here in
+     code: a wooden-framed slate on a warm, grained, washed ground, with
+     a stick of chalk beside it — and on the slate, the letter KA in each
+     script the game holds, written as REAL TEXT in each script's own
+     face (app.css :lang() rules pick Mukta, Mukta Malar, Noto Nastaliq…).
+     Nothing is lettered into a picture, nothing is letter-spaced, and
+     every letter keeps the app's line-height (≥ 1.7).
+
+     NO SCRIPT IS PRIVILEGED (CLAUDE.md rule 8): every letter the same
+     size, in the same chalk, in alphabetical order of the scripts'
+     English names — Bengali, Devanagari, Gujarati, Gurmukhi, Kannada,
+     Tamil, Telugu, Urdu — so Devanagari is neither first nor centred.
+     The letters are text, so check-contrast measures them on Play in
+     every world, day and night; chalk on slate is the same picture in
+     both, as a real slate is.
+     ================================================================== */
+  var COVER_KA = [
+    ['bn', 'ক'],   /* ক  Bengali */
+    ['hi', 'क'],   /* क  Devanagari */
+    ['gu', 'ક'],   /* ક  Gujarati */
+    ['pa', 'ਕ'],   /* ਕ  Gurmukhi */
+    ['kn', 'ಕ'],   /* ಕ  Kannada */
+    ['ta', 'க'],   /* க  Tamil */
+    ['te', 'క'],   /* క  Telugu */
+    ['ur', 'ک']    /* ک  Urdu, Nastaliq, right to left */
+  ];
+  var GRAIN = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .25 0 0 0 0 .14 0 0 0 0 .05 0 0 0 .28 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E\")";
+  var COVER_CSS = [
+    /* the ground: a terracotta-and-turmeric wash, uneven like a painted wall, with grain */
+    '.akc{position:absolute;top:0;right:0;bottom:0;left:0;overflow:hidden;',
+    'background:' + GRAIN + ',radial-gradient(60% 90% at 88% 20%,rgba(242,180,76,.55),transparent 70%),',
+    'radial-gradient(70% 80% at 10% 100%,rgba(122,46,22,.55),transparent 70%),radial-gradient(50% 60% at 60% 110%,rgba(200,96,40,.5),transparent 70%),',
+    'linear-gradient(160deg,#c4683a 0%,#a8502b 45%,#7d3a1e 100%)}',
+    /* the slate: dark green-black, a chalk-dusted face, a wooden frame with its joints */
+    /* two rows of four that sit side by side on a wide card and stack on a narrow one — never seven and one */
+    '.akc-slate{position:absolute;left:10px;top:9px;bottom:9px;width:min(78%,440px);box-sizing:border-box;padding:7px 9px;border-radius:7px;',
+    'display:flex;flex-wrap:wrap;align-content:center;justify-content:center;',
+    'font-size:23px;font-weight:600;color:#f3efe2;',
+    'background:radial-gradient(40% 50% at 30% 35%,rgba(243,239,226,.10),transparent 70%),radial-gradient(45% 45% at 75% 70%,rgba(243,239,226,.07),transparent 70%),linear-gradient(170deg,#2b3a35 0%,#1f2a26 100%);',
+    'box-shadow:inset 0 0 0 5px #9a6a3c,inset 0 0 0 6px #6f4524,inset 0 0 0 7px rgba(0,0,0,.25),0 4px 10px rgba(40,15,5,.45)}',
+    /* chalk: a soft edge of dust round each letter, never a spacing change */
+    '.akc-row{flex:1 1 180px;display:flex;justify-content:space-around;align-items:center;height:40px}',
+    '.akc-l{display:block;text-shadow:0 0 1px rgba(243,239,226,.55),0 0 6px rgba(243,239,226,.18);letter-spacing:normal}',
+    '.akc-chalk{position:absolute;right:16px;bottom:16px;width:30px;height:9px;border-radius:3px;background:linear-gradient(180deg,#fbf8ef,#e3dccb);',
+    'transform:rotate(-24deg);box-shadow:0 2px 3px rgba(40,15,5,.45)}',
+    '.akc-dust{position:absolute;right:8px;bottom:8px;width:56px;height:28px;border-radius:50%;background:radial-gradient(closest-side,rgba(251,248,239,.35),transparent)}'
+  ].join('');
+  function coverCSS() {
+    if (!D || D.getElementById('akc-css')) return;
+    var s = D.createElement('style'); s.id = 'akc-css'; s.textContent = COVER_CSS;
+    (D.head || D.documentElement).appendChild(s);
+  }
+  function coverHTML() {
+    return '<span class="akc" role="img" aria-label="The letter ka, written in eight scripts on a slate">' +
+      '<span class="akc-dust"></span><span class="akc-chalk"></span>' +
+      '<span class="akc-slate">' + [COVER_KA.slice(0, 4), COVER_KA.slice(4)].map(function (row) {
+        return '<span class="akc-row">' + row.map(function (k) {
+          return '<span class="akc-l" lang="' + k[0] + '"' + (k[0] === 'ur' ? ' dir="rtl"' : '') + '>' + k[1] + '</span>';
+        }).join('') + '</span>';
+      }).join('') + '</span></span>';
+  }
+  coverCSS();
+  W.IND_GAME_ART = W.IND_GAME_ART || {};
+  W.IND_GAME_ART.akshar = coverHTML();
 })();

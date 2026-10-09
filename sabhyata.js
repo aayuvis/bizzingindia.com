@@ -2794,9 +2794,12 @@
       return out;
     }
     function sysOn(name) {
+      /* IN THE CAMPAIGN THE CHAPTER DECIDES (master Part F, age bands): each chapter introduces
+         one system to every band — chapter 2's wilds reach a seven-year-old too, as drums and
+         lanterns. The age bands shape FREE play; they never take a chapter's own lesson away. */
       if (G && G.camp) {
         var ch = chapter(G.camp.ch);
-        if (!ch || (ch.systems || []).indexOf(name) < 0) return false;
+        return !!ch && (ch.systems || []).indexOf(name) >= 0;
       }
       var b = BAND_SYS[BAND];
       if (b && b.indexOf(name) < 0) return false;

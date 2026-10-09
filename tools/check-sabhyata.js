@@ -2081,6 +2081,481 @@ check('phone-side', 'a phone on its side still plays: the map, the turn and the 
   } finally { await ctx.close(); }
 });
 
+
+/* ================================================================ the master's week 2–4 (C5–C9, S2, S6, S7)
+   sabhyata-master E.7 / india-games-spec §2.1 acceptance, and the campaign's own two checks.
+   Each was watched to fail by breaking the thing it holds before it was trusted. */
+
+/* a fresh browser, straight to the start screen — no mode chosen yet */
+async function bootBare(browser, port, w, h) {
+  const phone = (w || 1280) < 600;
+  const ctx = await browser.newContext({ viewport: { width: w || 1280, height: h || 800 },
+    deviceScaleFactor: 1, isMobile: phone, hasTouch: phone });
+  const p = await ctx.newPage();
+  const errs = [];
+  p.on('pageerror', e => errs.push('pageerror: ' + e.message));
+  await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
+  await skipOnboarding(p);
+  await p.waitForTimeout(400);
+  await p.evaluate(() => { location.hash = '#/game/sabhyata'; });
+  await p.waitForFunction(() => typeof window.__SABG === 'function', null, { timeout: 20000 });
+  await p.waitForTimeout(700);
+  return { ctx, p, errs };
+}
+/* press whatever the screen offers, the way a child following the game would: a riddle's
+   first option (a guess — right or wrong, the chapter must still finish), else a card's own
+   primary button, else Mithu. Returns what happened. */
+const followMithu = (p, n, stopAt) => p.evaluate(async ({ n, stopAt }) => {
+  const G = () => window.__SABG(), out = [];
+  for (let i = 0; i < n; i++) {
+    const g = G();
+    if (stopAt === 'woke' && Object.keys(g.sites).some(id => id !== 'dholavira' && !g.sites[id].zzz && !g.sites[id].her)) break;
+    if (g.camp && g.camp.done) break;
+    const ro = document.querySelectorAll('#sab-ovhost [data-sab-act=criddle]');
+    if (ro.length) { ro[0].click(); out.push('riddle'); continue; }
+    const ob = document.querySelector('#sab-ovhost .sab-btn.go') || document.querySelector('#sab-ovhost .sab-btn');
+    if (ob) { if (/lamp-map/.test(ob.textContent)) break; ob.click(); out.push('card'); continue; }
+    const m = document.querySelector('.sab-npgoal') && window.__SAB().city ? document.querySelector('.sab-npgoal') : document.getElementById('sab-advise');
+    if (!m) { out.push('no mithu'); break; }
+    out.push('mithu:' + window.__SABDO.advise().act);
+    m.click();
+    await new Promise(r => setTimeout(r, 5));
+  }
+  const g = G();
+  return { out, t: g.t, woke: Object.keys(g.sites).filter(id => id !== 'dholavira' && !g.sites[id].zzz && !g.sites[id].her) };
+}, { n, stopAt });
+
+check('start-screen', 'C.4 #6: the start screen offers the campaign first, then Short and Long, with honest minutes — Chapter 1 is one tap away', async ({ browser, port }) => {
+  const { ctx, p, errs } = await bootBare(browser, port);
+  try {
+    const r = await p.evaluate(() => {
+      const bs = [...document.querySelectorAll('#sab-ovhost [data-sab-act="mode"]')];
+      const reg = (window.IND_GAMES || []).find(g => g.id === 'sabhyata');
+      return { modes: bs.map(b => b.getAttribute('data-m')), texts: bs.map(b => b.innerText.replace(/\s+/g, ' ')),
+               first: (document.querySelector('#sab-ovhost .sab-btn') || {}).getAttribute ? document.querySelector('#sab-ovhost .sab-btn').getAttribute('data-m') : null,
+               minutes: reg && reg.minutes };
+    });
+    if (r.modes.join() !== 'camp,short,long') throw new Error('the start screen offers ' + r.modes.join(', ') + ' — wanted the campaign, the short game and the long one');
+    if (r.first !== 'camp') throw new Error('the first button is ' + r.first + ', not the campaign');
+    if (!/15.20 minutes/.test(r.texts[0]) || !/hour/.test(r.texts[1]) || !/hours/.test(r.texts[2]))
+      throw new Error('a length is not said honestly: ' + r.texts.join(' | '));
+    if (!(r.minutes >= 15)) throw new Error(`the Mela card still says ${r.minutes} min for a game of hours`);
+    await p.click('#sab-ovhost [data-m="camp"]'); await p.waitForTimeout(300);
+    const c = await p.evaluate(() => ({ camp: window.__SABG().camp, made: (document.querySelector('#sab-ovhost .sab-made') || {}).textContent || '' }));
+    if (!c.camp || c.camp.ch !== 1) throw new Error('one tap did not start Chapter 1');
+    if (!/made up/i.test(c.made)) throw new Error('the guide is not labelled as made up');
+    if (errs.length) throw new Error(errs[0]);
+  } finally { await ctx.close(); }
+});
+
+check('mithu', 'S2: a new child following only Mithu wakes a city within 10 turns, and his tap is never dead', async ({ browser, port }) => {
+  const { ctx, p, errs } = await bootBare(browser, port);
+  try {
+    await p.click('#sab-ovhost [data-m="long"]'); await p.waitForTimeout(400);
+    const r = await followMithu(p, 80, 'woke');
+    if (!r.woke.length) throw new Error(`following Mithu, nothing woke by turn ${r.t + 1}: ${r.out.slice(-6).join(' ')}`);
+    if (r.t + 1 > 10) throw new Error(`following Mithu, ${r.woke[0]} woke on turn ${r.t + 1} — the spec asks for 10`);
+    /* never a dead tap: with nothing else to do, pressing him spends the year */
+    const d = await p.evaluate(() => {
+      const G = window.__SABG(); const t0 = G.t;
+      G.res = { anna: 0, kala: 0, katha: 0 }; G.explorers = [];
+      Object.keys(G.sites).forEach(id => { if (id !== 'dholavira') { G.sites[id].found = false; G.sites[id].zzz = true; } });
+      G.routes = []; window.__SABDO.paint();
+      const ad = window.__SABDO.advise(); document.getElementById('sab-advise').click();
+      return { act: ad.act, moved: G.t !== t0 || !!document.querySelector('#sab-ovhost .sab-card') };
+    });
+    if (!d.moved) throw new Error(`with nothing affordable, Mithu's tap (${d.act}) did nothing`);
+    /* and the Next line says what his tap does (hint() merged into him) */
+    const same = await p.evaluate(() => (document.getElementById('sab-guide') || {}).textContent.indexOf(window.__SABDO.advise().label) >= 0);
+    if (!same) throw new Error('the guide line and Mithu disagree');
+    if (errs.length) throw new Error(errs[0]);
+  } finally { await ctx.close(); }
+});
+
+check('camp-ch1', 'S7: Chapter 1 of Mithu\'s Lamps completes for a guided bot in good time, every riddle shown, the lamp lit and the chapter paid once', async ({ browser, port }) => {
+  const { ctx, p, errs } = await bootBare(browser, port);
+  try {
+    await p.evaluate(() => { window.__rew = []; window.addEventListener('ind-reward', e => window.__rew.push(e.detail)); });
+    await p.click('#sab-ovhost [data-m="camp"]'); await p.waitForTimeout(300);
+    await p.click('#sab-ovhost [data-sab-act="campgo"]'); await p.waitForTimeout(300);
+    const t0 = Date.now();
+    const r = await followMithu(p, 260);
+    const s = await p.evaluate(() => {
+      const G = window.__SABG(), L = window.__SABDO.lamps();
+      return { done: G.camp && G.camp.done, asked: G.camp ? Object.keys(G.camp.asked).length : 0, lit: !!L.lit[1],
+               card: (document.querySelector('#sab-ovhost') || {}).innerText || '',
+               stops: window.__rew.filter(d => d.kind === 'stop').length, paid: !!L.paid[1] };
+    });
+    if (!s.done) throw new Error(`chapter 1 did not finish (turn ${r.t + 1}): ${r.out.slice(-8).join(' ')}`);
+    if (r.t + 1 > 40) throw new Error(`chapter 1 took ${r.t + 1} turns — its own good time is 40`);
+    if (Date.now() - t0 > 20 * 60 * 1000) throw new Error('chapter 1 took longer than twenty minutes even for a bot');
+    if (s.asked !== 3) throw new Error(`${s.asked} of 3 riddles were shown`);
+    if (!s.lit) throw new Error('the lamp is not lit on the lamp-map');
+    if (!/signboard/i.test(s.card) || !/Iron/.test(s.card)) throw new Error('the payoff card lacks the souvenir or the aha');
+    /* paid once: through the host's own hook when it has one, else the one fallback event */
+    if (!s.paid) throw new Error('the chapter\'s stop was never paid');
+    if (s.stops > 1) throw new Error(`the chapter was paid ${s.stops} times (want 1)`);
+    /* the lamp-map, and a replay that pays no second stop */
+    await p.evaluate(() => { const b = document.querySelector('#sab-ovhost [data-sab-act="lampmap"]'); if (b) b.click(); });
+    await p.waitForTimeout(200);
+    const m = await p.evaluate(() => ({ lamps: document.querySelectorAll('.sab-lmrow').length, lit: document.querySelectorAll('.sab-lmrow.lit').length }));
+    if (m.lamps !== 13 || m.lit !== 1) throw new Error(`the lamp-map shows ${m.lamps} lamps, ${m.lit} lit`);
+    await p.evaluate(() => window.__SABDO.chapter(1)); await p.waitForTimeout(200);
+    await p.click('#sab-ovhost [data-sab-act="campgo"]'); await p.waitForTimeout(200);
+    await followMithu(p, 260);
+    const again = await p.evaluate(() => window.__rew.filter(d => d.kind === 'stop').length);
+    if (again > 1 || again !== s.stops) throw new Error('replaying chapter 1 paid its stop a second time');
+    if (errs.length) throw new Error(errs[0]);
+  } finally { await ctx.close(); }
+});
+
+check('camp-mask', 'E2/E3/E12: a chapter cannot start with a system its preset turns off — no Vidya, sea, quarrels, quests or human raids; darshan is told, not a boon', async ({ browser, port }) => {
+  const { ctx, p, errs } = await bootBare(browser, port);
+  try {
+    await p.click('#sab-ovhost [data-m="long"]'); await p.waitForTimeout(300);
+    const r = await p.evaluate(() => {
+      const C = window.IND_SABHYATA_CAMPAIGN, D = window.__SABDO, bad = [];
+      const ALL = ['explore', 'road', 'wake', 'riddles', 'city', 'raids', 'jobs', 'buildings', 'grow', 'monuments', 'capital',
+                   'quests', 'vidya', 'events', 'utsav', 'sea', 'quarrels', 'riti', 'heroes', 'akal', 'advance', 'khazana'];
+      C.chapters.filter(c => c.status === 'open').forEach(c => {
+        if (!D.chapter(c.n)) { bad.push('ch' + c.n + ' would not start'); return; }
+        const b = document.querySelector('#sab-ovhost [data-sab-act="campgo"]'); if (b) b.click();
+        ALL.forEach(s => { if (D.sysOn(s) !== (c.systems.indexOf(s) >= 0)) bad.push('ch' + c.n + ' ' + s + ' is ' + (D.sysOn(s) ? 'on' : 'off')); });
+        const vis = sel => [...document.querySelectorAll(sel)].some(el => !el.hidden && el.offsetParent !== null);
+        if (vis('[data-sab-act="tabtech"]')) bad.push('ch' + c.n + ' shows Vidya');
+        if (vis('#sabwrap .sab-tab[data-sab-act="world"]')) bad.push('ch' + c.n + ' shows the sea roads');
+        const human = D.threats().filter(id => window.IND_SABHYATA.raids.find(x => x.id === id).kind === 'human');
+        if (human.length) bad.push('ch' + c.n + ' can raid with ' + human.join(','));
+        /* forty years: no quarrel, no quest scroll, no overseas request, no lean season */
+        const G = window.__SABG();
+        G.res.anna = G.res.kala = 900; G.lastd = -99; G.lastq = -99;
+        for (let i = 0; i < 40; i++) {
+          D.turn();
+          const ob = document.querySelector('#sab-ovhost .sab-btn.go'); if (ob && !/lamp-map/.test(ob.textContent)) ob.click();
+          const ro = document.querySelector('#sab-ovhost [data-sab-act=criddle]'); if (ro) ro.click();
+        }
+        if (G.disp) bad.push('ch' + c.n + ' raised a quarrel');
+        if (Object.keys(G.quests).length) bad.push('ch' + c.n + ' raised a quest scroll');
+        if (Object.keys(G.req || {}).length) bad.push('ch' + c.n + ' raised an overseas request');
+        if (G.ev) bad.push('ch' + c.n + ' raised a lean season');
+      });
+      /* the darshan is a told card: the Buddha at Kashi changes nothing in the realm */
+      D.chapter(2); const b2 = document.querySelector('#sab-ovhost [data-sab-act="campgo"]'); if (b2) b2.click();
+      const G = window.__SABG();
+      G.sites.kashi.found = true; G.sites.kashi.zzz = false; G.camp.done = true;
+      for (let i = 0; i < 4; i++) { const ob = document.querySelector('#sab-ovhost .sab-btn'); if (ob) ob.click(); }
+      G.lastdarshan = -99; const k0 = G.res.katha;
+      G.disp = { a: 'kashi', b: 'hastinapura', over: 'x', fix: [], left: 9 };
+      D.turn();
+      const card = (document.querySelector('#sab-ovhost') || {}).innerText || '';
+      return { bad, darshan: /Buddha/.test(card), boon: G.res.katha - k0 >= 40 || !G.disp || G.calmUntil > G.t, card: card.slice(0, 160) };
+    });
+    if (r.bad.length) throw new Error(r.bad.slice(0, 4).join('; '));
+    if (!r.darshan) throw new Error('the Buddha\'s darshan did not fire in chapter 2: ' + r.card);
+    if (r.boon) throw new Error('the darshan still acts as a boon (katha, a quarrel set down, or calm)');
+    if (errs.length) throw new Error(errs[0]);
+  } finally { await ctx.close(); }
+});
+
+check('camp-facts', 'every chapter\'s facts resolve to data-sabhyata.js entries with sources; flagged chapters stay shut outside tester mode', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const C = window.IND_SABHYATA_CAMPAIGN, D = window.__SABDO, bad = [];
+    const need = (ref, where) => { const l = D.refLine(ref); if (!l || !l.t || !l.src) bad.push(where + ': ' + ref + ' does not resolve to a sourced line'); };
+    C.chapters.forEach(c => {
+      if (c.status !== 'open') {
+        if (D.chapterOpen(c.n)) bad.push('ch' + c.n + ' (coming) opens');
+        return;
+      }
+      (c.hookRefs || []).forEach(r => need(r, 'ch' + c.n + ' hook'));
+      if (!(c.hookRefs || []).length) bad.push('ch' + c.n + ' hook names no source');
+      (c.beats || []).forEach(b => { if (b.ref) need(b.ref, b.id); if (b.ref2) need(b.ref2, b.id); });
+      (c.riddles || []).forEach(q => {
+        need(q.aRef, q.id + ' answer');
+        (q.o || []).forEach(o => { if (o.ref) need(o.ref, q.id + ' "' + o.t + '"'); if (o.why && !o.ref) bad.push(q.id + ' "' + o.t + '" says ' + o.why + ' with no line behind it'); });
+        if ((q.o || []).some(o => o.t === q.a)) bad.push(q.id + ' has its answer twice');
+        if (!(c.beats || []).some(b => b.riddle === q.id)) bad.push(q.id + ' is never asked');
+      });
+      need(c.payoff.aha, 'ch' + c.n + ' aha'); need(c.payoff.souvenir, 'ch' + c.n + ' souvenir');
+      if (!c.guide || !/made up/i.test(c.guide.note + ' ' + 'made up')) bad.push('ch' + c.n + ' guide');
+    });
+    [3, 6, 8, 9, 10, 11, 12].forEach(n => { const c = C.chapters.find(x => x.n === n); if (!c || !c.review) bad.push('ch' + n + ' lost its reviewer flag'); });
+    return bad;
+  });
+  if (r.length) throw new Error(r.slice(0, 5).join('; '));
+  /* a flagged chapter, once built, opens only in tester mode */
+  const t = await p.evaluate(() => {
+    const c = window.IND_SABHYATA_CAMPAIGN.chapters.find(x => x.n === 3);
+    const was = { status: c.status, preset: c.preset };
+    c.status = 'open'; c.preset = window.IND_SABHYATA_CAMPAIGN.chapters[0].preset;
+    const open = window.__SABDO.chapterOpen(3);
+    c.status = was.status; c.preset = was.preset;
+    return open;
+  });
+  if (t) throw new Error('a reviewer-flagged chapter opened outside tester mode');
+});
+
+check('bands', 'C.4 #5: the age band decides what is on — 4–7 explore, road and wake, Sochna and three ages; 8–10 adds buildings, quests and Vidya', async ({ p }) => {
+  const r = await p.evaluate(async () => {
+    const eng = window.IND_GAMES.find(g => g.id === 'sabhyata').engine, out = {};
+    for (const band of ['4-7', '8-10', '11-12']) {
+      if (window.__sabTd) window.__sabTd();
+      const host = document.getElementById('gamehost');
+      host.innerHTML = '';
+      window.__sabTd = eng(host, { band }, () => {});
+      await new Promise(r => setTimeout(r, 150));
+      const D = window.__SABDO;
+      const modes = [...document.querySelectorAll('#sab-ovhost [data-sab-act="mode"]')].map(b => b.getAttribute('data-m'));
+      const lg = document.querySelector('#sab-ovhost [data-m="short"]'); if (lg) lg.click();
+      await new Promise(r => setTimeout(r, 100));
+      const vis = sel => [...document.querySelectorAll(sel)].some(el => !el.hidden && el.offsetParent !== null);
+      out[band] = { band: D.band(), modes, bld: D.sysOn('buildings'), quests: D.sysOn('quests'), vidya: D.sysOn('vidya'),
+                    raids: D.sysOn('raids'), sea: D.sysOn('sea'), road: D.sysOn('road'), speed: vis('#sab-speed'),
+                    vidyaTab: vis('[data-sab-act="tabtech"]') };
+    }
+    return out;
+  });
+  const a = r['4-7'], b = r['8-10'], c = r['11-12'];
+  if (a.band !== '4-7') throw new Error('the engine did not take the band it was given');
+  if (a.modes.indexOf('long') >= 0) throw new Error('4–7 is offered the thirteen-age game');
+  if (a.bld || a.quests || a.vidya || a.raids || a.sea || !a.road) throw new Error('4–7 has more than exploring, roads and waking: ' + JSON.stringify(a));
+  if (a.vidyaTab) throw new Error('4–7 shows the Vidya tab');
+  if (!b.bld || !b.quests || !b.vidya || b.raids || b.sea) throw new Error('8–10 is not buildings, quests and Vidya: ' + JSON.stringify(b));
+  if (!c.bld || !c.raids || !c.sea) throw new Error('11–12 is not everything: ' + JSON.stringify(c));
+});
+
+/* the cells a child may build on, and how many of them a finger can reach right now */
+const reachOnScreen = p => p.evaluate(() => {
+  const D = window.__SABDO, id = window.__SAB().city, G = window.__SABG();
+  const inr = document.getElementById('sab-kitinner'), view = document.getElementById('sab-view');
+  if (!inr || !view) return { none: true };
+  const r = inr.getBoundingClientRect(), k = parseFloat(inr.getAttribute('data-k')) || 1;
+  const cells = D.legal(id); let seen = 0;
+  cells.forEach(c => {
+    const px = D.cellPx(id, c[0], c[1]), x = r.left + px.x * k, y = r.top + px.y * k;
+    if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return;
+    const el = document.elementFromPoint(x, y);
+    if (el && view.contains(el)) seen++;          /* on the board, not under the HUD */
+  });
+  /* the middle of the free view: a tap there must not be "too far out" */
+  const vr = view.getBoundingClientRect();
+  return { cells: cells.length, seen, line: !!(document.querySelector('.sab-reachline path') || {}).getAttribute,
+           lineLen: ((document.querySelector('.sab-reachline path') || { getAttribute: () => '' }).getAttribute('d') || '').length,
+           z: G.kitZ };
+});
+check('city-frame', 'C5: a city opens on its heart with at least 80% of its legal build cells on screen, inside a visible reach outline — desktop and phone', async ({ browser, port }) => {
+  const bad = [];
+  for (const [w, h] of [[1280, 800], [390, 844]]) {
+    const { ctx, p } = await bootBare(browser, port, w, h);
+    try {
+      await p.click('#sab-ovhost [data-m="long"]'); await p.waitForTimeout(300);
+      for (const id of ['dholavira', 'lothal']) {
+        await p.evaluate(id => { const G = window.__SABG(); const q = G.sites[id]; q.found = true; q.zzz = false; window.__SABDO.act(id, 'city'); }, id);
+        await p.waitForTimeout(900);
+        const m = await reachOnScreen(p);
+        if (m.none) { bad.push(`${w}: ${id} did not open on its board`); continue; }
+        const share = m.seen / m.cells;
+        if (share < 0.8) bad.push(`${w}: ${id} shows ${m.seen} of ${m.cells} buildable cells (${Math.round(share * 100)}%) at ${m.z * 100}%`);
+        if (!m.line || m.lineLen < 40) bad.push(`${w}: ${id} has no reach outline`);
+        await p.evaluate(() => { const b = document.querySelector('[data-sab-act="leave"]'); if (b) b.click(); });
+        await p.waitForTimeout(300);
+      }
+    } finally { await ctx.close(); }
+  }
+  if (bad.length) throw new Error(bad.join('; '));
+});
+
+check('city-hold', 'C6: holding a piece keeps Rotate and Put back on screen, the view still pans, and the keys are shown on a desktop', async ({ p }) => {
+  await p.evaluate(() => { const G = window.__SABG(); G.res.anna = 500; G.res.kala = 500; });
+  await openCity(p, 'dholavira');
+  await p.evaluate(() => { const b = document.querySelector('[data-sab-act="kitopen"]'); if (b) b.click(); });
+  await p.waitForTimeout(250);
+  await p.evaluate(() => { const t = document.querySelector('[data-sab-act="kitpick"]:not([disabled])'); if (t) t.click(); });
+  await p.waitForTimeout(300);
+  const r = await p.evaluate(() => {
+    const hit = sel => { const b = document.querySelector(sel); if (!b) return 'missing';
+      const q = b.getBoundingClientRect(); if (!q.width) return 'hidden';
+      const el = document.elementFromPoint(q.left + q.width / 2, q.top + q.height / 2);
+      return el && b.contains(el) ? 'ok' : 'covered by ' + (el ? el.className : 'nothing'); };
+    return { bar: !!document.querySelector('.sab-holdbar'), rot: hit('.sab-holdbar [data-sab-act="kitturnp"]'),
+             put: hit('.sab-holdbar [data-sab-act="kitdrop"]'), keys: ((document.querySelector('.sab-holdbar .keys') || {}).textContent || '') };
+  });
+  if (!r.bar) throw new Error('picking a piece shows no holding bar');
+  if (r.rot !== 'ok') throw new Error('Rotate: ' + r.rot);
+  if (r.put !== 'ok') throw new Error('Put back: ' + r.put);
+  if (!/Enter/.test(r.keys) || !/R/.test(r.keys) || !/Esc/.test(r.keys)) throw new Error('the keys are not shown: "' + r.keys + '"');
+  /* drag the board while holding: it must pan */
+  /* from a patch of bare board — pressing the scaffold is pressing a button, not the ground */
+  const v = await p.evaluate(() => { const view = document.getElementById('sab-view'), q = view.getBoundingClientRect();
+    let at = null;
+    for (let fy = 0.35; fy < 0.8 && !at; fy += 0.05) for (let fx = 0.2; fx < 0.8 && !at; fx += 0.05) {
+      const x = q.left + q.width * fx, y = q.top + q.height * fy, el = document.elementFromPoint(x, y);
+      if (el && view.contains(el) && !el.closest('[data-sab-act]')) at = { x, y };
+    }
+    return { x: at ? at.x : q.left + q.width / 2, y: at ? at.y : q.top + q.height / 2, s: [view.scrollLeft, view.scrollTop] }; });
+  await p.mouse.move(v.x, v.y); await p.mouse.down();
+  for (let i = 1; i <= 6; i++) await p.mouse.move(v.x - i * 25, v.y - i * 15);
+  await p.mouse.up(); await p.waitForTimeout(200);
+  const s2 = await p.evaluate(() => [document.getElementById('sab-view').scrollLeft, document.getElementById('sab-view').scrollTop]);
+  if (s2[0] === v.s[0] && s2[1] === v.s[1]) throw new Error('with a piece in hand, dragging the board does not pan it');
+  const still = await p.evaluate(() => !!document.querySelector('.sab-holdbar'));
+  if (!still) throw new Error('a drag dropped the piece');
+});
+
+/* every button on screen answers its own centre, and is a thumb wide */
+const hitAll = (p, where) => p.evaluate(where => {
+  const bad = [];
+  const root = window.__SAB().city ? document.getElementById('sab-cityhost') : document.getElementById('sabwrap');
+  root.querySelectorAll('button, [data-sab-act]').forEach(b => {
+    if (b.disabled || b.closest('[aria-hidden="true"]')) return;
+    const q = b.getBoundingClientRect();
+    if (q.width < 2 || q.height < 2) return;
+    const cs = getComputedStyle(b); if (cs.visibility === 'hidden' || cs.display === 'none') return;
+    const cx = q.left + q.width / 2, cy = q.top + q.height / 2;
+    if (cx < 0 || cy < 0 || cx > innerWidth || cy > innerHeight) return;
+    /* panned out of the painted plate's camera is out of sight, not covered */
+    const sc = b.closest('.sab-scene'); if (sc) { const z = sc.getBoundingClientRect();
+      if (cx < z.left || cx > z.right || cy < z.top || cy > z.bottom) return; }
+    if (b.closest('.sab-dtiles,.sab-dtabs,.sab-kitpins,.sab-calllist,.sab-tray')) return;   /* scrollers and pins are measured by their own checks */
+    const el = document.elementFromPoint(cx, cy);
+    const label = (b.getAttribute('data-sab-act') || '') + ' "' + (b.innerText || b.getAttribute('aria-label') || '').trim().slice(0, 18) + '"';
+    if (!el || !(b === el || b.contains(el))) bad.push(where + ': ' + label + ' covered by ' + (el ? (el.className || el.tagName) : 'nothing'));
+    else if (Math.min(q.width, q.height) < 44) bad.push(where + ': ' + label + ' is ' + Math.round(q.width) + '×' + Math.round(q.height));
+  });
+  return bad;
+}, where);
+check('city-hits', 'C7/S6: every button in a city answers a tap at its centre and is ≥ 44 px — shelf shut and open, desktop and phone, built and painted', async ({ browser, port }) => {
+  const bad = [];
+  for (const [w, h] of [[1280, 800], [390, 844]]) {
+    const { ctx, p } = await bootBare(browser, port, w, h);
+    try {
+      await p.click('#sab-ovhost [data-m="long"]'); await p.waitForTimeout(300);
+      await p.evaluate(() => { const G = window.__SABG(); G.res.anna = 500; G.res.kala = 500; G.res.katha = 500;
+        G.sites.dholavira.kit = [{ p: 'hs-hut-round', x: 6, y: 6 }]; window.__SABDO.act('dholavira', 'city'); });
+      await p.waitForTimeout(900);
+      bad.push(...await hitAll(p, w + ' kit'));
+      await p.evaluate(() => { const b = document.querySelector('[data-sab-act="kitopen"]'); if (b) b.click(); });
+      await p.waitForTimeout(300);
+      bad.push(...await hitAll(p, w + ' kit+shelf'));
+      await p.evaluate(() => { const b = document.querySelector('[data-sab-act="leave"]'); if (b) b.click(); });
+      await p.waitForTimeout(300);
+      /* a painted city: Pataliputra, one age on */
+      await p.evaluate(() => { const G = window.__SABG(); G.era = 2; const q = G.sites.pataliputra; q.found = true; q.zzz = false; q.seen = true;
+        window.__SABDO.act('pataliputra', 'city'); });
+      await p.waitForTimeout(900);
+      bad.push(...await hitAll(p, w + ' painted'));
+    } finally { await ctx.close(); }
+  }
+  if (bad.length) throw new Error(bad.slice(0, 30).join('; ') + (bad.length > 30 ? ` (+${bad.length - 30} more)` : ''));
+});
+
+check('payoff', 'C8/E.5: a placement floats its yield and threads its neighbours; the piece card lists base + each bonus with its reason; Agla Saal leaves a one-line report; the goal strip is on screen', async ({ p }) => {
+  /* two dry cells side by side, inside the reach (the payout's own legal list) */
+  const spots = await p.evaluate(() => {
+    const D = window.__SABDO, L = D.legal('dholavira'), ok = {}; L.forEach(c => { ok[c[0] + ',' + c[1]] = 1; });
+    const land = (x, y) => ok[x + ',' + y] && D.terrain('dholavira', x, y) === 'land';
+    const d = window.IND_KIT.def('bd-har-bead').d, Lx = d[0] || 1, By = d[1] || 1;
+    const fits = (x, y) => { for (let a = 0; a < Lx; a++) for (let b = 0; b < By; b++) if (!land(x + a, y + b)) return false; return true; };
+    for (const [x, y] of L) if (fits(x, y) && fits(x + Lx, y)) return { pair: [[x, y], [x + Lx, y]] };
+    return { pair: [] };
+  });
+  if (spots.pair.length < 2) throw new Error('no adjacent pair of cells to test with');
+  await p.evaluate(({ pair }) => { const G = window.__SABG(); G.res.anna = 500; G.res.kala = 500;
+    G.sites.dholavira.kit = [{ p: 'bd-har-bead', x: pair[0][0], y: pair[0][1] }]; }, spots);
+  await openCity(p, 'dholavira');
+  /* place the second workshop beside the first, through the real tap path */
+  const placed = await p.evaluate(({ pair }) => new Promise(res => {
+    const t = document.querySelector('[data-sab-act="kitopen"]'); if (t) t.click();
+    setTimeout(() => {
+      const tab = document.querySelector('[data-sab-act="kittab"][data-g="work"]'); if (tab) tab.click();
+      const tile = document.querySelector('[data-sab-act="kitpick"][data-p="bd-har-bead"]'); if (tile) tile.click();
+      setTimeout(() => {
+        const inr = document.getElementById('sab-kitinner'), r = inr.getBoundingClientRect(), k = parseFloat(inr.getAttribute('data-k'));
+        const px = window.__SABDO.cellPx('dholavira', pair[1][0], pair[1][1]);
+        const x = r.left + px.x * k, y = r.top + px.y * k;
+        const seen = { float: '', thread: false };
+        const obs = new MutationObserver(() => {
+          const f = document.querySelector('.sab-float'); if (f) seen.float = f.textContent;
+          if (document.querySelector('#sab-threads line')) seen.thread = true;
+        });
+        obs.observe(document.getElementById('sab-floats'), { childList: true, subtree: true });
+        inr.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: x, clientY: y }));
+        setTimeout(() => { obs.disconnect(); res({ seen, n: window.__SABG().sites.dholavira.kit.length }); }, 300);
+      }, 200);
+    }, 200);
+  }), spots);
+  if (placed.n !== 2) throw new Error('the second workshop was not placed (' + placed.n + ' pieces)');
+  if (!/\+\d/.test(placed.seen.float)) throw new Error('placing it floated no yield: "' + placed.seen.float + '"');
+  if (!placed.seen.thread) throw new Error('placing it beside another workshop drew no thread to it');
+  /* its card: base and the bonus with the rule's own words */
+  const card = await p.evaluate(({ pair }) => {
+    const D = window.__SABDO; document.querySelector('[data-sab-act="kitdrop"]') && document.querySelector('[data-sab-act="kitdrop"]').click();
+    const inr = document.getElementById('sab-kitinner'), r = inr.getBoundingClientRect(), k = parseFloat(inr.getAttribute('data-k'));
+    const px = D.cellPx('dholavira', pair[1][0], pair[1][1]);
+    inr.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left + px.x * k, clientY: r.top + px.y * k }));
+    const led = document.querySelector('#sab-ovhost .sab-pledger');
+    return led ? led.innerText : '';
+  }, spots);
+  if (!/its own work/.test(card) || !/Workshops beside workshops/.test(card)) throw new Error('the piece card does not list base + bonus with its reason: "' + card.replace(/\s+/g, ' ').slice(0, 120) + '"');
+  /* Agla Saal leaves a one-line report, never a modal; the goal strip is always there */
+  await closeCard(p); await p.waitForTimeout(150);
+  await p.evaluate(() => { const b = document.querySelector('[data-sab-act="leave"]'); if (b) b.click(); });
+  await p.waitForTimeout(250);
+  const rep = await p.evaluate(() => { window.__SABDO.turn(); window.__SABDO.paint();
+    return { line: (document.querySelector('#sab-report .sab-report') || {}).innerText || '', modal: !!document.querySelector('#sab-ovhost .sab-card'),
+             goal: (document.getElementById('sab-goal') || {}).innerText || '' }; });
+  if (!/[+-]\d|no change/.test(rep.line)) throw new Error('Agla Saal left no turn report: "' + rep.line + '"');
+  if (!/lamps/.test(rep.goal) || !/next/.test(rep.goal)) throw new Error('the goal strip is missing: "' + rep.goal + '"');
+});
+
+check('opening', 'C9: the first city nets at least +1 grain a turn, and is not "restless" alone', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG(), a0 = G.res.anna; window.__SABDO.turn();
+    return { d: G.res.anna - a0, k: window.__SABDO.khushi() };
+  });
+  if (r.d < 1) throw new Error(`the first city netted ${r.d} grain on its first turn`);
+  if (r.k.restless) throw new Error('a lone first city is called restless');
+});
+
+check('city-grow', 'D.1 #9: next-level pieces wait locked with their level; growing shows an Unlocked card; a compass stands on the board; Grow never tells Dholavira\'s story in another city; the board\'s camera is "View"', async ({ p }) => {
+  await p.evaluate(() => { const G = window.__SABG(); G.res.anna = 500; G.res.kala = 500; const q = G.sites.lothal; q.found = true; q.zzz = false; });
+  await openCity(p, 'lothal');
+  const r = await p.evaluate(() => {
+    const b = document.querySelector('[data-sab-act="kitopen"]'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click();
+    const tabs = [...document.querySelectorAll('[data-sab-act="kittab"]')].map(t => t.getAttribute('data-g'));
+    let locked = 0;
+    for (const g of tabs) { const t = document.querySelector(`[data-sab-act="kittab"][data-g="${g}"]`); t.click();
+      locked += [...document.querySelectorAll('.sab-tile.next')].filter(x => /level 2/.test(x.innerText)).length; }
+    const view = (document.querySelector('[data-sab-act="kitturn"]') || {}).innerText || '';
+    return { locked, compass: !!document.querySelector('.sab-compass svg'), view };
+  });
+  if (!r.locked) throw new Error('no next-level piece is shown locked with its level');
+  if (!r.compass) throw new Error('no compass on the board');
+  if (!/view/i.test(r.view) || /turn/i.test(r.view)) throw new Error('the camera button still reads "' + r.view + '"');
+  await p.evaluate(() => { const g = document.querySelector('.sab-grow[data-sab-act="grow"]'); if (g) g.click(); });
+  await p.waitForTimeout(250);
+  const d = await p.evaluate(() => (document.querySelector('#sab-ovhost') || {}).innerText || '');
+  if (/Dholavira/.test(d)) throw new Error('Lothal\'s grow card tells Dholavira\'s story');
+  await p.evaluate(() => { const b = document.querySelector('#sab-ovhost [data-sab-act="growdir"]'); if (b) b.click(); });
+  await p.waitForTimeout(250);
+  const u = await p.evaluate(() => (document.querySelector('#sab-ovhost h3') || {}).textContent || '');
+  if (!/Unlocked/.test(u)) throw new Error('growing showed no Unlocked card (saw "' + u + '")');
+});
+
+check('desk-enter', 'E.6 #10 / D.2 d: a desktop chooses a city and sees "Enter <city>"; every built city\'s monument stands on dry land', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    window.__SABDO.act('dholavira', 'close');
+    const g = document.getElementById('sab-dholavira'); ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(t => g.dispatchEvent(new MouseEvent(t, { bubbles: true })));
+    const b = document.querySelector('#sab-sheet .sab-enter');
+    const wet = Object.keys(window.IND_KIT_CITIES || {}).filter(id => {
+      const m = window.__SABDO.monCell(id); if (!m) return true;
+      return [[0, 0], [1, 0], [0, 1], [1, 1]].some(d => window.__SABDO.terrain(id, m[0] + d[0], m[1] + d[1]) !== 'land');
+    });
+    return { text: b ? b.innerText : '', vis: b ? b.getBoundingClientRect().width > 0 : false, wet };
+  });
+  if (!r.vis || !/Enter Dholavira/.test(r.text)) throw new Error('the desktop sheet has no "Enter Dholavira" door');
+  if (r.wet.length) throw new Error('the monument is anchored off dry land in ' + r.wet.join(', '));
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

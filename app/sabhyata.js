@@ -1643,6 +1643,13 @@
     '.sab-npgoal b{font:800 12.5px/1.2 var(--body,system-ui);color:#f3d48c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.sab-scene.tight .sab-npgoal{left:auto;right:8px;top:60px;transform:none;max-width:calc(100% - 76px)}',
     '.sab-scene.tight.shelfup .sab-npgoal{display:none}',
+    '.sab-city>.sab-npgoal{position:relative;left:auto;top:auto;transform:none;margin:8px auto 4px;max-width:calc(100% - 16px)}',
+    /* a painted city: the crew stations stop swallowing the plots under them (D.1 #8) */
+    '.sab-station{pointer-events:none}',
+    '.sab-station .pm,.sab-herostand{pointer-events:auto}',
+    '.sab-station .pm{min-width:44px!important;min-height:44px!important}',
+    '.sab-scene.tight .sab-station{transform:none}',
+    '.sab-bird,.sab-greens,.sab-greens *,.sab-praja,.sab-praja *{pointer-events:none}',
     /* every target a thumb wide (D.1 #10, S6): job ±, ☰, zoom, the way out */
     '.sab-ptile{flex:0 0 102px}',
     '.sab-ptile .pmrow{gap:6px}',
@@ -1651,6 +1658,7 @@
     '.sab-leave{min-height:44px!important}',
     '.sab-kitbar button,.sab-kitbar .z{min-height:44px!important;min-width:44px}',
     '.sab-dtab{min-height:44px}',
+    '.sab-dhandle,.sab-grow,.sab-cityturn .sab-act{min-height:44px!important}',
     '.sab-dclose{min-width:44px;min-height:44px}',
     '.sab-drawer .sab-grow{min-height:44px}',
     '.sab-viewbtn i{display:inline-flex;vertical-align:middle}',
@@ -3498,6 +3506,7 @@
           var t = K2.terrain(id, x, y);
           if (!t || t === 'water') continue;
           if (K2.reach(id, x, y) > reachTo(id, x, y)) continue;
+          if (monGround(id, x, y)) continue;           /* kept for the monument */
           out.push([x, y]);
         }
       }
@@ -3511,7 +3520,7 @@
     }
     /* what the HUD covers at each edge of the city, so "on screen" means "where a finger can go" */
     function cityPad() {
-      return tightScreen() ? { t: 104, b: 176, l: 10, r: 60 } : { t: 76, b: 84, l: 14, r: 14 };
+      return tightScreen() ? { t: 104, b: 176, l: 10, r: 10 } : { t: 116, b: 70, l: 74, r: 14 };
     }
     /* A CITY OPENS ON ITS HEART, AT A ZOOM THAT SHOWS ITS WHOLE REACH (D.1 #4, C5). It used to
        open at 200% on the monument's cell — in Dholavira that is the reservoir — with 18 of 72
@@ -3535,7 +3544,11 @@
       var k = parseFloat(inr.getAttribute('data-k')) || 1, base = k / (G.kitZ || 1);
       var need = Math.min(vw / (x1 - x0), vh / (y1 - y0)) / base, pick = ZOOMS[0];
       ZOOMS.forEach(function (z) { if (z <= need + 1e-6) pick = z; });
-      pick = Math.min(pick, 2);
+      /* a full-window board is drawn to COVER its window at 100%; smaller than that, the board
+         may end behind the bottom row of buttons but never above it — no band of nothing */
+      var hh0 = parseFloat(inr.style.height) || 1, zFloor = Math.min(1, (v.clientHeight - pad.b) / (hh0 * base));
+      var floorZ = ZOOMS.filter(function (z) { return z >= zFloor - 0.02; })[0] || 1;
+      pick = Math.min(Math.max(pick, floorZ), 2);
       if (Math.abs(pick - (G.kitZ || 1)) > 1e-6) { G.kitZ = pick; paintCity(); W.IND_KIT.fit(D); }
       v = kitView(); inr = D.getElementById('sab-kitinner'); if (!v || !inr) return;
       k = parseFloat(inr.getAttribute('data-k')) || 1;
@@ -3581,7 +3594,7 @@
       return !!(m && x >= m[0] && x <= m[0] + 1 && y >= m[1] && y <= m[1] + 1);
     }
     /* the monument's pin, as a percentage of the board — the south corner of its 2x2 */
-    function monPct(id) {
+    function monPin(id) {
       var m = monCell(id), C = (W.IND_KIT_CITIES || {})[id], K2 = W.IND_KIT;
       if (!m || !C || !K2) return null;
       var c = K2.turn(m[0], m[1], 2, 2, G.kitRot || 0, C.gw, C.gh), a = K2.anchor(c.x, c.y, 2, 2);
@@ -3859,6 +3872,8 @@
          building is a door on its own card — on the board it sat under Grow (D.1 #8) */
       note = '';
       if (!open) return handle + grow;
+      /* with the shelf open its own ✕ closes it: the handle would sit underneath it (C7) */
+      handle = '';
 
       var tabs = groups.map(function (g) {
         return '<button class="sab-dtab' + (g[0] === tab ? ' on' : '') +
@@ -5926,7 +5941,7 @@
           var mc0 = costOf(T.monCost[s.era], 'monument');
           /* the atlas knows where the monument belongs on this painting; on the built board it
              stands on dry land a short walk from the heart (monCell, D.2 d) */
-          var mpt = KITC ? (monPct(id) || (atlas ? kitPt(id, atlas.mon) : null)) : (atlas ? kitPt(id, atlas.mon) : null);
+          var mpt = KITC ? (monPin(id) || (atlas ? kitPt(id, atlas.mon) : null)) : (atlas ? kitPt(id, atlas.mon) : null);
           var scafCSS = (tune.scaf && !KITC) ? tune.scaf
             : (mpt ? 'left:' + mpt[0].toFixed(2) + '%;top:' + mpt[1].toFixed(2) +
                 '%;bottom:auto;transform:translate(-50%,' + (KITC ? '-84%' : '-62%') + ')' +
@@ -5959,7 +5974,7 @@
              drawn as NOTHING: the scaffold went and empty water was left. It stands now, where the
              scaffold stood — the city's own painting in a stone niche on the kit's plinth, with its
              star and its name — and stays for the rest of the game. */
-          var mpt2 = monPct(id) || (atlas ? kitPt(id, atlas.mon) : null);
+          var mpt2 = monPin(id) || (atlas ? kitPt(id, atlas.mon) : null);
           var monCSS = mpt2 ? 'left:' + mpt2[0].toFixed(2) + '%;top:' + mpt2[1].toFixed(2) +
             '%;bottom:auto;transform:translate(-50%,-84%)' : '';
           scaf = '<button class="sab-monstand" data-sab-act="cjump" data-t="sab-sec-works"' +
@@ -6005,6 +6020,11 @@
         var yieldStr = y ? ['anna', 'kala', 'katha'].filter(function (k2) { return y[k2]; })
           .map(function (k2) { return '+' + y[k2] + ' ' + ICON[k2]; }).join(' ') : '';
         var gp = goalParts();
+        /* MITHU COMES IN TOO: the goal strip and his one next step, a tap away inside the city */
+        var mithuBtn = '<button class="sab-npgoal" data-sab-act="advise" aria-label="Mithu: ' + esc(advise().why) + '">' +
+            mascot('mithu', 'talk', 26).replace('margin:0 auto 6px', 'margin:0') +
+            '<span><i>🪔 ' + gp.lamps + (gp.katha ? ' · 📜 ' + gp.katha : '') + (gp.roads ? ' · 🛤 ' + gp.roads : '') + '</i>' +
+            '<b>' + esc(advise().label) + ' →</b></span></button>';
         var plate = alarm + kitbar + '<div class="sab-nameplate"><b>' +
           esc(nameOf(s)) + (G.capital === id ? ' \u2605' : '') + '</b><span>' +
           (narrow
@@ -6013,12 +6033,7 @@
               ICON.anna + (yieldStr ? ' \u00b7 ' + yieldStr : '')) +
           '</span>' +
           /* THE GOAL STRIP comes into the city too (C.4 #4) */
-          '</div>' +
-          /* MITHU COMES IN TOO: the goal strip and his one next step, a tap away inside the city */
-          '<button class="sab-npgoal" data-sab-act="advise" aria-label="Mithu: ' + esc(advise().why) + '">' +
-            mascot('mithu', 'talk', 26).replace('margin:0 auto 6px', 'margin:0') +
-            '<span><i>🪔 ' + gp.lamps + (gp.katha ? ' · 📜 ' + gp.katha : '') + (gp.roads ? ' · 🛤 ' + gp.roads : '') + '</i>' +
-            '<b>' + esc(advise().label) + ' →</b></span></button>' +
+          '</div>' + (KITC ? mithuBtn : '') +
           (KITC ? holdBarHTML(id) + compassHTML(id) : '')
         /* THE STATIONS ARE THE ALLOCATION. The four kinds of praja stand at
            their corners wearing the live count — and the −/+ that used to
@@ -6098,7 +6113,7 @@
           'data-sab-act="cjump" data-t="sab-sec-hero" aria-label="A great one is here"><em>★</em>great one</button>';
         /* THE SEAT OF THE REALM, on the sky: the capital card below is gone —
            the crown badge wears the price and does the deed. */
-        if (G.capital !== id && sysOn('capital')) badges += '<button class="sab-cbadge cap" style="right:2%;top:2.5%" data-sab-act="cap"' +
+        if (G.capital !== id && sysOn('capital')) badges += '<button class="sab-cbadge cap" style="right:' + (KITC ? '8px;top:' + (narrow ? '112px' : '62px') : '2%;top:2.5%') + '" data-sab-act="cap"' +
           (canPay(T.capCost) ? '' : ' disabled') +
           ' aria-label="Make ' + esc(nameOf(s)) + ' the capital (' + costStr(T.capCost) + ').' +
           (G.capital ? ' The capital is at ' + esc(nameOf(byId[G.capital])) + '.'
@@ -6144,7 +6159,7 @@
            middle of the largest field, the stepwell by the water, the bazaar
            on the longest street, the rampart at the town's outer edge, the
            fort inside the gate. Plates without an atlas keep the old row. */
-        var plots = '', PLOT_X = [0.5, 14.4, 28.3, 42.2, 56.1, 70, 84];
+        var plots = '', PLOT_X = [0.5, 14.4, 28.3, 42.2, 56.1, 70, 84], plotPts = [];
         var spots = (atlas && atlas.spots) || null;
         Object.keys(BLD).filter(function (b2) {
           if (BLD[b2].era > G.era) return false;
@@ -6159,6 +6174,7 @@
             var at = kitPt(id, spots && spots[bid]);
             var pos = at ? 'left:' + at[0] + '%;top:' + at[1] + '%;bottom:auto;transform:translate(-50%,-100%)'
                          : 'left:' + left + '%';
+            plotPts.push(at ? [at[0], at[1]] : [left + 7.5, 98]);
             var art2 = bsp ? '<img' + (q.bld[bid] ? '' : ' class="ghost"') + ' src="' + bsp + '" alt="">'
                            : '<span style="font-size:26px">' + bd.icon + '</span>';
             if (q.bld[bid]) {
@@ -6198,7 +6214,28 @@
            by tab as well as by hunting (accessibility is not a spoiler). */
         var trez = (DATA.treasures || {})[id], treHunt = '', treHint = '';
         if (trez && !G.tre[id]) {
-          treHunt = '<button class="sab-trespot" style="left:' + trez.x + '%;top:' + trez.y + '%"' +
+          /* NEVER TWO BUTTONS ON ONE SPOT (C7): where the hiding place falls on the scaffold,
+             the glint waits beside it instead — still on the plate, still findable */
+          var tx = trez.x, ty = trez.y, ma = atlas && !KITC ? atlas.mon : null;
+          if (!KITC) {
+            var pw = narrow ? 14 : 9;      /* a plot is at least 48px wide, a bigger share of a phone's plate */
+            var boxes = plotPts.map(function (pp) { return [pp[0] - pw, pp[1] - 20, pp[0] + pw, pp[1] + 2]; });
+            if (ma && !q.mon) boxes.push([ma[0] - 13, ma[1] - 44, ma[0] + 13, ma[1] + 6]);
+            var clear = function (x, y) {
+              return x > 4 && x < 96 && y > 8 && y < 92 && boxes.every(function (b) { return x + 4 < b[0] || x - 4 > b[2] || y + 5 < b[1] || y - 5 > b[3]; });
+            };
+            if (!clear(tx, ty)) {
+              var cand = null;
+              [8, 14, 20, 26, 32].some(function (d) {
+                return [[d, 0], [-d, 0], [0, -d], [0, d], [d, -d], [-d, -d], [d, d], [-d, d]].some(function (o) {
+                  if (clear(trez.x + o[0], trez.y + o[1])) { cand = [trez.x + o[0], trez.y + o[1]]; return true; }
+                  return false;
+                });
+              });
+              if (cand) { tx = cand[0]; ty = cand[1]; }
+            }
+          }
+          treHunt = '<button class="sab-trespot" style="left:' + tx + '%;top:' + ty + '%"' +
             ' data-sab-act="khazana" aria-label="Search here"><span class="glint">✦</span></button>';
           treHint = '<div class="sab-treshint">🔍 ' + esc(FOLK[s.kind]) + ' whispers: “' +
             esc(trez.hint) + '”</div>';
@@ -6252,7 +6289,7 @@
           '</div>' + (KITC ? '</div>' : '') +
           plate + stations + badges + (KITC ? kitCalls(id) : '') +
           (KITC ? kitDrawer(id) : growBtn(id)) + '</div>' +
-          (KITC ? '' : treHint +
+          (KITC ? '' : mithuBtn + treHint +
             (q.mon ? '' : '<div class="sab-herocap">The city as it could be — raise the monument, ' +
               'the scaffolding comes down, and the colours come back.</div>'));
       }
@@ -9205,7 +9242,10 @@
      ================================================================== */
   if (!W.IND_GAMES) W.IND_GAMES = [];
   W.IND_GAMES.push({
-    id: 'sabhyata', name: 'Sabhyata', icon: 'map', minutes: 12, tag: 'Civilization',
+    /* HONEST LENGTHS (master C.4 #6): a campaign chapter is 15–20 minutes; the long game is
+       hours and says so on its own start screen. The card no longer says 12. */
+    id: 'sabhyata', name: 'Sabhyata', icon: 'map', minutes: 20, tag: 'Civilization',
+    sub: 'Mithu’s Lamps — a chapter in about 15–20 minutes',
     c: '#8a5a2b', c2: '#d9a23d',
     blurb: 'Grow the first cities, wake five thousand years of India lamp by lamp — and hold back the Forgetting. Nothing is conquered here; everything is reached.',
     /* the cover is the game's own Kashi painting with the lamp-road drawn over it */

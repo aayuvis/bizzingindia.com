@@ -2556,6 +2556,160 @@ check('desk-enter', 'E.6 #10 / D.2 d: a desktop chooses a city and sees "Enter <
   if (r.wet.length) throw new Error('the monument is anchored off dry land in ' + r.wet.join(', '));
 });
 
+
+/* ================================================================ the owner's second pass (9 Oct 2026)
+   "if I don't have the resources I should see that building as grayed or crossed out… the cities
+   are too small… I should be able to expand… a goal to look forward to." */
+
+check('shelf-afford', 'a piece the purse cannot pay for is greyed with its shortfall written on it, and a tap on it says why; pieces of later levels wait 🔒 with their level', async ({ p }) => {
+  await p.evaluate(() => { const G = window.__SABG(); G.res.anna = 5; G.res.kala = 3; });
+  await openCity(p, 'dholavira');
+  const r = await p.evaluate(() => {
+    const b = document.querySelector('[data-sab-act="kitopen"]'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click();
+    const out = { poor: 0, said: 0, locked: 0, picked: false, feed: '' };
+    for (const t of [...document.querySelectorAll('[data-sab-act="kittab"]')].map(x => x.getAttribute('data-g'))) {
+      document.querySelector(`[data-sab-act="kittab"][data-g="${t}"]`).click();
+      document.querySelectorAll('.sab-tile.poor').forEach(x => { out.poor++; if (/needs \d+ more/.test(x.innerText)) out.said++; });
+      out.locked += [...document.querySelectorAll('.sab-tile.next')].filter(x => /🔒 level \d/.test(x.innerText)).length;
+    }
+    document.querySelector('[data-sab-act="kittab"][data-g="work"]').click();
+    const poor = document.querySelector('.sab-tile.poor[data-sab-act="kitpick"]');
+    if (poor) { poor.click(); out.picked = !!document.querySelector('.sab-holdbar'); out.feed = document.getElementById('sab-feed').textContent; }
+    return out;
+  });
+  if (!r.poor) throw new Error('with an empty purse nothing on the shelf is greyed');
+  if (r.said !== r.poor) throw new Error(`${r.poor - r.said} greyed pieces do not say what they are short of`);
+  if (r.picked) throw new Error('a piece the purse cannot pay for was picked up anyway');
+  if (!/needs \d+ more/.test(r.feed)) throw new Error('tapping an unaffordable piece said nothing: "' + r.feed + '"');
+  if (!r.locked) throw new Error('no piece of a later level waits locked with its level');
+});
+
+check('city-room', 'a level-1 city has room for at least 8 pieces, and the held piece shows every cell it may stand on, with the best one named', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO, q = G.sites.dholavira, keep = q.kit;
+    G.res.anna = G.res.kala = 9999; q.lv = 1; q.kit = [];
+    let n = 0;
+    for (const [x, y] of D.legal('dholavira')) {
+      if (D.canPlace('dholavira', 'hs-har-mud', x, y)) continue;
+      q.kit.push({ p: 'hs-har-mud', x, y }); n++;
+    }
+    q.kit = keep;
+    return n;
+  });
+  if (r < 8) throw new Error(`a level-1 Dholavira has room for ${r} homes — the owner asked for 8–10 at least`);
+  await p.evaluate(() => { const G = window.__SABG(); G.res.anna = 500; G.res.kala = 500; G.sites.dholavira.kit = []; });
+  await openCity(p, 'dholavira');
+  const g = await p.evaluate(() => new Promise(res => {
+    const b = document.querySelector('[data-sab-act="kitopen"]'); if (b) b.click();
+    setTimeout(() => {
+      document.querySelector('[data-sab-act="kittab"][data-g="home"]').click();
+      const t = document.querySelector('[data-sab-act="kitpick"][data-p="hs-har-mud"]'); if (t) t.click();
+      setTimeout(() => {
+        const cells = document.querySelectorAll('.sab-glow .sab-glowc').length, best = !!document.querySelector('.sab-glow .sab-glowbest');
+        const tag = (document.querySelector('.sab-besttag text') || {}).textContent || '';
+        const n0 = window.__SABG().sites.dholavira.kit.length;
+        const pb = document.querySelector('[data-sab-act="kitbest"]'); if (pb) pb.click();
+        setTimeout(() => res({ cells, best, tag, placed: window.__SABG().sites.dholavira.kit.length - n0 }), 200);
+      }, 250);
+    }, 250);
+  }));
+  if (g.cells < 8) throw new Error(`holding a home lights ${g.cells} cells`);
+  if (!g.best || !/\+|best/.test(g.tag)) throw new Error('no best spot is named on the board');
+  if (g.placed !== 1) throw new Error('"Place it" did not set the piece on the best spot');
+});
+
+check('village', 'a grown city founds a village on open land: a dot and a road on the map, a little more grain and craft — and no boundary drawn anywhere', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO, q = G.sites.dholavira;
+    G.res.anna = 500; G.res.kala = 500; q.lv = 1;
+    D.act('dholavira', 'close');
+    const y0 = D.yieldLedger('dholavira').y;
+    const before = (G.villages || []).length;
+    D.act('dholavira', 'village');                       /* level 1: not yet */
+    const early = (G.villages || []).length - before;
+    q.lv = 2; D.paint();
+    const sel = () => { const g = document.getElementById('sab-dholavira'); ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(t => g.dispatchEvent(new MouseEvent(t, { bubbles: true }))); };
+    sel();
+    const tile = document.querySelector('#sab-sheet [data-sab-act="village"]');
+    if (tile) tile.click();
+    const v = (G.villages || [])[before];
+    const y1 = D.yieldLedger('dholavira').y;
+    const drawn = document.querySelectorAll('#sab-villages .sab-vill').length, road = document.querySelectorAll('#sab-villages .sab-vroad').length;
+    /* a village is a dot and a road — nothing in the map draws a line round anything */
+    const svg = document.querySelector('#sab-stage svg');
+    const border = [...svg.querySelectorAll('*')].filter(el => /border|boundar|territor|claim/i.test((el.getAttribute('class') || '') + ' ' + (el.id || ''))).length;
+    const shapes = [...document.querySelectorAll('#sab-villages *')].filter(el => /^(polygon|rect|polyline)$/i.test(el.tagName)).length;
+    const terr = [...svg.querySelectorAll('.sab-terr')].map(el => getComputedStyle(el).stroke + '|' + getComputedStyle(el).fill);
+    return { early, tile: !!tile, v, gain: (y1.anna - y0.anna) + (y1.kala - y0.kala), drawn, road, border, shapes, terrKinds: new Set(terr).size };
+  });
+  if (r.early) throw new Error('a level-1 city founded a village');
+  if (!r.tile) throw new Error('a level-2 city offers no "Found a village" in its sheet');
+  if (!r.v) throw new Error('the village was not founded');
+  if (r.gain < 2) throw new Error(`the village added ${r.gain} to its city's yield`);
+  if (!r.drawn || !r.road) throw new Error('the village is not on the map with its road');
+  if (r.border || r.shapes) throw new Error('something on the map draws a line round a place');
+  if (r.terrKinds !== 1) throw new Error('the land is no longer one neutral wash');
+});
+
+check('age-goal', 'each age names its pressure and goal on a calm clock in the goal strip; missing it shrinks the unready and thins the stores, the ready hold, and it is offered again; meeting it turns the age', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO, out = {};
+    D.paint();
+    out.strip = (document.getElementById('sab-goal') || {}).innerText || '';
+    out.goal = JSON.parse(JSON.stringify(G.goal || null));
+    /* two cities: one ready (on a road, with a well), one not */
+    ['lothal', 'kalibangan'].forEach(id => { const q = G.sites[id]; q.found = true; q.zzz = false; q.lv = 2; });
+    G.sites.dholavira.lv = 2;
+    G.routes = [['dholavira', 'lothal']];
+    G.sites.lothal.kit = [{ p: 'wa-har-well', x: 3, y: 3 }];
+    G.res.anna = 100; G.res.kala = 100;
+    G.goal.due = G.t + 1;
+    D.turn();
+    const card = (document.querySelector('#sab-ovhost') || {}).innerText || '';
+    out.card = card.slice(0, 1600);
+    out.lv = { lothal: G.sites.lothal.lv, kalibangan: G.sites.kalibangan.lv };
+    out.anna = G.res.anna; out.due = G.goal.due - G.t; out.missed = G.goal.missed;
+    const b = document.querySelector('#sab-ovhost .sab-btn'); if (b) b.click();
+    /* now meet it: three joined, two wells, the grain in store */
+    G.routes = [['dholavira', 'lothal'], ['lothal', 'kalibangan']];
+    G.sites.kalibangan.kit = [{ p: 'wa-har-well', x: 15, y: 11 }];
+    G.res.anna = 400; G.sites.dholavira.bld.granary = true; G.sites.lothal.bld.granary = true;
+    D.turn();
+    out.met = G.goal.met; out.can = !!document.querySelector('#sab-adv:not([hidden])') || D.advise().act === 'advance';
+    const b2 = document.querySelector('#sab-ovhost .sab-btn'); if (b2) b2.click();
+    out.adv = D.advise().act;
+    return out;
+  });
+  if (!r.goal || r.goal.due - r.goal.start !== 50) throw new Error('the first age has no 50-turn goal: ' + JSON.stringify(r.goal));
+  if (!/⏳/.test(r.strip) || !/long drying/i.test(r.strip) || !/turns/.test(r.strip)) throw new Error('the goal strip shows no clock: "' + r.strip + '"');
+  if (/sarasvati|saraswati/i.test(r.strip + r.card)) throw new Error('the contested river is named');
+  if (!/archaeologists read its end as a long drying/.test(r.card)) throw new Error('the pressure is not told in the data\'s own sourced words: ' + r.card);
+  if (r.lv.lothal !== 2) throw new Error('the ready city did not hold');
+  if (r.lv.kalibangan !== 1) throw new Error('the unready city did not feel it');
+  if (!(r.anna < 100)) throw new Error('the stores did not thin');
+  if (!(r.due > 0) || r.missed !== 1) throw new Error('the goal was not offered again');
+  if (!/Nothing is lost for good/.test(r.card)) throw new Error('the consequence card does not say it is recoverable');
+  if (!r.met) throw new Error('meeting every part did not meet the goal');
+  if (r.adv !== 'advance') throw new Error('with the goal met, Mithu does not say the age can turn (' + r.adv + ')');
+});
+
+check('goal-quests', 'the age\'s scrolls serve its goal, and Mithu points at the next part of it', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO;
+    G.lastq = -99; G.quests = {}; G.res.anna = 50;
+    for (let i = 0; i < 3; i++) { D.turn(); const b = document.querySelector('#sab-ovhost .sab-btn'); if (b) b.click(); }
+    const kinds = Object.values(G.quests).map(q => q.kind);
+    /* Mithu, with the lamps of the age reached, points at the goal */
+    ['lothal', 'kalibangan', 'rakhigarhi'].forEach(id => { const q = G.sites[id]; q.found = true; q.zzz = false; });
+    G.routes = [['dholavira', 'lothal'], ['lothal', 'kalibangan'], ['kalibangan', 'rakhigarhi']];
+    G.quests = {}; G.ev = null; G.warn = null; G.res.katha = 0;
+    const ad = D.advise();
+    return { kinds, why: ad.why, act: ad.act };
+  });
+  if (!r.kinds.some(k => k === 'water' || k === 'store')) throw new Error('no scroll asked for a part of the goal: ' + r.kinds.join(','));
+  if (!/well|tank|water/i.test(r.why)) throw new Error('Mithu does not point at the goal\'s missing water: "' + r.why + '"');
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

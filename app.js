@@ -9329,9 +9329,20 @@
         if (!host.isConnected) return;
         finish({ res: res, round: round, ratio: ratio, level: level, offer: offer, dropped: dropped, sc: sc, was: was, isBest: isBest });
       };
+      /* A CHAPTER FINISHED IS A STOP (games spec §1.2): `stop` 5, once per chapter per child,
+         for a teaching game's own milestone — Sabhyata's lamps of Mithu's Lamps. Never for a round. */
+      var stop = function (r) {
+        var key = g.id + ':' + String((r && r.id) || '');
+        if (!teach || !r || !r.id) return false;
+        S.stops = S.stops || {};
+        if (S.stops[key]) return false;
+        S.stops[key] = today(); save();
+        earn('stop', g.name); markToday(); paintChrome();
+        return true;
+      };
       try {
         td = g.engine(host, { skin: (S.skin || {})[g.id] || null, level: lv ? level : (level || 1), band: gameBand(),
-                              scope: null, answer: answer, calm: !!dev.calm, reduced: reduced }, done);
+                              scope: null, answer: answer, stop: stop, calm: !!dev.calm, reduced: reduced }, done);
         opened = true;
         if (round.over) killEngine();          /* an engine that said done before it returned */
       } catch (e) { unhost(); host.innerHTML = errorState('This game could not open. Try again in a moment.', 'game', id); }

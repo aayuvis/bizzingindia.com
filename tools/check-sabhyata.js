@@ -3021,7 +3021,10 @@ check('live-city', 'E.2/#13: a working building shows its working state on its o
   /* a karigar at the kiln: it smokes */
   await p.evaluate(() => { const q = window.__SABG().sites.dholavira; q.jobs.karigar = 1; q.jobs.kisan = Math.max(0, q.jobs.kisan - 1); window.__SABDO.paint(); });
   await p.evaluate(() => { const b = document.querySelector('[data-sab-act="kitzoom"][data-d="1"]'); if (b) b.click(); });
-  await p.waitForTimeout(500);
+  await p.waitForFunction(() => {
+    const k = document.querySelector('img.kit-p[data-kit="bd-kiln"]'), z = document.querySelector('.sab-lv .sz');
+    return k && k.complete && k.naturalWidth && z && z.complete && z.naturalWidth;
+  }, null, { timeout: 15000 }).catch(() => {});
   const on = await look(setup.kiln, setup.well);
   if (!on.smoke) throw new Error('a kiln with a karigar at it shows no smoke');
   if (!on.water) throw new Error('a well in a living city shows no light on its water');
@@ -3244,14 +3247,50 @@ check('live-still', 'reduced motion and Calm: carts are drawn parked on their ro
   }
 });
 
+check('live-camp', 'in every chapter of Mithu\'s Lamps the glow stands only where a monument stands; a place of worship, Harmandir Sahib and the Taj never glow, on the map or on the board, whatever a preset or an old save says', async ({ p }) => {
+  const r = await p.evaluate(async () => {
+    const D = window.__SABDO, S = window.IND_SABHYATA, CAMP = window.IND_SABHYATA_CAMPAIGN, bad = [];
+    const by = {}; S.sites.forEach(x => { by[x.id] = x; });
+    for (let n = 1; n <= 13; n++) {
+      D.chapter(n);
+      const go = document.querySelector('#sab-ovhost [data-sab-act="campgo"]'); if (!go) { bad.push('ch' + n + ' did not start'); continue; }
+      go.click();
+      const G = window.__SABG(); G.camp.done = true;
+      const ch = (CAMP.chapters || []).find(c => c.n === n) || {};
+      const no = (CAMP.noMonument || []).concat(ch.noMonument || []);
+      /* an old save, or a careless preset, says the shrine has a monument: it must still not glow */
+      no.forEach(id => { const q = G.sites[id]; if (q && G.camp.scope && G.camp.scope[id]) { q.found = true; q.zzz = false; q.mon = true; } });
+      D.paint();
+      document.querySelectorAll('#sab-mglows .sab-mglow').forEach(el => {
+        const id = el.getAttribute('data-for'), q = G.sites[id];
+        if (!q || !q.mon) bad.push('ch' + n + ': ' + id + ' glows with no monument standing');
+        if (no.indexOf(id) >= 0) bad.push('ch' + n + ': ' + id + ' glows — it is never a monument');
+        if (!by[id] || Math.abs(+el.getAttribute('cx') - by[id].x) > 0.5) bad.push('ch' + n + ': a glow is off its monument');
+      });
+      /* and the fog keeps no wider berth there either */
+      const holes = [...document.querySelectorAll('#sab-fogholes circle[r="165"]')].map(c => +c.getAttribute('cx'));
+      no.forEach(id => { if (by[id] && holes.indexOf(by[id].x) >= 0) bad.push('ch' + n + ': the mist stands back from ' + id + ' as if a monument stood there'); });
+      /* on the board: Kashi is a place of worship with a built board */
+      if (no.indexOf('kashi') >= 0 && G.camp.scope && G.camp.scope.kashi && G.sites.kashi.mon) {
+        D.act('kashi', 'city');
+        if (window.__SAB().city === 'kashi' && document.querySelector('[data-live="monglow"]')) bad.push('ch' + n + ': Kashi\'s board glows round a monument');
+        const leave = document.querySelector('[data-sab-act="leave"]'); if (leave) leave.click();
+      }
+    }
+    return bad;
+  });
+  if (r.length) throw new Error(r.slice(0, 4).join(' · ') + (r.length > 4 ? ` (+${r.length - 4})` : ''));
+});
+
 check('live-hidden', 'a hidden tab stops the one clock: no frame is asked for, no cart moves, the city\'s CSS life is paused; shown again, it carries on', async ({ p }) => {
   await liveWorld(p);
-  await p.waitForTimeout(500);
   const r = await p.evaluate(() => new Promise(res => {
     const pos = () => [...document.querySelectorAll('#sab-carts .sab-cart')].map(e => e.getAttribute('transform')).join('|');
     const host = document.getElementById('sabwrap').parentNode;
+    /* poll, never trust a fixed sleep: a loaded machine may give a page few frames */
+    const until = (cond, ms, then) => { const t0 = performance.now(); const go = () => (cond() || performance.now() - t0 > ms) ? then() : setTimeout(go, 50); go(); };
     const out = { running0: window.__SABLIVE().running, p0: pos() };
-    setTimeout(() => {
+    until(() => pos() !== out.p0, 8000, () => {
       out.p1 = pos();
       Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
       document.dispatchEvent(new Event('visibilitychange'));
@@ -3265,9 +3304,9 @@ check('live-hidden', 'a hidden tab stops the one clock: no frame is asked for, n
         document.dispatchEvent(new Event('visibilitychange'));
         out.runningBack = window.__SABLIVE().running;
         const b0 = pos();
-        setTimeout(() => { out.movedBack = pos() !== b0; res(out); }, 500);
+        until(() => pos() !== b0, 8000, () => { out.movedBack = pos() !== b0; res(out); });
       }, 600);
-    }, 600);
+    });
   }));
   if (!r.running0) throw new Error('the clock is not running on a visible map with carts');
   if (r.p0 === r.p1) throw new Error('the carts do not move on a visible map');

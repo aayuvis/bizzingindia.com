@@ -6823,9 +6823,21 @@
     /* THE MONUMENT GLOWS ON THE MAP (E.3): a warm light round a site whose monument stands,
        breathing slowly (and standing still under reduced motion or Calm) — and the fog keeps
        its distance (liveFogHoles). Only ever a circle round a monument, never a region. */
+    /* A MONUMENT GLOWS ONLY WHERE ONE STANDS — and never at a place the campaign will not make a
+       monument of (a place of worship, Harmandir Sahib, the Taj: CAMP.noMonument), whatever a
+       preset or an old save says about it */
+    function liveMonStands(s) {
+      var q = G.sites[s.id];
+      if (!q || !q.mon || !onMap(s)) return false;
+      if (G.camp) {
+        var ch = campCh();
+        if ((CAMP.noMonument || []).concat((ch && ch.noMonument) || []).indexOf(s.id) >= 0) return false;
+      }
+      return true;
+    }
     function paintMonGlows() {
       var g = D.getElementById('sab-mglows'); if (!g) return;
-      var mons = SITES.filter(function (s) { var q = G.sites[s.id]; return q && q.mon && onMap(s); });
+      var mons = SITES.filter(liveMonStands);
       var sig = mons.map(function (s) { return s.id; }).join(',');
       if (g.getAttribute('data-sig') === sig) return;   /* repainting would restart the breath */
       g.setAttribute('data-sig', sig);
@@ -6836,7 +6848,7 @@
         }).join('');
     }
     function liveFogHoles() {
-      return SITES.filter(function (s) { var q = G.sites[s.id]; return q && q.mon && onMap(s); }).map(function (s) {
+      return SITES.filter(liveMonStands).map(function (s) {
         return '<circle cx="' + s.x + '" cy="' + s.y + '" r="165" fill="#000"/>';
       });
     }
@@ -7050,7 +7062,7 @@
       liveSeenInit();
       var q = kitOf(id), alive = !q.zzz, under = '', boxes = '', i;
       /* the monument's glow, on the ground round its plinth (E.2) */
-      if (q.mon) {
+      if (liveMonStands(byId[id])) {
         var mp = monPin(id);
         if (mp) {
           var gx = mp[0] / 100 * w, gy = mp[1] / 100 * h - K2.H * 2;

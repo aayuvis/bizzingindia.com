@@ -142,6 +142,8 @@
     /* -------- Pachisi: six cowries in place of the die (a tray of shells, tapped or Space) -------- */
     '.arc-die.lu-cow{width:auto;min-width:112px;height:58px;padding:4px 8px;display:grid;grid-template-columns:repeat(3,22px);grid-auto-rows:24px;gap:2px 8px;justify-content:center;align-content:center;',
       'background:radial-gradient(120% 120% at 50% 30%,#a13a2a 0%,#7a1f1a 70%);border-color:#4a120e;border-radius:16px}',
+    /* the shells as they fell stay readable while the child chooses — not greyed like a resting die */
+    '.arc-die.lu-cow:disabled{opacity:1;filter:none}',
     '.lu-cw{display:block;width:18px;height:23px;margin:auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}',
     '.lu-cowtab{border-collapse:collapse;margin:6px auto 2px;font:700 13px/1.3 var(--body,inherit);color:var(--text)}',
     '.lu-cowtab caption{font:600 12.5px/1.4 var(--body,inherit);color:var(--text2);padding-bottom:4px}',

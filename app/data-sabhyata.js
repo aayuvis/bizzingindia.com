@@ -308,8 +308,11 @@ window.IND_SABHYATA = {
     { n: 'Kaveri', p: [[271.8,904.1],[309.1,902.8],[331.8,919.7],[357.0,949.1],[391.8,952.3],[409.1,945.8]] }
   ],
 
-  /* ports, for Monsoon Sailing */
-  ports: ['lothal', 'sopara', 'mamallapuram', 'muziris', 'konark'],
+  /* ports, for Monsoon Sailing. Surat and Bombay joined in the campaign build (master F, E9):
+     this file already calls Surat "the great port of its age" and gives Bombay "seven islands,
+     one harbour". Calcutta waits — what it says of the city is presses and colleges, and a
+     river landing is not yet a port. */
+  ports: ['lothal', 'sopara', 'mamallapuram', 'muziris', 'konark', 'surat', 'mumbai'],
 
   /* ==================================================================
      GOODS — why a road to somewhere DIFFERENT is worth more than another road
@@ -543,6 +546,12 @@ window.IND_SABHYATA = {
     { id: 'locust',  era: [1, 5], hits: 'anna', str: 3, kind: 'beast',
       what: 'A locust cloud is settling on the fields', warn: 'A brown cloud is coming over the fields',
       fended: 'everyone under the rakshaks\u2019 lead beats pans and smokes the swarm onward' },
+    /* WEATHER, NOTHING MORE (master F, E3): the age of Delhi had no non-human row but the
+       locust and the mist, and a rising tower wants a storm. It names no year, no strike and
+       no town: a thunderstorm, which every age has had. */
+    { id: 'storm',   era: [5, 5], hits: 'kala', str: 5, kind: 'nature',
+      what: 'A thunderstorm has broken over the town', warn: 'Thunder is rolling in',
+      fended: 'the scaffolds are lashed down and the stores carried under roof before the lightning comes' },
     { id: 'warband', era: [1, 2], hits: 'kala', str: 5, kind: 'human',
       what: 'A rival janapada\u2019s war-band is at the boundary stone',
       warn: 'Dust on the boundary road — a neighbouring janapada rides',

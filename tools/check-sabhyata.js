@@ -2715,6 +2715,368 @@ check('goal-quests', 'the age\'s scrolls serve its goal, and Mithu points at the
   if (!/well|tank|water/i.test(r.why)) throw new Error('Mithu does not point at the goal\'s missing water: "' + r.why + '"');
 });
 
+/* ================================================================ living cities (master E.2, E.3, E.6 #13–#14)
+   Every building shows its state on the board, a monument glows, and the roads carry carts that
+   ride the road the engine drew. One clock, delta time, stopped when hidden; reduced motion and
+   Calm draw everything and move nothing; no boundary ever animates. Each check was watched to
+   fail once against a deliberately broken engine before it was trusted. */
+
+/* a small realm: three living Harappan towns joined by two roads, and a grown Dholavira */
+const liveWorld = p => p.evaluate(() => {
+  const G = window.__SABG(), D = window.__SABDO;
+  ['lothal', 'kalibangan'].forEach(id => { const s = G.sites[id]; s.found = true; s.zzz = false; });
+  G.routes = [['dholavira', 'lothal'], ['dholavira', 'kalibangan']];
+  G.res.anna = 300; G.res.kala = 300; G.res.katha = 300;
+  D.act('dholavira', 'close');
+  D.paint();
+});
+/* into a city through the engine's own verb — the double tap is what openCity tests, and
+   under load its two taps can drift apart */
+const enterCity = async (p, sid) => {
+  await p.evaluate(sid => window.__SABDO.act(sid, 'city'), sid);
+  await p.waitForTimeout(1200);
+  if (await p.evaluate(() => window.__SAB().city) !== sid) await openCity(p, sid);
+};
+/* how far a mover stands from the road it is meant to be on, in map units */
+const offRoad = p => p.evaluate(() => [...document.querySelectorAll('#sab-carts .sab-cart, #sab-carts .sab-sail')].map(el => {
+  const m = /translate\(([-\d.]+)[ ,]+([-\d.]+)\)/.exec(el.getAttribute('transform') || '');
+  const path = document.getElementById('sabr-' + el.getAttribute('data-i'));
+  if (!m || !path) return { i: el.getAttribute('data-i'), d: 1e9 };
+  const x = +m[1], y = +m[2], L = path.getTotalLength();
+  let d = 1e9, t = 0;
+  for (let k = 0; k <= 600; k++) { const q = path.getPointAtLength(L * k / 600), dk = Math.hypot(q.x - x, q.y - y); if (dk < d) { d = dk; t = k / 600; } }
+  return { i: +el.getAttribute('data-i'), sea: el.classList.contains('sab-sail'), d, t, x, y };
+}));
+
+check('live-city', 'E.2/#13: a working building shows its working state on its own drawing (smoke where a karigar works, light on the water); a new piece settles once; a grown city fills its outskirts; a monument glows; a sleeping city does none of it', async ({ p }) => {
+  await liveWorld(p);
+  const setup = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO, q = G.sites.dholavira, K = window.IND_KIT;
+    q.lv = 1; q.mon = false; q.kit = [];
+    const legal = D.legal('dholavira').sort((a, b) => K.reach('dholavira', a[0], a[1]) - K.reach('dholavira', b[0], b[1]));
+    const put = part => { for (const [x, y] of legal) if (!D.canPlace('dholavira', part, x, y)) { q.kit.push({ p: part, x, y, f: 0 }); return part + '@' + x + ',' + y; } return null; };
+    const kiln = put('bd-kiln'), well = put('wa-har-well'), home = put('hs-har-mud');
+    q.jobs = null; D.paint();
+    return { kiln, well, home };
+  });
+  if (!setup.kiln || !setup.well) throw new Error('could not set a kiln and a well down in Dholavira: ' + JSON.stringify(setup));
+  await p.evaluate(() => { const q = window.__SABG().sites.dholavira; q.jobs = null; });
+  await enterCity(p, 'dholavira');
+  const look = (kiln, well) => p.evaluate(([kiln, well]) => {
+    const near = (a, b) => Math.abs(a.left - b.left) < 1.5 && Math.abs(a.top - b.top) < 1.5 && Math.abs(a.width - b.width) < 1.5 && Math.abs(a.height - b.height) < 1.5;
+    const smoke = document.querySelector('[data-live="smoke"][data-at="' + kiln + '"]');
+    const water = document.querySelector('[data-live="water"][data-at="' + well + '"]');
+    const kimg = [...document.querySelectorAll('img.kit-p[data-kit="bd-kiln"]')][0];
+    const box = smoke && smoke.closest('.sab-lv');
+    const sr = smoke && smoke.getBoundingClientRect(), kr = kimg && kimg.getBoundingClientRect();
+    return {
+      smoke: !!smoke, water: !!water,
+      /* the box the smoke stands in IS the kiln's painting, measured by the browser */
+      boxOnArt: !!(box && kimg && near(box.getBoundingClientRect(), kr)),
+      smokeOverKiln: !!(sr && kr && sr.left >= kr.left && sr.left <= kr.right && sr.top >= kr.top - 2 && sr.top <= kr.top + kr.height * 0.4),
+      pe: [...document.querySelectorAll('.sab-live, .sab-live *, .sab-lv, .sab-lv *, .sab-outskirts *')].filter(el => getComputedStyle(el).pointerEvents !== 'none').length
+    };
+  }, [kiln, well]);
+  /* a karigar at the kiln: it smokes */
+  await p.evaluate(() => { const q = window.__SABG().sites.dholavira; q.jobs.karigar = 1; q.jobs.kisan = Math.max(0, q.jobs.kisan - 1); window.__SABDO.paint(); });
+  await p.evaluate(() => { const b = document.querySelector('[data-sab-act="kitzoom"][data-d="1"]'); if (b) b.click(); });
+  await p.waitForTimeout(500);
+  const on = await look(setup.kiln, setup.well);
+  if (!on.smoke) throw new Error('a kiln with a karigar at it shows no smoke');
+  if (!on.water) throw new Error('a well in a living city shows no light on its water');
+  if (!on.boxOnArt) throw new Error('the smoke is not anchored on the kiln\'s own drawing');
+  if (!on.smokeOverKiln) throw new Error('the smoke does not rise from the top of the kiln');
+  if (on.pe) throw new Error(on.pe + ' living-layer elements take taps (they must be pointer-events:none)');
+  /* nobody at the bench: no smoke, the water still shines */
+  await p.evaluate(() => { const q = window.__SABG().sites.dholavira; q.jobs.kisan += q.jobs.karigar; q.jobs.karigar = 0; const b = document.querySelector('[data-sab-act="kitzoom"][data-d="-1"]'); if (b) b.click(); });
+  await p.waitForTimeout(300);
+  const off = await look(setup.kiln, setup.well);
+  if (off.smoke) throw new Error('an empty kiln still smokes — smoke must mean somebody is working');
+  if (!off.water) throw new Error('the water stopped shining when the kiln emptied');
+  /* a piece set down by the real tap path settles once, and a repaint later it is just standing */
+  const placed = await p.evaluate(() => new Promise(res => {
+    const D = window.__SABDO, G = window.__SABG();
+    const b = document.querySelector('[data-sab-act="kitopen"]'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click();
+    setTimeout(() => {
+      const tab = document.querySelector('[data-sab-act="kittab"][data-g="home"]'); if (tab) tab.click();
+      const t = document.querySelector('[data-sab-act="kitpick"][data-p="hs-har-mud"]'); if (t) t.click();
+      setTimeout(() => {
+        const n0 = G.sites.dholavira.kit.length;
+        const pb = document.querySelector('[data-sab-act="kitbest"]'); if (pb) pb.click();
+        setTimeout(() => {
+          const fresh = document.querySelectorAll('img.kit-p.kit-new').length, dust = document.querySelectorAll('[data-live="new"]').length;
+          setTimeout(() => {
+            D.paint();
+            const x = document.querySelector('[data-sab-act="kitzoom"][data-d="1"]'); if (x) x.click();
+            setTimeout(() => res({ placed: G.sites.dholavira.kit.length - n0, fresh, dust, later: document.querySelectorAll('img.kit-p.kit-new').length }), 150);
+          }, 1000);
+        }, 60);
+      }, 250);
+    }, 250);
+  }));
+  if (placed.placed !== 1) throw new Error('could not place a home through the tap path');
+  if (placed.fresh !== 1 || !placed.dust) throw new Error(`a new piece did not settle (${placed.fresh} settling, ${placed.dust} dust)`);
+  if (placed.later) throw new Error('a piece kept settling after it had landed — the animation replays on a repaint');
+  /* grown, and a monument raised: the outskirts fill in and the monument glows */
+  const grown = await p.evaluate(() => new Promise(res => {
+    const G = window.__SABG(), q = G.sites.dholavira;
+    const outskirts1 = document.querySelectorAll('[data-live="outskirt"]').length;
+    q.lv = 3; q.mon = true; q.monB = null;
+    window.__SABDO.paint();
+    const x = document.querySelector('[data-sab-act="kitzoom"][data-d="-1"]'); if (x) x.click();
+    setTimeout(() => {
+      const o3 = [...document.querySelectorAll('img[data-live="outskirt"]')];
+      const glow = document.querySelectorAll('[data-live="monglow"]').length;
+      /* nothing in the outskirts stands inside the reach the child builds on */
+      res({ outskirts1, outskirts3: o3.length, glow });
+    }, 200);
+  }));
+  if (grown.outskirts1) throw new Error('a level-1 city already has outskirts');
+  if (grown.outskirts3 < 4) throw new Error(`a level-3 city shows ${grown.outskirts3} homes in its outskirts`);
+  if (!grown.glow) throw new Error('a finished monument casts no glow on its board');
+  /* asleep: nothing works */
+  const asleep = await p.evaluate(() => new Promise(res => {
+    const q = window.__SABG().sites.dholavira; q.jobs.karigar = 1; q.zzz = true;
+    const x = document.querySelector('[data-sab-act="kitzoom"][data-d="1"]'); if (x) x.click();
+    setTimeout(() => { const n = document.querySelectorAll('[data-live="smoke"],[data-live="water"],[data-live="lamp"],[data-live="outskirt"]').length; q.zzz = false; res(n); }, 200);
+  }));
+  if (asleep) throw new Error(`a sleeping city still shows ${asleep} working-state elements`);
+});
+
+check('live-grow', 'E.2/#13: growing is a moment — once the Unlocked card is put away, the land the growth reached lights (and only that land), the homes it raised settle, and a repaint later all of it is simply standing', async ({ p }) => {
+  await p.evaluate(() => { const G = window.__SABG(); G.res.anna = 900; G.res.kala = 900; window.__SABDO.act('dholavira', 'close'); });
+  await enterCity(p, 'dholavira');
+  const opened = await p.evaluate(() => window.__SAB().city);
+  if (opened !== 'dholavira') throw new Error('could not enter Dholavira (' + opened + ')');
+  const r = await p.evaluate(() => new Promise(res => {
+    const G = window.__SABG(), K = window.IND_KIT, q = G.sites.dholavira, out = {};
+    const reachBefore = {};
+    window.__SABDO.legal('dholavira').forEach(c => { reachBefore[c[0] + ',' + c[1]] = 1; });
+    window.__SABDO.act('dholavira', 'grow');
+    setTimeout(() => {
+      const b = document.querySelector('#sab-ovhost [data-sab-act="growdir"][data-d="s"]'); if (b) b.click();
+      setTimeout(() => {
+        out.card = /Unlocked/.test((document.querySelector('#sab-ovhost') || {}).textContent || '');
+        out.underCard = document.querySelectorAll('[data-live="newland"]').length;
+        const c = document.querySelector('#sab-ovhost [data-sab-act="ovclose"]'); if (c) c.click();
+        const cells = [...document.querySelectorAll('[data-live="newland"]')];
+        out.lit = cells.length;
+        out.settling = document.querySelectorAll('img.kit-p.kit-new').length;
+        /* every lit cell is land the city may build on now and could not before */
+        const legalNow = {}; window.__SABDO.legal('dholavira').forEach(c2 => { legalNow[c2[0] + ',' + c2[1]] = 1; });
+        out.newLegal = Object.keys(legalNow).filter(k => !reachBefore[k]).length;
+        setTimeout(() => {
+          const x = document.querySelector('[data-sab-act="kitzoom"][data-d="1"]'); if (x) x.click();
+          out.later = document.querySelectorAll('[data-live="newland"], img.kit-p.kit-new').length;
+          out.lv = q.lv;
+          res(out);
+        }, 2800);
+      }, 300);
+    }, 300);
+  }));
+  if (r.lv !== 2) throw new Error('the city did not grow (level ' + r.lv + ')');
+  if (!r.card) throw new Error('growing showed no Unlocked card');
+  if (r.underCard) throw new Error('the new land lit underneath the Unlocked card, where nobody can see it');
+  if (!r.lit) throw new Error('the land the growth reached did not light when the card was put away');
+  if (r.lit > r.newLegal + 12) throw new Error(`${r.lit} cells lit for ${r.newLegal} newly buildable — the light is not on the new land`);
+  if (!r.settling) throw new Error('the homes the growth raised did not settle into place');
+  if (r.later) throw new Error(`${r.later} growth effects are still playing a repaint later`);
+});
+
+check('live-carts', 'E.3/#14: every road between two living places carries a cart standing on the road the engine drew; busier roads carry more; a road between two ports carries sails; a road to a sleeping town carries nothing', async ({ p }) => {
+  await liveWorld(p);
+  const n = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO;
+    /* same kind of place at both ends: one cart; a sleeping end: none */
+    G.sites.rakhigarhi.found = true; G.sites.rakhigarhi.zzz = true;
+    G.routes = [['dholavira', 'lothal'], ['dholavira', 'kalibangan'], ['kalibangan', 'rakhigarhi']];
+    D.paint();
+    const per = {};
+    document.querySelectorAll('#sab-carts .sab-cart').forEach(el => { const i = el.getAttribute('data-i'); per[i] = (per[i] || 0) + 1; });
+    return { per, good: [D.good('dholavira'), D.good('lothal'), D.good('kalibangan')] };
+  });
+  if (!n.per[0] || !n.per[1]) throw new Error('a road between two living towns carries no cart: ' + JSON.stringify(n.per));
+  if (n.per[2]) throw new Error('a road to a sleeping town carries carts');
+  /* busier: a road to the capital carries one more than it did */
+  const busier = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO;
+    const count = i => document.querySelectorAll('#sab-carts .sab-cart[data-i="' + i + '"]').length;
+    const before = count(1);
+    G.capital = 'kalibangan'; D.paint();
+    const after = count(1); G.capital = null; D.paint();
+    return { before, after };
+  });
+  if (!(busier.after > busier.before)) throw new Error(`a road that serves the capital is no busier (${busier.before} → ${busier.after})`);
+  await p.waitForTimeout(700);
+  const at = await offRoad(p);
+  if (!at.length) throw new Error('no movers on the map');
+  const far = at.filter(m => m.d > 1.5);
+  if (far.length) throw new Error('a cart is off its road: ' + JSON.stringify(far[0]));
+  /* two ports joined by a road: sails, on that road */
+  const sea = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO, ports = window.IND_SABHYATA.ports || [];
+    const a = ports.filter(id => G.sites[id] && window.IND_SABHYATA.sites.some(s => s.id === id && s.era <= 2))[0] || 'lothal';
+    const b = ports.filter(id => id !== a && window.IND_SABHYATA.sites.some(s => s.id === id && s.era <= 2))[0];
+    if (!b) return { skip: true };
+    G.era = 2; [a, b].forEach(id => { G.sites[id].found = true; G.sites[id].zzz = false; });
+    G.routes = [[a, b]]; D.paint();
+    return { a, b, sails: document.querySelectorAll('#sab-carts .sab-sail').length, carts: document.querySelectorAll('#sab-carts .sab-cart').length };
+  });
+  if (!sea.skip) {
+    if (!sea.sails || sea.carts) throw new Error(`a road between ${sea.a} and ${sea.b} carries ${sea.sails} sails and ${sea.carts} carts`);
+    const s2 = await offRoad(p);
+    if (s2.some(m => m.d > 1.5)) throw new Error('a sail is off its sea road');
+  }
+  /* the cap: never more than 24 movers, and every living road keeps its first */
+  const cap = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.__SABDO;
+    const live = window.IND_SABHYATA.sites.filter(s => s.era <= 4).map(s => s.id);
+    G.era = 4; live.forEach(id => { G.sites[id].found = true; G.sites[id].zzz = false; });
+    G.routes = []; for (let i = 1; i < live.length; i++) G.routes.push([live[i - 1], live[i]]);
+    D.paint();
+    const movers = document.querySelectorAll('#sab-carts > g').length;
+    const roads = new Set([...document.querySelectorAll('#sab-carts > g')].map(e => e.getAttribute('data-i'))).size;
+    return { movers, roads, routes: G.routes.length };
+  });
+  if (cap.movers > 24) throw new Error(`${cap.movers} movers on the map (cap 24)`);
+  if (cap.roads < Math.min(24, cap.routes)) throw new Error(`only ${cap.roads} of ${cap.routes} living roads carry anything`);
+});
+
+check('live-still', 'reduced motion and Calm: carts are drawn parked on their roads, the city\'s life is drawn standing, no rAF loop runs, and nothing in the game animates', async ({ browser, port }) => {
+  for (const how of ['reduced', 'calm']) {
+    const p = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: how === 'reduced' ? 'reduce' : 'no-preference' });
+    try {
+      await p.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
+      await skipOnboarding(p);
+      if (how === 'calm') {
+        await p.evaluate(() => { const o = JSON.parse(localStorage.getItem('bi_device') || '{}'); o.calm = true; localStorage.setItem('bi_device', JSON.stringify(o)); });
+        await p.reload({ waitUntil: 'networkidle' });
+      }
+      await p.waitForTimeout(300);
+      await p.evaluate(() => { location.hash = '#/game/sabhyata'; });
+      await p.waitForFunction(() => typeof window.__SABG === 'function', null, { timeout: 20000 });
+      await p.waitForTimeout(500);
+      const ov = await p.$('#sab-ovhost [data-sab-act="mode"][data-m="long"]') || await p.$('#sab-ovhost .sab-btn');
+      if (ov) { await ov.click(); await p.waitForTimeout(250); }
+      await liveWorld(p);
+      await p.evaluate(() => { const q = window.__SABG().sites.dholavira; q.mon = true; q.monB = null; window.__SABDO.paint(); });
+      await p.waitForTimeout(400);
+      const map = await p.evaluate(() => {
+        const host = document.getElementById('sabwrap').parentNode;
+        const a1 = [...document.querySelectorAll('#sab-carts .sab-cart')].map(e => e.getAttribute('transform'));
+        return { still: window.__SABLIVE().still, running: window.__SABLIVE().running, carts: a1, anims: host.getAnimations({ subtree: true }).map(a => (a.animationName || a.transitionProperty || '?') + ' on ' + (a.effect && a.effect.target ? (a.effect.target.getAttribute('class') || a.effect.target.tagName) : '?')) };
+      });
+      if (!map.still) throw new Error(how + ': the engine did not take the ask for stillness');
+      if (map.running) throw new Error(how + ': the rAF loop runs');
+      if (map.carts.length < 2) throw new Error(how + ': the carts were not drawn — a still road must still carry something');
+      if (map.anims.length) throw new Error(how + ': on the map, ' + map.anims.length + ' things animate, e.g. ' + map.anims.slice(0, 3).join('; '));
+      const at = await offRoad(p);
+      if (at.some(m => m.d > 1.5)) throw new Error(how + ': a parked cart is off its road');
+      /* parked out on the road, where it can be seen — not hidden in a town at either end */
+      if (at.some(m => m.t < 0.15 || m.t > 0.85)) throw new Error(how + ': a parked cart stands at the end of its road (' + at.map(m => m.t.toFixed(2)).join(', ') + ')');
+      await p.waitForTimeout(400);
+      const again = await p.evaluate(() => [...document.querySelectorAll('#sab-carts .sab-cart')].map(e => e.getAttribute('transform')));
+      if (JSON.stringify(again) !== JSON.stringify(map.carts)) throw new Error(how + ': a parked cart moved');
+      /* inside the city: its life is drawn and nothing moves */
+      await p.evaluate(() => {
+        const G = window.__SABG(), D = window.__SABDO, q = G.sites.dholavira, K = window.IND_KIT;
+        q.lv = 3; q.kit = [];
+        const legal = D.legal('dholavira').sort((a, b) => K.reach('dholavira', a[0], a[1]) - K.reach('dholavira', b[0], b[1]));
+        for (const part of ['bd-kiln', 'wa-har-well']) for (const [x, y] of legal) if (!D.canPlace('dholavira', part, x, y)) { q.kit.push({ p: part, x, y, f: 0 }); break; }
+        q.jobs = null;
+      });
+      await enterCity(p, 'dholavira');
+      await p.evaluate(() => { const q = window.__SABG().sites.dholavira; q.jobs.karigar = 1; q.jobs.kisan = Math.max(0, q.jobs.kisan - 1); const b = document.querySelector('[data-sab-act="kitzoom"][data-d="1"]'); if (b) b.click(); });
+      await p.waitForTimeout(500);
+      const city = await p.evaluate(() => {
+        const host = document.getElementById('sabwrap').parentNode;
+        return { smoke: document.querySelectorAll('[data-live="smoke"]').length, water: document.querySelectorAll('[data-live="water"]').length,
+                 glow: document.querySelectorAll('[data-live="monglow"]').length, fresh: document.querySelectorAll('.kit-new,[data-live="new"]').length,
+                 anims: host.getAnimations({ subtree: true }).map(a => (a.animationName || a.transitionProperty || '?') + ' on ' + (a.effect && a.effect.target ? (a.effect.target.getAttribute('class') || a.effect.target.tagName) : '?')),
+                 running: window.__SABLIVE().running };
+      });
+      if (!city.smoke || !city.water || !city.glow) throw new Error(how + ': the city\'s life is not drawn when still: ' + JSON.stringify(city));
+      if (city.fresh) throw new Error(how + ': a piece settles under ' + how);
+      if (city.anims.length) throw new Error(how + ': in the city, ' + city.anims.length + ' things animate, e.g. ' + city.anims.slice(0, 3).join('; '));
+      if (city.running) throw new Error(how + ': the rAF loop runs inside the city');
+    } finally { await p.close(); }
+  }
+});
+
+check('live-hidden', 'a hidden tab stops the one clock: no frame is asked for, no cart moves, the city\'s CSS life is paused; shown again, it carries on', async ({ p }) => {
+  await liveWorld(p);
+  await p.waitForTimeout(500);
+  const r = await p.evaluate(() => new Promise(res => {
+    const pos = () => [...document.querySelectorAll('#sab-carts .sab-cart')].map(e => e.getAttribute('transform')).join('|');
+    const host = document.getElementById('sabwrap').parentNode;
+    const out = { running0: window.__SABLIVE().running, p0: pos() };
+    setTimeout(() => {
+      out.p1 = pos();
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+      document.dispatchEvent(new Event('visibilitychange'));
+      out.runningHidden = window.__SABLIVE().running;
+      out.cls = host.classList.contains('sab-hidden');
+      const h0 = pos(), f0 = window.__SABLIVE().frames;
+      setTimeout(() => {
+        out.movedHidden = pos() !== h0; out.rafsHidden = window.__SABLIVE().frames - f0;
+        out.playing = host.getAnimations({ subtree: true }).filter(a => a.playState === 'running' && a.animationName).length;
+        delete document.hidden;
+        document.dispatchEvent(new Event('visibilitychange'));
+        out.runningBack = window.__SABLIVE().running;
+        const b0 = pos();
+        setTimeout(() => { out.movedBack = pos() !== b0; res(out); }, 500);
+      }, 600);
+    }, 600);
+  }));
+  if (!r.running0) throw new Error('the clock is not running on a visible map with carts');
+  if (r.p0 === r.p1) throw new Error('the carts do not move on a visible map');
+  if (r.runningHidden) throw new Error('the rAF loop is still running in a hidden tab');
+  if (r.rafsHidden) throw new Error(`${r.rafsHidden} frames were asked for while hidden`);
+  if (r.movedHidden) throw new Error('a cart moved while the tab was hidden');
+  if (!r.cls || r.playing) throw new Error(`the city\'s CSS life was not paused when hidden (${r.playing} still running)`);
+  if (!r.runningBack || !r.movedBack) throw new Error('shown again, the carts did not carry on');
+});
+
+check('live-border', 'no boundary animates: the land\'s wash, its outlines and every region element hold still; the glow is only round a monument; nothing on the map uses SMIL', async ({ p }) => {
+  await liveWorld(p);
+  const r = await p.evaluate(() => new Promise(res => {
+    const G = window.__SABG(), D = window.__SABDO;
+    G.sites.dholavira.mon = true; G.sites.dholavira.monB = null; D.paint();
+    setTimeout(() => {
+      const svg = document.querySelector('#sab-stage svg');
+      const terr = [...svg.querySelectorAll('.sab-terr, #sab-terrg, [class*="border"], [class*="boundar"], [class*="territ"], [class*="region"], [id*="border"], [id*="boundar"], [id*="region"]')];
+      const moving = terr.filter(el => el.getAnimations().length).map(el => (el.getAttribute('class') || el.id));
+      /* the CSS itself: no rule animates a boundary, whatever is on screen today */
+      const cssBad = [];
+      for (const sh of document.styleSheets) {
+        let rules; try { rules = sh.cssRules; } catch (e) { continue; }
+        for (const ru of rules) {
+          const t = ru.cssText || '';
+          const sel = t.split('{')[0] || '';
+          if (/sab-/.test(sel) && /\.sab-terr|#sab-terrg|boundar|territ|region/.test(sel) && /animation(-name)?\s*:\s*(?!none)/.test(t)) cssBad.push(t.slice(0, 90));
+        }
+      }
+      const smil = svg.querySelectorAll('animate, animateTransform, animateMotion, set').length;
+      const glows = [...svg.querySelectorAll('.sab-mglow')].map(el => el.getAttribute('data-for'));
+      const notMon = glows.filter(id => !(G.sites[id] && G.sites[id].mon));
+      const glowCentred = [...svg.querySelectorAll('.sab-mglow')].every(el => {
+        const s = window.IND_SABHYATA.sites.filter(x => x.id === el.getAttribute('data-for'))[0];
+        return s && Math.abs(+el.getAttribute('cx') - s.x) < 0.5 && Math.abs(+el.getAttribute('cy') - s.y) < 0.5 && el.tagName.toLowerCase() === 'circle';
+      });
+      const strays = [...svg.querySelectorAll('#sab-carts > *')].filter(el => !/sab-(cart|sail)/.test(el.getAttribute('class') || '')).length;
+      res({ n: terr.length, moving, cssBad, smil, glows, notMon, glowCentred, strays });
+    }, 300);
+  }));
+  if (!r.n) throw new Error('found no land elements to check');
+  if (r.moving.length) throw new Error('a boundary or region element animates: ' + r.moving.slice(0, 3).join(', '));
+  if (r.cssBad.length) throw new Error('a CSS rule animates the land: ' + r.cssBad[0]);
+  if (r.smil) throw new Error(r.smil + ' SMIL animations on the map');
+  if (!r.glows.length) throw new Error('a finished monument has no glow on the map');
+  if (r.notMon.length) throw new Error('a glow sits round a place with no monument: ' + r.notMon.join(', '));
+  if (!r.glowCentred) throw new Error('a glow is not a circle centred on its monument');
+  if (r.strays) throw new Error(r.strays + ' things in the movers layer are neither carts nor sails');
+});
+
 async function main() {
   const only = process.argv.includes('--only')
     ? process.argv[process.argv.indexOf('--only') + 1] : null;

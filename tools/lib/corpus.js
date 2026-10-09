@@ -21,10 +21,10 @@ function load() {
   const files = [...html.matchAll(/<script src="([^"?]+)/g)].map(m => m[1])
     .filter(f => /^(data-|map-data|likhna\.js|bhasha\.js|game-art\.js|games(-[a-z]+)?\.js|avatars\.js|avatar-cards\.js)/.test(f) && !/^data-feed/.test(f));
   for (const f of files) vm.runInContext(fs.readFileSync(path.join(APP, f), 'utf8'), ctx, { filename: f });
-  /* the games list and each game's how-to line live in app.js; read them, never retype them */
+  /* each game's how-to line rides with games.js (window.IND_GAME_FRAME), which ran above; the
+     TEACHES list lives in app.js — read them, never retype them */
   const app = fs.readFileSync(path.join(APP, 'app.js'), 'utf8');
-  const frame = app.match(/var GAME_FRAME = (\{[\s\S]*?\n  \});/);
-  ctx.GAME_FRAME = frame ? vm.runInNewContext('(' + frame[1] + ')') : {};
+  ctx.GAME_FRAME = ctx.IND_GAME_FRAME || {};
   const teaches = app.match(/var TEACHES = (\[[^\]]*\])/);
   ctx.TEACHES = teaches ? vm.runInNewContext(teaches[1]) : [];
   const shell = fs.readFileSync(path.join(APP, 'shell-index.js'), 'utf8');

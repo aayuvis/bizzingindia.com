@@ -87,7 +87,7 @@ check('weight', 'a phone\'s first screen ≤ 1.5 MB, JavaScript ≤ 400 KB gzipp
   const kb = n => Math.round(n / 1024) + ' KB';
   for (const [nm, r] of [['Home', home], ['the landing', landing]]) {
     if (r.bytes > 1.5 * 1048576) throw new Error(`${nm}'s first screen transfers ${kb(r.bytes)} (budget 1.5 MB)`);
-    if (r.js > 400 * 1024) throw new Error(`${nm}'s first screen runs ${kb(r.js)} of JavaScript gzipped (budget 400 KB)`);
+    if (r.js > 400 * 1024) throw new Error(`${nm}'s first screen runs ${kb(r.js)} (${r.js} bytes) of JavaScript gzipped (budget 400 KB = 409600)`);
   }
   if (home.groups.length) throw new Error('Home loaded route groups before its first screen: ' + home.groups.join(', '));
   console.log(`         Home ${kb(home.bytes)} (JS ${kb(home.js)}, ${home.n} files) · landing ${kb(landing.bytes)} (JS ${kb(landing.js)})`);

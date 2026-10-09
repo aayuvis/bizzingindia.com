@@ -2331,6 +2331,8 @@
             return;
           }
           var cd = (G.quizAt[p.at] || -999) + quizCdNow() - G.t;
+          if (quiz && quiz.at === p.at) { ADD(A('The teacher in ' + nm(p.at) + ' is waiting for your answer.', 'quiz', p.at,
+            { label: 'Answer the teacher', short: 'the teacher waits' })); return; }
           ADD(cd > 0 ? A('The teacher in ' + nm(p.at) + ' rests ' + cd + (cd === 1 ? ' turn' : ' turns') + ' — spend a year.', 'turn', p.at,
                          { label: 'Agla Saal', short: 'the teacher rests' })
                      : A('Ask the teacher in ' + nm(p.at) + ' a question — about any city you have woken.', 'quiz', p.at,
@@ -2362,6 +2364,9 @@
           var uc = utsavCost();
           ADD(canPay(uc) ? A('Hold an utsav in ' + nm(p.at) + ' (' + costStr(uc) + ').', 'utsav', p.at, { label: 'Hold the utsav', short: 'an utsav in ' + nm(p.at) })
                          : A('An utsav in ' + nm(p.at) + ' ' + shortOf(uc) + ' — spend a year.', 'turn', p.at, { label: 'Agla Saal', short: 'an utsav' }));
+        } else if (p.k === 'told') {
+          ADD(A('Mithu has more of this age to tell — spend a year, and the story goes on.', 'turn', null,
+            { label: 'Agla Saal', short: 'the story goes on' }));
         } else if (p.k === 'settled') {
           ADD(A('A quarrel will come — when it does, sit the panchayat. Spend a year.', 'turn', null, { label: 'Agla Saal', short: 'the panchayat' }));
         } else if (p.k === 'fed') {
@@ -2491,7 +2496,9 @@
         case 'quiz': {
           sel = ad.go; targeting = false;
           if (city !== ad.go) act('city');
-          quizStart(ad.go); paintCity(); return ad;
+          /* a question already on the board waits for its answer: Mithu never re-rolls it */
+          if (!(quiz && quiz.at === ad.go)) quizStart(ad.go);
+          paintCity(); return ad;
         }
         case 'feed': {
           var jf = jobsOf(ad.go);
@@ -3273,7 +3280,7 @@
         P.push({ k: 'routed', ok: rd === w.routed.length, label: '🛤 roads ' + rd + '/' + w.routed.length });
       }
       var net = campNet(ch);
-      if (net) P.push({ k: 'network', ok: oneNetwork(net), label: w.network === 'all' ? 'every living city on one road' : 'one road for ' + net.map(nm).join(' · ') });
+      if (net) P.push({ k: 'network', ok: oneNetwork(net), label: w.network === 'all' ? 'every living city on one road' : 'one road for all ' + net.length });
       (w.techs || []).forEach(function (id) { P.push({ k: 'tech', id: id, ok: !!G.tech[id], label: (TECH_BY[id] || {}).name || id }); });
       (w.riti || []).forEach(function (id) { P.push({ k: 'riti', id: id, ok: !!(G.riti || {})[id], label: (RITI_BY[id] || {}).name || id }); });
       (w.pol || []).forEach(function (id) { P.push({ k: 'pol', id: id, ok: polHeld().indexOf(id) >= 0, label: '“' + ((POL_BY[id] || {}).name || id) + '” in force' }); });
@@ -3312,6 +3319,14 @@
         var vd = null; VICS.forEach(function (x) { if (x.id === v) vd = x; });
         P.push({ k: 'vic', id: v, ok: victoriesWon().indexOf(v) >= 0, label: vd ? vd.name : v });
       });
+      /* AND THE AGE'S STORY TOLD TO ITS END: a quick realm used to light the lamp before the
+         twist arrived, skipping its riddles and the chapter's stop with them. The lamp waits
+         for every riddle this band is asked (they come on their own; the year brings them). */
+      var rq = sysOn('riddles') ? riddlesOf(ch) : [];
+      if (rq.length) {
+        var told = rq.filter(function (r) { return G.camp.asked[r.id]; }).length;
+        P.push({ k: 'told', ok: told === rq.length, label: 'Mithu’s riddles ' + told + '/' + rq.length });
+      }
       return P;
     }
     function campWon() {

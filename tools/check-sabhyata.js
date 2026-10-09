@@ -2498,6 +2498,7 @@ check('camp-shrine', 'ch 8: Harmandir Sahib and the Taj are never a monument to 
     const D = window.__SABDO, bad = [];
     D.chapter(8); document.querySelector('#sab-ovhost [data-sab-act="campgo"]').click();
     const G = window.__SABG();
+    G.camp.done = true;                   /* no beat may hold a card over the year this check spends */
     ['agra', 'amritsar'].forEach(id => { const q = G.sites[id]; q.found = true; q.zzz = false; q.lv = 3; });
     G.routes.push(['kashi', 'agra'], ['agra', 'amritsar']);
     G.res.anna = G.res.kala = G.res.katha = 900;
@@ -2512,7 +2513,7 @@ check('camp-shrine', 'ch 8: Harmandir Sahib and the Taj are never a monument to 
     }
     if (/^mon$/.test(D.advise().act)) bad.push('Mithu offers a monument');
     /* Guru Nanak's darshan is a told card: nothing in the realm changes */
-    G.lastdarshan = -99; G.camp.done = true; const a0 = G.res.anna;
+    G.lastdarshan = -99; const a0 = G.res.anna;
     for (let i = 0; i < 3; i++) { const ob = document.querySelector('#sab-ovhost .sab-btn'); if (ob) ob.click(); }
     D.turn();
     const card = (document.querySelector('#sab-ovhost') || {}).innerText || '';

@@ -186,7 +186,8 @@ window.IND_SABHYATA_CAMPAIGN = {
         who: 'about 20, an apprentice who cuts letters into stone — she cares about one thing: that a letter is cut deep enough to outlast her',
         note: 'Ila is made up — nobody knows the names of the hands that cut these letters. Dhauli is real.' },
       hook: 'One vast realm, run from Pataliputra — a city whose wooden walls a Greek visitor wrote home about. Its king had his promises carved into rock, and above the letters at Dhauli the front half of an elephant steps out of the stone to make you look. His edicts reached all the way to Sopara, a port on the other sea, where a piece of them was found in the soil. Ila cuts letters into stone. Can we carry the words from coast to coast?',
-      hookRefs: ['pataliputra.fact', 'eras.1.aha', 'dhauli.more.0', 'sopara.fact'],
+      /* the age's own note says "one vast realm" (hookRefs are provenance, never shown) */
+      hookRefs: ['eras.2.note', 'pataliputra.fact', 'eras.1.aha', 'dhauli.more.0', 'sopara.fact'],
       preset: {
         live: ['pataliputra', 'hastinapura', 'kashi', 'ujjain', 'vaishali'],
         routes: [['hastinapura', 'kashi'], ['kashi', 'vaishali'], ['kashi', 'ujjain']],

@@ -227,6 +227,14 @@ check('caps', '≤ 10 a round, once per item a day (again the next day); Gyanpat
   if (l1 || l2) throw new Error(`rung 9 paid ${l1}, rung 12 with a lifeline paid ${l2}`);
   if (l3 !== 10) throw new Error(`rung 10 with no lifelines paid ${l3}, not the contest's 10`);
   if (l4) throw new Error(`a second ladder the same day paid ${l4}`);
+  /* Trivia Master is a door into Gyanpati: the same question cannot pay again through it */
+  await p.evaluate(() => window.__reg('triviamaster', { teaches: true, hide: true }));
+  const a0 = await coins(p);
+  await open(p, 'gyanpati'); await report(p, 'gyanpati', R(3, true, 'tq')); await finish(p, 'gyanpati', {});
+  const a1 = await coins(p);
+  await open(p, 'triviamaster'); await report(p, 'triviamaster', R(3, true, 'tq')); await finish(p, 'triviamaster', {});
+  const a2 = await coins(p);
+  if (a1 - a0 !== 3 || a2 !== a1) throw new Error(`three rights paid ${a1 - a0} in Gyanpati and ${a2 - a1} more through Trivia Master`);
 });
 
 check('level', 'the chip by touch and keys; 40% drops one, 60% keeps, 85% offers the next, never below 1', async ({ p }) => {

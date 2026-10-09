@@ -510,17 +510,26 @@ check('writeback', 'a missed Shabd word goes into Bhasha\'s review: in Words tha
 });
 
 check('phone', 'at 390×844 the start buttons sit above the tab bar', async ({ p }) => {
+  /* both starts are measured: the host's level chip and Start come first (games spec §1.3,
+     docs/32), then the engine's own start — each above the tab bar, each ≥ 44 px */
+  const measure = sel => p.evaluate(sel => {
+    const b = document.querySelector(sel).getBoundingClientRect();
+    const tb = document.querySelector('.bz-tabbar'), t = tb ? tb.getBoundingClientRect() : { top: innerHeight };
+    return { top: b.top, bottom: b.bottom, bar: getComputedStyle(tb || document.body).display === 'none' ? innerHeight : t.top, h: b.height };
+  }, sel);
   for (const id of ['shabd', 'gyanpati']) {
     await p.evaluate(id => window.BI.go('game', id), id);
-    await p.waitForSelector('#gamehost [data-go="start"]', { timeout: 20000 });
-    await p.waitForTimeout(500);
-    const m = await p.evaluate(() => {
-      const b = document.querySelector('#gamehost [data-go="start"]').getBoundingClientRect();
-      const tb = document.querySelector('.bz-tabbar'), t = tb ? tb.getBoundingClientRect() : { top: innerHeight };
-      return { top: b.top, bottom: b.bottom, bar: getComputedStyle(tb || document.body).display === 'none' ? innerHeight : t.top, h: b.height };
-    });
-    if (m.bottom > m.bar + 0.5 || m.top < 0) throw new Error(`${id}: the start button is at ${Math.round(m.top)}–${Math.round(m.bottom)}px, the tab bar starts at ${Math.round(m.bar)}px`);
-    if (m.h < 44) throw new Error(`${id}: the start button is ${m.h}px tall`);
+    await p.waitForSelector('#gamehost [data-gmh="start"], #gamehost [data-go="start"]', { timeout: 20000 });
+    for (const sel of ['#gamehost [data-gmh="start"]', '#gamehost [data-go="start"]']) {
+      if (sel.indexOf('data-go') >= 0) {
+        await p.evaluate(() => { const s = document.querySelector('#gamehost [data-gmh="start"]'); if (s) s.click(); });
+        await p.waitForSelector(sel, { timeout: 20000 });
+      } else if (!(await p.$(sel))) continue;
+      await p.waitForTimeout(500);
+      const m = await measure(sel);
+      if (m.bottom > m.bar + 0.5 || m.top < 0) throw new Error(`${id}: the start button (${sel}) is at ${Math.round(m.top)}–${Math.round(m.bottom)}px, the tab bar starts at ${Math.round(m.bar)}px`);
+      if (m.h < 44) throw new Error(`${id}: the start button (${sel}) is ${m.h}px tall`);
+    }
   }
 }, { vp: PHONE });
 

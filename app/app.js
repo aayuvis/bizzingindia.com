@@ -9121,6 +9121,8 @@
   function bestOf(id) { var b = bests(); return typeof b[id] === 'number' ? b[id] : null; }
   /* THE ONE PAY PATH (§1.2): S.gpay is today's record per child — items paid, the ladder paid */
   var ROUND_CAP = 10;
+  /* an alias pays as the game it opens into, so one question cannot pay twice a day by two doors */
+  var PAY_AS = { triviamaster: 'gyanpati' };
   function gpayToday() {
     var d = today();
     if (!S.gpay || S.gpay.day !== d) S.gpay = { day: d, ids: {}, contest: false };
@@ -9129,7 +9131,7 @@
   /* a first-try right: 1 coin, at most ROUND_CAP a round, once per item per day */
   function payAnswer(g, key, round) {
     if (!teachesGame(g) || key == null || round.paid >= ROUND_CAP) return 0;
-    var P = gpayToday(), k = g.id + ':' + key;
+    var P = gpayToday(), k = (PAY_AS[g.id] || g.id) + ':' + key;
     if (P.ids[k]) return 0;
     var n = earn('answer', g.name);
     if (n > 0) { P.ids[k] = 1; round.paid++; round.coins += n; save(); }
@@ -9269,7 +9271,7 @@
         res = res || {};
         /* GYANPATI'S LADDER (games spec §1.2): rung 10 or higher on first-try rights, with no
            lifelines, is a contest won — 10 coins, once a day. Finishing alone pays nothing. */
-        if (g.id === 'gyanpati' && teach && +res.rung >= 10 && !res.lifelines) {
+        if ((PAY_AS[g.id] || g.id) === 'gyanpati' && teach && +res.rung >= 10 && !res.lifelines) {
           var P = gpayToday();
           if (!P.contest) { var cn = earn('contest', 'the Gyanpati ladder'); if (cn > 0) { P.contest = true; round.coins += cn; save(); } }
         }

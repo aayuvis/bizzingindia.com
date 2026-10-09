@@ -1658,7 +1658,9 @@
     '.sab-leave{min-height:44px!important}',
     '.sab-kitbar button,.sab-kitbar .z{min-height:44px!important;min-width:44px}',
     '.sab-dtab{min-height:44px}',
-    '.sab-dhandle,.sab-grow,.sab-cityturn .sab-act{min-height:44px!important}',
+    /* a floor, never a ceiling: the phone's own bigger thumbs (52px Build, 46px Grow) still win */
+    '.sab-dhandle,.sab-grow,.sab-cityturn .sab-act,.sab-drawer .sab-grow{min-height:44px}',
+    '.sab-scene.tight .sab-dhandle,.sab-scene.tight .sab-grow{min-height:44px}',
     '.sab-dclose{min-width:44px;min-height:44px}',
     '.sab-drawer .sab-grow{min-height:44px}',
     '.sab-viewbtn i{display:inline-flex;vertical-align:middle}',

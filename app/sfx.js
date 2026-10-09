@@ -24,7 +24,12 @@
     win:    [[523, 0.12, 0], [659, 0.12, 0.11], [784, 0.26, 0.22]],
     medal:  [[784, 0.1, 0], [988, 0.1, 0.09], [1175, 0.32, 0.18]],
     coin:   [[1319, 0.06, 0, 'sine'], [1760, 0.18, 0.06, 'sine']],
-    unlock: [[392, 0.1, 0], [587, 0.1, 0.09], [784, 0.12, 0.18], [1175, 0.4, 0.3, 'sine']]
+    unlock: [[392, 0.1, 0], [587, 0.1, 0.09], [784, 0.12, 0.18], [1175, 0.4, 0.3, 'sine']],
+    /* Sabhyata's verbs, one short tone each — moved here from its private AudioContext so the
+       one mute, Calm and the ducking reach them too (sabhyata-master B5) */
+    'sab-road':  [[392, 0.09, 0]], 'sab-wake':  [[523, 0.16, 0]], 'sab-grow': [[330, 0.1, 0]],
+    'sab-build': [[294, 0.07, 0]], 'sab-learn': [[659, 0.14, 0]], 'sab-peace': [[440, 0.13, 0]],
+    'sab-turn':  [[247, 0.06, 0]], 'sab-no':    [[180, 0.08, 0]]
   };
   var armed = false, dead = false, last = {};
   W.addEventListener('pointerdown', function () { armed = true; }, { capture: true, passive: true });

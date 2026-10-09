@@ -4,8 +4,9 @@
      data      G4: no `kauris` field or reward field remains in data-saga.js; every chapter names
                its engine and an explicit scope { mode, set }; saga.js reaches the wallet only
                through the host's earn('answer') and earn('stop'), and touches no storage itself
-     gate      G5: the act is unsigned, so the saga is tester-mode only — without ?tester=1 its
-               Play card is hidden (review:true) and #/saga says why; with it, both open
+     gate      G5: the act is unsigned (review stays true) and the owner opened it before review
+               (9 Oct 2026, the act's `open`): every child gets the card, map and chapters, each
+               page saying no reviewer has read it; without `open` it is tester-only again
      scope     G2: every chapter launches its engine from IND_GAMES with the chapter's opts as
                `scope`, plus level, band, answer, calm and reduced (a spy on every engine call)
      journey   G1: Act 1 end to end with a perfect bot — on a desktop by mouse and keyboard, on a
@@ -197,19 +198,34 @@ check('data', 'G4: no kauris, no reward field; every chapter names its engine an
   if (/earn\((?!'answer'|'stop')/.test(ui.replace(/\/\*[\s\S]*?\*\//g, '').replace(/H\.earn/g, 'earn'))) throw new Error('saga.js calls earn() with a computed or other event');
 });
 
-check('gate', 'G5: unsigned, so tester mode only — without ?tester=1 no Play card and #/saga says why; with it, both open', async ({ p, base, browser }) => {
+check('gate', 'G5: unsigned, opened by the owner (9 Oct 2026) — every child gets the card, the map and the chapters, each page says no reviewer has read it; take `open` away and it is tester-only again', async ({ p, base, browser }) => {
   await p.evaluate(() => window.IND_LOAD(['games']));
-  const g = await p.evaluate(() => { const x = (window.IND_GAMES || []).find(g => g.id === 'saga'); return x && { review: x.review, hide: x.hide, teaches: x.teaches, name: x.name, sub: x.sub, eng: typeof x.engine }; });
+  const g = await p.evaluate(() => { const x = (window.IND_GAMES || []).find(g => g.id === 'saga'); return x && { review: x.review, hide: x.hide, open: x.open, teaches: x.teaches, name: x.name, sub: x.sub, eng: typeof x.engine }; });
   if (!g) throw new Error('the saga registers no IND_GAMES card');
-  if (g.review !== true || g.hide !== true) throw new Error('outside tester mode the saga card is offered: ' + JSON.stringify(g));
+  /* the owner's decision is `open`, never a sign-off: review stays true */
+  if (g.review !== true) throw new Error('owner-opened is not a sign-off: review must stay true until the act is signed');
+  if (g.hide !== false || !g.open || g.open.by !== 'owner' || g.open.to !== 'everyone' || !g.open.on || !g.open.why) throw new Error('the saga is not owner-opened: ' + JSON.stringify(g));
   if (g.teaches !== true || g.eng !== 'function' || !/Gattu aur Vismriti/.test(g.name) || !g.sub) throw new Error('the card is not the flagship\'s: ' + JSON.stringify(g));
   await p.evaluate(() => window.BI.go('play')); await p.waitForTimeout(500);
-  if (await p.$('#main [data-id="saga"]')) throw new Error('the Play hub offers the saga outside tester mode');
+  if (!(await p.$('#main [data-id="saga"]'))) throw new Error('the Play hub does not offer the owner-opened saga');
   await p.evaluate(() => window.BI.go('saga')); await p.waitForTimeout(500);
-  const hold = await p.evaluate(() => ({ hold: !!document.querySelector('#main .sg-hold'), map: !!document.querySelector('#main .sg-map'), door: !!document.querySelector('#main .sg-hold [data-act="go"]') }));
-  if (!hold.hold || hold.map || !hold.door) throw new Error('#/saga outside tester mode: ' + JSON.stringify(hold));
+  const open = await p.evaluate(() => ({ hold: !!document.querySelector('#main .sg-hold'), map: !!document.querySelector('#main .sg-map'), note: ((document.querySelector('#main .sg-draft') || {}).textContent || '') }));
+  if (open.hold || !open.map) throw new Error('#/saga outside tester mode: ' + JSON.stringify(open));
+  if (!/Not yet checked by its reviewer/.test(open.note) || /Tester mode/.test(open.note)) throw new Error('#/saga does not tell a child the act is unchecked: ' + JSON.stringify(open.note));
   await p.evaluate(() => window.BI.go('saga', 1)); await p.waitForTimeout(300);
-  if (await p.$('#sg-root[data-n="1"]')) throw new Error('#/saga/1 opens a chapter outside tester mode');
+  if (!(await p.$('#sg-root[data-n="1"]'))) throw new Error('#/saga/1 does not open its chapter for every child');
+  if (!/Not yet checked/.test(await p.evaluate(() => ((document.querySelector('#sg-root .sg-draft') || {}).textContent || '')))) throw new Error('a chapter page does not carry the unchecked note');
+  /* the gate itself still works: without the owner's `open`, the unsigned act is tester-only */
+  await p.evaluate(() => { const a = window.IND_SAGA.acts[0]; window.__sgopen = a.open; delete a.open; });
+  try {
+    const shut = await p.evaluate(() => { const x = window.IND_GAMES.find(g => g.id === 'saga'); return { hide: x.hide, open: x.open }; });
+    if (shut.hide !== true || shut.open) throw new Error('without `open` the saga card is still offered: ' + JSON.stringify(shut));
+    await p.evaluate(() => window.BI.go('play')); await p.waitForTimeout(400);
+    if (await p.$('#main [data-id="saga"]')) throw new Error('without `open` the Play hub offers the unsigned saga');
+    await p.evaluate(() => window.BI.go('saga')); await p.waitForTimeout(400);
+    const hold = await p.evaluate(() => ({ hold: !!document.querySelector('#main .sg-hold'), map: !!document.querySelector('#main .sg-map'), door: !!document.querySelector('#main .sg-hold [data-act="go"]') }));
+    if (!hold.hold || hold.map || !hold.door) throw new Error('#/saga without `open`: ' + JSON.stringify(hold));
+  } finally { await p.evaluate(() => { window.IND_SAGA.acts[0].open = window.__sgopen; }); }
   /* tester mode: the same device with ?tester=1 */
   await p.goto(base + '?tester=1', { waitUntil: 'networkidle' }); await p.waitForTimeout(300);
   await p.evaluate(() => window.IND_LOAD(['games']));

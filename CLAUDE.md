@@ -79,10 +79,10 @@ The short version:
   six tabs Home · India · Paathshala · Bhasha · Play · My Feed (owner, 2 Oct 2026: My Feed last); everything else lives in ☰. `checkShell`
   must return [] (check-standard `shell`). `bizzing.activity` gets
   active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
-- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts 6,305 cards
+- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts 6,306 cards
   from the corpus — several honest angles per object, each with a `src` that must resolve, nothing
   needs_review or gated 11+, no two ≥ 80% the same words, no question whose words hold its answer —
-  on the Gurukul rank as the level (≥ 100 per rank, 214–1,339 today) plus 1,630 with no level (a game card only for what Play shows). ONE
+  on the Gurukul rank as the level (≥ 100 per rank, 214–1,339 today) plus 1,631 with no level (a game card only for what Play shows). ONE
   engine: the family's `family/bizzing-feed.js` (byte for byte, via `bridge.js`); `app/feed.js` only
   adapts India's signals to it, and asks it again until no object has more than two cards a session. A card's facts are read from corpus paths, never typed, and its door opens on that very
   thing — `#/<view>/<arg>|<focus>` puts a card for it first — never a tool's front door. About twenty a session, mostly at the child's rank, then a finished card; lazy
@@ -97,7 +97,10 @@ The short version:
   once per item a day; `stop` 5 once per chapter via `opts.stop`; nothing for finishing; heritage games
   never) and runs the level chip (≥ 50% keeps, < 50% drops, ≥ 80% offers). A miss holds with the
   `.gm-miss` card until Aage. Play shows ≤ 13 cards, one in one out; a `review: true` game opens only in
-  tester mode until signed. `check-games` holds the host; each engine has its own `check-<game>`.
+  tester mode until signed — or until the owner opens it before review with `open: {by:'owner'}` (9 Oct
+  2026: Panchang, Kaal Nadi, Katha Chain, the saga, Akshar's other scripts — "like the gita"), which is
+  never a sign-off and puts "Not yet checked by its reviewer" on the game's page (`.gf-unchecked`).
+  `check-games` holds the host; each engine has its own `check-<game>`.
 - **Medals, sound and the game frame** (docs/26): medals only from what the app saw, each
   celebrated once; the host gives every game a how-to, sound, motion and "what you practised";
   `sfx.js` makes its sounds (no audio files) under the one mute; every lock says how to open.

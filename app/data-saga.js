@@ -57,8 +57,12 @@ window.IND_SAGA = {
       age_gate: 4,
       recovers: 'That a story only survives if somebody tells it.',
       /* G5: the act's text opens to children only when the named reviewer signs here,
-         { status: 'reviewed', by: '<name>', on: '<date>' }. Until then: tester mode only. */
-      review: null }
+         { status: 'reviewed', by: '<name>', on: '<date>' }. Until then: tester mode only —
+         unless the owner opens it before review, as on 9 Oct 2026: `open` is the publisher's
+         decision, never a sign-off, and every saga page says the act is not yet checked. */
+      review: null,
+      open: { to: 'everyone', by: 'owner', on: '2026-10-09',
+        why: 'Owner, 9 Oct 2026: \u201copen them all to everyone now, like the gita\u201d \u2014 the publisher\u2019s decision, never a reviewer\u2019s sign-off.' } }
   ],
 
   chapters: [

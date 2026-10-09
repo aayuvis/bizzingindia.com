@@ -415,12 +415,14 @@ C.IND_BHUGOL.features.forEach(f => {
 
 /* ---------------------------------------------------------------- games (no level) */
 /* only what the Play tab shows (games spec §3.1): never a folded alias (`hide`), never a card
-   still with its reviewer (`review`), and never a legacy card whose replacement is released —
+   still with its reviewer (`review`, unless the owner opened it), and never a legacy card whose replacement is released —
    a card's door must open on that very game, and #/game/statehunt now opens Naksha */
 const GM_NEXT = { statehunt: 'naksha', festival: 'panchang', jataka: 'katha' };
 const gmById = id => C.IND_GAMES.find(x => x.id === id);
-const onPlay = gm => !gm.hide && !gm.review &&
-  !(GM_NEXT[gm.id] && gmById(GM_NEXT[gm.id]) && !gmById(GM_NEXT[gm.id]).review);
+/* released as the host's released() says: signed, or opened by the owner before review (9 Oct 2026) */
+const released = gm => !!gm && (!gm.review || !!(gm.open && gm.open.by === 'owner'));
+const onPlay = gm => !gm.hide && released(gm) &&
+  !(GM_NEXT[gm.id] && released(gmById(GM_NEXT[gm.id])));
 C.IND_GAMES.filter(onPlay).forEach(gm => {
   const how = (C.GAME_FRAME[gm.id] || [])[0];
   if (!how) return;

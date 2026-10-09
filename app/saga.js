@@ -61,7 +61,17 @@
     try { return !!(W.IND_STORE && W.IND_STORE.loadDevice('tester', false) === true); } catch (e) { return false; }
   }
   function reviewed() { var a = act(), r = a && a.review; return !!(r && r.status === 'reviewed' && r.by); }
-  function isOpen() { return tester() || reviewed(); }
+  /* OPENED BY THE OWNER BEFORE REVIEW (9 Oct 2026, "open them all to everyone now, like the gita"):
+     the act's `open`, the publisher's decision — never a sign-off; every saga page then says so */
+  function ownerOpened() { var a = act(), o = a && a.open; return !!(o && o.by); }
+  function isOpen() { return tester() || reviewed() || ownerOpened(); }
+  function draftNote() {
+    if (reviewed()) return '';
+    if (ownerOpened() && !tester()) return '<div class="sg-draft" role="note"><b>Not yet checked by its reviewer.</b> Gattu and Mithu are made up, ' +
+      'and every round is one of the app\u2019s own games — but the person who reads what this app tells children has not read this story yet. ' +
+      'The family who made this app opened it anyway. Ask a grown-up if anything seems wrong.</div>';
+    return '<div class="sg-draft" role="note"><b>Tester mode.</b> This act has not been signed off by its reviewer yet; children do not see it.</div>';
+  }
 
   /* --------------------------------------------------------------- this child's record
      S.saga = { done:{n:day}, paid:{n:1}, thin:{n:0..3}, lvl:1..5, seen:{n:1}, pd:{d, ids{}} } */
@@ -263,7 +273,7 @@
       '<button class="btn" data-act="go" data-v="play">Back to Play</button></div>';
     if (!isOpen()) return holdCard();
     return '<button class="backlink" data-act="go" data-v="play">' + icon('back', 18) + ' Play</button>' +
-      (reviewed() ? '' : '<div class="sg-draft" role="note"><b>Tester mode.</b> This act has not been signed off by its reviewer yet; children do not see it.</div>') +
+      draftNote() +
       '<div id="sg-root" class="sg">' + mapCard(false) + '</div>';
   }
 
@@ -384,7 +394,7 @@
     var arriving = !/^#\/saga\//.test(W.location.hash) || W.location.hash.split('/')[2] !== String(c.n);
     if (!run || run.n !== c.n || (arriving && run.phase === 'result')) run = freshRun(c.n);
     if (run.phase === 'play') run.phase = 'ready';   /* a repaint mid-round starts the round again, never half of one */
-    return '<div id="sg-root" class="sg sg-ch" data-n="' + c.n + '" data-phase="' + run.phase + '">' + headOf(c) +
+    return '<div id="sg-root" class="sg sg-ch" data-n="' + c.n + '" data-phase="' + run.phase + '">' + headOf(c) + draftNote() +
       '<div class="sg-body sg-page">' + body(c) + '</div></div>';
   }
 
@@ -576,7 +586,7 @@
     if (!H || !data()) { host.innerHTML = '<div class="card"><p>The saga is still loading. Try again in a moment.</p></div>'; return function () {}; }
     if (!isOpen()) { host.innerHTML = holdCard(); return function () { host.innerHTML = ''; }; }
     if (opts && opts.level >= 1 && opts.level <= 5) { rec().lvl = opts.level; H.save(); }
-    host.innerHTML = '<div class="sg">' + mapCard(true) + '</div>';
+    host.innerHTML = '<div class="sg">' + draftNote() + mapCard(true) + '</div>';
     var liftT = null;
     if (lift) { liftT = liftIn(host.querySelector('.sg-map'), lift); lift = null; }
     var onClick = function (e) {
@@ -602,6 +612,7 @@
        (the hub skips `hide`) — both read live, so a sign-off or ?tester=1 needs no rebuild */
     Object.defineProperty(card, 'review', { enumerable: true, get: function () { return !reviewed(); }, set: function () {} });
     Object.defineProperty(card, 'hide', { enumerable: true, get: function () { return !isOpen(); }, set: function () {} });
+    Object.defineProperty(card, 'open', { enumerable: true, get: function () { var a = act(); return ownerOpened() ? a.open : null; }, set: function () {} });
     W.IND_GAMES.push(card);
   }
 

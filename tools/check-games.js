@@ -22,7 +22,8 @@
                round keeps the level and says it was not scored
      lineup    T16: Play shows ≤ 13 game cards in the spec's groups, none of Trivia Master,
                Saap-Sidi, Kancha, Gutte or the Rishtey quiz; each card has its subtitle; heritage
-               cards say "for fun · no coins"; one in, one out (a replacement in review waits,
+               cards say "for fun · no coins"; the owner-opened ones (panchang, kaalnadi, katha,
+               saga) on every child's shelf, their page saying unchecked; one in, one out (a replacement in review waits,
                released it takes its legacy's slot); hidden ids never dead-end
      best      a best kept in the old points (before the quizzes scored first-try rights) is
                dropped once; any other best stays
@@ -329,6 +330,13 @@ check('lineup', 'Play: ≤ 13 cards in groups, none retired, each with a subtitl
   if (fun.length !== 3) throw new Error('the courtyard games are not all on Play: ' + fun.map(c => c.id).join(','));
   if (fun.some(c => !/for fun · no coins/.test(c.mono))) throw new Error('a heritage card does not say "for fun · no coins"');
   if (teach.some(c => /no coins/.test(c.mono))) throw new Error('a teaching card says it pays no coins');
+  /* OPENED BY THE OWNER (9 Oct 2026, "open them all to everyone now, like the gita"): the unsigned
+     engines are on every child's shelf, in their legacies' slots; the legacies stepped aside */
+  const OWNER_OPEN = ['panchang', 'kaalnadi', 'katha', 'saga'];
+  const shut = OWNER_OPEN.filter(x => !a.ids.includes(x));
+  if (shut.length) throw new Error('owner-opened games missing from a child\'s Play: ' + shut.join(', '));
+  const stale = ['festival', 'jataka'].filter(x => a.ids.includes(x));
+  if (stale.length) throw new Error('a legacy kept its slot beside its owner-opened replacement: ' + stale.join(', '));
   /* one in, one out: a replacement in review waits; released, it takes the slot; a stray engine never shows */
   await p.evaluate(() => {
     const mk = (id, review) => ({ id, name: 'New ' + id, sub: 'test', blurb: '', review, teaches: true, engine: h => { h.innerHTML = '<p>new</p>'; } });
@@ -344,6 +352,15 @@ check('lineup', 'Play: ≤ 13 cards in groups, none retired, each with a subtitl
   const hd = await hub();
   await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'carrom'); if (g) delete g.hide; });
   if (hd.ids.includes('carrom')) throw new Error('a game marked hide is on Play');
+  /* the owner's `open` lets an unsigned replacement into its slot for every child — still review:
+     true, and its page says so; take `open` away and it waits again */
+  await p.evaluate(() => { window.IND_GAMES.find(g => g.id === 'naksha').open = { to: 'everyone', by: 'owner', on: '2026-10-09', why: 'test' }; });
+  const o = await hub();
+  if (!o.ids.includes('naksha') || o.ids.includes('statehunt')) throw new Error('an owner-opened replacement did not take its slot: ' + o.ids.join(','));
+  await p.evaluate(() => window.BI.go('game', 'naksha')); await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(150);
+  const on = await p.evaluate(() => ((document.querySelector('#gframe .gf-unchecked') || {}).textContent || ''));
+  if (!/Not yet checked by its reviewer/.test(on)) throw new Error('an owner-opened game\'s page does not say it is unchecked: ' + JSON.stringify(on));
+  await p.evaluate(() => { delete window.IND_GAMES.find(g => g.id === 'naksha').open; });
   /* tester mode sees the one in review, in the legacy's slot */
   await p.evaluate(() => window.BI.Store.saveDevice('tester', true));
   const t = await hub();
@@ -353,6 +370,8 @@ check('lineup', 'Play: ≤ 13 cards in groups, none retired, each with a subtitl
   await p.evaluate(() => { window.IND_GAMES.find(g => g.id === 'naksha').review = false; });
   const c = await hub();
   if (!c.ids.includes('naksha') || c.ids.includes('statehunt')) throw new Error('a released replacement did not take its legacy\'s slot: ' + c.ids.join(','));
+  await p.evaluate(() => window.BI.go('game', 'naksha')); await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(150);
+  if (await p.$('#gframe .gf-unchecked')) throw new Error('a released (signed) game carries the unchecked note');
   if (c.ids.length !== a.ids.length) throw new Error(`one in, one out: ${a.ids.length} cards became ${c.ids.length}`);
   /* hidden and retired ids never dead-end */
   for (const id of ['triviamaster', 'saapsidi', 'kancha', 'gutte', 'statehunt', 'nosuchgame']) {

@@ -88,3 +88,19 @@ nothing structural (a map, a wheel, letters) is painted into a plate — the app
 docs/05 outranks any game idea. Never a date, a fact or a quotation from memory — every item
 comes from the app's sourced data. Content the spec sends to the named reviewer registers with
 `review: true` and opens only in tester mode (`?tester=1`) until signed.
+
+**Opened by the owner before review** (9 Oct 2026, "open them all to everyone now, like the gita"):
+a registration may carry, beside `review: true`,
+
+```js
+open: { to: 'everyone', by: 'owner', on: '2026-10-09', who: 'a historian', why: '…' }
+```
+
+It is the publisher's decision, never a sign-off — `review` stays true until a named reviewer
+signs. The host's `released()` lets it onto every child's shelf (in its legacy's slot), and the
+game's page carries `.gf-unchecked`: "Not yet checked by its reviewer … `who` has not checked it
+yet. The family who made this app opened it anyway." Opened this way: Panchang, Kaal Nadi, Katha
+Chain, Gattu aur Vismriti (the act's `open` in data-saga.js), and Akshar's scripts other than
+Devanagari (each says no native reader has checked it). Take `open` away and the game waits again —
+each game's `gate` check proves it. What a game *excludes* by design (Kaal Nadi's sensitive eras,
+the campaign's human raids) stays excluded: opening is not widening.

@@ -273,8 +273,9 @@
       '<div class="kn-board"></div></div>';
     var root = host.querySelector('.kn'), board = root.querySelector('.kn-board'), stepEl = root.querySelector('.kn-step');
 
-    /* REVIEW GATE: the card set opens only in tester mode until the reviewer signs (docs/05 §6) */
-    if (REG.review && !tester() && !opts.preview) {
+    /* REVIEW GATE: the card set opens only in tester mode until the reviewer signs (docs/05 §6) —
+       or the owner opens it before review (REG.open, 9 Oct 2026), as now */
+    if (REG.review && !(REG.open && REG.open.by) && !tester() && !opts.preview) {
       board.innerHTML = '<div class="kn-wait" role="status"><h3 class="kn-mode">The River of Time is with its reviewer</h3>' +
         '<p class="kn-hint" style="font-size:15px">Every card here comes from the app\'s history pages, and a historian has to ' +
         'check the whole set before it opens. It will be here soon.</p>' +
@@ -654,6 +655,10 @@
     blurb: 'Cards from the app\'s history pages — set them in order, place them on the river, and say how we know.',
     icon: 'map', minutes: 4, tag: 'Itihaas', c: '#1f6f9f', c2: '#3aa0a0',
     teaches: true, review: true,
+    /* OPENED BY THE OWNER BEFORE REVIEW: still review: true (nobody has signed), open to every child;
+       the host says so on the game's page */
+    open: { to: 'everyone', by: 'owner', on: '2026-10-09', who: 'a historian',
+      why: 'Owner, 9 Oct 2026: \u201copen them all to everyone now, like the gita\u201d \u2014 the publisher\u2019s decision, never a reviewer\u2019s sign-off.' },
     levels: ['which came first', 'order three', 'on the river', 'how do we know', 'find the one out of order'],
     engine: needs(['content', 'games'], function () { return !!(W.IND_ITIHAAS && W.IND_SABHYATA); }, engine)
   };

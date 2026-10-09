@@ -6491,7 +6491,17 @@
   var GAME_NEXT = { statehunt: 'naksha', festival: 'panchang', jataka: 'katha' };
   var GAME_ALIAS = { naksha: 'statehunt', statehunt: 'naksha', panchang: 'festival', festival: 'panchang',
                      katha: 'jataka', jataka: 'katha', triviamaster: 'gyanpati', saapsidi: 'ludo' };
-  function released(g) { return !!g && (!g.review || tester()); }
+  /* OPENED BY THE OWNER BEFORE REVIEW (9 Oct 2026, "open them all to everyone now, like the gita"):
+     a registration may carry `open: { to: 'everyone', by: 'owner', on, why }` beside review: true —
+     the publisher's decision, never a sign-off. It plays for every child, and its page says so. */
+  function ownerOpen(g) { return !!(g && g.review && g.open && g.open.by === 'owner'); }
+  function released(g) { return !!g && (!g.review || tester() || ownerOpen(g)); }
+  function uncheckedNote(g) {
+    if (!ownerOpen(g)) return '';
+    return '<p class="gf-unchecked" role="note"><b>Not yet checked by its reviewer.</b> Everything in this game comes from the ' +
+      'app\u2019s own sourced pages, and nothing is written from memory \u2014 but ' + esc(g.open.who || 'the person who checks what this app tells children') +
+      ' has not checked it yet. The family who made this app opened it anyway. Ask a grown-up if anything seems wrong.</p>';
+  }
   function gameById(id) { return (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0] || null; }
   /* the engine #/game/<id> opens; null = the hub */
   function gameFor(id) {
@@ -6659,6 +6669,7 @@
         '<span class="gf-txt"><b>' + esc(g.name) + '</b><span class="gf-how">' + esc(f[0]) + '</span>' +
         '<span class="gf-keys tiny muted">Tap to play — or use the keyboard: Tab, the arrows and Enter.</span></span>' +
         '<i class="gf-bar" aria-hidden="true"></i></button>' : '') +
+      uncheckedNote(g) +
       gameWays(g) +
       '<div id="gamehost"></div></div>';
   };

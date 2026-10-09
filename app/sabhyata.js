@@ -1543,6 +1543,10 @@
     '.sab-lmrow .t b{font-size:13.5px}',
     '.sab-lmrow .t i{font-style:normal;font-size:11.5px;color:var(--muted)}',
     '.sab-lmrow .sab-btn{min-height:44px;padding:6px 14px;font-size:13px}',
+    /* A CHAPTER THE OWNER OPENED BEFORE ITS REVIEWER says so, in words, wherever it can be started */
+    '.sab-unchecked{display:block;margin:4px 0 8px!important;padding:6px 10px;border-radius:10px;font:700 12px/1.35 var(--body,system-ui)!important;' +
+      'color:var(--text)!important;background:color-mix(in srgb,#e8b64c 16%,var(--card));box-shadow:inset 0 0 0 1px color-mix(in srgb,#d4a650 45%,transparent)}',
+    '.sab-lmrow .t i.sab-unchecked{margin:3px 0 0!important;padding:3px 8px;font-size:11px!important}',
     '.sab-hall ul{list-style:none;margin:6px 0 10px;padding:0;display:grid;gap:8px}',
     '.sab-hall li{padding:9px 12px;border-radius:12px;background:color-mix(in srgb,#e8b64c 12%,var(--card))}',
     '.sab-hall p{margin:3px 0!important}',
@@ -1900,11 +1904,20 @@
        tree, and the tree is what turns a shopping list into a route. */
     function techOpenFor(t) {
       if (!t || t.era > G.era) return false;
+      if (!doorShown('doors', t.id)) return false;
       return (t.needs || []).every(function (n) { return !!G.tech[n]; });
     }
     function ritiOpenFor(r) {
       if (!r || r.era > G.era) return false;
+      if (campOff('riti') || !doorShown('ritiDoors', r.id)) return false;
       return (r.needs || []).every(function (n) { return !!(G.riti || {})[n]; });
+    }
+    /* A CHAPTER SHOWS ITS OWN DOORS (E2): "two doors — learn the script, then the edicts". In a
+       campaign chapter Vidya, Riti and the policy slots offer only what the chapter names;
+       free play offers everything, as it always did. */
+    function doorShown(key, id) {
+      if (!G || !G.camp) return true;
+      var ch = campCh(); return !!ch && (ch[key] || []).indexOf(id) >= 0;
     }
     function techMissing(t) {
       return (t.needs || []).filter(function (n) { return !G.tech[n]; })
@@ -2014,7 +2027,15 @@
     }
     function khushiWant() {
       var arr = DATA.khushi || [];
-      return arr[Math.min(G.era, arr.length - 1)] || 1;
+      var w = arr[Math.min(G.era, arr.length - 1)] || 1;
+      if (G && G.camp) {
+        /* NEVER PROMISE WHAT THE MAP CANNOT DELIVER (master F, E7): a chapter asks for no more
+           kinds of thing than its own living places can make */
+        var kinds = {};
+        SITES.forEach(function (x) { if (inEra(x) && !isHer(x.id)) { var g = goodOf(x.id); if (g) kinds[g] = 1; } });
+        w = Math.min(w, Math.max(1, Object.keys(kinds).length));
+      }
+      return w;
     }
     function khushiHave() { return Object.keys(goodsReached()).length; }
     /* short of variety the realm grows restless. It is never shamed and always
@@ -2023,6 +2044,7 @@
        is the whole realm, and "0/1 restless" from turn one cost it its only grain. Restlessness
        waits until there is a second living place to compare home with. */
     function restless() {
+      if (campOff('goods')) return 0;      /* goods are chapter 7's lesson: before it, nobody is restless */
       if (G.era === 0 && SITES.filter(function (x) { return inEra(x) && awake(x.id) && !isHer(x.id); }).length <= 1) return 0;
       return Math.max(0, khushiWant() - khushiHave());
     }
@@ -2098,18 +2120,34 @@
         (DATA.raids || []).forEach(function (r3) { if (r3.id === G.warn.raid) wr = r3; });
         var need = (wr ? wr.str : 5) + Math.floor(G.era / 3) + (keyCity(wid) ? 2 : 0), have = defenceOf(wid).total;
         /* a gate that is ready needs nothing more: on to the next lamp */
-        if (have < need && sysOn('jobs') && sysOn('city')) {
+        var pk0 = costOf(BLD.prakara.cost, 'building');
+        var canHelp = (jobOpen(wid, 'rakshak') && spareHand(wid)) ||
+          (sysOn('buildings') && ((kitOn(wid) && !G.kitOpen) ||
+            (!kitOn(wid) && !G.sites[wid].bld.prakara && BLD.prakara.era <= G.era && canPay(pk0))));
+        if (have < need && sysOn('jobs') && sysOn('city') && canHelp) {
           if (city !== wid) return A('Something is coming to ' + wn + ': the gate needs ' + need + ' and has ' + have + '. Go in and set a watch.', 'city', wid,
             { label: 'Go in', short: 'a watch at ' + wn });
-          if (jobOpen(wid, 'rakshak')) return A('Put a rakshak on the gate — ' + have + ' of ' + need + ' so far.', 'watch', wid,
+          /* only while a hand is left to move: a gate that has every hand on it already is done
+             asking, and the year comes (a tap that changed nothing was a loop, not a step) */
+          if (jobOpen(wid, 'rakshak') && spareHand(wid)) return A('Put a rakshak on the gate — ' + have + ' of ' + need + ' so far.', 'watch', wid,
             { label: 'Add a rakshak', short: 'a rakshak at ' + wn });
-          if (sysOn('buildings')) return A('A watch needs a wall to stand on — build one from the Defence shelf.', 'shelf', wid,
+          if (sysOn('buildings') && kitOn(wid) && !G.kitOpen) return A('A watch needs a wall to stand on — build one from the Defence shelf.', 'shelf', wid,
             { label: 'Open Defence', short: 'a wall at ' + wn, tab: 'guard' });
+          /* a city with no drawn board has its rampart on the build plots */
+          var pk = costOf(BLD.prakara.cost, 'building');
+          if (sysOn('buildings') && !kitOn(wid) && !G.sites[wid].bld.prakara && BLD.prakara.era <= G.era && canPay(pk))
+            return A('Every hand in ' + wn + ' is on the gate — a prakara is worth two more (' + costStr(pk) + ').', 'build', wid,
+              { b: 'prakara', label: 'Raise the prakara', short: 'a wall at ' + wn });
         }
       }
-      /* the things waiting in a city you are not standing in (you can see the bell in this one) */
+      /* IN A CHAPTER, the goal's urgent parts first: a quarrel to sit, a ship to answer, a school
+         or a great work to begin while the coins are there (they run on their own clock) */
+      var ce = G.camp ? campAdvise(A, 'early') : null;
+      if (ce) return ce;
+      /* the things waiting in a city you are not standing in (you can see the bell in this one) —
+         in a chapter, the goal's own parts say these, by name */
       var L = decisionList().filter(function (x) { return !(city && x.id === city) && !(G.warn && x.id === G.warn.id); });
-      if (L.length) return A(nameOf(byId[L[0].id]) + ' wants you — ' + L[0].why + '.',
+      if (L.length && !G.camp) return A(nameOf(byId[L[0].id]) + ' wants you — ' + L[0].why + '.',
         sysOn('city') && awake(L[0].id) && !isHer(L[0].id) ? 'city' : 'select', L[0].id,
         { label: 'Go there', short: nameOf(byId[L[0].id]) + ' — ' + L[0].why });
       /* 3 — the next lamp: hold what is fading, wake what is reached, reach what is found, find */
@@ -2153,6 +2191,9 @@
         if (from) return A('An explorer needs ' + T.exploreCost + ' 🌾 for the road — spend a year and the fields fill.', 'turn', null,
           { label: 'Agla Saal', short: 'grain for an explorer' });
       }
+      /* 3¼ — THE CHAPTER'S GOAL, part by part (E5): the first part not yet true, as a thing to do */
+      var cr = G.camp ? campAdvise(A, 'rest') : null;
+      if (cr) return cr;
       /* 3½ — THE AGE'S GOAL, part by part, before the clock runs out (owner, 9 Oct 2026) */
       if (G.goal && !G.goal.met && !G.camp) {
         var gd = ageGoalDef(G.goal.era), gneed = gd ? goalNeed(gd) : {}, ghave = goalHave(), left = G.goal.due - G.t;
@@ -2207,6 +2248,144 @@
       return A('Nothing needs you this minute — spend a year and let the stores fill.', 'turn', null,
         { label: 'Agla Saal', short: 'Agla Saal' });
     }
+    /* MITHU LEADS THROUGH THE CHAPTER (E5, C.4 #2). Each part of the goal that is not yet true
+       becomes one thing to do, and his tap does it — the very function the child's own button
+       calls. 'early' is what should not wait (a quarrel, a ship, a school or a great work that
+       runs on its own clock); 'rest' is everything else, the doable before the waiting. */
+    function campAdvise(A, phase) {
+      var ch = campCh(); if (!ch || G.camp.done) return null;
+      var P = campParts(ch).filter(function (p) { return !p.ok; });
+      var nm = function (id) { return byId[id] ? nameOf(byId[id]) : id; };
+      var live = function (id) { return awake(id) && !isHer(id); };
+      var doable = [], waiting = [];
+      var ADD = function (adv) { if (adv) (adv.act === 'turn' ? waiting : doable).push(adv); };
+      if (phase === 'early') {
+        if (G.disp && sysOn('quarrels')) {
+          var fi = G.tech.panchayat ? -1 : -2;
+          if (fi === -2) G.disp.fix.forEach(function (fx, i) { if (fi === -2 && canPay(costOf(fx.cost, 'peace'))) fi = i; });
+          if (fi > -2) return A(nm(G.disp.a) + ' and ' + nm(G.disp.b) + ' have quarrelled — sit the panchayat.', 'peace', G.disp.a,
+            { i: fi, label: 'Sit the panchayat', short: 'the panchayat' });
+        }
+        var open = Object.keys(G.req || {}).filter(function (pid) { return canSupply(G.req[pid].want); })[0];
+        if (open && sysOn('sea')) return A(partnerName(open) + ' is asking for ' + G.req[open].want + ', and a road of yours reaches it — send it.',
+          'fill', null, { p: open, label: 'Send it', short: 'a ship for ' + partnerName(open) });
+        for (var i = 0; i < P.length; i++) {
+          var p = P[i];
+          if (p.k === 'tech' && sysOn('vidya') && !G.proj && techOpenFor(TECH_BY[p.id]) && canPay(techCost(TECH_BY[p.id])))
+            return A('Begin ' + p.label + ' in Vidya (' + costStr(techCost(TECH_BY[p.id])) + ') — the school works while you do everything else.',
+              'learn', null, { t: p.id, label: 'Begin ' + p.label, short: p.label });
+          if (p.k === 'mon' && live(p.at) && G.sites[p.at].lv >= 3 && !G.sites[p.at].monB && monAllowed(p.at) &&
+              worksRunning() < worksCap() && canPay(costOf(T.monCost[byId[p.at].era], 'monument')))
+            return A('Lay the foundation at ' + nm(p.at) + ' (' + costStr(costOf(T.monCost[byId[p.at].era], 'monument')) + ') — it rises while you work.',
+              'mon', p.at, { label: 'Begin the monument', short: 'the monument at ' + nm(p.at) });
+        }
+        return null;
+      }
+      P.forEach(function (p) {
+        var q = G.sites[p.at || p.id] || null;
+        if (p.k === 'tech') {
+          var td = TECH_BY[p.id]; if (!td || !sysOn('vidya')) return;
+          if (G.proj) { ADD(A('The school is at work on ' + ((TECH_BY[G.proj.id] || {}).name || 'its lesson') + ' — spend a year, and it gets closer.',
+            'turn', null, { label: 'Agla Saal', short: 'the school is at work' })); return; }
+          if (!techOpenFor(td)) return;
+          var tc = techCost(td);
+          ADD(canPay(tc) ? A('Begin ' + td.name + ' in Vidya (' + costStr(tc) + ').', 'learn', null, { t: p.id, label: 'Begin ' + td.name, short: td.name })
+                         : A(td.name + ' ' + shortOf(tc) + ' — spend a year, and the tellers earn it.', 'turn', null, { label: 'Agla Saal', short: td.name }));
+        } else if (p.k === 'riti') {
+          var rd = RITI_BY[p.id]; if (!rd || !ritiOpenFor(rd)) return;
+          var rc2 = costOf(rd.cost, 'riti');
+          ADD(canPay(rc2) ? A('Take up ' + rd.name + ' in Riti (' + costStr(rc2) + ').', 'adopt', null, { r: p.id, label: 'Take up ' + rd.name, short: rd.name })
+                          : A(rd.name + ' ' + shortOf(rc2) + ' — spend a year.', 'turn', null, { label: 'Agla Saal', short: rd.name }));
+        } else if (p.k === 'pol') {
+          if (polOpen().indexOf(p.id) >= 0) ADD(A('Put ' + p.label + ' — it is one tap in the Riti slots.', 'slot', null,
+            { p: p.id, label: 'Put it in force', short: p.label }));
+        } else if (p.k === 'bld') {
+          if (!live(p.at)) return;
+          var bc = costOf(BLD[p.id].cost, 'building');
+          ADD(canPay(bc) ? A('Build a ' + BLD[p.id].name.toLowerCase() + ' in ' + nm(p.at) + ' (' + costStr(bc) + ').', 'build', p.at,
+                             { b: p.id, label: 'Build the ' + BLD[p.id].name.toLowerCase(), short: BLD[p.id].name + ' in ' + nm(p.at) })
+                         : A('The ' + BLD[p.id].name.toLowerCase() + ' in ' + nm(p.at) + ' ' + shortOf(bc) + ' — spend a year.', 'turn', p.at,
+                             { label: 'Agla Saal', short: BLD[p.id].name + ' in ' + nm(p.at) }));
+        } else if (p.k === 'lv' || (p.k === 'mon' && q && q.lv < 3)) {
+          if (!live(p.at) || q.lv >= T.maxLevel) return;
+          var gc = growCostOf(p.at);
+          ADD(canPay(gc) ? A('Grow ' + nm(p.at) + ' to level ' + (q.lv + 1) + ' (' + costStr(gc) + ').', 'grow', p.at,
+                             { label: 'Grow ' + nm(p.at), short: 'grow ' + nm(p.at) })
+                         : A('Growing ' + nm(p.at) + ' ' + shortOf(gc) + ' — spend a year, and the kisan bring it in.', 'turn', p.at,
+                             { label: 'Agla Saal', short: 'grow ' + nm(p.at) }));
+        } else if (p.k === 'mon') {
+          if (!live(p.at) || !monAllowed(p.at)) return;
+          if (q.monB) { ADD(A(byId[p.at].works[2].charAt(0).toUpperCase() + byId[p.at].works[2].slice(1) + ' is rising — stage ' + monStage(p.at) +
+            ' of ' + T.monStages + '. Spend a year; karigars in ' + nm(p.at) + ' make it faster.', 'turn', p.at, { label: 'Agla Saal', short: 'the monument rises' })); return; }
+          var mc = costOf(T.monCost[byId[p.at].era], 'monument');
+          if (worksRunning() >= worksCap()) { ADD(A('The masons are all out on another great work — spend a year.', 'turn', null, { label: 'Agla Saal', short: 'the masons' })); return; }
+          ADD(canPay(mc) ? A('Lay the foundation at ' + nm(p.at) + ' (' + costStr(mc) + ').', 'mon', p.at, { label: 'Begin the monument', short: 'the monument' })
+                         : A('The monument at ' + nm(p.at) + ' ' + shortOf(mc) + ' — spend a year.', 'turn', p.at, { label: 'Agla Saal', short: 'the monument' }));
+        } else if (p.k === 'teacher') {
+          if (!live(p.at)) return;
+          if (!G.sites[p.at].bld.gurukul) {
+            var gk = costOf(BLD.gurukul.cost, 'building');
+            ADD(canPay(gk) ? A('A teacher needs a school: build a gurukul in ' + nm(p.at) + ' (' + costStr(gk) + ').', 'build', p.at,
+                               { b: 'gurukul', label: 'Build the gurukul', short: 'a gurukul in ' + nm(p.at) })
+                           : A('The gurukul in ' + nm(p.at) + ' ' + shortOf(gk) + ' — spend a year.', 'turn', p.at, { label: 'Agla Saal', short: 'a gurukul' }));
+            return;
+          }
+          var cd = (G.quizAt[p.at] || -999) + quizCdNow() - G.t;
+          ADD(cd > 0 ? A('The teacher in ' + nm(p.at) + ' rests ' + cd + (cd === 1 ? ' turn' : ' turns') + ' — spend a year.', 'turn', p.at,
+                         { label: 'Agla Saal', short: 'the teacher rests' })
+                     : A('Ask the teacher in ' + nm(p.at) + ' a question — about any city you have woken.', 'quiz', p.at,
+                         { label: 'Ask the teacher', short: 'the teacher in ' + nm(p.at) }));
+        } else if (p.k === 'fill') {
+          var want = p.id ? [p.id] : Object.keys(G.camp.partners || {});
+          var asking = want.filter(function (pid) { return (G.req || {})[pid]; })[0];
+          if (asking && canSupply(G.req[asking].want)) ADD(A(partnerName(asking) + ' is asking — send it.', 'fill', null, { p: asking, label: 'Send it', short: partnerName(asking) }));
+          else if (asking) ADD(A(partnerName(asking) + ' wants ' + G.req[asking].want + ' — and no road of yours reaches it yet.', 'turn', null,
+            { label: 'Agla Saal', short: G.req[asking].want }));
+          else ADD(A('The next ship will come — spend a year.', 'turn', null, { label: 'Agla Saal', short: 'the next ship' }));
+        } else if (p.k === 'goods' || (p.k === 'calm' && restless())) {
+          var have = goodsReached(), cand = null;
+          SITES.forEach(function (x) {
+            if (cand || !inEra(x) || !awake(x.id) || connected(x.id)) return;
+            var g = goodOf(x.id); if (g && !have[g]) cand = x;
+          });
+          var fromC = cand ? nearAwake(cand.id) : null, rcost = costOf({ kala: T.routeCost }, 'route');
+          if (cand && fromC && fromC.id !== cand.id) ADD(canPay(rcost)
+            ? A('A road to ' + nm(cand.id) + ' reaches ' + goodOf(cand.id) + ' — something your realm has none of.', 'road', cand.id,
+                { from: fromC.id, to: cand.id, label: 'Build the road', short: 'road to ' + nm(cand.id) })
+            : A('A road to ' + nm(cand.id) + ' needs ' + costStr(rcost) + ' — spend a year.', 'turn', cand.id, { label: 'Agla Saal', short: 'kala for a road' }));
+        } else if (p.k === 'calm') {
+          if (live(p.at) && dusty(p.at)) ADD(A(nm(p.at) + ' is gathering dust — step inside and tend it.', 'city', p.at, { label: 'Go in', short: 'tend ' + nm(p.at) }));
+        } else if (p.k === 'utsav') {
+          if (!live(p.at) || !sysOn('utsav')) return;
+          if (G.utsav > 0) { ADD(A('The last utsav is still being talked about — spend a year, then hold one in ' + nm(p.at) + '.', 'turn', p.at,
+            { label: 'Agla Saal', short: 'an utsav soon' })); return; }
+          var uc = utsavCost();
+          ADD(canPay(uc) ? A('Hold an utsav in ' + nm(p.at) + ' (' + costStr(uc) + ').', 'utsav', p.at, { label: 'Hold the utsav', short: 'an utsav in ' + nm(p.at) })
+                         : A('An utsav in ' + nm(p.at) + ' ' + shortOf(uc) + ' — spend a year.', 'turn', p.at, { label: 'Agla Saal', short: 'an utsav' }));
+        } else if (p.k === 'settled') {
+          ADD(A('A quarrel will come — when it does, sit the panchayat. Spend a year.', 'turn', null, { label: 'Agla Saal', short: 'the panchayat' }));
+        } else if (p.k === 'fed') {
+          var last = (G.camp.anna || []).slice(-1)[0];
+          var feedAt = null, most = 0;
+          SITES.forEach(function (x) {
+            if (!inEra(x) || !live(x.id)) return;
+            var jj = jobsOf(x.id), spare = (jj.karigar || 0) + (jj.kathakar || 0);
+            if (spare > most) { most = spare; feedAt = x.id; }
+          });
+          if (last < 0 && feedAt) ADD(A('The stores fell last year — put one more pair of hands to farming in ' + nm(feedAt) + '. Everyone eats.', 'feed', feedAt,
+            { label: 'One more kisan', short: 'feed the builders' }));
+          else ADD(A('Keep the stores rising — ' + fedRun() + ' of ' + p.n + ' years so far. Spend a year.', 'turn', null,
+            { label: 'Agla Saal', short: 'the stores rising' }));
+        }
+      });
+      return doable[0] || waiting[0] || null;
+    }
+    /* a pair of hands in this town not yet on the gate */
+    function spareHand(id) {
+      var j = jobsOf(id), tot = 0;
+      JOB_IDS.forEach(function (k) { tot += j[k] || 0; });
+      return tot < popOf(id) || j.kisan > 0 || j.karigar > 0 || j.kathakar > 0;
+    }
     /* the living, roaded place nearest to `id` — where a road to it should start */
     function nearAwake(id) {
       var t = byId[id], best = null, bd = 1e12, mem = null, md = 1e12;
@@ -2222,16 +2401,17 @@
        asks for ONE network, the nearest pair across the gap */
     function netGap() {
       var ch = campCh();
-      var ids = ch ? ((ch.win || {}).network || (ch.win || {}).routed || []) : [];
-      if (ch && (ch.win || {}).network && !oneNetwork(ids)) {
-        var seen = {}, stack = [ids[0]]; seen[ids[0]] = 1;
+      var ids = ch ? (campNet(ch) || (ch.win || {}).routed || []) : [];
+      var seed = ids.filter(function (i) { return awake(i) && !isHer(i); })[0];
+      if (ch && campNet(ch) && seed && !oneNetwork(ids)) {
+        var seen = {}, stack = [seed]; seen[seed] = 1;
         while (stack.length) {
           var a = stack.pop();
           G.routes.forEach(function (r) { var b = r[0] === a ? r[1] : r[1] === a ? r[0] : null; if (b && !seen[b]) { seen[b] = 1; stack.push(b); } });
         }
         var best = null, bd = 1e12;
         ids.forEach(function (i) { if (seen[i] || !awake(i)) return;
-          ids.forEach(function (j) { if (!seen[j]) return;
+          ids.forEach(function (j) { if (!seen[j] || !awake(j)) return;
             var d = Math.pow(byId[i].x - byId[j].x, 2) + Math.pow(byId[i].y - byId[j].y, 2);
             if (d < bd) { bd = d; best = [j, i]; } }); });
         if (best) return best;
@@ -2276,7 +2456,10 @@
         case 'watch': {
           var jw = jobsOf(ad.go), tw = 0;
           JOB_IDS.forEach(function (j2) { tw += jw[j2]; });
-          if (tw < popOf(ad.go)) jw.rakshak++; else if (jw.kisan > 0) { jw.kisan--; jw.rakshak++; }
+          if (tw < popOf(ad.go)) jw.rakshak++;
+          else if (jw.kisan > 0) { jw.kisan--; jw.rakshak++; }
+          else if (jw.karigar > 0) { jw.karigar--; jw.rakshak++; }
+          else if (jw.kathakar > 0) { jw.kathakar--; jw.rakshak++; }
           touch(ad.go); saveSoon(); paintCity(); paintAll();
           say('A rakshak takes the gate at ' + nameOf(at) + ' — drums and a torch, ready.', 'sab-good');
           return ad;
@@ -2292,6 +2475,31 @@
         case 'explore': sel = ad.from; targeting = false; act('explore'); return ad;
         case 'vidya': { var tb = D.getElementById('sab-tech'); if (tb) tb.click(); return ad; }
         case 'world': act2('world'); return ad;
+        /* the chapter's verbs (campAdvise): the same functions the child's own buttons call */
+        case 'learn': beginTech(ad.t); paintAll(); if (techOpen) paintTech(); return ad;
+        case 'adopt': adoptRiti(ad.r); paintAll(); if (techOpen) paintTech(); return ad;
+        case 'slot': {
+          var si = 0; for (var s0 = 0; s0 < polSlots(); s0++) if (!(G.pol || [])[s0]) { si = s0; break; }
+          slotPol(ad.p, si); paintAll(); if (techOpen) paintTech(); return ad;
+        }
+        case 'build': buildIn(ad.go, ad.b); paintAll(); if (city) paintCity(); return ad;
+        case 'grow': sel = ad.go; targeting = false; act('grow'); return ad;
+        case 'mon': beginMon(ad.go); paintAll(); if (city) paintCity(); return ad;
+        case 'utsav': sel = ad.go; targeting = false; act('utsav'); return ad;
+        case 'fill': fillRequest(ad.p); paintAll(); return ad;
+        case 'peace': settleQuarrel(ad.i); paintAll(); if (city) paintCity(); return ad;
+        case 'quiz': {
+          sel = ad.go; targeting = false;
+          if (city !== ad.go) act('city');
+          quizStart(ad.go); paintCity(); return ad;
+        }
+        case 'feed': {
+          var jf = jobsOf(ad.go);
+          if (jf.karigar > 0) jf.karigar--; else if (jf.kathakar > 0) jf.kathakar--; else return ad;
+          jf.kisan++; touch(ad.go); saveSoon(); paintAll(); if (city) paintCity();
+          say('One more kisan in ' + nameOf(byId[ad.go]) + ' — everyone eats, and the builders most of all.', 'sab-good');
+          return ad;
+        }
         default: stepTurn(); return ad;
       }
     }
@@ -2307,9 +2515,11 @@
                   lamps: lit + '/' + want.length, katha: null, roads: null, next: ad.short || ad.label };
       if (!ch && G.era < maxEra()) out.katha = Math.floor(G.res.katha) + '/' + ERAS[G.era].katha;
       if (ch && (ch.win.routed || ch.win.network)) {
-        var ids = ch.win.routed || ch.win.network;
+        var ids = ch.win.routed || campNet(ch);
         out.roads = ids.filter(function (id) { return connected(id); }).length + '/' + ids.length;
       }
+      /* and every other part of the chapter's goal, ticked as it comes true (E5) */
+      if (ch) out.parts = campParts(ch).filter(function (p) { return p.k !== 'awake' && p.k !== 'routed' && !(p.k === 'vic' && sysOn('endings')); });
       return out;
     }
     function goalHTML(tight) {
@@ -2318,6 +2528,9 @@
         '<span class="sab-gchip" title="places of this age awake">🪔 lamps <b>' + g.lamps + '</b></span>' +
         (g.katha ? '<span class="sab-gchip" title="katha this age asks before it can turn">📜 <b>' + g.katha + '</b></span>' : '') +
         (g.roads ? '<span class="sab-gchip" title="places on a road">🛤 roads <b>' + g.roads + '</b></span>' : '') +
+        (g.parts || []).map(function (p) {
+          return '<span class="sab-gchip' + (p.ok ? ' ok' : '') + '">' + (p.ok ? '✓ ' : '') + esc(p.label) + '</span>';
+        }).join('') +
         goalStripExtra() +
         '<span class="sab-gnext">next: <b>' + esc(g.next) + '</b></span>';
     }
@@ -2571,6 +2784,9 @@
       G.sold = G.sold || {};
       G.sold[r.want] = (G.sold[r.want] || 0) + 1;      /* the market notices */
       delete G.req[pid];
+      /* the chapter counts its requests filled, and the partner asks again soon if it is needed */
+      if (G.camp) { G.camp.fills = G.camp.fills || {}; G.camp.nextAsk = G.camp.nextAsk || {};
+        G.camp.fills[pid] = (G.camp.fills[pid] || 0) + 1; G.camp.nextAsk[pid] = G.t + 3; }
       say(pd.name + ' is well pleased — ' + paid + ' 📜, and they will ask again.', 'warm');
       maybeDiaspora(pid);
     }
@@ -2720,9 +2936,9 @@
       if (G.quests[id]) out.push({ act: 'cjump', t: 'sab-sec-quest', icon: 'scroll', name: 'Quest' });
       var q = G.sites[id];
       if (q && !q.zzz) {
-        if (q.lv >= 3 && !q.mon && canPay(costOf(T.monCost[byId[id].era], 'monument')))
+        if (q.lv >= 3 && !q.mon && monAllowed(id) && canPay(costOf(T.monCost[byId[id].era], 'monument')))
           out.push({ act: 'mon', t: 'sab-sec-works', icon: 'temple', name: 'Monument' });
-        if (q.bld.gurukul && (G.quizAt[id] || -999) + T.quizCd - G.t <= 0)
+        if (q.bld.gurukul && (G.quizAt[id] || -999) + quizCdNow() - G.t <= 0)
           out.push({ act: 'quizstart', t: 'sab-sec-guru', icon: 'book', name: 'Teacher' });
         if (q.hero) out.push({ act: 'cjump', t: 'sab-sec-hero', icon: 'star', name: 'Great one' });
       }
@@ -2799,14 +3015,24 @@
          lanterns. The age bands shape FREE play; they never take a chapter's own lesson away. */
       if (G && G.camp) {
         var ch = chapter(G.camp.ch);
-        return !!ch && (ch.systems || []).indexOf(name) >= 0;
+        if (!ch || (ch.systems || []).indexOf(name) < 0) return false;
+        /* the one place a band narrows a chapter: chapter 3 comes to ages 4–7 with its
+           Edicts already learned and no tree to climb (master F, age bands) */
+        var bb = bandOf(ch);
+        return !(bb.systemsOff && bb.systemsOff.indexOf(name) >= 0);
       }
       var b = BAND_SYS[BAND];
       if (b && b.indexOf(name) < 0) return false;
       return true;
     }
-    /* TESTER MODE is the host's device setting (?tester=1); a reviewer-flagged chapter opens
-       only there, even once it is built (master Part F, Reviewer checklist) */
+    /* a system the CAMPAIGN gates that free play never did (goods, favour, riti, endings): off
+       only inside a chapter that has not opened it, so free play is exactly what it was */
+    function campOff(name) { return !!(G && G.camp && !sysOn(name)); }
+    function bandOf(x) { return (x && x.byBand && x.byBand[BAND]) || {}; }
+    /* TESTER MODE is the host's device setting (?tester=1). A reviewer-flagged chapter opens
+       there — or for everyone once the owner has opened it before review (9 Oct 2026, "open
+       them all to everyone now, like the gita"): `open` is the publisher's decision, never a
+       sign-off, so `review` stays true and the chapter says so on its card (uncheckedNote). */
     function tester() {
       try {
         if (opts && opts.tester != null) return !!opts.tester;
@@ -2814,11 +3040,32 @@
         return !!(W.BI && W.BI.Store && W.BI.Store.loadDevice('tester', false) === true);
       } catch (e) { return false; }
     }
+    function ownerOpened(ch) { return !!(ch && ch.open && ch.open.to === 'everyone' && ch.open.by === 'owner'); }
+    /* chapters 4–13 are for 8 and up (master F, age bands; docs/05 §3) */
+    function forOlder(ch) { return BAND === '4-7' && ((ch && ch.age) || (ch && ch.n > 3 ? 8 : 4)) >= 8; }
     function chapterOpen(ch) {
       if (!ch || ch.status !== 'open' || !ch.preset) return false;
-      if (ch.review && !tester()) return false;
-      if (BAND === '4-7' && ch.n > 3) return false;
+      if (ch.review && !ownerOpened(ch) && !tester()) return false;
+      if (forOlder(ch)) return false;
       return true;
+    }
+    var UNCHECKED = 'Not yet checked by a reviewer — opened by the family who made this app.';
+    function uncheckedNote(ch) {
+      return ch && ch.review ? '<p class="tiny sab-unchecked" role="note">' + esc(UNCHECKED) + '</p>' : '';
+    }
+    /* LINES A BAND DOES NOT SEE (the campaign's `withhold`): a site's fact, a `more` line, or its
+       teacher's Nth question. Free play is untouched. */
+    function withheld(key) {
+      if (!G || !G.camp) return false;
+      var w = (CAMP.withhold || {})[BAND] || [];
+      return w.indexOf(key) >= 0;
+    }
+    /* the first line of a place's own telling this band may read — its fact, else a `more` */
+    function factFor(s) {
+      if (!withheld(s.id + '.fact')) return s.fact;
+      var out = '';
+      (s.more || []).some(function (m, i) { if (!withheld(s.id + '.more.' + i)) { out = m; return true; } return false; });
+      return out;
     }
     function maxEra() {
       if (G && G.camp) return G.era;
@@ -2840,12 +3087,26 @@
       if (!ref) return null;
       var p = String(ref).split('.');
       if (p[0] === 'eras') {
-        var e = ERAS[+p[1]]; if (!e || !e.aha) return null;
+        var e = ERAS[+p[1]]; if (!e) return null;
+        /* the age's own note — "…and in 1947, India is free" is the data's line, not ours */
+        if (p[2] === 'note') return e.note ? { t: e.note, title: e.name, src: 'Sabhyata age ' + (+p[1] + 1) + ', ' + e.name + ' (' + e.dates + ')', badge: 'itihaas' } : null;
+        if (!e.aha) return null;
         return { t: e.aha.text, title: e.aha.title, src: 'Sabhyata age ' + (+p[1] + 1) + ', ' + e.name, badge: 'itihaas' };
       }
       if (p[0] === 'treasures') {
         var tz = (DATA.treasures || {})[p[1]]; if (!tz) return null;
         return { t: tz.what, title: tz.name, src: tz.src, badge: 'itihaas', site: p[1] };
+      }
+      /* a thread's bead and a darshan, each with its own source line */
+      if (p[0] === 'sutras') {
+        var th = null; (DATA.sutras || []).forEach(function (x) { if (x.id === p[1]) th = x; });
+        var bd = th && th.beats[+p[2]]; if (!bd) return null;
+        return { t: bd.text, title: th.name, src: bd.src, badge: bd.frame || 'itihaas', site: bd.site };
+      }
+      if (p[0] === 'darshan') {
+        var dv = null; (DATA.darshan || []).forEach(function (x) { if (x.id === p[1]) dv = x; });
+        if (!dv) return null;
+        return { t: dv.text, title: dv.name, src: (dv.sources || []).join(' · '), badge: dv.frame || 'itihaas', site: dv.site };
       }
       var s = byId[p[0]]; if (!s) return null;
       var t = p[1] === 'fact' ? s.fact : (p[1] === 'more' ? (s.more || [])[+p[2]] : null);
@@ -2880,27 +3141,52 @@
       say(G.mode === 'short' ? 'The short game: three ages, from Dholavira to the Great Sabha.'
                              : 'A new dawn at Dholavira — all thirteen ages ahead.', 'warm');
     }
+    /* THE PRESET (E1). `awake` wakes free with its card still to read (chapters 1–2); `live` is
+       carried in from the chapter before — found, awake, already told; `heritage` is a list, or
+       'rest': every earlier place not otherwise named, awake and lit with its monument shown
+       (E11 — India Remembers asks every place awake). `techs`/`riti` are a list or 'before' (every
+       door of the earlier ages); `mon`, `lv` and `pol` carry a raised monument, a grown city and a
+       custom in force. */
+    function presetIds(P, key, era) {
+      var v = P[key];
+      if (v === 'before') {
+        var src = key === 'techs' ? TECHS : RITI;
+        return src.filter(function (x) { return x.era < era; }).map(function (x) { return x.id; });
+      }
+      return v || [];
+    }
     function startChapter(n) {
       var ch = chapter(n);
       if (!chapterOpen(ch)) return false;
-      var P = ch.preset, sc = {};
+      var P = ch.preset, sc = {}, named = {};
       G = fresh(); G.mode = 'camp'; G.era = ch.era; G.speed = 'sochna';
-      [].concat(P.awake || [], P.foundAsleep || [], P.unfound || [], P.heritage || []).forEach(function (id) { sc[id] = 1; });
-      G.camp = { ch: n, scope: sc, first: (P.awake || [])[0] || FIRST, fired: {}, asked: {}, q: [], struck: {},
-                 done: false, extra: 0 };
+      [].concat(P.awake || [], P.live || [], P.foundAsleep || [], P.unfound || []).forEach(function (id) { named[id] = 1; });
+      var her = P.heritage === 'rest'
+        ? SITES.filter(function (x) { return x.era < ch.era && !named[x.id]; }).map(function (x) { return x.id; })
+        : (P.heritage || []);
+      Object.keys(named).concat(her).forEach(function (id) { sc[id] = 1; });
+      G.camp = { ch: n, scope: sc, first: P.first || (P.awake || [])[0] || (P.live || [])[0] || FIRST,
+                 fired: {}, asked: {}, q: [], struck: {}, done: false, extra: 0,
+                 /* what the chapter's goal counts (E5): requests filled, utsavs held, the teacher's
+                    right answers, quarrels settled, and the grain's turn-by-turn */
+                 fills: {}, utsav: {}, taught: {}, settled: 0, anna: [], partners: {}, nextAsk: {} };
       SITES.forEach(function (x) {
         var q = G.sites[x.id];
         q.zzz = true; q.found = false; q.seen = false; q.her = false; q.mon = false;
       });
-      (P.heritage || []).forEach(function (id) {
+      her.forEach(function (id) {
         var q = G.sites[id]; if (!q) return;
         q.found = true; q.seen = true; q.her = true; q.mon = true; q.zzz = false;
       });
       (P.awake || []).forEach(function (id) { var q = G.sites[id]; if (q) { q.found = true; q.zzz = false; q.seen = false; } });
+      (P.live || []).forEach(function (id) { var q = G.sites[id]; if (q) { q.found = true; q.zzz = false; q.seen = true; } });
       (P.foundAsleep || []).forEach(function (id) { var q = G.sites[id]; if (q) q.found = true; });
+      (P.mon || []).forEach(function (id) { var q = G.sites[id]; if (q) q.mon = true; });
+      Object.keys(P.lv || {}).forEach(function (id) { var q = G.sites[id]; if (q) q.lv = P.lv[id]; });
       (P.routes || []).forEach(function (r) { G.routes.push([r[0], r[1]]); });
-      (P.techs || []).forEach(function (t) { G.tech[t] = true; });
-      (P.riti || []).forEach(function (r) { G.riti[r] = true; });
+      presetIds(P, 'techs', ch.era).concat(bandOf(ch).techs || []).forEach(function (t) { G.tech[t] = true; });
+      presetIds(P, 'riti', ch.era).forEach(function (r) { G.riti[r] = true; });
+      G.pol = (P.pol || []).slice();
       if (P.capital) G.capital = P.capital;
       G.res = { anna: P.res.anna, kala: P.res.kala, katha: P.res.katha };
       G.lastraid = 0;
@@ -2914,10 +3200,11 @@
       showOverlay('<div class="sab-camphead">' + mascot('mithu', 'talk', 74) +
         '<div><div class="mono">Mithu’s Lamps · chapter ' + ch.n + ' of ' + CAMP.chapters.length + '</div>' +
         '<h3>' + esc(ch.title) + '</h3><span class="sab-cbadge2">' + esc(badgeOf(ch.badge)) + '</span></div></div>' +
-        '<p class="sab-hook">“' + esc(ch.hook) + '”</p>' +
+        uncheckedNote(ch) +
+        '<p class="sab-hook">“' + esc(bandOf(ch).hook || ch.hook) + '”</p>' +
         '<div class="sab-guidecard">' + gd.face + '<div><b>' + esc(ch.guide.name) + '</b> <span class="sab-made">made up — the places are real</span>' +
           '<p>' + esc(ch.guide.who) + '.</p><p class="tiny">' + esc(ch.guide.note) + '</p></div></div>' +
-        '<p class="sab-goalline"><b>The lamp lights when:</b> ' + esc(ch.goal) + ' <span>About ' + esc(ch.minutes) +
+        '<p class="sab-goalline"><b>The lamp lights when:</b> ' + esc(bandOf(ch).goal || ch.goal) + ' <span>About ' + esc(ch.minutes) +
           ' minutes · ' + ch.turns + ' turns is good time, and more is fine.</span></p>' +
         '<div class="row"><button class="sab-btn go" data-sab-act="campgo">Light the lamp</button>' +
         '<button class="sab-btn" data-sab-act="lampmap">Mithu’s lamp-map</button></div>');
@@ -2943,16 +3230,108 @@
       }
       return ids.every(function (id) { return seen[id]; });
     }
+    /* the chapter's network: a list, or 'all' — every living city, and the lamps it asks for */
+    function campNet(ch) {
+      var w = (ch && ch.win) || {};
+      if (w.network !== 'all') return w.network || null;
+      var out = {};
+      SITES.forEach(function (x) { if (inEra(x) && awake(x.id) && !isHer(x.id)) out[x.id] = 1; });
+      (w.awake || []).forEach(function (id) { out[id] = 1; });
+      return Object.keys(out);
+    }
+    /* how many turns running the realm's grain has not fallen ("keep the builders fed") */
+    function fedRun() {
+      var a = (G.camp && G.camp.anna) || [], n = 0;
+      for (var i = a.length - 1; i >= 0 && a[i] >= 0; i--) n++;
+      return n;
+    }
+    function taughtAt(at) {
+      var t = (G.camp.taught || {})[at] || {}, n = 0;
+      Object.keys(t).forEach(function (k) { n += t[k]; });
+      return { about: Object.keys(t).length, right: n };
+    }
+    function partnerName(pid) { var o = pid; PARTNERS.forEach(function (x) { if (x.id === pid) o = x.name; }); return o; }
+    function fillsDone(f) {
+      var fl = G.camp.fills || {}, tot = 0, dis = 0;
+      Object.keys(fl).forEach(function (k) { tot += fl[k]; if (fl[k] > 0) dis++; });
+      if (f.per) return Object.keys(f.per).every(function (k) { return (fl[k] || 0) >= f.per[k]; });
+      return tot >= (f.n || 0) && dis >= (f.distinct || 0);
+    }
+    /* THE GOAL, PART BY PART (E5). One list serves three readers, so they cannot disagree: the
+       win (every part true), the goal strip (a chip a part), and Mithu (the first part not yet
+       true, said as the thing to do next). */
+    function campParts(ch) {
+      ch = ch || campCh(); if (!ch || !G.camp) return [];
+      var w = ch.win || {}, P = [];
+      var nm = function (id) { return byId[id] ? nameOf(byId[id]) : id; };
+      if (w.awake) {
+        var lit = w.awake.filter(function (id) { return awake(id) && !isHer(id); }).length;
+        P.push({ k: 'awake', ok: lit === w.awake.length, label: '🪔 lamps ' + lit + '/' + w.awake.length });
+      }
+      if (w.routed) {
+        var rd = w.routed.filter(function (id) { return connected(id); }).length;
+        P.push({ k: 'routed', ok: rd === w.routed.length, label: '🛤 roads ' + rd + '/' + w.routed.length });
+      }
+      var net = campNet(ch);
+      if (net) P.push({ k: 'network', ok: oneNetwork(net), label: w.network === 'all' ? 'every living city on one road' : 'one road for ' + net.map(nm).join(' · ') });
+      (w.techs || []).forEach(function (id) { P.push({ k: 'tech', id: id, ok: !!G.tech[id], label: (TECH_BY[id] || {}).name || id }); });
+      (w.riti || []).forEach(function (id) { P.push({ k: 'riti', id: id, ok: !!(G.riti || {})[id], label: (RITI_BY[id] || {}).name || id }); });
+      (w.pol || []).forEach(function (id) { P.push({ k: 'pol', id: id, ok: polHeld().indexOf(id) >= 0, label: '“' + ((POL_BY[id] || {}).name || id) + '” in force' }); });
+      Object.keys(w.bld || {}).forEach(function (at) {
+        w.bld[at].forEach(function (b) {
+          P.push({ k: 'bld', at: at, id: b, ok: !!(G.sites[at] && G.sites[at].bld[b]), label: (BLD[b] || {}).name + ' · ' + nm(at) });
+        });
+      });
+      Object.keys(w.lv || {}).forEach(function (at) {
+        var lv = G.sites[at] ? G.sites[at].lv : 1;
+        P.push({ k: 'lv', at: at, n: w.lv[at], ok: awake(at) && lv >= w.lv[at], label: nm(at) + ' level ' + Math.min(lv, w.lv[at]) + '/' + w.lv[at] });
+      });
+      (w.mon || []).forEach(function (at) { P.push({ k: 'mon', at: at, ok: !!(G.sites[at] && G.sites[at].mon), label: '★ ' + byId[at].works[2] }); });
+      if (w.teacher) {
+        var tg = taughtAt(w.teacher.at), want = w.teacher.about || w.teacher.right, have = w.teacher.about ? tg.about : tg.right;
+        P.push({ k: 'teacher', at: w.teacher.at, ok: have >= want,
+                 label: nm(w.teacher.at) + '’s teacher ' + Math.min(have, want) + '/' + want + (w.teacher.about ? ' cities' : ' right') });
+      }
+      if (w.fills) {
+        if (w.fills.per) Object.keys(w.fills.per).forEach(function (pid) {
+          var got = (G.camp.fills || {})[pid] || 0;
+          P.push({ k: 'fill', id: pid, ok: got >= w.fills.per[pid], label: partnerName(pid) + ' ' + Math.min(got, w.fills.per[pid]) + '/' + w.fills.per[pid] });
+        });
+        else {
+          var fl = G.camp.fills || {}, tot = 0, dis = 0;
+          Object.keys(fl).forEach(function (k) { tot += fl[k]; if (fl[k] > 0) dis++; });
+          P.push({ k: 'fill', ok: fillsDone(w.fills), label: 'requests ' + Math.min(tot, w.fills.n) + '/' + w.fills.n + ' · from ' + Math.min(dis, w.fills.distinct) + '/' + w.fills.distinct + ' partners' });
+        }
+      }
+      if (w.goods) P.push({ k: 'goods', n: w.goods, ok: khushiHave() >= w.goods, label: 'kinds of thing ' + Math.min(khushiHave(), w.goods) + '/' + w.goods });
+      (w.utsav || []).forEach(function (at) { P.push({ k: 'utsav', at: at, ok: !!G.camp.utsav[at], label: 'an utsav in ' + nm(at) }); });
+      (w.calm || []).forEach(function (at) { P.push({ k: 'calm', at: at, ok: awake(at) && !isHer(at) && !dusty(at) && !restless(), label: nm(at) + ' content' }); });
+      if (w.settled) P.push({ k: 'settled', n: w.settled, ok: G.camp.settled >= w.settled, label: 'quarrels settled ' + Math.min(G.camp.settled, w.settled) + '/' + w.settled });
+      if (w.fed) P.push({ k: 'fed', n: w.fed, ok: fedRun() >= w.fed, label: 'stores rising ' + Math.min(fedRun(), w.fed) + '/' + w.fed + ' years' });
+      (w.vic || []).forEach(function (v) {
+        var vd = null; VICS.forEach(function (x) { if (x.id === v) vd = x; });
+        P.push({ k: 'vic', id: v, ok: victoriesWon().indexOf(v) >= 0, label: vd ? vd.name : v });
+      });
+      return P;
+    }
     function campWon() {
-      var ch = campCh(); if (!ch) return false;
-      var w = ch.win || {};
-      if ((w.awake || []).some(function (id) { return !awake(id) || isHer(id); })) return false;
-      if ((w.routed || []).some(function (id) { return !connected(id); })) return false;
-      if (w.network && !oneNetwork(w.network)) return false;
-      return true;
+      var P = campParts();
+      return P.length > 0 && P.every(function (p) { return p.ok; });
+    }
+    /* a riddle a band is asked (chapter 3's first is never asked of ages 4–7) */
+    function riddleFor(r) { return !!r && (!r.bands || r.bands.indexOf(BAND) >= 0); }
+    function riddlesOf(ch) { return (ch.riddles || []).filter(riddleFor); }
+    /* a beat as this band hears it: `byBand` may change what is said and which line backs it */
+    function beatFor(b) {
+      var o = {}, k, bb = bandOf(b);
+      for (k in b) if (Object.prototype.hasOwnProperty.call(b, k)) o[k] = b[k];
+      for (k in bb) if (Object.prototype.hasOwnProperty.call(bb, k)) o[k] = bb[k];
+      return o;
     }
     function beatDue(b) {
-      var on = String(b.on || ''), k = on.split(':')[0], v = on.split(':')[1];
+      var on = String(b.on || ''), i = on.indexOf(':'), k = i < 0 ? on : on.slice(0, i), v = i < 0 ? '' : on.slice(i + 1);
+      /* a scripted quarrel needs a road out of its town to sit on, and no other quarrel open */
+      if (b.quarrel && sysOn('quarrels') && (G.disp || !awake(b.quarrel.a) || !connected(b.quarrel.a))) return false;
       if (k === 'start') return true;
       if (k === 'after') return !!G.camp.fired[v] && !G.camp.q.length && !overlay;
       if (k === 'found') return found(v);
@@ -2961,7 +3340,45 @@
       if (k === 'struck') return !!G.camp.struck[v];
       if (k === 'turn') return G.t >= +v;
       if (k === 'win') return campWon();
+      if (k === 'learned') return !!G.tech[v];
+      if (k === 'built') { var bp = v.split('.'); return !!(G.sites[bp[0]] && G.sites[bp[0]].bld[bp[1]]); }
+      if (k === 'raising') return !!(G.sites[v] && (G.sites[v].monB || G.sites[v].mon));
+      if (k === 'mon') return !!(G.sites[v] && G.sites[v].mon);
+      if (k === 'filled') return ((G.camp.fills || {})[v] || 0) > 0;
+      if (k === 'utsav') return !!(G.camp.utsav || {})[v];
+      if (k === 'settled') return (G.camp.settled || 0) > 0;
+      if (k === 'taught') return taughtAt(v).right > 0;
+      if (k === 'adopted') return !!(G.riti || {})[v];
       return false;
+    }
+    /* a request from a partner the chapter has introduced (E7: the data's partners of the age) */
+    function campAsk(pid) {
+      var pd = null; partnersNow().forEach(function (x) { if (x.id === pid) pd = x; });
+      if (!pd) return;
+      if (!G.req) G.req = {};
+      if (G.req[pid]) return;
+      G.req[pid] = { at: G.t, due: G.t + 18, want: pd.wants, pay: 30 + G.era * 5 };
+      say(pd.name + ' sends word — they are asking for ' + pd.wants + '.', 'warm');
+    }
+    /* a partner the chapter's goal still needs */
+    function campWants(pid) {
+      var ch = campCh(), f = ch && ch.win && ch.win.fills;
+      if (!f) return false;
+      if (f.per) return ((G.camp.fills || {})[pid] || 0) < (f.per[pid] || 0);
+      return !fillsDone(f);
+    }
+    function campQuarrel(qd) {
+      var a = qd.a, b = qd.b;
+      if (!routed(a, b)) {
+        b = null;
+        G.routes.forEach(function (r) { if (!b && (r[0] === a || r[1] === a)) b = r[0] === a ? r[1] : r[0]; });
+      }
+      if (!b) return;
+      var tpl = DATA.disputes[qd.tpl || 0] || DATA.disputes[0];
+      G.disp = { a: a, b: b, over: tpl.over, fix: tpl.fix, left: T.dispGrace, scripted: 1 };
+      G.lastd = G.t;
+      say(nameOf(byId[a]) + ' and ' + nameOf(byId[b]) + ' have quarrelled over ' + tpl.over +
+          ' — sit the panchayat.', 'mist');
     }
     function fireBeat(b) {
       G.camp.fired[b.id] = G.t + 1;
@@ -2975,13 +3392,22 @@
         }
       }
       if (b.raid) {
-        if (sysOn('raids')) {
+        if (sysOn('raids') && awake(b.raid.at) && !isHer(b.raid.at)) {
           G.warn = { id: b.raid.at, raid: b.raid.id, at: G.t + (b.raid['in'] || 4), lead: b.raid['in'] || 4, scripted: 1 };
           G.lastraid = G.t;
         } else G.camp.struck[b.raid.id] = 1;   /* ages 4–7: a told card, drums and lanterns, nothing to defend */
       }
+      /* a ship that asks (the sea roads, E7) — and asks again until the goal has its answer */
+      if (b.ask && sysOn('sea')) [].concat(b.ask).forEach(function (pid) { (G.camp.partners || (G.camp.partners = {}))[pid] = 1; campAsk(pid); });
+      /* an akal told at one town: the rains hold off, the fields bring in half, and they return */
+      if (b.akal && G.sites[b.akal.at] && awake(b.akal.at)) {
+        G.sites[b.akal.at].dry = b.akal.len || T.akalLen; G.lastakal = G.t;
+        fxAt(byId[b.akal.at].x, byId[b.akal.at].y, 'mist');
+        say('The rains hold off over ' + nameOf(byId[b.akal.at]) + ' — an akal. The fields bring in half until the clouds return.', 'mist');
+      }
+      if (b.quarrel && sysOn('quarrels')) campQuarrel(b.quarrel);
       G.camp.q.push('beat:' + b.id);
-      if (b.riddle && sysOn('riddles')) G.camp.q.push('riddle:' + b.riddle);
+      if (b.riddle && sysOn('riddles') && riddleFor(riddleById(b.riddle))) G.camp.q.push('riddle:' + b.riddle);
     }
     function campStep() {
       if (!G || !G.camp || !G.camp.started || G.camp.done || dead) return;
@@ -3005,6 +3431,7 @@
       if (kind === 'riddle') return campRiddle(id);
       var b = null; (ch.beats || []).forEach(function (x) { if (x.id === id) b = x; });
       if (!b) return;
+      b = beatFor(b);
       var gd = guideOf(ch, b.who);
       var told = '';
       if (b.raid && !sysOn('raids')) {
@@ -3016,7 +3443,7 @@
         '<p class="sab-say">“' + esc(b.say) + '”</p></div></div>' + told +
         factBox(b.ref) + factBox(b.ref2) +
         '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">' +
-          (b.riddle && sysOn('riddles') && !G.camp.asked[b.riddle] ? 'Mithu has a riddle →' : 'Onward') + '</button></div>');
+          (b.riddle && sysOn('riddles') && riddleFor(riddleById(b.riddle)) && !G.camp.asked[b.riddle] ? 'Mithu has a riddle →' : 'Onward') + '</button></div>');
     }
     function riddleById(rid) {
       var out = null;
@@ -3074,8 +3501,8 @@
     function payStop(ch) {
       var rec = lampsRec();
       if (rec.paid[ch.n]) return false;
-      /* "with every riddle shown" (master F, Length and pay) */
-      var shown = (ch.riddles || []).every(function (r) { return G.camp.asked[r.id]; });
+      /* "with every riddle shown" (master F, Length and pay) — every riddle THIS band is asked */
+      var shown = riddlesOf(ch).every(function (r) { return G.camp.asked[r.id]; });
       if (!shown && sysOn('riddles')) return false;
       rec.paid[ch.n] = true;
       var who = 'sabhyata.lamp' + ch.n;
@@ -3088,6 +3515,10 @@
          kind, so the host can pay it as `stop` 5 (docs/32, games spec §1.2). */
       try { W.dispatchEvent(new CustomEvent('ind-reward', { detail: { n: 5, kind: 'stop', once: who, why: 'lamp ' + ch.n + ' of Mithu’s Lamps' } })); } catch (e2) {}
       return true;
+    }
+    function allLit() {
+      var rec = lampsRec();
+      return (CAMP.chapters || []).length > 0 && (CAMP.chapters || []).every(function (c) { return !!rec.lit[c.n]; });
     }
     function campFinish() {
       var ch = campCh(); if (!ch || G.camp.done) return;
@@ -3103,19 +3534,45 @@
       G.won = true;
       save(G);
       var aha = refLine(ch.payoff.aha), sv = refLine(ch.payoff.souvenir);
-      var right = (ch.riddles || []).filter(function (r) { return G.camp.asked[r.id] === 'right'; }).length;
+      var rset = riddlesOf(ch);
+      var right = rset.filter(function (r) { return G.camp.asked[r.id] === 'right'; }).length;
       showOverlay('<div class="sab-camphead">' + mascot('mithu', 'happy', 74) + '<div><div class="mono">Mithu’s Lamps · lamp ' + ch.n + ' lit</div>' +
         '<h3>' + esc(ch.title) + ' — the lamp is lit</h3>' +
         '<span class="sab-cbadge2">' + (good ? '☆ in good time · ' : '') + (G.t + 1) + ' turns · ' + right + ' of ' +
-          (ch.riddles || []).length + ' riddles right first time</span></div></div>' +
+          rset.length + ' riddles right first time</span></div></div>' +
         (sv ? '<div class="sab-souv"><div class="sab-souvart" aria-hidden="true">' + lampSVG(true, 40) + '</div><div>' +
           '<div class="mono">For the Hall of Lamps · a keepsake from ' + esc(nameOf(byId[sv.site])) + '</div>' +
           '<b>' + esc(sv.title) + '</b><p>' + esc(sv.t) + '</p><p class="sab-csrc">' + esc(sv.src) + '</p></div></div>' : '') +
         (aha ? '<div class="sab-cfactbox"><span class="sab-cbadge2">What the age leaves behind · ' + esc(aha.title) + '</span><p>' + esc(aha.t) + '</p></div>' : '') +
         '<p class="sab-say">' + esc(ch.guide.name) + ': “' + esc(ch.payoff.guideBye) + '”</p>' +
         (paid ? '<p class="tiny sab-coinline">🪙 A lamp lit and every riddle asked — the chapter’s coins go to the family wallet' + (first ? '' : '') + '.</p>' : '') +
-        '<div class="row"><button class="sab-btn go" data-sab-act="lampmap">See the lamp-map</button></div>');
+        '<div class="row">' + (allLit() && CAMP.epilogue
+          ? '<button class="sab-btn go" data-sab-act="epilogue">' + esc(CAMP.epilogue.title) + ' →</button>' +
+            '<button class="sab-btn" data-sab-act="lampmap">See the lamp-map</button>'
+          : '<button class="sab-btn go" data-sab-act="lampmap">See the lamp-map</button>') + '</div>');
       paintAll();
+    }
+    /* EPILOGUE — ALL THIRTEEN LAMPS (master F). Mithu's lamp-map full; each guide waves once with
+       the line they gave over their keepsake (made up, never about history); the data's `tellers`
+       bead, verbatim, as the last card; and a question to take home (docs/05 §5). */
+    function epilogueHTML() {
+      var E = CAMP.epilogue || {}, rec = lampsRec();
+      var tl = refLine(E.tellers);
+      var waves = (CAMP.chapters || []).filter(function (c) { return rec.lit[c.n] && c.guide && c.payoff; }).map(function (c) {
+        var sv = refLine(c.payoff.souvenir);
+        return '<li><b>' + esc(c.guide.name) + '</b> <span class="sab-made">made up — the places are real</span>' +
+          '<p class="tiny">“' + esc(c.payoff.guideBye) + '”' + (sv ? ' — ' + esc(sv.title) + ', from ' + esc(nameOf(byId[sv.site])) : '') + '</p></li>';
+      }).join('');
+      return '<div class="sab-camphead">' + mascot('mithu', 'happy', 74) + '<div><div class="mono">Mithu’s Lamps · the epilogue</div>' +
+          '<h3>' + esc(E.title || 'All Thirteen Lamps') + '</h3><span class="sab-cbadge2">' + esc(badgeOf('itihaas')) + '</span></div></div>' +
+        '<p class="sab-hook">“' + esc(E.mithu || '') + '”</p>' +
+        (waves ? '<div class="sab-hall sab-waves"><div class="mono">They wave goodbye</div><ul>' + waves + '</ul></div>' : '') +
+        (tl ? '<div class="sab-cfactbox"><span class="sab-cbadge2">' + esc(badgeOf(E.tellersBadge || tl.badge)) + ' · ' + esc(tl.title) + '</span>' +
+          '<p>' + esc(tl.t) + '</p><p class="sab-csrc">' + esc(tl.src) + '</p></div>' : '') +
+        (E.ask ? '<p class="sab-goalline"><b>Ask your family:</b> ' + esc(E.ask) + '</p>' : '') +
+        (E.unlocks ? '<p class="tiny">' + esc(E.unlocks) + '</p>' : '') +
+        '<div class="row"><button class="sab-btn go" data-sab-act="lampmap">The lamp-map</button>' +
+          (G && G.camp && G.camp.done ? '<button class="sab-btn" data-sab-act="finish">Finish</button>' : '') + '</div>';
     }
     function lampSVG(lit, size) {
       return '<svg viewBox="0 0 40 40" width="' + size + '" height="' + size + '" aria-hidden="true">' +
@@ -3140,10 +3597,13 @@
       }).join('');
       var rows = (CAMP.chapters || []).map(function (c) {
         var lit = !!rec.lit[c.n], open = chapterOpen(c);
-        var state = lit ? (rec.star[c.n] ? 'lit ☆' : 'lit') : open ? 'ready' : c.status === 'open' ? 'waits for a reviewer' : 'coming';
+        /* an honest reason on every lamp that will not open (docs/26: every lock says how to open) */
+        var state = lit ? (rec.star[c.n] ? 'lit ☆' : 'lit') : open ? 'ready'
+          : forOlder(c) && c.status === 'open' ? 'for 8 and up' : c.status === 'open' ? 'waits for a reviewer' : 'coming';
         return '<li class="sab-lmrow' + (lit ? ' lit' : '') + '">' +
           '<span class="n">' + c.n + '</span><span class="t"><b>' + esc(c.title) + '</b><i>' +
-          esc((c.guide && c.guide.name ? c.guide.name + ' · ' : '') + state) + '</i></span>' +
+          esc((c.guide && c.guide.name ? c.guide.name + ' · ' : '') + state) + '</i>' +
+          (open && c.review ? '<i class="sab-unchecked">' + esc(UNCHECKED) + '</i>' : '') + '</span>' +
           (open ? '<button class="sab-btn' + (lit ? '' : ' go') + '" data-sab-act="campstart" data-n="' + c.n + '">' +
             (lit ? 'Play again' : 'Play') + '</button>' : '') + '</li>';
       }).join('');
@@ -3161,11 +3621,122 @@
         (hall ? '<div class="sab-hall"><div class="mono">The Hall of Lamps</div><ul>' + hall + '</ul></div>' : '') +
         '<div class="row">' + (function () {
           var nx = nextChapter();
-          return (nx && chapterOpen(nx) && !rec.lit[nx.n] ? '<button class="sab-btn go" data-sab-act="campstart" data-n="' + nx.n + '">Chapter ' + nx.n + ': ' + esc(nx.title) + '</button>' : '') +
+          return (allLit() && CAMP.epilogue ? '<button class="sab-btn go" data-sab-act="epilogue">' + esc(CAMP.epilogue.title) + '</button>' : '') +
+            (nx && chapterOpen(nx) && !rec.lit[nx.n] ? '<button class="sab-btn go" data-sab-act="campstart" data-n="' + nx.n + '">Chapter ' + nx.n + ': ' + esc(nx.title) + '</button>' : '') +
             (G && G.camp && G.camp.done ? '<button class="sab-btn" data-sab-act="finish">Finish</button>'
                                          : '<button class="sab-btn" data-sab-act="ovclose">Back</button>');
         })() + '</div>';
     }
+
+    /* ---- the verbs, each in one place: a button and Mithu's tap call the same function, so
+       what Mithu does for a child is exactly what the child's own tap would have done ---- */
+    function beginTech(tid) {
+      var td = TECH_BY[tid];
+      if (!td || G.tech[tid] || td.era > G.era) return false;
+      if (G.camp && !sysOn('vidya')) return false;
+      if (!techOpenFor(td)) { say(td.name + ' waits on ' + techMissing(td).join(' and ') + '.', ''); return false; }
+      var tc = techCost(td);
+      if (!canPay(tc)) return false;
+      if (G.proj) { say('The school is already at work on ' + ((TECH_BY[G.proj.id] || {}).name || 'something') +
+        '. One thing at a time.', 'warm'); return false; }
+      pay(tc);
+      G.proj = { id: tid, at: G.rt, dur: techDur(td) };
+      say(td.name + ' — the school begins. ' + (schools() ? schools() + ' gurukul' + (schools() > 1 ? 's' : '') +
+        ' at work; it' : 'It') + ' will take a while.', 'warm');
+      return true;
+    }
+    function adoptRiti(rid2) {
+      var rd = RITI_BY[rid2];
+      if (!rd || (G.riti || {})[rid2]) return false;
+      if (!ritiOpenFor(rd)) { say(rd.name + ' waits on ' + ritiMissing(rd).join(' and ') + '.', ''); return false; }
+      var rc = costOf(rd.cost, 'riti');
+      if (!canPay(rc)) return false;
+      pay(rc);
+      if (!G.riti) G.riti = {};
+      G.riti[rid2] = true; G.score += 25; deed('riti');
+      say(rd.name + ' — the realm takes it up. ' + (POL_BY[rd.gives] || {}).name +
+          ' is yours to slot.', 'warm');
+      return true;
+    }
+    function slotPol(pidw, slot) {
+      if (!G.pol) G.pol = [];
+      if (polOpen().indexOf(pidw) < 0 || campOff('riti') || !doorShown('pols', pidw)) return false;
+      /* swapping is free, on purpose: a nine-year-old must be able to change
+         their mind about how their realm works */
+      var was = G.pol.indexOf(pidw);
+      if (was >= 0) G.pol[was] = null;
+      G.pol[slot || 0] = pidw;
+      say((POL_BY[pidw] || {}).name + ' — in force.', 'warm');
+      return true;
+    }
+    function buildIn(id, bid) {
+      var bd = BLD[bid], qy = G.sites[id];
+      if (!bd || !qy || qy.bld[bid] || bd.era > G.era) return false;
+      if (G.camp && !sysOn('buildings')) return false;
+      var bc = costOf(bd.cost, 'building');
+      if (!canPay(bc)) { say('The ' + bd.name.toLowerCase() + ' ' + shortOf(bc) + '.', ''); return false; }
+      pay(bc); qy.bld[bid] = true; touch(id); G.score += 15;
+      say(bd.name + ' raised in ' + nameOf(byId[id]) + '.', 'warm');
+      return true;
+    }
+    /* A PLACE OF WORSHIP IS NEVER A MONUMENT TO BUILD in the campaign, and Harmandir Sahib and
+       the Taj never are (master F, ch 5 and ch 8 reviewer flags): the button is not there at
+       all — a lamp that is woken and told, never a power-up. Free play is the reviewer's call. */
+    function monAllowed(id) {
+      if (!G || !G.camp) return true;
+      if (!sysOn('monuments')) return false;
+      var ch = campCh();
+      return (CAMP.noMonument || []).concat((ch && ch.noMonument) || []).indexOf(id) < 0;
+    }
+    function beginMon(id) {
+      var qm = G.sites[id], sm = byId[id];
+      if (!qm || !sm || qm.mon || qm.monB || qm.lv < 3 || !monAllowed(id)) return false;
+      if (worksRunning() >= worksCap()) {
+        say('The realm can raise ' + worksCap() + ' great work' + (worksCap() > 1 ? 's' : '') +
+            ' at a time, and the masons are all out. Which city gets this age is the decision.', '');
+        return false;
+      }
+      var mc = costOf(T.monCost[sm.era], 'monument');
+      if (!canPay(mc)) return false;
+      pay(mc);
+      qm.monB = { at: G.rt, dur: monDur(id) };
+      var hands = jobsOf(id).karigar;
+      say('The foundation is laid at ' + nameOf(sm) + '. ' +
+        (hands ? hands + ' karigar' + (hands > 1 ? 's' : '') + ' on the work — put more hands here and it rises faster.'
+               : 'No karigars here yet — assign some and the work speeds up.'), 'warm');
+      return true;
+    }
+    /* the panchayat: -1 is the five who sit together (free with the Panchayat), else a fix */
+    function settleQuarrel(di) {
+      if (!G.disp) return false;
+      if (di >= 0) { var fx = costOf(G.disp.fix[di].cost, 'peace'); if (!canPay(fx)) return false; pay(fx); }
+      else if (!G.tech.panchayat) return false;
+      var pa = nameOf(byId[G.disp.a]), pb = nameOf(byId[G.disp.b]);
+      touch(G.disp.a); touch(G.disp.b);
+      G.disp = null; G.lastd = G.t;
+      G.res.katha += T.reward.peace * (polEff('peace') || 1); G.score += 40;
+      G.peaceMade = (G.peaceMade || 0) + 1; deed('peace'); blip('peace');
+      if (G.camp) G.camp.settled = (G.camp.settled || 0) + 1;
+      say('The panchayat rises: ' + pa + ' and ' + pb + ' shake on it. Peace pays. +' + T.reward.peace + ' 📜', 'warm');
+      return true;
+    }
+    /* the teacher's question: any seen city's (with the script), never a line this band skips */
+    function quizStart(id) {
+      var pool = [];
+      SITES.forEach(function (x) {
+        if (!G.sites[x.id].seen || !x.ask) return;
+        if (!G.tech.script && x.id !== id) return;
+        for (var qi2 = 0; qi2 < askList(x).length; qi2++) if (!withheld(x.id + '.q.' + qi2)) pool.push({ id: x.id, qi: qi2 });
+      });
+      if (!pool.length) return false;
+      var pick2 = pool[(G.quizN + G.t) % pool.length];
+      quiz = { at: id, of: pick2.id, qi: pick2.qi }; riddleWrong = false; riddleMiss = null; G.quizN++;
+      return true;
+    }
+    /* a chapter is fifteen minutes, so its teacher rests three turns and its festival eight —
+       free play keeps its own long rests */
+    function quizCdNow() { return G && G.camp ? 3 : T.quizCd; }
+    function utsavCdNow() { return G && G.camp ? 8 : T.utsavCd; }
 
     /* ---- the start screen: Campaign · Short · Long, with honest minutes ---- */
     function startScreen(resume) {
@@ -4080,7 +4651,16 @@
     }
     /* the goal for the strip: what it is, how long is left, and each part */
     function goalStripExtra() {
-      if (!G.goal || G.camp) return '';
+      /* THE FOUR ROADS TO AN ENDING, checked live — chapter 13's one new system */
+      if (G.camp) {
+        if (!sysOn('endings')) return '';
+        var won = victoriesWon();
+        return VICS.map(function (v) {
+          return '<span class="sab-gchip' + (won.indexOf(v.id) >= 0 ? ' ok' : '') + '" title="' + esc(v.what) + '">' +
+            (won.indexOf(v.id) >= 0 ? '✓ ' : '○ ') + esc(v.name) + '</span>';
+        }).join('');
+      }
+      if (!G.goal) return '';
       var d = ageGoalDef(G.goal.era); if (!d) return '';
       if (G.goal.met) return '<span class="sab-gchip ok">✓ ' + esc(d.title) + ': ready — the age can turn</span>';
       var left = Math.max(0, G.goal.due - G.t);
@@ -4425,7 +5005,7 @@
               }).join('')) };
     }
     function callGuru(id) {
-      var cd = Math.max(0, (G.quizAt[id] || -999) + T.quizCd - G.t);
+      var cd = Math.max(0, (G.quizAt[id] || -999) + quizCdNow() - G.t);
       return { t: 'the gurukul',
         h: (quiz && quiz.at === id
           ? '<p>' + (quiz.of !== id ? 'About <b>' + esc(byId[quiz.of].name) + '</b>: ' : '') + esc(askList(byId[quiz.of])[quiz.qi || 0].q) + '</p>' +
@@ -4493,6 +5073,8 @@
           esc(s2.works[2]) + '</span></div>' +
           (q2.mon
             ? '<p class="tiny sab-note">The monument stands — +2 📜 every turn, and the mist can never touch this town.</p>'
+            : !monAllowed(id)
+              ? '<p class="tiny sab-note">A place to wake and to tell — in this story it is never a monument to build.</p>'
             : q2.lv >= 3
               ? '<p>The city is big enough. Raise it on the scaffolding out there, or here:</p>' +
                 '<button class="sab-btn go" data-sab-act="mon"' + (canPay(mc) ? '' : ' disabled') +
@@ -4506,8 +5088,8 @@
       var trez = (DATA.treasures || {})[id];
       return { t: esc(nameOf(s2)),
         h: (W.IND_CITY_PHOTO_HTML ? W.IND_CITY_PHOTO_HTML(id) : '') +
-          '<div class="sab-cfact">' + esc(s2.fact) + '</div>' +
-          (s2.more || []).map(function (mf) { return '<div class="sab-cfact">' + esc(mf) + '</div>'; }).join('') +
+          (withheld(id + '.fact') ? '' : '<div class="sab-cfact">' + esc(s2.fact) + '</div>') +
+          (s2.more || []).map(function (mf, mi) { return withheld(id + '.more.' + mi) ? '' : '<div class="sab-cfact">' + esc(mf) + '</div>'; }).join('') +
           (trez && !(q2.tre && q2.tre.got)
             ? '<div class="sab-treshint">🔍 ' + esc(FOLK[s2.kind]) + ' whispers: “' +
               esc(trez.hint) + '”</div>' : '') +
@@ -4533,7 +5115,7 @@
         out.push({ k: 'hero', t: 'Meet ' + esc(DATA.heroes[s2.kind].name),
                    s: esc(DATA.heroes[s2.kind].gift), i: 'crown', hot: true });
       if (q2.bld.gurukul) {
-        var cd2 = (G.quizAt[id] || -999) + T.quizCd - G.t;
+        var cd2 = (G.quizAt[id] || -999) + quizCdNow() - G.t;
         out.push({ k: 'guru', t: 'Ask the teacher',
                    s: cd2 > 0 ? 'resting for ' + cd2 + (cd2 === 1 ? ' turn' : ' turns') : 'earn \ud83d\udcdc by answering',
                    i: 'scroll', hot: !!(quiz && quiz.at === id) || cd2 <= 0 });
@@ -5930,6 +6512,7 @@
       /* KHUSHI ON THE BAR. Variety is now a thing the realm can be short of, and a
          number the player cannot see is a rule they cannot play to. */
       (function () {
+        if (campOff('goods')) return '';   /* a chapter before the bazaar has no khushi to show */
         var w = khushiWant(), h = khushiHave(), r2 = restless();
         return '<span class="sab-chip' + (r2 ? ' sab-restless' : '') + '"' +
           ' data-sab-act="khushi" title="' + esc(Object.keys(goodsReached()).join(', ') || 'nothing reached yet') + '">' +
@@ -6378,7 +6961,7 @@
            and one tap brings it down and the colours back. Below level 3 it
            stands quiet with the reason on it. */
         var scaf = '';
-        if (!q.mon && spOf('scaffold') && sysOn('monuments')) {
+        if (!q.mon && spOf('scaffold') && sysOn('monuments') && monAllowed(id)) {
           var mc0 = costOf(T.monCost[s.era], 'monument');
           /* the atlas knows where the monument belongs on this painting; on the built board it
              stands on dry land a short walk from the heart (monCell, D.2 d) */
@@ -6625,7 +7208,7 @@
               /* the built gurukul is a door, not a decoration: tap it to ask
                  the teacher — the bell rings when a question is ready */
               if (bid === 'gurukul') {
-                var ready = (G.quizAt[id] || -999) + T.quizCd - G.t <= 0;
+                var ready = (G.quizAt[id] || -999) + quizCdNow() - G.t <= 0;
                 plots += '<button class="sab-plot built teach' + (rise && !REDUCED ? ' rise' : '') +
                   '" style="' + pos + '" data-sab-act="' + (ready ? 'quizstart' : 'cjump') + '"' +
                   (ready ? '' : ' data-t="sab-sec-guru"') +
@@ -6838,6 +7421,8 @@
          no mist. A monument is a memory made of stone. */
       (function () {
         var mc = costOf(T.monCost[s.era], 'monument');
+        if (!q.mon && !monAllowed(id)) return '<div class="sab-work"><i>★</i>' + esc(s.works[2]) +
+          '<span style="flex:1"></span><span class="tiny" style="color:var(--muted)">a place to wake and to tell — never a monument to build here</span></div>';
         if (q.mon) return '<div class="sab-work built" style="border-color:var(--accent2)"><i>★</i>' +
           esc(s.works[2]) + '<span style="flex:1"></span><span class="tiny" style="color:var(--muted)">the monument stands — +2 📜, and the mist cannot touch this town</span></div>';
         return '<div class="sab-work' + (q.lv >= 3 ? ' now' : '') + '"><i>★</i>' + esc(s.works[2]) +
@@ -6871,7 +7456,7 @@
       /* THE CAPITAL — one city carries the realm. Moving it is how it always was:
          the Magadha kings left Rajagriha for Pataliputra when the river roads mattered
          more than the hills. */
-      if (G.capital !== id && !heroArt) {
+      if (G.capital !== id && !heroArt && sysOn('capital')) {
         var cc = T.capCost;
         h += '<div class="sab-quest" style="border-style:dashed"><div class="who">the seat of the realm</div>' +
           '<p>' + (G.capital ? 'The capital is at ' + esc(byId[G.capital].name) + '. Moving it here costs the move itself.'
@@ -6883,7 +7468,7 @@
       /* THE GURUKUL — trivia as a living income. Build it and the teacher takes
          questions; with Brahmi Script, questions about every woken city on the map. */
       if (q.bld.gurukul && !KITC) {
-        var cd = Math.max(0, (G.quizAt[id] || -999) + T.quizCd - G.t);
+        var cd = Math.max(0, (G.quizAt[id] || -999) + quizCdNow() - G.t);
         h += '<div class="sab-quest" id="sab-sec-guru"><div class="who">the gurukul</div>' +
           (quiz && quiz.at === id
             ? '<p>' + (quiz.of !== id ? 'About <b>' + esc(byId[quiz.of].name) + '</b>: ' : '') + esc(askList(byId[quiz.of])[quiz.qi || 0].q) + '</p>' +
@@ -6920,9 +7505,9 @@
       }
       if (q.seen && !KITC) {
         h += (window.IND_CITY_PHOTO_HTML ? window.IND_CITY_PHOTO_HTML(id) : '') +
-          '<div class="sab-cfact">' + esc(s.fact) + '</div>';
-        (s.more || []).forEach(function (mf) {
-          h += '<div class="sab-cfact">' + esc(mf) + '</div>';
+          (withheld(id + '.fact') ? '' : '<div class="sab-cfact">' + esc(s.fact) + '</div>');
+        (s.more || []).forEach(function (mf, mi) {
+          if (!withheld(id + '.more.' + mi)) h += '<div class="sab-cfact">' + esc(mf) + '</div>';
         });
       }
       h += '</div>';
@@ -7120,7 +7705,8 @@
          with extra steps; seeing what the plough leads to is most of why a child
          wants the plough. So everything in this age and the next is on screen, and
          what is locked says what would open it. */
-      var rows = TECHS.slice().sort(function (a, b) { return a.era - b.era; }).map(function (t, i2, arr) {
+      var rows = TECHS.slice().filter(function (t) { return doorShown('doors', t.id); })
+        .sort(function (a, b) { return a.era - b.era; }).map(function (t, i2, arr) {
         if (t.era > G.era + 1) return '';
         /* THE AGE IS THE RUNG, so the ladder has to be visible as one. A flat column of
            twenty-three rows with "after Iron Tools" written on some of them is an
@@ -7157,7 +7743,8 @@
       }).join('');
 
       /* ---- RITI: the second tree ---- */
-      var ritiRows = RITI.slice().sort(function (a, b) { return a.era - b.era; }).map(function (r, i3, arr3) {
+      var ritiRows = RITI.slice().filter(function (r) { return !campOff('riti') && doorShown('ritiDoors', r.id); })
+        .sort(function (a, b) { return a.era - b.era; }).map(function (r, i3, arr3) {
         if (r.era > G.era + 1) return '';
         var rhead = (i3 === 0 || arr3[i3 - 1].era !== r.era)
           ? '<div class="sab-rung' + (r.era > G.era ? ' next' : '') + '">' +
@@ -7196,7 +7783,7 @@
                    '<button class="sab-btn" data-sab-act="polclear" data-s="' + i + '">take out</button>'
                  : '<span>Slot ' + (i + 1) + ' — put a custom to work.</span>') +
           '<div class="sab-polpick">' + open.filter(function (pid3) {
-            return pid3 !== inSlot;
+            return pid3 !== inSlot && doorShown('pols', pid3);
           }).map(function (pid3) {
             var cd = POL_BY[pid3] || {};
             return '<button class="sab-btn" data-sab-act="pol" data-p="' + pid3 + '" data-s="' + i + '"' +
@@ -7228,7 +7815,7 @@
           : '') +
         (function () {
           var tot = Object.keys(DATA.treasures || {}).length;
-          if (!tot) return '';
+          if (!tot || campOff('khazana')) return '';   /* the khazana hunt is free play's (master F) */
           var got2 = Object.keys(G.tre || {}).length;
           return '<div class="mono" style="margin-top:8px">Khazana — ' + got2 + ' of ' + tot +
             ' treasures found</div><p class="tiny" style="color:var(--muted);margin:2px 0 8px">' +
@@ -7237,11 +7824,13 @@
         })() +
         '<div class="mono" style="margin-top:8px">Vidya — what the age knows how to do</div>' +
         '<div class="sab-works">' + rows + '</div>' +
+        /* a chapter that has not opened Riti shows only its Vidya doors (E2) */
+        (campOff('riti') ? '' :
         '<div class="mono" style="margin-top:12px">Riti — how your realm does things</div>' +
         '<div class="sab-works">' + ritiRows + '</div>' +
         '<div class="mono" style="margin-top:12px">In force — ' + polSlots() +
           ' slot' + (polSlots() > 1 ? 's' : '') + ', and swapping costs nothing</div>' +
-        '<div class="sab-slots">' + slots + '</div>' +
+        '<div class="sab-slots">' + slots + '</div>') +
         '<p class="tiny" style="color:var(--muted)">Two trees run at once and the coins never stretch to both, ' +
         'so the order is the strategy. Build the thing first and the learning comes quicker — ' +
         'three fields and the plough half teaches itself.</p>' +
@@ -7304,7 +7893,7 @@
         showOverlay('<div class="mono" style="color:var(--accent2)">a remembered city</div>' +
           '<h3>' + esc(nameOf(s)) + '</h3>' +
           (artOf(sel) ? '<img class="sab-cardart" src="' + artOf(sel) + '" alt="">' : '') +
-          '<p>' + esc(s.fact) + '</p>' +
+          '<p>' + esc(factFor(s)) + '</p>' +
           '<p class="tiny" style="color:var(--muted)">The ages turned and its people walked on — but ' +
           (q.mon ? 'its monument still stands, and stone remembers: +1 📜 each turn, forever.'
                  : 'its stones still hold the story.') + '</p>' +
@@ -7384,7 +7973,8 @@
         if (G.res.anna < utsavCost().anna || G.res.kala < utsavCost().kala)
           return say('An utsav needs both grain and craft — the whole village brings something.', '');
         pay(utsavCost());
-        G.res.katha += T.utsavKatha; G.utsav = T.utsavCd; G.score += 15; touch(sel);
+        G.res.katha += T.utsavKatha; G.utsav = utsavCdNow(); G.score += 15; touch(sel);
+        if (G.camp) (G.camp.utsav || (G.camp.utsav = {}))[sel] = G.t + 1;   /* where the chapter's festival was held */
         SITES.forEach(function (t) { var w = G.sites[t.id]; if (w.fade >= 0) { w.fade = -1; w.idle = 0; } });
         fxAt(s.x, s.y, 'utsav');
         say('Utsav at ' + s.name + '! Songs carry far — the mist pulls back from every fading lamp.', 'warm');
@@ -7405,7 +7995,7 @@
         if (!q.seen) { q.seen = true;
           var wa = artOf(sel);
           showOverlay((wa ? '<img class="sab-cardart" src="' + wa + '" alt="">' : '') +
-            '<h3>' + esc(s.name) + '</h3><p>' + esc(s.fact) + '</p>' +
+            '<h3>' + esc(s.name) + '</h3><p>' + esc(factFor(s)) + '</p>' +
             '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Onward</button></div>'); }
       }
       paintAll(); maybeEnd();
@@ -8038,11 +8628,18 @@
       /* THE WORLD ASKS, AND FORGETS IF IT IS IGNORED. Favour drifts down on a missed
          request and never goes below zero — a partner lost for good is a punishment a
          child cannot come back from, and this game does not do those. */
-      if (G.t % 14 === 0 && sysOn('sea')) askPartner();
+      if (G.t % 14 === 0 && sysOn('sea') && !G.camp) askPartner();
+      /* IN A CHAPTER THE ASKING IS AUTHORED (E7): only the partners a beat has introduced, and
+         again a few turns after a request is filled or missed, while the goal still needs them */
+      if (G.camp && sysOn('sea')) Object.keys(G.camp.partners || {}).forEach(function (pid) {
+        if ((G.req || {})[pid] || !campWants(pid) || G.t < ((G.camp.nextAsk || {})[pid] || 0)) return;
+        campAsk(pid);
+      });
       Object.keys(G.req || {}).forEach(function (pid) {
         var r = G.req[pid];
         if (G.t < r.due) return;
         delete G.req[pid];
+        if (G.camp) (G.camp.nextAsk || (G.camp.nextAsk = {}))[pid] = G.t + 2;
         if (G.fav && G.fav[pid]) G.fav[pid] = Math.max(0, G.fav[pid] - 1);
         var pn = ''; PARTNERS.forEach(function (x) { if (x.id === pid) pn = x.name; });
         say(pn + ' waited, and the ships went elsewhere this season. They will ask again.', 'mist');
@@ -8319,6 +8916,7 @@
                   kala: Math.floor(G.res.kala) - res0.kala,
                   katha: Math.floor(G.res.katha) - res0.katha };
       SITES.forEach(function (s) { var q5 = G.sites[s.id]; if (inEra(s) && q5.fade === 0 && !q5.zzz) tnote('the mist is over ' + nameOf(s)); });
+      if (G.camp) { G.camp.anna = (G.camp.anna || []).concat([G.delta.anna]).slice(-12); }
       if (G.warn && G.warn.at - G.t === G.warn.lead) tnote('something stirs near ' + nameOf(byId[G.warn.id]));
       goalTick();
       G.report = { at: G.t, d: { anna: G.delta.anna, kala: G.delta.kala, katha: G.delta.katha }, n: turnNotes.slice(0, 3) };
@@ -8761,23 +9359,11 @@
           paintCity(); paintAll(); return;
         }
         if (a === 'peace' && city && inDispute(city)) {
-          var di = Number(actEl.getAttribute('data-i'));
-          if (di >= 0) { var fx = costOf(G.disp.fix[di].cost, 'peace'); if (!canPay(fx)) return; pay(fx); }
-          var pa = byId[G.disp.a].name, pb = byId[G.disp.b].name;
-          touch(G.disp.a); touch(G.disp.b);
-          G.disp = null; G.lastd = G.t;
-          G.res.katha += T.reward.peace * (polEff('peace') || 1); G.score += 40;
-          G.peaceMade = (G.peaceMade || 0) + 1; deed('peace'); blip('peace');
-          say('The panchayat rises: ' + pa + ' and ' + pb + ' shake on it. Peace pays. +' + T.reward.peace + ' \ud83d\udcdc', 'warm');
+          settleQuarrel(Number(actEl.getAttribute('data-i')));
           paintCity(); paintAll(); return;
         }
         if (a === 'build' && city) {
-          var bid = actEl.getAttribute('data-b'), bd = BLD[bid], qy = G.sites[city];
-          if (!bd || qy.bld[bid] || bd.era > G.era) return;
-          var bc = costOf(bd.cost, 'building');
-          if (!canPay(bc)) { say('The ' + bd.name.toLowerCase() + ' ' + shortOf(bc) + '.', ''); return; }
-          pay(bc); qy.bld[bid] = true; touch(city); G.score += 15;
-          say(bd.name + ' raised in ' + byId[city].name + '.', 'warm');
+          buildIn(city, actEl.getAttribute('data-b'));
           paintCity(); paintAll(); return;
         }
         /* WHICH WAY THE CITY GREW */
@@ -8826,28 +9412,11 @@
         }
         /* ADOPTING A CUSTOM, and slotting the card it opens */
         if (a === 'riti') {
-          var rid2 = actEl.getAttribute('data-r'), rd = RITI_BY[rid2];
-          if (!rd || (G.riti || {})[rid2]) return;
-          if (!ritiOpenFor(rd)) { say(rd.name + ' waits on ' + ritiMissing(rd).join(' and ') + '.', ''); return; }
-          var rc = costOf(rd.cost, 'riti');
-          if (!canPay(rc)) return;
-          pay(rc);
-          if (!G.riti) G.riti = {};
-          G.riti[rid2] = true; G.score += 25; deed('riti');
-          say(rd.name + ' — the realm takes it up. ' + (POL_BY[rd.gives] || {}).name +
-              ' is yours to slot.', 'warm');
+          adoptRiti(actEl.getAttribute('data-r'));
           paintTech(); paintAll(); return;
         }
         if (a === 'pol') {
-          var pidw = actEl.getAttribute('data-p'), slot = +actEl.getAttribute('data-s') || 0;
-          if (!G.pol) G.pol = [];
-          if (polOpen().indexOf(pidw) < 0) return;
-          /* swapping is free, on purpose: a nine-year-old must be able to change
-             their mind about how their realm works */
-          var was = G.pol.indexOf(pidw);
-          if (was >= 0) G.pol[was] = null;
-          G.pol[slot] = pidw;
-          say((POL_BY[pidw] || {}).name + ' — in force.', 'warm');
+          slotPol(actEl.getAttribute('data-p'), +actEl.getAttribute('data-s') || 0);
           paintTech(); paintAll(); return;
         }
         if (a === 'polclear') {
@@ -8939,7 +9508,7 @@
           return;
         }
         if (a === 'world') {
-          var rows2 = partnersNow().map(function (pd2) {
+          var rows2 = partnersNow().filter(function (pd2) { return !G.camp || (G.camp.partners || {})[pd2.id]; }).map(function (pd2) {
             var r3 = (G.req || {})[pd2.id];
             var can = canSupply(pd2.wants);
             var pr = Math.round(marketPrice(pd2.wants) * 100);
@@ -8948,12 +9517,13 @@
               '<span><b>' + esc(pd2.name) + '</b> · <span class="tiny" style="color:var(--muted)">' +
               esc(pd2.blurb) + '</span>' +
               '<span class="tiny" style="color:var(--accent2);font-weight:800">wants ' + esc(pd2.wants) +
-              ' · paying ' + pr + '% · favour ' + favour(pd2.id) + '</span>' +
+              (campOff('favour') ? '' : ' · paying ' + pr + '% · favour ' + favour(pd2.id)) + '</span>' +
               (r3 ? '<span class="sab-need">asking now — ' + Math.max(0, r3.due - G.t) + ' turns left</span>'
                   : '') +
               '</span><span style="flex:1"></span>' +
               (r3 ? (can ? '<button class="sab-btn go" data-sab-act="fill" data-p="' + pd2.id + '">send it</button>'
                          : '<span class="tiny" style="color:var(--muted)">no road reaches it</span>')
+                  : campOff('favour') ? '<span class="tiny" style="color:var(--muted)">not asking now</span>'
                   : '<button class="sab-btn" data-sab-act="envoy" data-p="' + pd2.id + '"' +
                     (G.res.katha >= 20 ? '' : ' disabled') + '>envoy · 20 📜</button>') +
               '</div>';
@@ -8972,7 +9542,7 @@
            this game lets you spend on somebody else's goodwill. */
         if (a === 'envoy') {
           var ep = actEl.getAttribute('data-p');
-          if (G.res.katha < 20) return;
+          if (G.res.katha < 20 || campOff('favour')) return;
           pay({ katha: 20 });
           if (!G.fav) G.fav = {};
           G.fav[ep] = favour(ep) + 1;
@@ -9050,22 +9620,7 @@
         }
         if (a === 'mon' && city) {
           flashSec(actEl.getAttribute('data-t'));
-          var qm = G.sites[city], sm = byId[city];
-          if (qm.mon || qm.lv < 3) return;
-          if (worksRunning() >= worksCap()) {
-            say('The realm can raise ' + worksCap() + ' great work' + (worksCap() > 1 ? 's' : '') +
-                ' at a time, and the masons are all out. Which city gets this age is the decision.', '');
-            return;
-          }
-          var mc = costOf(T.monCost[sm.era], 'monument');
-          if (!canPay(mc)) return;
-          if (qm.monB) return;
-          pay(mc);
-          qm.monB = { at: G.rt, dur: monDur(city) };
-          var hands = jobsOf(city).karigar;
-          say('The foundation is laid at ' + sm.name + '. ' +
-            (hands ? hands + ' karigar' + (hands > 1 ? 's' : '') + ' on the work — put more hands here and it rises faster.'
-                   : 'No karigars here yet — assign some and the work speeds up.'), 'warm');
+          beginMon(city);
           paintCity(); paintAll(); return;
         }
         if (a === 'cap' && city) {
@@ -9079,15 +9634,7 @@
         }
         if (a === 'quizstart' && city) {
           flashSec(actEl.getAttribute('data-t'));
-          var pool = [];
-          SITES.forEach(function (x) {
-            if (!G.sites[x.id].seen || !x.ask) return;
-            if (!G.tech.script && x.id !== city) return;
-            for (var qi2 = 0; qi2 < askList(x).length; qi2++) pool.push({ id: x.id, qi: qi2 });
-          });
-          if (!pool.length) return;
-          var pick2 = pool[(G.quizN + G.t) % pool.length];
-          quiz = { at: city, of: pick2.id, qi: pick2.qi }; riddleWrong = false; riddleMiss = null; G.quizN++;
+          quizStart(city);
           paintCity(); return;
         }
         if (a === 'quizaage' && city) { quiz = null; riddleMiss = null; riddleWrong = false; paintCity(); paintAll(); return; }
@@ -9099,6 +9646,9 @@
             var payq = quiz.of === city ? T.quizPay : T.quizFarPay;
             if (G.tech.press) payq *= 2;   /* a thousand copies by morning */
             G.res.katha += payq; G.score += 10; G.quizAt[city] = G.t; touch(city);
+            /* the chapter's teacher counts right answers, and the cities they were about (E5) */
+            if (G.camp) { var tq = G.camp.taught || (G.camp.taught = {}); tq[city] = tq[city] || {};
+              tq[city][quiz.of] = (tq[city][quiz.of] || 0) + 1; }
             say('Well answered — +' + payq + ' \ud83d\udcdc from the gurukul of ' + byId[city].name + '.', 'warm');
             quiz = null; riddleWrong = false;
           } else {
@@ -9135,19 +9685,7 @@
           save(G); paintCity(); paintAll(); return;
         }
         if (a === 'tech') {
-          var tid = actEl.getAttribute('data-t');
-          var td = null; TECHS.forEach(function (t) { if (t.id === tid) td = t; });
-          if (!td || G.tech[tid] || td.era > G.era) return;
-          if (!techOpenFor(td)) { say(td.name + ' waits on ' + techMissing(td).join(' and ') + '.', ''); return; }
-          var tc = techCost(td);
-          if (!canPay(tc)) return;
-          if (G.proj) { say('The school is already at work on ' +
-            (function () { var o = ''; TECHS.forEach(function (t2) { if (t2.id === G.proj.id) o = t2.name; }); return o; })() +
-            '. One thing at a time.', 'warm'); return; }
-          pay(tc);
-          G.proj = { id: tid, at: G.rt, dur: techDur(td) };
-          say(td.name + ' — the school begins. ' + (schools() ? schools() + ' gurukul' + (schools() > 1 ? 's' : '') +
-            ' at work; it' : 'It') + ' will take a while.', 'warm');
+          beginTech(actEl.getAttribute('data-t'));
           paintTech(); paintAll(); return;
         }
         if (a === 'techclose') { techOpen = false; paintTech(); paintAll(); return; }
@@ -9181,6 +9719,7 @@
         if (a === 'campstart') { startChapter(+actEl.getAttribute('data-n') || 1); return; }
         if (a === 'campgo') { G.camp.started = true; showOverlay(null); paintAll(); return; }
         if (a === 'lampmap') { showOverlay(lampMapHTML()); return; }
+        if (a === 'epilogue') { if (allLit()) showOverlay(epilogueHTML()); return; }
         if (a === 'criddle' && G.camp) { campAnswer(actEl.getAttribute('data-r'), actEl.getAttribute('data-o')); return; }
         return act(a);
       }
@@ -9474,7 +10013,7 @@
         say(bd.name + ' raised in ' + nameOf(byId[id]) + ' — it was next in the plan.', 'warm');
       } else if (head.kind === 'monument') {
         /* a monument is the city's own work (monB), not the realm's research slot */
-        if (q.mon || q.monB) { q.plan.shift(); return; }
+        if (q.mon || q.monB || !monAllowed(id)) { q.plan.shift(); return; }
         if (q.lv < 3) return;                       /* wait for the town to grow */
         var mc = costOf(T.monCost[byId[id].era], 'monument');
         if (!canPay(mc)) return;
@@ -9660,13 +10199,17 @@
                   band: function () { return BAND; }, mode: startMode, goal: goalParts, legal: legalCells,
                   monCell: monCell, cellPx: cellPx, refLine: refLine, chapterOpen: function (n) { return chapterOpen(chapter(n)); },
                   threats: function () { return threatPool().map(function (r) { return r.id; }); },
+                  campParts: function () { return campParts(); }, campWon: campWon, campAdvise: function () { return advise(); },
+                  epilogue: function () { return allLit() ? epilogueHTML() : null; }, monAllowed: monAllowed,
+                  uncheckedLine: UNCHECKED,
                   sel: function () { return sel; } };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,
                era: G.era, proj: G.proj,
                speed: G.speed, turnMs: turnMs(), canUndo: canUndo(),
-               waiting: decisionList().length };
+               waiting: decisionList().length,
+               quiz: quiz ? { at: quiz.at, of: quiz.of, qi: quiz.qi || 0 } : null };
     };
     armClock();
     syncPauseBtn();

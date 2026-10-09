@@ -2209,34 +2209,42 @@ check('camp-ch1', 'S7: Chapter 1 of Mithu\'s Lamps completes for a guided bot in
   } finally { await ctx.close(); }
 });
 
-check('camp-mask', 'E2/E3/E12: a chapter cannot start with a system its preset turns off — no Vidya, sea, quarrels, quests or human raids; darshan is told, not a boon', async ({ browser, port }) => {
+check('camp-mask', 'E2/E3/E12: a chapter shows only the systems it names — Vidya, the sea roads, quarrels and asking ships only where its ladder has them, never a quest scroll, a lean season or a human raid; darshan is told, not a boon', async ({ browser, port }) => {
   const { ctx, p, errs } = await bootBare(browser, port);
   try {
     await p.click('#sab-ovhost [data-m="long"]'); await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
       const C = window.IND_SABHYATA_CAMPAIGN, D = window.__SABDO, bad = [];
       const ALL = ['explore', 'road', 'wake', 'riddles', 'city', 'raids', 'jobs', 'buildings', 'grow', 'monuments', 'capital',
-                   'quests', 'vidya', 'events', 'utsav', 'sea', 'quarrels', 'riti', 'heroes', 'akal', 'advance', 'khazana'];
+                   'quests', 'vidya', 'events', 'utsav', 'sea', 'quarrels', 'riti', 'heroes', 'akal', 'advance', 'khazana',
+                   'goods', 'favour', 'endings'];
       C.chapters.filter(c => c.status === 'open').forEach(c => {
         if (!D.chapter(c.n)) { bad.push('ch' + c.n + ' would not start'); return; }
         const b = document.querySelector('#sab-ovhost [data-sab-act="campgo"]'); if (b) b.click();
         ALL.forEach(s => { if (D.sysOn(s) !== (c.systems.indexOf(s) >= 0)) bad.push('ch' + c.n + ' ' + s + ' is ' + (D.sysOn(s) ? 'on' : 'off')); });
         const vis = sel => [...document.querySelectorAll(sel)].some(el => !el.hidden && el.offsetParent !== null);
-        if (vis('[data-sab-act="tabtech"]')) bad.push('ch' + c.n + ' shows Vidya');
-        if (vis('#sabwrap .sab-tab[data-sab-act="world"]')) bad.push('ch' + c.n + ' shows the sea roads');
+        const has = s => c.systems.indexOf(s) >= 0;
+        if (vis('[data-sab-act="tabtech"]') !== has('vidya')) bad.push('ch' + c.n + (has('vidya') ? ' hides' : ' shows') + ' Vidya');
+        if (vis('#sabwrap .sab-tab[data-sab-act="world"]') && !has('sea')) bad.push('ch' + c.n + ' shows the sea roads');
         const human = D.threats().filter(id => window.IND_SABHYATA.raids.find(x => x.id === id).kind === 'human');
         if (human.length) bad.push('ch' + c.n + ' can raid with ' + human.join(','));
-        /* forty years: no quarrel, no quest scroll, no overseas request, no lean season */
+        /* the doors a chapter shows are the doors it names: Vidya offers nothing else */
         const G = window.__SABG();
+        const offered = window.IND_SABHYATA.techs.filter(t => D.techOpen(t)).map(t => t.id);
+        const extra = offered.filter(id => (c.doors || []).indexOf(id) < 0);
+        if (extra.length) bad.push('ch' + c.n + ' offers ' + extra.join(',') + ' in Vidya');
+        /* forty years: no quest scroll, no lean season; a quarrel or a ship only where the ladder has them */
         G.res.anna = G.res.kala = 900; G.lastd = -99; G.lastq = -99;
         for (let i = 0; i < 40; i++) {
           D.turn();
           const ob = document.querySelector('#sab-ovhost .sab-btn.go'); if (ob && !/lamp-map/.test(ob.textContent)) ob.click();
           const ro = document.querySelector('#sab-ovhost [data-sab-act=criddle]'); if (ro) ro.click();
         }
-        if (G.disp) bad.push('ch' + c.n + ' raised a quarrel');
+        if (G.disp && !has('quarrels')) bad.push('ch' + c.n + ' raised a quarrel');
         if (Object.keys(G.quests).length) bad.push('ch' + c.n + ' raised a quest scroll');
-        if (Object.keys(G.req || {}).length) bad.push('ch' + c.n + ' raised an overseas request');
+        const asked = Object.keys(G.req || {});
+        if (asked.length && !has('sea')) bad.push('ch' + c.n + ' raised an overseas request');
+        if (asked.some(pid => !G.camp.partners[pid])) bad.push('ch' + c.n + ' was asked by a partner no beat introduced: ' + asked.join(','));
         if (G.ev) bad.push('ch' + c.n + ' raised a lean season');
       });
       /* the darshan is a told card: the Buddha at Kashi changes nothing in the realm */
@@ -2250,48 +2258,268 @@ check('camp-mask', 'E2/E3/E12: a chapter cannot start with a system its preset t
       const card = (document.querySelector('#sab-ovhost') || {}).innerText || '';
       return { bad, darshan: /Buddha/.test(card), boon: G.res.katha - k0 >= 40 || !G.disp || G.calmUntil > G.t, card: card.slice(0, 160) };
     });
-    if (r.bad.length) throw new Error(r.bad.slice(0, 4).join('; '));
+    if (r.bad.length) throw new Error(r.bad.slice(0, 4).join('; ') + (r.bad.length > 4 ? ` (+${r.bad.length - 4})` : ''));
     if (!r.darshan) throw new Error('the Buddha\'s darshan did not fire in chapter 2: ' + r.card);
     if (r.boon) throw new Error('the darshan still acts as a boon (katha, a quarrel set down, or calm)');
     if (errs.length) throw new Error(errs[0]);
   } finally { await ctx.close(); }
 });
 
-check('camp-facts', 'every chapter\'s facts resolve to data-sabhyata.js entries with sources; flagged chapters stay shut outside tester mode', async ({ p }) => {
+/* every reference a chapter makes — hook, beat (and its band's own line), riddle answer and
+   distractor, aha, keepsake, the epilogue's bead — must resolve to a data-sabhyata.js line that
+   carries its source. Nothing in the campaign file may be a fact of its own. */
+check('camp-facts', 'every chapter\'s facts, in every chapter, resolve to data-sabhyata.js entries with sources; every riddle is asked; guides say they are made up', async ({ p }) => {
   const r = await p.evaluate(() => {
     const C = window.IND_SABHYATA_CAMPAIGN, D = window.__SABDO, bad = [];
     const need = (ref, where) => { const l = D.refLine(ref); if (!l || !l.t || !l.src) bad.push(where + ': ' + ref + ' does not resolve to a sourced line'); };
+    if (C.chapters.length !== 13) bad.push(C.chapters.length + ' chapters, not 13');
     C.chapters.forEach(c => {
-      if (c.status !== 'open') {
-        if (D.chapterOpen(c.n)) bad.push('ch' + c.n + ' (coming) opens');
-        return;
-      }
+      if (c.status !== 'open') { bad.push('ch' + c.n + ' is not built'); return; }
       (c.hookRefs || []).forEach(r => need(r, 'ch' + c.n + ' hook'));
       if (!(c.hookRefs || []).length) bad.push('ch' + c.n + ' hook names no source');
-      (c.beats || []).forEach(b => { if (b.ref) need(b.ref, b.id); if (b.ref2) need(b.ref2, b.id); });
+      (c.beats || []).forEach(b => {
+        if (b.ref) need(b.ref, b.id); if (b.ref2) need(b.ref2, b.id);
+        Object.keys(b.byBand || {}).forEach(k => { const o = b.byBand[k]; if (o.ref) need(o.ref, b.id + ' (' + k + ')'); if (o.ref2) need(o.ref2, b.id + ' (' + k + ')'); });
+      });
       (c.riddles || []).forEach(q => {
         need(q.aRef, q.id + ' answer');
         (q.o || []).forEach(o => { if (o.ref) need(o.ref, q.id + ' "' + o.t + '"'); if (o.why && !o.ref) bad.push(q.id + ' "' + o.t + '" says ' + o.why + ' with no line behind it'); });
         if ((q.o || []).some(o => o.t === q.a)) bad.push(q.id + ' has its answer twice');
         if (!(c.beats || []).some(b => b.riddle === q.id)) bad.push(q.id + ' is never asked');
       });
-      need(c.payoff.aha, 'ch' + c.n + ' aha'); need(c.payoff.souvenir, 'ch' + c.n + ' souvenir');
-      if (!c.guide || !/made up/i.test(c.guide.note + ' ' + 'made up')) bad.push('ch' + c.n + ' guide');
+      if (c.payoff.aha) need(c.payoff.aha, 'ch' + c.n + ' aha');
+      need(c.payoff.souvenir, 'ch' + c.n + ' souvenir');
+      if (!c.guide || !/made up/i.test(c.guide.note || '')) bad.push('ch' + c.n + ' guide does not say it is made up');
     });
+    if (!C.epilogue) bad.push('no epilogue'); else need(C.epilogue.tellers, 'epilogue');
     [3, 6, 8, 9, 10, 11, 12].forEach(n => { const c = C.chapters.find(x => x.n === n); if (!c || !c.review) bad.push('ch' + n + ' lost its reviewer flag'); });
     return bad;
   });
-  if (r.length) throw new Error(r.slice(0, 5).join('; '));
-  /* a flagged chapter, once built, opens only in tester mode */
-  const t = await p.evaluate(() => {
-    const c = window.IND_SABHYATA_CAMPAIGN.chapters.find(x => x.n === 3);
-    const was = { status: c.status, preset: c.preset };
-    c.status = 'open'; c.preset = window.IND_SABHYATA_CAMPAIGN.chapters[0].preset;
-    const open = window.__SABDO.chapterOpen(3);
-    c.status = was.status; c.preset = was.preset;
-    return open;
+  if (r.length) throw new Error(r.slice(0, 5).join('; ') + (r.length > 5 ? ` (+${r.length - 5})` : ''));
+});
+
+/* E3: the data's raids table carries human raids (war-bands, armies, sea-raiders). No chapter
+   may name one, and the engine's own threat pool must refuse one even if a chapter did. */
+check('camp-raids', 'E3: no chapter\'s raidPool names a human raid, every raid it names exists, and a scripted raid is in its own pool', async ({ p }) => {
+  const r = await p.evaluate(() => {
+    const C = window.IND_SABHYATA_CAMPAIGN, R = window.IND_SABHYATA.raids, bad = [];
+    C.chapters.forEach(c => {
+      (c.raidPool || []).forEach(id => {
+        const x = R.find(y => y.id === id);
+        if (!x) bad.push('ch' + c.n + ' names a raid that does not exist: ' + id);
+        else if (x.kind === 'human') bad.push('ch' + c.n + ' raidPool has the human raid ' + id);
+      });
+      (c.beats || []).forEach(b => { if (b.raid && (c.raidPool || []).indexOf(b.raid.id) < 0) bad.push(b.id + ' scripts ' + b.raid.id + ', which is not in ch' + c.n + '\'s pool'); });
+      if ([9, 10].indexOf(c.n) >= 0 && (c.raidPool || []).some(id => id === 'famine' || id === 'plague'))
+        bad.push('ch' + c.n + ' carries famine or plague (reviewer flag: fire, cyclone and mist only)');
+    });
+    /* and the engine refuses a human raid even when a chapter names one */
+    const c5 = C.chapters.find(x => x.n === 5), was = c5.raidPool.slice();
+    c5.raidPool.push('searaid');
+    window.__SABDO.chapter(5);
+    const pool = window.__SABDO.threats();
+    c5.raidPool = was;
+    if (pool.indexOf('searaid') >= 0) bad.push('the engine let a human raid into a chapter');
+    return bad;
   });
-  if (t) throw new Error('a reviewer-flagged chapter opened outside tester mode');
+  if (r.length) throw new Error(r.join('; '));
+});
+
+/* THE OWNER OPENED THEM (9 Oct 2026): a reviewer-flagged chapter with the owner's `open`
+   record opens for a child who is not in tester mode, and says on its start screen and its
+   lamp-map row that no reviewer has checked it. Without that record it stays shut. */
+check('camp-open', 'flagged chapters the owner opened start for a non-tester and say "Not yet checked by a reviewer"; a flagged chapter without the owner\'s record stays shut', async ({ p }) => {
+  const r = await p.evaluate(async () => {
+    const eng = window.IND_GAMES.find(g => g.id === 'sabhyata').engine, host = document.getElementById('gamehost');
+    host.innerHTML = '';
+    window.__sabTd = eng(host, { band: '11-12', tester: false, answer: () => {}, stop: () => true }, () => {});
+    await new Promise(res => setTimeout(res, 150));
+    const C = window.IND_SABHYATA_CAMPAIGN, D = window.__SABDO, bad = [];
+    const line = D.uncheckedLine;
+    if (!/Not yet checked by a reviewer/.test(line)) bad.push('the line is "' + line + '"');
+    C.chapters.filter(c => c.review).forEach(c => {
+      if (!c.open || c.open.by !== 'owner' || c.open.to !== 'everyone') bad.push('ch' + c.n + ' has no owner\'s open record');
+      if (!D.chapterOpen(c.n)) { bad.push('ch' + c.n + ' does not open for a non-tester'); return; }
+      if (!D.chapter(c.n)) { bad.push('ch' + c.n + ' would not start'); return; }
+      const card = (document.querySelector('#sab-ovhost .sab-unchecked') || {}).textContent || '';
+      if (card.indexOf(line) < 0) bad.push('ch' + c.n + '\'s start screen does not say it is unchecked');
+    });
+    /* a chapter a reviewer signed (or never flagged) does not carry the line */
+    D.chapter(4);
+    if (document.querySelector('#sab-ovhost .sab-unchecked')) bad.push('ch4 (not flagged) says it is unchecked');
+    /* the lamp-map row says it too */
+    document.querySelector('#sab-ovhost [data-sab-act="lampmap"]').click();
+    await new Promise(res => setTimeout(res, 60));
+    const rows = [...document.querySelectorAll('.sab-lmrow')];
+    C.chapters.forEach((c, i) => {
+      const says = !!rows[i] && rows[i].innerText.indexOf(line) >= 0;
+      if (says !== !!c.review) bad.push('ch' + c.n + '\'s lamp-map row ' + (says ? 'says' : 'does not say') + ' it is unchecked');
+    });
+    /* without the owner's record a flagged chapter is shut outside tester mode */
+    const c8 = C.chapters.find(x => x.n === 8), keep = c8.open;
+    delete c8.open;
+    if (D.chapterOpen(8)) bad.push('a flagged chapter with no owner\'s record opened outside tester mode');
+    c8.open = keep;
+    return bad;
+  });
+  if (r.length) throw new Error(r.slice(0, 5).join('; '));
+});
+
+/* AGE BANDS (master F; docs/05 §3): chapters 4–13 are for 8 and up. For ages 4–7 they do not
+   start, and the lamp-map says why; chapter 3 plays without its tree and without one word of
+   Kalinga (its riddle about the promise is not asked, the rock's card is the elephant). */
+check('camp-age', 'ages 4–7: chapters 4–13 stay shut and say "for 8 and up"; chapter 3 plays with the Edicts learned, no tree, and never a word of Kalinga', async ({ p }) => {
+  const r = await p.evaluate(async () => {
+    const eng = window.IND_GAMES.find(g => g.id === 'sabhyata').engine, host = document.getElementById('gamehost');
+    host.innerHTML = '';
+    window.__sabTd = eng(host, { band: '4-7', tester: false, answer: () => {}, stop: () => true }, () => {});
+    await new Promise(res => setTimeout(res, 150));
+    const C = window.IND_SABHYATA_CAMPAIGN, D = window.__SABDO, bad = [];
+    C.chapters.forEach(c => {
+      const want = c.n <= 3;
+      if (D.chapterOpen(c.n) !== want) bad.push('ch' + c.n + (want ? ' is shut' : ' opens') + ' for 4–7');
+      if (!want && D.chapter(c.n)) bad.push('ch' + c.n + ' started for 4–7');
+    });
+    D.chapter(1);
+    document.querySelector('#sab-ovhost [data-sab-act="lampmap"]').click();
+    await new Promise(res => setTimeout(res, 60));
+    const rows = [...document.querySelectorAll('.sab-lmrow')];
+    C.chapters.forEach((c, i) => { if (c.n > 3 && !(rows[i] && /for 8 and up/.test(rows[i].innerText))) bad.push('ch' + c.n + '\'s row does not say "for 8 and up"'); });
+    /* chapter 3, played through by following Mithu: every card it shows is read for Kalinga */
+    D.chapter(3);
+    document.querySelector('#sab-ovhost [data-sab-act="campgo"]').click();
+    const G = window.__SABG();
+    if (D.sysOn('vidya')) bad.push('ch3 shows the Vidya tree to 4–7');
+    if (!G.tech.script || !G.tech.edict) bad.push('ch3 does not come with the Edicts learned for 4–7');
+    const seen = [];
+    for (let i = 0; i < 700 && !(G.camp && G.camp.done); i++) {
+      const ov = document.querySelector('#sab-ovhost');
+      if (ov && ov.innerText.trim()) seen.push(ov.innerText);
+      const ro = document.querySelectorAll('#sab-ovhost [data-sab-act=criddle]');
+      if (ro.length) { ro[0].click(); continue; }
+      const ob = document.querySelector('#sab-ovhost .sab-btn.go') || document.querySelector('#sab-ovhost .sab-btn');
+      if (ob) { if (/lamp-map/.test(ob.textContent)) break; ob.click(); continue; }
+      document.getElementById('sab-advise').click();
+      await new Promise(res => setTimeout(res, 1));
+    }
+    if (!G.camp.done) bad.push('ch3 did not finish for 4–7 (turn ' + (G.t + 1) + ')');
+    if (G.camp.asked.c3r1) bad.push('ch3 asked 4–7 its riddle about the promise by the battlefield');
+    /* the cards it showed, and the city telling Dhauli opens with */
+    D.act('dhauli', 'city');
+    await new Promise(res => setTimeout(res, 100));
+    seen.push((document.getElementById('sab-cityhost') || {}).innerText || '');
+    const hit = seen.find(t => /Kalinga|battlefield|conquest/i.test(t));
+    if (hit) bad.push('a card shown to 4–7 says: "' + hit.replace(/\s+/g, ' ').slice(0, 120) + '"');
+    if (seen.length < 5) bad.push('only ' + seen.length + ' cards were read — this proves nothing');
+    return bad;
+  });
+  if (r.length) throw new Error(r.slice(0, 5).join('; '));
+});
+
+/* E1/E5/S7 for every lamp: each chapter loads its own preset (its age, its places asleep and
+   unfound, the earlier ages awake as heritage), and a child who only follows Mithu — guessing
+   every riddle with the first option, and answering the teacher from the data — reaches the
+   win, sees every riddle, lights the lamp and is paid its stop once. */
+const playChapter = (p, n) => p.evaluate(async n => {
+  const D = window.__SABDO, C = window.IND_SABHYATA_CAMPAIGN, S = window.IND_SABHYATA, bad = [];
+  const by = {}; S.sites.forEach(s => by[s.id] = s);
+  const c = C.chapters.find(x => x.n === n);
+  if (!D.chapter(n)) return { bad: ['ch' + n + ' would not start'] };
+  const G0 = window.__SABG(), P = c.preset;
+  if (G0.era !== c.era) bad.push('ch' + n + ' starts in age ' + G0.era + ', not ' + c.era);
+  (P.unfound || []).forEach(id => { if (G0.sites[id].found || !G0.sites[id].zzz) bad.push(id + ' is not asleep and unfound'); });
+  (P.live || []).concat(P.awake || []).forEach(id => { if (G0.sites[id].zzz) bad.push(id + ' is not awake'); });
+  S.sites.forEach(x => { if (x.era < c.era && G0.camp.scope[x.id] && G0.sites[x.id].zzz) bad.push(x.id + ' (an earlier age) sleeps — E11'); });
+  if (D.campWon()) bad.push('ch' + n + ' is won before it starts');
+  document.querySelector('#sab-ovhost [data-sab-act="campgo"]').click();
+  const G = window.__SABG(), log = [];
+  for (let i = 0; i < 1400 && !(G.camp && G.camp.done); i++) {
+    const ro = document.querySelectorAll('#sab-ovhost [data-sab-act=criddle]');
+    if (ro.length) { ro[0].click(); continue; }
+    const ob = document.querySelector('#sab-ovhost .sab-btn.go') || document.querySelector('#sab-ovhost .sab-btn');
+    if (ob) { if (/lamp-map/.test(ob.textContent) || ob.getAttribute('data-sab-act') === 'epilogue') break; ob.click(); continue; }
+    const st = window.__SAB();
+    if (st.quiz) {
+      const aa = document.querySelector('[data-sab-act="quizaage"]'); if (aa) { aa.click(); continue; }
+      const s = by[st.quiz.of], ans = [s.ask].concat(s.asks || [])[st.quiz.qi].o[0];
+      const qb = [...document.querySelectorAll('[data-sab-act="quiz"]')].find(x => x.getAttribute('data-o') === ans);
+      if (qb) { qb.click(); continue; }
+    }
+    const m = document.querySelector('.sab-npgoal') && st.city ? document.querySelector('.sab-npgoal') : document.getElementById('sab-advise');
+    if (!m) { log.push('no mithu'); break; }
+    log.push(D.advise().act);
+    m.click();
+    await new Promise(res => setTimeout(res, 1));
+  }
+  const L = D.lamps();
+  const want = (c.riddles || []).filter(q => !q.bands || q.bands.indexOf(D.band()) >= 0).length;
+  return { bad, done: !!G.camp.done, t: G.t + 1, turns: c.turns, lit: !!L.lit[n], paid: !!L.paid[n],
+           asked: Object.keys(G.camp.asked).length, want,
+           parts: D.campParts().filter(x => !x.ok).map(x => x.label), tail: log.slice(-12).join(' ') };
+}, n);
+
+check('camp-all', 'E1/E5/S7: every chapter 1–13 loads its own preset, and a child following only Mithu reaches its win — every riddle shown, the lamp lit, the stop paid once', async ({ browser, port }) => {
+  const { ctx, p, errs } = await bootBare(browser, port);
+  try {
+    await p.evaluate(() => { window.__rew = []; window.addEventListener('ind-reward', e => window.__rew.push(e.detail)); });
+    await p.click('#sab-ovhost [data-m="long"]'); await p.waitForTimeout(300);
+    const bad = [], report = [];
+    for (let n = 1; n <= 13; n++) {
+      const r = await playChapter(p, n);
+      bad.push(...r.bad);
+      if (!r.done) { bad.push(`ch${n} did not finish (turn ${r.t}): still wants ${r.parts.join(', ')} — ${r.tail}`); continue; }
+      if (r.t > r.turns + 20) bad.push(`ch${n} took ${r.t} turns — its good time is ${r.turns}, and Mithu should not need twenty more`);
+      if (r.asked < r.want) bad.push(`ch${n}: ${r.asked} of ${r.want} riddles were shown`);
+      if (!r.lit) bad.push(`ch${n}'s lamp is not lit`);
+      if (!r.paid) bad.push(`ch${n}'s stop was never paid`);
+      report.push(`${n}:${r.t}/${r.turns}`);
+    }
+    const stops = await p.evaluate(() => window.__rew.filter(d => d.kind === 'stop').map(d => d.once));
+    if (new Set(stops).size !== stops.length) bad.push('a chapter was paid its stop twice: ' + stops.join(','));
+    /* thirteen lamps lit: the epilogue, with the data's tellers bead, verbatim */
+    const ep = await p.evaluate(() => window.__SABDO.epilogue());
+    const tellers = await p.evaluate(() => window.IND_SABHYATA.sutras.find(s => s.id === 'tellers').beats[4].text);
+    if (!ep) bad.push('thirteen lamps lit and no epilogue');
+    else {
+      if (ep.indexOf(tellers.replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;')) < 0 && ep.indexOf(tellers) < 0) bad.push('the epilogue does not carry the tellers bead verbatim');
+      if ((ep.match(/made up — the places are real/g) || []).length !== 13) bad.push('the epilogue does not wave goodbye from all thirteen made-up guides');
+      if (!/Ask your family/.test(ep)) bad.push('the epilogue has no question to take home');
+    }
+    if (bad.length) throw new Error(bad.slice(0, 6).join(' · ') + (bad.length > 6 ? ` (+${bad.length - 6})` : ''));
+    console.log('         turns per chapter: ' + report.join(' '));
+    if (errs.length) throw new Error(errs[0]);
+  } finally { await ctx.close(); }
+});
+
+/* MONUMENTS THAT ARE PLACES OF WORSHIP (master F, ch 5 and ch 8): in chapter 8 Amritsar and
+   Agra are woken and told, never built — no scaffold, no button, no queue, no Mithu */
+check('camp-shrine', 'ch 8: Harmandir Sahib and the Taj are never a monument to build — the button, the plan and Mithu all refuse; the darshan carries no boon', async ({ p }) => {
+  const r = await p.evaluate(async () => {
+    const D = window.__SABDO, bad = [];
+    D.chapter(8); document.querySelector('#sab-ovhost [data-sab-act="campgo"]').click();
+    const G = window.__SABG();
+    ['agra', 'amritsar'].forEach(id => { const q = G.sites[id]; q.found = true; q.zzz = false; q.lv = 3; });
+    G.routes.push(['kashi', 'agra'], ['agra', 'amritsar']);
+    G.res.anna = G.res.kala = G.res.katha = 900;
+    for (const id of ['agra', 'amritsar']) {
+      if (D.monAllowed(id)) bad.push(id + ' is allowed a monument');
+      D.act(id, 'city'); await new Promise(res => setTimeout(res, 120));
+      const btn = document.querySelector('#sab-cityhost [data-sab-act="mon"]');
+      if (btn) bad.push(id + ' offers a monument button');
+      D.plan(id, 'monument', 'mon'); D.turn();
+      if (G.sites[id].monB || G.sites[id].mon) bad.push(id + '\'s monument rose from the plan');
+      const leave = document.querySelector('[data-sab-act="leave"]'); if (leave) leave.click();
+    }
+    if (/^mon$/.test(D.advise().act)) bad.push('Mithu offers a monument');
+    /* Guru Nanak's darshan is a told card: nothing in the realm changes */
+    G.lastdarshan = -99; G.camp.done = true; const a0 = G.res.anna;
+    for (let i = 0; i < 3; i++) { const ob = document.querySelector('#sab-ovhost .sab-btn'); if (ob) ob.click(); }
+    D.turn();
+    const card = (document.querySelector('#sab-ovhost') || {}).innerText || '';
+    if (/Nanak/.test(card) && G.res.anna - a0 >= 80) bad.push('the darshan paid its boon');
+    return bad;
+  });
+  if (r.length) throw new Error(r.join('; '));
 });
 
 check('bands', 'C.4 #5: the age band decides what is on — 4–7 explore, road and wake, Sochna and three ages; 8–10 adds buildings, quests and Vidya', async ({ p }) => {

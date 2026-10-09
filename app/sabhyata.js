@@ -2786,7 +2786,7 @@
       bldSeen = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
       G = fresh(); G.mode = m === 'short' ? 'short' : 'long';
       showOverlay(null);
-      shell(); bindHud(); zlevel = 1; fitFound(true); armClock();
+      shell(); bindHud(); zlevel = 1; openFraming(); armClock();
       say(G.mode === 'short' ? 'The short game: three ages, from Dholavira to the Great Sabha.'
                              : 'A new dawn at Dholavira — all thirteen ages ahead.', 'warm');
     }
@@ -2817,7 +2817,7 @@
       sel = null; city = null; techOpen = false; hold = null; targeting = false; kbd = null; quiz = null;
       bldSeen = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
       showOverlay(null);
-      shell(); bindHud(); zlevel = 1; fitFound(true); armClock();
+      shell(); bindHud(); zlevel = 1; openFraming(); armClock();
       var rec = lampsRec(); rec.run = null;
       /* the hook, read aloud by Mithu, and the guide's card that says she is made up */
       var gd = guideOf(ch, ch.guide.id);
@@ -9031,7 +9031,7 @@
       bldSeen = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
       if (G.camp) G.camp.started = true;
       showOverlay(null);
-      shell(); bindHud(); zlevel = 1; fitFound(true); armClock();
+      shell(); bindHud(); zlevel = 1; openFraming(); armClock();
       say('Welcome back. The lamps kept burning while you were away.', 'warm');
     }
     startScreen(RESUME);

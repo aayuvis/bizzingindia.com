@@ -64,7 +64,9 @@ async function boot(browser, port) {
   await p.waitForTimeout(400);
   await p.click('[data-bz=tab][data-v="khel"]'); await p.waitForTimeout(250);
   await p.click('.ghero'); await p.waitForTimeout(900);
-  const ov = await p.$('#sab-ovhost .sab-btn');
+  /* the start screen offers three lengths (master C.4 #6); these checks are about the long
+     game's systems, so they choose it — the campaign and the bands have their own checks */
+  const ov = await p.$('#sab-ovhost [data-sab-act="mode"][data-m="long"]') || await p.$('#sab-ovhost .sab-btn');
   if (ov) { await ov.click(); await p.waitForTimeout(250); }
   if (!await p.evaluate(() => typeof window.__SABG === 'function'))
     throw new Error('the game did not boot — no __SABG');
@@ -89,7 +91,8 @@ check('cardtext', 'every line on every city card reads at AA, day and night; an 
       if ((mode === 'night') === night) break;
       await p.evaluate(() => document.querySelector('[data-bz=theme]').click()); await p.waitForTimeout(500);
     }
-    const ov = await p.$('#sab-ovhost .sab-btn'); if (ov) { await ov.click(); await p.waitForTimeout(300); }
+    const ov = await p.$('#sab-ovhost [data-sab-act="mode"][data-m="long"]') || await p.$('#sab-ovhost .sab-btn');
+    if (ov) { await ov.click(); await p.waitForTimeout(300); }
     await p.evaluate(() => { const g = window.__SABG(); g.res.anna = 500; g.res.kala = 500; g.res.katha = 500; });
     if (!await p.evaluate(() => !!window.__SAB().city)) await openCity(p, 'dholavira');
     if (!await p.evaluate(() => !!window.__SAB().city)) throw new Error(mode + ': the city never opened, so this proves nothing');
@@ -1886,7 +1889,7 @@ async function bootPhone(browser, port, w, h) {
   await p.evaluate(() => { location.hash = '#/game/sabhyata'; });
   await p.waitForFunction(() => typeof window.__SABG === 'function', null, { timeout: 20000 });
   await p.waitForTimeout(700);
-  const ov = await p.$('#sab-ovhost .sab-btn');
+  const ov = await p.$('#sab-ovhost [data-sab-act="mode"][data-m="long"]') || await p.$('#sab-ovhost .sab-btn');
   if (ov) { await ov.tap(); await p.waitForTimeout(400); }
   return { ctx, p, errs };
 }
@@ -2087,7 +2090,7 @@ async function main() {
     executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
   let pass = 0, fail = 0;
   for (const c of CHECKS) {
-    if (only && c.id !== only) continue;
+    if (only && only.split(',').indexOf(c.id) < 0) continue;   /* --only a,b,c runs a batch */
     const ctx = await boot(browser, port);
     ctx.browser = browser; ctx.port = port;
     try {

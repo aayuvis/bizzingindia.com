@@ -1,8 +1,9 @@
 /* Bizzing India — THE MELA (quiz stalls).
 
-   Two stalls, one question factory:
-     gyanpati     · Kaun Banega Gyanpati? — the ladder quiz
-     triviamaster · Trivia Master        — mixed rounds by category
+   One stall, one question factory (games spec §4.1):
+     gyanpati     · Kaun Banega Gyanpati? — the ladder quiz, with Trivia Master's
+                    category picker and 60-second sprint folded in
+     triviamaster · kept only so an old link opens Gyanpati's category picker
 
    ON THE NAME. Gyanpati plays the beloved TV ladder-quiz FORMAT with our own
    name — 'Kaun Banega Crorepati' is a broadcaster's trademark, so the name is
@@ -51,8 +52,8 @@
 
     '.qz-body{display:flex;gap:var(--space-lg);align-items:flex-start;flex-wrap:wrap}',
     '.qz-main{flex:1 1 280px;min-width:0}',
-    '.qz-stage{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-lg);position:relative;overflow:hidden}',
-    '.qz-stage:before{content:"";position:absolute;top:0;right:0;bottom:auto;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2));opacity:.5}',
+    '.qz-stage{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-lg);position:relative}',
+    '.qz-stage:before{content:"";position:absolute;top:0;right:0;bottom:auto;left:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2));opacity:.5}',
     '.qz-q{font:700 19px/1.35 var(--display,Georgia,serif);margin:4px 0 8px;text-align:center}',
     '.qz-sub{font-size:12.5px;color:var(--muted);text-align:center;margin:0 0 8px}',
 
@@ -74,7 +75,7 @@
     '.qz-opt.is-off{opacity:.4}',
 
     '.qz-life{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}',
-    '.qz-lbtn{cursor:pointer;min-height:40px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:700 12.5px var(--body,inherit)}',
+    '.qz-lbtn{cursor:pointer;min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:700 12.5px var(--body,inherit)}',
     '.qz-lbtn:hover:not(:disabled){border-color:var(--accent)}',
     '.qz-lbtn:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}',
     '.qz-lbtn:disabled{opacity:.4;cursor:default;text-decoration:line-through}',
@@ -110,7 +111,21 @@
     '.qz-cat[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg2)}',
     '.qz-cat:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}',
     '.qz-cat:disabled{opacity:.4;cursor:default}',
-    '.qz-streak{text-align:center;font:700 13px var(--body,inherit);color:var(--accent2);margin:6px 0 0;letter-spacing:.04em}',
+    '.qz-cat.all{border-style:dashed}',
+    '.qz-modes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:4px 0 10px}',
+    '.qz-clock{font-variant-numeric:tabular-nums}',
+    '.qz-note{font-size:13px;color:var(--muted);text-align:center;margin:8px 0 0}',
+
+    /* THE MISS CARD (docs/32): "Not quite." in words, the right answer, its teach, and Aage */
+    '.qz-wrap .gm-miss{margin-top:12px;background:var(--surface2);border:1px solid var(--line);border-left:4px solid var(--accent2);border-radius:var(--radius-lg);padding:var(--space-lg);font-size:15.5px;line-height:1.6;text-align:left}',
+    '.qz-wrap .gm-miss b{color:var(--text)}',
+    '.qz-wrap .gm-ans{font-weight:700;color:var(--text)}',
+    '.qz-wrap .gm-teach{margin:6px 0 10px;color:var(--text)}',
+    '.qz-wrap .gm-aage{min-height:46px}',
+
+    /* the phone: the action row and lifelines sit on a strip above the tab bar (games spec §1.6, §4.1.5) */
+    '@media(max-width:720px){.qz-dock{position:sticky;bottom:calc(74px + env(safe-area-inset-bottom));z-index:6;background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:8px;margin-top:12px;box-shadow:0 6px 22px rgba(30,20,70,.14)}',
+    '.qz-dock .qz-life,.qz-dock .qz-row{margin-top:6px}}',
 
     '.qz-done{text-align:center}',
     '.qz-done h3{font:800 24px var(--display,Georgia,serif);margin:6px 0 4px}',
@@ -401,14 +416,14 @@
                 'Which animal is the state animal of ' + s.name + '?',
                 r.symbols.animal, animals,
                 'Nani says: it begins with "' + r.symbols.animal.charAt(0) + '", beta.',
-                'The ' + r.symbols.animal.toLowerCase() + ' is ' + s.name + '’s own animal.');
+                s.name + '’s own state animal is the ' + r.symbols.animal + '.');
           }
           if (r.symbols && r.symbols.bird) {
             add('khazana', 'easy', 'bird:' + s.code,
                 'Which bird is the state bird of ' + s.name + '?',
                 r.symbols.bird, birds,
                 'Nani says: it begins with "' + r.symbols.bird.charAt(0) + '", beta.',
-                'The ' + r.symbols.bird.toLowerCase() + ' is ' + s.name + '’s own bird.');
+                s.name + '’s own state bird is the ' + r.symbols.bird + '.');
           }
           var own = {};
           for (j = 0; j < (r.food || []).length; j++) own[String(r.food[j].dish).toLowerCase()] = 1;
@@ -579,6 +594,7 @@
     return out;
   }
 
+
   /* prefer questions this session has not seen; fall back gracefully */
   function pickFresh(list, n) {
     var mixed = shuffle(list), fresh = [], seen = [], i;
@@ -586,11 +602,72 @@
     return fresh.concat(seen).slice(0, n);
   }
 
-  /* four options, letters A–D, answer index recorded */
+  /* ==================================================================
+     DETERMINISM — nothing in the reward path is random (games spec §4.1.4)
+     A question's three distractors, its 50:50 and Gattu's guess are all
+     fixed by the question's own key: the same question gives the same
+     result every time. Only the ORDER of the four options is shuffled,
+     because a fixed order would teach a position, not a fact.
+     ================================================================== */
+
+  function hash(str) {
+    var h = 2166136261, i;
+    str = String(str);
+    for (i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function byHash(list, salt) {
+    return list.slice().sort(function (a, b) { return hash(salt + '|' + a) - hash(salt + '|' + b); });
+  }
+
+  /* four options, letters A–D, answer index recorded. The distractors are the
+     question's own three (seeded by its key); the order is shuffled per ask. */
   function dealOptions(q) {
-    var opts = shuffle([q.a].concat(pickN(q.pool, 3))), i, ans = 0;
+    var opts = shuffle([q.a].concat(byHash(q.pool, q.key + '|d').slice(0, 3))), i, ans = 0;
     for (i = 0; i < opts.length; i++) if (opts[i] === q.a) ans = i;
     return { options: opts, answer: ans };
+  }
+
+  /* 50:50 — the two wrong options it closes, as texts, fixed per question */
+  function fiftyOff(q, options) {
+    var wrong = [], i;
+    for (i = 0; i < options.length; i++) if (options[i] !== q.a) wrong.push(options[i]);
+    return byHash(wrong, q.key + '|5050').slice(0, 2);
+  }
+  /* Gattu ka Guess — right on a fixed schedule (about 6 questions in 10), and
+     when he is wrong, wrong the same way every time. Returns the text he taps. */
+  function gattuRight(q) { return hash(q.key + '|gattu') % 100 < 60; }
+  function gattuPick(q, open) {
+    if (gattuRight(q) || open.length < 2) return q.a;
+    var wrong = [], i;
+    for (i = 0; i < open.length; i++) if (open[i] !== q.a) wrong.push(open[i]);
+    return byHash(wrong, q.key + '|g')[0];
+  }
+  /* Poochho Nani — one line out of the question's own teach text with the
+     answer taken out of it; when masking cannot make it safe, the leak-checked
+     hint built from the same record. Never the answer. */
+  var NANI_SKIP = { mark: 1, your: 1, yatra: 1, that: 1, this: 1, with: 1, from: 1, days: 1, calendar: 1, family: 1,
+                    keeps: 1, come: 1, round: 1, state: 1, animal: 1, bird: 1, capital: 1, stands: 1, time: 1, there: 1 };
+  function naniClue(q) {
+    var t = String(q.teach || ''), a = String(q.a), parts, i, p;
+    if (t) {
+      var low = t.toLowerCase(), al = a.toLowerCase(), at;
+      while ((at = low.indexOf(al)) >= 0) { t = t.slice(0, at) + '…' + t.slice(at + a.length); low = t.toLowerCase(); }
+      parts = a.split(/[\s,;:()–—-]+/);
+      for (i = 0; i < parts.length; i++) {
+        p = parts[i].replace(/[^A-Za-z0-9]/g, '');
+        if (p.length < 3 && !/\d/.test(p)) continue;
+        t = t.replace(new RegExp('\\b' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi'), '…');
+      }
+      t = firstSentence(t.replace(/^[\s…—–-]+/, '')) || t;
+      var digits = a.match(/\d+/g) || [], bad = leaks(t, a);
+      for (i = 0; i < digits.length; i++) if (t.indexOf(digits[i]) >= 0) bad = true;
+      /* a clue has to add something: a teach line that only says the question back is no clue */
+      var qw = String(q.q).toLowerCase(), fresh = 0, ws = t.toLowerCase().match(/[a-z]{4,}/g) || [];
+      for (i = 0; i < ws.length; i++) if (qw.indexOf(ws[i]) < 0 && !NANI_SKIP[ws[i]]) fresh++;
+      if (!bad && fresh >= 3) return 'Nani says: ' + t;
+    }
+    return q.hint || 'Nani smiles: think of what we read together, beta.';
   }
 
   var LETTERS = ['A', 'B', 'C', 'D'];
@@ -605,131 +682,317 @@
     return h + '</div>';
   }
 
+  /* THE MISS CARD (docs/32, games spec §1.4) — the same markup in every engine */
+  function missHTML(answer, teach) {
+    return '<div class="gm-miss" role="status"><b>Not quite.</b> <span class="gm-ans">' + esc(answer) + '</span>' +
+      '<p class="gm-teach">' + esc(teach) + '</p>' +
+      '<button type="button" class="qz-btn gm-aage" data-gm="aage" data-go="aage">Aage →</button></div>';
+  }
+
   /* ==================================================================
-     GAME 1 · KAUN BANEGA GYANPATI?
-     Fifteen rungs, easy to hard, and the score is how many you KNEW.
-     It used to be a press-your-luck pot: kauris doubling every rung, a
-     walk-away offer after each one, and a wrong answer that dropped you
-     to the last safe haven. That taught betting, not facts (family
-     standard §1, §10: no doubling, no betting; score the learning).
-     Now every rung is climbed: a right answer lights it, a wrong one is
-     taught and waits for Aage, and the end card says what you knew.
+     A CHILD'S OWN QUESTIONS, ON ANOTHER DAY (games spec §4.1.2)
+     The ladder's first three rungs re-ask what this child missed on an
+     earlier day: spaced retrieval, which is the point of asking again.
+     Kept per child through the Store seam (IND_STORE.kidGet/kidSet);
+     without it, nothing is remembered and nothing claims to be.
      ================================================================== */
 
+  var MEM_KEY = 'india.gyanpati.v1';
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  function memLoad() {
+    try {
+      if (!W.IND_STORE || !W.IND_STORE.kidGet) return null;
+      var m = JSON.parse(W.IND_STORE.kidGet(MEM_KEY) || 'null');
+      return (m && typeof m === 'object' && m.miss) ? m : { miss: {} };
+    } catch (e) { return { miss: {} }; }
+  }
+  function memSave(m) {
+    try {
+      if (!m || !W.IND_STORE || !W.IND_STORE.kidSet) return false;
+      var keys = Object.keys(m.miss);
+      if (keys.length > 80) {
+        keys.sort(function (a, b) { return m.miss[a] < m.miss[b] ? -1 : 1; });
+        for (var i = 0; i < keys.length - 80; i++) delete m.miss[keys[i]];
+      }
+      W.IND_STORE.kidSet(MEM_KEY, JSON.stringify(m));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* ==================================================================
+     KAUN BANEGA GYANPATI? — the one quiz (games spec §4.1)
+     Fifteen rungs, easy to hard; a miss is taught and waits for Aage.
+     It absorbed Trivia Master: the category picker and, for the older
+     children, a 60-second sprint. Nothing stacks, nothing multiplies.
+
+     The engine reports to the host (docs/32): one answer() per rung at
+     its first attempt, and done({win, score, asked, firstTryRight, level,
+     levelNext, rung, lifelines}). `rung` is how high the climb went on
+     first-try rights from the bottom with no lifeline; the host pays the
+     ladder's `contest` from that, never from anything random.
+     ================================================================== */
+
+  var CATS = [
+    { id: 'naksha',    label: 'Naksha',    en: 'maps & states' },
+    { id: 'itihaas',   label: 'Itihaas',   en: 'history' },
+    { id: 'utsav',     label: 'Utsav',     en: 'festivals' },
+    { id: 'khazana',   label: 'Khazana',   en: 'food & symbols' },
+    { id: 'mahakavya', label: 'Mahakavya', en: 'the epics' }
+  ];
+  /* how many easy · middle · hard rungs each level climbs */
+  var MIX = { 1: [8, 5, 2], 2: [6, 5, 4], 3: [5, 5, 5], 4: [3, 5, 7], 5: [2, 5, 8] };
+  var LEVELS = [
+    'mostly easy rungs: capitals and state symbols',
+    'easy into the middle: places and festivals',
+    'the classic climb: five easy, five middle, five hard',
+    'more middle and hard rungs',
+    'the hard end: history and the epics'
+  ];
+  var SPRINT_MS = 60000;
+  var BAND_RANK = { easy: 0, mid: 1, hard: 2 };
+
+  function clampLevel(l) { l = parseInt(l, 10); return l >= 1 && l <= 5 ? l : 3; }
+  function bandOfAge(a) { return a <= 7 ? '4-7' : a <= 10 ? '8-10' : '11-12'; }
+  function inScope(q, scope) {
+    if (!scope || !scope.set || !scope.set.length) return true;
+    var id = String(q.key).split(':')[1];
+    for (var i = 0; i < scope.set.length; i++) {
+      var s = String(scope.set[i]);
+      if (s === q.cat || s === q.key || s === id) return true;
+    }
+    return false;
+  }
 
   function gyanpati(host, opts, done) {
+    opts = opts || {};
     var sc = scope();
     injectCSS();
-    var slow = reducedMotion();
-    var bands = bandLists(buildBank());
-    /* THE HARD LADDER (a bonus mode a child opens with coins, at a printed price — owner, 4 Oct
-       2026): five middle rungs, then ten hard ones. The classic ladder stays free and unchanged. */
-    var HARD = !!(opts && opts.skin === 'mode-gyanpati-hard');
-    /* five from each band; a thin band borrows from its neighbour so the
-       ladder still stands while the data files are filling out */
-    var qs = HARD ? pickFresh(bands.mid, 5).concat(pickFresh(bands.hard, 10))
-                  : pickFresh(bands.easy, 5).concat(pickFresh(bands.mid, 5), pickFresh(bands.hard, 5));
-    if (qs.length < 15) {
-      var spare = pickFresh(bands.mid.concat(bands.easy, bands.hard), 45), si = 0, have = {}, qi;
-      for (qi = 0; qi < qs.length; qi++) have[qs[qi].key] = 1;
-      while (qs.length < 15 && si < spare.length) {
-        if (!have[spare[si].key]) { qs.push(spare[si]); have[spare[si].key] = 1; }
-        si++;
+    var slow = !!opts.reduced || reducedMotion();
+    var bank = buildBank();
+    var HARD = opts.skin === 'mode-gyanpati-hard';
+    var level = clampLevel(opts.level);
+    var band = opts.band || bandOfAge(kidAge());
+    /* the sprint is for the older children only, and never in Calm mode */
+    var sprintable = !opts.calm && (band === '11-12' || (band === '8-10' && kidAge() >= 9));
+    var scopeObj = (opts.scope && opts.scope.set && opts.scope.set.length) ? opts.scope : null;
+    var on = {}, i;
+    for (i = 0; i < CATS.length; i++) on[CATS[i].id] = bank[CATS[i].id].length > 0;
+    var sprint = false;
+    var mem = memLoad();
+
+    var phase = 'setup', qs = [], total = 0, idx = 0, got = 0, marks = [], asked = 0;
+    var selected = -1, deal = null, current = null, finished = false, railOpen = false, result = null;
+    var lifelines = { fifty: false, nani: false, gattu: false }, lifeUsedOn = {}, anyLife = false, lifeArmed = false;
+    var rung = 0, climbing = true, reviewN = 0;
+    var clock = { left: SPRINT_MS, last: 0, raf: 0, held: false };
+
+    function pool() {
+      var out = [], c, k;
+      for (k = 0; k < CATS.length; k++) {
+        c = CATS[k].id;
+        if (!on[c]) continue;
+        for (var j = 0; j < bank[c].length; j++) if (inScope(bank[c][j], scopeObj)) out.push(bank[c][j]);
       }
+      return out;
     }
-    var total = Math.min(15, qs.length);
-    qs = qs.slice(0, total);
 
-    var idx = 0, secured = 0, finished = false, railOpen = false, got = 0, marks = [];
-    var phase = 'ask', selected = -1, deal = null, current = null;
-    var lifelines = { fifty: false, nani: false, gattu: false };
-    var lifeArmed = false;
-    var result = null;
-
-    if (!total) {
-      host.innerHTML = '<div class="qz-wrap"><div class="qz-stage"><p class="qz-sub">The question stalls are ' +
-        'still being set up — come back when the data has loaded.</p></div></div>';
-      return teardownOf(sc);
+    /* the ladder: yesterday's (or any earlier day's) misses first, then the climb */
+    function plan() {
+      var all = pool(), byBand = { easy: [], mid: [], hard: [] }, byKey = {}, k;
+      for (k = 0; k < all.length; k++) { byBand[all[k].band].push(all[k]); byKey[all[k].key] = all[k]; }
+      var review = [], t = today();
+      if (mem && !HARD) {
+        var old = Object.keys(mem.miss).filter(function (key) { return mem.miss[key] < t && byKey[key]; });
+        old.sort(function (a, b) { return mem.miss[a] < mem.miss[b] ? -1 : mem.miss[a] > mem.miss[b] ? 1 : 0; });
+        for (k = 0; k < old.length && review.length < 3; k++) review.push(byKey[old[k]]);
+      }
+      var have = {};
+      for (k = 0; k < review.length; k++) have[review[k].key] = 1;
+      var mix = HARD ? [0, 5, 10] : MIX[level], climb = [];
+      function take(list, n) {
+        var got2 = pickFresh(list.filter(function (q) { return !have[q.key]; }), n);
+        for (var m = 0; m < got2.length; m++) { have[got2[m].key] = 1; climb.push(got2[m]); }
+      }
+      take(byBand.easy, mix[0]); take(byBand.mid, mix[1]); take(byBand.hard, mix[2]);
+      /* a thin band borrows from its neighbours, so the ladder still stands */
+      var want = 15 - review.length;
+      if (climb.length < want) take(HARD ? byBand.mid.concat(byBand.hard) : all, want - climb.length);
+      climb = climb.slice(0, want);
+      climb.sort(function (a, b) { return BAND_RANK[a.band] - BAND_RANK[b.band]; });
+      reviewN = review.length;
+      qs = review.concat(climb);
+      total = qs.length;
     }
 
     function hook() {
       host.__qzState = {
-        game: 'gyanpati', ladder: HARD ? 'hard' : 'classic', bands: qs.map(function (q) { return q.band; }), phase: phase, qIndex: idx, total: total,
+        game: 'gyanpati', ladder: HARD ? 'hard' : 'classic', level: level, sprint: sprint, sprintable: sprintable,
+        cats: JSON.parse(JSON.stringify(on)), bands: qs.map(function (q) { return q.band; }), review: reviewN,
+        phase: phase, qIndex: idx, total: total, key: current ? current.key : '',
         question: current ? current.q : '', options: deal ? deal.options : [],
         answerIndex: deal ? deal.answer : -1, selected: selected,
-        correct: got, marks: marks.slice(),
-        secured: secured, lifelines: { fifty: lifelines.fifty, nani: lifelines.nani, gattu: lifelines.gattu },
+        correct: got, asked: asked, marks: marks.slice(), rung: rung, secured: idx,
+        lifelines: { fifty: lifelines.fifty, nani: lifelines.nani, gattu: lifelines.gattu },
+        timeLeft: sprint ? Math.ceil(clock.left / 1000) : null,
         result: result
       };
     }
 
-    function railHTML() {
-      var h = '<div class="qz-rail' + (railOpen ? ' open' : '') + '" aria-label="The ladder">', i;
-      for (i = total - 1; i >= 0; i--) {
-        var cls = 'qz-rung' + (marks[i] === 1 ? ' past' : '') + (i === idx && phase !== 'end' ? ' now' : '');
-        h += '<div class="' + cls + '"><span>' + (i + 1) + '</span><span>' +
-             (marks[i] === 1 ? '✓ knew it' : marks[i] === 0 ? 'learned it' : (qs[i] ? ({ easy: 'easy', mid: 'middle', hard: 'hard' })[qs[i].band] : '')) +
-             '</span></div>';
-      }
-      return h + '</div>';
-    }
-
-    function feedEl() { return host.querySelector('.qz-feed'); }
     function say(msg, tone) {
-      var f = feedEl();
+      var f = host.querySelector('.qz-feed');
       if (!f) return;
       f.textContent = msg || '';
       f.className = 'qz-feed' + (tone ? ' ' + tone : '');
     }
     function optionEls() { return host.querySelectorAll('.qz-opt'); }
 
+    function railHTML() {
+      if (sprint) return '';
+      var h = '<div class="qz-rail' + (railOpen ? ' open' : '') + '" aria-label="The ladder">', k;
+      for (k = total - 1; k >= 0; k--) {
+        var cls = 'qz-rung' + (marks[k] === 1 ? ' past' : '') + (k === idx && phase !== 'end' ? ' now' : '');
+        h += '<div class="' + cls + '"><span>' + (k + 1) + '</span><span>' +
+             (marks[k] === 1 ? '✓ knew it' : marks[k] === 0 ? 'learned it' : (k < reviewN ? 'again' : (qs[k] ? ({ easy: 'easy', mid: 'middle', hard: 'hard' })[qs[k].band] : ''))) +
+             '</span></div>';
+      }
+      return h + '</div>';
+    }
+
     function frame(inner) {
       host.innerHTML =
         '<div class="qz-wrap">' +
           '<div class="qz-hud">' +
-            '<div><span class="qz-kicker">Mela · ' + (HARD ? 'the hard ladder' : 'the ladder quiz') + '</span><b>Kaun Banega Gyanpati?</b></div>' +
+            '<div><span class="qz-kicker">Mela · ' + (sprint ? 'the 60-second sprint' : HARD ? 'the hard ladder' : 'the ladder quiz') + '</span><b>Kaun Banega Gyanpati?</b></div>' +
+            (phase === 'setup' ? '' :
             '<div style="display:flex;gap:8px;align-items:center">' +
-              '<span class="qz-pot">Knew <b>' + got + '</b> of ' + total + '</span>' +
-              '<button type="button" class="qz-railbtn" data-go="rail" aria-expanded="' + railOpen + '">Ladder</button>' +
-            '</div>' +
+              (sprint ? '<span class="qz-pot qz-clock" data-role="timer">⏱ ' + Math.ceil(clock.left / 1000) + 's</span>' : '') +
+              '<span class="qz-pot">Knew <b>' + got + '</b>' + (sprint ? '' : ' of ' + total) + '</span>' +
+              (sprint ? '' : '<button type="button" class="qz-railbtn" data-go="rail" aria-expanded="' + railOpen + '">Ladder</button>') +
+            '</div>') +
           '</div>' +
           '<div class="qz-body">' +
             '<div class="qz-main"><div class="qz-stage">' + inner + '</div>' +
               '<p class="qz-feed" role="status" aria-live="polite"></p></div>' +
-            railHTML() +
+            (phase === 'setup' ? '' : railHTML()) +
           '</div>' +
         '</div>';
     }
 
+    /* ---- setup: the category picker (from Trivia Master) and the sprint ---- */
+    function onCount() { var n = 0; for (var c in on) if (on.hasOwnProperty(c) && on[c]) n++; return n; }
+    function allOn() { for (var k = 0; k < CATS.length; k++) if (bank[CATS[k].id].length && !on[CATS[k].id]) return false; return true; }
+    function setup() {
+      phase = 'setup'; current = null; deal = null;
+      plan();
+      var chips = '', c, k;
+      for (k = 0; k < CATS.length; k++) {
+        c = CATS[k];
+        var n = bank[c.id].length;
+        chips += '<button type="button" class="qz-cat" data-cat="' + c.id + '" aria-pressed="' + (!!on[c.id]) + '"' +
+                 (n ? '' : ' disabled') + '>' + (k + 1) + ' · ' + esc(c.label) + ' <span style="font-weight:500">· ' + esc(c.en) + '</span></button>';
+      }
+      chips += '<button type="button" class="qz-cat all" data-cat="all" aria-pressed="' + allOn() + '">6 · Sab kuch <span style="font-weight:500">· everything</span></button>';
+      frame(
+        '<h3 class="qz-q">What shall the questions be about?</h3>' +
+        '<p class="qz-sub">Switch on one or more — or Sab kuch, everything.</p>' +
+        '<div class="qz-cats" role="group" aria-label="Categories">' + chips + '</div>' +
+        (sprintable
+          ? '<div class="qz-modes" role="group" aria-label="How to play">' +
+              '<button type="button" class="qz-cat" data-go="mode" data-mode="ladder" aria-pressed="' + !sprint + '">The ladder · 15 rungs</button>' +
+              '<button type="button" class="qz-cat" data-go="mode" data-mode="sprint" aria-pressed="' + sprint + '">⏱ 60-second sprint</button>' +
+            '</div>'
+          : '') +
+        '<div class="qz-dock"><div class="qz-row"><button type="button" class="qz-btn" data-go="start"' + (onCount() ? '' : ' disabled') + '>Shuru karo</button></div></div>' +
+        '<p class="qz-hint">Tap a category — or press 1–6. Enter starts.</p>');
+      hook();
+      sc.later(function () { focusSoft(host.querySelector('[data-go="start"]')); }, 60);
+    }
+
+    function toggleCat(id) {
+      if (phase !== 'setup') return;
+      if (id === 'all') { for (var k = 0; k < CATS.length; k++) on[CATS[k].id] = bank[CATS[k].id].length > 0; }
+      else {
+        if (!bank[id] || !bank[id].length) return;
+        on[id] = !on[id];
+      }
+      setup();
+      var b = host.querySelector('[data-cat="' + id + '"]');
+      if (b) focusSoft(b);
+    }
+
+    function start() {
+      if (phase !== 'setup' || !onCount()) return;
+      plan();
+      if (!total) { say('Those stalls are still filling up — switch on another category.', 'warm'); return; }
+      idx = 0; got = 0; asked = 0; marks = []; rung = 0; climbing = true; result = null;
+      lifelines = { fifty: false, nani: false, gattu: false }; lifeUsedOn = {}; anyLife = false;
+      if (sprint) {
+        /* the sprint draws from everything switched on, in a fresh order, and keeps going */
+        qs = shuffle(pool()); total = qs.length; reviewN = 0;
+        clock.left = SPRINT_MS; clock.last = 0; clock.held = false;
+        tick();
+      }
+      ask();
+    }
+
+    /* ---- the sprint's clock: requestAnimationFrame with delta time; a hidden tab
+       and an open miss card change nothing (games spec §1.5) ---- */
+    function tick() {
+      if (sc.dead || !sprint || phase === 'end') return;
+      clock.raf = W.requestAnimationFrame(function (now) {
+        if (sc.dead || phase === 'end') return;
+        if (detached(host)) { sc.kill(); return; }
+        var hidden = D && D.hidden;
+        if (clock.last && !hidden && !clock.held) clock.left -= Math.min(250, now - clock.last);
+        clock.last = now;
+        var t = host.querySelector('[data-role="timer"]');
+        if (t) t.textContent = '⏱ ' + Math.max(0, Math.ceil(clock.left / 1000)) + 's';
+        if (host.__qzState) host.__qzState.timeLeft = Math.max(0, Math.ceil(clock.left / 1000));
+        if (clock.left <= 0) { finish(); return; }
+        tick();
+      });
+    }
+    sc.on(D, 'visibilitychange', function () { clock.last = 0; });
+
     function ask() {
+      if (idx >= total) return finish();
       phase = 'ask'; selected = -1; lifeArmed = false;
       current = qs[idx];
       deal = dealOptions(current);
       ASKED[current.key] = 1;
+      var kick = sprint ? 'Sawaal ' + (idx + 1)
+        : 'Sawaal ' + (idx + 1) + ' of ' + total + ' · ' + (idx < reviewN ? 'one from another day' : ({ easy: 'easy', mid: 'middle', hard: 'hard' })[current.band]);
       frame(
-        '<p class="qz-sub">Sawaal ' + (idx + 1) + ' of ' + total + ' · ' + (idx < 5 ? 'easy' : idx < 10 ? 'middle' : 'hard') + '</p>' +
+        '<p class="qz-sub">' + esc(kick) + '</p>' +
         '<h3 class="qz-q">' + esc(current.q) + '</h3>' +
         optionsHTML(deal.options) +
-        '<div class="qz-life" role="group" aria-label="Lifelines">' +
-          '<button type="button" class="qz-lbtn" data-life="fifty"' + (lifelines.fifty ? ' disabled' : '') + '>1 · Aadha-Aadha</button>' +
-          '<button type="button" class="qz-lbtn" data-life="nani"' + (lifelines.nani ? ' disabled' : '') + '>2 · Poochho Nani</button>' +
-          '<button type="button" class="qz-lbtn" data-life="gattu"' + (lifelines.gattu ? ' disabled' : '') + '>3 · Gattu ka Guess</button>' +
+        '<div class="qz-dock">' +
+          (sprint ? '' :
+          '<div class="qz-life" role="group" aria-label="Lifelines">' +
+            '<button type="button" class="qz-lbtn" data-life="fifty"' + (lifelines.fifty ? ' disabled' : '') + '>1 · Aadha-Aadha</button>' +
+            '<button type="button" class="qz-lbtn" data-life="nani"' + (lifelines.nani ? ' disabled' : '') + '>2 · Poochho Nani</button>' +
+            '<button type="button" class="qz-lbtn" data-life="gattu"' + (lifelines.gattu ? ' disabled' : '') + '>3 · Gattu ka Guess</button>' +
+          '</div>' +
+          '<div class="qz-row"><button type="button" class="qz-btn" data-go="lock" disabled>Lock karo</button></div>') +
         '</div>' +
-        '<div class="qz-row"><button type="button" class="qz-btn" data-go="lock" disabled>Lock karo</button></div>' +
-        '<p class="qz-hint">A–D or 1–4 pick · Enter locks · L then 1–3 for a lifeline · or just tap.</p>');
+        '<p class="qz-hint">' + (sprint ? 'Tap an answer — or press 1–4 or A–D.' : 'A–D or 1–4 pick · Enter locks · L then 1–3 for a lifeline · or just tap.') + '</p>');
       hook();
       sc.later(function () { focusSoft(host.querySelector('.qz-opt')); }, 60);
     }
 
-    function select(i) {
+    function select(k) {
       if (phase !== 'ask' || !deal) return;
       var els = optionEls();
-      if (!els[i] || els[i].disabled) return;
-      selected = i;
-      for (var k = 0; k < els.length; k++) els[k].classList.toggle('sel', k === i);
+      if (!els[k] || els[k].disabled) return;
+      if (sprint) { selected = k; return judge(); }
+      selected = k;
+      for (var m = 0; m < els.length; m++) els[m].classList.toggle('sel', m === k);
       var lockBtn = host.querySelector('[data-go="lock"]');
       if (lockBtn) lockBtn.disabled = false;
-      say(LETTERS[i] + ' chuna. Pakka? Lock karo.', '');
+      say(LETTERS[k] + ' chuna. Pakka? Lock karo.', '');
       hook();
     }
 
@@ -744,432 +1007,104 @@
       say('Locked… dhak-dhak…', '');
       hook();
       /* the dramatic pause — skipped under reduced motion */
-      sc.later(reveal, slow ? 30 : 1600);
+      sc.later(judge, slow ? 30 : 1600);
     }
 
-    function reveal() {
-      if (sc.dead || phase !== 'locked') return;
+    /* ONE VERDICT PER RUNG, reported once at its first (and only) attempt */
+    function judge() {
+      if (sc.dead || (phase !== 'locked' && phase !== 'ask')) return;
       var els = optionEls(), right = selected === deal.answer, k;
       for (k = 0; k < els.length; k++) {
+        els[k].disabled = true;
         els[k].classList.remove('lock');
         if (k === deal.answer) els[k].classList.add('is-right');
         else if (k === selected) els[k].classList.add('is-warm');
-        else els[k].classList.add('is-off');
       }
       marks[idx] = right ? 1 : 0;
+      asked++;
       if (right) got++;
-      secured = idx + 1;
-      var pot = host.querySelector('.qz-pot b');
-      if (pot) pot.textContent = String(got);
-      if (right) say(one(CHEERS), 'good');
-      else {
-        /* the teaching beat: the right fact, shown, and it waits for Aage */
-        var teachBox = D.createElement('div');
-        teachBox.className = 'qz-teach';
-        teachBox.innerHTML = esc(current.teach || 'It was ' + current.a + '.');
-        var stage0 = host.querySelector('.qz-stage');
-        if (stage0) stage0.appendChild(teachBox);
-        say('Not this one — and now it is yours to keep.', 'warm');
+      var usedLife = !!lifeUsedOn[idx];
+      if (!sprint) {
+        if (climbing && right && !usedLife) rung = idx + 1; else climbing = false;
       }
-      if (secured >= total) return finish();
-      offer();
-    }
-
-    /* after each rung, one way on — there is no pot to take and nothing to walk away with */
-    function offer() {
-      phase = 'offer';
-      var row = host.querySelector('.qz-row');
-      if (row) row.innerHTML = '<button type="button" class="qz-btn" data-go="aage">Aage! Sawaal ' + (secured + 1) + '</button>';
+      /* the child's own record: a miss comes back on another day; a re-asked one, known, is let go */
+      if (mem) {
+        if (!right) mem.miss[current.key] = today();
+        else if (mem.miss[current.key] && mem.miss[current.key] < today()) delete mem.miss[current.key];
+        memSave(mem);
+      }
+      if (typeof opts.answer === 'function') {
+        try {
+          opts.answer({ id: current.key, right: right, firstTry: true, skill: 'gyanpati.' + current.cat,
+                        objective: null, lifeline: usedLife, review: idx < reviewN });
+        } catch (e) {}
+      }
+      var pot = host.querySelector('.qz-pot:not(.qz-clock) b');
+      if (pot) pot.textContent = String(got);
+      var dock = host.querySelector('.qz-dock');
+      if (right) {
+        say(one(CHEERS), 'good');
+        if (sprint) {
+          phase = 'told';
+          hook();
+          sc.later(function () { if (phase === 'told') { idx++; ask(); } }, slow ? 250 : 650);
+          return;
+        }
+        phase = 'offer';
+        if (dock) dock.innerHTML = '<div class="qz-row"><button type="button" class="qz-btn" data-go="aage">' +
+          (idx + 1 >= total ? 'See the ladder' : 'Aage! Sawaal ' + (idx + 2)) + '</button></div>';
+      } else {
+        /* the miss card holds: no new question until Aage — and in a sprint the clock waits too */
+        phase = 'miss';
+        clock.held = true;
+        say('', '');
+        if (dock) dock.innerHTML = missHTML(current.a, current.teach || ('It is ' + current.a + '.'));
+        else {
+          var st = host.querySelector('.qz-stage');
+          if (st) st.insertAdjacentHTML('beforeend', missHTML(current.a, current.teach || ('It is ' + current.a + '.')));
+        }
+      }
       var hint = host.querySelector('.qz-hint');
-      if (hint) hint.textContent = 'Enter or tap for the next sawaal.';
+      if (hint) hint.textContent = 'Enter or tap Aage for the next sawaal.';
       hook();
       sc.later(function () { focusSoft(host.querySelector('[data-go="aage"]')); }, 60);
     }
 
-    function finish() {
-      phase = 'end';
-      result = { win: got >= Math.ceil(total * 2 / 3), score: got, correct: got, total: total };
-      say('', '');
-      endCard(got === total ? 'GYANPATI!' : 'Kya khel tha!',
-        'You knew ' + got + ' of ' + total + (got === total ? ' — the whole ladder.' :
-          '. The ' + (total - got) + ' you met today for the first time are yours now too.'));
-    }
-
-    function endCard(title, line) {
-      var stage = host.querySelector('.qz-stage');
-      if (!stage) return;
-      var doneBox = D.createElement('div');
-      doneBox.className = 'qz-done';
-      doneBox.innerHTML =
-        '<h3>' + esc(title) + '</h3><p>' + esc(line) + '</p>' +
-        '<div class="qz-chips">' +
-          '<span class="qz-chip"><b>' + result.correct + '</b> knew</span>' +
-          '<span class="qz-chip"><b>' + (result.total - result.correct) + '</b> learned</span>' +
-        '</div>' +
-        '<div class="qz-row">' +
-          '<button type="button" class="qz-btn" data-go="out">Back to the Mela</button>' +
-          '<button type="button" class="qz-btn ghost" data-go="again">Climb again</button>' +
-        '</div>';
-      stage.appendChild(doneBox);
-      hook();
-      sc.later(function () { focusSoft(host.querySelector('[data-go="out"]')); }, 60);
-    }
-
-    function bail() {
-      if (finished || !result) return;
-      finished = true;
-      host.__qzDone = result;
-      sc.kill();
-      if (typeof done === 'function') done(result);
-    }
-
-    function replay() {
-      var b2 = bandLists(buildBank());
-      qs = pickFresh(b2.easy, 5).concat(pickFresh(b2.mid, 5), pickFresh(b2.hard, 5));
-      total = Math.min(15, qs.length);
-      qs = qs.slice(0, total);
-      idx = 0; secured = 0; got = 0; marks = []; result = null;
-      if (total) ask();
-    }
-
-    /* lifelines ------------------------------------------------------- */
-    function fireLife(which) {
-      if (phase !== 'ask' || !deal || lifelines[which]) return;
-      lifelines[which] = true;
-      var btn = host.querySelector('[data-life="' + which + '"]');
-      if (btn) btn.disabled = true;
-      lifeArmed = false;
-      var els = optionEls(), i;
-
-      if (which === 'fifty') {
-        /* Aadha-Aadha: two wrong doors close */
-        var wrongs = [];
-        for (i = 0; i < els.length; i++) if (i !== deal.answer && !els[i].disabled) wrongs.push(i);
-        wrongs = pickN(wrongs, 2);
-        for (i = 0; i < wrongs.length; i++) {
-          els[wrongs[i]].disabled = true;
-          els[wrongs[i]].classList.add('is-off');
-          if (selected === wrongs[i]) { selected = -1; els[wrongs[i]].classList.remove('sel'); }
-        }
-        say('Aadha-Aadha! Two doors close — two remain.', 'warm');
-      } else if (which === 'nani') {
-        /* Poochho Nani: a warm nudge built from the fact's own data —
-           the leak check already promised it never says the answer */
-        say((current.hint || 'Nani smiles: think of what we read together, beta.'), 'warm');
-      } else if (which === 'gattu') {
-        /* Gattu ka Guess: his confidence slides with the climb —
-           sure-footed near the ground, honest about wobbling near the top */
-        var p = 0.85 - 0.4 * (idx / Math.max(1, total - 1));
-        var open = [];
-        for (i = 0; i < els.length; i++) if (!els[i].disabled) open.push(i);
-        var pickIdx;
-        if (Math.random() < p || open.length === 1) pickIdx = deal.answer;
-        else {
-          var wrongOpen = [];
-          for (i = 0; i < open.length; i++) if (open[i] !== deal.answer) wrongOpen.push(open[i]);
-          pickIdx = wrongOpen.length ? one(wrongOpen) : deal.answer;
-        }
-        var conf = Math.max(35, Math.min(95, Math.round(p * 100 + (Math.random() * 10 - 5))));
-        say('Gattu taps ' + LETTERS[pickIdx] + ' — "main ' + conf + '% sure hoon!"', 'warm');
-      }
-      hook();
-    }
-
-    /* input ----------------------------------------------------------- */
-    sc.on(host, 'click', function (e) {
-      var t = e.target;
-      var opt = t.closest ? t.closest('.qz-opt') : null;
-      if (opt && !opt.disabled) { select(parseInt(opt.getAttribute('data-i'), 10)); return; }
-      var lf = t.closest ? t.closest('[data-life]') : null;
-      if (lf && !lf.disabled) { fireLife(lf.getAttribute('data-life')); return; }
-      var go = t.closest ? t.closest('[data-go]') : null;
-      if (!go) return;
-      var what = go.getAttribute('data-go');
-      if (what === 'lock') lock();
-      else if (what === 'aage') { if (phase === 'offer') { idx++; ask(); } }
-      else if (what === 'rail') {
-        railOpen = !railOpen;
-        var rail = host.querySelector('.qz-rail');
-        if (rail) rail.classList.toggle('open', railOpen);
-        go.setAttribute('aria-expanded', String(railOpen));
-      }
-      else if (what === 'again') replay();
-      else if (what === 'out') bail();
-    });
-
-    sc.on(D, 'keydown', function (e) {
-      if (sc.dead) return;
-      if (detached(host)) { sc.kill(); return; }
-      var tag = (e.target && e.target.tagName || '').toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
-      var key = e.key;
-
-      if (phase === 'ask') {
-        if (lifeArmed && /^[1-3]$/.test(key)) {
-          e.preventDefault();
-          fireLife(['fifty', 'nani', 'gattu'][parseInt(key, 10) - 1]);
-          return;
-        }
-        if (key === 'l' || key === 'L') {
-          e.preventDefault(); lifeArmed = true;
-          say('Lifeline? Press 1, 2 or 3.', '');
-          return;
-        }
-        if (key === 'Escape' && lifeArmed) { lifeArmed = false; say('', ''); return; }
-        lifeArmed = false;
-        if (/^[a-dA-D]$/.test(key)) { e.preventDefault(); select(key.toLowerCase().charCodeAt(0) - 97); return; }
-        if (/^[1-4]$/.test(key)) { e.preventDefault(); select(parseInt(key, 10) - 1); return; }
-        if (key === 'Enter' && selected >= 0) {
-          /* Enter on a focused option button would also "click" it — that is
-             a select, which is harmless; an explicit Enter anywhere locks */
-          e.preventDefault(); lock(); return;
-        }
-      }
-    });
-
-    ask();
-    return teardownOf(sc, function () { finished = true; });
-  }
-
-  /* ==================================================================
-     GAME 2 · TRIVIA MASTER
-     Rounds of ten across the categories the child switches on. Untimed
-     by default; the 60-second sprint appears from age nine. A wrong tap
-     earns the right fact told warmly in one line — the teaching beat.
-     ================================================================== */
-
-  var CATS = [
-    { id: 'naksha',    label: 'Naksha · maps & states' },
-    { id: 'itihaas',   label: 'Itihaas · history' },
-    { id: 'utsav',     label: 'Utsav · festivals' },
-    { id: 'khazana',   label: 'Khazana · food & symbols' },
-    { id: 'mahakavya', label: 'Mahakavya · the epics' }
-  ];
-  var ROUND = 10;
-
-  function triviamaster(host, opts, done) {
-    var sc = scope();
-    injectCSS();
-    var slow = reducedMotion();
-    var bank = buildBank();
-    var on = {}, i;
-    for (i = 0; i < CATS.length; i++) on[CATS[i].id] = bank[CATS[i].id].length > 0;
-    var sprintable = kidAge() >= 9;
-    var sprint = false;
-
-    var phase = 'setup', qs = [], idx = 0, deal = null, current = null;
-    var score = 0, streak = 0, best = 0, pts = 0, answered = false;
-    var timeLeft = 60, timer = 0, finished = false, result = null;
-
-    function onCount() {
-      var n = 0, c;
-      for (c in on) if (on.hasOwnProperty(c) && on[c]) n++;
-      return n;
-    }
-
-    function hook() {
-      host.__qzState = {
-        game: 'triviamaster', phase: phase, qIndex: idx, total: qs.length,
-        question: current ? current.q : '', options: deal ? deal.options : [],
-        answerIndex: deal ? deal.answer : -1,
-        cats: on, sprint: sprint, score: score, streak: streak, points: pts,
-        result: result
-      };
-    }
-
-    function say(msg, tone) {
-      var f = host.querySelector('.qz-feed');
-      if (!f) return;
-      f.textContent = msg || '';
-      f.className = 'qz-feed' + (tone ? ' ' + tone : '');
-    }
-
-    /* ---- setup: category chips, at least two on ---------------------- */
-    function setup() {
-      phase = 'setup';
-      var chips = '', c;
-      for (i = 0; i < CATS.length; i++) {
-        c = CATS[i];
-        var n = bank[c.id].length;
-        chips += '<button type="button" class="qz-cat" data-cat="' + c.id + '" aria-pressed="' +
-                 (!!on[c.id]) + '"' + (n ? '' : ' disabled') + '>' + (i + 1) + ' · ' + esc(c.label) +
-                 ' (' + n + ')</button>';
-      }
-      host.innerHTML =
-        '<div class="qz-wrap">' +
-          '<div class="qz-hud"><div><span class="qz-kicker">Mela · mixed sawaal</span>' +
-          '<b>Trivia Master</b></div></div>' +
-          '<div class="qz-stage">' +
-            '<h3 class="qz-q">Pick your categories</h3>' +
-            '<p class="qz-sub">Ten questions, mixed from whatever you switch on. At least two, yatri.</p>' +
-            '<div class="qz-cats" role="group" aria-label="Categories">' + chips + '</div>' +
-            (sprintable
-              ? '<div class="qz-cats"><button type="button" class="qz-cat" data-go="sprint" aria-pressed="' + sprint + '">' +
-                '⏱ 60-second sprint</button></div>'
-              : '') +
-            '<div class="qz-row"><button type="button" class="qz-btn" data-go="start"' +
-              (onCount() >= 2 ? '' : ' disabled') + '>Shuru karo</button></div>' +
-            '<p class="qz-hint">Tap a chip — or press its number. Enter starts. Tab moves everywhere.</p>' +
-          '</div>' +
-          '<p class="qz-feed" role="status" aria-live="polite"></p>' +
-        '</div>';
-      hook();
-      sc.later(function () { focusSoft(host.querySelector('.qz-cat')); }, 60);
-    }
-
-    function toggleCat(id) {
-      if (phase !== 'setup') return;
-      if (!bank[id] || !bank[id].length) return;
-      on[id] = !on[id];
-      var btn = host.querySelector('[data-cat="' + id + '"]');
-      if (btn) btn.setAttribute('aria-pressed', String(on[id]));
-      var start = host.querySelector('[data-go="start"]');
-      if (start) start.disabled = onCount() < 2;
-      say(onCount() < 2 ? 'Pick at least two categories, yatri — mixing is the fun part.' : '', 'warm');
-      hook();
-    }
-
-    /* round-robin across the chosen categories so a round really mixes */
-    function buildRound() {
-      var lists = [], c, i2;
-      for (i2 = 0; i2 < CATS.length; i2++) {
-        c = CATS[i2].id;
-        if (on[c] && bank[c].length) lists.push(pickFresh(bank[c], ROUND));
-      }
-      var out = [], li = 0, guard = 0;
-      while (out.length < ROUND && guard < 200) {
-        guard++;
-        var list = lists[li % lists.length];
-        li++;
-        if (list && list.length) out.push(list.shift());
-        else {
-          var empty = true;
-          for (i2 = 0; i2 < lists.length; i2++) if (lists[i2].length) empty = false;
-          if (empty) break;
-        }
-      }
-      return out;
-    }
-
-    function start() {
-      if (onCount() < 2) return;
-      qs = buildRound();
-      if (!qs.length) { say('The stalls are still filling up — try other categories.', 'warm'); return; }
-      idx = 0; score = 0; streak = 0; best = 0; pts = 0; result = null;
-      timeLeft = 60;
-      if (timer) { W.clearInterval(timer); timer = 0; }
-      if (sprint) {
-        timer = sc.every(function () {
-          if (detached(host)) { sc.kill(); return; }
-          timeLeft--;
-          var t = host.querySelector('[data-role="timer"]');
-          if (t) t.textContent = '⏱ ' + timeLeft + 's';
-          if (timeLeft <= 0) { W.clearInterval(timer); timer = 0; finish(); }
-        }, 1000);
-      }
-      ask();
-    }
-
-    function catLabel(id) {
-      for (var i2 = 0; i2 < CATS.length; i2++) if (CATS[i2].id === id) return CATS[i2].label;
-      return '';
-    }
-
-    function ask() {
-      if (idx >= qs.length) return finish();
-      phase = 'ask'; answered = false;
-      current = qs[idx];
-      deal = dealOptions(current);
-      ASKED[current.key] = 1;
-      var mult = 1 + 0.1 * Math.min(8, streak);
-      host.innerHTML =
-        '<div class="qz-wrap">' +
-          '<div class="qz-hud">' +
-            '<div><span class="qz-kicker">Mela · mixed sawaal</span><b>Trivia Master</b></div>' +
-            '<div style="display:flex;gap:8px;align-items:center">' +
-              (sprint ? '<span class="qz-pot" data-role="timer">⏱ ' + timeLeft + 's</span>' : '') +
-              '<span class="qz-pot">' + score + ' / ' + qs.length + ' · <b>' + pts + '</b> pts</span>' +
-            '</div>' +
-          '</div>' +
-          '<div class="qz-stage">' +
-            '<p class="qz-sub">Sawaal ' + (idx + 1) + ' of ' + qs.length + ' · ' + esc(catLabel(current.cat)) + '</p>' +
-            '<h3 class="qz-q">' + esc(current.q) + '</h3>' +
-            optionsHTML(deal.options) +
-            (streak >= 2 ? '<p class="qz-streak">' + streak + ' in a row · points ×' + mult.toFixed(1) + '</p>' : '') +
-            '<div class="qz-row" data-role="next"></div>' +
-            '<p class="qz-hint">Tap an answer — or press 1–4 or A–D. Tab moves, Enter presses.</p>' +
-          '</div>' +
-          '<p class="qz-feed" role="status" aria-live="polite"></p>' +
-        '</div>';
-      hook();
-      sc.later(function () { focusSoft(host.querySelector('.qz-opt')); }, 60);
-    }
-
-    function answer(i2) {
-      if (phase !== 'ask' || answered || !deal) return;
-      var els = host.querySelectorAll('.qz-opt');
-      if (!els[i2] || els[i2].disabled) return;
-      answered = true;
-      phase = 'told';
-      var right = i2 === deal.answer, k;
-      for (k = 0; k < els.length; k++) {
-        els[k].disabled = true;
-        if (k === deal.answer) els[k].classList.add('is-right');
-        else if (k === i2) els[k].classList.add('is-warm');
-        else els[k].classList.add('is-off');
-      }
-      if (right) {
-        streak++; if (streak > best) best = streak;
-        score++;
-        pts += Math.round(10 * (1 + 0.1 * Math.min(8, streak - 1)));
-        say(one(CHEERS) + (streak >= 3 ? ' ' + streak + ' in a row!' : ''), 'good');
-      } else {
-        streak = 0;
-        /* the teaching beat: the right fact, warmly, in one line */
-        say(current.teach || ('It is ' + current.a + ' — now it is yours to keep.'), 'warm');
-      }
-      var last = idx >= qs.length - 1;
-      var row = host.querySelector('[data-role="next"]');
-      if (row) row.innerHTML = '<button type="button" class="qz-btn" data-go="next">' +
-        (last ? 'See how I did' : 'Next') + '</button>';
-      hook();
-      /* a wrong answer waits to be read, even in a sprint (family standard §6) */
-      if (sprint && right) sc.later(next, slow ? 500 : 900);
-      else sc.later(function () { focusSoft(host.querySelector('[data-go="next"]')); }, 60);
-    }
-
-    function next() {
-      if (phase !== 'told') return;
+    function aage() {
+      if (phase !== 'offer' && phase !== 'miss') return;
+      clock.held = false; clock.last = 0;
       idx++;
+      if (idx >= total) return finish();
       ask();
     }
 
     function finish() {
       if (phase === 'end') return;
       phase = 'end';
-      if (timer) { W.clearInterval(timer); timer = 0; }
-      result = { win: score >= 7, score: score, correct: score, total: qs.length };
-      host.innerHTML =
-        '<div class="qz-wrap">' +
-          '<div class="qz-hud"><div><span class="qz-kicker">Mela · mixed sawaal</span>' +
-          '<b>Trivia Master</b></div></div>' +
-          '<div class="qz-stage"><div class="qz-done">' +
-            '<h3>' + esc(one(CHEERS)) + '</h3>' +
-            '<p>' + score + ' of ' + qs.length + ' right' +
-              (best >= 3 ? ', with ' + best + ' in a row at best' : '') +
-              (sprint ? ', at sprint speed' : '') +
-              '. Every question you met today is one you now know.</p>' +
-            '<div class="qz-chips">' +
-              '<span class="qz-chip"><b>' + pts + '</b> points</span>' +
-              '<span class="qz-chip"><b>' + (qs.length - score) + '</b> learned</span>' +
-            '</div>' +
-            '<div class="qz-row">' +
-              '<button type="button" class="qz-btn" data-go="out">Back to the Mela</button>' +
-              '<button type="button" class="qz-btn ghost" data-go="again">Another round</button>' +
-            '</div>' +
-          '</div></div>' +
-          '<p class="qz-feed" role="status" aria-live="polite"></p>' +
-        '</div>';
+      if (clock.raf && W.cancelAnimationFrame) W.cancelAnimationFrame(clock.raf);
+      var firstTryRight = got;
+      var ratio = asked ? firstTryRight / asked : 0;
+      var levelNext = ratio >= 0.8 ? Math.min(5, level + 1) : ratio < 0.5 ? Math.max(1, level - 1) : level;
+      result = { win: asked > 0 && ratio >= 0.5, score: firstTryRight, asked: asked, firstTryRight: firstTryRight,
+                 level: level, levelNext: levelNext, rung: sprint ? 0 : rung, lifelines: anyLife, sprint: sprint,
+                 correct: firstTryRight, total: asked };
+      say('', '');
+      var title = sprint ? (firstTryRight ? 'Time!' : 'Time — and every one taught.')
+        : firstTryRight === total && total ? 'GYANPATI!' : ratio >= 0.8 ? 'Wah — nearly the whole ladder!' : ratio >= 0.5 ? 'Bahut khoob!' : 'The ladder, climbed.';
+      var line = sprint
+        ? 'You knew ' + firstTryRight + ' on the first try in sixty seconds.'
+        : 'You knew ' + firstTryRight + ' of ' + total + ' on the first try.';
+      var missed = asked - firstTryRight;
+      var back = missed && mem && !sprint ? ' The ones you learned come back on the first rungs another day.' : '';
+      frame(
+        '<div class="qz-done">' +
+          '<h3>' + esc(title) + '</h3><p>' + esc(line + back) + '</p>' +
+          '<div class="qz-chips">' +
+            '<span class="qz-chip"><b>' + firstTryRight + '</b> knew</span>' +
+            '<span class="qz-chip"><b>' + missed + '</b> learned</span>' +
+          '</div>' +
+          '<div class="qz-row"><button type="button" class="qz-btn" data-go="out">Finish</button></div>' +
+        '</div>');
       hook();
       sc.later(function () { focusSoft(host.querySelector('[data-go="out"]')); }, 60);
     }
@@ -1180,6 +1115,34 @@
       host.__qzDone = result;
       sc.kill();
       if (typeof done === 'function') done(result);
+    }
+
+    /* lifelines: deterministic, labelled for what they are ---------------- */
+    function fireLife(which) {
+      if (sprint || phase !== 'ask' || !deal || lifelines[which]) return;
+      lifelines[which] = true; anyLife = true; lifeUsedOn[idx] = true;
+      var btn = host.querySelector('[data-life="' + which + '"]');
+      if (btn) btn.disabled = true;
+      lifeArmed = false;
+      var els = optionEls(), k;
+      if (which === 'fifty') {
+        var off = fiftyOff(current, deal.options);
+        for (k = 0; k < els.length; k++) {
+          if (off.indexOf(deal.options[k]) < 0) continue;
+          els[k].disabled = true;
+          els[k].classList.add('is-off');
+          if (selected === k) { selected = -1; els[k].classList.remove('sel'); }
+        }
+        say('Aadha-Aadha! Two wrong doors close — two remain.', 'warm');
+      } else if (which === 'nani') {
+        say(naniClue(current), 'warm');
+      } else if (which === 'gattu') {
+        var open = [];
+        for (k = 0; k < els.length; k++) if (!els[k].disabled) open.push(deal.options[k]);
+        var pick = gattuPick(current, open), at = deal.options.indexOf(pick);
+        say('Gattu guesses ' + LETTERS[at] + ' — but it is only a guess. Gattu is right about six times in ten.', 'warm');
+      }
+      hook();
     }
 
     /* input ----------------------------------------------------------- */
@@ -1188,18 +1151,29 @@
       var cat = t.closest ? t.closest('[data-cat]') : null;
       if (cat && !cat.disabled) { toggleCat(cat.getAttribute('data-cat')); return; }
       var opt = t.closest ? t.closest('.qz-opt') : null;
-      if (opt && !opt.disabled) { answer(parseInt(opt.getAttribute('data-i'), 10)); return; }
+      if (opt && !opt.disabled) { select(parseInt(opt.getAttribute('data-i'), 10)); return; }
+      var lf = t.closest ? t.closest('[data-life]') : null;
+      if (lf && !lf.disabled) { fireLife(lf.getAttribute('data-life')); return; }
+      var gm = t.closest ? t.closest('[data-gm="aage"]') : null;
+      if (gm) { aage(); return; }
       var go = t.closest ? t.closest('[data-go]') : null;
       if (!go) return;
       var what = go.getAttribute('data-go');
-      if (what === 'sprint') {
-        sprint = !sprint;
-        go.setAttribute('aria-pressed', String(sprint));
-        hook();
-      }
+      if (what === 'lock') lock();
+      else if (what === 'aage') aage();
       else if (what === 'start') start();
-      else if (what === 'next') next();
-      else if (what === 'again') setup();
+      else if (what === 'mode') {
+        if (phase !== 'setup') return;
+        sprint = sprintable && go.getAttribute('data-mode') === 'sprint';
+        setup();
+        focusSoft(host.querySelector('[data-mode="' + (sprint ? 'sprint' : 'ladder') + '"]'));
+      }
+      else if (what === 'rail') {
+        railOpen = !railOpen;
+        var rail = host.querySelector('.qz-rail');
+        if (rail) rail.classList.toggle('open', railOpen);
+        go.setAttribute('aria-expanded', String(railOpen));
+      }
       else if (what === 'out') bail();
     });
 
@@ -1209,24 +1183,48 @@
       var tag = (e.target && e.target.tagName || '').toLowerCase();
       if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
       var key = e.key;
+      var onButton = e.target && e.target.tagName === 'BUTTON' && host.contains(e.target);
+
       if (phase === 'setup') {
         var n = parseInt(key, 10);
         if (n >= 1 && n <= CATS.length) { e.preventDefault(); toggleCat(CATS[n - 1].id); return; }
-        if (key === 'Enter' && !(e.target && e.target.closest && e.target.closest('.qz-cat,[data-go]'))) {
-          e.preventDefault(); start(); return;
-        }
+        if (n === 6) { e.preventDefault(); toggleCat('all'); return; }
+        if (key === 'Enter' && !onButton) { e.preventDefault(); start(); return; }
       } else if (phase === 'ask') {
-        if (/^[a-dA-D]$/.test(key)) { e.preventDefault(); answer(key.toLowerCase().charCodeAt(0) - 97); return; }
-        if (/^[1-4]$/.test(key)) { e.preventDefault(); answer(parseInt(key, 10) - 1); return; }
-      } else if (phase === 'told') {
-        if (key === 'Enter' && !(e.target && e.target.closest && e.target.closest('[data-go]'))) {
-          e.preventDefault(); next(); return;
+        if (lifeArmed && /^[1-3]$/.test(key)) {
+          e.preventDefault();
+          fireLife(['fifty', 'nani', 'gattu'][parseInt(key, 10) - 1]);
+          return;
         }
+        if (!sprint && (key === 'l' || key === 'L')) {
+          e.preventDefault(); lifeArmed = true;
+          say('Lifeline? Press 1, 2 or 3.', '');
+          return;
+        }
+        if (key === 'Escape' && lifeArmed) { lifeArmed = false; say('', ''); return; }
+        lifeArmed = false;
+        if (/^[a-dA-D]$/.test(key)) { e.preventDefault(); select(key.toLowerCase().charCodeAt(0) - 97); return; }
+        if (/^[1-4]$/.test(key)) { e.preventDefault(); select(parseInt(key, 10) - 1); return; }
+        if (key === 'Enter' && selected >= 0 && !sprint) { e.preventDefault(); lock(); return; }
+      } else if (phase === 'offer' || phase === 'miss') {
+        if (key === 'Enter' && !onButton) { e.preventDefault(); aage(); return; }
       }
     });
 
-    setup();
-    return teardownOf(sc, function () { finished = true; });
+    if (scopeObj) { sprint = sprintable && scopeObj.mode === 'sprint'; plan(); start0(); }
+    else setup();
+    function start0() { phase = 'setup'; start(); }
+    return teardownOf(sc, function () {
+      finished = true;
+      if (clock.raf && W.cancelAnimationFrame) W.cancelAnimationFrame(clock.raf);
+    });
+  }
+
+  /* Trivia Master was folded into Gyanpati (games spec §3.1, §4.1): its category
+     picker and its sprint live there now, and its points multiplier is gone. An
+     old link still works — it opens Gyanpati's category picker. */
+  function triviamaster(host, opts, done) {
+    return gyanpati(host, opts, done);
   }
 
   /* ==================================================================
@@ -1265,15 +1263,23 @@
       '<circle cx="24" cy="24" r="3" fill="#fff" stroke="none"/>' +
     '</svg>';
 
+  /* test seam for tools/check-quiz.js: the pure parts, so determinism can be
+     checked without a browser race. Paints nothing; holds no child data. */
+  W.IND_GYAN = { bank: buildBank, deal: dealOptions, fifty: fiftyOff, gattu: gattuPick, gattuRight: gattuRight,
+                 nani: naniClue, leaks: leaks, MEM_KEY: MEM_KEY };
+
   W.IND_GAMES = W.IND_GAMES || [];
   W.IND_GAMES.push(
-    { id: 'gyanpati', name: 'Kaun Banega Gyanpati?', icon: 'star', minutes: 6,
-      blurb: 'Fifteen rungs, easy to hard, three lifelines — and the score is how many you knew. A miss is taught, never lost.',
+    { id: 'gyanpati', name: 'Kaun Banega Gyanpati?', sub: 'the ladder quiz', icon: 'star', minutes: 6,
+      blurb: 'Fifteen rungs, easy to hard, from the categories you pick, with three honest lifelines. The score is how many you knew; a miss is taught, never lost.',
       tag: 'ladder quiz', c: '#3b1d6e', c2: '#8b5cf6', scene: SCENE_GYAN,
+      teaches: true, levels: LEVELS,
       engine: gyanpati },
-    { id: 'triviamaster', name: 'Trivia Master', icon: 'game', minutes: 4,
-      blurb: 'Ten mixed questions from the categories you switch on — maps, history, festivals, food, epics. Answers in a row stack the points.',
+    /* folded into Gyanpati; kept so an old link opens the category picker. The hub hides it. */
+    { id: 'triviamaster', name: 'Trivia Master', sub: 'now inside Gyanpati', icon: 'game', minutes: 4, hide: true,
+      blurb: 'Now part of Kaun Banega Gyanpati? — pick your categories there.',
       tag: 'mixed trivia', c: '#0f5e6e', c2: '#2dd4bf', scene: SCENE_TRIVIA,
+      teaches: true, levels: LEVELS,
       engine: triviamaster }
   );
 })();

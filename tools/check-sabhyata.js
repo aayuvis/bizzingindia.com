@@ -133,6 +133,151 @@ check('cardtext', 'every line on every city card reads at AA, day and night; an 
   if (bad.length) throw new Error(bad.slice(0, 8).join(' · ') + (bad.length > 8 ? ` (+${bad.length - 8})` : ''));
 });
 
+/* ---------------------------------------- week-1 blockers (sabhyata-master Part G, owner 9 Oct 2026) */
+const setHarappa = p => p.evaluate(() => {
+  const G = window.__SABG(), D = window.IND_SABHYATA;
+  D.sites.forEach(s => { if (s.era === 0) { const q = G.sites[s.id]; q.found = true; q.seen = true; q.zzz = false; } });
+  G.res.katha = 5000; G.res.anna = 500; G.res.kala = 500;
+  window.__SABDO.paint();
+});
+const closeCard = p => p.evaluate(() => { const b = document.querySelector('#sab-ovhost [data-sab-act="ovclose"], #sab-ovhost [data-sab-act="advgo"]'); if (b) b.click(); });
+check('soft-lock', 'S1: turning the first age leaves a living city and a findable place; the last living city never folds; a fold is warned of first', async ({ p }) => {
+  await setHarappa(p);
+  await p.evaluate(() => window.__SABDO.adv()); await p.waitForTimeout(200);
+  await closeCard(p); await p.waitForTimeout(200);
+  const r = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.IND_SABHYATA;
+    const living = D.sites.filter(s => { const q = G.sites[s.id]; return q && !q.zzz && !q.her; }).map(s => s.id);
+    const findable = D.sites.filter(s => s.era === G.era && !G.sites[s.id].found).length;
+    const folded = D.sites.filter(s => s.era === 0 && G.sites[s.id].her).map(s => s.id);
+    return { era: G.era, living, findable, folded };
+  });
+  if (r.folded.length) throw new Error('turning the first age folded ' + r.folded.join(', ') + ' — only cities two ages behind may fold');
+  if (r.era !== 1) throw new Error('the first age did not turn (era ' + r.era + ')');
+  if (!r.living.length) throw new Error('the first age turn left no living city — the soft-lock');
+  if (!r.findable) throw new Error('no place of the new age is left to find');
+  /* the guard: two ages on, with only first-age cities alive, one is always kept */
+  const g = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.IND_SABHYATA;
+    D.sites.forEach(s => { if (s.era > 0) { G.sites[s.id].zzz = true; } });
+    const alive = D.sites.filter(s => !G.sites[s.id].zzz && !G.sites[s.id].her && !G.sites[s.id].mon && G.capital !== s.id && !(s.renames && s.renames.length)).length;
+    return { plan: window.__SABDO.foldPlan(3).length, alive };
+  });
+  if (g.alive && g.plan >= g.alive) throw new Error(`two ages on, the fold would take all ${g.alive} living cities`);
+  /* the warning: era 1 → 2 folds the first age — asked first, and "Not yet" keeps it */
+  const w = await p.evaluate(() => {
+    const G = window.__SABG(), D = window.IND_SABHYATA;
+    D.sites.forEach(s => { const q = G.sites[s.id]; if (s.era <= 1) { q.found = true; q.seen = true; q.zzz = false; q.her = false; q.mon = false; } });
+    G.capital = null; G.res.katha = 5000;
+    window.__SABDO.adv();
+    const ov = document.querySelector('#sab-ovhost .sab-card');
+    const said = ov ? ov.innerText : '';
+    const no = document.querySelector('#sab-ovhost [data-sab-act="advno"]'); if (no) no.click();
+    return { said, era: G.era };
+  });
+  if (!/will become (a memory|memories)/.test(w.said)) throw new Error('no warning before a fold: "' + w.said.slice(0, 80) + '"');
+  if (w.era !== 1) throw new Error('"Not yet" still turned the age');
+});
+
+check('riddle', 'S3: a riddle shows its question; one try; a miss shows the answer and its source and waits for Aage; nothing paid for the miss', async ({ p }) => {
+  await p.evaluate(() => { const G = window.__SABG(); G.quests.dholavira = { kind: 'riddle' }; G.res.katha = 0; });
+  await openCity(p, 'dholavira');
+  const open = await p.evaluate(() => {
+    const b = document.querySelector('[data-sab-act=calls]'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click();
+    const row = document.querySelector('.sab-callrow[data-c="quest"]'); if (row) row.click();
+    return !!row;
+  });
+  if (!open) throw new Error('the city offers no row for its riddle');
+  await p.waitForTimeout(300);
+  const r = await p.evaluate(() => {
+    const site = window.IND_SABHYATA.sites.find(s => s.id === 'dholavira');
+    const body = (document.querySelector('.sab-calllist.iscard') || document.querySelector('#sab-sec-quest') || document.body).innerText;
+    const wrong = [...document.querySelectorAll('[data-sab-act="qriddle"]')].find(b => b.getAttribute('data-o') !== site.ask.o[0]);
+    const k0 = window.__SABG().res.katha;
+    if (wrong) wrong.click();
+    return { q: site.ask.q, a: site.ask.o[0], src: site.sources[0], body, clicked: !!wrong, k0 };
+  });
+  if (!r.body.includes(r.q)) throw new Error('the riddle\'s question is not on screen');
+  if (!r.clicked) throw new Error('no option to answer');
+  await p.waitForTimeout(300);
+  const m = await p.evaluate(() => {
+    const miss = document.querySelector('.gm-miss');
+    return { miss: miss ? miss.innerText : '', opts: document.querySelectorAll('[data-sab-act="qriddle"]').length,
+             katha: window.__SABG().res.katha, quest: !!window.__SABG().quests.dholavira };
+  });
+  if (!m.miss.includes(r.a)) throw new Error('a miss does not show the answer: "' + m.miss.slice(0, 80) + '"');
+  if (!m.miss.includes(r.src.slice(0, 20))) throw new Error('a miss does not show where the answer comes from');
+  if (m.opts) throw new Error('after a miss the options are still there to guess again');
+  if (m.katha > r.k0) throw new Error('the miss paid katha');
+  await p.evaluate(() => { const b = document.querySelector('[data-sab-act="qriddleaage"]'); if (b) b.click(); });
+  await p.waitForTimeout(200);
+  if (await p.evaluate(() => !!window.__SABG().quests.dholavira)) throw new Error('Aage did not close the riddle');
+});
+
+check('citycards', 'C1: a card opened inside a city is on top and visible; closing it re-enables Agla Saal', async ({ p }) => {
+  await openCity(p, 'dholavira');
+  if (!await p.evaluate(() => !!window.__SAB().city)) throw new Error('the city never opened, so this proves nothing');
+  await p.evaluate(() => window.__SABDO.act2('yields')); await p.waitForTimeout(300);
+  const r = await p.evaluate(() => {
+    const c = document.querySelector('#sab-ovhost .sab-card'); if (!c) return { none: true };
+    const b = c.getBoundingClientRect(), hit = document.elementFromPoint(b.left + b.width / 2, b.top + Math.min(b.height / 2, 40));
+    return { w: Math.round(b.width), h: Math.round(b.height), top: !!(hit && c.contains(hit)) };
+  });
+  if (r.none) throw new Error('no card opened');
+  if (!(r.w > 50 && r.h > 50)) throw new Error(`the card inside the city is ${r.w}×${r.h} — invisible`);
+  if (!r.top) throw new Error('the card inside the city is underneath something');
+  await closeCard(p); await p.waitForTimeout(250);
+  const t = await p.evaluate(() => { const b = document.querySelector('.sab-cityturn [data-sab-act="turn"]'); return b ? b.disabled : null; });
+  if (t !== false) throw new Error('Agla Saal is still dead after the card closed (' + t + ')');
+});
+
+check('monument', 'C3/C4: a finished monument stands on the kit board, shows on the map, and survives a reload', async ({ p, port }) => {
+  await p.evaluate(() => { const q = window.__SABG().sites.dholavira; q.lv = 3; q.mon = true; q.monB = null; });
+  await openCity(p, 'dholavira');
+  const inCity = await p.evaluate(() => !!document.querySelector('.sab-monstand'));
+  if (!inCity) throw new Error('the monument is not drawn on the city board');
+  await p.evaluate(() => { const b = document.querySelector('[data-sab-act="leave"]'); if (b) b.click(); }); await p.waitForTimeout(400);
+  const onMap = await p.evaluate(() => { const g = document.querySelector('#sab-dholavira .sab-mb'); return g && g.style.display !== 'none'; });
+  if (!onMap) throw new Error('the map shows no monument at Dholavira');
+  await p.evaluate(() => window.__SABDO.turn()); await p.waitForTimeout(400);   /* a turn saves */
+  await p.reload({ waitUntil: 'networkidle' }); await p.waitForTimeout(400);
+  await p.click('[data-bz=tab][data-v="khel"]').catch(() => p.evaluate(() => window.BI.go('khel')));
+  await p.waitForTimeout(300); await p.click('.ghero'); await p.waitForTimeout(900);
+  const ov = await p.$('#sab-ovhost .sab-btn'); if (ov) { await ov.click(); await p.waitForTimeout(250); }
+  const kept = await p.evaluate(() => window.__SABG && window.__SABG().sites.dholavira.mon);
+  if (!kept) throw new Error('a reload rolled the monument back');
+});
+
+check('goodnews', 'S4/S5: good news is never "warm"; every tone goes through the one mute; a hidden tab advances no turns', async ({ p }) => {
+  const r = await p.evaluate(async () => {
+    const G = window.__SABG(); G.res.katha = 5000;
+    /* a scenario opens with good news ("the realm is already standing") */
+    const sc = (window.__SABDO.scenarios() || [])[0];
+    if (sc) window.__SABDO.scenario(sc.id);
+    const feed = document.getElementById('sab-feed');
+    const cls = feed ? feed.className : '';
+    if (!/sab-good/.test(cls)) return { cls, bad: 'good news did not come out as sab-good' };
+    const before = window.IND_SFX.played.length;
+    window.__SABDO.turn();
+    const tones = window.IND_SFX.played.slice(before);
+    /* hidden: the live clock stops */
+    window.__SABDO.speed('quick');
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    const t0 = window.__SAB().t;
+    await new Promise(r => setTimeout(r, Math.max(1500, (window.__SAB().turnMs || 500) * 3)));
+    const t1 = window.__SAB().t;
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+    document.dispatchEvent(new Event('visibilitychange'));
+    window.__SABDO.speed('sochna');
+    return { cls, tones, t0, t1, src: '' };
+  });
+  if (r.bad || /\bwarm\b/.test(r.cls)) throw new Error('the feed still says good news as "warm": ' + r.cls);
+  if (r.t1 !== r.t0) throw new Error(`a hidden tab advanced ${r.t1 - r.t0} turns`);
+  const src = require('fs').readFileSync(require('path').join(ROOT, 'sabhyata.js'), 'utf8');
+  if (/new \(W\.AudioContext|webkitAudioContext/.test(src)) throw new Error('Sabhyata still makes its own AudioContext — the mute cannot reach it');
+});
+
 /* ---------------------------------------------------------------- boots at all */
 check('boot', 'the game boots, takes a turn, and logs nothing', async ({ p, errs }) => {
   const t0 = await p.evaluate(() => window.__SAB().t);

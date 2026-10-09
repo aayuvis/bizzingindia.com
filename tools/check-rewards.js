@@ -187,8 +187,10 @@ check('gyanpati', 'the ladder quiz has no pot, and a miss is taught, not lost', 
     const host = document.getElementById('gamehost');
     const txt0 = host.innerText;
     const st = () => host.querySelector('.qz-wrap') && host.firstElementChild && (host.__qzState || null);
-    const s0 = st();
+    let s0 = st();
     if (!s0) return { none: true };
+    /* games spec §4.1: Gyanpati opens on its category picker now (Trivia Master folded in) — start the climb */
+    if (s0.phase === 'setup') { host.querySelector('[data-go="start"]').click(); await new Promise(r => setTimeout(r, 200)); s0 = st(); }
     /* answer wrongly */
     const wrong = [0, 1, 2, 3].find(i => i !== s0.answerIndex);
     host.querySelectorAll('.qz-opt')[wrong].click();
@@ -196,7 +198,9 @@ check('gyanpati', 'the ladder quiz has no pot, and a miss is taught, not lost', 
     await new Promise(r => setTimeout(r, 2200));
     const s1 = st();
     return { pot: /🐚|kauri|doubl|take the pot|walk away/i.test(txt0 + host.innerText),
-             walk: !!host.querySelector('[data-go="walk"]'), teach: !!host.querySelector('.qz-teach'),
+             walk: !!host.querySelector('[data-go="walk"]'),
+             /* games spec §1.4 / docs/32: the teach is the miss card's now — "Not quite.", the answer, its teach, Aage */
+             teach: !!host.querySelector('.gm-miss .gm-teach') && /Not quite/.test(host.innerText),
              aage: !!host.querySelector('[data-go="aage"]'), phase: s1 && s1.phase };
   });
   if (r.none) throw new Error('the quiz did not open');

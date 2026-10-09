@@ -40,3 +40,4 @@ masters/city-kit/
 
 # headless test screenshots — artefacts, not sources
 /*.png
+.claude/worktrees/

@@ -356,7 +356,7 @@
 
     '.sab-feed{min-height:0;margin:0;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.sab-feed:empty{display:none}',
-    '.sab-feed.warm{color:var(--good)}',
+    '.sab-feed.sab-good{color:var(--good)}',
     '.sab-feed.mist{color:var(--accent2)}',
 
     /* ONE BAR OF VERBS. There were two rows of buttons — the HUD's own
@@ -1010,6 +1010,16 @@
       'background:rgba(255,251,238,.94);color:#4a3810;padding:2px 9px;border-radius:999px;' +
       'font:700 10px var(--body,system-ui);white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}',
     '.sab-scafbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:12px}',
+    '.sab-monstand{pointer-events:auto;position:absolute;left:50%;bottom:16%;width:min(22%,150px);aspect-ratio:3/4;' +
+      'transform:translateX(-50%);border:0;background:none;padding:0;cursor:pointer;display:flex;flex-direction:column;' +
+      'align-items:center;justify-content:flex-end;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}',
+    '.sab-monstand .niche{width:72%;aspect-ratio:3/4;border-radius:999px 999px 6px 6px;background-size:cover;' +
+      'background-position:center;border:4px solid #e9d3a1;box-shadow:inset 0 0 0 2px rgba(80,50,20,.35),0 0 24px rgba(255,215,110,.55)}',
+    '.sab-monstand .plinth{width:100%;height:auto;margin-top:-6%}',
+    '.sab-monstand em{font-style:normal;margin-top:4px;background:rgba(255,251,238,.96);color:#4a3810;padding:2px 9px;' +
+      'border-radius:999px;font:800 10px var(--body,system-ui);white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}',
+    '.sab-monstand:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:12px}',
+    '.sab-site .monglyph{pointer-events:none}',
     /* hearth smoke, and a cart crossing the street — the town breathes */
     '.sab-smoke{position:absolute;width:22px;height:22px;border-radius:50%;pointer-events:none;' +
       'background:radial-gradient(circle,rgba(244,242,248,.55),rgba(244,242,248,0) 68%);animation:sabsmoke 6.5s ease-in infinite}',
@@ -1278,7 +1288,7 @@
     '.sab-wrap.gw .sab-strip{position:absolute;top:68px;left:50%;transform:translateX(-50%);z-index:5;' +
       'max-width:min(560px,calc(100% - 2 * var(--gw-p,300px) - 20px));pointer-events:none}',
     '.sab-wrap.gw .sab-feed{padding:10px 18px;border-radius:999px;font:700 13px/1.3 var(--body);color:var(--hud-tx)}',
-    '.sab-wrap.gw .sab-feed.warm{color:var(--hud-up)}',
+    '.sab-wrap.gw .sab-feed.sab-good{color:var(--hud-up)}',
     '.sab-wrap.gw .sab-feed.mist{color:#f3d48c}',
     /* ---- LEFT: your realm ---- */
     '.sab-wrap.gw .sab-realm{position:absolute;top:68px;left:10px;width:var(--gw-w,280px);z-index:5;gap:4px;' +
@@ -2148,6 +2158,13 @@
     function grant(n, why) {
       try { W.dispatchEvent(new CustomEvent('ind-reward', { detail: { n: n, why: why } })); } catch (e) {}
     }
+    /* ONE PAY DOOR (games spec §1.2, sabhyata-master E6): a riddle answered right at the first
+       try is reported to the host, which pays `answer` 1 through the family's wallet. A new age,
+       a monument, a thread, a treasure and the win pay nothing: they are play, not learning. */
+    function reportAnswer(id, right) {
+      try { if (opts && typeof opts.answer === 'function') { opts.answer({ id: id, right: !!right, firstTry: true, skill: 'sabhyata.riddle' }); return; } } catch (e) {}
+      if (right) grant(1, 'a riddle, answered first time');
+    }
     /* THE DIORAMAS (tools/gen-sabhyata-dioramas.py): the same city as a tilted
        board-game plate — high three-quarter view, terrain to the edges, the
        monument at the centre by compositional contract. The city scene prefers
@@ -2818,7 +2835,7 @@
     }
     function callQuarrel(id) {
       var s2 = byId[id], other = byId[G.disp.a === id ? G.disp.b : G.disp.a];
-      return { t: 'the panchayat sits · ' + G.disp.left + 's',
+      return { t: 'the panchayat sits · ' + G.disp.left + (G.disp.left === 1 ? ' turn' : ' turns'),
         h: '<p>' + esc(s2.name) + ' and ' + esc(other.name) + ' have quarrelled over ' + esc(G.disp.over) +
           '. The road between them carries nothing until it is settled.</p>' +
           (G.tech.panchayat
@@ -2834,13 +2851,12 @@
       return { t: 'the gurukul',
         h: (quiz && quiz.at === id
           ? '<p>' + (quiz.of !== id ? 'About <b>' + esc(byId[quiz.of].name) + '</b>: ' : '') + esc(askList(byId[quiz.of])[quiz.qi || 0].q) + '</p>' +
-            riddleOptions(byId[quiz.of], quiz.qi).map(function (o) {
+            (riddleMiss ? missCard(riddleMiss, 'quizaage') : riddleOptions(byId[quiz.of], quiz.qi).map(function (o) {
               return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" data-sab-act="quiz" data-o="' + esc(o) + '">' + esc(o) + '</button>';
-            }).join('') +
-            (riddleWrong ? '<p class="tiny sab-note">Not that one — think of the city’s own telling. Another go.</p>' : '')
+            }).join(''))
           : '<p>The teacher will take a question' + (G.tech.script ? ' about any woken city' : '') + '.</p>' +
             '<button class="sab-btn" data-sab-act="quizstart"' + (cd > 0 ? ' disabled' : '') + '>' +
-            (cd > 0 ? 'The teacher rests (' + cd + 's)' : 'Ask me one (+' +
+            (cd > 0 ? 'The teacher rests (' + cd + (cd === 1 ? ' turn)' : ' turns)') : 'Ask me one (+' +
               ((G.tech.script ? T.quizFarPay : T.quizPay) * (G.tech.press ? 2 : 1)) + ' 📜)') + '</button>') };
     }
     function callQuest(id) {
@@ -2855,10 +2871,11 @@
           (G.utsav <= 0 && G.res.anna >= utsavCost().anna && G.res.kala >= utsavCost().kala ? '' : ' disabled') +
           '>Hold the utsav here (' + utsavCost().anna + ' 🌾 + ' + utsavCost().kala + ' 🛠️)</button>';
       } else if (qq2.kind === 'riddle') {
-        h2 += riddleOptions(s2).map(function (o) {
-          return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" ' +
-            'data-sab-act="qriddle" data-o="' + esc(o) + '">' + esc(o) + '</button>';
-        }).join('') + (riddleWrong ? '<p class="tiny sab-note">Not that one — the city’s own telling has it. Another go.</p>' : '');
+        h2 += '<p class="sab-riddleq"><b>' + esc(askList(s2)[0].q) + '</b></p>' +
+          (riddleMiss ? missCard(riddleMiss, 'qriddleaage') : riddleOptions(s2).map(function (o, oi) {
+            return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" ' +
+              'data-sab-act="qriddle" data-o="' + esc(o) + '" aria-keyshortcuts="' + (oi + 1) + '">' + esc(o) + '</button>';
+          }).join(''));
       } else {
         h2 += '<p class="tiny sab-note">This one is done out on the map — the scroll will close itself.</p>';
       }
@@ -2935,7 +2952,7 @@
       if (q2.bld.gurukul) {
         var cd2 = (G.quizAt[id] || -999) + T.quizCd - G.t;
         out.push({ k: 'guru', t: 'Ask the teacher',
-                   s: cd2 > 0 ? 'resting for ' + cd2 + 's' : 'earn \ud83d\udcdc by answering',
+                   s: cd2 > 0 ? 'resting for ' + cd2 + (cd2 === 1 ? ' turn' : ' turns') : 'earn \ud83d\udcdc by answering',
                    i: 'scroll', hot: !!(quiz && quiz.at === id) || cd2 <= 0 });
       }
       out.push({ k: 'works', t: 'What ' + nm2 + ' is famous for',
@@ -3225,6 +3242,15 @@
     function pay(c) {
       undoPoint();
       Object.keys(c).forEach(function (k) { G.res[k] -= c[k]; });
+      saveSoon();
+    }
+    /* A RELOAD LOSES NOTHING (sabhyata-master D.2 c, C4): the game saved only every fifth turn,
+       so a reload could take back a finished monument and every piece placed since. It saves on
+       every spend (here), every turn, a monument, and the moment the page hides. */
+    var saveT = null;
+    function saveSoon() {
+      if (saveT) return;
+      saveT = setTimeout(function () { saveT = null; if (G && !dead) save(G); }, 250);
     }
     /* the utsav's price goes through the same discount door as everything
        else — the Char Bagh halves it */
@@ -3513,7 +3539,7 @@
     /* ---- the guide line: the game always says what it would do next ---- */
     function hint() {
       if (G.disp) return '<b>' + esc(byId[G.disp.a].name) + '</b> and <b>' + esc(byId[G.disp.b].name) +
-        '</b> are quarrelling — enter either town and sit the panchayat (' + G.disp.left + 's).';
+        '</b> are quarrelling — enter either town and sit the panchayat (' + G.disp.left + (G.disp.left === 1 ? ' turn' : ' turns') + ' left).';
       var fading = SITES.filter(function (x) { return inEra(x) && G.sites[x.id].fade >= 0; })[0];
       if (fading) return 'The mist is over <b>' + esc(fading.name) + '</b> — route it, or hold an utsav.';
       if (G.ev) return '<b>' + esc(byId[G.ev.id].name) + '</b> asks for grain — tap it (or press H) to help.';
@@ -3553,8 +3579,11 @@
     var sel = null, targeting = false, kbd = null, feed = '', feedCls = '', overlay = null, pause = false;
     var timer = null, dead = false;
 
+    /* GOOD NEWS SOUNDS GOOD (sabhyata-master B4, D.1 #3). The game called its good news `warm`,
+       and `warm` is what the host's quiz watcher read as a near-miss: every build, grow, monument
+       and Undo played the app's WRONG sound and shook the city 183 px. Good news is `sab-good`. */
     function say(t, cls) {
-      if (t) digest(t); feed = t; feedCls = cls || ''; paintFeed(); }
+      if (t) digest(t); feed = t; feedCls = cls === 'warm' ? 'sab-good' : (cls || ''); paintFeed(); }
 
     /* ================================================================
        RENDER — the board is drawn once; ticks only PATCH attributes.
@@ -3602,6 +3631,15 @@
         '<text x="' + (s.x - r - 4) + '" y="' + (s.y - r + 1) + '">\u26a1</text></g>' +
         '<g class="sab-cb" style="display:none"><circle cx="' + s.x + '" cy="' + (s.y + r + 8) + '" r="10"/>' +
         '<text x="' + s.x + '" y="' + (s.y + r + 13) + '">\u2605</text></g>' +
+        /* THE MAP SHOWS A MONUMENT (sabhyata-master D.2 b): a small lit dome on its steps beside
+           the lamp once it stands, the bamboo of a scaffold while it rises. The sprite used to
+           depend on the level alone, so the game's biggest reward never reached the map. */
+        '<g class="sab-mb monglyph" style="display:none" transform="translate(' + (s.x + r + 12) + ' ' + (s.y + 2) + ')">' +
+          '<circle r="12" fill="#ffe7a6" stroke="#8a5a1c" stroke-width="1.5" opacity=".95"/>' +
+          '<path d="M-7 6 H7 V4 H-7 Z M-5 4 Q0 -9 5 4 Z M-1 -6 H1 V-9 H-1 Z" fill="#8a5a1c"/></g>' +
+        '<g class="sab-mbb monglyph" style="display:none" transform="translate(' + (s.x + r + 12) + ' ' + (s.y + 2) + ')">' +
+          '<circle r="11" fill="#f4ecd8" stroke="#a07a3c" stroke-width="1.2" opacity=".9"/>' +
+          '<path d="M-5 7 V-7 M0 7 V-8 M5 7 V-7 M-6 -3 H6 M-6 2 H6" stroke="#8a5a1c" stroke-width="1.4" fill="none"/></g>' +
         '<g class="sab-lab" transform="translate(' + s.x + ',' + s.y + ')">' +
         '<text x="' + ox + '" y="' + oy + '" text-anchor="' + anc + '">' + esc(s.name) + '</text></g>' +
         '</g>';
@@ -4099,7 +4137,12 @@
           '<button class="sab-btn" data-sab-act="zin" aria-label="Zoom in">' + ic('plus', 20) + '</button>' +
           '<button class="sab-btn" data-sab-act="zout" aria-label="Zoom out">' + ic('minus', 20) + '</button>' +
           '<button class="sab-btn" data-sab-act="zreset" aria-label="Whole map">' + ic('whole', 20) + '</button></div>' +
-          '<div id="sab-ovhost"></div></div>' +
+          '</div>' +
+        /* THE CARD HOST STANDS BESIDE THE MAP, NOT INSIDE IT (sabhyata-master D.1 #1): inside
+           #sab-stage it was hidden with the map whenever a city was open, so every card opened in
+           a city — a built piece, Grow's chooser, a treasure, any turn's event — was a 0 × 0 box
+           the game still believed was open, and Agla Saal stayed dead until the child left. */
+        '<div id="sab-ovhost"></div>' +
         '<p class="sab-help" hidden>Tap a lamp, or move between them with the arrow keys — Enter chooses, ' +
           '<b>1–4</b> fire an action (<b>4</b> steps inside the city), <b>Esc</b> cancels, <b>P</b> pauses. ' +
           'Routes keep a place safe from the mist; <b>!</b> is a quest, <b>\u26a1</b> a quarrel for your panchayat, <b>\u2605</b> the capital. ' +
@@ -4348,6 +4391,9 @@
       if (db) db.style.display = inDispute(s.id) ? '' : 'none';
       var cb = g.querySelector('.sab-cb');
       if (cb) cb.style.display = G.capital === s.id ? '' : 'none';
+      var mb = g.querySelector('.sab-mb'), mbb = g.querySelector('.sab-mbb');
+      if (mb) mb.style.display = q.mon ? '' : 'none';
+      if (mbb) mbb.style.display = !q.mon && q.monB ? '' : 'none';
       g.querySelector('.core').style.opacity = dusty(s.id) ? .55 : '';
     }
     function paintFog() {
@@ -4463,24 +4509,11 @@
        It follows prefers-reduced-motion, because a child who has asked for less motion
        has usually asked for less of everything, and it is off until the first real tap
        so no page ever makes a noise a child did not ask for. */
-    var AC = null, muted = false;
-    var TONES = { road: [392, 0.09], wake: [523, 0.16], grow: [330, 0.1],
-                  build: [294, 0.07], learn: [659, 0.14], peace: [440, 0.13],
-                  turn: [247, 0.06], no: [180, 0.08] };
+    /* ONE SOUND PATH (games spec §1.5, sabhyata-master B5): the verbs' tones live in sfx.js now,
+       so the one mute, Calm mode and the music's ducking apply. No private AudioContext. */
     function blip(kind) {
-      if (REDUCED || muted) return;
-      var t = TONES[kind]; if (!t) return;
-      try {
-        if (!AC) AC = new (W.AudioContext || W.webkitAudioContext)();
-        var o = AC.createOscillator(), g = AC.createGain();
-        o.type = 'triangle'; o.frequency.value = t[0];
-        g.gain.value = 0.0001;
-        o.connect(g); g.connect(AC.destination);
-        var now = AC.currentTime;
-        g.gain.exponentialRampToValueAtTime(0.06, now + 0.012);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + t[1]);
-        o.start(now); o.stop(now + t[1] + 0.02);
-      } catch (e) { muted = true; }      /* a browser that refuses is simply silent */
+      if (REDUCED) return;
+      try { if (W.IND_SFX) W.IND_SFX.play('sab-' + kind); } catch (e) {}
     }
 
     function fxAt(x, y, kind) {
@@ -4549,6 +4582,7 @@
                : q.zzz ? 'asleep under the mist'
                : ICON[YIELD[s.kind]] + ' level ' + q.lv +
                  (G.capital === sel ? ' · the capital' : '') +
+                 (q.mon ? ' · \u2605 its monument stands: this city never fades' : q.monB ? ' · its monument is rising' : '') +
                  (connected(sel) ? ' · on a route' : ' · alone') +
                  (q.dry > 0 ? ' · AKAL — the rains hold off' : '') +
                  (dusty(sel) ? ' · dusty' : '') +
@@ -4567,7 +4601,7 @@
       } else {
         b.push(tile('route', 'road', 'Route', costStr(costOf({ kala: T.routeCost }, 'route'))));
         b.push(tile('utsav', 'lamp', 'Utsav',
-          G.utsav > 0 ? G.utsav + 's' : utsavCost().anna + ' \ud83c\udf3e + ' + utsavCost().kala + ' \ud83d\udee0\ufe0f',
+          G.utsav > 0 ? G.utsav + (G.utsav === 1 ? ' turn' : ' turns') : utsavCost().anna + ' \ud83c\udf3e + ' + utsavCost().kala + ' \ud83d\udee0\ufe0f',
           { disabled: G.utsav > 0 }));
         /* No Enter-city button ON A DESKTOP: the city itself is the button. Double-click
            it, or press Enter with it selected. A tile that says "enter the thing you
@@ -4615,7 +4649,16 @@
     var city = null;       /* site id when inside a city */
     var av = { x: 50, y: 84 };   /* the yatri's feet, in plate % */
     var walkTimer = null;
-    var riddleWrong = false;
+    var riddleWrong = false, riddleMiss = null;
+    /* A RIDDLE TEACHES (games spec §2.1 item 3, sabhyata-master B2/B3/E13): the question is shown,
+       ONE try scores, and a miss shows the answer with the line it came from, then waits for Aage.
+       It used to show "A question, traveller…" and three options, let a child guess until right,
+       and pay in full for the guessing. */
+    function missCard(m, act) {
+      return '<div class="gm-miss sab-miss" role="status"><b>Not quite.</b> The answer: <span class="gm-ans">' +
+        esc(m.ans) + '</span>' + (m.src ? '<p class="gm-teach">From ' + esc(m.src) + '</p>' : '') +
+        '<button class="sab-btn go gm-aage" data-sab-act="' + act + '">Aage \u2192</button></div>';
+    }
     var quiz = null;       /* { at: gurukul city, of: city the question is about } */
 
     /* the riddle's options are shuffled by a per-city seed so the right answer's
@@ -4749,6 +4792,20 @@
               ' aria-label="' + esc(s.works[2]) + ' — a level-3 city may raise it">' +
               '<img src="' + spOf('scaffold') + '" alt=""><em>grows at level 3</em></button>';
           }
+        } else if (q.mon && KITC) {
+          /* MONUMENTS STICK (sabhyata-master D.2 a). In the drawn cities a finished monument was
+             drawn as NOTHING: the scaffold went and empty water was left. It stands now, where the
+             scaffold stood — the city's own painting in a stone niche on the kit's plinth, with its
+             star and its name — and stays for the rest of the game. */
+          var mpt2 = atlas ? kitPt(id, atlas.mon) : null;
+          var monCSS = mpt2 ? 'left:' + mpt2[0].toFixed(2) + '%;top:' + mpt2[1].toFixed(2) +
+            '%;bottom:auto;transform:translate(-50%,-84%)' : '';
+          scaf = '<button class="sab-monstand" data-sab-act="cjump" data-t="sab-sec-works"' +
+            (monCSS ? ' style="' + monCSS + '"' : '') +
+            ' aria-label="' + esc(s.works[2]) + ' — the monument stands; this city never fades">' +
+            (artOf(id) ? '<span class="niche" style="background-image:url(' + artOf(id) + ')"></span>' : '') +
+            '<img class="plinth" src="art/kit/mn-plinth/0.png" alt="">' +
+            '<em>\u2605 ' + esc(s.works[2]) + '</em></button>';
         }
         /* DUST ON THE HORIZON. When something is coming for this city the
            plate says so, names it, and counts the watch it has against the
@@ -5177,13 +5234,12 @@
         h += '<div class="sab-quest" id="sab-sec-guru"><div class="who">the gurukul</div>' +
           (quiz && quiz.at === id
             ? '<p>' + (quiz.of !== id ? 'About <b>' + esc(byId[quiz.of].name) + '</b>: ' : '') + esc(askList(byId[quiz.of])[quiz.qi || 0].q) + '</p>' +
-              riddleOptions(byId[quiz.of], quiz.qi).map(function (o) {
+              (riddleMiss ? missCard(riddleMiss, 'quizaage') : riddleOptions(byId[quiz.of], quiz.qi).map(function (o) {
                 return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" data-sab-act="quiz" data-o="' + esc(o) + '">' + esc(o) + '</button>';
-              }).join('') +
-              (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — think of the city\u2019s own telling. Another go.</p>' : '')
+              }).join(''))
             : '<p>The teacher will take a question' + (G.tech.script ? ' about any woken city' : '') + '.</p>' +
               '<button class="sab-btn" data-sab-act="quizstart"' + (cd > 0 ? ' disabled' : '') + '>' +
-              (cd > 0 ? 'The teacher rests (' + cd + 's)' : 'Ask me one (+' +
+              (cd > 0 ? 'The teacher rests (' + cd + (cd === 1 ? ' turn)' : ' turns)') : 'Ask me one (+' +
                 ((G.tech.script ? T.quizFarPay : T.quizPay) * (G.tech.press ? 2 : 1)) + ' 📜)') + '</button>') +
           '</div>';
       }
@@ -5199,10 +5255,11 @@
             (G.utsav <= 0 && G.res.anna >= utsavCost().anna && G.res.kala >= utsavCost().kala ? '' : ' disabled') +
             '>Hold the utsav here (' + utsavCost().anna + ' 🌾 + ' + utsavCost().kala + ' 🛠️)</button>';
         } else if (qq.kind === 'riddle') {
-          h += riddleOptions(s).map(function (o) {
-            return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" ' +
-              'data-sab-act="qriddle" data-o="' + esc(o) + '">' + esc(o) + '</button>';
-          }).join('') + (riddleWrong ? '<p class="tiny" style="color:var(--muted)">Not that one — the city\u2019s own telling below has it. Another go.</p>' : '');
+          h += '<p class="sab-riddleq"><b>' + esc(askList(s)[0].q) + '</b></p>' +
+            (riddleMiss ? missCard(riddleMiss, 'qriddleaage') : riddleOptions(s).map(function (o) {
+              return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" ' +
+                'data-sab-act="qriddle" data-o="' + esc(o) + '">' + esc(o) + '</button>';
+            }).join(''));
         } else {
           h += '<p class="tiny" style="color:var(--muted)">This one is done out on the map — the scroll will close itself.</p>';
         }
@@ -5387,7 +5444,7 @@
       var tz = (DATA.treasures || {})[city];
       if (!tz) return;
       G.tre[city] = true; G.score += 30; G.res.katha += 20;
-      grant(20, 'khazana \u2014 ' + tz.name);
+      /* no coin here: one pay door, for learning (games spec §1.2) */
       var tzs = byId[city];
       fxAt(tzs.x, tzs.y, 'glory');
       showOverlay('<div class="mono" style="color:var(--accent2)">\u2726 khazana \u2014 found!</div>' +
@@ -5589,7 +5646,7 @@
           '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Leave a lamp</button></div>');
         return;
       }
-      if (name === 'city' && !q.zzz) { city = sel; riddleWrong = false;
+      if (name === 'city' && !q.zzz) { city = sel; riddleWrong = false; riddleMiss = null;
         /* Contained, a board half again as wide as it is tall sits inside a
            phone's frame as a postage stamp with grey all round. A phone opens
            the city already leaning in, and pans; a desktop sees all of it. */
@@ -5745,8 +5802,44 @@
       if (after) after();
     }
 
+    /* WHICH CITIES THE NEXT AGE WILL FOLD (sabhyata-master B1). The rule said "two full ages
+       behind" and the code folded ONE behind: turning the first age folded every first-age city,
+       left the child with no living city and no explorer, and the next age's places could never
+       be found — the game could not be finished. Now: only cities TWO or more ages behind fold,
+       and never the last living one. advance() and the warning before it read this one list. */
+    function foldPlan(eraAfter) {
+      var plan = [];
+      SITES.forEach(function (s) {
+        var q = G.sites[s.id];
+        if (!q || q.zzz || q.her || q.mon || (s.renames && s.renames.length) ||
+            s.era > eraAfter - 2 || G.capital === s.id) return;
+        plan.push(s);
+      });
+      var living = SITES.filter(function (s) { var q = G.sites[s.id]; return q && !q.zzz && !q.her && plan.indexOf(s) < 0; });
+      if (!living.length && plan.length) {
+        /* keep the strongest of them awake: the most grown, then the best connected */
+        plan.sort(function (a, b) { return (G.sites[b.id].lv - G.sites[a.id].lv) || (reach(b.id).length - reach(a.id).length); });
+        plan.shift();
+      }
+      return plan;
+    }
+    var advAsked = false;
     function advance() {
       if (!canAdvance()) return;
+      /* SAY IT BEFORE IT HAPPENS: a city about to become a memory is named, with the one thing
+         that would keep it (a monument), and the child chooses — never a trap sprung after */
+      var plan = foldPlan(G.era + 1);
+      if (plan.length && !advAsked) {
+        advAsked = true;
+        showOverlay('<h3>The age is ready to turn</h3><p>' + plan.map(function (s) {
+            return '<b>' + esc(nameOf(s)) + '</b>';
+          }).join(', ') + (plan.length === 1 ? ' will become a memory' : ' will become memories') +
+          ' when it turns — its people walk to the nearest living town. A monument keeps a city awake for ever.</p>' +
+          '<div class="row"><button class="sab-btn go" data-sab-act="advgo">Turn the age</button>' +
+          '<button class="sab-btn" data-sab-act="advno">Not yet</button></div>');
+        return;
+      }
+      advAsked = false;
       pay({ katha: ERAS[G.era].katha });
       ageVerdict();
       var aha = ERAS[G.era].aha;
@@ -5757,7 +5850,7 @@
       G.era++; G.score += 50;
       void ea;
       var next = ERAS[G.era];
-      grant(40, 'a new age — ' + next.name);   /* a pitara draw's worth, into the child's pocket */
+      /* no coin for a new age: one pay door, and it is for learning (games spec §1.2) */
 
       /* THE AGE TURNS OVER THE CITIES TOO. One full age behind, an awake city
          folds into memory: the rains move, the rivers shift, the roads go
@@ -5766,16 +5859,12 @@
          (some places are carried), and NOTHING here is a war: the causes are
          the ages themselves, which is the truth of most of these cities. */
       var folded = [];
-      SITES.forEach(function (s) {
+      /* three things carry a city across the ages: its MONUMENT (raised stone is never forgotten),
+         its CONTINUITY (a city with later names, like Kashi-Banaras-Varanasi, never stopped being
+         lived in), and the CROWN (the capital is carried). Everything else, two full ages behind,
+         folds gently into memory — and never the last living city (foldPlan). */
+      foldPlan(G.era).forEach(function (s) {
         var q = G.sites[s.id];
-        /* three things carry a city across the ages: its MONUMENT (raised
-           stone is never forgotten — the game's oldest promise, now the
-           strategic reason to build one), its CONTINUITY (a city with later
-           names, like Kashi-Banaras-Varanasi, never stopped being lived in),
-           and the CROWN (the capital is carried). Everything else, two full
-           ages behind, folds gently into memory. */
-        if (!q || q.zzz || q.her || q.mon || (s.renames && s.renames.length) ||
-            s.era > G.era - 1 || G.capital === s.id) return;
         q.her = true; q.fade = -1; q.idle = 0; q.neg = 0; q.dry = 0;
         if (G.quests[s.id]) delete G.quests[s.id];
         if (q.hero) q.hero.gone = true;
@@ -5827,7 +5916,7 @@
       var roads = victoriesWon();
       if (!roads.length) return;
       G.won = true; G.roads = roads; wipe();
-      grant(60, 'India remembers');
+      /* no coin here: one pay door, for learning (games spec §1.2) */
       var vnames = roads.map(function (r5) {
         var v = null; VICS.forEach(function (x) { if (x.id === r5) v = x; });
         return v ? v.name : r5;
@@ -6165,11 +6254,11 @@
       var done = null;
       SITES.forEach(function (s2) {
         var q2 = G.sites[s2.id];
-        if (q2 && q2.monB && !q2.mon && monPct(s2.id) >= 1) { q2.mon = true; q2.monB = null; done = s2; }
+        if (q2 && q2.monB && !q2.mon && monPct(s2.id) >= 1) { q2.mon = true; q2.monB = null; done = s2; saveSoon(); }
       });
       if (done) {
         touch(done.id); G.score += 60; G.res.katha += 10; deed('mon');
-        grant(15, 'a monument raised');
+        /* no coin here: one pay door, for learning (games spec §1.2) */
         say(done.works[2].charAt(0).toUpperCase() + done.works[2].slice(1) + ' — ' + nameOf(done) +
             ' has raised its monument. Stone remembers.', 'warm');
         if (city === done.id) paintCity();
@@ -6387,7 +6476,7 @@
             G.sutra[nt.id + ':' + ni] = true; G.lastdarshan = G.t;
             G.score += 25; G.res.katha += 25;
             var wholeMala = nt.beats.every(function (_, bi) { return G.sutra[nt.id + ':' + bi]; });
-            if (wholeMala) grant(40, 'a thread complete — ' + nt.name);
+            /* no coin here: one pay door, for learning (games spec §1.2) */
             var bs = byId[nb.site];
             fxAt(bs.x, bs.y, 'utsav');
             var dots = nt.beats.map(function (_, bi) {
@@ -6538,7 +6627,7 @@
                   anna: Math.floor(G.res.anna) - res0.anna,
                   kala: Math.floor(G.res.kala) - res0.kala,
                   katha: Math.floor(G.res.katha) - res0.katha };
-      if (G.t % 5 === 0) save(G);
+      save(G);   /* every turn — not every fifth (C4) */
       inTick = false;
       paintHud(); SITES.forEach(paintSite); paintGuide();
     }
@@ -6896,7 +6985,7 @@
           }
         };
         if (a === 'cjump') { flashSec(actEl.getAttribute('data-t')); return; }
-        if (a === 'leave') { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
+        if (a === 'leave') { city = null; riddleWrong = false; riddleMiss = null; quiz = null; paintCity(); paintAll(); return; }
         if (a === 'khazana' && city && !G.tre[city]) {
           /* the glint calls: the yatri walks to the spot and digs on
              arrival (tab to it and press Enter, and they walk the same
@@ -6935,7 +7024,7 @@
             SITES.forEach(function (x) { var w = G.sites[x.id]; if (w) w.neg = 0; });
             say(hd.name + ' brings the Golden Harvest — +120 \ud83c\udf3e, and every town stands proud again.', 'warm');
           } else if (sh.kind === 'shilpa') {
-            if (!qh.mon && qh.lv >= 3) { qh.mon = true; G.res.katha += 10;
+            if (!qh.mon && qh.lv >= 3) { qh.mon = true; saveSoon(); G.res.katha += 10;
               say(hd.name + ' raises ' + sh.works[2] + ' in a single season. Stone remembers.', 'warm');
             } else { G.res.kala += 100; say(hd.name + ' fills the workshops instead — +100 \ud83d\udee0\ufe0f.', 'warm'); }
           } else {
@@ -7206,7 +7295,7 @@
           catch (e6) { callTrouble('opening', e6); G.callAt = actEl.getAttribute('data-c'); }
           paintCity(); return;
         }
-        if (a === 'leave' && city) { city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
+        if (a === 'leave' && city) { city = null; riddleWrong = false; riddleMiss = null; quiz = null; paintCity(); paintAll(); return; }
         if (a === 'kitpick') {
           var pid2 = actEl.getAttribute('data-p');
           hold = (hold && hold.p === pid2) ? null : { p: pid2, cell: null, f: 0 };
@@ -7261,18 +7350,25 @@
           });
           if (!pool.length) return;
           var pick2 = pool[(G.quizN + G.t) % pool.length];
-          quiz = { at: city, of: pick2.id, qi: pick2.qi }; riddleWrong = false; G.quizN++;
+          quiz = { at: city, of: pick2.id, qi: pick2.qi }; riddleWrong = false; riddleMiss = null; G.quizN++;
           paintCity(); return;
         }
+        if (a === 'quizaage' && city) { quiz = null; riddleMiss = null; riddleWrong = false; paintCity(); paintAll(); return; }
         if (a === 'quiz' && city && quiz) {
-          var po = actEl.getAttribute('data-o'), qs = byId[quiz.of];
-          if (po === askList(qs)[quiz.qi || 0].o[0]) {
+          if (riddleMiss) return;
+          var po = actEl.getAttribute('data-o'), qs = byId[quiz.of], qright = po === askList(qs)[quiz.qi || 0].o[0];
+          reportAnswer('ask:' + quiz.of + ':' + (quiz.qi || 0), qright);
+          if (qright) {
             var payq = quiz.of === city ? T.quizPay : T.quizFarPay;
             if (G.tech.press) payq *= 2;   /* a thousand copies by morning */
             G.res.katha += payq; G.score += 10; G.quizAt[city] = G.t; touch(city);
             say('Well answered — +' + payq + ' \ud83d\udcdc from the gurukul of ' + byId[city].name + '.', 'warm');
             quiz = null; riddleWrong = false;
-          } else riddleWrong = true;
+          } else {
+            /* one try: the answer and its source, the teacher rests, and nothing is paid */
+            riddleWrong = true; G.quizAt[city] = G.t;
+            riddleMiss = { ans: askList(qs)[quiz.qi || 0].o[0], src: (qs.sources || [])[0] || '' };
+          }
           paintCity(); paintAll(); return;
         }
         if (a === 'qcarry' && city) {
@@ -7287,10 +7383,19 @@
           paintCity(); return;
         }
         if (a === 'qriddle' && city) {
-          var pick = actEl.getAttribute('data-o'), site = byId[city];
-          if (pick === site.ask.o[0]) { riddleWrong = false; finishQuest(city, 'Well answered!'); }
-          else { riddleWrong = true; }
-          paintCity(); paintAll(); return;
+          if (riddleMiss) return;
+          var pick = actEl.getAttribute('data-o'), site = byId[city], rright = pick === site.ask.o[0];
+          reportAnswer('ask:' + city + ':0', rright);
+          if (rright) { riddleWrong = false; finishQuest(city, 'Well answered!'); }
+          else { riddleWrong = true; riddleMiss = { ans: site.ask.o[0], src: (site.sources || [])[0] || '' }; }
+          save(G); paintCity(); paintAll(); return;
+        }
+        if (a === 'qriddleaage' && city) {
+          /* the scroll closes: the telling is learned, and only a first-try answer was ever paid */
+          riddleMiss = null; riddleWrong = false;
+          if (G.quests[city]) { delete G.quests[city]; G.qdone++; }
+          say('Now you know it — ' + byId[city].name + '’s own telling. The next scroll will come.', 'sab-good');
+          save(G); paintCity(); paintAll(); return;
         }
         if (a === 'tech') {
           var tid = actEl.getAttribute('data-t');
@@ -7312,7 +7417,9 @@
         if (a === 'restart2') { wipe(); G = fresh(); sel = null; kbd = null; targeting = false; bldSeen = null;
           overlay = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
           shell(); bindHud(); zlevel = 1; fitFound(true); say('A new dawn at Dholavira.', 'warm'); return; }
-        if (a === 'ovclose') { showOverlay(null); paintAll(); maybeEnd(); return; }
+        if (a === 'ovclose') { showOverlay(null); paintAll(); if (city) paintCity(); maybeEnd(); return; }
+        if (a === 'advgo') { showOverlay(null); advance(); save(G); return; }
+        if (a === 'advno') { advAsked = false; showOverlay(null); paintAll(); return; }
         if (a === 'finish') { showOverlay(null); if (typeof done === 'function') done({ win: true, score: G.score, kauris: 25 }); return; }
         return act(a);
       }
@@ -7385,7 +7492,7 @@
         }
         if (e.key === 'Escape' && G.callsOpen) { eat(); G.callsOpen = false; paintCity(); return; }
         if (e.key === 'Escape' && hold) { eat(); hold = null; paintCity(); return; }
-        if (e.key === 'Escape') { eat(); city = null; riddleWrong = false; quiz = null; paintCity(); paintAll(); return; }
+        if (e.key === 'Escape') { eat(); city = null; riddleWrong = false; riddleMiss = null; quiz = null; paintCity(); paintAll(); return; }
         /* the arrows walk the yatri — the keyboard walks too (house rule) */
         /* HOLDING A PIECE, THE ARROWS MOVE IT. Every game here works by
            finger AND by key, and a builder that only takes taps is half a
@@ -7489,7 +7596,7 @@
     function armClock() {
       if (timer) { clearInterval(timer); timer = null; }
       var ms = turnMs();
-      if (ms) timer = setInterval(tick, ms);
+      if (ms && !D.hidden) timer = setInterval(tick, ms);
     }
     function setSpeed(id) {
       if (!SPEED_BY[id]) return;
@@ -7764,7 +7871,8 @@
                   goodLock: goodLock, sisters: sisters, remembered: remembered,
                   zoom: zoomTo, labScale: labScale,
                   canPlace: function (id, part, x, y) {
-                    return canPlace(id, BY_PART[part], x, y); } };
+                    return canPlace(id, BY_PART[part], x, y); },
+                  adv: advance, foldPlan: function (e) { return foldPlan(e).map(function (x) { return x.id; }); } };
     W.__SAB = function () {
       return { t: G.t, rt: G.rt, won: !!G.won, pause: pause, dead: dead,
                overlay: !!overlay, city: city, techOpen: techOpen, warn: G.warn,
@@ -7775,6 +7883,16 @@
     armClock();
     syncPauseBtn();
     if (!REDUCED) lifeRAF = requestAnimationFrame(lifeStep);
+    /* A HIDDEN TAB IS A STOPPED WORLD (games spec §1.5, sabhyata-master B7): the live speeds kept
+       ticking behind another tab, so a child came back to a different year. Hidden = no turns,
+       and the game is saved; shown = the clock resumes where it stood. */
+    function onVis() {
+      if (D.hidden) { if (timer) { clearInterval(timer); timer = null; } if (G && !G.won) save(G); }
+      else if (!dead) armClock();
+    }
+    function onHide() { if (G && !G.won && !dead) save(G); }
+    D.addEventListener('visibilitychange', onVis);
+    W.addEventListener('pagehide', onHide);
 
     return function teardown() {
       dead = true;
@@ -7785,6 +7903,9 @@
       clearInterval(timer);
       if (lifeRAF) cancelAnimationFrame(lifeRAF);
       if (G && !G.won) save(G);
+      clearTimeout(saveT);
+      D.removeEventListener('visibilitychange', onVis);
+      W.removeEventListener('pagehide', onHide);
       host.removeEventListener('mousedown', onMouseDown);
       host.removeEventListener('click', onClick);
       D.removeEventListener('pointermove', onPointerMove);

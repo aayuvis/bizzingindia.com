@@ -455,6 +455,29 @@ window.IND_SABHYATA = {
      bigger realm that has not widened is the thing this is meant to notice. */
   khushi: [1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5],
 
+  /* THE AGE'S GOAL AND ITS CLOCK (owner, 9 Oct 2026; sabhyata.js goalTick). One pressure an
+     age, never a people and never a fact typed here: `ref` points at a sourced line this file
+     already holds (Dholavira's "long drying", read by Bisht/ASI; Hastinapura's flood layer,
+     dug by B. B. Lal), and `raid` names a NATURE or MIST kind from raids[] below, told in its
+     own warn line. `need` is what a ready realm has by the deadline: cities joined in one road
+     network, wells or tanks, watchers on the gates, grain in store. The contested river
+     identification (docs/05, sutras.river) is deliberately NOT one of these. */
+  ageGoals: [
+    { era: 0,  title: 'The long drying', ref: 'dholavira.more.3', turns: 50, need: { joined: 3, water: 2, grain: 150 } },
+    { era: 1,  title: 'The river rises', ref: 'hastinapura.more.0', turns: 60, need: { joined: 3, guard: 2, grain: 180 } },
+    { era: 2,  title: 'The monsoon floods', raid: 'flood', turns: 60, need: { joined: 4, water: 2, grain: 200 } },
+    { era: 3,  title: 'The locust year', raid: 'locust', turns: 60, need: { joined: 4, guard: 3, grain: 240 } },
+    { era: 4,  title: 'The grey gathers', raid: 'mist', turns: 60, need: { joined: 5, water: 3, grain: 260 } },
+    { era: 5,  title: 'The locust year', raid: 'locust', turns: 60, need: { joined: 5, guard: 4, grain: 300 } },
+    { era: 6,  title: 'The grey gathers', raid: 'mist', turns: 60, need: { joined: 5, water: 3, grain: 320 } },
+    { era: 7,  title: 'The grey gathers', raid: 'mist', turns: 60, need: { joined: 5, guard: 4, grain: 340 } },
+    { era: 8,  title: 'The cyclone season', raid: 'cyclone', turns: 60, need: { joined: 6, guard: 4, grain: 360 } },
+    { era: 9,  title: 'Fire in the warehouses', raid: 'fire', turns: 60, need: { joined: 6, water: 4, grain: 380 } },
+    { era: 10, title: 'The stories go quiet', raid: 'forget', turns: 60, need: { joined: 6, guard: 4, grain: 400 } },
+    { era: 11, title: 'The rains fail', raid: 'drought', turns: 60, need: { joined: 6, water: 5, grain: 420 } },
+    { era: 12, title: 'The heat that will not break', raid: 'heat', turns: 60, need: { joined: 6, water: 5, grain: 450 } }
+  ],
+
 
   /* THE PEOPLE. Every city has praja — citizens with jobs the player allocates.
      Jobs are era-honest and gentle; the rakshaks are a village WATCH, not an army:

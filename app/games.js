@@ -535,56 +535,66 @@
   }
 
   /* ==================================================================
-     GAME 1 · RANGOLI RUSH
-     A rangoli is drawn on a dot grid, then the chalk dust blows away and
-     the child draws it back. Every pattern is built by mirroring, so the
-     real lesson is: remember half (or a quarter) and reflect the rest.
+     GAME 1 · RANGOLI RUSH (games spec §4.5)
+     A pattern is laid in chalk on a doorway's threshold, the dust blows
+     away, and the child lays it back. Every pattern is built by folding,
+     so the real lesson is: remember half (or a quarter) and reflect the
+     rest. A hundred levels, three a sitting, the ladder kept per child.
+
+     Every fourth level is a regional tradition, credited on its card by
+     its name and region (the folk-art rule, CLAUDE.md), and each can be
+     failed: kolam (Tamil Nadu) — trace the hidden order of one continuous
+     line; muggu (Andhra Pradesh, Telangana) — turned four ways round its
+     centre; alpana (Bengal) — curves on a grid; mandana (Rajasthan) —
+     geometric, on a wall plate; rangoli (Maharashtra, Gujarat and widely).
+
+     It teaches, so it reports (docs/32): ONE answer per level attempt —
+     {id:'level-N', right, firstTry, skill:'memory.pattern'}, right only when
+     the level is cleared at the first try with no second look — and a
+     miss holds on the board until Aage. A clear needs 80% of the dots right
+     in the right colour, so a random dotter clears nothing (R2).
      ================================================================== */
 
   var RG_COLOURS = ['var(--rg1, var(--accent2))', 'var(--rg2, var(--accent3))', 'var(--rg3, var(--good))', 'var(--rg4, var(--accent))'];
+  /* colour is never the only signal: each chalk wears its own mark */
+  var RG_MARKS = ['dot', 'ring', 'petal', 'star'];
   /* THE THEMES a child can open with coins (economy.js EXTRAS, kind 'theme'): the chalk colours and
-     the ground they are drawn on, from the tradition each is named for. Without one, the world's own. */
+     the ground they are drawn on, from the tradition each is named for. Without one, the threshold's own. */
   var RG_THEMES = {
     'theme-rangoli-kolam':  { c: ['#fbf6ea', '#f2c14e', '#e0452d', '#86b85c'], ground: '#7d3520', dot: '#96452a' },
     'theme-rangoli-diwali': { c: ['#f59e0b', '#fcd34d', '#e4572e', '#f472b6'], ground: '#1d1838', dot: '#2c2752' }
   };
-
-  /* ============== RANGOLI RUSH: THE HUNDRED THRESHOLDS ==============
-     A hundred levels, remembered between sittings, three a sitting.
-     Most levels are the memory rangoli — in COLOUR (the palette under
-     the grid chooses what your finger lays down), growing from a 4x4
-     mirror to a 9x9 four-fold festival threshold. And EVERY FOURTH
-     level is a twist from a pool of ten little games, each with its own
-     Indian heart:
-
-       kolam   · Kolam Loop      — one unbroken line through numbered dots
-       rain    · Phoolon ki Baarish — catch petals in their own colour's bowl
-       diya    · Diya Raat       — diyas flicker in an order; light them back
-       mehndi  · Mehndi Mirror   — half the hand is drawn; finish the other
-       toran   · Toran Thread    — what hangs next on the doorway string?
-       chakra  · Chakra Wheel    — the wheel turns in a pattern; fill the gap
-       genda   · Genda Ginti     — marigolds scatter for a blink; how many?
-       bindi   · Bindi Milan     — turn the bindi cards, find the pairs
-       taal    · Tabla Taal      — dha dhin ta tin: repeat the bols in order
-       repair  · Rangoli Repair  — three dots broke the symmetry; find them
-
-     The twists repeat deeper with the ladder — the same game at level 84
-     is not the game it was at level 4. */
   var RG_LKEY = 'india.rangoli.lvl';
-  var RG_TWISTS = ['kolam', 'rain', 'diya', 'mehndi', 'toran', 'chakra', 'genda', 'bindi', 'taal', 'repair'];
-  var RG_TW_NAME = { kolam: 'Kolam Loop', rain: 'Phoolon ki Baarish', diya: 'Diya Raat',
-    mehndi: 'Mehndi Mirror', toran: 'Toran Thread', chakra: 'Chakra Wheel', genda: 'Genda Ginti',
-    bindi: 'Bindi Milan', taal: 'Tabla Taal', repair: 'Rangoli Repair' };
+  /* the five traditions, credited as the spec names them; nothing here is typed from memory */
+  var RG_TRAD = [
+    { id: 'kolam',   name: 'Kolam',   region: 'Tamil Nadu',                    how: 'a continuous line drawn around the dots' },
+    { id: 'muggu',   name: 'Muggu',   region: 'Andhra Pradesh and Telangana',  how: '' },
+    { id: 'alpana',  name: 'Alpana',  region: 'Bengal',                        how: 'freehand curves on a grid' },
+    { id: 'mandana', name: 'Mandana', region: 'Rajasthan',                     how: 'geometric, on a wall' },
+    { id: 'rangoli', name: 'Rangoli', region: 'Maharashtra, Gujarat and widely', how: '' }
+  ];
+  var RG_BANDS = ['levels 1–20 · small mirrors', 'levels 21–40 · folded twice', 'levels 41–60 · bigger courtyards',
+    'levels 61–80 · four colours', 'levels 81–100 · the festival threshold'];
   var RG_MEM_TAG = ['A mirror rangoli', 'Chalk and colour', 'The courtyard grid', 'A four-fold rangoli',
     'The festival threshold', 'Grandmother’s pattern', 'The dawn rangoli'];
+  var RG_CLEAR = 0.8;
 
   function rgIsTwist(i) { return (i + 1) % 4 === 0; }
+  function rgBand(i) { return Math.min(5, 1 + Math.floor(i / 20)); }
   function rgLevel(i) {
     if (rgIsTwist(i)) {
       var slot = Math.floor((i + 1) / 4) - 1;              /* 0..24 across 100 */
-      var kind = RG_TWISTS[slot % RG_TWISTS.length];
-      return { kind: kind, d: 1 + Math.floor(slot / RG_TWISTS.length),
-               label: 'Twist — ' + RG_TW_NAME[kind] };
+      var t = RG_TRAD[slot % RG_TRAD.length], d = 1 + Math.floor(slot / RG_TRAD.length);
+      var cfg = { kind: t.id, trad: t, d: d, label: t.name + ' · ' + t.region };
+      if (t.id === 'muggu')   { cfg.n = Math.min(8, 6 + Math.floor(d / 2)); cfg.mode = 'rot'; cfg.colors = Math.min(3, 1 + d); cfg.seeds = 3 + d; cfg.given = true;
+                                cfg.note = 'It turns four ways round its centre. One quarter stays on the floor — lay the other three.'; }
+      if (t.id === 'alpana')  { cfg.n = 7; cfg.mode = 'curve'; cfg.colors = 1; cfg.d = d;
+                                cfg.note = 'Curves in one white line, mirrored. Remember where the curve touched the grid.'; }
+      if (t.id === 'mandana') { cfg.n = 7; cfg.mode = 'geo'; cfg.colors = 1; cfg.wall = true;
+                                cfg.note = 'Lines and corners on the wall. Remember the shape, then lay it dot by dot.'; }
+      if (t.id === 'rangoli') { cfg.n = Math.min(9, 6 + d); cfg.mode = 'vh'; cfg.colors = 4; cfg.seeds = 4 + d * 2;
+                                cfg.note = 'Four colours, folded twice — one quarter remembered is the whole of it.'; }
+      return cfg;
     }
     var m = i - Math.floor(i / 4);                          /* 0..74 memory steps */
     var n = Math.min(9, 4 + Math.floor(m / 9));
@@ -594,8 +604,8 @@
       colors: Math.min(4, 2 + Math.floor(m / 10)),
       seeds: Math.max(3, Math.min(Math.floor(n * n / 6), 3 + Math.floor(m / 4))),
       label: RG_MEM_TAG[Math.floor(m / 11) % RG_MEM_TAG.length],
-      note: m < 6 ? 'Left and right match — remember one half, and the COLOURS matter: pick below, then dot.'
-                  : 'Folded twice: left-right AND top-bottom. One quarter remembered is the whole rangoli.'
+      note: m < 6 ? 'Left and right match — remember one half, and the colours matter: pick below, then dot.'
+                  : 'Folded twice: left-right and top-bottom. One quarter remembered is the whole rangoli.'
     };
   }
   /* the child's own level, through the app's Store seam (one child's, never the household's) */
@@ -606,241 +616,449 @@
   function rgSave(v) { try { if (W.IND_STORE) W.IND_STORE.kidSet(RG_LKEY, String(v)); else W.localStorage.setItem(RG_LKEY, String(v)); } catch (e) {} }
 
   function rangoliPattern(cfg) {
-    var n = cfg.n, half = Math.ceil(n / 2), map = {}, tries = 0, ci = 0;
+    var n = cfg.n, half = Math.ceil(n / 2), map = {}, tries = 0, ci = 0, r, c;
     var nc = Math.min(cfg.colors || 2, RG_COLOURS.length);
-    function put(r, c, colour) {
-      if (r < 0 || c < 0 || r >= n || c >= n) return;
-      map[r + ',' + c] = colour;
+    function put(r2_, c2_, colour) { if (r2_ >= 0 && c2_ >= 0 && r2_ < n && c2_ < n) map[r2_ + ',' + c2_] = colour; }
+    if (cfg.mode === 'curve') {
+      /* two mirrored curves through the grid: a lotus arc and a vine */
+      var ph = Math.random() * Math.PI * 2, amp = 1.2 + Math.random() * 0.9;
+      for (c = 0; c < half; c++) {
+        r = Math.round(1.6 + amp * Math.sin(ph + c * 1.1) + c * 0.55);
+        put(r, c, RG_COLOURS[0]); put(r, n - 1 - c, RG_COLOURS[0]);
+        if (cfg.d > 1) { var r3 = Math.round(n - 2 - amp * Math.cos(ph + c * 0.9)); put(r3, c, RG_COLOURS[0]); put(r3, n - 1 - c, RG_COLOURS[0]); }
+      }
+      return map;
+    }
+    if (cfg.mode === 'geo') {
+      /* a diamond and a square ring, or two diamonds — straight lines and corners */
+      var k = 2 + Math.floor(Math.random() * 2), mid = (n - 1) / 2, sq = Math.random() < 0.5;
+      for (r = 0; r < n; r++) for (c = 0; c < n; c++) {
+        var dd = Math.abs(r - mid) + Math.abs(c - mid);
+        if (dd === k) put(r, c, RG_COLOURS[0]);
+        if (sq && Math.max(Math.abs(r - mid), Math.abs(c - mid)) === 3 && (r + c) % 2 === 0) put(r, c, RG_COLOURS[0]);
+        if (!sq && dd === 1) put(r, c, RG_COLOURS[0]);
+      }
+      return map;
     }
     var seeds = 0;
     while (seeds < cfg.seeds && tries < 400) {
       tries++;
-      var r = Math.floor(Math.random() * (cfg.mode === 'vh' ? half : n));
-      var c = Math.floor(Math.random() * half);
+      r = Math.floor(Math.random() * (cfg.mode === 'v' ? n : half));
+      c = Math.floor(Math.random() * half);
       if (map[r + ',' + c]) continue;
       var colour = RG_COLOURS[ci % nc]; ci++;
       put(r, c, colour);
-      put(r, n - 1 - c, colour);
-      if (cfg.mode === 'vh') { put(n - 1 - r, c, colour); put(n - 1 - r, n - 1 - c, colour); }
+      if (cfg.mode === 'rot') { put(c, n - 1 - r, colour); put(n - 1 - r, n - 1 - c, colour); put(n - 1 - c, r, colour); }
+      else {
+        put(r, n - 1 - c, colour);
+        if (cfg.mode === 'vh') { put(n - 1 - r, c, colour); put(n - 1 - r, n - 1 - c, colour); }
+      }
       seeds++;
     }
     return map;
   }
 
+  /* the painted threshold: a floor plate (red oxide by day, indigo by night) with a doorway sill,
+     chalk dots with grain, and the marks — all CSS and inline SVG, no image */
+  var RG_GRAIN = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E\")";
+  var RG_CSS = [
+    '.rg-wrap{--rg1:#fff6e2;--rg2:#f4b53a;--rg3:#8fd06f;--rg4:#86bdf5;--floor:#9b4426;--floor2:#7a321b;--sill:#5b3418;--chalk:#fff8ea}',
+    '[data-mode="night"] .rg-wrap{--floor:#2c2246;--floor2:#1b1530;--sill:#120d22;--chalk:#f4ecff}',
+    '.rg-wrap[data-theme-rg]{--floor:var(--rg-ground);--floor2:var(--rg-ground)}',
+    '.rg-stagebox{max-width:560px;margin:0 auto}',
+    '.rg-wrap .mela-btn{color:#fff}.rg-wrap .mela-btn.ghost{color:var(--text)}',
+    /* what a child must tap stays above the tab bar on a phone (docs/32 Stage) */
+    '.rg-stagebox>.mela-row:not(:empty),.rg-miss .gm-miss{position:sticky;bottom:calc(var(--rg-bar,0px) + 6px);z-index:3}',
+    '.rg-stagebox>.mela-row:not(:empty){width:max-content;max-width:100%;margin:10px auto 0;padding:6px;border-radius:999px;background:color-mix(in srgb,var(--card) 90%,transparent);box-shadow:0 4px 14px rgba(20,10,40,.12)}',
+    '.rg-wrap>.mela-stage{overflow:visible}',
+    '@media(max-width:520px){.rg-wrap>.mela-hud{display:none}.rg-wrap>.mela-stage{padding:10px}}',
+    '.rg-card{text-align:center;margin:0 0 8px}',
+    '.rg-trad{display:inline-flex;flex-direction:column;align-items:center;gap:1px;padding:6px 16px;border-radius:14px;background:var(--card);border:1px solid var(--line2)}',
+    '.rg-trad b{font:800 16px var(--display,Georgia,serif);color:var(--text)}',
+    '.rg-trad span{font-size:12.5px;color:var(--text2)}',
+    '.rg-plate{position:relative;margin:6px auto 0;width:min(100%,430px);padding:34px 18px 20px;border-radius:10px 10px 18px 18px;',
+      'background:' + RG_GRAIN + ',radial-gradient(ellipse at 50% 0%,rgba(255,226,170,.28),transparent 62%),linear-gradient(180deg,var(--floor),var(--floor2));',
+      'box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),inset 0 -10px 24px rgba(0,0,0,.25),0 12px 30px rgba(40,15,5,.25)}',
+    /* the doorway: a carved sill along the top, two posts, and a diya at each end */
+    '.rg-plate:before{content:"";position:absolute;left:-6px;right:-6px;top:0;height:20px;border-radius:8px 8px 3px 3px;',
+      'background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 14px,rgba(0,0,0,.08) 14px 16px),linear-gradient(180deg,#8a5a2b,var(--sill));box-shadow:0 3px 6px rgba(0,0,0,.35)}',
+    '.rg-diya{position:absolute;top:-10px;width:22px;height:20px;z-index:1}',
+    '.rg-diya.l{left:6px}.rg-diya.r{right:6px}',
+    '.rg-diya i{position:absolute;left:50%;top:0;width:8px;height:12px;transform:translateX(-50%);border-radius:50% 50% 50% 50%/62% 62% 38% 38%;background:radial-gradient(circle at 50% 72%,#fff3b0,#f39c2b);box-shadow:0 0 12px 4px rgba(255,190,90,.55)}',
+    '.rg-diya b{position:absolute;left:0;right:0;bottom:0;height:9px;border-radius:0 0 11px 11px;background:#b5562e;box-shadow:inset 0 2px 0 rgba(255,255,255,.25)}',
+    '.rg-plate.wall{border-radius:16px;padding:26px 18px 22px;background:' + RG_GRAIN + ',linear-gradient(180deg,#c0633a,#a24b28)}',
+    '[data-mode="night"] .rg-plate.wall{background:' + RG_GRAIN + ',linear-gradient(180deg,#6d3523,#4d2316)}',
+    '.rg-plate.wall:before{left:12px;right:12px;height:12px;top:8px;border-radius:999px;background:repeating-linear-gradient(90deg,#fff6e2 0 6px,transparent 6px 12px);opacity:.75;box-shadow:none}',
+    '.rg-grid{display:grid;grid-template-columns:repeat(var(--n,4),1fr);gap:4px}',
+    '.rg-dot{position:relative;aspect-ratio:1/1;min-width:30px;padding:0;border:0;background:transparent;cursor:pointer;border-radius:50%;display:grid;place-items:center}',
+    '.rg-wrap .rg-dot.mela-dot{background:transparent;border:0;box-shadow:none;opacity:1;transform:none;min-width:30px}',
+    '.rg-dot:before{content:"";width:22%;height:22%;border-radius:50%;background:radial-gradient(circle at 40% 35%,var(--chalk),rgba(255,248,234,.55) 70%,transparent 72%);opacity:.85}',
+    '.rg-dot:disabled{cursor:default}',
+    '.rg-dot:focus-visible{outline:3px solid #ffd36b;outline-offset:1px}',
+    '.rg-dot svg{position:absolute;inset:8%;width:84%;height:84%;overflow:visible;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}',
+    '.rg-dot svg .m{fill:var(--c);stroke:rgba(255,255,255,.55);stroke-width:.8}',
+    '.rg-dot svg .m.ring{fill:none;stroke:var(--c);stroke-width:3.6}',
+    '.rg-dot.lit:before,.rg-dot.mine:before,.rg-dot.hit:before,.rg-dot.near:before{opacity:0}',
+    '.rg-dot.hit svg{filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 3px rgba(255,255,255,.9))}',
+    '.rg-dot.hit:after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 2.5px #9be8a5}',
+    '.rg-dot.near:after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 2.5px #ffd36b}',
+    '.rg-dot.miss svg{opacity:.55}.rg-dot.miss:after{content:"";position:absolute;inset:2px;border-radius:50%;border:2px dashed rgba(255,255,255,.8)}',
+    '.rg-dot.extra:after{content:"\\00d7";position:absolute;inset:0;display:grid;place-items:center;font:800 18px var(--body,sans-serif);color:rgba(255,255,255,.85)}',
+    '.rg-dot.given{cursor:default}.rg-dot.given svg{opacity:.9}',
+    '.rg-axis{position:absolute;pointer-events:none;opacity:0;transition:opacity .2s ease}',
+    '.rg-axis.on{opacity:.55}',
+    '.rg-axis.v{left:50%;top:26px;bottom:14px;border-left:2px dashed var(--chalk)}',
+    '.rg-axis.h{top:calc(50% + 7px);left:14px;right:14px;border-top:2px dashed var(--chalk)}',
+    '.rg-over{position:absolute;left:18px;right:18px;top:34px;bottom:20px;pointer-events:none}',
+    '.rg-over svg{width:100%;height:100%;overflow:visible}',
+    '.rg-over path{fill:none;stroke:var(--chalk);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.9}',
+    '.rg-pal{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:12px 0 2px}',
+    '.rg-sw{width:48px;height:48px;border-radius:50%;border:3px solid var(--line2);background:var(--c);cursor:pointer;padding:0;display:grid;place-items:center;position:relative}',
+    '.rg-sw svg{width:24px;height:24px}.rg-sw svg .m{fill:rgba(20,10,30,.55)}.rg-sw svg .m.ring{fill:none;stroke:rgba(20,10,30,.55);stroke-width:3.6}',
+    '.rg-sw u{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:var(--card);border:1px solid var(--line2);font:800 10px/16px var(--body,sans-serif);text-decoration:none;color:var(--text2)}',
+    '.rg-sw.on{border-color:var(--text);box-shadow:0 0 0 4px var(--accent-soft)}',
+    '.rg-sw:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}',
+    '.rg-kolam{display:block;width:100%;height:auto}',
+    '.rg-kdot{cursor:pointer}.rg-kdot .kh{fill:transparent}',
+    '.rg-kdot .kd{fill:var(--chalk);stroke:rgba(0,0,0,.25);stroke-width:1}',
+    '.rg-kdot.done .kd{fill:#ffd36b}',
+    '.rg-kdot.first .kd{fill:#ffb347;stroke:#fff;stroke-width:2}',
+    '.rg-kdot.shake{animation:melashake .3s}',
+    '.rg-kdot:focus{outline:none}.rg-kdot:focus-visible .kd{stroke:#ffd36b;stroke-width:4}',
+    '.rg-kline{fill:none;stroke:var(--chalk);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}',
+    '.rg-miss{margin:12px auto 0;max-width:430px;text-align:left}',
+    '.rg-wrap .gm-miss{background:var(--card);border:1px solid var(--line2);border-left:4px solid var(--accent3);border-radius:14px;padding:12px 14px}',
+    '.rg-wrap .gm-miss .gm-teach{margin:6px 0 10px;font-size:14px;color:var(--text2)}',
+    '.rg-wrap .gm-miss .gm-ans{color:var(--text)}',
+    '@media(max-width:480px){.rg-plate{padding:30px 10px 14px}.rg-grid{gap:2px}.rg-over{left:10px;right:10px;top:30px;bottom:14px}}',
+    '@media(prefers-reduced-motion:reduce){.rg-wrap *{animation:none!important;transition:none!important}}'
+  ].join('');
+  function rgCSS() {
+    if (!D || D.getElementById('rg-css')) return;
+    var s = D.createElement('style'); s.id = 'rg-css';
+    s.appendChild(D.createTextNode(RG_CSS));
+    (D.head || D.documentElement).appendChild(s);
+  }
+  function rgMarkSVG(ci) {
+    var k = RG_MARKS[ci] || 'dot', s = '<svg viewBox="0 0 20 20" aria-hidden="true">';
+    if (k === 'dot') s += '<circle class="m" cx="10" cy="10" r="7"/>';
+    else if (k === 'ring') s += '<circle class="m ring" cx="10" cy="10" r="5.6"/>';
+    else if (k === 'petal') s += '<path class="m" d="M10 1.5C15.5 6.5 15.5 13.5 10 18.5C4.5 13.5 4.5 6.5 10 1.5Z"/>';
+    else {
+      var d = '', i;
+      for (i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? 3.6 : 8.8; d += (i ? 'L' : 'M') + (10 + Math.cos(a) * rr).toFixed(2) + ' ' + (10 + Math.sin(a) * rr).toFixed(2); }
+      s += '<path class="m" d="' + d + 'Z"/>';
+    }
+    return s + '</svg>';
+  }
+
   function rangoli(host, opts, done) {
+    opts = opts || {};
     var sc = scope();
-    var ref = shell(host, 'Rangoli Rush', 'Mela · a hundred thresholds', 3);
-    var theme = RG_THEMES[(opts && opts.skin) || ''], wrap = host.querySelector('.mela-wrap');
+    rgCSS();
+    var ref = shell(host, 'Rangoli Rush', 'Art and memory · a hundred thresholds', 3);
+    var wrap = host.querySelector('.mela-wrap');
+    if (wrap) wrap.classList.add('rg-wrap');
+    var theme = RG_THEMES[opts.skin || ''];
     if (theme && wrap) {
       wrap.setAttribute('data-theme-rg', opts.skin);
       theme.c.forEach(function (c, i) { wrap.style.setProperty('--rg' + (i + 1), c); });
       wrap.style.setProperty('--rg-ground', theme.ground); wrap.style.setProperty('--rg-dot', theme.dot);
     }
-    var slow = reducedMotion();
+    var slow = !!opts.reduced || reducedMotion();
     var SLOTS = 3;
-    var slot = 0, lvl = rgLoad(), score = 0, kauris = 0, passedN = 0, finished = false;
+    var saved = rgLoad(), lvl = saved;
+    /* the host's level chip names a band of twenty; a band below the ladder replays it, a band
+       above starts at its first level. The ladder itself only ever moves forward. */
+    if (opts.level >= 1 && opts.level <= 5 && rgBand(lvl) !== opts.level) lvl = (opts.level - 1) * 20;
+    var slot = 0, score = 0, passedN = 0, finished = false, asked = 0, firstRight = 0, reported = {};
     var cfg = null, pattern = null, mine = null, phase = 'show', attempt = 1, peeks = 0, resume = null;
-    var palIdx = 0, tw = null, lvlResult = null;
+    var palIdx = 0, kol = null, lvlResult = null, gen = 0, raf = 0;
 
     function keys(map) { var k = [], q; for (q in map) if (map.hasOwnProperty(q)) k.push(q); return k; }
     function nColors() { return Math.min(cfg.colors || 2, RG_COLOURS.length); }
+    function ci(colour) { return Math.max(0, RG_COLOURS.indexOf(colour)); }
+    function isGiven(k) {
+      if (!cfg.given) return false;
+      var p = k.split(','), h = Math.ceil(cfg.n / 2);
+      return +p[0] < Math.floor(cfg.n / 2) && +p[1] < h;
+    }
 
-    /* ---- the ladder header: level count, progress bar, this decade ---- */
+    /* ---- the ladder header and the level card ---- */
     function ladderHTML(cur) {
-      var pct = Math.min(100, cur);
       var d0 = Math.floor(cur / 10) * 10;
       var h = '<div class="mela-ladder" aria-label="Level ' + (cur + 1) + ' of 100">' +
         '<b class="mela-lvln">Level ' + (cur + 1) + '<i> of 100</i></b>' +
-        '<span class="mela-lbar"><i style="width:' + pct + '%"></i></span>' +
-        '<span class="mela-decade">';
+        '<span class="mela-lbar"><i style="width:' + Math.min(100, cur) + '%"></i></span><span class="mela-decade">';
       for (var i = d0; i < d0 + 10; i++) {
-        h += '<span class="mela-diya' + (i < cur ? ' lit' : i === cur ? ' now' : '') +
-          (rgIsTwist(i) ? ' twist' : '') + '">' + (rgIsTwist(i) ? '✦' : '') + '</span>';
+        h += '<span class="mela-diya' + (i < cur ? ' lit' : i === cur ? ' now' : '') + (rgIsTwist(i) ? ' twist' : '') + '">' + (rgIsTwist(i) ? '✦' : '') + '</span>';
       }
       return h + '</span></div>';
     }
-    function head(question, extraKicker) {
-      return ladderHTML(lvl) +
-        '<p class="mela-kicker" style="text-align:center">' + esc(cfg.label) + (extraKicker || '') + '</p>' +
-        '<h3 class="mela-q">' + esc(question) + '</h3>';
+    function cardHTML() {
+      if (cfg.trad) return '<div class="rg-card"><span class="rg-trad"><b>' + esc(cfg.trad.name) + '</b><span>' + esc(cfg.trad.region) +
+        (cfg.trad.how ? ' · ' + esc(cfg.trad.how) : '') + '</span></span></div>';
+      return '<p class="mela-kicker" style="text-align:center">' + esc(cfg.label) + '</p>';
     }
-    function rowNext(pass) {
-      return '<button type="button" class="mela-btn" data-go="lvlnext">' + (pass ? 'Level cleared →' : 'On we go') + '</button>';
+    function head(question) {
+      return ladderHTML(lvl) + cardHTML() + '<h3 class="mela-q">' + esc(question) + '</h3>';
     }
-    function starLine(stars) { return stars ? Array(stars + 1).join('⭐') : 'no star yet'; }
-    /* every twist ends through this one door */
-    function twistDone(pass, stars, pts, msg) {
-      lvlResult = { pass: pass, stars: stars };
-      score += pts; kauris += stars;
-      var rowEl = ref.stage.querySelector('.mela-row');
-      if (rowEl) rowEl.innerHTML = rowNext(pass);
-      var cEl = ref.stage.querySelector('[data-role="count"]');
-      if (cEl) cEl.textContent = '+' + pts + ' points · ' + starLine(stars);
-      ref.say(msg, pass ? 'good' : 'warm');
-      phase = 'twdone';
-      sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="lvlnext"]')); }, 60);
+    function plateOpen() {
+      return '<div class="rg-plate' + (cfg.wall ? ' wall' : '') + '">' +
+        (cfg.wall ? '' : '<span class="rg-diya l" aria-hidden="true"><i></i><b></b></span><span class="rg-diya r" aria-hidden="true"><i></i><b></b></span>');
     }
-
-    function paletteHTML() {
-      var h = '<div class="mela-pal" role="radiogroup" aria-label="Pick a colour">';
-      for (var i = 0; i < nColors(); i++) {
-        h += '<button type="button" class="mela-sw' + (i === palIdx ? ' on' : '') + '" data-sw="' + i +
-          '" style="--c:' + RG_COLOURS[i] + '" role="radio" aria-checked="' + (i === palIdx) +
-          '" aria-label="Colour ' + (i + 1) + '"></button>';
+    function boardHTML() {
+      var n = cfg.n, h = plateOpen() + '<div class="rg-grid" role="group" aria-label="Chalk dots on the threshold" style="--n:' + n + '">';
+      for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) {
+        h += '<button type="button" class="rg-dot mela-dot" data-k="' + r + ',' + c + '" tabindex="' + (r === 0 && c === 0 ? '0' : '-1') +
+          '" aria-pressed="false" aria-label="Row ' + (r + 1) + ', dot ' + (c + 1) + '"></button>';
       }
-      return h + '<span class="tiny muted">pick, then dot · keys 1–' + nColors() + '</span></div>';
-    }
-    function boardHTML(n, mode, tag) {
-      var h = '<div class="mela-boardwrap"><div class="mela-grid" role="group" aria-label="Rangoli dot grid" style="--n:' + n + '">';
-      for (var r = 0; r < n; r++) {
-        for (var c = 0; c < n; c++) {
-          h += '<button type="button" class="mela-dot" data-k="' + r + ',' + c + '" tabindex="' +
-               (r === 0 && c === 0 ? '0' : '-1') + '" aria-pressed="false" aria-label="Row ' + (r + 1) + ', dot ' + (c + 1) + '">' +
-               '<span class="pip"></span></button>';
-        }
-      }
-      h += '</div><div class="mela-axis v"></div>' + (mode === 'vh' ? '<div class="mela-axis h"></div>' : '') + '</div>';
+      h += '</div>' + (cfg.mode === 'curve' || cfg.mode === 'geo' ? '<div class="rg-over" aria-hidden="true"></div>' : '') +
+        '<div class="rg-axis v"></div>' + (cfg.mode === 'vh' || cfg.mode === 'rot' ? '<div class="rg-axis h"></div>' : '') + '</div>';
       return h;
     }
-    function dot(k) { return ref.stage.querySelector('.mela-dot[data-k="' + k + '"]'); }
-    function allDots() { return ref.stage.querySelectorAll('.mela-dot'); }
+    function dot(k) { return ref.stage.querySelector('.rg-dot[data-k="' + k + '"]'); }
+    function allDots() { return ref.stage.querySelectorAll('.rg-dot'); }
     function setAxis(on) {
-      var ax = ref.stage.querySelectorAll('.mela-axis');
-      for (var i = 0; i < ax.length; i++) ax[i].className = 'mela-axis ' + (ax[i].classList.contains('h') ? 'h' : 'v') + (on ? ' on' : '');
+      var ax = ref.stage.querySelectorAll('.rg-axis');
+      for (var i = 0; i < ax.length; i++) ax[i].classList.toggle('on', !!on);
+    }
+    function paintDot(d, cls, colour) {
+      d.className = 'rg-dot mela-dot' + (cls ? ' ' + cls : '');
+      d.style.setProperty('--c', colour || 'transparent');
+      d.innerHTML = colour && cls !== 'extra' ? rgMarkSVG(ci(colour)) : '';
+    }
+    /* the curve or the shape, drawn through the dots it touches (alpana, mandana) */
+    function overlay(on) {
+      var o = ref.stage.querySelector('.rg-over');
+      if (!o) return;
+      if (!on) { o.innerHTML = ''; return; }
+      var n = cfg.n, pts = keys(pattern).map(function (k) { var p = k.split(','); return [+p[1], +p[0]]; });
+      var cx = function (c) { return ((c + 0.5) / n * 100).toFixed(2); };
+      var path = '';
+      if (cfg.mode === 'curve') {
+        var byCol = {};
+        pts.forEach(function (p) { (byCol[p[0]] = byCol[p[0]] || []).push(p[1]); });
+        [0, 1].forEach(function (lane) {
+          var line = [];
+          for (var c = 0; c < n; c++) if (byCol[c]) { var rs = byCol[c].slice().sort(function (a, b) { return a - b; }); line.push([c, rs[lane ? rs.length - 1 : 0]]); }
+          if (line.length > 1) {
+            path += 'M' + cx(line[0][0]) + ' ' + cx(line[0][1]);
+            for (var j = 1; j < line.length; j++) {
+              var a = line[j - 1], b = line[j];
+              path += 'Q' + cx(a[0] + 0.5) + ' ' + cx((a[1] + b[1]) / 2 - 0.6) + ' ' + cx(b[0]) + ' ' + cx(b[1]);
+            }
+          }
+        });
+      } else {
+        /* straight lines between neighbouring dots of the shape */
+        var on2 = {}, mid = (n - 1) / 2;
+        pts.forEach(function (p) { on2[p[0] + ',' + p[1]] = 1; });
+        var dd = function (x, y) { return Math.abs(x - mid) + Math.abs(y - mid); };
+        var ring = function (x, y) { return Math.max(Math.abs(x - mid), Math.abs(y - mid)) === 3; };
+        pts.forEach(function (p) {
+          [[1, 1], [1, -1], [2, 0], [0, 2]].forEach(function (dv) {
+            var x = p[0] + dv[0], y = p[1] + dv[1];
+            if (!on2[x + ',' + y]) return;
+            /* a diamond's edge joins dots at one distance from the centre; a square's, dots on its ring */
+            if (dv[0] && dv[1] ? dd(x, y) !== dd(p[0], p[1]) : !(ring(x, y) && ring(p[0], p[1]))) return;
+            path += 'M' + cx(p[0]) + ' ' + cx(p[1]) + 'L' + cx(x) + ' ' + cx(y);
+          });
+        });
+      }
+      o.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="' + path + '" vector-effect="non-scaling-stroke"/></svg>';
     }
     function paintShow() {
-      var ds = allDots(), i;
-      for (i = 0; i < ds.length; i++) {
+      var ds = allDots();
+      for (var i = 0; i < ds.length; i++) {
         var d = ds[i], k = d.getAttribute('data-k');
-        d.className = 'mela-dot' + (pattern[k] ? ' lit' : '');
-        d.style.setProperty('--c', pattern[k] || 'transparent');
+        paintDot(d, pattern[k] ? 'lit' : '', pattern[k]);
         d.disabled = true;
         d.setAttribute('aria-pressed', pattern[k] ? 'true' : 'false');
       }
-      setAxis(true);
+      setAxis(true); overlay(true);
     }
     function paintMine() {
-      var ds = allDots(), i;
-      for (i = 0; i < ds.length; i++) {
+      var ds = allDots();
+      for (var i = 0; i < ds.length; i++) {
         var d = ds[i], k = d.getAttribute('data-k');
-        d.className = 'mela-dot' + (mine[k] ? ' mine' : '');
-        d.style.setProperty('--c', mine[k] || 'var(--accent2)');
+        if (isGiven(k)) { paintDot(d, pattern[k] ? 'lit given' : 'given', pattern[k]); d.disabled = true; continue; }
+        paintDot(d, mine[k] ? 'mine' : '', mine[k]);
         d.disabled = false;
         d.setAttribute('aria-pressed', mine[k] ? 'true' : 'false');
       }
-      setAxis(false);
+      setAxis(false); overlay(false);
     }
-    function frame(question, mainLabel, mainGo, ghostLabel, ghostGo, hint, extra) {
-      ref.stage.innerHTML =
-        head(question) +
-        boardHTML(cfg.n, cfg.mode) +
-        (extra || '') +
+    function paletteHTML() {
+      if (nColors() < 2) return '';
+      var h = '<div class="rg-pal" role="radiogroup" aria-label="Pick a chalk">';
+      for (var i = 0; i < nColors(); i++) {
+        h += '<button type="button" class="rg-sw' + (i === palIdx ? ' on' : '') + '" data-sw="' + i + '" style="--c:' + RG_COLOURS[i] +
+          '" role="radio" aria-checked="' + (i === palIdx) + '" aria-label="Chalk ' + (i + 1) + ', the ' + RG_MARKS[i] + '">' + rgMarkSVG(i) + '<u>' + (i + 1) + '</u></button>';
+      }
+      return h + '</div>';
+    }
+    /* the shell's tab bar, measured rather than guessed, so the action row can sit above it */
+    function barH() {
+      try {
+        var el = D.elementFromPoint(Math.floor(W.innerWidth / 2), W.innerHeight - 6);
+        while (el && el !== D.body && el !== D.documentElement) {
+          var cs = W.getComputedStyle(el);
+          if (cs.position === 'fixed' || cs.position === 'sticky') { var r = el.getBoundingClientRect(); if (r.top > W.innerHeight * 0.5) return Math.max(0, W.innerHeight - r.top); }
+          el = el.parentElement;
+        }
+      } catch (e) {}
+      return 0;
+    }
+    function markBar() { if (wrap) wrap.style.setProperty('--rg-bar', barH() + 'px'); }
+    sc.on(W, 'resize', markBar);
+    function layout(question, mainLabel, mainGo, ghostLabel, ghostGo, hint, extra) {
+      ref.stage.innerHTML = '<div class="rg-stagebox">' + head(question) + boardHTML() + (extra || '') +
         '<p class="mela-count" data-role="count"></p>' +
         '<div class="mela-row">' +
-          '<button type="button" class="mela-btn" data-go="' + mainGo + '">' + esc(mainLabel) + '</button>' +
+          (mainLabel ? '<button type="button" class="mela-btn" data-go="' + mainGo + '">' + esc(mainLabel) + '</button>' : '') +
           (ghostLabel ? '<button type="button" class="mela-btn ghost" data-go="' + ghostGo + '">' + esc(ghostLabel) + '</button>' : '') +
-        '</div>' +
-        '<p class="mela-hint">' + esc(hint) + '</p>';
+        '</div><div class="rg-miss"></div>' +
+        '<p class="mela-hint">' + esc(hint) + '</p></div>';
+      markBar();
     }
+    function need() { return keys(pattern).filter(function (k) { return !isGiven(k); }); }
     function countLine() {
       var el = ref.stage.querySelector('[data-role="count"]');
       if (!el) return;
-      var need = keys(pattern).length, got = keys(mine).length;
-      /* never "8 of 6" (FIX-INDIA §1): past the pattern's count, say how many are extra */
+      var nd = need().length, got = keys(mine).length;
       el.textContent = phase !== 'draw' ? ''
-        : got <= need ? (got + ' of ' + need + ' dots placed')
-        : (need + ' of ' + need + ' dots placed, and ' + (got - need) + ' extra — tap ' +
-           (got - need === 1 ? 'one' : 'some') + ' again to lift ' + (got - need === 1 ? 'it' : 'them'));
+        : got <= nd ? (got + ' of ' + nd + ' dots placed')
+        : (nd + ' of ' + nd + ' dots placed, and ' + (got - nd) + ' extra — tap ' + (got - nd === 1 ? 'it' : 'them') + ' again to lift');
     }
 
-    /* ------------------------------------------- the memory levels ---- */
-    function showPhase() {
-      phase = 'show';
-      var need = keys(pattern).length;
-      frame('Look carefully…', 'I have got it', 'ready', '', '', cfg.note);
-      paintShow();
-      ref.say('Chalk dust — ' + need + ' dots in ' + nColors() + ' colours. It blows away in a moment.', 'warm');
-      var left = Math.max(3, Math.round(need * 0.6) + 2);
-      var el = ref.stage.querySelector('[data-role="count"]');
-      if (el) el.textContent = 'Blows away in ' + left + '…';
-      var tick = sc.every(function () {
+    /* ---- THE CLOCK (R1): one countdown, on requestAnimationFrame with real elapsed time, owned
+       by a generation number. "I have got it" ends it, and nothing a stale timer does can reach
+       a board that has moved on — drawPhase() runs only from the show it belongs to. ---- */
+    function stopClock() { gen++; if (raf && W.cancelAnimationFrame) W.cancelAnimationFrame(raf); raf = 0; }
+    function countdown(secs, g) {
+      var left = secs * 1000, last = null;
+      function tick(ts) {
+        if (g !== gen || phase !== 'show' || sc.dead) return;
         if (detached(host)) { sc.kill(); return; }
-        left--;
-        var e2 = ref.stage.querySelector('[data-role="count"]');
-        if (e2) e2.textContent = left > 0 ? 'Blows away in ' + left + '…' : '';
-        if (left <= 0) { W.clearInterval(tick); drawPhase(); }
-      }, slow ? 1400 : 1000);
-      sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="ready"]')); }, 60);
+        if (last !== null) left -= Math.min(100, ts - last);          /* a hidden tab gets no credit */
+        last = ts;
+        var el = ref.stage.querySelector('[data-role="count"]');
+        if (el) el.textContent = left > 0 ? 'The dust blows away in ' + Math.ceil(left / 1000) + '…' : '';
+        if (left <= 0) { drawPhase(g); return; }
+        raf = W.requestAnimationFrame(tick);
+      }
+      if (opts.calm) {
+        var el0 = ref.stage.querySelector('[data-role="count"]');
+        if (el0) el0.textContent = 'Take your time — press “I have got it” when you are ready.';
+        return;
+      }
+      raf = W.requestAnimationFrame(tick);
     }
-    function peekPhase() {
+    function showPhase() {
+      stopClock();
       phase = 'show';
-      resume = mine;
-      frame('Here it is again…', 'Got it', 'ready', '', '', cfg.note);
+      var g = gen, nd = keys(pattern).length;
+      layout('Look carefully…', resume ? 'Got it' : 'I have got it', 'ready', '', '', cfg.note);
       paintShow();
-      ref.say('Take your time.', 'warm');
+      ref.say(nColors() > 1 ? nd + ' dots in ' + nColors() + ' chalks — each chalk has its own mark.' : nd + ' dots in one chalk.');
+      countdown(resume ? (slow ? 4 : 3) : Math.max(3, Math.round(nd * 0.5) + 2) + (slow ? 2 : 0), g);
       sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="ready"]')); }, 60);
-      sc.later(function () { if (phase === 'show') drawPhase(); }, slow ? 4200 : 3200);
     }
-    function drawPhase() {
+    function drawPhase(g) {
+      if (g !== gen || phase !== 'show') return;      /* only the show it belongs to may end */
+      stopClock();
       phase = 'draw';
       if (resume) { mine = resume; resume = null; }
-      var need = keys(pattern).length;
-      frame('Now draw it back — in colour', 'Check my rangoli', 'check', 'Show me again', 'peek',
-            'Pick a colour below, then tap the dots. Same colour again lifts a dot. ' + need + ' dots to lay.',
-            paletteHTML());
+      layout(cfg.given ? 'Lay the other three quarters' : 'Now lay it back', 'Check my ' + (cfg.trad ? cfg.trad.name.toLowerCase() : 'rangoli'), 'check',
+        'Show me again', 'peek',
+        (nColors() > 1 ? 'Pick a chalk below (or 1–' + nColors() + '), then tap the dots. ' : 'Tap the dots. ') + 'Tap a dot again to lift it. Enter checks.',
+        paletteHTML());
       paintMine();
       countLine();
       ref.say('');
       sc.later(function () {
-        var first = ref.stage.querySelector('.mela-dot');
+        var first = ref.stage.querySelector('.rg-dot:not(:disabled)');
         if (first) { first.setAttribute('tabindex', '0'); focusSoft(first); }
       }, 60);
     }
+    function report(right) {
+      var id = 'level-' + (lvl + 1);
+      if (reported[lvl]) return;
+      reported[lvl] = true;
+      asked++; if (right) firstRight++;
+      if (typeof opts.answer === 'function') {
+        try { opts.answer({ id: id, right: !!right, firstTry: true, skill: 'memory.pattern', objective: null }); } catch (e) {}
+      }
+    }
     function checkPhase() {
+      if (phase !== 'draw') return;
+      stopClock();
       phase = 'checked';
-      var need = keys(pattern), got = keys(mine), i, hit = 0, wrongC = 0, extra = 0;
+      var nd = need(), got = keys(mine), i, hit = 0, wrongC = 0, extra = 0;
       var ds = allDots();
       for (i = 0; i < ds.length; i++) {
         var d = ds[i], k = d.getAttribute('data-k');
-        var inP = !!pattern[k], inM = !!mine[k];
         d.disabled = true;
-        d.style.setProperty('--c', pattern[k] || 'var(--muted)');
-        d.className = 'mela-dot' + (inP && inM && pattern[k] === mine[k] ? ' hit'
-          : inP && inM ? ' near' : inP ? ' miss' : inM ? ' extra' : '');
+        if (isGiven(k)) continue;
+        var inP = !!pattern[k], inM = !!mine[k];
+        if (inP && inM && pattern[k] === mine[k]) paintDot(d, 'hit', pattern[k]);
+        else if (inP && inM) paintDot(d, 'near', pattern[k]);
+        else if (inP) paintDot(d, 'miss', pattern[k]);
+        else if (inM) paintDot(d, 'extra', mine[k]);
+        else paintDot(d, '', null);
       }
       for (i = 0; i < got.length; i++) {
         if (!pattern[got[i]]) extra++;
         else if (pattern[got[i]] === mine[got[i]]) hit++;
         else wrongC++;
       }
-      var acc = need.length ? (hit + wrongC * 0.5) / (need.length + extra) : 1;
-      var perfect = hit === need.length && extra === 0 && wrongC === 0;
-      var pass = acc >= 0.6;
-      var stars = perfect && attempt === 1 && peeks === 0 ? 3 : perfect ? 2 : pass ? 1 : 0;
-      var pts = Math.round(100 * acc);
-      score += pts; kauris += (stars || (acc >= 0.35 ? 1 : 0));
+      var acc = nd.length ? hit / (nd.length + extra + wrongC) : 0;
+      settle(acc >= RG_CLEAR, hit === nd.length && !extra && !wrongC, acc,
+        hit + ' of ' + nd.length + ' dots right in the right chalk' + (wrongC ? ', ' + wrongC + ' in another chalk' : '') + (extra ? ', ' + extra + ' extra' : '') + '.');
+      setAxis(true); overlay(true);
+    }
+    /* every level, dots or kolam, ends through this one door */
+    function settle(cleared, perfect, acc, line) {
+      var first = attempt === 1 && peeks === 0;
+      report(cleared && first);
+      var pts = first ? Math.max(0, Math.round(100 * acc)) : 0;    /* a retry is for learning: it never scores */
+      score += pts;
+      var stars = perfect && first ? 3 : perfect ? 2 : cleared ? 1 : 0;
+      lvlResult = { pass: cleared, stars: stars };
       var qEl = ref.stage.querySelector('.mela-q');
-      if (qEl) qEl.textContent = perfect ? 'Exactly right — colours and all' : 'Here is the rangoli again';
-      var msg = perfect
-        ? 'Perfect. Every dot back in its own colour.'
-        : hit + ' of ' + need.length + ' dots right in the right colour' +
-          (wrongC ? ', ' + wrongC + ' in the wrong colour' : '') +
-          (extra ? ', ' + extra + ' extra' : '') + '.';
-      ref.stage.querySelector('.mela-row').innerHTML = rowNext(pass) +
-        (perfect ? '' : '<button type="button" class="mela-btn ghost" data-go="retry">Try this one again</button>');
+      if (qEl) qEl.textContent = cleared ? (perfect ? 'Exactly right — every chalk in its place' : 'Cleared — the threshold is dressed') : 'Here it is again';
       var cEl = ref.stage.querySelector('[data-role="count"]');
-      if (cEl) cEl.textContent = '+' + pts + ' points · ' + starLine(stars);
-      ref.say(perfect ? one(CHEERS) + ' ' + msg : msg, perfect ? 'good' : 'warm');
-      setAxis(true);
-      lvlResult = { pass: pass, stars: stars };
-      sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="lvlnext"]')); }, 60);
+      if (cEl) cEl.textContent = [pts ? '+' + pts + ' points' : '', stars ? Array(stars + 1).join('★') : ''].filter(Boolean).join(' · ');
+      var row = ref.stage.querySelector('.mela-row'), miss = ref.stage.querySelector('.rg-miss');
+      if (cleared) {
+        if (row) row.innerHTML = '<button type="button" class="mela-btn" data-go="lvlnext">Level cleared →</button>';
+        if (miss) miss.innerHTML = '';
+        ref.say(line);
+        sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="lvlnext"]')); }, 60);
+      } else {
+        if (row) row.innerHTML = '';
+        if (miss) miss.innerHTML = '<div class="gm-miss" role="status"><b>Not quite.</b> <span class="gm-ans">' + esc(line) +
+          ' The ' + (cfg.trad ? cfg.trad.name.toLowerCase() : 'rangoli') + ' is back on the board.</span>' +
+          '<p class="gm-teach">' + esc(teachLine()) + '</p>' +
+          '<div class="mela-row" style="justify-content:flex-start;margin-top:0"><button type="button" class="btn mela-btn gm-aage" data-gm="aage">Aage →</button>' +
+          '<button type="button" class="mela-btn ghost" data-go="retry">Try this one again</button></div></div>';
+        ref.say('');
+        sc.later(function () { focusSoft(ref.stage.querySelector('[data-gm="aage"]')); }, 60);
+      }
+    }
+    function teachLine() {
+      if (cfg.kind === 'kolam') return 'The line goes round the dots in one order. Watch where it turns, and follow it from the bright dot.';
+      if (cfg.mode === 'rot') return 'Turn the quarter you were given a quarter-turn at a time — each turn lands on the next corner.';
+      if (cfg.mode === 'curve') return 'The two halves mirror each other: follow the curve down one side, and the other side copies it.';
+      if (cfg.mode === 'geo') return 'Count the dots from the centre to each corner: a diamond is the same count every way.';
+      return cfg.mode === 'v' ? 'Remember one half and its chalks — the mirror makes the other.' : 'Remember one quarter: fold it left-right, then top-bottom.';
     }
     function toggle(d) {
-      if (phase !== 'draw' || !d) return;
-      var k = d.getAttribute('data-k');
-      var col = RG_COLOURS[palIdx];
-      if (mine[k] === col) { delete mine[k]; d.className = 'mela-dot'; d.style.setProperty('--c', 'var(--accent2)'); d.setAttribute('aria-pressed', 'false'); }
-      else { mine[k] = col; d.className = 'mela-dot mine'; d.style.setProperty('--c', col); d.setAttribute('aria-pressed', 'true'); }
+      if (phase !== 'draw' || !d || d.disabled) return;
+      var k = d.getAttribute('data-k'), col = RG_COLOURS[palIdx];
+      if (mine[k] === col) { delete mine[k]; paintDot(d, '', null); d.setAttribute('aria-pressed', 'false'); }
+      else { mine[k] = col; paintDot(d, 'mine', col); d.setAttribute('aria-pressed', 'true'); }
       countLine();
     }
     function moveDot(from, dr, dc) {
@@ -857,561 +1075,109 @@
     function pickColor(i) {
       if (i < 0 || i >= nColors()) return;
       palIdx = i;
-      var sws = ref.stage.querySelectorAll('.mela-sw');
-      for (var k2 = 0; k2 < sws.length; k2++) {
-        sws[k2].className = 'mela-sw' + (k2 === i ? ' on' : '');
-        sws[k2].setAttribute('aria-checked', String(k2 === i));
-      }
+      var sws = ref.stage.querySelectorAll('.rg-sw');
+      for (var k = 0; k < sws.length; k++) { sws[k].classList.toggle('on', k === i); sws[k].setAttribute('aria-checked', String(k === i)); }
     }
 
-    /* ====================== THE TEN TWISTS ====================== */
-    var TW = {};
-
-    /* -- kolam: one unbroken line through numbered dots -- */
-    TW.kolam = { start: function () {
-      var k = 6 + 2 * Math.min(4, cfg.d + 1), R = 130, pts = [], i;
+    /* ---- KOLAM: one continuous line around the dots; the order is shown, then hidden ---- */
+    function kolamStart() {
+      var k = 8 + 2 * Math.min(4, cfg.d), steps = [3, 5, 7].filter(function (s) { return gcd(s, k) === 1 && s < k / 2; });
+      var step = steps[Math.min(steps.length - 1, cfg.d - 1)] || 3, i;
+      var pts = [];
       for (i = 0; i < k; i++) {
-        var a = (i / k) * Math.PI * 2 - Math.PI / 2;
-        var r = i % 2 ? R * 0.58 : R;
-        pts.push({ x: 170 + Math.cos(a) * r, y: 160 + Math.sin(a) * r, n: i + 1 });
+        var a = (i / k) * Math.PI * 2 - Math.PI / 2, r = i % 2 ? 112 : 132;
+        pts.push({ x: 170 + Math.cos(a) * r, y: 158 + Math.sin(a) * r });
       }
-      tw = { pts: pts, next: 1, miss: 0 };
-      ref.stage.innerHTML = head('One unbroken line — tap 1, then 2, then on') +
-        '<div class="mela-boardwrap"><svg class="mela-kolam" viewBox="0 0 340 320">' +
-        '<g class="mela-klines"></g>' +
-        pts.map(function (pt) {
-          return '<g class="mela-kdot" data-tw="' + pt.n + '" role="button" tabindex="0" aria-label="Dot ' + pt.n + '">' +
-            '<circle class="kd-hit" cx="' + pt.x.toFixed(1) + '" cy="' + pt.y.toFixed(1) + '" r="26"/>' +
-            '<circle class="kd" cx="' + pt.x.toFixed(1) + '" cy="' + pt.y.toFixed(1) + '" r="11"/>' +
-            '<text x="' + pt.x.toFixed(1) + '" y="' + (pt.y + 4.5).toFixed(1) + '" text-anchor="middle">' + pt.n + '</text></g>';
+      var order = [], at = 0;
+      for (i = 0; i < k; i++) { order.push(at); at = (at + step) % k; }
+      kol = { pts: pts, order: order, next: 1, miss: 0 };
+      kolamBoard();
+      kolamShow();
+    }
+    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+    function kolamBoard() {
+      ref.stage.innerHTML = '<div class="rg-stagebox">' + head('Watch the line go round — then trace it') + plateOpen() +
+        '<svg class="rg-kolam" viewBox="0 0 340 320" role="group" aria-label="Kolam dots"><path class="rg-kline" d=""/>' +
+        kol.pts.map(function (pt, j) {
+          return '<g class="rg-kdot" data-kd="' + j + '" role="button" tabindex="' + (j === kol.order[0] ? '0' : '-1') + '" aria-label="Dot ' + (j + 1) + '">' +
+            '<circle class="kh" cx="' + pt.x.toFixed(1) + '" cy="' + pt.y.toFixed(1) + '" r="24"/>' +
+            '<circle class="kd" cx="' + pt.x.toFixed(1) + '" cy="' + pt.y.toFixed(1) + '" r="8"/></g>';
         }).join('') + '</svg></div>' +
-        '<p class="mela-count" data-role="count">next: 1</p><div class="mela-row"></div>' +
-        '<p class="mela-hint">Kolam lines are drawn in one unbroken loop before the door. Tab and Enter work too.</p>';
-      ref.say('Start at 1 — the loop closes back where it began.', 'warm');
-      sc.later(function () { focusSoft(ref.stage.querySelector('.mela-kdot')); }, 60);
-    }, act: function (n) {
-      var el = ref.stage.querySelector('.mela-kdot[data-tw="' + n + '"]');
-      if (n !== tw.next) {
-        tw.miss++;
-        if (el) { el.classList.remove('shake'); void el.getBBox; el.classList.add('shake'); }
-        ref.say('The line wants dot ' + tw.next + ' next.', 'warm');
+        '<p class="mela-count" data-role="count"></p><div class="mela-row"></div><div class="rg-miss"></div>' +
+        '<p class="mela-hint">Tap the dots in the order the line went — Tab and Enter work too. Two slips are allowed; a third ends the level.</p></div>';
+    }
+    function kolamPath(n) {
+      var d = '';
+      for (var j = 0; j < n; j++) { var p = kol.pts[kol.order[j % kol.order.length]]; d += (j ? 'L' : 'M') + p.x.toFixed(1) + ' ' + p.y.toFixed(1); }
+      return d;
+    }
+    function kolamShow() {
+      stopClock();
+      phase = 'show';
+      var g = gen, n = 0, total = kol.order.length + 1;
+      var line = ref.stage.querySelector('.rg-kline');
+      var el = ref.stage.querySelector('[data-role="count"]');
+      if (el) el.textContent = 'Watch the line…';
+      ref.say('The line starts at the bright dot.');
+      markKolam();
+      (function grow() {
+        if (g !== gen || phase !== 'show' || sc.dead) return;
+        n++;
+        if (line) line.setAttribute('d', kolamPath(Math.min(n, total)));
+        if (n < total) { sc.later(grow, slow ? 700 : 480); return; }
+        sc.later(function () {
+          if (g !== gen || phase !== 'show') return;
+          phase = 'trace';
+          if (line) line.setAttribute('d', '');
+          kol.next = 1;
+          markKolam();
+          if (el) el.textContent = 'Now trace it from the bright dot · ' + (kol.order.length - 1) + ' dots to go';
+          ref.say('Your turn — the order is hidden now.');
+          focusSoft(ref.stage.querySelector('.rg-kdot.first'));
+        }, slow ? 1600 : 1100);
+      })();
+    }
+    function markKolam() {
+      var gs = ref.stage.querySelectorAll('.rg-kdot');
+      for (var j = 0; j < gs.length; j++) {
+        var idx = +gs[j].getAttribute('data-kd'), pos = kol.order.indexOf(idx);
+        gs[j].setAttribute('class', 'rg-kdot' + (idx === kol.order[0] ? ' first' : '') + (phase === 'trace' && pos > 0 && pos < kol.next ? ' done' : ''));
+      }
+    }
+    function kolamTap(idx) {
+      if (phase !== 'trace') return;
+      var want = kol.order[kol.next], line = ref.stage.querySelector('.rg-kline');
+      var g = ref.stage.querySelector('.rg-kdot[data-kd="' + idx + '"]');
+      if (idx === kol.order[0] && kol.next === kol.order.length) want = idx;
+      if (idx !== want) {
+        kol.miss++;
+        if (g) { g.classList.remove('shake'); void g.getBoundingClientRect(); g.classList.add('shake'); }
+        if (kol.miss >= 3) return kolamEnd(false);
+        ref.say('Not that one — ' + (3 - kol.miss) + ' slip' + (3 - kol.miss === 1 ? '' : 's') + ' left.');
         return;
       }
-      if (el) el.classList.add('done');
-      var lines = ref.stage.querySelector('.mela-klines');
-      var a = tw.pts[(n - 2 + tw.pts.length) % tw.pts.length], b = tw.pts[n - 1];
-      if (n > 1 && lines) lines.innerHTML += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '"/>';
-      tw.next++;
-      var cEl = ref.stage.querySelector('[data-role="count"]');
-      if (tw.next <= tw.pts.length) { if (cEl) cEl.textContent = 'next: ' + tw.next; return; }
-      var z = tw.pts[tw.pts.length - 1], f = tw.pts[0];
-      if (lines) lines.innerHTML += '<line x1="' + z.x + '" y1="' + z.y + '" x2="' + f.x + '" y2="' + f.y + '"/>' +
-        '<polygon class="bloom" points="' + tw.pts.map(function (pt) { return pt.x + ',' + pt.y; }).join(' ') + '"/>';
-      var stars = tw.miss === 0 ? 3 : tw.miss <= 2 ? 2 : 1;
-      twistDone(true, stars, 80 - tw.miss * 10,
-        tw.miss === 0 ? 'One unbroken line — a true kolam!' : 'The loop closed, with ' + tw.miss + ' stumble' + (tw.miss > 1 ? 's' : '') + '.');
-    } };
-
-    /* -- rain: catch petals in the matching bowl -- */
-    TW.rain = { start: function () {
-      var target = 9 + cfg.d * 3;
-      tw = { target: target, caught: 0, missed: 0, dur: (slow ? 2900 : 2400) - cfg.d * 150,
-             petal: null, raf: null, overAt: Date.now() + 40000 };
-      var bowls = '';
-      for (var i = 0; i < 4; i++) {
-        bowls += '<button type="button" class="mela-bowl" data-tw="' + i + '" style="--c:' + RG_COLOURS[i] +
-          '" aria-label="Bowl ' + (i + 1) + '"><i></i><b>' + (i + 1) + '</b></button>';
-      }
-      ref.stage.innerHTML = head('Catch ' + target + ' petals — each in its own colour’s bowl') +
-        '<div class="mela-rainbox"><span class="mela-petal" hidden></span></div>' +
-        '<div class="mela-bowls">' + bowls + '</div>' +
-        '<p class="mela-count" data-role="count">caught 0 · 3 drops allowed</p><div class="mela-row"></div>' +
-        '<p class="mela-hint">Tap the bowl of the petal’s colour before it lands. Keys 1–4 work too.</p>';
-      function drop() {
-        if (phase !== 'twist') return;
-        tw.petal = { c: Math.floor(Math.random() * 4), born: Date.now(), x: 14 + Math.random() * 72 };
-        var el = ref.stage.querySelector('.mela-petal');
-        if (el) { el.hidden = false; el.style.setProperty('--c', RG_COLOURS[tw.petal.c]); el.style.left = tw.petal.x + '%'; el.style.top = '-24px'; }
-      }
-      tw.drop = drop;
-      function loop() {
-        if (phase !== 'twist' || sc.dead) return;
-        var now = Date.now();
-        var box = ref.stage.querySelector('.mela-rainbox');
-        var el = ref.stage.querySelector('.mela-petal');
-        if (tw.petal && box && el) {
-          var f = (now - tw.petal.born) / tw.dur;
-          el.style.top = (f * (box.clientHeight - 6) - 24) + 'px';
-          if (f >= 1) miss('it landed');
-        }
-        if (now > tw.overAt) return end();
-        tw.raf = W.requestAnimationFrame(loop);
-      }
-      function miss(why) {
-        tw.missed++;
-        var cEl = ref.stage.querySelector('[data-role="count"]');
-        if (cEl) cEl.textContent = 'caught ' + tw.caught + ' · ' + Math.max(0, 3 - tw.missed) + ' left · ' + why;
-        if (tw.missed >= 3) return end();
-        drop();
-      }
-      tw.miss = miss;
-      function end() {
-        if (phase !== 'twist') return;
-        if (tw.raf) W.cancelAnimationFrame(tw.raf);
-        var el = ref.stage.querySelector('.mela-petal'); if (el) el.hidden = true;
-        var pass = tw.caught >= Math.ceil(tw.target * 0.6);
-        var stars = tw.caught >= tw.target ? 3 : pass ? 2 : tw.caught >= 4 ? 1 : 0;
-        twistDone(pass, stars, tw.caught * 8,
-          pass ? 'The bowls are full of colour!' : 'Slippery petals — the bowls will wait.');
-      }
-      tw.end = end;
-      drop(); loop();
-    }, act: function (i) {
-      if (!tw.petal) return;
-      if (i === tw.petal.c) {
-        tw.caught++;
-        tw.dur = Math.max(1100, tw.dur - 70);
-        var cEl = ref.stage.querySelector('[data-role="count"]');
-        if (cEl) cEl.textContent = 'caught ' + tw.caught + ' · ' + (3 - tw.missed) + ' drops allowed';
-        if (tw.caught >= tw.target + 4) return tw.end();
-        tw.drop();
-      } else tw.miss('wrong bowl');
-    } };
-
-    /* -- diya: the lamps flicker in an order; light them back -- */
-    TW.diya = { start: function () {
-      var N = 5, rounds = 2 + Math.min(2, cfg.d), base = 2 + cfg.d;
-      tw = { N: N, round: 0, rounds: rounds, base: base, seq: [], at: 0, miss: 0, showing: true };
-      var lamps = '';
-      for (var i = 0; i < N; i++) {
-        lamps += '<button type="button" class="mela-diyabig" data-tw="' + i + '" aria-label="Diya ' + (i + 1) + '">' +
-          '<span class="flame"></span><span class="cup"></span><b>' + (i + 1) + '</b></button>';
-      }
-      ref.stage.innerHTML = head('The diyas flicker in an order — light them back') +
-        '<div class="mela-diyarow">' + lamps + '</div>' +
-        '<p class="mela-count" data-role="count"></p><div class="mela-row"></div>' +
-        '<p class="mela-hint">Watch the flames, then tap the diyas in the same order. Keys 1–5 work too.</p>';
-      TW.diya.show();
-    }, show: function () {
-      tw.round++; tw.at = 0; tw.showing = true;
-      tw.seq = [];
-      for (var i = 0; i < tw.base + tw.round - 1; i++) tw.seq.push(Math.floor(Math.random() * tw.N));
-      var cEl = ref.stage.querySelector('[data-role="count"]');
-      if (cEl) cEl.textContent = 'round ' + tw.round + ' of ' + tw.rounds + ' · watch…';
-      ref.say('Watch the flames…', 'warm');
-      var step = 0;
-      (function flash() {
-        if (phase !== 'twist' || sc.dead) return;
-        var all = ref.stage.querySelectorAll('.mela-diyabig');
-        for (var j = 0; j < all.length; j++) all[j].classList.remove('lit');
-        if (step >= tw.seq.length) {
-          tw.showing = false;
-          if (cEl) cEl.textContent = 'round ' + tw.round + ' of ' + tw.rounds + ' · your turn — ' + tw.seq.length + ' diyas';
-          ref.say('Now you — in the same order.');
-          return;
-        }
-        var el = all[tw.seq[step]];
-        if (el) el.classList.add('lit');
-        step++;
-        sc.later(function () {
-          for (var j2 = 0; j2 < all.length; j2++) all[j2].classList.remove('lit');
-          sc.later(flash, slow ? 340 : 220);
-        }, slow ? 900 : 620);
-      })();
-    }, act: function (i) {
-      if (tw.showing) return;
-      var all = ref.stage.querySelectorAll('.mela-diyabig');
-      if (i === tw.seq[tw.at]) {
-        if (all[i]) all[i].classList.add('lit');
-        sc.later(function () { if (all[i]) all[i].classList.remove('lit'); }, 260);
-        tw.at++;
-        if (tw.at >= tw.seq.length) {
-          if (tw.round >= tw.rounds) {
-            var stars = tw.miss === 0 ? 3 : tw.miss === 1 ? 2 : 1;
-            return twistDone(true, stars, 60 + (tw.rounds - tw.miss) * 15,
-              tw.miss === 0 ? 'Every diya in its turn — the whole row burns!' : 'The row burns bright.');
-          }
-          sc.later(function () { if (phase === 'twist') TW.diya.show(); }, 700);
-        }
-      } else {
-        tw.miss++;
-        ref.say('Not that one — watch once more.', 'warm');
-        if (tw.miss >= 3) return twistDone(false, 0, 20, 'The wind took the flames — next sitting they burn.');
-        sc.later(function () { if (phase === 'twist') { tw.round--; TW.diya.show(); } }, 650);
-      }
-    } };
-
-    /* -- mehndi: the left hand is drawn; mirror it onto the right -- */
-    TW.mehndi = { start: function () {
-      cfg.n = 6; cfg.mode = 'v'; cfg.colors = Math.min(3, 1 + cfg.d);
-      var seeds = 4 + cfg.d;
-      pattern = rangoliPattern({ n: 6, seeds: seeds, mode: 'v', colors: cfg.colors });
-      tw = { placed: {} };
-      ref.stage.innerHTML = head('Half the mehndi is drawn — finish the other hand') +
-        boardHTML(6, 'v') +
-        '<p class="mela-count" data-role="count"></p>' +
-        '<div class="mela-row"><button type="button" class="mela-btn" data-go="twcheck">Check the mirror</button></div>' +
-        '<p class="mela-hint">The LEFT side stays painted. Tap the RIGHT side to mirror it — each dot takes its partner’s colour by itself.</p>';
-      var ds = allDots();
-      for (var i = 0; i < ds.length; i++) {
-        var d = ds[i], k = d.getAttribute('data-k'), c = +k.split(',')[1];
-        var left = c < 3;
-        if (left) {
-          d.className = 'mela-dot' + (pattern[k] ? ' lit' : '');
-          d.style.setProperty('--c', pattern[k] || 'transparent');
-          d.disabled = true;
-        } else {
-          d.className = 'mela-dot';
-          d.style.setProperty('--c', 'var(--accent2)');
-        }
-      }
-      setAxis(true);
-      ref.say('Mehndi is a mirror — what the left hand has, the right hand answers.', 'warm');
-    }, tap: function (d) {
-      var k = d.getAttribute('data-k'), parts = k.split(','), r = +parts[0], c = +parts[1];
-      if (c < 3) return;
-      var mk = r + ',' + (5 - c);
-      var want = pattern[mk] || null;
-      if (tw.placed[k]) {
-        delete tw.placed[k];
-        d.className = 'mela-dot'; d.style.setProperty('--c', 'var(--accent2)');
-        return;
-      }
-      tw.placed[k] = want || RG_COLOURS[0];
-      d.className = 'mela-dot mine';
-      d.style.setProperty('--c', tw.placed[k]);
-    }, check: function () {
-      var hit = 0, extra = 0, needN = 0, k, r, c;
-      for (k in pattern) {
-        if (!pattern.hasOwnProperty(k)) continue;
-        c = +k.split(',')[1];
-        if (c >= 3) { needN++; if (tw.placed[k]) hit++; }
-      }
-      for (k in tw.placed) if (tw.placed.hasOwnProperty(k) && !pattern[k]) extra++;
-      var pass = needN ? (hit / (needN + extra)) >= 0.7 : true;
-      var perfect = hit === needN && !extra;
-      var ds = allDots();
-      for (var i = 0; i < ds.length; i++) {
-        var d = ds[i]; k = d.getAttribute('data-k'); c = +k.split(',')[1];
-        if (c < 3) continue;
-        d.disabled = true;
-        d.style.setProperty('--c', pattern[k] || 'var(--muted)');
-        d.className = 'mela-dot' + (pattern[k] && tw.placed[k] ? ' hit' : pattern[k] ? ' miss' : tw.placed[k] ? ' extra' : '');
-      }
-      twistDone(pass, perfect ? 3 : pass ? 2 : 0, hit * 12,
-        perfect ? 'Both hands match — shaadi-ready mehndi!' : hit + ' of ' + needN + ' mirrored true.');
-    } };
-
-    /* -- toran: what hangs next on the doorway string? -- */
-    TW.toran = { start: function () {
-      var MOT = ['🌼', '🍃', '🪔', '🌸', '🍋'];
-      tw = { MOT: MOT, round: 0, rounds: 4, hits: 0, misses: 0 };
-      ref.stage.innerHTML = head('The toran is being strung — what hangs next?') +
-        '<div class="mela-toran"><div class="mela-torstring" data-role="tor"></div></div>' +
-        '<div class="mela-toropts" data-role="toropts"></div>' +
-        '<p class="mela-count" data-role="count"></p><div class="mela-row"></div>' +
-        '<p class="mela-hint">A toran repeats its pattern across the doorway. Read the string, tap what comes next. Keys 1–3.</p>';
-      TW.toran.round();
-    }, round: function () {
-      tw.round++;
-      var ulen = 2 + Math.min(2, Math.floor((cfg.d + tw.round) / 3));
-      var unit = [], i;
-      for (i = 0; i < ulen; i++) unit.push(tw.MOT[Math.floor(Math.random() * tw.MOT.length)]);
-      if (ulen > 1 && unit[0] === unit[1]) unit[1] = tw.MOT[(tw.MOT.indexOf(unit[1]) + 1) % tw.MOT.length];
-      var reps = 2 + (ulen === 2 ? 1 : 0);
-      var seq = [];
-      for (i = 0; i < reps * ulen + (ulen - 1); i++) seq.push(unit[i % ulen]);
-      tw.answer = unit[seq.length % ulen];
-      var el = ref.stage.querySelector('[data-role="tor"]');
-      if (el) el.innerHTML = seq.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '<span class="q">?</span>';
-      var opts = [tw.answer], guard = 0;
-      while (opts.length < 3 && guard++ < 40) {
-        var cand = tw.MOT[Math.floor(Math.random() * tw.MOT.length)];
-        if (opts.indexOf(cand) < 0) opts.push(cand);
-      }
-      opts.sort(function () { return Math.random() - 0.5; });
-      var oEl = ref.stage.querySelector('[data-role="toropts"]');
-      if (oEl) oEl.innerHTML = opts.map(function (m, j) {
-        return '<button type="button" class="mela-torbtn" data-tw="' + m + '" aria-label="Choice ' + (j + 1) + '">' + m + '</button>';
-      }).join('');
-      var cEl = ref.stage.querySelector('[data-role="count"]');
-      if (cEl) cEl.textContent = 'string ' + tw.round + ' of ' + tw.rounds;
-    }, act: function (m) {
-      if (m === tw.answer) { tw.hits++; ref.say('It hangs just right.', 'good'); }
-      else { tw.misses++; ref.say('The pattern wanted ' + tw.answer + '.', 'warm'); }
-      if (tw.round >= tw.rounds) {
-        var pass = tw.hits >= 3;
-        return twistDone(pass, tw.hits === 4 ? 3 : pass ? 2 : tw.hits >= 2 ? 1 : 0, tw.hits * 20,
-          pass ? 'The doorway is dressed!' : 'The string slipped — another day.');
-      }
-      TW.toran.round();
-    } };
-
-    /* -- chakra: the wheel turns in a pattern; fill the missing wedge -- */
-    TW.chakra = { start: function () {
-      tw = { round: 0, rounds: 3, hits: 0 };
-      ref.stage.innerHTML = head('The chakra turns in a pattern — fill the missing wedge') +
-        '<div class="mela-boardwrap"><svg class="mela-chakra" viewBox="0 0 300 300" data-role="wheel"></svg></div>' +
-        '<div class="mela-toropts" data-role="chopts"></div>' +
-        '<p class="mela-count" data-role="count"></p><div class="mela-row"></div>' +
-        '<p class="mela-hint">Go around the wheel — the colours repeat in a circle. Which colour completes it? Keys 1–3.</p>';
-      TW.chakra.round();
-    }, round: function () {
-      tw.round++;
-      var W8 = 8, period = tw.round + cfg.d >= 4 ? 4 : 2;
-      var pal = [];
-      while (pal.length < period) {
-        var c2 = RG_COLOURS[Math.floor(Math.random() * 4)];
-        if (pal.indexOf(c2) < 0) pal.push(c2);
-      }
-      var gap = Math.floor(Math.random() * W8);
-      tw.answer = pal[gap % period];
-      var svg = ref.stage.querySelector('[data-role="wheel"]');
-      var out = '', i;
-      for (i = 0; i < W8; i++) {
-        var a0 = (i / W8) * Math.PI * 2 - Math.PI / 2, a1 = ((i + 1) / W8) * Math.PI * 2 - Math.PI / 2;
-        var x0 = 150 + Math.cos(a0) * 120, y0 = 150 + Math.sin(a0) * 120;
-        var x1 = 150 + Math.cos(a1) * 120, y1 = 150 + Math.sin(a1) * 120;
-        out += '<path d="M150 150L' + x0.toFixed(1) + ' ' + y0.toFixed(1) + 'A120 120 0 0 1 ' +
-          x1.toFixed(1) + ' ' + y1.toFixed(1) + 'Z" fill="' + (i === gap ? 'var(--card)' : pal[i % period]) +
-          '" stroke="var(--card)" stroke-width="4"' + (i === gap ? ' stroke-dasharray="6 6" stroke="var(--muted)"' : '') + '/>';
-      }
-      out += '<circle cx="150" cy="150" r="26" fill="var(--card)" stroke="var(--line)" stroke-width="3"/>';
-      if (svg) svg.innerHTML = out;
-      var opts = [tw.answer], guard = 0;
-      while (opts.length < 3 && guard++ < 40) {
-        var cand = RG_COLOURS[Math.floor(Math.random() * 4)];
-        if (opts.indexOf(cand) < 0) opts.push(cand);
-      }
-      opts.sort(function () { return Math.random() - 0.5; });
-      var oEl = ref.stage.querySelector('[data-role="chopts"]');
-      if (oEl) oEl.innerHTML = opts.map(function (c3, j) {
-        return '<button type="button" class="mela-sw big" data-tw="' + esc(c3) + '" style="--c:' + c3 +
-          '" aria-label="Colour choice ' + (j + 1) + '"></button>';
-      }).join('');
-      var cEl = ref.stage.querySelector('[data-role="count"]');
-      if (cEl) cEl.textContent = 'wheel ' + tw.round + ' of ' + tw.rounds;
-    }, act: function (c4) {
-      if (c4 === tw.answer) { tw.hits++; ref.say('The wheel is whole.', 'good'); }
-      else ref.say('Follow the circle round — it repeats.', 'warm');
-      if (tw.round >= tw.rounds) {
-        var pass = tw.hits >= 2;
-        return twistDone(pass, tw.hits === 3 ? 3 : pass ? 2 : tw.hits ? 1 : 0, tw.hits * 25,
-          pass ? 'Three wheels, turning true.' : 'The wheel wobbled — it will turn again.');
-      }
-      TW.chakra.round();
-    } };
-
-    /* -- genda: marigolds scatter for a blink; how many? -- */
-    TW.genda = { start: function () {
-      tw = { round: 0, rounds: 4, hits: 0 };
-      ref.stage.innerHTML = head('Genda phool scatter — count them in a blink') +
-        '<div class="mela-genda" data-role="genda"></div>' +
-        '<div class="mela-toropts" data-role="gopts"></div>' +
-        '<p class="mela-count" data-role="count"></p><div class="mela-row"></div>' +
-        '<p class="mela-hint">The marigolds show for a moment. How many were there? Keys 1–3.</p>';
-      TW.genda.round();
-    }, round: function () {
-      tw.round++;
-      var k = 3 + Math.floor(Math.random() * (3 + cfg.d * 2));
-      tw.answer = k;
-      var box = ref.stage.querySelector('[data-role="genda"]');
-      var out = '', i;
-      for (i = 0; i < k; i++) {
-        out += '<span style="left:' + (8 + Math.random() * 84) + '%;top:' + (10 + Math.random() * 70) + '%">🌼</span>';
-      }
-      if (box) box.innerHTML = out;
-      var oEl = ref.stage.querySelector('[data-role="gopts"]');
-      if (oEl) oEl.innerHTML = '';
-      var cEl = ref.stage.querySelector('[data-role="count"]');
-      if (cEl) cEl.textContent = 'look… (' + tw.round + ' of ' + tw.rounds + ')';
-      sc.later(function () {
-        if (phase !== 'twist') return;
-        if (box) box.innerHTML = '<b class="q">?</b>';
-        var opts = [k, k + 1, Math.max(1, k - 1)].sort(function () { return Math.random() - 0.5; });
-        if (oEl) oEl.innerHTML = opts.map(function (n2, j) {
-          return '<button type="button" class="mela-torbtn num" data-tw="' + n2 + '" aria-label="Choice ' + (j + 1) + '">' + n2 + '</button>';
-        }).join('');
-        if (cEl) cEl.textContent = 'how many marigolds?';
-      }, slow ? 2600 : 1400 + Math.min(600, k * 90));
-    }, act: function (n2) {
-      if (+n2 === tw.answer) { tw.hits++; ref.say('Counted like a mali!', 'good'); }
-      else ref.say('There were ' + tw.answer + '.', 'warm');
-      if (tw.round >= tw.rounds) {
-        var pass = tw.hits >= 3;
-        return twistDone(pass, tw.hits === 4 ? 3 : pass ? 2 : tw.hits >= 2 ? 1 : 0, tw.hits * 20,
-          pass ? 'The mali’s eye — sharp as a thorn.' : 'The flowers fooled you today.');
-      }
-      TW.genda.round();
-    } };
-
-    /* -- bindi: turn the cards, find the pairs -- */
-    TW.bindi = { start: function () {
-      var SHAPES = ['●', '◆', '✦', '✿', '▲', '❀'];
-      var nPairs = 4 + Math.min(2, cfg.d);
-      var cards = [], i;
-      for (i = 0; i < nPairs; i++) {
-        var c5 = RG_COLOURS[i % 4], sh = SHAPES[i % SHAPES.length];
-        cards.push({ p: i, c: c5, sh: sh }, { p: i, c: c5, sh: sh });
-      }
-      cards.sort(function () { return Math.random() - 0.5; });
-      tw = { cards: cards, open: [], found: 0, flips: 0, lock: false, nPairs: nPairs };
-      ref.stage.innerHTML = head('Turn the bindi cards — find every pair') +
-        '<div class="mela-bindis" style="--bn:' + (nPairs <= 4 ? 4 : 4) + '">' +
-        cards.map(function (cd, j) {
-          return '<button type="button" class="mela-bindi" data-tw="' + j + '" aria-label="Card ' + (j + 1) + '">' +
-            '<span class="face" style="--c:' + cd.c + '">' + cd.sh + '</span><span class="back">ॐ</span></button>';
-        }).join('') + '</div>' +
-        '<p class="mela-count" data-role="count">pairs 0 of ' + nPairs + '</p><div class="mela-row"></div>' +
-        '<p class="mela-hint">Two cards a turn. A matching pair stays open. Tab and Enter work too.</p>';
-    }, act: function (j) {
-      if (tw.lock) return;
-      j = +j;
-      var el = ref.stage.querySelector('.mela-bindi[data-tw="' + j + '"]');
-      if (!el || el.classList.contains('open') || el.classList.contains('got')) return;
-      el.classList.add('open');
-      tw.open.push(j);
-      if (tw.open.length < 2) return;
-      tw.flips++;
-      var a = tw.cards[tw.open[0]], b = tw.cards[tw.open[1]];
-      var ea = ref.stage.querySelector('.mela-bindi[data-tw="' + tw.open[0] + '"]');
-      var eb = ref.stage.querySelector('.mela-bindi[data-tw="' + tw.open[1] + '"]');
-      tw.open = [];
-      if (a.p === b.p) {
-        if (ea) ea.classList.add('got'); if (eb) eb.classList.add('got');
-        tw.found++;
-        var cEl = ref.stage.querySelector('[data-role="count"]');
-        if (cEl) cEl.textContent = 'pairs ' + tw.found + ' of ' + tw.nPairs;
-        if (tw.found >= tw.nPairs) {
-          var perfectF = tw.flips <= tw.nPairs + 1;
-          twistDone(true, perfectF ? 3 : tw.flips <= tw.nPairs + 3 ? 2 : 1, 90 - (tw.flips - tw.nPairs) * 6,
-            perfectF ? 'A memory like a mirror!' : 'Every bindi met its match.');
-        }
-      } else {
-        tw.lock = true;
-        sc.later(function () {
-          if (ea) ea.classList.remove('open'); if (eb) eb.classList.remove('open');
-          tw.lock = false;
-        }, slow ? 1100 : 750);
-      }
-    } };
-
-    /* -- taal: dha dhin ta tin — repeat the bols -- */
-    TW.taal = { start: function () {
-      var BOLS = ['Dha', 'Dhin', 'Ta', 'Tin'];
-      tw = { BOLS: BOLS, round: 0, rounds: 2, seq: [], at: 0, miss: 0, showing: true };
-      ref.stage.innerHTML = head('The tabla speaks — answer the same bols') +
-        '<div class="mela-taalrow">' +
-        BOLS.map(function (bl, i) {
-          return '<button type="button" class="mela-pad" data-tw="' + i + '" style="--c:' + RG_COLOURS[i] +
-            '" aria-label="' + bl + '"><i></i><b>' + bl + '</b><u>' + (i + 1) + '</u></button>';
-        }).join('') + '</div>' +
-        '<p class="mela-count" data-role="count"></p><div class="mela-row"></div>' +
-        '<p class="mela-hint">Watch the pads sound in order, then play them back. Keys 1–4.</p>';
-      TW.taal.show();
-    }, show: function () {
-      tw.round++; tw.at = 0; tw.showing = true; tw.seq = [];
-      var len = 3 + cfg.d + tw.round;
-      for (var i = 0; i < len; i++) tw.seq.push(Math.floor(Math.random() * 4));
-      var cEl = ref.stage.querySelector('[data-role="count"]');
-      if (cEl) cEl.textContent = 'taal ' + tw.round + ' of ' + tw.rounds + ' · listen…';
-      var step = 0;
-      (function beat() {
-        if (phase !== 'twist' || sc.dead) return;
-        var pads = ref.stage.querySelectorAll('.mela-pad');
-        for (var j = 0; j < pads.length; j++) pads[j].classList.remove('hitp');
-        if (step >= tw.seq.length) {
-          tw.showing = false;
-          if (cEl) cEl.textContent = 'taal ' + tw.round + ' of ' + tw.rounds + ' · your hands — ' + tw.seq.length + ' bols';
-          return;
-        }
-        var el = pads[tw.seq[step]];
-        if (el) el.classList.add('hitp');
-        step++;
-        sc.later(function () {
-          for (var j2 = 0; j2 < pads.length; j2++) pads[j2].classList.remove('hitp');
-          sc.later(beat, slow ? 260 : 150);
-        }, slow ? 700 : 430);
-      })();
-    }, act: function (i) {
-      if (tw.showing) return;
-      i = +i;
-      var pads = ref.stage.querySelectorAll('.mela-pad');
-      if (i === tw.seq[tw.at]) {
-        if (pads[i]) { pads[i].classList.add('hitp'); sc.later(function () { if (pads[i]) pads[i].classList.remove('hitp'); }, 200); }
-        tw.at++;
-        if (tw.at >= tw.seq.length) {
-          if (tw.round >= tw.rounds) {
-            var stars = tw.miss === 0 ? 3 : tw.miss === 1 ? 2 : 1;
-            return twistDone(true, stars, 70 - tw.miss * 15, 'Wah ustad, wah!');
-          }
-          sc.later(function () { if (phase === 'twist') TW.taal.show(); }, 700);
-        }
-      } else {
-        tw.miss++;
-        ref.say('The taal broke — listen once more.', 'warm');
-        if (tw.miss >= 3) return twistDone(false, 0, 20, 'The tabla rests — the taal will come.');
-        sc.later(function () { if (phase === 'twist') { tw.round--; TW.taal.show(); } }, 650);
-      }
-    } };
-
-    /* -- repair: three dots broke the symmetry — find them -- */
-    TW.repair = { start: function () {
-      cfg.n = 6 + Math.min(2, cfg.d); cfg.mode = 'vh';
-      pattern = rangoliPattern({ n: cfg.n, seeds: 5 + cfg.d, mode: 'vh', colors: 3 });
-      /* corrupt three mirrored spots with a wrong colour */
-      var ks = keys(pattern);
-      tw = { broken: {}, found: 0, taps: 0 };
-      var guard = 0;
-      while (keys(tw.broken).length < 3 && guard++ < 80) {
-        var k = ks[Math.floor(Math.random() * ks.length)];
-        if (tw.broken[k]) continue;
-        var others = RG_COLOURS.filter(function (c6) { return c6 !== pattern[k]; });
-        tw.broken[k] = others[Math.floor(Math.random() * others.length)];
-      }
-      ref.stage.innerHTML = head('Three dots broke the symmetry — find them') +
-        boardHTML(cfg.n, 'vh') +
-        '<p class="mela-count" data-role="count">found 0 of 3 · 6 taps</p><div class="mela-row"></div>' +
-        '<p class="mela-hint">The rangoli should mirror left-right AND top-bottom. Three dots wear the wrong colour — tap them.</p>';
-      var ds = allDots();
-      for (var i = 0; i < ds.length; i++) {
-        var d = ds[i], dk = d.getAttribute('data-k');
-        var col = tw.broken[dk] || pattern[dk];
-        d.className = 'mela-dot' + (col ? ' lit tap' : '');
-        d.style.setProperty('--c', col || 'transparent');
-        d.disabled = !col;
-      }
-      setAxis(true);
-    }, tap: function (d) {
-      var k = d.getAttribute('data-k');
-      if (d.classList.contains('hit') || d.classList.contains('extra')) return;
-      tw.taps++;
-      if (tw.broken[k]) {
-        tw.found++;
-        d.className = 'mela-dot lit hit';
-        d.style.setProperty('--c', pattern[k]);
-        ref.say('Mended — the mirror holds again.', 'good');
-      } else {
-        d.className = 'mela-dot lit extra';
-        ref.say('That one is true. Check its mirror twin.', 'warm');
-      }
-      var cEl = ref.stage.querySelector('[data-role="count"]');
-      if (cEl) cEl.textContent = 'found ' + tw.found + ' of 3 · ' + Math.max(0, 6 - tw.taps) + ' taps';
-      if (tw.found >= 3) {
-        var stars = tw.taps <= 3 ? 3 : tw.taps <= 5 ? 2 : 1;
-        return twistDone(true, stars, 90 - (tw.taps - 3) * 10, 'All three mended — the rangoli breathes.');
-      }
-      if (tw.taps >= 6) {
-        return twistDone(false, tw.found ? 1 : 0, tw.found * 20, 'Two eyes were not enough today — the mirror keeps its secret.');
-      }
-    } };
+      kol.next++;
+      if (line) line.setAttribute('d', kolamPath(kol.next));
+      markKolam();
+      var el = ref.stage.querySelector('[data-role="count"]');
+      if (kol.next > kol.order.length) return kolamEnd(true);
+      if (el) el.textContent = kol.next === kol.order.length ? 'Close the loop — back to the bright dot' : (kol.order.length - kol.next) + ' dots to go';
+    }
+    function kolamEnd(ok) {
+      phase = 'checked';
+      var line = ref.stage.querySelector('.rg-kline');
+      if (line) line.setAttribute('d', kolamPath(kol.order.length + 1));
+      var acc = ok ? Math.max(0, 1 - kol.miss * 0.15) : Math.max(0, (kol.next - 1) / kol.order.length - 0.3);
+      settle(ok, ok && kol.miss === 0, acc, ok ? (kol.miss ? 'The loop closed, with ' + kol.miss + ' slip' + (kol.miss > 1 ? 's' : '') + '.' : 'One unbroken line — the loop closed true.')
+        : 'Three slips — ' + (kol.next - 1) + ' of ' + kol.order.length + ' turns traced.');
+    }
 
     /* --------------------------------------------- the ladder itself ---- */
     function levelUp() {
       var res = lvlResult || { pass: false, stars: 0 };
       if (res.pass) {
         passedN++;
-        if (lvl === rgLoad()) rgSave(lvl + 1);
+        if (lvl + 1 > rgLoad()) rgSave(lvl + 1);
         lvl++;
       }
       slot++;
@@ -1419,126 +1185,102 @@
       if (lvl >= 100 && res.pass) return finish(true);
       if (slot >= SLOTS) return finish(false);
       var nxt = rgLevel(lvl);
-      ref.stage.innerHTML =
-        '<div class="mela-done">' +
-          ladderHTML(lvl) +
-          '<h3>' + (res.pass ? 'Level up!' : 'Level ' + (lvl + 1) + ' holds its ground') + '</h3>' +
-          '<p>' + (res.pass
-            ? (res.stars >= 3 ? 'Three stars — flawless. ' : res.stars ? starLine(res.stars) + ' — cleared. ' : 'Cleared. ') +
-              'The ladder remembers between sittings.'
-            : 'Not this time — the same level waits, and it will fall.') + '</p>' +
+      ref.stage.innerHTML = '<div class="mela-done">' + ladderHTML(lvl) +
+          '<h3>' + (res.pass ? 'Level up!' : 'Level ' + (lvl + 1) + ' waits') + '</h3>' +
+          '<p>' + (res.pass ? 'Cleared. The ladder remembers between sittings.' : 'The same level comes round again — look for the fold.') + '</p>' +
           '<div class="mela-row"><button type="button" class="mela-btn" data-go="startlvl">' +
-          (nxt.kind === 'mem' ? 'Next rangoli' : 'The twist — ' + RG_TW_NAME[nxt.kind] + '!') + '</button></div>' +
-        '</div>';
+          (nxt.trad ? nxt.trad.name + ' · ' + nxt.trad.region : 'Next rangoli') + ' →</button></div></div>';
       sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="startlvl"]')); }, 60);
     }
-
     function startLevel() {
+      stopClock();
       cfg = rgLevel(lvl);
-      lvlResult = null;
-      palIdx = 0;
-      tw = null;
-      if (cfg.kind !== 'mem') { phase = 'twist'; TW[cfg.kind].start(); return; }
+      lvlResult = null; palIdx = 0; kol = null; attempt = 1; peeks = 0; resume = null;
+      if (cfg.kind === 'kolam') { kolamStart(); return; }
       pattern = rangoliPattern(cfg);
-      mine = {}; attempt = 1; peeks = 0; resume = null;
+      if (!need().length) pattern = rangoliPattern(cfg);
+      mine = {};
       showPhase();
     }
-
     function finish(summit) {
       if (finished) return;
+      stopClock();
+      phase = 'over';
       ref.say('');
-      ref.stage.innerHTML =
-        '<div class="mela-done">' +
-          ladderHTML(lvl) +
+      ref.stage.innerHTML = '<div class="mela-done">' + ladderHTML(lvl) +
           '<div class="mela-art">' + (motifHTML('lotus') || mascotHTML('happy', 100)) + '</div>' +
-          '<h3>' + (summit ? 'The hundredth threshold!' : esc(one(CHEERS))) + '</h3>' +
-          '<p>' + (summit
-            ? 'A hundred rangolis, kolams, taals and torans — the whole courtyard bows.'
+          '<h3>' + (summit ? 'The hundredth threshold!' : passedN ? 'Thresholds dressed' : 'The chalk will wait') + '</h3>' +
+          '<p>' + (summit ? 'A hundred thresholds — kolam, muggu, alpana, mandana and rangoli.'
             : passedN + ' of ' + SLOTS + ' levels cleared this sitting. You stand at level ' + (rgLoad() + 1) + ' of 100 — the ladder keeps your place.') + '</p>' +
-          '<div class="mela-tally">' +
-            '<span class="mela-chip"><b>' + score + '</b> points</span>' +
-          '</div>' +
-          '<div class="mela-row">' +
-            '<button type="button" class="mela-btn" data-go="out">Back to the Mela</button>' +
-            '<button type="button" class="mela-btn ghost" data-go="again">Climb on</button>' +
-          '</div>' +
-        '</div>';
+          '<div class="mela-tally"><span class="mela-chip"><b>' + score + '</b> points</span></div>' +
+          '<div class="mela-row"><button type="button" class="mela-btn" data-go="out">Finish</button>' +
+          '<button type="button" class="mela-btn ghost" data-go="again">Climb on</button></div></div>';
       sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="out"]')); }, 60);
     }
-
     function bail(win) {
       if (finished) return;
       finished = true;
-      if (tw && tw.raf) W.cancelAnimationFrame(tw.raf);
+      stopClock();
       sc.kill();
-      if (typeof done === 'function') done({ win: !!win, score: score, kauris: kauris });
+      if (typeof done === 'function') done({ win: !!win, score: score, asked: asked, firstTryRight: firstRight, level: rgBand(lvl) });
     }
 
     sc.on(ref.stage, 'click', function (e) {
       var t = e.target;
-      var sw = t.closest ? t.closest('.mela-sw[data-sw]') : null;
+      var sw = t.closest ? t.closest('.rg-sw[data-sw]') : null;
       if (sw) { pickColor(parseInt(sw.getAttribute('data-sw'), 10)); return; }
-      var twEl = t.closest ? t.closest('[data-tw]') : null;
-      if (twEl && phase === 'twist' && cfg && TW[cfg.kind] && TW[cfg.kind].act) {
-        TW[cfg.kind].act(twEl.getAttribute('data-tw'));
-        return;
-      }
-      var d = t.closest ? t.closest('.mela-dot') : null;
-      if (d) {
-        if (phase === 'twist' && cfg.kind === 'mehndi') { TW.mehndi.tap(d); return; }
-        if (phase === 'twist' && cfg.kind === 'repair') { TW.repair.tap(d); return; }
-        toggle(d);
-        return;
-      }
+      var kd = t.closest ? t.closest('.rg-kdot') : null;
+      if (kd) { kolamTap(+kd.getAttribute('data-kd')); return; }
+      var d = t.closest ? t.closest('.rg-dot') : null;
+      if (d) { toggle(d); return; }
+      if (t.closest && t.closest('[data-gm="aage"]')) { levelUp(); return; }
       var go = t.closest ? t.closest('[data-go]') : null;
       if (!go) return;
       var what = go.getAttribute('data-go');
-      if (what === 'ready') { drawPhase(); }
-      else if (what === 'check') { checkPhase(); }
-      else if (what === 'twcheck') { if (cfg.kind === 'mehndi') TW.mehndi.check(); }
-      else if (what === 'peek') { peeks++; peekPhase(); }
-      else if (what === 'retry') { attempt++; mine = {}; peeks++; peekPhase(); }
-      else if (what === 'lvlnext') { levelUp(); }
-      else if (what === 'startlvl') { startLevel(); }
+      if (what === 'ready') drawPhase(gen);
+      else if (what === 'check') checkPhase();
+      else if (what === 'peek') { if (phase === 'draw') { peeks++; resume = mine; showPhase(); } }
+      else if (what === 'retry') {
+        attempt++;
+        if (cfg.kind === 'kolam') { kol.next = 1; kol.miss = 0; kolamBoard(); kolamShow(); }
+        else { mine = {}; resume = {}; showPhase(); }
+      }
+      else if (what === 'lvlnext') levelUp();
+      else if (what === 'startlvl') startLevel();
       else if (what === 'again') { slot = 0; passedN = 0; lvl = rgLoad(); ref.mark(0); startLevel(); }
-      else if (what === 'out') { bail(true); }
+      else if (what === 'out') bail(passedN > 0);
     });
 
     sc.on(D, 'keydown', function (e) {
       if (sc.dead || !ref.stage) return;
       if (detached(host)) { sc.kill(); return; }
       var t = e.target;
-      if (phase === 'twist' && e.key >= '1' && e.key <= '9') {
-        var kind = cfg && cfg.kind;
-        if (kind === 'rain' || kind === 'taal') { if (+e.key <= 4) { e.preventDefault(); TW[kind].act(+e.key - 1); } return; }
-        if (kind === 'diya') { if (+e.key <= 5) { e.preventDefault(); TW.diya.act(+e.key - 1); } return; }
-        if (kind === 'toran' || kind === 'genda' || kind === 'chakra') {
-          var btns = ref.stage.querySelectorAll('[data-role="toropts"] [data-tw],[data-role="gopts"] [data-tw],[data-role="chopts"] [data-tw]');
-          var bi = +e.key - 1;
-          if (btns[bi]) { e.preventDefault(); TW[kind].act(btns[bi].getAttribute('data-tw')); }
-          return;
-        }
+      if (phase === 'trace' && (e.key === 'Enter' || e.key === ' ')) {
+        var kd = t && t.closest && t.closest('.rg-kdot');
+        if (kd) { e.preventDefault(); kolamTap(+kd.getAttribute('data-kd')); }
+        return;
       }
-      if (phase === 'twist' && e.key === 'Enter') {
-        var twk = t && t.getAttribute && t.getAttribute('data-tw');
-        if (twk !== null && twk !== undefined && cfg && TW[cfg.kind] && TW[cfg.kind].act) { e.preventDefault(); TW[cfg.kind].act(twk); return; }
+      if (phase === 'checked' && e.key === 'Enter' && !(t && t.closest && t.closest('button'))) {
+        var aage = ref.stage.querySelector('[data-gm="aage"]'), nx = ref.stage.querySelector('[data-go="lvlnext"]');
+        if (aage || nx) { e.preventDefault(); levelUp(); }
+        return;
       }
       if (phase === 'draw' && e.key >= '1' && e.key <= '4') { e.preventDefault(); pickColor(+e.key - 1); return; }
-      var d = t && t.classList && t.classList.contains('mela-dot') ? t : null;
+      var d = t && t.classList && t.classList.contains('rg-dot') ? t : null;
       if (d && phase === 'draw') {
         if (e.key === 'ArrowRight') { e.preventDefault(); moveDot(d, 0, 1); return; }
         if (e.key === 'ArrowLeft') { e.preventDefault(); moveDot(d, 0, -1); return; }
         if (e.key === 'ArrowDown') { e.preventDefault(); moveDot(d, 1, 0); return; }
         if (e.key === 'ArrowUp') { e.preventDefault(); moveDot(d, -1, 0); return; }
       }
-      if (e.key === 'Enter' && phase === 'draw' && !d) {
-        var chk = ref.stage.querySelector('[data-go="check"]');
-        if (chk) { e.preventDefault(); checkPhase(); }
-      }
+      if (e.key === 'Enter' && phase === 'draw' && !d && !(t && t.closest && t.closest('button'))) { e.preventDefault(); checkPhase(); }
     });
 
     startLevel();
-    return teardownOf(sc, function () { finished = true; });
+    /* test handle for tools/check-rangoli.js: what the board holds, never shown */
+    host.__rangoli = { get phase() { return phase; }, get pattern() { return pattern; }, get cfg() { return cfg; }, get lvl() { return lvl; },
+      get kolam() { return kol; }, jump: function (i) { lvl = i; startLevel(); } };
+    return teardownOf(sc, function () { finished = true; stopClock(); });
   }
 
   /* ==================================================================
@@ -1981,8 +1723,10 @@
      ================================================================== */
 
   W.IND_GAMES = [
-    { id: 'rangoli', name: 'Rangoli Rush', icon: 'star', minutes: 4,
-      blurb: 'A hundred thresholds. The rangoli flashes, then blows away — draw it back in colour. Every fourth level is a twist from a pool of ten: kolam loops, petal rain, diya raat, mehndi mirrors, toran threads, chakra wheels, genda counting, bindi pairs, tabla taal, rangoli repair. The ladder remembers your place.',
+    { id: 'rangoli', name: 'Rangoli Rush', sub: 'remember the threshold', icon: 'star', minutes: 4, tag: 'Art',
+      teaches: true,
+      levels: RG_BANDS,
+      blurb: 'A hundred thresholds. The chalk pattern shows, the dust blows away — lay it back, every chalk in its place. Every fourth level is a tradition, credited by region: kolam, muggu, alpana, mandana, rangoli. The ladder remembers your place.',
       engine: rangoli },
     { id: 'statehunt', name: 'State Hunt', icon: 'map', minutes: 4,
       blurb: 'A capital, a fort, a rhino, a mountain. Which state is it? Six stops on a yatra across India.',

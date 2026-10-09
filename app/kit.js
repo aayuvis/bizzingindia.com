@@ -464,10 +464,14 @@
         sh.y.toFixed(1) + 'px;width:' + sh.w.toFixed(1) +
         'px;height:' + sh.h.toFixed(1) + 'px;z-index:' + (zi - 1) + '"></div>');
       if (!src) return;
+      /* `anim`: a piece just built, and how many ms into settling it is (sabhyata's living
+         cities) — a repaint mid-settle carries on instead of starting again */
       out.push('<img class="kit-p' + (o.it.ghost ? ' kit-ghost' + (o.it.ok ? ' ok' : ' no') : '') +
+        (o.it.anim != null ? ' kit-new' : '') +
         '" alt="" src="' + src + '" data-kit="' + o.def.id +
         '" title="' + o.def.name + '" style="left:' + (p.x + nudge).toFixed(1) + 'px;top:' +
-        p.y.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;z-index:' + zi + '">');
+        p.y.toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;z-index:' + zi +
+        (o.it.anim != null ? ';animation-delay:-' + o.it.anim + 'ms' : '') + '">');
     });
 
     return { html: out.join(''),

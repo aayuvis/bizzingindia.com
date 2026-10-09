@@ -1741,10 +1741,67 @@
       '.sab-trespot .glint{opacity:.55}.sab-cam{transition:none}.sab-tray,.sab-wrap.gm .sab-tray{animation:none}}'   /* still findable when nothing may move */
   ].join('\n');
 
+  /* ---- living cities (sabhyata-master E.2, E.3, E.6 #13–#14) ----
+     The board's living layers (light under the pieces; a box per working piece among them),
+     the map's movers and the monument's glow. Every one is pointer-events:none and
+     aria-hidden, and nothing here is drawn over a word. */
+  var LIVE_CSS = [
+    '.sab-live{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}',
+    '.sab-live *{pointer-events:none}',
+    '.sab-live.under{z-index:88}',            /* over the ground and the dimmed far land, under every piece */
+    '.sab-live.among{width:0;height:0}',      /* no stacking context: each box sorts with the pieces */
+    '.sab-lv{position:absolute;transform:translate(-50%,-100%)}',
+    '.sab-lv>.sz{display:block;width:100%;height:auto;visibility:hidden}',
+    '.sab-lv i{position:absolute;display:block;font-style:normal}',
+    /* just built: the piece settles onto its plot, once, and a ring of dust goes out */
+    '.kit-p.kit-new{animation:sabsettle .8s cubic-bezier(.25,.8,.35,1) both;transform-origin:50% 100%}',
+    '@keyframes sabsettle{0%{transform:translate(-50%,-100%) translateY(-16px) scale(.92);opacity:.2}' +
+      '60%{transform:translate(-50%,-100%) translateY(1.5px) scale(1.015);opacity:1}100%{transform:translate(-50%,-100%)}}',
+    '.sab-dust{width:70%;height:22%;margin:-11% 0 0 -35%;border-radius:50%;border:3px solid rgba(190,150,100,.75);' +
+      'animation:sabdust .8s ease-out both}',
+    '@keyframes sabdust{from{transform:scale(.45);opacity:.9}to{transform:scale(1.45);opacity:0}}',
+    /* working: smoke where a karigar is at the bench, light on the water, cloth in the wind */
+    '.sab-lsmoke{width:0;height:0}',
+    '.sab-lsmoke b{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;' +
+      'background:radial-gradient(circle,rgba(120,112,108,.62),rgba(120,112,108,0) 70%);animation:sablsmoke 5.1s ease-in infinite}',
+    '@keyframes sablsmoke{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:.9}100%{opacity:0;transform:translate(8px,-34px) scale(2.2)}}',
+    '.sab-glint{width:9px;height:2.4px;margin:-1.2px 0 0 -4.5px;border-radius:50%;background:#fffdf2;opacity:.6;' +
+      'box-shadow:0 0 3px rgba(255,255,255,.8);animation:sabglint 3.4s ease-in-out infinite}',
+    '@keyframes sabglint{0%,100%{opacity:.12;transform:scaleX(.7)}50%{opacity:.9;transform:scaleX(1.1)}}',
+    '.sab-flag{width:1.6px;height:13px;margin:-13px 0 0 -.8px;background:#4a3420}',
+    '.sab-flag b{position:absolute;left:1.6px;top:0;width:12px;height:8px;background:#c4452f;' +
+      'clip-path:polygon(0 0,100% 50%,0 100%);transform-origin:0 50%;animation:sabflag 2.4s ease-in-out infinite alternate}',
+    '@keyframes sabflag{from{transform:skewY(-8deg) scaleX(1)}to{transform:skewY(7deg) scaleX(.82)}}',
+    '.sab-sacks{left:0;top:0;width:100%;height:100%}',
+    '.sab-sacks b{position:absolute;width:8px;height:9px;margin:-9px 0 0 -4px;border-radius:45% 45% 22% 22%;' +
+      'background:linear-gradient(180deg,#e2c588,#c9a464);box-shadow:inset 0 0 0 1px rgba(110,80,40,.7)}',
+    /* lamps at the doors come on at night, and only at night */
+    '.sab-dlamp{display:none;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;' +
+      'background:radial-gradient(circle,rgba(255,244,196,.98) 0,rgba(255,200,90,.7) 26%,rgba(255,180,60,0) 70%)}',
+    ':root[data-mode="night"] .sab-dlamp,:root[data-bz-dark] .sab-dlamp{display:block}',
+    /* grown: the land a growth reaches lights once; the outskirts are homes nobody bought */
+    '.sab-newcell{fill:rgba(255,184,60,.5);stroke:#ffd270;stroke-width:1.4;animation:sabnewcell 2.6s ease-out both}',
+    '@keyframes sabnewcell{0%{opacity:0}18%{opacity:1}100%{opacity:0}}',
+    '.sab-outskirts{position:absolute;left:0;top:0;width:0;height:0}',   /* no stacking context: its homes sort with the board's */
+    '.kit-p.sab-ohouse{filter:saturate(.8) brightness(.97);opacity:.92}',
+    /* the monument's light, on the board and on the map: a slow breath, never a pulse */
+    '.sab-mglow{animation:sabmglow 7s ease-in-out infinite alternate}',
+    '@keyframes sabmglow{from{opacity:.78}to{opacity:1}}',
+    '#sab-carts,#sab-mglows{pointer-events:none}',
+    '.sab-cart image{filter:drop-shadow(0 1px 1px rgba(30,20,10,.35))}',
+    /* a hidden tab holds every living thing where it stands */
+    '.sab-hidden *,.sab-hidden *::before,.sab-hidden *::after{animation-play-state:paused!important}',
+    /* reduced motion and Calm: everything stands still, and is still drawn */
+    '.sab-still *,.sab-still *::before,.sab-still *::after{animation:none!important;transition:none!important}',
+    '@media (prefers-reduced-motion: reduce){.sab-live *,.kit-p.kit-new,.sab-mglow{animation:none!important}}',
+    ':root[data-motion="reduce"] .sab-live *,:root[data-motion="reduce"] .kit-p.kit-new,:root[data-motion="reduce"] .sab-mglow,' +
+      ':root[data-calm] .sab-live *,:root[data-calm] .kit-p.kit-new,:root[data-calm] .sab-mglow{animation:none!important}'
+  ].join('\n');
+
   var cssIn = false;
   function injectCSS() {
     if (cssIn) return; cssIn = true;
-    var s = D.createElement('style'); s.textContent = CSS; D.head.appendChild(s);
+    var s = D.createElement('style'); s.textContent = CSS + '\n' + LIVE_CSS; D.head.appendChild(s);
   }
 
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
@@ -4708,7 +4765,7 @@
       }
       var r = W.IND_KIT.city(id, {
         rot: G.kitRot || 0, scale: 1, headroom: KIT_HEAD, pad: 0,
-        built: q.kit, tiles: q.tiles, reach: reachOf(id), ghost: ghost
+        built: liveBuilt(id, q.kit), tiles: q.tiles, reach: reachOf(id), ghost: ghost
       });
       /* PINNED TO THE BOARD, NOT TO THE FRAME.
          The monument, the treasure and the plot markers are placed at a
@@ -4720,7 +4777,7 @@
          percentage means what it says at every zoom. */
       return '<div class="sab-hero sab-kitboard"><div class="sab-kitinner" id="sab-kitinner"' +
         ' data-z="' + (G.kitZ || 1) + '" style="width:' + r.w + 'px;height:' + r.h +
-        'px">' + r.html + reachOutline(id, r.w, r.h) + (hold ? glowSVG(id, r.w, r.h) : '') + kitCrowd(id) + '</div>' +
+        'px">' + r.html + reachOutline(id, r.w, r.h) + (hold ? glowSVG(id, r.w, r.h) : '') + kitCrowd(id) + liveBoard(id, r.w, r.h) + '</div>' +
         (pins || hold ? '<div class="sab-kitpins">' + (pins || '') + (hold ? bestPinHTML(id, r.w, r.h) : '') + '</div>' : '') + '</div>';
     }
 
@@ -5359,7 +5416,7 @@
     };
     /* respect the system's reduced-motion ask: the world stands calm and the
        game plays identically — every mover is presentation, never state */
-    var REDUCED = !!(W.matchMedia && W.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var REDUCED = !!(opts && opts.reduced) || !!(W.matchMedia && W.matchMedia('(prefers-reduced-motion: reduce)').matches);
     /* which built buildings this sitting has already seen standing, so the
        rise animation greets a NEW building once and never replays on a loaded
        save or a routine repaint */
@@ -5847,7 +5904,7 @@
       var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - 24;   /* a gentle bow, like a road, not a wire */
       var d = 'M' + a.x + ' ' + a.y + ' Q' + mx + ' ' + my + ' ' + b.x + ' ' + b.y;
       /* A ROAD THAT IS CARRYING SOMETHING LOOKS LIKE IT.
-         Carts already roll every route — the founder's note above ensureCarts is right
+         Carts already roll every route — the founder's note in the living-cities section is right
          that a cart on a route IS the meaning of a route. What was invisible was the
          REQUEST: a partner asking for the workshops of the south told the player
          nothing about which of their own roads mattered this season. The road that
@@ -5905,6 +5962,7 @@
           '<ellipse cx="300" cy="380" rx="260" ry="150" fill="#fff" opacity=".1" style="filter:blur(40px)"/>' +
           '<ellipse cx="680" cy="700" rx="300" ry="170" fill="#6d7387" opacity=".12" style="filter:blur(46px)"/>' +
         '</g>' +
+        '<g id="sab-mglows" pointer-events="none"></g>' +
         '<g id="sab-routes">' + G.routes.map(routeSVG).join('') + '</g>' +
         '<g id="sab-villages"></g>' +
         '<g id="sab-carts"></g>' +
@@ -6630,6 +6688,7 @@
       G.explorers.forEach(function (ex) {
         out.push('<circle cx="' + ex.x.toFixed(1) + '" cy="' + ex.y.toFixed(1) + '" r="80" fill="#000"/>');
       });
+      out = out.concat(liveFogHoles());   /* a monument holds the mist further off (living cities) */
       holes.innerHTML = out.join('');
     }
     function paintExplorers() {
@@ -6659,59 +6718,398 @@
     function paintRoutes() {
       var gEl = D.getElementById('sab-routes');
       if (gEl) gEl.innerHTML = G.routes.map(routeSVG).join('');
-      cartN = -1;   /* the cart flock re-syncs to the new road count */
+      paintLiveMap();   /* the movers re-find their roads (living cities) */
     }
 
     /* ================================================================
-       THE LIVING BOARD. Carts shuttle the roads, boats work the rivers,
-       and events throw sparks — all presentation, never state: the same
-       game plays underneath, and prefers-reduced-motion stills all of it.
-       One rAF, throttled to ~30fps, that only touches transforms.
-       ================================================================ */
-    var lifeRAF = 0, lifeSkip = false, cartN = -1, boatsN = -1;
-    function ensureCarts() {
-      var g = D.getElementById('sab-carts'); if (!g) return;
-      var sp = spOf('cart');
-      if (!sp || REDUCED) { if (cartN !== 0) { g.innerHTML = ''; cartN = 0; } return; }
-      if (cartN === G.routes.length) return;
-      cartN = G.routes.length;
-      var out = '';
-      for (var i = 0; i < cartN; i++) {
-        out += '<g class="sab-cart" data-i="' + i + '">' +
-          '<image href="' + sp + '" x="-19" y="-27" width="38" height="29" preserveAspectRatio="xMidYMax meet"/></g>';
+       ---- living cities ---- (sabhyata-master E.2, E.3, E.6 #13–#14)
+       ================================================================
+       THE LIVING BOARD. Carts work the roads in proportion to what each road carries,
+       sails work a road between two ports, a monument glows and holds the mist back, and
+       inside a built city every piece shows its state — just built, working, and a city
+       that has grown. All presentation, never state: the same game plays underneath.
+
+       ONE CLOCK. A single requestAnimationFrame with delta time moves the map's movers,
+       and only while there is something to move and somebody to see it: a hidden tab, an
+       open city, the Vidya panel, a paused world, reduced motion or Calm — no frame is
+       asked for. Inside a city everything is CSS, and `.sab-still` stops all of it. Still,
+       everything is still DRAWN: a cart parked mid-road is a road that carries something.
+
+       NOTHING HERE TOUCHES A BOUNDARY. Movers ride the road the engine drew (`#sabr-i`),
+       the glow is a circle round a monument, and the land's wash never moves. Every
+       glyph is pointer-events:none and sits under the names, never over them.
+
+       THE RIVERS STILL RUN QUIET (the founder's call): boats shuttling every river under
+       the fog pulled the eye off the land and taught nothing, so `#sab-boats` stays empty.
+       A sail rides only a road the child built between two ports — a sea road — and a
+       port city keeps its one moored boat in its own painting. */
+    var CALM = !!(opts && opts.calm), STILL = REDUCED || CALM;
+    var LIVE_MAX = 24;                                   /* movers on the map, at most */
+    var live = { raf: 0, last: 0, movers: [], sig: '', frames: 0 };
+    function isPort(id) { return PORTS.indexOf(id) >= 0; }
+    function seaRoad(r) { return isPort(r[0]) && isPort(r[1]); }
+    /* WHAT A ROAD CARRIES, said as movers: one on any road between two living places, one
+       more when the two make different things (the trade goodsReached counts), one more
+       when a partner is asking for what it reaches or it serves the capital */
+    function roadTraffic(r) {
+      if (!awake(r[0]) || !awake(r[1])) return 0;
+      var n = 1, ga = goodOf(r[0]), gb = goodOf(r[1]), wants = {};
+      if (ga && gb && ga !== gb) n++;
+      Object.keys(G.req || {}).forEach(function (pid) { wants[G.req[pid].want] = 1; });
+      if (wants[ga] || wants[gb] || G.capital === r[0] || G.capital === r[1]) n++;
+      return n;
+    }
+    /* every road gets its first mover before any road gets a second, so the cap never
+       leaves a living road empty */
+    function liveMovers() {
+      var want = G.routes.map(roadTraffic), out = [], round, i;
+      for (round = 0; round < 3; round++) {
+        for (i = 0; i < want.length && out.length < LIVE_MAX; i++) {
+          if (want[i] > round) out.push({ i: i, k: round, n: want[i], sea: seaRoad(G.routes[i]) });
+        }
       }
-      g.innerHTML = out;
+      return out;
     }
-    /* THE RIVERS RUN QUIET (the founder's call). Boats shuttling every river
-       under the fog pulled the eye off the land and taught nothing; the water
-       keeps its shimmer and nothing sails it. The carts still roll the roads,
-       because a cart on a route IS the meaning of a route — and a port city
-       still keeps its one moored boat, standing still, as the mark of a port. */
-    function ensureBoats() {
-      var g = D.getElementById('sab-boats');
-      if (g && g.innerHTML) { g.innerHTML = ''; }
-      boatsN = 0;
-    }
-    function moveAlong(el, path, ts, period, phase) {
-      var L = path.getTotalLength(); if (!L) return;
-      var t = ((ts + phase) % (2 * period)) / period;          /* 0..2, ping-pong */
-      var p = t < 1 ? t : 2 - t, dir = t < 1 ? 1 : -1;
-      var a = path.getPointAtLength(p * L);
-      var b = path.getPointAtLength(Math.min(1, Math.max(0, p + 0.02 * dir)) * L);
-      var hx = (b.x - a.x) * dir;
-      el.setAttribute('transform', 'translate(' + a.x.toFixed(1) + ' ' + a.y.toFixed(1) +
-        ') scale(' + (hx >= 0 ? 1 : -1) + ' 1)');
-    }
-    function lifeStep(ts) {
-      lifeRAF = requestAnimationFrame(lifeStep);
-      lifeSkip = !lifeSkip; if (lifeSkip) return;              /* ~30fps is plenty for a cart */
-      if (REDUCED || pause || city || techOpen || G.won) return;
-      ensureCarts(); ensureBoats();
-      var carts = D.querySelectorAll('#sab-carts .sab-cart'), i, el, path;
-      for (i = 0; i < carts.length; i++) {
-        el = carts[i]; path = D.getElementById('sabr-' + el.getAttribute('data-i'));
-        if (path) moveAlong(el, path, ts, 24000 + (i % 5) * 3400, i * 4700);
+    function moverSVG(m) {
+      var sp = spOf('cart'), body;
+      if (m.sea) {
+        body = '<path d="M-12 -3 H12 L8 3 H-8 Z" fill="#6b4a2e"/>' +
+          '<path d="M0 -3 V-22" stroke="#4a3420" stroke-width="1.5"/>' +
+          '<path d="M1.5 -21 L1.5 -5 L12 -6 Z" fill="#f6ecd6" stroke="#8a6a44" stroke-width=".8"/>';
+      } else if (sp) {
+        body = '<image href="' + sp + '" x="-15" y="-22" width="30" height="23" preserveAspectRatio="xMidYMax meet"/>';
+      } else {
+        body = '<rect x="-9" y="-11" width="18" height="8" rx="2" fill="#8a5a34"/>' +
+          '<circle cx="-4" cy="-2" r="3" fill="#4a3420"/><circle cx="5" cy="-2" r="3" fill="#4a3420"/>';
       }
+      return '<g class="' + (m.sea ? 'sab-sail' : 'sab-cart') + '" data-i="' + m.i + '" data-k="' + m.k + '">' + body + '</g>';
+    }
+    /* a mover's place: u runs 0..2, out along the road and back (ping-pong) */
+    function placeMover(m) {
+      if (!m.path || !m.L) return;
+      var p = m.u < 1 ? m.u : 2 - m.u, dir = m.u < 1 ? 1 : -1;
+      var at = m.path.getPointAtLength(p * m.L);
+      var ah = m.path.getPointAtLength(Math.min(m.L, Math.max(0, p * m.L + 3 * dir)));
+      var face = ah.x - at.x >= 0 ? 1 : -1;
+      m.el.setAttribute('transform', 'translate(' + at.x.toFixed(1) + ' ' + at.y.toFixed(1) + ') scale(' + face + ' 1)');
+    }
+    function paintLiveMap() {
+      paintMonGlows();
+      var g = D.getElementById('sab-carts'); if (!g || !G) return;
+      var mv = liveMovers();
+      var sig = mv.map(function (m) { return m.i + (m.sea ? 's' : 'c') + m.k + '/' + m.n; }).join(',') + '#' + G.routes.length;
+      if (sig !== live.sig || live.g !== g) {   /* a new board is a new layer */
+        /* a road keeps its movers where they were when another road is laid */
+        var was = {};
+        live.movers.forEach(function (m) { was[m.i + ':' + m.k] = m.u; });
+        g.innerHTML = mv.map(moverSVG).join('');
+        live.sig = sig; live.g = g;
+        live.movers = mv;
+        mv.forEach(function (m) {
+          m.el = g.querySelector('[data-i="' + m.i + '"][data-k="' + m.k + '"]');
+          /* still: parked, evenly along the road; moving: spread out and under way */
+          m.u = STILL ? (m.k + 1) / (m.n + 1) : (was[m.i + ':' + m.k] != null ? was[m.i + ':' + m.k] : (m.k * 2 / m.n + (m.i * 0.37) % 1) % 2);
+        });
+      }
+      /* the road paths are redrawn with every paint, so the movers re-find theirs */
+      live.movers.forEach(function (m) {
+        m.path = D.getElementById('sabr-' + m.i);
+        m.L = m.path ? m.path.getTotalLength() : 0;
+        m.period = Math.max(9000, m.L / 0.012);         /* about twelve map units a second */
+        placeMover(m);
+      });
+      liveKick();
+    }
+    /* THE MONUMENT GLOWS ON THE MAP (E.3): a warm light round a site whose monument stands,
+       breathing slowly (and standing still under reduced motion or Calm) — and the fog keeps
+       its distance (liveFogHoles). Only ever a circle round a monument, never a region. */
+    /* A MONUMENT GLOWS ONLY WHERE ONE STANDS — and never at a place the campaign will not make a
+       monument of (a place of worship, Harmandir Sahib, the Taj: CAMP.noMonument), whatever a
+       preset or an old save says about it */
+    function liveMonStands(s) {
+      var q = G.sites[s.id];
+      if (!q || !q.mon || !onMap(s)) return false;
+      if (G.camp) {
+        var ch = campCh();
+        if ((CAMP.noMonument || []).concat((ch && ch.noMonument) || []).indexOf(s.id) >= 0) return false;
+      }
+      return true;
+    }
+    function paintMonGlows() {
+      var g = D.getElementById('sab-mglows'); if (!g) return;
+      var mons = SITES.filter(liveMonStands);
+      var sig = mons.map(function (s) { return s.id; }).join(',');
+      if (g.getAttribute('data-sig') === sig) return;   /* repainting would restart the breath */
+      g.setAttribute('data-sig', sig);
+      g.innerHTML = (mons.length ? '<defs><radialGradient id="sabmglowg"><stop offset="0" stop-color="#ffe3a0" stop-opacity=".62"/>' +
+        '<stop offset=".5" stop-color="#ffd37a" stop-opacity=".26"/><stop offset="1" stop-color="#ffd37a" stop-opacity="0"/></radialGradient></defs>' : '') +
+        mons.map(function (s) {
+          return '<circle class="sab-mglow" data-for="' + s.id + '" cx="' + s.x + '" cy="' + s.y + '" r="96" fill="url(#sabmglowg)"/>';
+        }).join('');
+    }
+    function liveFogHoles() {
+      return SITES.filter(liveMonStands).map(function (s) {
+        return '<circle cx="' + s.x + '" cy="' + s.y + '" r="165" fill="#000"/>';
+      });
+    }
+    function liveRunning() {
+      return !STILL && !dead && !D.hidden && !!G && !G.won && !city && !techOpen && !pause && live.movers.length > 0;
+    }
+    function liveKick() {
+      if (live.raf || !liveRunning()) return;
+      live.last = 0;
+      live.raf = requestAnimationFrame(liveTick);
+    }
+    function liveStop() {
+      if (live.raf) cancelAnimationFrame(live.raf);
+      live.raf = 0; live.last = 0;
+    }
+    function liveTick(ts) {
+      live.raf = 0;
+      if (!liveRunning()) { live.last = 0; return; }
+      /* about thirty frames a second is plenty for a cart; the time between them is the step */
+      if (live.last && ts - live.last < 32) { live.raf = requestAnimationFrame(liveTick); return; }
+      var dt = live.last ? Math.min(120, ts - live.last) : 0;
+      live.last = ts; live.frames++;
+      for (var i = 0; i < live.movers.length; i++) {
+        var m = live.movers[i];
+        if (!m.el || !m.period) continue;
+        m.u = (m.u + dt / m.period) % 2;
+        placeMover(m);
+      }
+      live.raf = requestAnimationFrame(liveTick);
+    }
+    /* hidden = no frame asked for, and the city's CSS life holds where it stands */
+    function liveVis() {
+      try { host.classList.toggle('sab-hidden', !!D.hidden); } catch (e) {}
+      if (D.hidden) liveStop(); else liveKick();
+    }
+    function liveStart() {
+      try { host.classList.toggle('sab-still', STILL); } catch (e) {}
+      D.addEventListener('visibilitychange', liveVis);
+      liveKick();
+    }
+    function liveEnd() {
+      liveStop();
+      D.removeEventListener('visibilitychange', liveVis);
+      try { host.classList.remove('sab-still'); host.classList.remove('sab-hidden'); } catch (e) {}
+    }
+    /* for tools/check-sabhyata.js: is the one clock running, and what does it move */
+    W.__SABLIVE = function () {
+      return { running: !!live.raf, still: STILL, frames: live.frames, movers: live.movers.map(function (m) {
+        return { i: m.i, k: m.k, sea: m.sea, u: m.u }; }) };
+    };
+
+    /* ---- inside a built city: what each piece is doing ---- */
+    /* WHERE EACH THING HAPPENS ON ITS OWN DRAWING, as fractions of the painting's box, read
+       off the art in art/kit/<part>/0.png: the kiln's vent, the bead-maker's roof furnace,
+       the workshop's oven, each pool of water, the bazaar's tallest pole. The box is sized
+       by the browser from the same image, so a fraction lands on the feature itself. */
+    var LIVE_SMOKE = { 'bd-kiln': [[0.5, 0.17]], 'bd-har-bead': [[0.63, 0.1]], 'bd-workshop': [[0.75, 0.42]],
+                       'bd-forge': [[0.36, 0.2]] };
+    var LIVE_WATER = { 'wa-har-well': [[0.42, 0.26], [0.55, 0.31]], 'wa-well': [[0.42, 0.62], [0.56, 0.66]],
+                       'wa-well-pulley': [[0.46, 0.55]], 'wa-reservoir': [[0.49, 0.63], [0.52, 0.79]],
+                       'wa-kund': [[0.43, 0.46], [0.56, 0.53]], 'wa-tank': [[0.66, 0.34], [0.5, 0.4]],
+                       'wa-basin': [[0.45, 0.4], [0.6, 0.5], [0.4, 0.58]], 'bd-stepwell': [[0.44, 0.7], [0.54, 0.76]] };
+    var LIVE_FLAG = { 'bd-bazaar': [0.64, 0.03] };
+    var LIVE_STORE = { 'bd-granary': 1, 'bd-har-store': 1, 'bd-warehouse': 1 };
+    var LIVE_SETTLE = 800;                              /* ms a new piece takes to settle */
+    var liveSeen = null, liveSeenG = null, liveGrow = {};
+    function pkey(b) { return b.p + '@' + b.x + ',' + b.y; }
+    /* which pieces this sitting has already seen standing: a loaded save never settles again */
+    function liveSeenInit() {
+      if (liveSeen && liveSeenG === G) return;
+      liveSeen = {}; liveSeenG = G; liveGrow = {};
+      SITES.forEach(function (s2) {
+        ((G.sites[s2.id] || {}).kit || []).forEach(function (b) { liveSeen[s2.id + ':' + pkey(b)] = 0; });
+      });
+    }
+    /* a piece's moment starts when the board can be SEEN: homes a growth raises behind the
+       "Unlocked" card settle when the card is put away, not underneath it */
+    function liveAge(id, b) {
+      var k = id + ':' + pkey(b);
+      if (liveSeen[k] == null) {
+        if (STILL) liveSeen[k] = 0;
+        else if (overlay) return 0;
+        else liveSeen[k] = Date.now();
+      }
+      return liveSeen[k] ? Date.now() - liveSeen[k] : 1e9;
+    }
+    /* JUST BUILT: the board is handed a copy of a new piece marked with how far into its
+       settle it is, so a repaint mid-settle carries on rather than starting again */
+    function liveBuilt(id, kit) {
+      liveSeenInit();
+      return kit.map(function (b) {
+        var age = liveAge(id, b);
+        return age < LIVE_SETTLE ? { p: b.p, x: b.x, y: b.y, f: b.f, anim: Math.round(age) } : b;
+      });
+    }
+    /* who is at work where — the same spread kitCrowd stands them in, so smoke rises
+       exactly where a karigar is drawn at the bench */
+    function liveStaffed(id) {
+      var q2 = kitOf(id), jt = jobsOf(id), on = {};
+      (BUILD.jobs || []).forEach(function (r) {
+        var n = jt[r.j] || 0; if (!n) return;
+        var spots = q2.kit.filter(function (b) {
+          return (r.at || []).some(function (a2) { return a2.slice(-1) === '-' ? b.p.indexOf(a2) === 0 : a2 === b.p; });
+        });
+        for (var i = 0; i < Math.min(n, 12) && i < spots.length; i++) on[pkey(spots[i])] = 1;
+      });
+      return on;
+    }
+    /* A BOX THE SIZE OF THE PIECE'S PAINTING, placed exactly where kit.js places the piece and
+       one step above it in the painter's order. Its height comes from a hidden copy of the
+       same image, so the browser — not a typed number — says how tall the drawing is. */
+    function liveBox(id, b, inner) {
+      var K2 = W.IND_KIT, C = (W.IND_KIT_CITIES || {})[id], rot = G.kitRot || 0;
+      var d = K2.def(b.p); if (!d || !C) return '';
+      var L = d.d[0] || 1, B = d.d[1] || 1, Hu = d.d[2] || 0;
+      var c = K2.turn(b.x, b.y, L, B, rot, C.gw, C.gh), a = K2.anchor(c.x, c.y, c.L, c.B);
+      var src = K2.src(d.id, K2.face(b.f, rot, 4)); if (!src) return '';
+      var x = a.x + (rot % 2 ? C.gw : C.gh) * K2.W + K2.artNudge(c.L, c.B), y = a.y + KIT_HEAD * K2.RISE;
+      var w = K2.box(c.L, c.B, Hu).w * K2.fill(d.id), zi = 1000 + Math.round(K2.depth(c, Hu) * 4) + 1;
+      return '<div class="sab-lv" style="left:' + x.toFixed(1) + 'px;top:' + y.toFixed(1) + 'px;width:' + w.toFixed(1) +
+        'px;z-index:' + zi + '"><img class="sz" src="' + src + '" alt="">' + inner + '</div>';
+    }
+    function livePt(f, extra) {
+      return 'left:' + (f[0] * 100).toFixed(1) + '%;top:' + (f[1] * 100).toFixed(1) + '%' + (extra ? ';' + extra : '');
+    }
+    /* THE GROWTH MOMENT, ON THE GROUND: the land a growth has just reached lights once */
+    function liveNewLand(id) {
+      var q = G.sites[id], K2 = W.IND_KIT, C = (W.IND_KIT_CITIES || {})[id];
+      var now = { lv: q.lv, grown: (q.grown || []).slice() }, was = liveGrow[id];
+      if (!was) { liveGrow[id] = { lv: now.lv, grown: now.grown, at: 0, cells: [] }; return null; }
+      if (now.lv > was.lv || now.grown.length > was.grown.length) {
+        var cells = [], t0 = Date.now(), keep = was.pending || (was.at && t0 - was.at < 2600) ? was.cells : [];
+        var rWas = function (x, y) {
+          var dd = dirOfCell(id, x, y);
+          return (REACH[was.lv] || (BUILD.reach && BUILD.reach[was.lv]) || 5) + (dd && was.grown.indexOf(dd) >= 0 ? DIR_BONUS : 0);
+        };
+        for (var y = 0; y < C.gh; y++) for (var x = 0; x < C.gw; x++) {
+          var t = K2.terrain(id, x, y); if (!t || t === 'water') continue;
+          var dr = K2.reach(id, x, y);
+          if (dr <= reachTo(id, x, y) && dr > rWas(x, y)) cells.push([x, y]);
+        }
+        liveGrow[id] = { lv: now.lv, grown: now.grown, at: 0, pending: true, cells: keep.concat(cells) };
+      }
+      var g = liveGrow[id];
+      /* the land lights when the board is in view again — after the "Unlocked" card; a card
+         that opens over a light already lit puts it back to wait */
+      if (overlay && g.at && Date.now() - g.at < 2600) { g.at = 0; g.pending = true; }
+      if (g.pending && !overlay) { g.pending = false; g.at = Date.now(); }
+      return g.at && Date.now() - g.at < 2600 && g.cells.length ? g : null;
+    }
+    /* A CITY THAT HAS GROWN SHOWS IT: past the reach line the outskirts fill in with homes
+       nobody bought — four more at every level — on open land, never on a road, the water
+       or anything standing. The same cells every repaint, so the ring never shuffles. */
+    function liveOutskirts(id) {
+      var q = G.sites[id], K2 = W.IND_KIT, C = (W.IND_KIT_CITIES || {})[id];
+      var want = Math.min(18, ((q.lv || 1) - 1) * 4);
+      if (want <= 0 || q.zzz || !C) return [];
+      var block = {};
+      (C.wild || []).concat(q.kit).forEach(function (b) {
+        var d = K2.def(b.p), L = (d && d.d[0]) || 1, B = (d && d.d[1]) || 1;
+        for (var a = -1; a <= L; a++) for (var c = -1; c <= B; c++) block[(b.x + a) + ',' + (b.y + c)] = 1;
+      });
+      var cand = [];
+      for (var y = 0; y < C.gh; y++) for (var x = 0; x < C.gw; x++) {
+        if (K2.terrain(id, x, y) !== 'land' || block[x + ',' + y]) continue;
+        var over = K2.reach(id, x, y) - reachTo(id, x, y);
+        if (over < 1 || over > 4) continue;
+        cand.push([x, y, over * 240 + K2.jit(x, y) % 997]);   /* near the edge, but scattered */
+      }
+      cand.sort(function (u, v) { return u[2] - v[2]; });
+      var out = [];
+      for (var i = 0; i < cand.length && out.length < want; i++) {
+        var cc = cand[i];
+        if (out.some(function (o) { return Math.abs(o[0] - cc[0]) + Math.abs(o[1] - cc[1]) < 3; })) continue;
+        out.push(cc);
+      }
+      return out;
+    }
+    /* the outskirts are drawn as the city's own homes — the cheapest two its age offers — a
+       little smaller and quieter than the ones a child bought, in the board's painter's order */
+    function liveOutskirtsHTML(id) {
+      var K2 = W.IND_KIT, C = (W.IND_KIT_CITIES || {})[id], rot = G.kitRot || 0;
+      var cells = liveOutskirts(id); if (!cells.length) return '';
+      var homes = offered(id).filter(function (it) { return it.g === 'home' && !it.tech && !it.only && K2.have(it.p); })
+        .sort(function (u, v) { return (u.cost.anna || 0) + (u.cost.kala || 0) - (v.cost.anna || 0) - (v.cost.kala || 0); }).slice(0, 2);
+      if (!homes.length) return '';
+      var ox = (rot % 2 ? C.gw : C.gh) * K2.W, oy = KIT_HEAD * K2.RISE, out = '';
+      cells.forEach(function (c, n) {
+        var part = homes[n % homes.length].p, d = K2.def(part); if (!d) return;
+        var tc = K2.turn(c[0], c[1], 1, 1, rot, C.gw, C.gh), a = K2.anchor(tc.x, tc.y, 1, 1);
+        var Hu = d.d[2] || 0, w = K2.box(1, 1, Hu).w * K2.fill(part) * 0.84;
+        var zi = 1000 + Math.round(K2.depth({ x: tc.x, y: tc.y, L: 1, B: 1 }, Hu) * 4);
+        var src = K2.src(part, K2.face(K2.jit(c[0], c[1]) % 4, rot, 4)); if (!src) return;
+        var sh = K2.shadowFor(a.x + ox, a.y + oy, w);
+        out += '<div class="kit-shadow sab-oshadow" style="left:' + sh.x.toFixed(1) + 'px;top:' + sh.y.toFixed(1) + 'px;width:' + sh.w.toFixed(1) +
+            'px;height:' + sh.h.toFixed(1) + 'px;z-index:' + (zi - 1) + '"></div>' +
+          '<img class="kit-p sab-ohouse" data-live="outskirt" alt="" src="' + src + '" style="left:' + (a.x + ox).toFixed(1) + 'px;top:' + (a.y + oy).toFixed(1) +
+            'px;width:' + w.toFixed(1) + 'px;z-index:' + zi + '">';
+      });
+      return out ? '<div class="sab-outskirts" aria-hidden="true">' + out + '</div>' : '';
+    }
+    /* THE LIVING LAYERS of a built board. UNDER the pieces, light on the ground: the
+       monument's glow and the land a growth has just reached. AMONG them, in the painter's
+       order: the outskirts, and one box per piece that is doing something — smoke where a
+       karigar is at the bench, light on the water, a pennant over the bazaar, the granary's
+       sacks as the stores fill, a lamp at each door after dark, and the dust of a piece
+       that has just been set down. A sleeping city does none of it. */
+    function liveBoard(id, w, h) {
+      var K2 = W.IND_KIT, C = (W.IND_KIT_CITIES || {})[id];
+      if (!K2 || !C || !w) return '';
+      liveSeenInit();
+      var q = kitOf(id), alive = !q.zzz, under = '', boxes = '', i;
+      /* the monument's glow, on the ground round its plinth (E.2) */
+      if (liveMonStands(byId[id])) {
+        var mp = monPin(id);
+        if (mp) {
+          var gx = mp[0] / 100 * w, gy = mp[1] / 100 * h - K2.H * 2;
+          under += '<radialGradient id="sabkglowg"><stop offset="0" stop-color="#ffd76a" stop-opacity=".5"/>' +
+            '<stop offset=".62" stop-color="#ffc94e" stop-opacity=".34"/><stop offset="1" stop-color="#ffc94e" stop-opacity="0"/></radialGradient>' +
+            '<ellipse class="sab-mglow" data-live="monglow" cx="' + gx.toFixed(1) + '" cy="' + gy.toFixed(1) + '" rx="' + (K2.W * 5) + '" ry="' + (K2.H * 5) + '" fill="url(#sabkglowg)"/>';
+        }
+      }
+      var nl = liveNewLand(id);
+      if (nl) {
+        var ago = Date.now() - nl.at;
+        nl.cells.forEach(function (c) {
+          var p = cellPx(id, c[0], c[1]);
+          under += '<polygon class="sab-newcell" data-live="newland" style="animation-delay:-' + ago + 'ms" points="' +
+            [[p.x, p.y - K2.H], [p.x + K2.W, p.y], [p.x, p.y + K2.H], [p.x - K2.W, p.y]].map(function (v) { return v[0].toFixed(1) + ',' + v[1].toFixed(1); }).join(' ') + '"/>';
+        });
+      }
+      var staffed = alive ? liveStaffed(id) : {};
+      var sacksN = Math.round(Math.max(0, Math.min(1, (G.res.anna || 0) / Math.max(1, storeCap()))) * 4);
+      for (i = 0; i < q.kit.length; i++) {
+        var b = q.kit[i], at = ' data-at="' + pkey(b) + '"', d0 = (i % 5) * 0.9, fx = '';
+        var age = liveAge(id, b);
+        if (age < LIVE_SETTLE) fx += '<i class="sab-dust" data-live="new"' + at + ' style="' + livePt([0.5, 0.97], 'animation-delay:-' + Math.round(age) + 'ms') + '"></i>';
+        if (alive) {
+          if (LIVE_SMOKE[b.p] && staffed[pkey(b)]) {
+            LIVE_SMOKE[b.p].forEach(function (f) {
+              fx += '<i class="sab-lsmoke" data-live="smoke"' + at + ' style="' + livePt(f) + '">' + [0, 1, 2].map(function (j) {
+                return '<b style="animation-delay:-' + (d0 + j * 1.7).toFixed(1) + 's"></b>'; }).join('') + '</i>';
+            });
+          }
+          if (LIVE_WATER[b.p]) {
+            fx += LIVE_WATER[b.p].map(function (f, j) {
+              return '<i class="sab-glint" data-live="water"' + at + ' style="' + livePt(f, 'animation-delay:-' + (d0 + j * 1.3).toFixed(1) + 's') + '"></i>'; }).join('');
+          }
+          if (LIVE_FLAG[b.p]) fx += '<i class="sab-flag" data-live="flag"' + at + ' style="' + livePt(LIVE_FLAG[b.p]) + '"><b style="animation-delay:-' + d0.toFixed(1) + 's"></b></i>';
+          if (LIVE_STORE[b.p] && sacksN) {
+            var sk = '';
+            for (var s2 = 0; s2 < sacksN; s2++) sk += '<b style="' + livePt([0.1 + s2 * 0.075, 0.9 + s2 * 0.022]) + '"></b>';
+            fx += '<i class="sab-sacks" data-live="store"' + at + ' data-n="' + sacksN + '">' + sk + '</i>';
+          }
+          if (/^hs-/.test(b.p)) fx += '<i class="sab-dlamp" data-live="lamp"' + at + ' style="' + livePt([0.5, 0.96]) + '"></i>';
+        }
+        if (fx) boxes += liveBox(id, b, fx);
+      }
+      return (under ? '<svg class="sab-live under" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' + under + '</svg>' : '') +
+        liveOutskirtsHTML(id) +
+        (boxes ? '<div class="sab-live among" aria-hidden="true">' + boxes + '</div>' : '');
     }
     /* event sparks at a point on the board — fire and forget, self-removing */
     /* ==================================================================
@@ -6733,7 +7131,7 @@
     }
 
     function fxAt(x, y, kind) {
-      if (REDUCED) return;
+      if (STILL) return;
       var g = D.getElementById('sab-fx'); if (!g) return;
       var el = D.createElementNS('http://www.w3.org/2000/svg', 'g');
       el.setAttribute('transform', 'translate(' + x + ' ' + y + ')');
@@ -9915,6 +10313,7 @@
       b.setAttribute('aria-label', pause ? 'Play' : 'Pause');
       b.setAttribute('aria-pressed', String(pause));
       b.hidden = !turnMs();          /* in Sochna there is nothing to pause */
+      liveKick();                    /* a world played again rolls its carts again */
     }
     function togglePause() {
       pause = !pause;
@@ -10235,7 +10634,7 @@
     };
     armClock();
     syncPauseBtn();
-    if (!REDUCED) lifeRAF = requestAnimationFrame(lifeStep);
+    liveStart();
     /* A HIDDEN TAB IS A STOPPED WORLD (games spec §1.5, sabhyata-master B7): the live speeds kept
        ticking behind another tab, so a child came back to a different year. Hidden = no turns,
        and the game is saved; shown = the clock resumes where it stood. */
@@ -10254,7 +10653,7 @@
       D.body.classList.remove('sab-mapfull');
       D.body.classList.remove('sab-full');
       clearInterval(timer);
-      if (lifeRAF) cancelAnimationFrame(lifeRAF);
+      liveEnd();
       if (G && !G.won) save(G);
       clearTimeout(saveT);
       D.removeEventListener('visibilitychange', onVis);

@@ -29,7 +29,7 @@
     saveHouse: function (h) { try { localStorage.setItem(this.HOUSE, JSON.stringify(h)); } catch (e) {} },
     kidKey: function (base, id) { id = id || this.house().active; return id === 'k1' ? base : base + '.' + id; },
     /* every key a child owns, so removing a child removes all of them */
-    KID_KEYS: ['bi_v1', 'india.sabhyata.v2', 'india.rangoli.lvl', 'india.gyanpati.v1'],
+    KID_KEYS: ['bi_v1', 'india.sabhyata.v2', 'india.rangoli.lvl', 'india.gyanpati.v1', 'india.ludo.v1'],
     kids: function () {
       var h = this.house(), self = this;
       return h.order.map(function (id) {
@@ -145,7 +145,7 @@
     restore: function (o) {
       if (!o || typeof o !== 'object') return false;
       if (o.kind === 'bizzing-india-household' && o.house && o.keys) {
-        var self = this, ok = /^(bi_v1|india\.sabhyata\.v2|india\.rangoli\.lvl|india\.gyanpati\.v1)(\.k\d+)?$/;
+        var self = this, ok = /^(bi_v1|india\.sabhyata\.v2|india\.rangoli\.lvl|india\.gyanpati\.v1|india\.ludo\.v1)(\.k\d+)?$/;
         this.house().order.forEach(function (id) { self.KID_KEYS.forEach(function (b) {
           try { localStorage.removeItem(self.kidKey(b, id)); } catch (e) {} }); });
         Object.keys(o.keys).forEach(function (k) { if (ok.test(k)) try { localStorage.setItem(k, o.keys[k]); } catch (e) {} });

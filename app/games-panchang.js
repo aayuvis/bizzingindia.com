@@ -83,7 +83,7 @@
     '.pc-fb .gm-aage{min-height:44px;min-width:120px;font-size:16px}',
     /* Kyon? — four festival cards, identical in every way but their words */
     '.pc-quote{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-md,14px);padding:14px 16px;font-size:18px;line-height:1.5;box-shadow:var(--shadow)}',
-    '.pc-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}',
+    '.pc-opts{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:10px;margin-top:10px}',
     '.pc-opt{min-height:72px;padding:10px;border-radius:14px;border:2px solid var(--line2);background:var(--card);color:var(--text);cursor:pointer;',
     '  font:800 17px/1.25 var(--display);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center}',
     '.pc-opt small{font:500 15px/1.3 var(--body);color:var(--text2)}',

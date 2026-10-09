@@ -66,8 +66,8 @@
     /* a generous opening (master E.5): enough katha that the first city found can be woken
        the turn its road is built — S2, a child following only Mithu wakes a city in 10 turns */
     startRes:   { anna: 40, kala: 40, katha: 20 },
-    growCost:   [0, 25, 60],        /* to reach level 2, level 3 */
-    maxLevel:   3,
+    growCost:   [0, 25, 60, 110, 170],   /* to reach level 2 · 3 · 4 · 5 (free when prosperity is full) */
+    maxLevel:   5,
     routeCost:  30,                 /* kala */
     wakeCost:   35,                 /* katha */
     utsavCost:  { anna: 20, kala: 20 },
@@ -81,7 +81,7 @@
     eventLen:   20,                 /* seconds to answer */
     questMax:   3,                  /* live quest scrolls at once */
     questGap:   18,                 /* seconds between new scrolls appearing */
-    reward: { carry: 40, road: 35, wake: 50, utsav: 35, riddle: 30, peace: 45 },  /* katha */
+    reward: { carry: 40, road: 35, wake: 50, utsav: 35, riddle: 30, peace: 45, water: 30, store: 25 },  /* katha */
 
     negAfter:   75,                 /* seconds untouched before a city turns dusty (yields halve) */
     stepwellX:  3,                  /* stepwell stretches that */
@@ -1670,7 +1670,8 @@
     '.sab-scene.shelfup .sab-cityturn{top:70px;bottom:auto}',
     '.sab-scene.shelfup .sab-cityrep{bottom:auto;top:calc(100% + 8px)}',
     '.sab-scene.tight.shelfup .sab-cityturn{top:8px;right:8px;left:auto;bottom:auto;transform:none}',
-    '.sab-scene.shelfup .sab-holdbar{top:170px}',
+    '.sab-scene.shelfup .sab-holdbar{top:184px}',
+    '.sab-scene.shelfup .sab-npgoal{top:128px}',
     '.sab-scene.tight.shelfup .sab-holdbar{top:120px}',
     /* the piece card's ledger: its own work, then each neighbour with its reason */
     '.sab-pledger{display:grid;gap:4px;margin:6px 0 10px;padding:9px 12px;border-radius:12px;background:color-mix(in srgb,var(--good,#3a8) 9%,var(--card))}',
@@ -1692,11 +1693,41 @@
     '.sab-wrap.gw .sab-enter .lbl{display:flex;flex-direction:column;gap:2px;font:900 15px/1.1 var(--display,Georgia,serif);text-align:left}',
     '.sab-wrap.gw .sab-enter .lbl em{font:700 11px/1.2 var(--body);font-style:normal;color:#ffe2a0}',
     '.sab-wrap.gw .sab-enter:focus-visible{outline:3px solid #ffe2a0;outline-offset:2px}',
+    /* ================= the second pass: affordability, glow, prosperity, villages, the clock ================= */
+    '.sab-tile.poor{opacity:1}',
+    '.sab-tile.poor .art img{filter:grayscale(.85) brightness(.85)}',
+    '.sab-tile.poor b{opacity:.75}',
+    '.sab-tile .c.struck{text-decoration:line-through;opacity:.7}',
+    '.sab-tile .c.short{color:#ffb4a0;font-weight:800;white-space:normal;max-width:74px;line-height:1.15}',
+    '.sab-plot.poor img{filter:grayscale(.85)}',
+    '.sab-plot u.short{display:block;text-decoration:none;font:800 9.5px/1.15 var(--body,system-ui);color:#b8361c;background:rgba(255,246,236,.92);border-radius:6px;padding:1px 4px;margin-top:2px}',
+    '.sab-glow{position:absolute;left:0;top:0;z-index:95;pointer-events:none;overflow:visible}',
+    '.sab-glowc{fill:rgba(255,222,120,.26);stroke:rgba(255,214,100,.85);stroke-width:1.3}',
+    '.sab-glowbest{fill:rgba(255,200,60,.55);stroke:#fff3c4;stroke-width:2.6;animation:sabbest 1.6s ease-in-out infinite alternate}',
+    '@keyframes sabbest{from{fill-opacity:.55}to{fill-opacity:.95}}',
+    '.sab-besttag rect{fill:rgba(40,24,14,.92);stroke:#ecc977;stroke-width:1.5}',
+    '.sab-besttag text{font:900 13px/1 var(--body,system-ui);fill:#fff3c4;text-anchor:middle}',
+    '.sab-holdbar .pv .best{color:#ffe08a;font-weight:800}',
+    '.sab-hbtn.best{background:linear-gradient(180deg,#d4552f,#a8341c);border-color:#ecc977;color:#fff}',
+    '.sab-grow .gl{display:flex;flex-direction:column;align-items:flex-start;gap:4px}',
+    '.sab-grow .gl small{font:700 10.5px/1.1 var(--body,system-ui);opacity:.9}',
+    '.sab-grow.earned{background:linear-gradient(180deg,#3d8a4a,#24622f)!important;border-color:#bfe8a0!important;color:#fff}',
+    '.sab-pros{display:block;width:140px;height:7px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden}',
+    '.sab-pros i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#e8b64c,#9fdc7a);transition:width .6s ease}',
+    '.sab-kwalk{animation:sabwbob 1.4s ease-in-out infinite alternate}',
+    '.sab-vroad{stroke-width:2.2!important;opacity:.85}',
+    '.sab-vill .glow{fill:rgba(255,215,110,.22);stroke:rgba(255,215,110,.6);stroke-width:1}',
+    '.sab-gclock{padding:4px 10px;border-radius:999px;font-weight:800;white-space:nowrap;background:rgba(124,92,180,.22);box-shadow:inset 0 0 0 1px rgba(207,198,230,.45)}',
+    '.sab-gclock.near{background:rgba(207,74,52,.25);box-shadow:inset 0 0 0 1px rgba(255,180,160,.6)}',
+    '.sab-gchip.ok{background:rgba(120,200,120,.22)!important}',
+    '.sab-float{font-size:18px}',
+    '.sab-float.big{font-size:22px;padding:7px 14px}',
+    '.sab-float.short{background:rgba(120,30,20,.9);border-color:#ffb4a0;font-size:14px}',
     '@media (prefers-reduced-motion: reduce){.sab-route.live,.sab-lamp,.sab-exwalk image,' +
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
       '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,.sab-trespot .glint,' +
       '.sab-smoke,.sab-cross,.sab-plot .pbell,.sab-yatri.walking img,.sab-stand,' +
-      '.sab-greens polygon,.sab-raksha,.sab-thread line,.sab-reachline.grow path{animation:none}' +
+      '.sab-greens polygon,.sab-raksha,.sab-thread line,.sab-reachline.grow path,.sab-glowbest,.sab-kwalk{animation:none}' +
       '.sab-trespot .glint{opacity:.55}.sab-cam{transition:none}.sab-tray,.sab-wrap.gm .sab-tray{animation:none}}'   /* still findable when nothing may move */
   ].join('\n');
 
@@ -1835,7 +1866,10 @@
       return SITES.every(function (s) { return !inEra(s) || (found(s.id) && awake(s.id)); });
     }
     function canAdvance() {
-      return G.era < maxEra() && sysOn('advance') && eraDone() && G.res.katha >= ERAS[G.era].katha;
+      if (!(G.era < maxEra() && sysOn('advance'))) return false;
+      /* the age's goal met turns the age too (owner, 9 Oct 2026) */
+      if (G.goal && G.goal.met && G.goal.era === G.era) return true;
+      return eraDone() && G.res.katha >= ERAS[G.era].katha;
     }
     function allAwake() { return SITES.every(function (s) { return awake(s.id); }); }
 
@@ -2113,13 +2147,39 @@
         if (from) return A('An explorer needs ' + T.exploreCost + ' 🌾 for the road — spend a year and the fields fill.', 'turn', null,
           { label: 'Agla Saal', short: 'grain for an explorer' });
       }
+      /* 3½ — THE AGE'S GOAL, part by part, before the clock runs out (owner, 9 Oct 2026) */
+      if (G.goal && !G.goal.met && !G.camp) {
+        var gd = ageGoalDef(G.goal.era), gneed = gd ? goalNeed(gd) : {}, ghave = goalHave(), left = G.goal.due - G.t;
+        if (gneed.water && ghave.water < gneed.water && sysOn('buildings')) {
+          var wc = city && kitOn(city) && !isHer(city) ? byId[city] : SITES.filter(function (x) { return onMap(x) && awake(x.id) && !isHer(x.id) && kitOn(x.id); })[0];
+          if (wc) {
+            if (city === wc.id) return A('The age’s goal needs water (' + ghave.water + ' of ' + gneed.water + ') — open the Water shelf and dig a well.', 'shelf', wc.id,
+              { label: 'Open Water', short: 'a well in ' + nameOf(wc) + ' · ' + left + ' turns', tab: 'water' });
+            return A(gd.title + ' comes in ' + left + ' turns — the realm needs ' + gneed.water + ' wells or tanks. Dig one in ' + nameOf(wc) + '.', 'city', wc.id,
+              { label: 'Go in', short: 'a well in ' + nameOf(wc) + ' · ' + left + ' turns' });
+          }
+        }
+        if (gneed.guard && ghave.guard < gneed.guard && sysOn('jobs')) {
+          var gc0 = SITES.filter(function (x) { return onMap(x) && awake(x.id) && !isHer(x.id) && jobOpen(x.id, 'rakshak'); })[0];
+          if (gc0) {
+            if (city === gc0.id) return A('The age’s goal needs watchers (' + ghave.guard + ' of ' + gneed.guard + ') — put a rakshak on the gate.', 'watch', gc0.id,
+              { label: 'Add a rakshak', short: 'a watch in ' + nameOf(gc0) });
+            return A(gd.title + ' comes in ' + left + ' turns — set a watch in ' + nameOf(gc0) + '.', 'city', gc0.id, { label: 'Go in', short: 'a watch in ' + nameOf(gc0) });
+          }
+        }
+      }
       /* 4 — the economy, once the lamps of the age are all reached */
       if (restless()) return A('The realm is restless — reach somewhere unlike home and it lifts.', 'turn', null,
         { label: 'Agla Saal', short: 'somewhere unlike home' });
       var growable = SITES.filter(function (x) {
         var q = G.sites[x.id];
-        return inEra(x) && awake(x.id) && !isHer(x.id) && q.lv < T.maxLevel && G.res.anna >= T.growCost[q.lv];
+        return inEra(x) && awake(x.id) && !isHer(x.id) && q.lv < T.maxLevel && canPay(growCostOf(x.id));
       })[0];
+      var villager = SITES.filter(function (x) {
+        return onMap(x) && awake(x.id) && !isHer(x.id) && villageRoom(x.id) > 0 && canPay(costOf(VILLAGE_COST, 'building'));
+      })[0];
+      if (villager && sysOn('buildings')) return A(nameOf(villager) + ' has grown enough to found a village on open land nearby (' +
+        costStr(costOf(VILLAGE_COST, 'building')) + ').', 'village', villager.id, { label: 'Found a village', short: 'a village for ' + nameOf(villager) });
       if (growable && sysOn('grow') && sysOn('city')) return A(nameOf(growable) + ' can grow to level ' + (G.sites[growable.id].lv + 1) +
         ' — step inside and grow it.', 'city', growable.id, { label: 'Go in', short: 'grow ' + nameOf(growable) });
       var open = TECHS.filter(function (t) { return techOpenFor(t) && !G.tech[t.id] && canPay(techCost(t)); })[0];
@@ -2195,7 +2255,7 @@
       var at = ad.go && byId[ad.go] ? byId[ad.go] : null;
       if (at) fxAt(at.x, at.y, 'grow');
       /* a step that happens out on the map is shown on the map: step out of the city first */
-      if (city && /^(road|explore|wake|select)$/.test(ad.act)) {
+      if (city && /^(road|explore|wake|select|village)$/.test(ad.act)) {
         city = null; riddleWrong = false; riddleMiss = null; quiz = null; hold = null; paintCity();
       }
       switch (ad.act) {
@@ -2208,6 +2268,7 @@
           return ad;
         }
         case 'shelf': G.kitOpen = true; G.kitTab = ad.tab || null; paintCity(); return ad;
+        case 'village': { var vr = foundVillage(ad.go); if (vr) say('A village waits — ' + vr + '.', ''); return ad; }
         case 'advance': advance(); return ad;
         case 'help': helpEvent(); paintAll(); return ad;
         case 'city': sel = ad.go; targeting = false; act('city'); return ad;
@@ -2243,6 +2304,7 @@
         '<span class="sab-gchip" title="places of this age awake">🪔 lamps <b>' + g.lamps + '</b></span>' +
         (g.katha ? '<span class="sab-gchip" title="katha this age asks before it can turn">📜 <b>' + g.katha + '</b></span>' : '') +
         (g.roads ? '<span class="sab-gchip" title="places on a road">🛤 roads <b>' + g.roads + '</b></span>' : '') +
+        goalStripExtra() +
         '<span class="sab-gnext">next: <b>' + esc(g.next) + '</b></span>';
     }
 
@@ -2378,6 +2440,7 @@
       RITI.forEach(function (r) { if (r.era < G.era) G.riti[r.id] = true; });
       G.pol = polOpen().slice(0, polSlots());
       G.res = { anna: 120, kala: 120, katha: 80 };
+      goalInit(true);
       sel = null; city = null; techOpen = false; overlay = null;
       armClock(); shell(); fitFound();
       say(sc.name + ' — the realm is already standing. Take it on.', 'warm');
@@ -2794,7 +2857,7 @@
     function startMode(m) {
       sel = null; city = null; techOpen = false; hold = null; targeting = false; kbd = null; quiz = null;
       bldSeen = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
-      G = fresh(); G.mode = m === 'short' ? 'short' : 'long';
+      G = fresh(); G.mode = m === 'short' ? 'short' : 'long'; goalInit(true);
       showOverlay(null);
       shell(); bindHud(); zlevel = 1; openFraming(); armClock();
       say(G.mode === 'short' ? 'The short game: three ages, from Dholavira to the Great Sabha.'
@@ -3160,7 +3223,7 @@
 
     function reachOf(id) {
       var q = G.sites[id];
-      return (BUILD.reach && BUILD.reach[q.lv]) || 5;
+      return REACH[q.lv] || (BUILD.reach && BUILD.reach[q.lv]) || 5;
     }
 
     /* ==================================================================
@@ -3548,7 +3611,7 @@
       ZOOMS.forEach(function (z) { if (z <= need + 1e-6) pick = z; });
       /* a full-window board is drawn to COVER its window at 100%; smaller than that, the board
          may end behind the bottom row of buttons but never above it — no band of nothing */
-      var hh0 = parseFloat(inr.style.height) || 1, zFloor = Math.min(1, (v.clientHeight - pad.b) / (hh0 * base));
+      var hh0 = parseFloat(inr.style.height) || 1, zFloor = Math.min(1, (v.clientHeight - pad.b - (tightScreen() ? 120 : 0)) / (hh0 * base));
       var floorZ = ZOOMS.filter(function (z) { return z >= zFloor - 0.02; })[0] || 1;
       pick = Math.min(Math.max(pick, floorZ), 2);
       if (Math.abs(pick - (G.kitZ || 1)) > 1e-6) { G.kitZ = pick; paintCity(); W.IND_KIT.fit(D); }
@@ -3658,12 +3721,18 @@
           line = '<span class="ok">here: ' + esc(yieldStr(y) || 'nothing extra — try it beside something') + '</span>' +
             pv.why.map(function (w) { return '<span class="why">' + esc(w.why) + '</span>'; }).join('');
         }
-      } else line = '<span>Tap the land to place it</span>';
+      } else line = '<span>Tap a glowing cell to place it</span>';
+      var gb = glowFor(id);
+      if (gb && gb.best) {
+        var by = {}; ['anna', 'kala', 'katha', 'watch'].forEach(function (k) { by[k] = ((gb.best.pv && gb.best.pv.base[k]) || 0) + ((gb.best.pv && gb.best.pv.bonus[k]) || 0); });
+        line += '<span class="best">★ best spot: ' + esc(yieldStr(by) || 'any') + ' · ' + gb.cells.length + ' places it can go</span>';
+      } else if (gb) line += '<span class="no">nowhere it can go yet — grow the city, or put it back</span>';
       return '<div class="sab-holdbar" role="status">' +
         '<img src="' + (W.IND_KIT.src(hold.p, hold.f || 0) || '') + '" alt="">' +
         '<div class="hb"><b>Holding: ' + esc(def.name) + '</b><div class="pv">' + line + '</div>' +
         (tightScreen() ? '' : '<div class="keys"><kbd>←↑→↓</kbd> move · <kbd>Enter</kbd> place · <kbd>R</kbd> rotate · <kbd>Esc</kbd> put back · drag to look around</div>') +
-        '</div><button class="sab-hbtn" data-sab-act="kitturnp" aria-label="Rotate the piece you are holding">⟲ Rotate</button>' +
+        '</div>' + (gb && gb.best ? '<button class="sab-hbtn best" data-sab-act="kitbest" aria-label="Place it on the best spot">★ Place it</button>' : '') +
+        '<button class="sab-hbtn" data-sab-act="kitturnp" aria-label="Rotate the piece you are holding">⟲ Rotate</button>' +
         '<button class="sab-hbtn" data-sab-act="kitdrop" aria-label="Put the piece back on the shelf">✕ Put back</button></div>';
     }
     /* WHAT THE NEXT LEVEL BRINGS, shown locked with the level that opens it (D.1 #9) */
@@ -3671,7 +3740,7 @@
       var q = G.sites[id], x = byId[id];
       if (q.lv >= T.maxLevel) return [];
       return (BUILD.items || []).filter(function (it) {
-        if (it.lv !== q.lv + 1) return false;
+        if (!(it.lv > q.lv)) return false;
         if (x.era < it.era[0] || x.era > it.era[1] || G.era < it.era[0]) return false;
         if (it.kind !== '*' && it.kind !== x.kind) return false;
         if (it.only && it.only.indexOf(id) < 0) return false;
@@ -3696,6 +3765,313 @@
         '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Build with them</button></div>');
     }
 
+    /* ==================================================================
+       THE SECOND PASS (owner, 9 Oct 2026): "the city is limited… difficult to place
+       buildings… the cities are too small… building has no payoff… I should be able to
+       expand… there are not strong enough external threats… a goal to look forward to."
+       ================================================================== */
+
+    /* BIGGER CITIES. Reach was 7 · 10 · 14 over three levels; a level-1 city now has room for
+       a real first quarter, and two more levels carry it to the edge of its land. */
+    var REACH = { 1: 9, 2: 12, 3: 15, 4: 18, 5: 22 };
+    /* PROSPERITY: what has been built fills the meter, and a full meter makes the next growth
+       free — building is how a city earns its size, not only grain */
+    var PROS = [0, 4, 8, 13, 19, 26];
+    function prosperity(id) {
+      var q = G.sites[id]; if (!q) return 0;
+      return (q.kit || []).length + Object.keys(q.bld || {}).filter(function (b) { return q.bld[b]; }).length;
+    }
+    function prosNeed(id) { var q = G.sites[id]; return PROS[Math.min(q.lv, PROS.length - 1)]; }
+    function prosFull(id) { var q = G.sites[id]; return q.lv < T.maxLevel && prosperity(id) >= prosNeed(id); }
+    function growCostOf(id) {
+      var q = G.sites[id];
+      return prosFull(id) ? { anna: 0 } : costOf({ anna: T.growCost[q.lv] }, 'grow');
+    }
+    /* what a price still needs, said as the shortfall: "needs 12 more 🛠️" */
+    function shortOf(c) {
+      var out = [];
+      Object.keys(c || {}).forEach(function (k) {
+        var miss = Math.ceil(c[k] - Math.floor(G.res[k] || 0));
+        if (miss > 0) out.push(miss + ' more ' + (ICON[k] || k));
+      });
+      return out.length ? 'needs ' + out.join(' + ') : '';
+    }
+
+    /* EVERY CELL THE HELD PIECE MAY STAND ON GLOWS, and the best one is named with what it
+       would earn there. Computed once per piece and city state, not on every hover. */
+    var glowCache = null;
+    function glowFor(id) {
+      if (!hold || !kitOn(id)) return null;
+      var q = kitOf(id), it = BY_PART[hold.p]; if (!it) return null;
+      var key = [id, hold.p, q.kit.length, q.lv, (q.grown || []).join(''), G.kitRot || 0, Math.floor(G.res.anna), Math.floor(G.res.kala)].join('|');
+      if (glowCache && glowCache.key === key) return glowCache;
+      var C = (W.IND_KIT_CITIES || {})[id], cells = [], best = null, bestV = -1;
+      for (var y = 0; y < C.gh; y++) {
+        for (var x = 0; x < C.gw; x++) {
+          if (canPlace(id, it, x, y)) continue;
+          cells.push([x, y]);
+          var pv = adjPreview(id, hold.p, x, y), v = 0;
+          ['anna', 'kala', 'katha', 'watch'].forEach(function (k) { v += ((pv && pv.base[k]) || 0) + ((pv && pv.bonus[k]) || 0); });
+          var d = W.IND_KIT.reach(id, x, y);
+          var score = v * 100 - d;            /* the most it earns; then the nearest the heart */
+          if (score > bestV) { bestV = score; best = { x: x, y: y, pv: pv, v: v }; }
+        }
+      }
+      glowCache = { key: key, cells: cells, best: best };
+      return glowCache;
+    }
+    function glowSVG(id, w, h) {
+      var gl = glowFor(id); if (!gl || !gl.cells.length) return '';
+      var poly = function (x, y) {
+        var c = cellPx(id, x, y), a = cellPx(id, x + 1, y), b = cellPx(id, x, y + 1);
+        var vx = { x: (a.x - c.x) / 2, y: (a.y - c.y) / 2 }, vy = { x: (b.x - c.x) / 2, y: (b.y - c.y) / 2 };
+        return [[c.x - vx.x - vy.x, c.y - vx.y - vy.y], [c.x + vx.x - vy.x, c.y + vx.y - vy.y],
+                [c.x + vx.x + vy.x, c.y + vx.y + vy.y], [c.x - vx.x + vy.x, c.y - vx.y + vy.y]]
+          .map(function (pt) { return pt[0].toFixed(1) + ',' + pt[1].toFixed(1); }).join(' ');
+      };
+      var out = gl.cells.map(function (c) { return '<polygon class="sab-glowc" points="' + poly(c[0], c[1]) + '"/>'; }).join('');
+      if (gl.best) {
+        var bc = cellPx(id, gl.best.x, gl.best.y);
+        var y0 = {}; ['anna', 'kala', 'katha', 'watch'].forEach(function (k) { y0[k] = ((gl.best.pv && gl.best.pv.base[k]) || 0) + ((gl.best.pv && gl.best.pv.bonus[k]) || 0); });
+        out += '<polygon class="sab-glowbest" points="' + poly(gl.best.x, gl.best.y) + '"/>' +
+          '<g class="sab-besttag" transform="translate(' + bc.x.toFixed(1) + ' ' + (bc.y - 30).toFixed(1) + ')">' +
+          '<rect x="-46" y="-15" width="92" height="24" rx="12"/><text y="2">★ ' + esc(yieldStr(y0) || 'best') + '</text></g>';
+      }
+      return '<svg class="sab-glow" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' + out + '</svg>';
+    }
+    /* place the held piece on a cell, through the one tap path */
+    function placeAt(cx, cy) {
+      var inr = D.getElementById('sab-kitinner'); if (!inr || !city) return;
+      var r = inr.getBoundingClientRect(), k = parseFloat(inr.getAttribute('data-k')) || 1, p0 = cellPx(city, cx, cy);
+      kitTap({ target: inr, clientX: r.left + p0.x * k, clientY: r.top + p0.y * k });
+    }
+
+    /* THE CITY FILLS IN AS IT GROWS: at each new level its people raise two homes of the age
+       on open land at the new edge — the board is visibly busier, and the praja have homes */
+    function townFillsIn(id) {
+      var homes = offered(id).filter(function (it) { return it.g === 'home' && !it.tech; })
+        .sort(function (a, b) { return (a.cost.anna || 0) + (a.cost.kala || 0) - (b.cost.anna || 0) - (b.cost.kala || 0); });
+      if (!homes.length) return 0;
+      var it = homes[0], C = (W.IND_KIT_CITIES || {})[id], K2 = W.IND_KIT, q = kitOf(id), put = 0;
+      var d = K2.def(it.p), L = (d && d.d[0]) || 1, B = (d && d.d[1]) || 1;
+      var cand = [];
+      for (var y = 0; y < C.gh; y++) for (var x = 0; x < C.gw; x++) {
+        var ok = true;
+        for (var a = 0; a < L && ok; a++) for (var b = 0; b < B && ok; b++) {
+          var t = K2.terrain(id, x + a, y + b);
+          if (t !== 'land' || occupied(id, x + a, y + b) || monGround(id, x + a, y + b) ||
+              K2.reach(id, x + a, y + b) > reachTo(id, x + a, y + b)) ok = false;
+        }
+        if (ok) cand.push([x, y, K2.reach(id, x, y)]);
+      }
+      /* near the new edge, and spread out rather than in a clump */
+      cand.sort(function (u, v) { return v[2] - u[2]; });
+      for (var i = 0; i < cand.length && put < 2; i++) {
+        var c = cand[i];
+        if (q.kit.some(function (o) { return Math.abs(o.x - c[0]) + Math.abs(o.y - c[1]) < 3; })) continue;
+        q.kit.push({ p: it.p, x: c[0], y: c[1], f: (c[0] + c[1]) % 4 }); put++;
+      }
+      return put;
+    }
+
+    /* ==================================================================
+       VILLAGES — the realm grows by roads and towns, never by borders
+       ==================================================================
+       A grown city may found a village on open land within a day's walk: a small lamp on
+       the map, joined to its mother town by a road, adding a little grain and craft every
+       year. One village a level past the first. Nothing is claimed, nothing is drawn round
+       anything — a dot and a road, which is all a village ever was on a map. */
+    var VILLAGE_COST = { anna: 30, kala: 20 };
+    function villagesOf(id) { return (G.villages || []).filter(function (v) { return v.from === id; }); }
+    function villageRoom(id) { var q = G.sites[id]; return Math.max(0, (q.lv || 1) - 1) - villagesOf(id).length; }
+    function landAt(x, y) {
+      var paths = D.querySelectorAll('#sab-terrg path');
+      if (!paths.length) return true;
+      var svg = D.querySelector('#sab-stage svg'), pt = svg && svg.createSVGPoint ? svg.createSVGPoint() : null;
+      if (!pt) return true;
+      pt.x = x; pt.y = y;
+      for (var i = 0; i < paths.length; i++) { try { if (paths[i].isPointInFill(pt)) return true; } catch (e) { return true; } }
+      return false;
+    }
+    function villageSpot(id) {
+      var s = byId[id], taken = SITES.map(function (x) { return [x.x, x.y]; })
+        .concat((G.villages || []).map(function (v) { return [v.x, v.y]; }));
+      var out = null;
+      [52, 66, 80].some(function (r) {
+        for (var a = 0; a < 12; a++) {
+          var ang = (a * 30 + villagesOf(id).length * 47) * Math.PI / 180;
+          var x = s.x + Math.cos(ang) * r, y = s.y + Math.sin(ang) * r;
+          if (!landAt(x, y)) continue;
+          if (taken.some(function (t) { return Math.hypot(t[0] - x, t[1] - y) < 34; })) continue;
+          out = { x: Math.round(x), y: Math.round(y) }; return true;
+        }
+        return false;
+      });
+      return out;
+    }
+    function foundVillage(id) {
+      var q = G.sites[id];
+      if (!q || q.zzz || isHer(id) || !sysOn('buildings')) return 'not here';
+      if (villageRoom(id) <= 0) return q.lv < 2 ? 'a city must grow to level 2 first' : 'grow the city again for another village';
+      var c = costOf(VILLAGE_COST, 'building');
+      if (!canPay(c)) return shortOf(c);
+      var spot = villageSpot(id); if (!spot) return 'there is no open land near enough';
+      pay(c);
+      if (!G.villages) G.villages = [];
+      G.villages.push({ id: 'v' + (G.villages.length + 1), from: id, x: spot.x, y: spot.y, t: G.t });
+      touch(id); G.score += 15;
+      fxAt(spot.x, spot.y, 'utsav');
+      say('A village grows up near ' + nameOf(byId[id]) + ', joined to it by a road — a little more grain and craft every year.', 'warm');
+      paintVillages(); paintAll();
+      return null;
+    }
+    function paintVillages() {
+      var g = D.getElementById('sab-villages'); if (!g) return;
+      var sp = spOf('city1');
+      g.innerHTML = (G.villages || []).map(function (v) {
+        var s = byId[v.from]; if (!s || !onMap(s)) return '';
+        var mx = (s.x + v.x) / 2, my = (s.y + v.y) / 2 - 8;
+        return '<path class="sab-bed" d="M' + s.x + ' ' + s.y + ' Q' + mx + ' ' + my + ' ' + v.x + ' ' + v.y + '"/>' +
+          '<path class="sab-route sab-vroad" d="M' + s.x + ' ' + s.y + ' Q' + mx + ' ' + my + ' ' + v.x + ' ' + v.y + '"/>' +
+          '<g class="sab-vill" role="img" aria-label="a village of ' + esc(nameOf(s)) + '">' +
+          '<circle class="glow" cx="' + v.x + '" cy="' + v.y + '" r="13"/>' +
+          (sp ? '<image href="' + sp + '" x="' + (v.x - 14) + '" y="' + (v.y - 22) + '" width="28" height="24"/>'
+              : '<circle cx="' + v.x + '" cy="' + v.y + '" r="5" fill="#ffd76e"/>') + '</g>';
+      }).join('');
+    }
+
+    /* ==================================================================
+       THE AGE'S GOAL AND ITS CLOCK (owner, 9 Oct 2026)
+       ==================================================================
+       Each age names one pressure in the data's own sourced words — the long drying that
+       archaeologists read at Dholavira, the flood layer at Hastinapura, the rains failing, the
+       sea turning — a deadline, and what a realm needs to be ready for it. Meet it and the age
+       turns; miss it and the unready cities shrink a level and the stores thin, while the
+       ready ones hold. Never game over: the goal is offered again. Nobody is the enemy. */
+    function ageGoalDef(era) {
+      var list = DATA.ageGoals || [];
+      var g = null; list.forEach(function (x) { if (x.era === era) g = x; });
+      return g;
+    }
+    function goalInit(fresh2) {
+      if (G.camp) { G.goal = null; return; }
+      var d = ageGoalDef(G.era);
+      if (!d) { G.goal = null; return; }
+      if (!fresh2 && G.goal && G.goal.era === G.era) return;
+      G.goal = { era: G.era, start: G.t, due: G.t + d.turns, met: false, missed: 0 };
+    }
+    function goalNeed(d) {
+      var n = {};
+      Object.keys(d.need || {}).forEach(function (k) {
+        if ((k === 'water' || k === 'guard') && !sysOn('buildings')) return;   /* 4–7: roads and grain only */
+        n[k] = d.need[k];
+        /* with no granaries to build, never ask for more than the stores can hold */
+        if (k === 'grain' && !sysOn('buildings')) n[k] = Math.min(n[k], storeCap() - 20);
+      });
+      return n;
+    }
+    function waterOf(id) {
+      var q = G.sites[id], n = q.bld && q.bld.stepwell ? 1 : 0;
+      (q.kit || []).forEach(function (b) { var it = BY_PART[b.p]; if (it && it.g === 'water') n++; });
+      return n;
+    }
+    function goalHave() {
+      var living = SITES.filter(function (x) { return inEra(x) && awake(x.id) && !isHer(x.id); });
+      /* the largest group of living cities one road network joins */
+      var bestNet = 0, seen = {};
+      living.forEach(function (x) {
+        if (seen[x.id]) return;
+        var stack = [x.id], n = 0; seen[x.id] = 1;
+        while (stack.length) {
+          var a = stack.pop(); n++;
+          G.routes.forEach(function (r) {
+            var b = r[0] === a ? r[1] : r[1] === a ? r[0] : null;
+            if (b && !seen[b] && awake(b) && !isHer(b)) { seen[b] = 1; stack.push(b); }
+          });
+        }
+        bestNet = Math.max(bestNet, n);
+      });
+      var water = 0, guard = 0;
+      living.forEach(function (x) { water += waterOf(x.id); guard += defenceOf(x.id).own + defenceOf(x.id).wall; });
+      return { joined: bestNet, water: water, guard: guard, grain: Math.floor(G.res.anna) };
+    }
+    function goalMet() {
+      if (!G.goal) return false;
+      var d = ageGoalDef(G.goal.era); if (!d) return false;
+      var need = goalNeed(d), have = goalHave();
+      return Object.keys(need).every(function (k) { return have[k] >= need[k]; });
+    }
+    function goalLine(d) {
+      var need = goalNeed(d), have = goalHave(), NM = { joined: 'cities joined', water: 'wells or tanks', guard: 'on watch', grain: '🌾 stored' };
+      return Object.keys(need).map(function (k) {
+        return '<span class="sab-gchip' + (have[k] >= need[k] ? ' ok' : '') + '">' + (have[k] >= need[k] ? '✓ ' : '') +
+          Math.min(have[k], need[k]) + '/' + need[k] + ' ' + NM[k] + '</span>';
+      }).join('');
+    }
+    function pressureText(d) {
+      if (d.ref) { var r = refLine(d.ref); return r ? { t: r.t, src: r.src } : null; }
+      var rd = null; (DATA.raids || []).forEach(function (x) { if (x.id === d.raid) rd = x; });
+      return rd ? { t: rd.warn + '. ' + rd.what + '.', src: '' } : null;
+    }
+    /* called at the end of every turn */
+    function goalTick() {
+      if (!G.goal || G.camp || G.won) return;
+      var d = ageGoalDef(G.goal.era); if (!d || G.goal.era !== G.era) { goalInit(true); return; }
+      if (!G.goal.met && goalMet()) {
+        G.goal.met = true; G.res.katha += 40; G.score += 60;
+        tnote('the age’s goal is met');
+        showOverlay(mascot('mithu', 'happy', 80) + '<div class="mono" style="color:var(--accent2)">the age’s goal · met</div>' +
+          '<h3>' + esc(d.title) + ' — the realm is ready</h3>' +
+          '<p>Your cities are joined and stocked before the trouble came. +40 📜 — and the age can turn now: ' +
+          'press <b>New era</b> when you are ready.</p>' +
+          '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Shabash!</button></div>');
+        return;
+      }
+      if (!G.goal.met && G.t >= G.goal.due) {
+        /* THE CONSEQUENCE: strong, felt, and never the end */
+        var held = [], shrank = [];
+        SITES.forEach(function (x) {
+          if (!inEra(x) || !awake(x.id) || isHer(x.id)) return;
+          var q = G.sites[x.id];
+          var ready = q.mon || G.capital === x.id || (connected(x.id) && (waterOf(x.id) > 0 || defenceOf(x.id).total > 0 || !sysOn('buildings')));
+          if (ready) { held.push(nameOf(x)); return; }
+          if (sysOn('grow') && q.lv > 1) { q.lv--; shrank.push(nameOf(x)); }
+          else shrank.push(nameOf(x));
+        });
+        var lostA = Math.floor(G.res.anna * 0.4), lostK = Math.floor(G.res.kala * 0.2);
+        G.res.anna -= lostA; G.res.kala -= lostK;
+        G.goal.missed++; G.goal.due = G.t + Math.max(30, Math.round(d.turns * 0.7));
+        tnote(d.title.toLowerCase() + ' came');
+        var pt = pressureText(d);
+        showOverlay(mascot('vismriti', null, 80) + '<div class="mono" style="color:var(--accent2)">' + esc(d.title) + '</div>' +
+          '<h3>' + esc(d.title) + ' came before the realm was ready</h3>' +
+          (pt ? '<div class="sab-cfactbox"><p>' + esc(pt.t) + '</p>' + (pt.src ? '<p class="sab-csrc">' + esc(pt.src) + '</p>' : '') + '</div>' : '') +
+          '<p>' + (held.length ? '<b>' + esc(held.join(', ')) + '</b> ' + (held.length === 1 ? 'was' : 'were') + ' ready and held. ' : '') +
+          (shrank.length ? '<b>' + esc(shrank.join(', ')) + '</b> ' + (sysOn('grow') ? 'grew smaller' : 'had a hard season') + '. ' : '') +
+          'The stores lost ' + lostA + ' 🌾 and ' + lostK + ' 🛠️.</p>' +
+          '<p><b>Nothing is lost for good.</b> The goal is offered again: ' + (G.goal.due - G.t) + ' turns.</p>' +
+          '<div class="row"><button class="sab-btn go" data-sab-act="ovclose">Try again</button></div>');
+      }
+    }
+    /* the goal for the strip: what it is, how long is left, and each part */
+    function goalStripExtra() {
+      if (!G.goal || G.camp) return '';
+      var d = ageGoalDef(G.goal.era); if (!d) return '';
+      if (G.goal.met) return '<span class="sab-gchip ok">✓ ' + esc(d.title) + ': ready — the age can turn</span>';
+      var left = Math.max(0, G.goal.due - G.t);
+      return '<span class="sab-gclock' + (left <= 10 ? ' near' : '') + '" title="' + esc(d.title) + '">⏳ ' + esc(d.title) + ' in <b>' + left + '</b> turns</span>' +
+        goalLine(d);
+    }
+    /* a scroll that serves the goal: the next part of it, at a city that can do it */
+    function goalQuest(here) {
+      if (!G.goal || G.goal.met || G.camp) return null;
+      var d = ageGoalDef(G.goal.era); if (!d) return null;
+      var need = goalNeed(d), have = goalHave();
+      if (need.water && have.water < need.water && kitOn(here.id) && sysOn('buildings') && !waterOf(here.id)) return { kind: 'water', target: null };
+      if (need.grain && have.grain < need.grain) return { kind: 'store', target: null, n: need.grain };
+      return null;
+    }
+
     function kitBoard(id, pins) {
       var q = kitOf(id);
       var ghost = null;
@@ -3717,7 +4093,7 @@
          percentage means what it says at every zoom. */
       return '<div class="sab-hero sab-kitboard"><div class="sab-kitinner" id="sab-kitinner"' +
         ' data-z="' + (G.kitZ || 1) + '" style="width:' + r.w + 'px;height:' + r.h +
-        'px">' + r.html + reachOutline(id, r.w, r.h) + kitCrowd(id) + '</div>' +
+        'px">' + r.html + reachOutline(id, r.w, r.h) + (hold ? glowSVG(id, r.w, r.h) : '') + kitCrowd(id) + '</div>' +
         (pins ? '<div class="sab-kitpins">' + pins + '</div>' : '') + '</div>';
     }
 
@@ -3778,6 +4154,16 @@
             ' style="left:' + px.toFixed(1) + 'px;top:' + py.toFixed(1) + 'px">';
         }
       });
+      /* AND THE STREETS FILL as the city grows: its praja walk the roads inside its reach */
+      var walkers = [], netc = (C.net || []).filter(function (n) { return K2.reach(id, n[0], n[1]) <= reachTo(id, n[0], n[1]); });
+      var many = Math.min(14, Math.max(0, popOf(id) - 2)), kinds = ['kisan', 'karigar', 'kathakar'];
+      for (var w = 0; w < many && netc.length; w++) {
+        var nn = netc[(w * 7 + 3) % netc.length], spw = spOf(kinds[w % 3]); if (!spw) continue;
+        var cw = K2.turn(nn[0], nn[1], 1, 1, rot, C.gw, C.gh), aw = K2.anchor(cw.x, cw.y, 1, 1);
+        walkers.push('<img class="sab-kworker sab-kwalk" src="' + spw + '" alt="" style="left:' + (aw.x + ox + (w % 2 ? 7 : -7)).toFixed(1) +
+          'px;top:' + (aw.y + oy - K2.H).toFixed(1) + 'px;animation-delay:-' + (w * 0.37).toFixed(2) + 's">');
+      }
+      out += walkers.join('');
       return out ? '<div class="sab-kcrowd" aria-hidden="true">' + out + '</div>' : '';
     }
 
@@ -3797,13 +4183,17 @@
     function growBtn(id) {
       var q = kitOf(id), x = byId[id];
       if (!q || q.lv >= T.maxLevel || q.zzz || q.her || !sysOn('grow')) return '';
-      var gc = costOf({ anna: T.growCost[q.lv] }, 'grow');
-      return '<button class="sab-grow' + (canPay(gc) ? ' can' : '') +
-        '" data-sab-act="grow"' + (canPay(gc) ? '' : ' disabled') +
+      var gc = growCostOf(id), free = prosFull(id), pr = prosperity(id), pn = prosNeed(id);
+      /* THE PROSPERITY METER: what has been built fills it, and full, the next growth is free */
+      var meter = '<span class="sab-pros" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(pr / pn * 100)) + '%"></i></span>';
+      return '<button class="sab-grow' + (canPay(gc) ? ' can' : '') + (free ? ' earned' : '') +
+        '" data-sab-act="grow"' + (canPay(gc) ? '' : ' aria-disabled="true"') +
         ' aria-label="Grow ' + esc(nameOf(x)) + ' to level ' + (q.lv + 1) +
-        ' — the land it may build on widens, and more is offered. Costs ' +
-        esc(costStr(gc)) + '">\u2b06 Grow to level ' + (q.lv + 1) +
-        '<em>' + esc(costStr(gc)) + '</em></button>';
+        ' — the land it may build on widens, and more is offered. Prosperity ' + Math.min(pr, pn) + ' of ' + pn +
+        (free ? ' — the city has earned it: free' : '. Costs ' + esc(costStr(gc)) + ', or build until the meter is full') + '">' +
+        '<span class="gl"><b>\u2b06 Grow to level ' + (q.lv + 1) + '</b>' + meter +
+        '<small>' + (free ? 'prosperity full — free!' : 'prosperity ' + Math.min(pr, pn) + '/' + pn + ' · or ' + esc(costStr(gc)) +
+          (canPay(gc) ? '' : ' (' + esc(shortOf(gc)) + ')')) + '</small></span></button>';
     }
 
     function kitDrawer(id) {
@@ -3926,13 +4316,14 @@
         var done = it.only && !it.many && n >= 1;
         var lock = techLock(it);
         var poor = !done && !lock && !canPay(costOf(it.cost, 'building'));
+        var short = poor ? shortOf(costOf(it.cost, 'building')) : '';
         var give = ['anna', 'kala', 'katha'].filter(function (k) { return it.give && it.give[k]; })
           .map(function (k) { return '+' + it.give[k] + ICON[k]; }).join(' ');
         if (it.pop) give += (give ? ' ' : '') + '+' + it.pop + '\ud83d\udc64';
         return '<button class="sab-tile' + (hold && hold.p === it.p ? ' on' : '') +
           (poor ? ' poor' : '') + (lock ? ' locked' : '') +
           '" data-sab-act="kitpick" data-p="' + it.p + '"' +
-          (done || lock ? ' disabled' : '') +
+          (done || lock ? ' disabled' : '') + (poor ? ' aria-disabled="true"' : '') +
           ' aria-label="' + esc(def ? def.name : it.p) + '. ' + esc(it.what) +
           ' Costs ' + esc(costStr(costOf(it.cost, 'building'))) +
           (done ? '. Already built.' : lock ? '. Locked until the city studies ' + esc(lock) + '.'
@@ -3945,7 +4336,8 @@
           (n ? '<u>' + n + '</u>' : '') + '</span>' +
           '<b>' + esc(def ? def.name : it.p) + '</b>' +
           (lock ? '<span class="c lock">\ud83d\udd12 ' + esc(lock) + '</span>'
-                : '<span class="c">' + esc(costStr(costOf(it.cost, 'building'))) + '</span>') +
+                : '<span class="c' + (poor ? ' struck' : '') + '">' + esc(costStr(costOf(it.cost, 'building'))) + '</span>') +
+          (short ? '<span class="c short">' + esc(short) + '</span>' : '') +
           (give && !lock ? '<span class="g">' + give + '</span>' : '') + '</button>';
       }).join('');
 
@@ -4037,6 +4429,11 @@
             return '<button class="sab-btn" style="display:block;width:100%;text-align:left;margin:6px 0" ' +
               'data-sab-act="qriddle" data-o="' + esc(o) + '" aria-keyshortcuts="' + (oi + 1) + '">' + esc(o) + '</button>';
           }).join(''));
+      } else if (qq2.kind === 'water') {
+        h2 += '<button class="sab-btn go" data-sab-act="kitwater">Open the Water shelf</button>' +
+          '<p class="tiny sab-note">A well or a tank anywhere in this city closes the scroll (+' + T.reward.water + ' 📜).</p>';
+      } else if (qq2.kind === 'store') {
+        h2 += '<p class="tiny sab-note">' + Math.floor(G.res.anna) + ' of ' + qq2.n + ' 🌾 so far — farms and kisan fill it; the scroll closes itself (+' + T.reward.store + ' 📜).</p>';
       } else {
         h2 += '<p class="tiny sab-note">This one is done out on the map — the scroll will close itself.</p>';
       }
@@ -4638,6 +5035,9 @@
       out.anna += wg.anna; out.kala += wg.kala; out.katha += wg.katha;
       if (q.mon) out.katha += 2;
       if (G.capital === x.id) { out.anna += 1; out.kala += 1; out.katha += 1; }
+      /* ITS VILLAGES: a little grain and craft from each, down their own roads */
+      var nv = villagesOf(x.id).length;
+      if (nv) { out.anna += nv; out.kala += nv; note('anna', nv, nv === 1 ? 'its village' : 'its ' + nv + ' villages'); note('kala', nv, 'its villages'); }
       /* an akal (drought) halves the fields until the rains return */
       if (q.dry > 0) out.anna = Math.floor(out.anna / 2);
       if (dusty(x.id)) Object.keys(out).forEach(function (k) { out[k] = Math.floor(out[k] / 2); });
@@ -4651,6 +5051,8 @@
       if (qq.kind === 'carry')  return 'We need ' + T.eventAsk + ' kala of good craft brought in along the roads.';
       if (qq.kind === 'utsav')  return 'The season has been long. Hold an utsav here, in ' + here.name + ' itself.';
       if (qq.kind === 'riddle') return 'A question, traveller — answer it and the telling is yours to keep.';
+      if (qq.kind === 'water')  return 'The dry years are coming. Dig us a well or a tank here, in ' + here.name + ' — the age’s goal needs water.';
+      if (qq.kind === 'store')  return 'Fill the granaries: ' + qq.n + ' 🌾 in store before the trouble comes.';
       return '';
     }
 
@@ -4662,6 +5064,10 @@
       });
       if (!homes.length) return;
       var here = homes[(G.t * 13) % homes.length];
+      /* A SCROLL THAT SERVES THE AGE'S GOAL comes first: the next part of it, here */
+      var gq = goalQuest(here);
+      if (gq) { G.quests[here.id] = gq; G.lastq = G.t;
+        say(FOLK[here.kind] + ' of ' + here.name + ' ask for something the age’s goal needs — the scroll is on the map.', 'warm'); return; }
       var kinds = [];
       var sleeping = SITES.filter(function (x) { return onMap(x) && !awake(x.id); });
       var unroaded = SITES.filter(function (x) {
@@ -4694,6 +5100,8 @@
         var qq = G.quests[id];
         if (qq.kind === 'road' && routed(id, qq.target)) finishQuest(id, 'The road is walked.');
         if (qq.kind === 'wake' && awake(qq.target)) finishQuest(id, byId[qq.target].name + ' is awake.');
+        if (qq.kind === 'water' && waterOf(id) > 0) finishQuest(id, 'The water is kept.');
+        if (qq.kind === 'store' && G.res.anna >= (qq.n || 0)) finishQuest(id, 'The granaries are full.');
       });
     }
 
@@ -4869,6 +5277,7 @@
           '<ellipse cx="680" cy="700" rx="300" ry="170" fill="#6d7387" opacity=".12" style="filter:blur(46px)"/>' +
         '</g>' +
         '<g id="sab-routes">' + G.routes.map(routeSVG).join('') + '</g>' +
+        '<g id="sab-villages"></g>' +
         '<g id="sab-carts"></g>' +
         '<g id="sab-explorers"></g>' +
         '<g id="sab-sites">' + SITES.map(siteSVG).join('') + '</g>' +
@@ -5797,6 +6206,11 @@
             ic('next', 20) + '</button>');
         if (hiddenSites().length && sysOn('explore'))
           b.push(tile('explore', 'run', 'Explorer', T.exploreCost + ' \ud83c\udf3e'));
+        /* THE REALM GROWS BY TOWNS: a grown city founds a village on open land nearby */
+        if (sysOn('buildings') && q.lv >= 2 && villageRoom(sel) > 0) {
+          var vc = costOf(VILLAGE_COST, 'building');
+          b.push(tile('village', 'temple', 'Found a village', canPay(vc) ? costStr(vc) : shortOf(vc), { go: canPay(vc) }));
+        }
       }
       b.push('<button class="sab-act sq" data-sab-act="close" aria-label="Close">✕</button>');
       sh.hidden = false; sh.innerHTML = b.join('');
@@ -5808,7 +6222,7 @@
       if (el) { var ad = advise(); el.innerHTML = 'Next: <b>' + esc(ad.label) + '</b> — ' + esc(ad.short || ''); }
     }
     function paintAll() {
-      paintHud(); SITES.forEach(paintSite); paintRoutes(); paintFog(); paintExplorers();
+      paintHud(); SITES.forEach(paintSite); paintRoutes(); paintVillages(); paintFog(); paintExplorers();
       paintSheet(); paintFeed(); paintGuide();
       /* which names are worth showing changes when a place wakes or is selected, not
          only when the view moves — so the declutter runs on every repaint too */
@@ -6025,7 +6439,8 @@
         /* MITHU COMES IN TOO: the goal strip and his one next step, a tap away inside the city */
         var mithuBtn = '<button class="sab-npgoal" data-sab-act="advise" aria-label="Mithu: ' + esc(advise().why) + '">' +
             mascot('mithu', 'talk', 26).replace('margin:0 auto 6px', 'margin:0') +
-            '<span><i>🪔 ' + gp.lamps + (gp.katha ? ' · 📜 ' + gp.katha : '') + (gp.roads ? ' · 🛤 ' + gp.roads : '') + '</i>' +
+            '<span><i>🪔 ' + gp.lamps + (gp.katha ? ' · 📜 ' + gp.katha : '') + (gp.roads ? ' · 🛤 ' + gp.roads : '') +
+              (G.goal && !G.goal.met && !G.camp ? ' · ⏳ ' + Math.max(0, G.goal.due - G.t) : '') + '</i>' +
             '<b>' + esc(advise().label) + ' →</b></span></button>';
         var plate = alarm + kitbar + '<div class="sab-nameplate"><b>' +
           esc(nameOf(s)) + (G.capital === id ? ' \u2605' : '') + '</b><span>' +
@@ -6198,11 +6613,11 @@
                   '<i>' + esc(bd.name) + '</i></div>';
               }
             } else {
-              var c2 = costOf(bd.cost, 'building');
-              plots += '<button class="sab-plot" style="' + pos + '" data-sab-act="build" data-b="' + bid + '"' +
-                (canPay(c2) ? '' : ' disabled') +
-                ' aria-label="Build the ' + esc(bd.name) + ' — ' + esc(bd.what) + '">' + art2 +
-                '<i>' + esc(bd.name) + '</i><em>' + costStr(c2) + '</em></button>';
+              var c2 = costOf(bd.cost, 'building'), sh2 = canPay(c2) ? '' : shortOf(c2);
+              plots += '<button class="sab-plot' + (sh2 ? ' poor' : '') + '" style="' + pos + '" data-sab-act="build" data-b="' + bid + '"' +
+                (sh2 ? ' aria-disabled="true"' : '') +
+                ' aria-label="Build the ' + esc(bd.name) + ' — ' + esc(bd.what) + (sh2 ? '. It ' + esc(sh2) : '') + '">' + art2 +
+                '<i>' + esc(bd.name) + '</i><em>' + costStr(c2) + '</em>' + (sh2 ? '<u class="short">' + esc(sh2) + '</u>' : '') + '</button>';
             }
           });
         /* a port keeps its boat moored — the city's kind, visible at a glance */
@@ -6908,9 +7323,11 @@
         say('An explorer sets out from ' + s.name + ', lamp in hand, into the mist.', 'warm');
       }
       if (name === 'grow' && !q.zzz && q.lv < T.maxLevel) {
-        var cost = T.growCost[q.lv];
-        if (G.res.anna < cost) return say('Not enough anna yet — the fields are still filling.', '');
-        pay({ anna: cost }); blip('grow'); q.lv++; G.score += 10; touch(sel);
+        var gcost = growCostOf(sel), cost = gcost.anna || 0, earned = prosFull(sel);
+        if (G.res.anna < cost) return say('Not enough anna yet — ' + shortOf(gcost) + '. Or build: a full prosperity meter grows the city for free.', '');
+        if (cost) pay({ anna: cost }); else undoPoint();
+        blip('grow'); q.lv++; G.score += 10; touch(sel);
+        if (earned) say(nameOf(s) + ' earned its growth — everything built here made it prosper.', 'warm');
         fxAt(s.x, s.y, 'grow');
         /* AND IT GROWS SOMEWHERE. The level is the reward; the direction is the
            decision, and it is asked at the moment it is earned. */
@@ -7062,7 +7479,7 @@
         return;
       }
       advAsked = false;
-      pay({ katha: ERAS[G.era].katha });
+      pay({ katha: Math.min(ERAS[G.era].katha, Math.max(0, Math.floor(G.res.katha))) });
       ageVerdict();
       var aha = ERAS[G.era].aha;
       var AHA_ART = ['vidya-iron', 'vidya-script', 'vidya-zero', 'vidya-monsoon',
@@ -7070,6 +7487,7 @@
                      'vidya-railway', 'vidya-swadeshi', 'vidya-samvidhan', 'vidya-khula'];
       var ea = artOf(AHA_ART[G.era]);
       G.era++; G.score += 50;
+      goalInit(true);                 /* the new age names its own pressure and clock */
       void ea;
       var next = ERAS[G.era];
       /* no coin for a new age: one pay door, and it is for learning (games spec §1.2) */
@@ -7874,6 +8292,7 @@
                   katha: Math.floor(G.res.katha) - res0.katha };
       SITES.forEach(function (s) { var q5 = G.sites[s.id]; if (inEra(s) && q5.fade === 0 && !q5.zzz) tnote('the mist is over ' + nameOf(s)); });
       if (G.warn && G.warn.at - G.t === G.warn.lead) tnote('something stirs near ' + nameOf(byId[G.warn.id]));
+      goalTick();
       G.report = { at: G.t, d: { anna: G.delta.anna, kala: G.delta.kala, katha: G.delta.katha }, n: turnNotes.slice(0, 3) };
       save(G);   /* every turn — not every fifth (C4) */
       inTick = false;
@@ -7967,7 +8386,7 @@
        finger or with the mouse. ZOOM IS THE + AND \u2212 BUTTONS AND NOTHING
        ELSE — see the note by kitWheel's grave for why the wheel, the pinch
        and the double-tap all lost it. */
-    var ZOOMS = [0.6, 0.85, 1, 1.4, 2, 2.8];
+    var ZOOMS = [0.6, 0.72, 0.85, 1, 1.4, 2, 2.8];
 
     function kitView() { return D.getElementById('sab-view'); }
 
@@ -7993,7 +8412,7 @@
        with the buttons the only way in, the thing to hold still is the middle
        of the view, which is what kitZoomTo does when it is given nothing. */
     function kitStep(d) {
-      var i = ZOOMS.indexOf(G.kitZ || 1); if (i < 0) i = 2;
+      var i = ZOOMS.indexOf(G.kitZ || 1); if (i < 0) i = ZOOMS.indexOf(1);
       kitZoomTo(ZOOMS[Math.max(0, Math.min(ZOOMS.length - 1, i + d))]);
     }
 
@@ -8328,7 +8747,7 @@
           var bid = actEl.getAttribute('data-b'), bd = BLD[bid], qy = G.sites[city];
           if (!bd || qy.bld[bid] || bd.era > G.era) return;
           var bc = costOf(bd.cost, 'building');
-          if (!canPay(bc)) return;
+          if (!canPay(bc)) { say('The ' + bd.name.toLowerCase() + ' ' + shortOf(bc) + '.', ''); return; }
           pay(bc); qy.bld[bid] = true; touch(city); G.score += 15;
           say(bd.name + ' raised in ' + byId[city].name + '.', 'warm');
           paintCity(); paintAll(); return;
@@ -8346,7 +8765,12 @@
           }
           overlay = null; D.getElementById('sab-ovhost').innerHTML = '';
           paintAll(); if (city) paintCity();
-          if (gq && city === gc2 && kitOn(gc2)) { unlockedCard(gc2, dn); paintCity(); }
+          if (gq && kitOn(gc2)) {
+            var homesUp = townFillsIn(gc2);
+            if (homesUp) say(nameOf(byId[gc2]) + ' grows: ' + homesUp + ' new homes go up at its edge, and more people walk its streets.', 'warm');
+            glowCache = null;
+            if (city === gc2) { unlockedCard(gc2, dn); paintCity(); kitFrameSoon(gc2); }
+          }
           return;
         }
         /* ==============================================================
@@ -8571,11 +8995,23 @@
         if (a === 'leave' && city) { city = null; riddleWrong = false; riddleMiss = null; quiz = null; paintCity(); paintAll(); return; }
         if (a === 'kitpick') {
           var pid2 = actEl.getAttribute('data-p');
+          /* a piece you cannot afford says why, never silently fails */
+          var pit = BY_PART[pid2], pcost = pit ? costOf(pit.cost, 'building') : null;
+          if (pcost && !canPay(pcost) && !(hold && hold.p === pid2)) {
+            var pr0 = actEl.getBoundingClientRect();
+            floatAt(pr0.left + pr0.width / 2, pr0.top, esc(shortOf(pcost)), 'short');
+            say(((W.IND_KIT.def(pid2) || {}).name || 'That') + ' ' + shortOf(pcost) + ' — the farms and workshops make more every year.', '');
+            return;
+          }
           hold = (hold && hold.p === pid2) ? null : { p: pid2, cell: null, f: 0 };
           if (hold) G.kitOpen = false;   /* hands full: out of the way of the land */
           paintCity(); return;
         }
         if (a === 'kitdrop') { hold = null; paintCity(); return; }
+        if (a === 'kitwater' && city) { G.callAt = null; G.callsOpen = false; G.kitOpen = true; G.kitTab = 'water'; paintCity(); return; }
+        /* ONE TAP ON THE BEST SPOT (owner: "difficult to place buildings") */
+        if (a === 'kitbest' && city && hold) { var gb = glowFor(city); if (gb && gb.best) placeAt(gb.best.x, gb.best.y); return; }
+        if (a === 'village' && sel) { var vw = foundVillage(sel); if (vw) say('A village waits — ' + vw + '.', ''); return; }
         if (a === 'kitopen') { G.kitOpen = !G.kitOpen; paintCity(); return; }
         if (a === 'kittab') { G.kitTab = actEl.getAttribute('data-g'); paintCity(); return; }
         if (a === 'kitturnp') { if (hold) hold.f = ((hold.f || 0) + 1) % 4; paintCity(); return; }
@@ -8688,7 +9124,7 @@
         }
         if (a === 'techclose') { techOpen = false; paintTech(); paintAll(); return; }
         if (a === 'restart2' && G.camp) { startChapter(G.camp.ch); return; }
-        if (a === 'restart2') { wipe(); FREE0 = null; G = fresh(); sel = null; kbd = null; targeting = false; bldSeen = null;
+        if (a === 'restart2') { wipe(); FREE0 = null; G = fresh(); goalInit(true); sel = null; kbd = null; targeting = false; bldSeen = null;
           overlay = null; VZ = { x: 0, y: 0, w: 1000, h: 1100 };
           shell(); bindHud(); zlevel = 1; fitFound(true); say('A new dawn at Dholavira.', 'warm'); return; }
         if (a === 'ovclose') { showOverlay(null); paintAll(); if (city) paintCity(); maybeEnd(); return; }
@@ -9050,6 +9486,8 @@
        the mist, exactly as a fresh world would hold them */
     G.darshan = G.darshan || {}; G.sutra = G.sutra || {}; G.tre = G.tre || {}; G.lastakal = G.lastakal || 0;
     G.lastdarshan = G.lastdarshan || 0; G.calmUntil = G.calmUntil || 0;
+    G.villages = G.villages || [];
+    goalInit(false);
     SITES.forEach(function (s) {
       if (!G.sites[s.id]) G.sites[s.id] = { lv: 1, zzz: true, fade: -1, idle: 0, seen: false,
         found: false, bld: {}, mon: false, neg: 0, jobs: null, hero: null };

@@ -1,42 +1,40 @@
-/* Bizzing India — Mela game: CARROM.
+/* Bizzing India — heritage game: CARROM (games spec §4.7, docs/32).
 
-   India's living-room board game, the one that comes out when the cousins visit.
-   You play the white coins; Gattu plays black. The rules here are the family
-   rules, simplified honestly for a child — see the intro card, which says so
-   out loud rather than pretending to be tournament carrom.
+   India's living-room board game, the one that comes out when the cousins visit. You play the
+   white coins; Gattu plays black. The family rules, simplified honestly for a child.
 
-   Contract (identical to games.js, which owns window.IND_GAMES — this file
-   loads after it and pushes):
-     { id, name, blurb, icon, minutes, engine(host, opts, done) }
-     engine fills host, calls done({win, score, kauris}) exactly once, and
-     returns a teardown that removes every listener and cancels every RAF/timer.
-   Plus the cover extras the Mela cards use: tag, c/c2 gradient hexes, and a
-   self-animating 48×48 scene SVG.
+   "Not smooth, difficult UX-wise" (owner, 8 Oct 2026). The physics was good; the HANDLING was
+   not. This build is the handling:
 
-   House rules honoured:
-     · Plays fully with keyboard AND touch/mouse. Three ways to slide the
-       striker (drag it, the slider under the board, ←/→), each mirrored in
-       the others, and the arrows work the moment the match starts — the key
-       handler lives on the document and the canvas is focused on start, so
-       no click-first is ever needed.
-     · The board is sized to fit BOTH the width and the height that is really
-       free under the app chrome, so the whole board plus its controls sit on
-       one screen with no scrolling mid-game — phone or laptop.
-     · prefers-reduced-motion skips the decorative pocket-drop animation, the
-       aim chevron pulse and Gattu's slide-in tween — never the physics
-       itself; the game IS motion.
-     · No lives, no shaming. Gattu winning is "another game?", not a failure.
+     · FULL-SCREEN during a match: the stage takes the viewport with a small ✕ and the score;
+       on a 390 × 844 phone the board is ≥ 360 px (≥ 94% of the width), the striker's hit area
+       ≥ 44 px; landscape puts the board at full height with the controls beside it. ✕ or Esc
+       pauses back into the app's normal frame.
+     · ONE GESTURE, ONE JOB, in a real player's order:
+         Place  drag the striker (or anywhere behind your line) — it only slides, never fires
+         Aim    tap or drag anywhere ahead — the line runs to the first coin it meets, with a
+                ghost striker at contact and a short arrow for where that coin goes
+         Shoot  pull the POWER PAD under the board to the right, let go — fill + 0–100 number,
+                never under the finger
+         Cancel slide back into the pad's ✕ end, or lift outside the pad — zero power
+       Desktop: the mouse points to aim, the wheel fine-tunes, hold and release on the board to
+       shoot. Keys: ←/→ place, ↑/↓ aim 1° (Shift 0.25°), hold Space for power, Esc cancels.
+       ‹ › nudge 0.5°. The flick sling survives only as a setting, anchored on the striker, with
+       the same cancel.
+     · SMOOTH: fixed 120 Hz physics drawn with interpolation between steps; coins ease to rest
+       (exponential + linear friction); a pocket drop (off under reduced motion); no layout or
+       fit() during play; Gattu thinks under 0.8 s on the one RAF clock.
+     · A three-step first-shot coach (Place → Aim → Shoot), once, replayable from "?".
+     · Sounds through window.IND_SFX only (striker click, coin knock, wall thud, pocket drop).
+     · Gattu's wobble is deterministic (a seeded sequence) and widens after the child loses two
+       in a row, narrows after two wins. A Short match (first to five coins) is offered.
+     · Heritage play (docs/32): it reports no answers and pays nothing — "played for fun".
 
-   Physics: fixed 120 Hz steps inside RAF, circle-circle elastic collisions with
-   positional correction iterated 4× per step, wall restitution, linear friction
-   to rest, a hard speed cap and a sleep threshold. At the capped speed a body
-   moves 1 board-unit per step — well under a coin radius — so nothing can
-   tunnel through a wall even at full power.
-
-   Rendering: the static board (wood frame with grain, inlaid baselines and
-   end circles, centre rosette, pocket wells, corner arrow decals) is painted
-   once per resize into an offscreen layer at devicePixelRatio, then blitted
-   every frame; only the coins, striker, aim line and power arc are live. */
+   Physics: fixed 120 Hz steps inside RAF, circle-circle elastic collisions with positional
+   correction iterated 4× per step, wall restitution, a hard speed cap and a sleep threshold.
+   At the capped speed a body moves 1 board-unit per step — well under a coin radius — so
+   nothing can tunnel through a wall even at full power. Every timer is on the same RAF clock
+   with delta time, and the loop stops while the page is hidden. */
 
 (function () {
   'use strict';
@@ -53,66 +51,79 @@
      ================================================================== */
 
   var CSS = [
-    '.car-wrap{position:relative;display:flex;flex-direction:column;gap:10px;color:var(--text);font-family:var(--body,system-ui,sans-serif);-webkit-tap-highlight-color:transparent}',
-    '.car-hud{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}',
-    '.car-title{display:block;font:800 18px/1.1 var(--display,Georgia,serif);letter-spacing:-.01em}',
-    '.car-kicker{display:block;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}',
-    '.car-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}',
-    '.car-chip{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font:700 12.5px var(--body,inherit)}',
-    '.car-dot{width:11px;height:11px;border-radius:50%;border:1px solid rgba(0,0,0,.35);display:inline-block;flex:none}',
+    'html.gm-fullscreen,html.gm-fullscreen body{overflow:hidden!important;overscroll-behavior:none}',
+    '.car-wrap{--car-bg1:#3a2410;--car-bg2:#170c04;--car-ink:#fff6e6;position:relative;display:flex;flex-direction:column;gap:8px;color:var(--text);font-family:var(--body,system-ui,sans-serif);-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}',
+    'html[data-mode="night"] .car-wrap{--car-bg1:#1c1428;--car-bg2:#08050e}',
+    '.car-wrap.car-full{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1200;gap:0;color:var(--car-ink);padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);' +
+      'background:radial-gradient(60% 50% at 50% 45%,rgba(255,196,120,.14),transparent 70%),radial-gradient(rgba(255,226,180,.06) 1.2px,transparent 1.6px) 0 0/24px 24px,radial-gradient(120% 90% at 50% 30%,var(--car-bg1),var(--car-bg2))}',
+    '.car-top{display:none;align-items:center;gap:8px;padding:4px 8px;height:52px;box-sizing:border-box;flex:none}',
+    '.car-full .car-top{display:flex}',
+    '.car-ib{flex:none;min-width:44px;height:44px;border-radius:999px;border:1.5px solid rgba(255,236,200,.35);background:rgba(255,236,200,.1);color:var(--car-ink);font:800 17px/1 var(--body,system-ui);cursor:pointer;padding:0 10px}',
+    '.car-ib:focus-visible,.car-nudge:focus-visible,.car-pad:focus-visible{outline:3px solid #fff;outline-offset:2px}',
+    '.car-score{flex:1;display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:nowrap;min-width:0;overflow:hidden}',
+    '.car-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,236,200,.1);border:1px solid rgba(255,236,200,.25);border-radius:999px;padding:5px 10px;font:700 13px var(--body,inherit);white-space:nowrap;color:var(--car-ink)}',
+    '.car-chip b{font-size:15px}',
+    '.car-dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.35);display:inline-block;flex:none}',
     '.car-dot.w{background:radial-gradient(circle at 35% 30%,#fffbe9,#e3cd9d)}',
-    '.car-dot.b{background:radial-gradient(circle at 35% 30%,#5a4634,#20150c)}',
+    '.car-dot.b{background:radial-gradient(circle at 35% 30%,#7a634c,#20150c);border-color:rgba(255,255,255,.4)}',
     '.car-dot.q{background:radial-gradient(circle at 35% 30%,#e05a44,#8e1f14)}',
-    '.car-stage{position:relative;align-self:center;line-height:0}',
-    '.car-canvas{display:block;border-radius:14px;box-shadow:0 2px 6px rgba(40,20,5,.25),0 14px 34px rgba(40,20,5,.28);touch-action:none;cursor:crosshair;outline:none}',
+    '.car-main{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-height:0}',
+    '.car-full .car-main{justify-content:center;padding:4px 6px 8px}',
+    '.car-full.car-land .car-main{flex-direction:row;gap:20px}',
+    '.car-side{display:flex;flex-direction:column;gap:8px;align-items:stretch;width:100%}',
+    '.car-full .car-side{max-width:var(--car-bw,560px)}',
+    '.car-full.car-land .car-side{width:300px;flex:none}',
+    '.car-wrap:not(.car-full) .car-side{display:none}',
+    '.car-stage{position:relative;line-height:0;flex:none}',
+    '.car-canvas{display:block;border-radius:14px;box-shadow:0 2px 6px rgba(40,20,5,.25),0 18px 44px rgba(0,0,0,.45);touch-action:none;cursor:crosshair;outline:none}',
+    '.car-wrap:not(.car-full) .car-canvas{max-width:100%;height:auto!important}',
     '.car-canvas:focus-visible{outline:2px solid var(--accent2,#e9a13b);outline-offset:3px}',
-    /* the rules / result card covers the whole game column, not just the board,
-       so it never has to scroll inside a small phone-sized square */
-    '.car-over{position:absolute;top:-4px;right:-4px;bottom:-4px;left:-4px;z-index:3;display:grid;place-items:center;background:rgba(26,14,5,.55);border-radius:16px;padding:12px;line-height:1.4;backdrop-filter:blur(2px)}',
+    '.car-canvas.grab{cursor:grab}',
+    '.car-ctl{display:flex;align-items:stretch;gap:8px;width:100%}',
+    '.car-nudge{flex:none;width:48px;min-height:60px;border-radius:14px;border:1.5px solid rgba(255,236,200,.3);background:rgba(255,236,200,.08);color:var(--car-ink);font:800 26px/1 var(--body,system-ui);cursor:pointer;touch-action:manipulation}',
+    '.car-pad{position:relative;flex:1;min-width:0;height:60px;border-radius:16px;overflow:hidden;touch-action:none;cursor:ew-resize;' +
+      'background:linear-gradient(180deg,#2a1708,#3a2210);border:1.5px solid rgba(255,214,150,.35);box-shadow:inset 0 2px 8px rgba(0,0,0,.5)}',
+    '.car-padx{position:absolute;left:0;top:0;bottom:0;width:52px;display:grid;place-items:center;font:800 20px/1 var(--body,system-ui);color:#ffb4a4;background:rgba(217,79,61,.16);border-right:1px dashed rgba(255,180,160,.4);z-index:2}',
+    '.car-pad.at-x .car-padx{background:rgba(217,79,61,.6);color:#fff}',
+    '.car-padfill{position:absolute;left:52px;top:0;bottom:0;width:0;background:linear-gradient(90deg,#1fa971,#e9a13b 60%,#d94f3d);opacity:.9;transform-origin:left}',
+    '.car-padlbl{position:absolute;left:62px;right:12px;top:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:8px;font:700 14px/1.2 var(--body,system-ui);color:rgba(255,240,215,.85);pointer-events:none;text-align:center}',
+    '.car-pad.on .car-padlbl{opacity:0}',
+    '.car-padgrip{position:absolute;left:58px;top:12px;bottom:12px;width:10px;border-radius:5px;background:repeating-linear-gradient(180deg,rgba(255,236,200,.55) 0 2px,transparent 2px 6px)}',
+    '.car-pow{position:fixed;left:0;top:0;z-index:1210;pointer-events:none;min-width:58px;padding:7px 12px;border-radius:999px;background:#fff6e0;color:#2a1606;font:900 22px/1 var(--body,system-ui);text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.4);display:none}',
+    '.car-pow.on{display:block}',
+    '.car-pow.x{background:#d94f3d;color:#fff}',
+    '.car-feed{min-height:22px;margin:0;text-align:center;font-size:14px;font-weight:700;color:var(--muted);line-height:1.35}',
+    '.car-full .car-feed{color:var(--car-ink);text-shadow:0 1px 2px rgba(0,0,0,.6)}',
+    '.car-feed.tone-y{color:#7be0a9}',
+    '.car-feed.tone-h{color:#ffd27a}',
+    '.car-wrap:not(.car-full) .car-feed.tone-y{color:var(--good,#1fa971)}',
+    '.car-wrap:not(.car-full) .car-feed.tone-h{color:var(--accent2,#c07a12)}',
+    '.car-over{position:absolute;top:-4px;right:-4px;bottom:-4px;left:-4px;z-index:5;display:grid;place-items:center;background:rgba(26,14,5,.55);border-radius:16px;padding:12px;line-height:1.4;backdrop-filter:blur(2px)}',
+    '.car-full .car-over{top:0;right:0;bottom:0;left:0;border-radius:0}',
     '.car-over[hidden]{display:none}',
-    /* flex column with the list as the only scrollable part, so the Play /
-       result buttons are always on screen even on a short phone */
-    '.car-panel{display:flex;flex-direction:column;background:var(--card,#fff);border:1px solid var(--line);border-radius:var(--radius-lg,16px);box-shadow:var(--shadow-lg,0 12px 40px rgba(0,0,0,.2));padding:16px 18px;max-width:430px;max-height:100%;text-align:left}',
+    '.car-panel{display:flex;flex-direction:column;background:var(--card,#fff);color:var(--text,#2a1a0c);border:1px solid var(--line);border-radius:var(--radius-lg,16px);box-shadow:var(--shadow-lg,0 12px 40px rgba(0,0,0,.2));padding:16px 18px;max-width:430px;max-height:100%;text-align:left}',
     '.car-panel h3{font:800 20px var(--display,Georgia,serif);margin:0 0 8px}',
     '.car-panel p{margin:0 0 8px;font-size:14px;line-height:1.5}',
     '.car-panel ul{margin:0 0 6px;padding-left:18px;font-size:13.5px;line-height:1.5;overflow:auto;min-height:0}',
     '.car-panel li{margin:0 0 5px}',
+    '.car-panel label{display:flex;gap:10px;align-items:center;font:600 14px/1.4 var(--body,system-ui);min-height:44px;cursor:pointer}',
+    '.car-panel input[type=checkbox]{width:22px;height:22px}',
     '.car-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px;flex:none}',
-    '.car-btn{cursor:pointer;min-height:44px;padding:10px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:#fff;font:700 15px var(--body,inherit)}',
+    '.car-btn{cursor:pointer;min-height:44px;padding:10px 20px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:#fff;font:700 15px var(--body,inherit)}',
     '.car-btn.ghost{background:transparent;color:var(--text);border-color:var(--line2,var(--line))}',
     '.car-btn:hover{filter:brightness(1.06)}',
     '.car-btn:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}',
-    /* the striker slider — the third, always-visible way to slide the striker.
-       Track drawn as a wooden groove, thumb as a small striker. */
-    '.car-ctl{display:flex;align-items:center;gap:8px;margin:0 auto;width:100%;max-width:560px}',
-    '.car-arr{flex:none;font-size:12px;color:var(--muted);line-height:1;user-select:none}',
-    '.car-slider{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:28px;margin:0;background:transparent;cursor:pointer}',
-    '.car-slider::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:linear-gradient(90deg,#c69d66,#ecd6a8 30%,#ecd6a8 70%,#c69d66);border:1px solid rgba(90,52,24,.5)}',
-    '.car-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fffdf2,#e7d2a4);border:2.5px solid var(--accent,#5b3fd6);margin-top:-9px;box-shadow:0 2px 5px rgba(40,20,5,.35)}',
-    '.car-slider::-moz-range-track{height:8px;border-radius:999px;background:linear-gradient(90deg,#c69d66,#ecd6a8 30%,#ecd6a8 70%,#c69d66);border:1px solid rgba(90,52,24,.5)}',
-    '.car-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fffdf2,#e7d2a4);border:2.5px solid var(--accent,#5b3fd6);box-shadow:0 2px 5px rgba(40,20,5,.35)}',
-    '.car-slider:disabled{opacity:.35;cursor:default}',
-    '.car-slider:focus-visible{outline:3px solid var(--accent2);outline-offset:2px;border-radius:999px}',
-    '.car-hint{font-size:12px;color:var(--muted);text-align:center;margin:0;line-height:1.45}',
-    '.car-hint b{color:var(--text2,inherit);font-weight:700}',
-    '.car-feed{min-height:19px;margin:0;text-align:center;font-size:13.5px;font-weight:600;color:var(--muted)}',
-    '.car-feed.good{color:var(--good)}',
-    '.car-feed.warm{color:var(--accent2)}',
-    /* Phones: tighter chrome, so the height freed goes to the board itself. */
-    '@media(max-width:480px){' +
-      '.car-wrap{gap:8px}' +
-      '.car-kicker{display:none}' +
-      '.car-title{font-size:16px}' +
-      '.car-chip{padding:3px 8px;font-size:11.5px;gap:5px}' +
-      '.car-dot{width:10px;height:10px}' +
-      '.car-hint{font-size:11px;line-height:1.35}' +
-      '.car-feed{font-size:12.5px;min-height:17px}' +
-      '.car-panel{padding:12px 14px}' +
-      '.car-panel h3{font-size:17px}' +
-      '.car-panel p{font-size:12.5px;margin:0 0 6px}' +
-      '.car-panel ul{font-size:12.5px;line-height:1.45}' +
-    '}',
-    /* Decorative easing only — the canvas physics is untouched by this rule. */
+    /* the coach: three bubbles with arrows, over the board, never in the way of a tap */
+    '.car-coach{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:4}',
+    '.car-coach[hidden]{display:none}',
+    '.car-tip{position:absolute;max-width:270px;background:#fff6e0;color:#2a1606;border-radius:14px;padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.45);font:700 14.5px/1.4 var(--body,system-ui);pointer-events:auto;transform:translate(-50%,-100%)}',
+    '.car-tip b{color:#9c2f1d}',
+    '.car-tip:after{content:"";position:absolute;left:50%;bottom:-9px;margin-left:-9px;border:9px solid transparent;border-bottom:0;border-top-color:#fff6e0}',
+    '.car-tip .car-tiprow{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}',
+    '.car-tip button{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid #c9a670;background:transparent;font:800 13px var(--body,system-ui);color:#2a1606;cursor:pointer}',
+    '@keyframes car-bob{0%,100%{margin-top:0}50%{margin-top:-6px}}',
+    '.car-tip{animation:car-bob 1.4s ease-in-out infinite}',
+    '@media(max-width:440px){.car-top{gap:6px;padding:4px 6px}.car-score{gap:4px}.car-chip{padding:4px 7px;gap:4px;font-size:12px}.car-chip b{font-size:13.5px}.car-qt{display:none}.car-padlbl{font-size:13px}}',
     '@media(prefers-reduced-motion:reduce){.car-wrap *,.car-wrap *:before,.car-wrap *:after{animation:none!important;transition:none!important}}'
   ].join('');
 
@@ -128,7 +139,7 @@
   }
 
   /* ==================================================================
-     SMALL HELPERS — local copies; games.js keeps its own private.
+     SMALL HELPERS
      ================================================================== */
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -140,17 +151,10 @@
     if (!el || !el.focus) return;
     try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (e2) {} }
   }
-
-  /* Run-scope for timers and listeners so teardown is always clean. */
   function scope() {
-    var timers = [], offs = [], dead = false;
+    var offs = [], dead = false;
     return {
       get dead() { return dead; },
-      later: function (fn, ms) {
-        if (dead) return 0;
-        var t = W.setTimeout(function () { if (!dead) fn(); }, ms);
-        timers.push(t); return t;
-      },
       on: function (target, type, fn, opts) {
         if (!target || !target.addEventListener) return;
         target.addEventListener(type, fn, opts || false);
@@ -159,22 +163,15 @@
       kill: function () {
         if (dead) return;
         dead = true;
-        for (var i = 0; i < timers.length; i++) { W.clearTimeout(timers[i]); }
         for (var j = 0; j < offs.length; j++) { try { offs[j](); } catch (e) {} }
-        timers = []; offs = [];
+        offs = [];
       }
     };
   }
-
-  /* A shell may throw the host away without calling teardown (a plain back
-     button does exactly that). Notice, and clean up rather than leaving a
-     document-level key handler and a RAF loop running behind. */
   function detached(host) {
     return !!(D.body && host && host.nodeType === 1 && !D.body.contains(host));
   }
-
-  /* Deterministic little PRNG for the wood grain, so the board looks the
-     same after every resize instead of reshuffling its streaks. */
+  /* deterministic sequences: the wood grain, and Gattu's wobble (nothing random anywhere) */
   function rng(seed) {
     var s = seed >>> 0;
     return function () {
@@ -182,7 +179,6 @@
       return s / 0x7fffffff;
     };
   }
-
   function rrectPath(c, x, y, w, h, r) {
     c.moveTo(x + r, y);
     c.arcTo(x + w, y, x + w, y + h, r);
@@ -190,6 +186,20 @@
     c.arcTo(x, y + h, x, y, r);
     c.arcTo(x, y, x + w, y, r);
     c.closePath();
+  }
+  function kidStore() {
+    var S = W.IND_STORE;
+    return {
+      get: function (k, d) { try { var v = S && S.kidGet ? S.kidGet(k) : null; return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+      set: function (k, v) { try { if (S && S.kidSet) S.kidSet(k, JSON.stringify(v)); } catch (e) {} }
+    };
+  }
+  /* every sound through the family's one path; a kind it does not know falls back to one it does */
+  function sfx(kind, fallback) {
+    var S = W.IND_SFX;
+    if (!S || !S.play) return;
+    var k = S.KINDS && S.KINDS.indexOf(kind) >= 0 ? kind : fallback;
+    if (k) S.play(k);
   }
 
   /* ==================================================================
@@ -206,73 +216,95 @@
   var YOU_Y = 82, GATTU_Y = 18;   /* the two striker baselines             */
   var SXMIN = 22, SXMAX = 78;     /* striker travel along a baseline       */
   var DT = 1 / 120;               /* fixed physics step                    */
-  var FRICTION = 30;              /* linear deceleration, units/s²         */
-  var MAXV = 120;                 /* hard speed cap: 1 unit/step — no wall */
-  var WALL_E = 0.72;              /* can ever be tunnelled at this cap     */
+  var FR_LIN = 20, FR_EXP = 0.2;  /* friction: linear + exponential, so a  */
+                                  /* coin eases to rest instead of a cliff */
+  var MAXV = 120;                 /* hard speed cap: 1 unit/step           */
+  var WALL_E = 0.72;
   var COIN_E = 0.9;
-  var SLEEP = 2.2;                /* below this speed a body goes to rest  */
+  var SLEEP = 1.2;                /* below this speed a body goes to rest  */
+  var DEG = Math.PI / 180;
+  /* layout of the full-screen stage, in CSS px — constants, so fit() never measures in play */
+  var TOPH = 52, CTLH = 68, FEEDH = 30, SIDEW = 300;
+  var WOBBLE = [0.085, 0.066, 0.05, 0.038, 0.028];   /* Gattu's aim spread by level, radians */
 
-  /* Board palette — the physical object. UI chrome colours come from the
-     app's tokens (read at mount); the wood itself is the wood. */
-  var INK = '#9c2f1d';            /* the inlay red every real board uses   */
+  var INK = '#9c2f1d';
   var WOOD_HI = '#f2e0ba', WOOD_LO = '#e2c48d';
 
-  /* A body falls in when its centre is well inside the pocket circle; the
-     bigger striker needs to be deeper in, same as on a real board. */
   function captureDist(r) { return RP - r * 0.35; }
+
+  /* A BOARD FROM THE SHOP (FIX-INDIA K4): only the wood changes. */
+  var SKINS = { 'board-rosewood': ['#c9955f', '#a8703f'], 'board-teak': ['#f7ead0', '#ecd6a9'] };
 
   /* ==================================================================
      THE ENGINE
      ================================================================== */
 
-  /* A BOARD FROM THE SHOP (FIX-INDIA K4): the playing surface a child bought with Bizzing coins.
-     Only the wood changes — the pieces, the pockets and the physics are the same board. */
-  var SKINS = { 'board-rosewood': ['#c9955f', '#a8703f'], 'board-teak': ['#f7ead0', '#ecd6a9'] };
   function carrom(host, opts, done) {
     injectCSS();
-    var sk = SKINS[(opts && opts.skin) || ''] || ['#f2e0ba', '#e2c48d'];
+    opts = opts || {};
+    var sk = SKINS[opts.skin || ''] || ['#f2e0ba', '#e2c48d'];
     WOOD_HI = sk[0]; WOOD_LO = sk[1];
     var sc = scope();
-    var reduced = reducedMotion();
-    var finished = false;
-    var rafId = 0, lastT = 0, acc = 0;
+    var reduced = !!opts.reduced || reducedMotion();
+    var calmMode = !!opts.calm;
+    var finished = false, full = false;
+    var rafId = 0, lastT = 0, acc = 0, vclock = 0, waits = [];
+    var store = kidStore();
+    var mem = store.get('carrom.gattu', { lvl: 2, run: [] });
+    var slingOn = !!store.get('carrom.sling', false);
+    var coached = !!store.get('carrom.coached', false);
+    var matchNo = store.get('carrom.matches', 0) | 0;
+    var wob = rng(9001 + matchNo * 7919);
 
     /* ---------------------------------------------------------- markup */
     host.innerHTML =
       '<div class="car-wrap">' +
-        '<div class="car-hud">' +
-          '<div><span class="car-kicker">Mela &middot; flick &amp; pocket</span>' +
-          '<b class="car-title">Carrom</b></div>' +
-          '<div class="car-chips">' +
-            '<span class="car-chip"><i class="car-dot w"></i><span data-nm="you">You</span> <b data-r="you">6</b></span>' +
-            '<span class="car-chip"><i class="car-dot b"></i><span data-nm="gattu">Gattu</span> <b data-r="gattu">6</b></span>' +
-            '<span class="car-chip"><i class="car-dot q"></i><span data-r="queen">in the middle</span></span>' +
+        '<div class="car-top">' +
+          '<button type="button" class="car-ib" data-go="pause" aria-label="Pause and leave full screen">&#10005;</button>' +
+          '<div class="car-score">' +
+            '<span class="car-chip"><i class="car-dot w"></i><span data-nm="you">You</span> <b data-r="you">0</b></span>' +
+            '<span class="car-chip" aria-label="the queen"><i class="car-dot q"></i><span class="car-qt" data-r="queen">queen</span></span>' +
+            '<span class="car-chip"><i class="car-dot b"></i><span data-nm="gattu">Gattu</span> <b data-r="gattu">0</b></span>' +
           '</div>' +
+          '<button type="button" class="car-ib" data-go="coach" aria-label="How to shoot">?</button>' +
+          '<button type="button" class="car-ib" data-go="settings" aria-label="Settings">&#9881;</button>' +
         '</div>' +
-        '<div class="car-stage">' +
-          '<canvas class="car-canvas" tabindex="0" aria-label="Carrom board. Drag the striker or press Left and Right to slide it, pull back anywhere on the board or hold Space to aim and shoot."></canvas>' +
+        '<div class="car-main">' +
+          '<div class="car-stage">' +
+            '<canvas class="car-canvas" tabindex="0" aria-label="Carrom board. Drag the striker or press Left and Right to place it; tap ahead, point with the mouse, or press Up and Down to aim; pull the power pad or hold Space to shoot; Escape cancels."></canvas>' +
+          '</div>' +
+          '<div class="car-side">' +
+            '<div class="car-ctl">' +
+              '<button type="button" class="car-nudge" data-nudge="-1" aria-label="Turn the aim left a little">&#8249;</button>' +
+              '<div class="car-pad" role="slider" tabindex="-1" aria-label="Power pad: pull to the right, let go to shoot; slide back to the cross to cancel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">' +
+                '<span class="car-padx" aria-hidden="true">&#10005;</span>' +
+                '<span class="car-padfill"></span>' +
+                '<span class="car-padgrip" aria-hidden="true"></span>' +
+                '<span class="car-padlbl">Pull &rarr; to shoot</span>' +
+              '</div>' +
+              '<button type="button" class="car-nudge" data-nudge="1" aria-label="Turn the aim right a little">&#8250;</button>' +
+            '</div>' +
+            '<p class="car-feed" role="status" aria-live="polite"></p>' +
+          '</div>' +
+          '<div class="car-coach" hidden></div>' +
         '</div>' +
-        '<div class="car-ctl">' +
-          '<span class="car-arr" aria-hidden="true">&#9664;</span>' +
-          '<input type="range" class="car-slider" min="' + SXMIN + '" max="' + SXMAX + '" step="1" value="50" aria-label="Striker position along your baseline">' +
-          '<span class="car-arr" aria-hidden="true">&#9654;</span>' +
-        '</div>' +
-        '<p class="car-hint"><b>Drag the striker</b> (or the slider, or &#8592;&#8594;) to slide &middot; <b>pull back</b> anywhere to aim, let go to shoot &middot; or A/D + hold Space</p>' +
-        '<p class="car-feed" role="status" aria-live="polite"></p>' +
+        '<div class="car-pow" aria-hidden="true">0</div>' +
         '<div class="car-over"></div>' +
       '</div>';
 
     var wrapEl = host.querySelector('.car-wrap');
-    var stage = host.querySelector('.car-stage');
+    var mainEl = host.querySelector('.car-main');
     var canvas = host.querySelector('.car-canvas');
     var over = host.querySelector('.car-over');
-    var slider = host.querySelector('.car-slider');
     var feed = host.querySelector('.car-feed');
+    var pad = host.querySelector('.car-pad');
+    var padFill = host.querySelector('.car-padfill');
+    var powEl = host.querySelector('.car-pow');
+    var coachEl = host.querySelector('.car-coach');
     var ctx = canvas.getContext('2d');
     var dpr = 1, cssSize = 0;
-    var board = null;              /* the pre-rendered static board layer  */
+    var board = null;
 
-    /* UI accent colours from the app's design tokens, with safe fallbacks. */
     var pal = (function () {
       try {
         var cs = W.getComputedStyle(host);
@@ -284,66 +316,61 @@
       }
     })();
 
+    var lastSay = '';
     function say(msg, tone) {
       if (!feed) return;
-      feed.textContent = msg || '';
-      feed.className = 'car-feed' + (tone ? ' ' + tone : '');
+      msg = msg || '';
+      var cls = 'car-feed' + (tone ? ' tone-' + tone : '');
+      if (msg === lastSay && feed.className === cls) return;
+      lastSay = msg;
+      feed.textContent = msg;
+      feed.className = cls;
     }
+    /* one RAF clock for every wait: hidden tab, no time passes */
+    function wait(ms, fn) { waits.push({ at: vclock + ms, fn: fn }); }
 
     /* ------------------------------------------------------- game state
-       Exposed on the host as __carState so headless checks can read real
-       positions instead of screenshot-guessing. It is a debug window, not
-       an API — nothing in the app reads it. */
+       Exposed on the host as __carState so the checks read real positions; nothing in the app
+       reads it. */
     var st = {
-      bodies: [],            /* {kind:'coin'|'queen'|'striker', owner, x,y,vx,vy,r,m,dead} */
-      phase: 'intro',        /* intro | aim | think | rolling | over */
-      turn: 'you',
-      shooter: 'you',
-      sx: 50,                /* your striker position along the baseline    */
-      aimA: -Math.PI / 2,    /* aim angle, radians; -PI/2 points up-board   */
-      charge: 0, charging: false,
-      gSx: null,             /* where Gattu has placed his striker           */
-      gT0: 0,                /* when he started sliding it there             */
-      gPlan: null,
-      shotPocketed: [],
-      queenBy: null, queenPending: false, queenCovered: null,
-      rollT: 0,
-      winner: null, result: null,
-      pops: []               /* decorative pocket-drop animations            */
+      bodies: [], phase: 'intro', turn: 'you', shooter: 'you',
+      sx: 50, aimA: -Math.PI / 2, charge: 0, charging: false, chargeBy: null,
+      gSx: null, gT0: 0, gPlan: null,
+      shotPocketed: [], queenBy: null, queenPending: false, queenCovered: null,
+      rollT: 0, winner: null, result: null, pops: [],
+      short: false, shots: 0, fired: 0, cancels: 0,
+      dbg: { hole: null, ghost: null, pow: null, fits: 0, work: [], slow: [] }
     };
     host.__carState = st;
 
-    /* pass-and-play: 'gattu' plays himself; '2p' hands the board across
-       the carpet — white shoots from the bottom, black from the top */
     var vs = 'gattu';
     function human(side) { return side === 'you' || vs === '2p'; }
     function baseY(side) { return side === 'you' ? YOU_Y : GATTU_Y; }
     function nmS(side) {
-      return side === 'you' ? (vs === '2p' ? 'Player 1' : 'You')
-                            : (vs === '2p' ? 'Player 2' : 'Gattu');
+      return side === 'you' ? (vs === '2p' ? 'Player 1' : 'You') : (vs === '2p' ? 'Player 2' : 'Gattu');
     }
     function colr(side) { return side === 'you' ? 'white' : 'black'; }
+    /* "ahead" is up-board for white, down-board for black; the aim never points back */
+    function clampAim(a, side) {
+      if (side === 'you') { if (a > 0) a = a > Math.PI / 2 ? -Math.PI + 0.12 : -0.12; return clamp(a, -Math.PI + 0.12, -0.12); }
+      if (a < 0) a = a < -Math.PI / 2 ? Math.PI - 0.12 : 0.12;
+      return clamp(a, 0.12, Math.PI - 0.12);
+    }
 
     /* ----------------------------------------------------------- board */
+    function body(kind, owner, x, y) { return { kind: kind, owner: owner, x: x, y: y, px: x, py: y, vx: 0, vy: 0, r: RC, m: 1, dead: false }; }
     function buildCoins() {
-      var bodies = [];
-      bodies.push({ kind: 'queen', owner: null, x: 50, y: 50, vx: 0, vy: 0, r: RC, m: 1, dead: false });
-      var i, a;
-      /* classic rosette, sized to our 13 coins: 6 touching the queen,
-         6 more in a second ring, colours alternating so each side has 6 */
+      var bodies = [body('queen', null, 50, 50)], i, a;
       for (i = 0; i < 6; i++) {
         a = i * Math.PI / 3;
-        bodies.push({ kind: 'coin', owner: (i % 2 === 0) ? 'you' : 'gattu',
-          x: 50 + 5.45 * Math.cos(a), y: 50 + 5.45 * Math.sin(a), vx: 0, vy: 0, r: RC, m: 1, dead: false });
+        bodies.push(body('coin', (i % 2 === 0) ? 'you' : 'gattu', 50 + 5.45 * Math.cos(a), 50 + 5.45 * Math.sin(a)));
       }
       for (i = 0; i < 6; i++) {
         a = i * Math.PI / 3 + Math.PI / 6;
-        bodies.push({ kind: 'coin', owner: (i % 2 === 0) ? 'gattu' : 'you',
-          x: 50 + 10.9 * Math.cos(a), y: 50 + 10.9 * Math.sin(a), vx: 0, vy: 0, r: RC, m: 1, dead: false });
+        bodies.push(body('coin', (i % 2 === 0) ? 'gattu' : 'you', 50 + 10.9 * Math.cos(a), 50 + 10.9 * Math.sin(a)));
       }
       st.bodies = bodies;
     }
-
     function aliveCount(owner) {
       var n = 0;
       for (var i = 0; i < st.bodies.length; i++) {
@@ -356,8 +383,6 @@
       for (var i = 0; i < st.bodies.length; i++) if (st.bodies[i].kind === 'queen') return st.bodies[i];
       return null;
     }
-
-    /* Somewhere near the centre with room to stand — for returned coins. */
     function findFreeSpot() {
       function clear(x, y) {
         for (var i = 0; i < st.bodies.length; i++) {
@@ -376,12 +401,11 @@
           if (x > 16 && x < 84 && y > 24 && y < 76 && clear(x, y)) return { x: x, y: y };
         }
       }
-      return { x: 50, y: 50 };  /* never reached on a 13-coin board */
+      return { x: 50, y: 50 };
     }
-
-    function revive(body) {
+    function revive(b) {
       var p = findFreeSpot();
-      body.dead = false; body.x = p.x; body.y = p.y; body.vx = 0; body.vy = 0;
+      b.dead = false; b.x = b.px = p.x; b.y = b.py = p.y; b.vx = 0; b.vy = 0;
     }
     function reviveOneCoin(owner) {
       for (var i = 0; i < st.bodies.length; i++) {
@@ -392,27 +416,24 @@
     }
 
     /* --------------------------------------------------------- physics */
-    function performanceNow() {
-      return (W.performance && W.performance.now) ? W.performance.now() : Date.now();
-    }
+    var knockAt = -1, thudAt = -1;
     function capture(b, pk) {
       if (!reduced) {
-        st.pops.push({ x0: b.x, y0: b.y, px: pk[0], py: pk[1],
-                       kind: b.kind, owner: b.owner, r: b.r, t: performanceNow() });
+        st.pops.push({ x0: b.x, y0: b.y, px: pk[0], py: pk[1], kind: b.kind, owner: b.owner, r: b.r, t: vclock });
       }
-      b.dead = true; b.vx = 0; b.vy = 0; b.x = -999; b.y = -999;
+      sfx('pocket', 'coin');
+      b.dead = true; b.vx = 0; b.vy = 0; b.x = b.px = -999; b.y = b.py = -999;
       st.shotPocketed.push({ kind: b.kind, owner: b.owner });
     }
-
     function physStep(dt) {
       var bs = st.bodies, i, j, b, c;
-      /* integrate with linear friction */
       for (i = 0; i < bs.length; i++) {
         b = bs[i];
         if (b.dead) continue;
+        b.px = b.x; b.py = b.y;
         var sp = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
         if (sp > 0) {
-          var ns = sp - FRICTION * dt;
+          var ns = sp - (FR_LIN + FR_EXP * sp) * dt;
           if (ns < 0) ns = 0;
           if (ns > MAXV) ns = MAXV;
           var k = ns / sp;
@@ -420,8 +441,6 @@
         }
         b.x += b.vx * dt; b.y += b.vy * dt;
       }
-      /* resolve collisions a few times per step — the iteration is what keeps
-         a full-power break into a packed rosette stable instead of exploding */
       for (var it = 0; it < 4; it++) {
         for (i = 0; i < bs.length; i++) {
           b = bs[i];
@@ -435,33 +454,31 @@
             var d = Math.sqrt(d2) || 0.001;
             var nx = dx / d, ny = dy / d;
             var im1 = 1 / b.m, im2 = 1 / c.m, tot = im1 + im2;
-            /* clamp the overlap out first, weighted by mass */
             var ov = rr - d;
             b.x -= nx * ov * (im1 / tot); b.y -= ny * ov * (im1 / tot);
             c.x += nx * ov * (im2 / tot); c.y += ny * ov * (im2 / tot);
-            /* then the elastic impulse, only if still approaching */
             var vn = (c.vx - b.vx) * nx + (c.vy - b.vy) * ny;
             if (vn < 0) {
+              if (-vn > 14 && st.rollT - knockAt > 0.06) { knockAt = st.rollT; sfx('knock', 'tap'); }
               var imp = -(1 + COIN_E) * vn / tot;
               b.vx -= imp * im1 * nx; b.vy -= imp * im1 * ny;
               c.vx += imp * im2 * nx; c.vy += imp * im2 * ny;
             }
           }
-          /* pockets before walls: a coin rolling into a corner drops in,
-             it does not bounce off the corner of the frame */
           for (j = 0; j < POCKETS.length; j++) {
-            var px = POCKETS[j][0] - b.x, py = POCKETS[j][1] - b.y;
+            var qx = POCKETS[j][0] - b.x, qy = POCKETS[j][1] - b.y;
             var cd = captureDist(b.r);
-            if (px * px + py * py < cd * cd) { capture(b, POCKETS[j]); break; }
+            if (qx * qx + qy * qy < cd * cd) { capture(b, POCKETS[j]); break; }
           }
           if (b.dead) continue;
-          if (b.x < b.r) { b.x = b.r; if (b.vx < 0) b.vx = -b.vx * WALL_E; }
-          if (b.x > U - b.r) { b.x = U - b.r; if (b.vx > 0) b.vx = -b.vx * WALL_E; }
-          if (b.y < b.r) { b.y = b.r; if (b.vy < 0) b.vy = -b.vy * WALL_E; }
-          if (b.y > U - b.r) { b.y = U - b.r; if (b.vy > 0) b.vy = -b.vy * WALL_E; }
+          var hit = 0;
+          if (b.x < b.r) { b.x = b.r; if (b.vx < 0) { hit = -b.vx; b.vx = -b.vx * WALL_E; } }
+          if (b.x > U - b.r) { b.x = U - b.r; if (b.vx > 0) { hit = b.vx; b.vx = -b.vx * WALL_E; } }
+          if (b.y < b.r) { b.y = b.r; if (b.vy < 0) { hit = -b.vy; b.vy = -b.vy * WALL_E; } }
+          if (b.y > U - b.r) { b.y = U - b.r; if (b.vy > 0) { hit = b.vy; b.vy = -b.vy * WALL_E; } }
+          if (hit > 18 && st.rollT - thudAt > 0.08) { thudAt = st.rollT; sfx('thud', 'tap'); }
         }
       }
-      /* sleep and cap */
       for (i = 0; i < bs.length; i++) {
         b = bs[i];
         if (b.dead) continue;
@@ -470,7 +487,6 @@
         else if (s2 > MAXV) { b.vx *= MAXV / s2; b.vy *= MAXV / s2; }
       }
     }
-
     function anyMoving() {
       for (var i = 0; i < st.bodies.length; i++) {
         var b = st.bodies[i];
@@ -478,31 +494,47 @@
       }
       return false;
     }
+    function settle() {
+      for (var i = 0; i < st.bodies.length; i++) { var b = st.bodies[i]; b.px = b.x; b.py = b.y; }
+    }
 
     /* ------------------------------------------------------------ turns */
     function fire(x, y, angle, speed, shooter) {
       speed = clamp(speed, 8, MAXV);
-      st.bodies.push({ kind: 'striker', owner: shooter, r: RS, m: 1.6,
-        x: clamp(x, RS, U - RS), y: y,
-        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, dead: false });
-      st.shooter = shooter;
-      st.shotPocketed = [];
-      st.rollT = 0;
-      st.phase = 'rolling';
+      var s = body('striker', shooter, clamp(x, RS, U - RS), y);
+      s.r = RS; s.m = 1.6; s.vx = Math.cos(angle) * speed; s.vy = Math.sin(angle) * speed;
+      st.bodies.push(s);
+      st.shooter = shooter; st.shotPocketed = []; st.rollT = 0; knockAt = thudAt = -1;
+      st.phase = 'rolling'; acc = 0;
       st.gSx = null; st.gPlan = null;
-      st.charge = 0; st.charging = false;
+      st.charge = 0; st.charging = false; st.chargeBy = null;
+      st.shots++; if (human(shooter)) st.fired++; else st.dbg.thinkMs = vclock - (st.dbg.think0 || vclock);
+      powerUI();
+      sfx('click', 'tap');
+      if (!calmMode && human(shooter) && W.navigator && W.navigator.vibrate) { try { W.navigator.vibrate(10); } catch (e) {} }
+      if (coachStep === 3) coachDone();
     }
-
     function playerFire() {
+      if (st.phase !== 'aim' || !human(st.turn)) return;
       say('');
-      fire(st.sx, baseY(st.turn), st.aimA, MAXV * (0.18 + 0.82 * st.charge), st.turn);
+      fire(st.sx, baseY(st.turn), st.aimA, MAXV * (0.16 + 0.84 * st.charge), st.turn);
     }
+    function cancelShot(why) {
+      if (!st.charging && !st.charge && !drag) return false;
+      st.charging = false; st.charge = 0; st.chargeBy = null; st.cancels++;
+      drag = null; padDrag = null;
+      pad.classList.remove('on', 'at-x');
+      powerUI();
+      say(why || 'Cancelled — no shot.', '');
+      return true;
+    }
+    function scoreOf(side) { return (6 - aliveCount(side)); }
 
     function resolveShot() {
-      /* the striker is lifted off the board after every shot, like at home */
       for (var i = st.bodies.length - 1; i >= 0; i--) {
         if (st.bodies[i].kind === 'striker') st.bodies.splice(i, 1);
       }
+      settle();
       var s = st.shooter, o = s === 'you' ? 'gattu' : 'you';
       var own = 0, opp = 0, queenIn = false, strikerIn = false;
       for (i = 0; i < st.shotPocketed.length; i++) {
@@ -512,61 +544,35 @@
         else if (p.owner === s) own++;
         else opp++;
       }
-
-      var who = nmS(s);
-      var msg = '', tone = '';
-
+      var who = nmS(s), msg = '', tone = '';
       if (strikerIn) {
-        /* foul: the striker went in — the queen (if she fell this shot) and one
-           of the shooter's pocketed coins climb back out, and the turn passes */
         if (queenIn) { revive(queenBody()); st.queenBy = null; st.queenPending = false; }
-        if (st.queenPending && st.queenBy === s) {
-          revive(queenBody()); st.queenBy = null; st.queenPending = false;
-        }
+        if (st.queenPending && st.queenBy === s) { revive(queenBody()); st.queenBy = null; st.queenPending = false; }
         var gave = reviveOneCoin(s);
-        msg = (vs === '2p' ? who + ' sank the striker — foul! '
-               : s === 'you' ? 'Oops — the striker went in. ' : 'Gattu sank the striker! ') +
-              (gave ? 'One ' + colr(s) + ' comes back to the middle.' : 'Nothing to give back — lucky.');
-        tone = 'warm';
+        msg = (vs === '2p' ? who + ' sank the striker — foul! ' : s === 'you' ? 'Oops — the striker went in. ' : 'Gattu sank the striker! ') +
+              (gave ? 'One ' + colr(s) + ' comes back to the middle.' : 'Nothing to give back.');
+        tone = 'h';
         st.turn = o;
       } else {
         if (queenIn) {
           st.queenBy = s;
-          if (own > 0) {
-            st.queenPending = false; st.queenCovered = s;
-            msg = who + ' pocketed the queen AND covered her — three points!';
-            tone = human(s) ? 'good' : 'warm';
-          } else {
-            st.queenPending = true;
-            msg = who + ' pocketed the queen! Cover her: a ' + colr(s) + ' must drop on the very next shot.';
-            tone = 'warm';
-          }
+          if (own > 0) { st.queenPending = false; st.queenCovered = s; msg = who + ' pocketed the queen AND covered her — three points!'; tone = human(s) ? 'y' : 'h'; }
+          else { st.queenPending = true; msg = who + ' pocketed the queen! Cover her: a ' + colr(s) + ' must drop on the very next shot.'; tone = 'h'; }
         } else if (st.queenPending && st.queenBy === s) {
-          if (own > 0) {
-            st.queenPending = false; st.queenCovered = s;
-            msg = 'Covered! The queen stays with ' + (vs === '2p' ? who : (s === 'you' ? 'you' : 'Gattu')) + ' — three points.';
-            tone = human(s) ? 'good' : 'warm';
-          } else {
-            revive(queenBody()); st.queenBy = null; st.queenPending = false;
-            msg = 'No cover, so the queen climbs back out to the middle.';
-            tone = 'warm';
-          }
+          if (own > 0) { st.queenPending = false; st.queenCovered = s; msg = 'Covered! The queen stays with ' + (vs === '2p' ? who : (s === 'you' ? 'you' : 'Gattu')) + ' — three points.'; tone = human(s) ? 'y' : 'h'; }
+          else { revive(queenBody()); st.queenBy = null; st.queenPending = false; msg = 'No cover, so the queen climbs back out to the middle.'; tone = 'h'; }
         }
         if (!msg) {
           if (own > 0) {
-            msg = vs === '2p'
-              ? 'Shabaash! ' + who + ' sank ' + own + ' ' + colr(s) + (own > 1 ? 's' : '') + ' — shoot again.'
-              : s === 'you'
-              ? 'Shabaash! ' + own + ' white' + (own > 1 ? 's' : '') + ' in — shoot again.'
+            msg = vs === '2p' ? 'Shabaash! ' + who + ' sank ' + own + ' ' + colr(s) + (own > 1 ? 's' : '') + ' — shoot again.'
+              : s === 'you' ? 'Shabaash! ' + own + ' white' + (own > 1 ? 's' : '') + ' in — shoot again.'
               : 'Gattu sank ' + own + ' black' + (own > 1 ? 's' : '') + ' — he shoots again.';
-            tone = human(s) ? 'good' : '';
+            tone = human(s) ? 'y' : '';
           } else if (opp > 0) {
-            msg = vs === '2p'
-              ? 'A ' + colr(o) + ' went in — that one counts for ' + nmS(o) + '. Their turn.'
-              : s === 'you'
-              ? 'A black went in — that one counts for Gattu. His turn.'
+            msg = vs === '2p' ? 'A ' + colr(o) + ' went in — that one counts for ' + nmS(o) + '. Their turn.'
+              : s === 'you' ? 'A black went in — that one counts for Gattu. His turn.'
               : 'Gattu knocked a white in — it counts for you! Your turn.';
-            tone = vs === '2p' ? 'warm' : s === 'you' ? 'warm' : 'good';
+            tone = s === 'you' ? 'h' : 'y';
           } else {
             msg = vs === '2p' ? 'Nothing dropped — ' + nmS(o) + '’s turn.'
               : s === 'you' ? 'Nothing dropped — Gattu’s turn.' : 'Gattu missed — your turn.';
@@ -576,17 +582,12 @@
         }
         st.turn = own > 0 ? s : o;
       }
-
       refreshHud();
-
-      /* first to clear their colour wins; the queen is a 3-point bonus for
-         whoever pocketed-and-covered her */
-      if (aliveCount(s) === 0) return endMatch(s, msg);
-      if (aliveCount(o) === 0) return endMatch(o, msg);
-
+      var goal = st.short ? 5 : 6;
+      if (scoreOf(s) >= goal) return endMatch(s, msg);
+      if (scoreOf(o) >= goal) return endMatch(o, msg);
       if (vs === '2p' && st.turn !== s) {
-        msg += ' Hand the board — ' + nmS(st.turn) + ' (' + colr(st.turn) + ') shoots from the ' +
-               (st.turn === 'you' ? 'bottom' : 'top') + '.';
+        msg += ' Hand the board — ' + nmS(st.turn) + ' (' + colr(st.turn) + ') shoots from the ' + (st.turn === 'you' ? 'bottom' : 'top') + '.';
       }
       say(msg, tone);
       if (human(st.turn)) {
@@ -600,10 +601,8 @@
     }
 
     /* --------------------------------------------------------- Gattu AI
-       Gattu looks for his easiest honest shot: one of his own coins with a
-       clear-ish line from his baseline to a pocket, then aims with a little
-       wobble so he misses believably. He always has a fallback, so he can
-       never stall the game. */
+       His easiest honest shot (a coin with a clear-ish line to a pocket), aimed with a wobble from
+       a seeded sequence — the same match plays the same way — whose width is his level. */
     function segDist(px, py, ax, ay, bx, by) {
       var vx = bx - ax, vy = by - ay, wx = px - ax, wy = py - ay;
       var L = vx * vx + vy * vy;
@@ -620,15 +619,13 @@
       }
       return n;
     }
-    function wobble(w) { return (Math.random() + Math.random() - 1) * w; }
-
+    function wobble(w) { return (wob() + wob() - 1) * w; }
     function planGattu() {
       var targets = [], i, j, k, b;
       for (i = 0; i < st.bodies.length; i++) {
         b = st.bodies[i];
         if (b.dead) continue;
         if (b.kind === 'coin' && b.owner === 'gattu') targets.push(b);
-        /* he only eyes the queen once he has a coin in hand to cover with */
         else if (b.kind === 'queen' && (6 - aliveCount('gattu')) > 0) targets.push(b);
       }
       var best = null;
@@ -639,7 +636,6 @@
           var cx = pk[0] - t.x, cy = pk[1] - t.y;
           var lenCP = Math.sqrt(cx * cx + cy * cy) || 0.001;
           var dCPx = cx / lenCP, dCPy = cy / lenCP;
-          /* the ghost point: where the striker's centre must be at contact */
           var gx = t.x - dCPx * (t.r + RS), gy = t.y - dCPy * (t.r + RS);
           if (gx < RS || gx > U - RS || gy < GATTU_Y + 2) continue;
           for (k = SXMIN; k <= SXMAX; k += 7) {
@@ -647,23 +643,21 @@
             var lenSG = Math.sqrt(sgx * sgx + sgy * sgy);
             if (lenSG < 4) continue;
             var quality = (sgx / lenSG) * dCPx + (sgy / lenSG) * dCPy;
-            if (quality < 0.3) continue;   /* too thin a cut to be his "easy" shot */
+            if (quality < 0.3) continue;
             var blk = blockers(k, GATTU_Y, gx, gy, t) + blockers(t.x, t.y, pk[0], pk[1], t);
-            var score = quality * 3 - lenSG * 0.01 - lenCP * 0.012 - blk * 1.5 -
-                        (t.kind === 'queen' ? 0.4 : 0);
+            var score = quality * 3 - lenSG * 0.01 - lenCP * 0.012 - blk * 1.5 - (t.kind === 'queen' ? 0.4 : 0);
             if (!best || score > best.score) {
-              best = { score: score, sx: k, a: Math.atan2(sgy, sgx),
-                       v: clamp(34 + lenSG * 0.55 + lenCP * 0.9, 42, 108) };
+              best = { score: score, sx: k, a: Math.atan2(sgy, sgx), v: clamp(34 + lenSG * 0.55 + lenCP * 0.9, 42, 108) };
             }
           }
         }
       }
+      var w = WOBBLE[clamp(mem.lvl | 0, 0, WOBBLE.length - 1)];
       if (best) {
-        best.a += wobble(0.045);
+        best.a += wobble(w);
         best.v = clamp(best.v + wobble(12), 40, 110);
         return best;
       }
-      /* fallback: just knock his nearest coin (or anything) toward the middle */
       var near = null, nd = 1e9;
       for (i = 0; i < st.bodies.length; i++) {
         b = st.bodies[i];
@@ -674,49 +668,50 @@
       }
       var tx = near ? near.x : 50, ty = near ? near.y : 50;
       var fx = clamp(tx, SXMIN, SXMAX);
-      return { sx: fx, a: Math.atan2(ty - GATTU_Y, tx - fx) + wobble(0.08), v: 70 };
+      return { sx: fx, a: Math.atan2(ty - GATTU_Y, tx - fx) + wobble(w * 1.6), v: 70 };
     }
-
+    /* he decides at once (cheap, and nothing is laid out), thinks visibly for under 0.8 s, slides,
+       and shoots — all on the RAF clock */
     function gattuTurn() {
       st.phase = 'think';
+      st.dbg.think0 = vclock;
+      var plan = planGattu();
       say('Gattu is thinking…');
-      /* his shot has a visible beat now: he decides, his striker slides
-         along the baseline into place (tweened in draw()), his aim line
-         appears, then the flick — all timers live in the scope, so teardown
-         mid-think leaves nothing behind */
-      sc.later(function () {
-        if (st.phase !== 'think' || detached(host)) return;
-        var plan = planGattu();
-        st.gPlan = plan;
-        st.gSx = plan.sx;
-        st.gT0 = performanceNow();
-        sc.later(function () {
-          if (st.phase !== 'think' || detached(host)) return;
+      wait(reduced ? 200 : 320, function () {
+        if (st.phase !== 'think') return;
+        st.gPlan = plan; st.gSx = plan.sx; st.gT0 = vclock;
+        wait(reduced ? 200 : 380, function () {
+          if (st.phase !== 'think') return;
           say('');
           fire(plan.sx, GATTU_Y, plan.a, plan.v, 'gattu');
-        }, reduced ? 420 : 700);
-      }, 600 + Math.random() * 400);
+        });
+      });
     }
 
     /* ------------------------------------------------------- match flow */
     function refreshHud() {
       var y = host.querySelector('[data-r="you"]'), g = host.querySelector('[data-r="gattu"]');
       var ny = host.querySelector('[data-nm="you"]'), ng = host.querySelector('[data-nm="gattu"]');
+      var goal = st.short ? 5 : 6;
       if (ny) ny.textContent = vs === '2p' ? 'P1' : 'You';
       if (ng) ng.textContent = vs === '2p' ? 'P2' : 'Gattu';
+      if (y) y.textContent = scoreOf('you') + '/' + goal;
+      if (g) g.textContent = scoreOf('gattu') + '/' + goal;
       var q = host.querySelector('[data-r="queen"]');
-      if (y) y.textContent = String(aliveCount('you'));
-      if (g) g.textContent = String(aliveCount('gattu'));
       if (q) {
-        q.textContent = st.queenCovered
-          ? ('with ' + (vs === '2p' ? (st.queenCovered === 'you' ? 'P1' : 'P2')
-                        : st.queenCovered === 'you' ? 'you' : 'Gattu'))
-          : st.queenPending ? 'needs a cover!'
-          : 'in the middle';
+        q.textContent = st.queenCovered ? ('with ' + (vs === '2p' ? (st.queenCovered === 'you' ? 'P1' : 'P2') : st.queenCovered === 'you' ? 'you' : 'Gattu'))
+          : st.queenPending ? 'cover her!' : 'queen';
       }
     }
-
-    function startMatch() {
+    function goFull(on) {
+      full = !!on;
+      wrapEl.classList.toggle('car-full', full);
+      try { D.documentElement.classList.toggle('gm-fullscreen', full); } catch (e) {}
+      fit();
+    }
+    function startMatch(mode) {
+      if (mode === '2p') vs = '2p'; else vs = 'gattu';
+      st.short = mode === 'short';
       buildCoins();
       st.queenBy = null; st.queenPending = false; st.queenCovered = null;
       st.winner = null; st.result = null;
@@ -725,93 +720,113 @@
       st.gSx = null; st.gPlan = null; st.shotPocketed = []; st.pops = [];
       st.phase = 'aim';
       over.hidden = true;
+      goFull(true);
       refreshHud();
-      say(vs === '2p' ? 'Player 1 shoots first — white, from the bottom. Slide, aim, flick.'
-                      : 'Your shot — you are white. Slide, aim, flick.');
-      /* arrows must work with no click-first: hand the board the focus */
+      say(vs === '2p' ? 'Player 1 shoots first — white, from the bottom.'
+        : st.short ? 'Short match: first to five coins. You are white.' : 'Your shot — you are white.');
       focusSoft(canvas);
+      if (!coached) coachStart();
     }
-
     function endMatch(winner, lastMsg) {
       st.winner = winner;
       st.phase = 'over';
-      var score = (6 - aliveCount('you')) + (st.queenCovered === 'you' ? 3 : 0);
+      coachHide();
+      var score = scoreOf('you') + (st.queenCovered === 'you' ? 3 : 0);
       st.result = { win: winner === 'you', score: score };
+      if (vs === 'gattu') {
+        /* two results in a row move his wobble one notch, then the count starts again */
+        var r = winner === 'you' ? 'win' : 'loss';
+        var run = (mem.run || []).concat([r]).slice(-2), lvl = mem.lvl | 0;
+        if (run.length === 2 && run[0] === run[1]) { lvl = clamp(lvl + (r === 'win' ? 1 : -1), 0, WOBBLE.length - 1); run = []; }
+        mem = { lvl: lvl, run: run };
+        store.set('carrom.gattu', mem);
+      }
+      matchNo++; store.set('carrom.matches', matchNo);
       say(lastMsg || '');
       over.innerHTML =
         '<div class="car-panel" role="dialog" aria-label="Game over">' +
-          '<h3>' + (vs === '2p'
-              ? nmS(winner) + ' cleared the ' + colr(winner) + 's — shabaash!'
-              : winner === 'you' ? 'Shabaash — the whites are home!' : 'Gattu cleared his blacks first') + '</h3>' +
-          '<p>' + (vs === '2p'
-              ? 'A proper living-room match' + (st.queenCovered ? ' — and the queen was covered.' : '.') + ' Again?'
-              : winner === 'you'
-              ? 'Every white coin pocketed' + (st.queenCovered === 'you' ? ', and the queen covered too.' : '.')
+          '<h3>' + (vs === '2p' ? nmS(winner) + ' got there first — shabaash!'
+              : winner === 'you' ? 'Shabaash — the whites are home!' : 'Gattu got there first') + '</h3>' +
+          '<p>' + (vs === '2p' ? 'A proper living-room match' + (st.queenCovered ? ' — and the queen was covered.' : '.')
+              : winner === 'you' ? (st.short ? 'Five whites pocketed' : 'Every white pocketed') + (st.queenCovered === 'you' ? ', and the queen covered too.' : '.')
               : 'He got there first this time — another game?') + '</p>' +
-          '<p><b>' + score + '</b> point' + (score === 1 ? '' : 's') +
-            ' &mdash; a coin is 1, the covered queen is 3.</p>' +
+          '<p><b>' + score + '</b> point' + (score === 1 ? '' : 's') + ' — a coin is 1, the covered queen is 3.</p>' +
           '<div class="car-row">' +
-            '<button type="button" class="car-btn" data-go="out">Back to the Mela</button>' +
-            '<button type="button" class="car-btn ghost" data-go="again">Play again</button>' +
+            '<button type="button" class="car-btn" data-go="again">Play again</button>' +
+            '<button type="button" class="car-btn ghost" data-go="out">Finish</button>' +
           '</div>' +
         '</div>';
       over.hidden = false;
-      sc.later(function () { focusSoft(over.querySelector('[data-go="out"]')); }, 60);
+      wait(60, function () { focusSoft(over.querySelector('[data-go="again"]')); });
     }
-
+    var lastMode = 'gattu';
     function bail() {
       if (finished) return;
       finished = true;
-      var r = st.result || { win: false, score: 0 };
+      var r = st.result || { win: false, score: scoreOf('you') };
+      try { D.documentElement.classList.remove('gm-fullscreen'); } catch (e) {}
       sc.kill();
       W.cancelAnimationFrame(rafId);
-      if (typeof done === 'function') done({ win: r.win, score: r.score, kauris: r.win ? 4 : 1 });
+      if (typeof done === 'function') done({ win: !!r.win, score: r.score, asked: 0, firstTryRight: 0,
+        level: opts.level || 1, levelNext: opts.level || 1 });
     }
-
     function showIntro() {
       over.innerHTML =
-        '<div class="car-panel" role="dialog" aria-label="How to play carrom">' +
+        '<div class="car-panel" role="dialog" aria-label="Carrom">' +
           '<h3>Carrom</h3>' +
-          '<p>India’s living-room game &mdash; the board that comes out when the cousins visit. The family rules, made simple:</p>' +
+          '<p>India’s living-room game. The family rules, made simple:</p>' +
           '<ul>' +
             '<li>You are <b>white</b>, Gattu is black. Pocket one of yours and you shoot again.</li>' +
             '<li>Cover the red <b>queen</b>: drop a white on the same or the very next shot, or she climbs back out.</li>' +
-            '<li>Striker in a pocket is a foul &mdash; one of your coins comes back.</li>' +
-            '<li>Clear your six first to win. A coin is 1 point, the covered queen is 3.</li>' +
+            '<li>Striker in a pocket is a foul — one of your coins comes back.</li>' +
           '</ul>' +
           '<div class="car-row"><button type="button" class="car-btn" data-go="start">Play Gattu</button>' +
-          '<button type="button" class="car-btn ghost" data-go="start2">Pass &amp; play — 2 players</button></div>' +
+          '<button type="button" class="car-btn ghost" data-go="short">Short match — first to five</button>' +
+          '<button type="button" class="car-btn ghost" data-go="start2">2 players</button></div>' +
         '</div>';
       over.hidden = false;
-      sc.later(function () { focusSoft(over.querySelector('[data-go="start"]')); }, 60);
+      wait(60, function () { focusSoft(over.querySelector('[data-go="start"]')); });
+    }
+    function pause() {
+      cancelShot('');
+      coachHide();
+      st.paused = st.phase;
+      goFull(false);
+      over.innerHTML = '<div class="car-panel" role="dialog" aria-label="Paused"><h3>Paused</h3>' +
+        '<p>The board waits exactly as you left it.</p>' +
+        '<div class="car-row"><button type="button" class="car-btn" data-go="resume">Resume</button>' +
+        '<button type="button" class="car-btn ghost" data-go="out">Finish</button></div></div>';
+      over.hidden = false;
+      wait(60, function () { focusSoft(over.querySelector('[data-go="resume"]')); });
+    }
+    function settings() {
+      cancelShot('');
+      over.innerHTML = '<div class="car-panel" role="dialog" aria-label="Settings"><h3>Settings</h3>' +
+        '<label><input type="checkbox" data-set="sling"' + (slingOn ? ' checked' : '') + '> Flick sling: pull back from the striker to shoot (slide back onto it to cancel)</label>' +
+        '<div class="car-row"><button type="button" class="car-btn" data-go="closeset">Done</button></div></div>';
+      over.hidden = false;
+      wait(60, function () { focusSoft(over.querySelector('[data-set]')); });
     }
 
     /* ==================================================================
        RENDERING
        ================================================================== */
 
-    /* ------------------------------------------------------------- fit
-       The board must fit BOTH the width of the card AND the height that is
-       genuinely free: below the app header and everything above the canvas,
-       above the slider/hint/feed and the phone tab bar. Measured, not
-       guessed, so the whole game sits on one screen with no scrolling. */
+    /* The board's size comes from the viewport and constants, not from measuring the page —
+       and only on start, on a pause or resume, and on resize. Never during play. */
     function fit() {
-      var availW = wrapEl.clientWidth || host.clientWidth || 320;
-      var vh = W.innerHeight || 640;
-      var sr = stage.getBoundingClientRect();
-      var scrollY = W.pageYOffset || (D.documentElement && D.documentElement.scrollTop) || 0;
-      var docTop = sr.top + scrollY;               /* stage offset from document top */
-      var wr = wrapEl.getBoundingClientRect();
-      var below = Math.max(0, wr.bottom - sr.bottom);  /* slider + hint + feed + gaps */
-      var reserve = 12;                            /* card padding + breathing room  */
-      var nav = D.querySelector('.topbar .nav');   /* the phone bottom tab bar        */
-      if (nav) {
-        var nr = nav.getBoundingClientRect();
-        if (nr.height && nr.top > vh * 0.55 && nr.top < vh) reserve += vh - nr.top;
+      var vw = W.innerWidth || 390, vh = W.innerHeight || 700, size;
+      if (full) {
+        var land = vw > vh * 1.08;
+        wrapEl.classList.toggle('car-land', land);
+        if (land) size = Math.min(vh - TOPH - 20, vw - SIDEW - 44);
+        else size = Math.min(vw - 12, vh - TOPH - CTLH - FEEDH - 28, 900);
+      } else {
+        wrapEl.classList.remove('car-land');
+        size = Math.min(host.clientWidth || 360, 560);
       }
-      /* the board is the game: let it take the whole card and most of the
-         viewport (the 560 cap made a desktop board look like a coaster) */
-      var size = Math.floor(Math.max(220, Math.min(availW, vh - docTop - below - reserve, 900)));
+      size = Math.floor(Math.max(200, size));
+      wrapEl.style.setProperty('--car-bw', size + 'px');
       var d = W.devicePixelRatio || 1;
       if (size === cssSize && d === dpr && board) return;
       cssSize = size; dpr = d;
@@ -820,11 +835,9 @@
       canvas.width = Math.round(size * dpr);
       canvas.height = Math.round(size * dpr);
       buildBoardLayer();
+      st.dbg.fits++;
     }
 
-    /* --------------------------------------------- the static board layer
-       Painted once per resize at full devicePixelRatio: wood, inlays,
-       pockets, decals. Blitted every frame under the live pieces. */
     function unitsTransform(c) {
       var scale = (canvas.width / dpr) / VIEW;
       c.setTransform(dpr * scale, 0, 0, dpr * scale, dpr * scale * M, dpr * scale * M);
@@ -1046,7 +1059,6 @@
       if (alpha != null) ctx.globalAlpha = 1;
     }
 
-    /* how far the aim ray can travel before the striker's centre meets a wall */
     function rayLimit(x, y, dx, dy, max) {
       var t = max;
       if (dx > 0.0001) t = Math.min(t, (U - RS - x) / dx);
@@ -1055,29 +1067,45 @@
       if (dy < -0.0001) t = Math.min(t, (RS - y) / dy);
       return Math.max(0, t);
     }
-
+    /* the aim's first contact: the nearest piece the striker's path meets, where the striker is
+       then (the ghost), and which way that piece goes */
+    function firstContact(x, y, a) {
+      var dx = Math.cos(a), dy = Math.sin(a), best = null;
+      for (var i = 0; i < st.bodies.length; i++) {
+        var b = st.bodies[i];
+        if (b.dead || b.kind === 'striker') continue;
+        var R = RS + b.r, ox = b.x - x, oy = b.y - y, t = ox * dx + oy * dy;
+        if (t <= 0) continue;
+        var d2 = ox * ox + oy * oy - t * t;
+        if (d2 >= R * R) continue;
+        var th = t - Math.sqrt(R * R - d2);
+        if (!best || th < best.t) best = { t: th, b: b };
+      }
+      var wall = rayLimit(x, y, dx, dy, 200);
+      if (!best || best.t > wall) return { t: wall, b: null, gx: x + dx * wall, gy: y + dy * wall };
+      var gx = x + dx * best.t, gy = y + dy * best.t;
+      var cx = best.b.x - gx, cy = best.b.y - gy, cl = Math.sqrt(cx * cx + cy * cy) || 1;
+      return { t: best.t, b: best.b, gx: gx, gy: gy, ax: cx / cl, ay: cy / cl };
+    }
     function easeOutCubic(t) { var u = 1 - t; return 1 - u * u * u; }
+    function upp() { return VIEW / (cssSize || 1); }   /* board units per CSS px */
 
-    /* ------------------------------------------------------------ draw */
-    function draw() {
-      var now = performanceNow();
+    function draw(alpha) {
       var i, b;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (board) ctx.drawImage(board, 0, 0);
       unitsTransform(ctx);
 
-      /* pocket-drop animation: the pocketed piece slips into the well,
-         shrinking and fading — decorative, skipped under reduced motion */
       if (st.pops.length) {
         var keep = [];
         for (i = 0; i < st.pops.length; i++) {
-          var pop = st.pops[i], age = (now - pop.t) / 420;
+          var pop = st.pops[i], age = (vclock - pop.t) / 380;
           if (age < 1) {
             var e = age * age;
-            var px2 = pop.x0 + (pop.px - pop.x0) * e;
-            var py2 = pop.y0 + (pop.py - pop.y0) * e;
-            var rr2 = pop.r * (1 - 0.8 * e);
+            var px2 = pop.x0 + (pop.px - pop.x0) * Math.min(1, e * 1.6);
+            var py2 = pop.y0 + (pop.py - pop.y0) * Math.min(1, e * 1.6);
+            var rr2 = pop.r * (1 - 0.75 * e);
             if (pop.kind === 'striker') drawStrikerAt(px2, py2, 1 - e);
             else drawCoinAt(px2, py2, rr2, pop.kind, pop.owner, 1 - e);
             keep.push(pop);
@@ -1086,18 +1114,17 @@
         st.pops = keep;
       }
 
-      /* coins, queen, and (while rolling) the live striker */
       for (i = 0; i < st.bodies.length; i++) {
         b = st.bodies[i];
         if (b.dead) continue;
-        bodyShadow(b.x, b.y, b.r);
-        if (b.kind === 'striker') drawStrikerAt(b.x, b.y);
-        else drawCoinAt(b.x, b.y, b.r, b.kind, b.owner);
+        var x = b.px + (b.x - b.px) * alpha, y = b.py + (b.y - b.py) * alpha;
+        bodyShadow(x, y, b.r);
+        if (b.kind === 'striker') drawStrikerAt(x, y);
+        else drawCoinAt(x, y, b.r, b.kind, b.owner);
       }
 
-      /* Gattu lining up: his striker slides into place, then his aim line */
       if (st.phase === 'think' && st.gPlan) {
-        var gt = reduced ? 1 : Math.min(1, (now - st.gT0) / 320);
+        var gt = reduced ? 1 : Math.min(1, (vclock - st.gT0) / 320);
         var gx = 50 + (st.gPlan.sx - 50) * easeOutCubic(gt);
         bodyShadow(gx, GATTU_Y, RS);
         drawStrikerAt(gx, GATTU_Y);
@@ -1105,7 +1132,7 @@
           var gl = rayLimit(st.gPlan.sx, GATTU_Y, Math.cos(st.gPlan.a), Math.sin(st.gPlan.a), 20);
           ctx.save();
           ctx.setLineDash([1.6, 2.6]);
-          ctx.strokeStyle = 'rgba(64,30,12,.4)'; ctx.lineWidth = 0.6;
+          ctx.strokeStyle = 'rgba(64,30,12,.45)'; ctx.lineWidth = 0.6;
           ctx.beginPath();
           ctx.moveTo(st.gPlan.sx + Math.cos(st.gPlan.a) * (RS + 0.8), GATTU_Y + Math.sin(st.gPlan.a) * (RS + 0.8));
           ctx.lineTo(st.gPlan.sx + Math.cos(st.gPlan.a) * gl, GATTU_Y + Math.sin(st.gPlan.a) * gl);
@@ -1114,232 +1141,421 @@
         }
       }
 
-      /* your striker on the baseline with slide chevrons, the dashed
-         trajectory with its ghost striker, and the power arc */
+      st.dbg.hole = null; st.dbg.ghost = null;
       if (st.phase === 'aim' && human(st.turn)) {
         var by = baseY(st.turn);
         bodyShadow(st.sx, by, RS);
         drawStrikerAt(st.sx, by);
-
         var ca = Math.cos(st.aimA), sa = Math.sin(st.aimA);
-        var len = rayLimit(st.sx, by, ca, sa, 24 + st.charge * 26);
-        var x0 = st.sx + ca * (RS + 0.9), y0 = by + sa * (RS + 0.9);
-        var x1 = st.sx + ca * len, y1 = by + sa * len;
+        var fc = firstContact(st.sx, by, st.aimA);
         ctx.save();
-        ctx.setLineDash([1.8, 2.6]);
-        if (!reduced) ctx.lineDashOffset = -(now / 90) % 4.4;
-        ctx.strokeStyle = 'rgba(64,30,12,.55)'; ctx.lineWidth = 0.7; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
-        ctx.setLineDash([1.1, 1.6]);
-        ctx.strokeStyle = pal.acc; ctx.globalAlpha = 0.75; ctx.lineWidth = 0.5;
-        ctx.beginPath(); ctx.arc(x1, y1, RS, 0, TAU); ctx.stroke();   /* ghost striker */
-        ctx.globalAlpha = 0.35;
-        ctx.beginPath(); ctx.arc(x1, y1, RS * 0.16, 0, TAU);
-        ctx.fillStyle = pal.acc; ctx.fill();
+        /* the finger never covers the line: a hole is cut round an aiming touch */
+        if (drag && drag.mode === 'aim' && drag.touch && drag.bx != null) {
+          var hr = 30 * upp();
+          st.dbg.hole = { x: drag.bx, y: drag.by, r: hr, px: 30 };
+          ctx.beginPath();
+          ctx.rect(-M, -M, VIEW, VIEW);
+          ctx.arc(drag.bx, drag.by, hr, 0, TAU, true);
+          ctx.clip('evenodd');
+        }
+        var x0 = st.sx + ca * (RS + 0.9), y0 = by + sa * (RS + 0.9);
+        ctx.setLineDash([1.8, 2.2]);
+        if (!reduced) ctx.lineDashOffset = -(vclock / 90) % 4;
+        ctx.strokeStyle = 'rgba(64,30,12,.7)'; ctx.lineWidth = 0.75; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(fc.gx, fc.gy); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = pal.acc; ctx.globalAlpha = 0.85; ctx.lineWidth = 0.55;
+        ctx.beginPath(); ctx.arc(fc.gx, fc.gy, RS, 0, TAU); ctx.stroke();
+        ctx.globalAlpha = 0.18; ctx.fillStyle = pal.acc; ctx.fill();
         ctx.globalAlpha = 1;
+        st.dbg.ghost = { x: fc.gx, y: fc.gy, hit: !!fc.b };
+        if (fc.b) {
+          /* where that coin will go: a short arrow from its centre */
+          var ax0 = fc.b.x + fc.ax * (fc.b.r + 0.6), ay0 = fc.b.y + fc.ay * (fc.b.r + 0.6);
+          var ax1 = fc.b.x + fc.ax * (fc.b.r + 8), ay1 = fc.b.y + fc.ay * (fc.b.r + 8);
+          ctx.strokeStyle = '#1f7a4f'; ctx.lineWidth = 0.75;
+          ctx.beginPath(); ctx.moveTo(ax0, ay0); ctx.lineTo(ax1, ay1); ctx.stroke();
+          var an = Math.atan2(fc.ay, fc.ax);
+          ctx.beginPath();
+          ctx.moveTo(ax1, ay1);
+          ctx.lineTo(ax1 - Math.cos(an - 0.5) * 1.8, ay1 - Math.sin(an - 0.5) * 1.8);
+          ctx.moveTo(ax1, ay1);
+          ctx.lineTo(ax1 - Math.cos(an + 0.5) * 1.8, ay1 - Math.sin(an + 0.5) * 1.8);
+          ctx.stroke();
+        }
         ctx.restore();
-
-        /* slide chevrons — quiet, but they say "this moves sideways" */
-        if (st.charge === 0 && !drag) {
-          var wob = reduced ? 0 : Math.sin(now / 320) * 0.5;
+        /* slide chevrons while the striker is idle: "this moves sideways" */
+        if (!st.charge && !drag) {
+          var wb = reduced ? 0 : Math.sin(vclock / 320) * 0.5;
           ctx.save();
           ctx.strokeStyle = pal.acc; ctx.globalAlpha = 0.6;
           ctx.lineWidth = 0.75; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-          var cxL = st.sx - RS - 2.6 - wob, cxR = st.sx + RS + 2.6 + wob;
-          if (st.sx > SXMIN + 0.5) {
-            ctx.beginPath();
-            ctx.moveTo(cxL + 1.1, by - 1.6); ctx.lineTo(cxL - 0.5, by); ctx.lineTo(cxL + 1.1, by + 1.6);
-            ctx.stroke();
-          }
-          if (st.sx < SXMAX - 0.5) {
-            ctx.beginPath();
-            ctx.moveTo(cxR - 1.1, by - 1.6); ctx.lineTo(cxR + 0.5, by); ctx.lineTo(cxR - 1.1, by + 1.6);
-            ctx.stroke();
-          }
+          var cxL = st.sx - RS - 2.6 - wb, cxR = st.sx + RS + 2.6 + wb;
+          if (st.sx > SXMIN + 0.5) { ctx.beginPath(); ctx.moveTo(cxL + 1.1, by - 1.6); ctx.lineTo(cxL - 0.5, by); ctx.lineTo(cxL + 1.1, by + 1.6); ctx.stroke(); }
+          if (st.sx < SXMAX - 0.5) { ctx.beginPath(); ctx.moveTo(cxR - 1.1, by - 1.6); ctx.lineTo(cxR + 0.5, by); ctx.lineTo(cxR - 1.1, by + 1.6); ctx.stroke(); }
           ctx.restore();
         }
-
-        /* the power meter is an arc around the striker itself */
-        if (st.charge > 0 || st.charging) {
-          var mr = RS + 1.9;
+        /* the sling (a setting): its pull, drawn back from the striker */
+        if (drag && drag.mode === 'sling') {
           ctx.save();
-          ctx.lineCap = 'round';
-          ctx.beginPath(); ctx.arc(st.sx, by, mr, 0, TAU);
-          ctx.strokeStyle = 'rgba(40,20,8,.18)'; ctx.lineWidth = 1.05; ctx.stroke();
-          if (st.charge > 0.01) {
-            ctx.beginPath(); ctx.arc(st.sx, by, mr, -Math.PI / 2, -Math.PI / 2 + st.charge * TAU);
-            ctx.strokeStyle = st.charge < 0.45 ? pal.good : st.charge < 0.8 ? pal.acc2 : pal.acc3;
-            ctx.lineWidth = 1.35; ctx.stroke();
-          }
+          ctx.strokeStyle = drag.cancel ? 'rgba(217,79,61,.9)' : 'rgba(40,20,8,.45)';
+          ctx.lineWidth = 0.6; ctx.setLineDash([1, 1.4]);
+          ctx.beginPath(); ctx.moveTo(st.sx, by); ctx.lineTo(drag.bx, drag.by); ctx.stroke();
           ctx.restore();
         }
-      }
-
-      /* keep the slider honest with the real striker position */
-      if (slider) {
-        var v = String(Math.round(st.sx));
-        if (slider.value !== v) slider.value = v;
-        var dis = !(st.phase === 'aim' && human(st.turn));
-        if (slider.disabled !== dis) slider.disabled = dis;
       }
     }
 
-    /* ---------------------------------------------------------- the loop
-       One RAF drives everything: charge growth, fixed-step physics while a
-       shot is rolling, and the draw. Fixed 120 Hz steps accumulate against
-       real time (clamped, so a background tab cannot demand a thousand
-       steps at once), which is what keeps collisions deterministic-ish and
-       stable at every frame rate. */
+    /* the pad's fill and the number, written only when they change; the number floats above
+       the finger, never under it (CR5) */
+    var powShown = -1, powPos = null;
+    function powerUI() {
+      var v = Math.round(st.charge * 100), on = st.charging || st.charge > 0 || !!padDrag;
+      if (v !== powShown) {
+        powShown = v;
+        padFill.style.width = 'calc((100% - 52px) * ' + st.charge.toFixed(3) + ')';
+        pad.setAttribute('aria-valuenow', String(v));
+        powEl.textContent = padDrag && padDrag.x ? '✕' : String(v);
+      }
+      powEl.classList.toggle('x', !!(padDrag && padDrag.x));
+      powEl.classList.toggle('on', on);
+      pad.classList.toggle('on', on);
+      if (on && powPos) {
+        powEl.style.transform = 'translate(' + Math.round(powPos.x - 29) + 'px,' + Math.round(powPos.y) + 'px)';
+        st.dbg.pow = { x: powPos.x, y: powPos.y + 18 };
+      } else st.dbg.pow = null;
+    }
+
+    /* ---------------------------------------------------------- the loop */
     function loop(ts) {
+      rafId = 0;
       if (sc.dead) return;
-      if (detached(host)) { sc.kill(); return; }
-      var dt = lastT ? Math.min(0.05, (ts - lastT) / 1000) : 0.016;
+      var w0 = W.performance.now(), ph0 = st.phase;
+      if (detached(host)) { teardown(); return; }
+      var dt = lastT ? Math.min(0.1, (ts - lastT) / 1000) : 1 / 60;
       lastT = ts;
+      vclock += dt * 1000;
+      for (var i = 0; i < waits.length;) {
+        if (waits[i].at <= vclock) { var w = waits.splice(i, 1)[0]; w.fn(); } else i++;
+      }
       if (st.charging && st.phase === 'aim' && human(st.turn)) {
+        var c0 = st.charge;
         st.charge = Math.min(1, st.charge + dt * 0.8);
+        tick(c0, st.charge);
+        powerUI();
       }
       if (st.phase === 'rolling') {
         acc += dt;
         var guard = 0;
-        while (acc >= DT && guard < 10) {
-          physStep(DT);
-          acc -= DT;
-          st.rollT += DT;
-          guard++;
-        }
-        /* watchdog: however weird the frame timing gets, a shot always ends */
-        if (st.rollT > 9) {
-          for (var i = 0; i < st.bodies.length; i++) { st.bodies[i].vx = 0; st.bodies[i].vy = 0; }
-        }
-        if (!anyMoving()) resolveShot();
+        while (acc >= DT && guard < 12) { physStep(DT); acc -= DT; st.rollT += DT; guard++; }
+        if (guard >= 12) acc = 0;
+        if (st.rollT > 9) { for (var k = 0; k < st.bodies.length; k++) { st.bodies[k].vx = 0; st.bodies[k].vy = 0; } }
+        if (!anyMoving()) { acc = 0; resolveShot(); }
       }
-      draw();
-      rafId = W.requestAnimationFrame(loop);
+      draw(st.phase === 'rolling' ? clamp(acc / DT, 0, 1) : 1);
+      /* what this frame cost the engine — read by tools/check-carrom.js (CR4), never shown */
+      if (st.phase !== 'intro') {
+        var wk = W.performance.now() - w0;
+        st.dbg.work.push(wk); if (st.dbg.work.length > 4000) st.dbg.work.shift();
+        if (wk > 12) st.dbg.slow.push([Math.round(wk), ph0 + '>' + st.phase]);
+      }
+      if (!sc.dead && D.visibilityState !== 'hidden') rafId = W.requestAnimationFrame(loop);
+    }
+    function kick() { if (!rafId && !sc.dead) { lastT = 0; rafId = W.requestAnimationFrame(loop); } }
+    sc.on(D, 'visibilitychange', function () {
+      if (D.visibilityState === 'hidden') { if (rafId) W.cancelAnimationFrame(rafId); rafId = 0; lastT = 0; }
+      else kick();
+    });
+    /* a light haptic tick each quarter of power, where the device allows it */
+    function tick(a, b2) {
+      if (calmMode || !W.navigator || !W.navigator.vibrate) return;
+      if (Math.floor(a * 4) !== Math.floor(b2 * 4)) { try { W.navigator.vibrate(6); } catch (e) {} }
     }
 
-    /* ------------------------------------------------------------ input
-       Touch/mouse: grab the striker and it SLIDES with your finger — the
-       whole striker is the handle. Pull back anywhere else on the board to
-       aim (the shot goes opposite your pull, like a real flick) and let go
-       to shoot. The slider under the board is a third, always-visible way
-       to slide. Keyboard: ←/→ slide, A/D (or ↑/↓) aim, hold Space, release
-       to shoot — live from the moment the match starts. */
+    /* ==================================================================
+       INPUT — one gesture, one job
+       ================================================================== */
     function toBoard(e) {
-      var r2 = canvas.getBoundingClientRect();
-      return {
-        x: (e.clientX - r2.left) / r2.width * VIEW - M,
-        y: (e.clientY - r2.top) / r2.height * VIEW - M
-      };
+      var r2 = cRect || canvas.getBoundingClientRect();
+      return { x: (e.clientX - r2.left) / r2.width * VIEW - M, y: (e.clientY - r2.top) / r2.height * VIEW - M };
+    }
+    var cRect = null;     /* measured once per gesture, at pointerdown */
+    var drag = null, padDrag = null;
+    function aimable() { return st.phase === 'aim' && human(st.turn) && over.hidden; }
+    function onStriker(p) {
+      var dx = p.x - st.sx, dy = p.y - baseY(st.turn), hit = Math.max(RS * 1.5, 24 * upp());
+      return dx * dx + dy * dy <= hit * hit;
+    }
+    function behindLine(p) {
+      var by = baseY(st.turn);
+      return st.turn === 'you' ? p.y > by - RS * 0.6 : p.y < by + RS * 0.6;
+    }
+    function aimAt(p) {
+      var by = baseY(st.turn), dx = p.x - st.sx, dy = p.y - by;
+      if (dx * dx + dy * dy < 4) return;
+      st.aimA = clampAim(Math.atan2(dy, dx), st.turn);
+      coachSaw('aim');
+    }
+    function place(x) {
+      var nx = clamp(x, SXMIN, SXMAX);
+      if (Math.abs(nx - st.sx) > 0.01) { st.sx = nx; coachSaw('place'); }
     }
 
-    var drag = null;
     sc.on(canvas, 'pointerdown', function (e) {
       focusSoft(canvas);
-      if (st.phase !== 'aim' || !human(st.turn)) return;
-      var p = toBoard(e);
-      var dx = p.x - st.sx, dy = p.y - baseY(st.turn);
-      if (dx * dx + dy * dy < (RS * 3) * (RS * 3)) {
-        /* grab the striker itself: it slides along the baseline — and the
-           moment the pull comes BACK past the line, the grab becomes the
-           sling, anchored on the striker. One thumb, both moves — which is
-           what every hand that has played a phone carrom expects, and what
-           "cannot control the striker" was: dragging back from it used to
-           only slide it sideways. */
-        drag = { mode: 'stick' };
-      } else {
-        drag = { mode: 'sling', x0: p.x, y0: p.y };  /* anywhere else: pull back to aim */
-      }
+      if (!aimable()) return;
+      cRect = canvas.getBoundingClientRect();
+      var p = toBoard(e), touch = e.pointerType !== 'mouse';
       e.preventDefault();
       try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+      if (onStriker(p) || behindLine(p)) {
+        /* PLACE: the striker slides with the finger and can never fire — unless the sling is
+           switched on in settings and the pull comes back off the striker itself */
+        drag = { mode: 'place', id: e.pointerId, dx: onStriker(p) ? st.sx - p.x : 0, sling: slingOn && onStriker(p), touch: touch };
+        if (!drag.dx) place(p.x);
+        return;
+      }
+      if (!touch) {
+        /* desktop: the mouse already points; hold and release here to shoot */
+        aimAt(p);
+        drag = { mode: 'mouse', id: e.pointerId };
+        st.charging = true; st.chargeBy = 'mouse'; st.charge = 0;
+        powPos = { x: e.clientX, y: e.clientY - 66 };
+        powerUI();
+        return;
+      }
+      drag = { mode: 'aim', id: e.pointerId, touch: true, bx: p.x, by: p.y };
+      aimAt(p);
     });
     sc.on(canvas, 'pointermove', function (e) {
-      if (!drag || st.phase !== 'aim') return;
+      if (!drag) {
+        /* point-to-aim: a mouse hovering ahead of the striker turns the aim to it */
+        if (e.pointerType === 'mouse' && aimable() && !st.charging) {
+          var r2 = canvas.getBoundingClientRect();
+          cRect = r2;
+          var q = toBoard(e);
+          canvas.classList.toggle('grab', onStriker(q) || behindLine(q));
+          if (!onStriker(q) && !behindLine(q)) aimAt(q);
+        }
+        return;
+      }
+      if (e.pointerId !== drag.id || st.phase !== 'aim') return;
       var p = toBoard(e);
-      if (drag.mode === 'stick') {
-        /* "back" is away from the board: down for white, up for black */
-        var by2 = baseY(st.turn);
-        var back = st.turn === 'you' ? (p.y - by2 > RS * 2.6) : (by2 - p.y > RS * 2.6);
-        if (back) {
-          drag = { mode: 'sling', x0: st.sx, y0: by2 };   /* pulled back: now a sling */
-        } else { st.sx = clamp(p.x, SXMIN, SXMAX); return; }
+      if (drag.mode === 'place') {
+        var by = baseY(st.turn);
+        var back = st.turn === 'you' ? p.y - by : by - p.y;
+        if (drag.sling && back > RS * 2.6) { drag = { mode: 'sling', id: drag.id, bx: p.x, by: p.y, cancel: false }; }
+        else { place(p.x + drag.dx); return; }
       }
-      /* sling: the flick goes opposite the pull, scaled by how far you pull */
-      var dx = drag.x0 - p.x, dy = drag.y0 - p.y;
-      var len = Math.sqrt(dx * dx + dy * dy);
-      if (len > 1.2) st.aimA = Math.atan2(dy, dx);
-      st.charge = clamp((len - 1.5) / 28, 0, 1);
+      if (drag.mode === 'aim') { drag.bx = p.x; drag.by = p.y; aimAt(p); return; }
+      if (drag.mode === 'sling') {
+        var by2 = baseY(st.turn), dx = st.sx - p.x, dy = by2 - p.y, len = Math.sqrt(dx * dx + dy * dy);
+        drag.bx = p.x; drag.by = p.y;
+        drag.cancel = len < RS * 1.4;
+        if (len > 1.2) st.aimA = clampAim(Math.atan2(dy, dx), st.turn);
+        var c0 = st.charge;
+        st.charge = drag.cancel ? 0 : clamp((len - 3) / 26, 0, 1);
+        tick(c0, st.charge);
+        powPos = { x: e.clientX, y: e.clientY - 80 };
+        powerUI();
+      }
     });
-    function pointerEnd(e) {
-      if (!drag) return;
+    function canvasUp(e) {
+      if (!drag || e.pointerId !== drag.id) return;
       var was = drag; drag = null;
-      if (was.mode === 'sling' && st.phase === 'aim' && human(st.turn)) {
-        if (st.charge > 0.07) playerFire();
-        else st.charge = 0;
+      var r2 = cRect || canvas.getBoundingClientRect();
+      var inside = e.clientX >= r2.left && e.clientX <= r2.right && e.clientY >= r2.top && e.clientY <= r2.bottom;
+      if (was.mode === 'mouse') {
+        if (e.type === 'pointerup' && inside && st.charge > 0.03) playerFire();
+        else cancelShot();
+      } else if (was.mode === 'sling') {
+        if (e.type === 'pointerup' && inside && !was.cancel && st.charge > 0.05) playerFire();
+        else cancelShot();
       }
+      powPos = null; powerUI();
     }
-    sc.on(canvas, 'pointerup', pointerEnd);
-    sc.on(canvas, 'pointercancel', pointerEnd);
+    sc.on(canvas, 'pointerup', canvasUp);
+    sc.on(canvas, 'pointercancel', canvasUp);
+    sc.on(canvas, 'pointerleave', function (e) { if (e.pointerType === 'mouse' && !drag) canvas.classList.remove('grab'); });
+    sc.on(canvas, 'wheel', function (e) {
+      if (!aimable()) return;
+      e.preventDefault();
+      st.aimA = clampAim(st.aimA + (e.deltaY > 0 ? 0.5 : -0.5) * DEG, st.turn);
+    }, { passive: false });
 
-    /* the slider is a plain range input: full keyboard and touch for free */
-    sc.on(slider, 'input', function () {
-      if (st.phase === 'aim' && human(st.turn)) st.sx = clamp(+slider.value, SXMIN, SXMAX);
+    /* THE POWER PAD: pull right from wherever you touch, let go to shoot; slide back into the ✕
+       end, or lift outside the pad, and nothing happens */
+    var padRect = null;
+    sc.on(pad, 'pointerdown', function (e) {
+      if (!aimable()) return;
+      e.preventDefault();
+      padRect = pad.getBoundingClientRect();
+      if (e.clientX < padRect.left + 52) return;
+      try { pad.setPointerCapture(e.pointerId); } catch (err) {}
+      padDrag = { id: e.pointerId, x0: e.clientX, x: false };
+      st.charge = 0; st.charging = false; st.chargeBy = 'pad';
+      powPos = { x: e.clientX, y: padRect.top - 52 };
+      powerUI();
+      coachSaw('pad');
+    });
+    sc.on(pad, 'pointermove', function (e) {
+      if (!padDrag || e.pointerId !== padDrag.id) return;
+      var atX = e.clientX < padRect.left + 52;
+      padDrag.x = atX;
+      pad.classList.toggle('at-x', atX);
+      var c0 = st.charge;
+      st.charge = atX ? 0 : clamp((e.clientX - padDrag.x0) / Math.max(120, (padRect.width - 52) * 0.75), 0, 1);
+      tick(c0, st.charge);
+      powPos = { x: clamp(e.clientX, padRect.left + 40, padRect.right - 30), y: padRect.top - 52 };
+      powerUI();
+    });
+    function padUp(e) {
+      if (!padDrag || e.pointerId !== padDrag.id) return;
+      var was = padDrag; padDrag = null;
+      pad.classList.remove('at-x');
+      var r = padRect, slack = 24;
+      var inside = e.clientX >= r.left + 52 && e.clientX <= r.right + slack && e.clientY >= r.top - slack && e.clientY <= r.bottom + slack;
+      if (e.type === 'pointerup' && inside && !was.x && st.charge > 0.04) playerFire();
+      else if (st.charge > 0 || was.x || !inside) cancelShot();
+      powPos = null; powerUI();
+    }
+    sc.on(pad, 'pointerup', padUp);
+    sc.on(pad, 'pointercancel', padUp);
+
+    /* ‹ › nudge the aim half a degree */
+    sc.on(host, 'click', function (e) {
+      var n = e.target.closest ? e.target.closest('[data-nudge]') : null;
+      if (n && aimable()) { st.aimA = clampAim(st.aimA + (+n.getAttribute('data-nudge')) * 0.5 * DEG, st.turn); coachSaw('aim'); return; }
+      var t = e.target.closest ? e.target.closest('[data-go]') : null;
+      if (!t) return;
+      var what = t.getAttribute('data-go');
+      if (what === 'start') { lastMode = 'gattu'; startMatch('gattu'); }
+      else if (what === 'short') { lastMode = 'short'; startMatch('short'); }
+      else if (what === 'start2') { lastMode = '2p'; startMatch('2p'); }
+      else if (what === 'again') startMatch(lastMode);
+      else if (what === 'out') bail();
+      else if (what === 'pause') pause();
+      else if (what === 'resume') { over.hidden = true; goFull(true); focusSoft(canvas); }
+      else if (what === 'coach') { cancelShot(''); coachStart(); }
+      else if (what === 'settings') settings();
+      else if (what === 'closeset') { over.hidden = true; focusSoft(canvas); }
+    });
+    sc.on(host, 'change', function (e) {
+      if (e.target && e.target.getAttribute && e.target.getAttribute('data-set') === 'sling') {
+        slingOn = !!e.target.checked; store.set('carrom.sling', slingOn);
+      }
     });
 
-    /* Document-level keys, so arrows work with no click-first anywhere. */
+    /* KEYS, document-level so they work with no click first */
     sc.on(D, 'keydown', function (e) {
       if (sc.dead) return;
-      if (detached(host)) { sc.kill(); return; }
+      if (detached(host)) { teardown(); return; }
       var tag = (e.target && e.target.tagName || '').toLowerCase();
       if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
-      /* on the intro / result cards, keys stay with the focused button */
-      if (st.phase !== 'aim' || !human(st.turn)) return;
-      if (e.key === 'ArrowLeft') { e.preventDefault(); st.sx = Math.max(SXMIN, st.sx - 2); }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); st.sx = Math.min(SXMAX, st.sx + 2); }
-      else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowUp') { e.preventDefault(); st.aimA -= 0.055; }
-      else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowDown') { e.preventDefault(); st.aimA += 0.055; }
+      if (e.key === 'Escape') {
+        if (st.charging || st.charge || drag || padDrag) { e.preventDefault(); cancelShot(); return; }
+        if (full && over.hidden && st.phase !== 'over') { e.preventDefault(); pause(); }
+        return;
+      }
+      if (!aimable()) return;
+      var fine = e.shiftKey;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); place(st.sx - (fine ? 0.25 : 1)); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); place(st.sx + (fine ? 0.25 : 1)); }
+      else if (e.key === 'ArrowUp' || e.key === 'a' || e.key === 'A') { e.preventDefault(); st.aimA = clampAim(st.aimA - (fine ? 0.25 : 1) * DEG, st.turn); coachSaw('aim'); }
+      else if (e.key === 'ArrowDown' || e.key === 'd' || e.key === 'D') { e.preventDefault(); st.aimA = clampAim(st.aimA + (fine ? 0.25 : 1) * DEG, st.turn); coachSaw('aim'); }
       else if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault();
-        if (!e.repeat) { st.charging = true; }
+        if (!e.repeat && !st.charging) {
+          st.charging = true; st.chargeBy = 'key'; st.charge = 0;
+          var pr = pad.getBoundingClientRect();
+          powPos = { x: pr.left + pr.width / 2, y: pr.top - 52 };
+          coachSaw('pad');
+        }
       }
     });
     sc.on(D, 'keyup', function (e) {
       if (sc.dead) return;
-      if ((e.key === ' ' || e.code === 'Space') && st.charging) {
+      if ((e.key === ' ' || e.code === 'Space') && st.charging && st.chargeBy === 'key') {
         e.preventDefault();
         st.charging = false;
-        if (st.phase === 'aim' && human(st.turn)) playerFire();
+        if (st.charge > 0.03) playerFire(); else cancelShot();
+        powPos = null; powerUI();
       }
     });
+    var rsT = 0;
+    sc.on(W, 'resize', function () { clearTimeout(rsT); rsT = setTimeout(fit, 100); });
 
-    sc.on(host, 'click', function (e) {
-      var t = e.target.closest ? e.target.closest('[data-go]') : null;
+    /* ==================================================================
+       THE COACH — Place → Aim → Shoot, once, replayable from "?"
+       ================================================================== */
+    var coachStep = 0, coachMark = null;
+    function coachStart() {
+      if (st.phase !== 'aim' || !human(st.turn)) { coachStep = 0; return; }
+      coachStep = 1; coachMark = { sx: st.sx, a: st.aimA };
+      coachShow();
+    }
+    function coachShow() {
+      if (!coachStep) { coachEl.hidden = true; return; }
+      var cr = { left: canvas.offsetLeft, top: canvas.offsetTop, w: cssSize };
+      var s = cssSize / VIEW, x, y, html;
+      var byPx = (baseY(st.turn) + M) * s + cr.top, sxPx = (st.sx + M) * s + cr.left;
+      if (coachStep === 1) {
+        x = sxPx; y = byPx - 22;
+        html = '<b>1 · Place.</b> Drag the striker along your line (or ← →). It only slides — it never shoots.';
+      } else if (coachStep === 2) {
+        x = cr.left + cr.w / 2; y = cr.top + cr.w * 0.36;
+        html = '<b>2 · Aim.</b> Tap where you want it to go' + (W.matchMedia && W.matchMedia('(pointer:fine)').matches ? ', or just point with the mouse' : '') + '. The line stops at the first coin it meets.';
+      } else {
+        var pr = pad.offsetParent === mainEl ? pad : null;
+        var side = host.querySelector('.car-side');
+        x = side.offsetLeft + side.offsetWidth / 2; y = side.offsetTop - 8;
+        html = '<b>3 · Shoot.</b> Pull the pad to the right and let go (or hold Space). Slide back to ✕ to cancel.';
+      }
+      coachEl.innerHTML = '<div class="car-tip" role="note" style="left:' + Math.round(x) + 'px;top:' + Math.round(y) + 'px">' + html +
+        '<div class="car-tiprow"><button type="button" data-coach="skip">Skip</button>' +
+        (coachStep < 3 ? '<button type="button" data-coach="next">Next</button>' : '') + '</div></div>';
+      coachEl.hidden = false;
+      var tip = coachEl.firstChild, tw = tip.offsetWidth, mw = mainEl.clientWidth;
+      if (x - tw / 2 < 6) tip.style.left = (tw / 2 + 6) + 'px';
+      if (x + tw / 2 > mw - 6) tip.style.left = (mw - tw / 2 - 6) + 'px';
+    }
+    function coachSaw(what) {
+      if (!coachStep) return;
+      if (coachStep === 1 && what === 'place' && Math.abs(st.sx - coachMark.sx) > 3) { coachStep = 2; coachMark.a = st.aimA; wait(250, coachShow); }
+      else if (coachStep === 2 && what === 'aim' && Math.abs(st.aimA - coachMark.a) > 2 * DEG) { coachStep = 3; wait(450, coachShow); }
+      else if (coachStep < 3 && what === 'pad') { coachStep = 3; coachShow(); }
+    }
+    function coachHide() { coachEl.hidden = true; coachEl.innerHTML = ''; }
+    function coachDone() {
+      coachStep = 0; coachHide();
+      if (!coached) { coached = true; store.set('carrom.coached', true); }
+    }
+    sc.on(coachEl, 'click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-coach]') : null;
       if (!t) return;
-      var what = t.getAttribute('data-go');
-      if (what === 'start') { vs = 'gattu'; startMatch(); }
-      else if (what === 'start2') { vs = '2p'; startMatch(); }
-      else if (what === 'again') startMatch();
-      else if (what === 'out') bail();
+      if (t.getAttribute('data-coach') === 'skip') coachDone();
+      else { coachStep++; coachMark = { sx: st.sx, a: st.aimA }; coachShow(); }
     });
-
-    sc.on(W, 'resize', fit);
 
     /* ------------------------------------------------------------- boot */
     buildCoins();
     refreshHud();
     fit();
     showIntro();
-    /* re-measure once fonts and layout settle — cheap, and it is what keeps
-       the "fits on one screen" promise honest on a cold load */
-    sc.later(fit, 120);
-    rafId = W.requestAnimationFrame(loop);
+    kick();
 
-    var teardown = function () {
+    function teardown() {
+      if (teardown.done) return;
+      teardown.done = true;
       finished = true;
+      try { D.documentElement.classList.remove('gm-fullscreen'); } catch (e) {}
+      clearTimeout(rsT);
       sc.kill();
-      W.cancelAnimationFrame(rafId);
+      if (rafId) W.cancelAnimationFrame(rafId);
+      rafId = 0;
       try { delete host.__carState; } catch (e) { host.__carState = null; }
-    };
-    teardown.destroy = teardown;   /* saga callers use .destroy() */
+    }
+    teardown.destroy = teardown;
     return teardown;
   }
 
@@ -1380,13 +1596,16 @@
   W.IND_GAMES.push({
     id: 'carrom',
     name: 'Carrom',
+    sub: 'place, aim and pocket the coins',
     icon: 'game',
     minutes: 5,
     tag: 'Flick',
     c: '#7a4a21',
     c2: '#c99b62',
     scene: SCENE,
-    blurb: 'India’s living-room board. Flick the striker, pocket your whites, cover the red queen — Gattu plays black.',
+    teaches: false,
+    review: false,
+    blurb: 'India\u2019s living-room board. Place the striker, aim, pull the power pad \u2014 pocket your whites and cover the red queen. Gattu plays black.',
     engine: carrom
   });
 })();

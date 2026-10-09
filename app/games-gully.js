@@ -597,280 +597,1063 @@
 
 
   /* ============================================================ PALLANGUZHI
-     The shell-and-pit game of Tamil homes, played across the south as Ali
-     Guli Mane and Vamana Guntalu. Families play many ways; this is ONE
-     simple way, and the blurb says so. Two rows of seven pits, five shells
-     each. Sow anticlockwise; if the pit after your last shell is empty, the
-     shells in the pit beyond it are yours. When a row is empty the game
-     ends, and the fuller pouch wins. Tap a pit or press 1-7 (your pits,
-     left to right) — keyboard and touch both, house rule. */
-  function pallanguzhi(host, opts, done) {
-    css();
-    var Wd = 980, Ht = 460, TARGET = 36;
-    var pits = [];                     /* 0-6 yours L->R, 7-13 Gattu R->L (CCW ring) */
-    for (var i = 0; i < 14; i++) pits.push(5);
-    var pouch = { you: 0, gattu: 0 };
-    var turn = 'you', busy = false, over = false, started = false;
-    var raf = null, timers = [], hintPit = -1, capFx = null;
-    var REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+     The redesign (games spec §4.8, funded by the owner 8 Oct 2026). The board IS the screen.
 
-    var wrap = el('div', 'gy-wrap');
-    var hud = el('div', 'gy-hud',
-      '<span class="gy-pill">Your pouch <b id="pzY">0</b></span>' +
-      '<span class="gy-pill" id="pzT">your turn — pick a pit</span>' +
-      '<span class="gy-pill">Gattu <b id="pzG">0</b></span>' +
-      '<span class="gy-pill">🏆 first to <b>' + TARGET + '</b></span>');
-    var hold = el('div', 'gy-hold');
-    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 ' + Wd + ' ' + Ht);
-    svg.setAttribute('class', 'gy-stage');
-    svg.setAttribute('role', 'application');
-    svg.setAttribute('aria-label', 'Pallanguzhi board, two rows of seven pits');
-    svg.setAttribute('tabindex', '0');
-    var cover = el('div', 'gy-cover'); cover.hidden = true;
-    hold.appendChild(svg); hold.appendChild(cover);
-    var hint = el('div', 'gy-hint',
-      'Sow anticlockwise, one shell a pit. Land so the NEXT pit is empty and the shells ' +
-      'beyond it are yours — that is the <b>kasi</b>. <b>Tap a pit</b> or press <b>1-7</b>.');
-    wrap.appendChild(hud); wrap.appendChild(hold); wrap.appendChild(hint);
-    host.innerHTML = ''; host.appendChild(wrap);
+     Pallanguzhi is the shell-and-pit game of Tamil Nadu, played across South India as Ali Guli
+     Mane (Karnataka), Vamana Guntalu (Andhra Pradesh) and Kuzhipara (Kerala). Families play many
+     ways; this is ONE simple way, and the card says so: two rows of seven pits; sow anticlockwise,
+     one shell a pit; if the pit after your last shell is empty, the pit beyond it is yours (the
+     kasi). First to 36, or when a side has nothing to sow the round ends and every shell left goes
+     to its own side's store.
 
-    /* pit centres: your row along the bottom L->R, Gattu's along the top R->L,
-       so index+1 always steps anticlockwise around the board */
-    function at(i) {
-      var col = i < 7 ? i : 13 - i;
-      return { x: 178 + col * 104, y: i < 7 ? 330 : 130 };
-    }
-    function cowries(n, cx, cy) {
-      var out = '', k;
-      for (k = 0; k < Math.min(n, 12); k++) {
-        var a = (k / 6) * Math.PI * 2 + k * 0.35, rr = k < 6 ? 12 : 23;
-        var sx = cx + Math.cos(a) * rr, sy = cy + Math.sin(a) * rr * 0.7;
-        var rot = ((k * 47) % 90) - 45;
-        out += '<g transform="translate(' + sx.toFixed(1) + ' ' + sy.toFixed(1) + ') rotate(' + rot + ')">' +
-          '<ellipse rx="6.2" ry="4.6" fill="#f6ecd6" stroke="#b99b6b" stroke-width="1.1"/>' +
-          '<path d="M-3.6 0 Q0 1.6 3.6 0" fill="none" stroke="#a8895b" stroke-width="1" stroke-linecap="round"/>' +
-          '<ellipse cx="-1.4" cy="-1.6" rx="1.7" ry="1" fill="#fff" opacity=".8"/></g>';
-      }
-      return out;
-    }
-    function bowl(cx, cy, n, label) {
-      var out = '<ellipse cx="' + cx + '" cy="' + (cy + 6) + '" rx="52" ry="40" fill="#3d270c"/>' +
-        '<ellipse cx="' + cx + '" cy="' + cy + '" rx="50" ry="38" fill="url(#pzpit)"/>' +
-        cowries(Math.min(n, 12), cx, cy) +
-        '<text x="' + cx + '" y="' + (cy + 62) + '" text-anchor="middle" font-size="13" ' +
-          'font-weight="800" fill="#f6ecd7">' + label + ' · ' + n + '</text>';
-      return out;
-    }
-    function draw(litFrom) {
-      var out = '<defs>' +
-        '<linearGradient id="pzwood" x1="0" y1="0" x2="0" y2="1">' +
-          '<stop offset="0%" stop-color="#9a6d2c"/><stop offset="50%" stop-color="#8a5f24"/>' +
-          '<stop offset="100%" stop-color="#6f4a18"/></linearGradient>' +
-        '<radialGradient id="pzpit" cx="50%" cy="38%" r="75%">' +
-          '<stop offset="0%" stop-color="#2c1c07"/><stop offset="80%" stop-color="#3a250b"/>' +
-          '<stop offset="100%" stop-color="#54370f"/></radialGradient>' +
-        '</defs>';
-      out += '<rect width="' + Wd + '" height="' + Ht + '" rx="26" fill="#5c3d14"/>' +
-        '<rect x="10" y="10" width="' + (Wd - 20) + '" height="' + (Ht - 20) + '" rx="20" ' +
-          'fill="url(#pzwood)" stroke="#3e2809" stroke-width="3"/>';
-      /* wood grain and a carved inlay line around the middle */
-      var g;
-      for (g = 0; g < 6; g++) {
-        out += '<path d="M30 ' + (52 + g * 72) + ' q ' + (Wd / 2 - 30) + ' ' + (8 - (g % 3) * 6) + ' ' +
-          (Wd - 60) + ' 0" stroke="#5c3d14" stroke-width="1.2" fill="none" opacity=".35"/>';
-      }
-      out += '<rect x="26" y="220" width="' + (Wd - 52) + '" height="20" rx="10" fill="none" ' +
-        'stroke="#c79b52" stroke-width="1.6" opacity=".5" stroke-dasharray="2 6"/>';
-      /* whose row is live: a warm chevron at the edge of the active row */
-      if (!over && started) {
-        var ay = turn === 'you' ? 330 : 130, ax = turn === 'you' ? 96 : Wd - 96;
-        var dir = turn === 'you' ? 1 : -1;
-        out += '<path d="M' + ax + ' ' + (ay - 12) + ' l' + (14 * dir) + ' 12 l' + (-14 * dir) + ' 12" ' +
-          'fill="none" stroke="var(--accent2)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>';
-      }
-      for (var i = 0; i < 14; i++) {
-        var c = at(i), mine = i < 7, can = mine && turn === 'you' && !busy && !over && started && pits[i] > 0;
-        out += '<g data-pit="' + i + '"' + (can ? ' class="pz-can" role="button" tabindex="-1"' : '') + '>' +
-          '<ellipse cx="' + c.x + '" cy="' + (c.y + 4) + '" rx="46" ry="35" fill="#3d270c"/>' +
-          '<ellipse cx="' + c.x + '" cy="' + c.y + '" rx="46" ry="36" fill="#4a2f0e"/>' +
-          '<ellipse cx="' + c.x + '" cy="' + (c.y - 3) + '" rx="44" ry="33" fill="url(#pzpit)"' +
-            (can ? ' stroke="var(--accent2)" stroke-width="3"' : '') + '/>' +
-          '<ellipse cx="' + c.x + '" cy="' + (c.y - 22) + '" rx="34" ry="9" fill="#fff" opacity=".05"/>' +
-          cowries(pits[i], c.x, c.y - 3) +
-          '<text x="' + c.x + '" y="' + (c.y + (mine ? 58 : -48)) + '" text-anchor="middle" ' +
-            'font-size="15" font-weight="800" fill="#f6ecd7">' + pits[i] + '</text>' +
-          (mine ? '<text x="' + c.x + '" y="' + (c.y + 76) + '" text-anchor="middle" font-size="11" ' +
-            'fill="#d8c39a">' + (i + 1) + '</text>' : '') + '</g>';
-        if (i === hintPit && can) {
-          out += '<ellipse cx="' + c.x + '" cy="' + (c.y - 3) + '" rx="48" ry="37" fill="none" ' +
-            'stroke="#ffd98a" stroke-width="3" stroke-dasharray="6 6" opacity=".9"/>';
-        }
-      }
-      /* the two pouches carved into the board ends */
-      out += bowl(84, 330, pouch.you, 'you');
-      out += bowl(Wd - 84, 130, pouch.gattu, 'Gattu');
-      if (litFrom !== undefined) {
-        var lc = at(litFrom);
-        out += '<ellipse cx="' + lc.x + '" cy="' + (lc.y - 3) + '" rx="44" ry="33" fill="none" ' +
-          'stroke="#ffd98a" stroke-width="4" opacity=".9"/>';
-      }
-      if (capFx) {
-        var cc = at(capFx.pit);
-        out += '<text x="' + cc.x + '" y="' + (cc.y - (capFx.pit < 7 ? 66 : -64)) + '" text-anchor="middle" ' +
-          'font-size="19" font-weight="900" fill="#ffd98a">Kasi! +' + capFx.won + '</text>';
-        for (var k = 0; k < 6; k++) {
-          var aa = k * Math.PI / 3;
-          out += '<line x1="' + (cc.x + Math.cos(aa) * 20).toFixed(1) + '" y1="' + (cc.y - 3 + Math.sin(aa) * 15).toFixed(1) +
-            '" x2="' + (cc.x + Math.cos(aa) * 34).toFixed(1) + '" y2="' + (cc.y - 3 + Math.sin(aa) * 26).toFixed(1) +
-            '" stroke="#ffd76b" stroke-width="3" stroke-linecap="round" opacity=".85"/>';
-        }
-      }
-      svg.innerHTML = out;
-    }
-    function hud2(msg) {
-      document.getElementById('pzY').textContent = pouch.you;
-      document.getElementById('pzG').textContent = pouch.gattu;
-      if (msg) document.getElementById('pzT').textContent = msg;
-    }
+     What a child sees and does:
+       · full-screen, a carved board drawn by the app (SVG wood, lit pits, day and night); on a
+         phone it stands upright, your column nearest the thumb, Gattu's store at the top
+       · the shells ARE the count: up to 12 drawn one by one, a heap and a badge above that
+       · press / hover / Space shows the ghost trail and the capture before anything moves; lift
+         away (or Esc) cancels, tap again (or Enter) sows — this is the lookahead lesson
+       · shells lift into a hand and drop one a pit, ~140 ms each, a soft tock each (IND_SFX);
+         Jaldi speeds it up; reduced motion shows a numbered trail instead of motion
+       · Gattu: Naya (greedy) · Saathi (two moves ahead) · Ustaad (four), stepping up after the
+         child wins two in a row and down after two losses in a row — nothing random anywhere
+       · openings rotate through a fixed list of mirror-fair layouts
+       · plays for fun: no answers reported, nothing paid (docs/32).
 
-    /* sow with a little clock so a child can follow the shells around */
-    function sow(start, who, then) {
-      var hand = pits[start]; pits[start] = 0;
-      var i = start;
-      function drop() {
-        i = (i + 1) % 14; pits[i]++; hand--;
-        draw(i);
-        if (hand > 0) { timers.push(setTimeout(drop, REDUCED ? 0 : 170)); return; }
-        /* the kasi: the pit after the last shell is empty, the one beyond is won */
-        var nxt = (i + 1) % 14, beyond = (i + 2) % 14, won = 0;
-        if (pits[nxt] === 0 && pits[beyond] > 0) {
-          won = pits[beyond]; pits[beyond] = 0; pouch[who] += won;
-          capFx = { pit: beyond, won: won };
-          timers.push(setTimeout(function () { capFx = null; if (!over) draw(); }, 1300));
-        }
-        draw();
-        then(won);
-      }
-      if (REDUCED) { while (hand > 0) { i = (i + 1) % 14; pits[i]++; hand--; }
-        var nx = (i + 1) % 14, by = (i + 2) % 14, w2 = 0;
-        if (pits[nx] === 0 && pits[by] > 0) { w2 = pits[by]; pits[by] = 0; pouch[who] += w2; }
-        draw(); then(w2); return; }
-      drop();
+     The rules live in PZ (pure, no DOM) and both the preview and the move go through PZ.apply,
+     so what the preview promises is what the move does (PZ4, tools/check-pallanguzhi.js). */
+  var PZ = (function () {
+    function sow(pits, i) {
+      var p = pits.slice(), N = p.length, hand = p[i], j = i, trail = [];
+      p[i] = 0;
+      while (hand > 0) { j = (j + 1) % N; p[j]++; hand--; trail.push(j); }
+      var nx = (j + 1) % N, by = (j + 2) % N, cap = 0, capPit = -1;
+      if (p[nx] === 0 && p[by] > 0) { cap = p[by]; p[by] = 0; capPit = by; }
+      return { pits: p, trail: trail, last: j, next: nx, capPit: capPit, cap: cap };
     }
-    function rowEmpty(who) {
-      var a = who === 'you' ? 0 : 7, i;
-      for (i = a; i < a + 7; i++) if (pits[i] > 0) return false;
+    function range(N, who) { var n = N / 2; return who === 'you' ? [0, n] : [n, N]; }
+    function rowEmpty(pits, who) {
+      var r = range(pits.length, who);
+      for (var i = r[0]; i < r[1]; i++) if (pits[i] > 0) return false;
       return true;
     }
-    function finish(early) {
-      over = true; hintPit = -1;
-      if (!early) {
-        /* whatever still sits in a row goes to its own pouch, like packing up */
-        for (var i = 0; i < 7; i++) { pouch.you += pits[i]; pits[i] = 0; }
-        for (i = 7; i < 14; i++) { pouch.gattu += pits[i]; pits[i] = 0; }
-      }
-      draw(); hud2(pouch.you > pouch.gattu ? 'Your pouch is fuller — you win!'
-        : pouch.you === pouch.gattu ? 'Dead even — play again!' : 'Gattu\u2019s pouch is fuller this time.');
-      var win = pouch.you > pouch.gattu;
-      var margin = pouch.you - pouch.gattu;
-      var stars = win ? (margin >= 12 ? 3 : 2) : (pouch.you >= 25 ? 1 : 0);
-      timers.push(setTimeout(function () {
-        done({ win: win, score: pouch.you + stars * 5, sikke: win ? 10 : 4 });
-      }, 1600));
+    function legal(st) {
+      var r = range(st.pits.length, st.turn), out = [];
+      for (var i = r[0]; i < r[1]; i++) if (st.pits[i] > 0) out.push(i);
+      return out;
     }
-    function armHint() {
-      /* a nudge, not an answer sheet: after 9 quiet seconds, glow the pit
-         Gattu himself would pick — the child learns the kasi by seeing it */
-      timers.push(setTimeout(function () {
-        if (over || busy || turn !== 'you') return;
-        var best = -1, bestWon = 0, i;
-        for (i = 0; i < 7; i++) {
-          if (!pits[i]) continue;
-          var t = pits.slice(), hand = t[i], j = i; t[i] = 0;
-          while (hand > 0) { j = (j + 1) % 14; t[j]++; hand--; }
-          var won = (t[(j + 1) % 14] === 0) ? t[(j + 2) % 14] : 0;
-          if (won > bestWon) { bestWon = won; best = i; }
+    function fresh(layout, target) {
+      var pits = layout.concat(layout), sum = 0;
+      for (var i = 0; i < pits.length; i++) sum += pits[i];
+      return { pits: pits, store: { you: 0, gattu: 0 }, turn: 'you', over: false,
+               target: target || Math.floor(sum / 2) + 1 };
+    }
+    /* one move: sow, take the kasi, then either someone has passed the target, or the side to
+       move next has nothing to sow and the round ends (every shell to its own side's store) */
+    function apply(st, i) {
+      var who = st.turn, s = sow(st.pits, i), store = { you: st.store.you, gattu: st.store.gattu };
+      store[who] += s.cap;
+      var next = who === 'you' ? 'gattu' : 'you', over = false, packed = null, pits = s.pits.slice();
+      if (store.you >= st.target || store.gattu >= st.target) over = true;
+      else if (rowEmpty(pits, next)) {
+        over = true; packed = { you: 0, gattu: 0 };
+        var n = pits.length / 2;
+        for (var k = 0; k < pits.length; k++) {
+          var o = k < n ? 'you' : 'gattu';
+          packed[o] += pits[k]; store[o] += pits[k]; pits[k] = 0;
         }
-        if (best < 0) { for (i = 0; i < 7; i++) if (pits[i]) { best = i; break; } }
-        hintPit = best; draw();
-      }, 9000));
-    }
-    function afterMove(who, won) {
-      hud2(won ? (who === 'you' ? 'Kasi! You pouch ' + won + '!' : 'Gattu pouches ' + won + '.') : undefined);
-      if (pouch.you >= TARGET || pouch.gattu >= TARGET) {
-        hud2(pouch.you >= TARGET ? 'You filled your pouch to ' + TARGET + ' first!' : 'Gattu reached ' + TARGET + ' first.');
-        return finish(true);
       }
-      var next = who === 'you' ? 'gattu' : 'you';
-      if (rowEmpty(next)) return finish(false);
-      turn = next; busy = false; hintPit = -1; draw();
-      hud2(next === 'you' ? 'your turn — pick a pit' : 'Gattu is thinking\u2026');
-      if (next === 'gattu') timers.push(setTimeout(gattuMove, REDUCED ? 60 : 750));
-      else armHint();
+      return { pits: pits, store: store, turn: over ? who : next, over: over, target: st.target,
+               move: { pit: i, who: who, trail: s.trail, last: s.last, next: s.next,
+                       capPit: s.capPit, cap: s.cap, sown: s.pits }, packed: packed };
     }
-    function play(i) {
-      if (over || busy || !started || turn !== 'you' || i < 0 || i > 6 || pits[i] === 0) return;
-      busy = true; hintPit = -1; hud2('sowing\u2026');
-      sow(i, 'you', function (won) { afterMove('you', won); });
+    function winner(st) { return st.store.you > st.store.gattu ? 'you' : st.store.gattu > st.store.you ? 'gattu' : 'draw'; }
+    function value(st, me) {
+      var o = me === 'you' ? 'gattu' : 'you', d = st.store[me] - st.store[o];
+      if (st.over) d += d > 0 ? 1000 : d < 0 ? -1000 : 0;
+      return d;
     }
-    function gattuMove() {
-      if (over) return;
-      busy = true;
-      /* Gattu tries each pit and keeps the best immediate pouch — greedy, honest */
-      var best = -1, bestWon = -1, i;
-      for (i = 7; i < 14; i++) {
-        if (!pits[i]) continue;
-        var t = pits.slice(), hand = t[i], j = i; t[i] = 0;
-        while (hand > 0) { j = (j + 1) % 14; t[j]++; hand--; }
-        var won = (t[(j + 1) % 14] === 0) ? t[(j + 2) % 14] : 0;
-        if (won > bestWon) { bestWon = won; best = i; }
+    function search(st, depth, me) {
+      if (st.over || depth === 0) return value(st, me);
+      var ms = legal(st);
+      if (!ms.length) return value(st, me);
+      var maxing = st.turn === me, best = maxing ? -Infinity : Infinity;
+      for (var k = 0; k < ms.length; k++) {
+        var v = search(apply(st, ms[k]), depth - 1, me);
+        if (maxing ? v > best : v < best) best = v;
       }
-      if (best < 0) return finish(false);
-      sow(best, 'gattu', function (won) { afterMove('gattu', won); });
+      return best;
+    }
+    /* depth 1 = greedy (Naya), 2 = sees the reply (Saathi), 4 = Ustaad. Ties keep the first pit,
+       so the same board always gets the same move. */
+    function choose(st, depth) {
+      var ms = legal(st), me = st.turn, best = -Infinity, pick = ms.length ? ms[0] : -1;
+      for (var k = 0; k < ms.length; k++) {
+        var v = search(apply(st, ms[k]), depth - 1, me);
+        if (v > best) { best = v; pick = ms[k]; }
+      }
+      return pick;
+    }
+    /* the best the side to move next can take straight back — for Naya's "…then Gattu can take 9" */
+    function bestReply(st) {
+      if (st.over) return { pit: -1, cap: 0 };
+      var ms = legal(st), best = { pit: -1, cap: 0 };
+      for (var k = 0; k < ms.length; k++) {
+        var r = apply(st, ms[k]).move.cap;
+        if (r > best.cap) best = { pit: ms[k], cap: r };
+      }
+      return best;
+    }
+    /* six mirror-fair openings (35 a side, Gattu's row the same from his seat), in a fixed turn */
+    var OPENINGS = [[5, 5, 5, 5, 5, 5, 5], [4, 6, 5, 5, 5, 6, 4], [6, 4, 5, 5, 5, 4, 6],
+                    [5, 4, 6, 5, 6, 4, 5], [3, 5, 7, 5, 7, 5, 3], [7, 5, 3, 5, 3, 5, 7]];
+    var TIERS = [{ id: 'naya', name: 'Naya', depth: 1, says: 'takes the biggest pit he can see' },
+                 { id: 'saathi', name: 'Saathi', depth: 2, says: 'looks one reply ahead' },
+                 { id: 'ustaad', name: 'Ustaad', depth: 4, says: 'looks four moves ahead' }];
+    /* two results in a row move the tier, and the count starts again — deterministic */
+    function adapt(mem, result) {
+      var m = { tier: mem.tier || 0, run: (mem.run || []).concat([result]).slice(-2) };
+      if (m.run.length === 2 && m.run[0] === m.run[1]) {
+        if (m.run[0] === 'win' && m.tier < TIERS.length - 1) m.tier++;
+        else if (m.run[0] === 'loss' && m.tier > 0) m.tier--;
+        if (m.run[0] !== 'draw') m.run = [];
+      }
+      return m;
+    }
+    return { sow: sow, apply: apply, legal: legal, fresh: fresh, rowEmpty: rowEmpty, winner: winner,
+             choose: choose, bestReply: bestReply, OPENINGS: OPENINGS, TIERS: TIERS, adapt: adapt };
+  })();
+  W.IND_PZ = PZ;   /* the rules, for tools/check-pallanguzhi.js; nothing in the app reads it */
+
+  function pzStore() {
+    var S = W.IND_STORE;
+    return {
+      get: function (k, d) { try { var v = S && S.kidGet ? S.kidGet(k) : null; return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+      set: function (k, v) { try { if (S && S.kidSet) S.kidSet(k, JSON.stringify(v)); } catch (e) {} }
+    };
+  }
+  /* a full-screen game locks the page behind it; one class, shared with Carrom */
+  function lockPage(on) {
+    try { document.documentElement.classList.toggle('gm-fullscreen', !!on); } catch (e) {}
+  }
+  function sfx(kind, fallback) {
+    var S = W.IND_SFX;
+    if (!S || !S.play) return;
+    var k = S.KINDS && S.KINDS.indexOf(kind) >= 0 ? kind : fallback;
+    if (k) S.play(k);
+  }
+
+  function pzCss() {
+    if (document.getElementById('pz-css')) return;
+    var s = el('style'); s.id = 'pz-css';
+    s.textContent =
+      'html.gm-fullscreen,html.gm-fullscreen body{overflow:hidden!important;overscroll-behavior:none}' +
+      '.pz-root{--pz-floor1:#3b2410;--pz-floor2:#1d1007;--pz-w1:#c98a46;--pz-w2:#a5662c;--pz-w3:#7a4518;' +
+        '--pz-grain:#5a300f;--pz-bowl1:#2a1606;--pz-bowl2:#5b3413;--pz-rim:#e9bd7a;--pz-brass:#f2c14e;' +
+        '--pz-ink:#fff6e6;--pz-badge:#20120a;--pz-glow:#ffd36b;--pz-ghost:#fff3d1;' +
+        'position:relative;display:flex;flex-direction:column;width:100%;height:min(72vh,620px);min-height:340px;' +
+        'background:radial-gradient(60% 45% at 50% 42%,rgba(255,196,120,.16),transparent 70%),' +
+        'radial-gradient(rgba(255,226,180,.07) 1.2px,transparent 1.6px) 0 0/24px 24px,' +
+        'radial-gradient(120% 80% at 50% 30%,var(--pz-floor1),var(--pz-floor2));color:var(--pz-ink);' +
+        'border-radius:18px;overflow:hidden;font-family:var(--body,system-ui,sans-serif);' +
+        '-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}' +
+      'html[data-mode="night"] .pz-root{--pz-floor1:#1d1428;--pz-floor2:#09060f;--pz-w1:#8a5530;' +
+        '--pz-w2:#6b3c1d;--pz-w3:#4a250e;--pz-grain:#2b1406;--pz-bowl1:#140a03;--pz-bowl2:#3a200b;--pz-rim:#c9935a}' +
+      '.pz-root.pz-full{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1200;height:auto;min-height:0;border-radius:0;' +
+        'padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}' +
+      '.pz-top{flex:none;display:flex;align-items:center;gap:8px;padding:6px 8px;min-height:56px}' +
+      '.pz-top .pz-say{flex:1;min-width:0;margin:0;text-align:center;font:700 15px/1.3 var(--body,system-ui);color:var(--pz-ink);' +
+        'text-shadow:0 1px 2px rgba(0,0,0,.6)}' +
+      '.pz-b{flex:none;min-width:44px;height:44px;border-radius:999px;border:1.5px solid rgba(255,236,200,.35);' +
+        'background:rgba(255,236,200,.1);color:var(--pz-ink);font:800 16px/1 var(--body,system-ui);cursor:pointer;padding:0 12px}' +
+      '.pz-b[aria-pressed="true"]{background:var(--pz-brass);color:#2a1606;border-color:var(--pz-brass)}' +
+      '.pz-b:focus-visible,.pz-pit:focus-visible{outline:3px solid #fff;outline-offset:2px}' +
+      '.pz-stage{position:relative;flex:1;min-height:0;touch-action:none}' +
+      '.pz-svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block;overflow:visible}' +
+      '.pz-svgd{will-change:transform}' +
+      '.pz-hits{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}' +
+      '.pz-pit{position:absolute;pointer-events:auto;border-radius:50%;background:transparent;border:0;padding:0;margin:0;' +
+        'cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent}' +
+      '.pz-pit[disabled]{cursor:default}' +
+      '.pz-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}' +
+      '.pz-over{position:absolute;left:0;top:0;right:0;bottom:0;display:grid;place-items:center;padding:16px;z-index:3;' +
+        'background:rgba(12,6,2,.55);backdrop-filter:blur(2px)}' +
+      '.pz-over[hidden]{display:none}' +
+      '.pz-card{background:var(--card,#fffaf0);color:var(--text,#2a1a0c);border-radius:20px;padding:18px 20px;max-width:420px;width:100%;' +
+        'box-shadow:0 20px 60px rgba(0,0,0,.45);display:grid;gap:10px;text-align:center}' +
+      '.pz-card h3{margin:0;font:800 22px/1.2 var(--display,var(--body,serif))}' +
+      '.pz-card p{margin:0;font:600 14px/1.5 var(--body,system-ui);color:var(--text2,#4a3520)}' +
+      '.pz-card .pz-credit{font-size:12.5px;color:var(--muted,#6b5640)}' +
+      '.pz-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}' +
+      '.pz-go{min-height:48px;padding:12px 22px;border-radius:999px;border:0;background:var(--accent,#b8452a);color:#fff;' +
+        'font:800 16px/1 var(--body,system-ui);cursor:pointer}' +
+      '.pz-go.ghost{background:transparent;color:var(--text,#2a1a0c);border:1.5px solid var(--line,#d8c6a8)}' +
+      '.pz-go:focus-visible{outline:3px solid var(--accent2,#e9a13b);outline-offset:2px}' +
+      '.pz-coach{position:absolute;left:0;right:0;bottom:0;top:0;z-index:4;display:grid;place-items:center;padding:12px;' +
+        'background:rgba(12,6,2,.62)}' +
+      '.pz-coach[hidden]{display:none}' +
+      '.pz-coachcard{width:min(560px,100%);background:linear-gradient(180deg,#3a210c,#24130a);border:1px solid rgba(255,220,160,.25);' +
+        'border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.55);padding:12px 12px 14px;display:grid;gap:8px}' +
+      '.pz-coachboard{position:relative;height:clamp(150px,30vh,230px);margin-bottom:30px}' +
+      '.pz-coachline{margin:0;text-align:center;font:700 16px/1.45 var(--body,system-ui);color:#fff6e6;min-height:46px}' +
+      '.pz-coachline b{color:var(--pz-glow)}' +
+      '.pz-coachcard .pz-go{background:var(--pz-brass);color:#2a1606}' +
+      '.pz-coachcard .pz-go.ghost{background:transparent;color:#fff6e6;border:1.5px solid rgba(255,236,200,.45)}' +
+      '@keyframes pzbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}' +
+      '.pz-arrow{animation:pzbob 1s ease-in-out infinite;transform-box:fill-box}' +
+      '.pz-steps{display:flex;gap:6px;justify-content:center}' +
+      '.pz-steps i{width:28px;height:6px;border-radius:3px;background:rgba(255,236,200,.25)}' +
+      '.pz-steps i.on{background:var(--pz-brass)}' +
+      '@keyframes pzpulse{0%,100%{opacity:.35}50%{opacity:.95}}' +
+      '@keyframes pzglow{0%{opacity:0}25%{opacity:.95}100%{opacity:0}}' +
+      '.pz-pulse{animation:pzpulse 1.6s ease-in-out infinite}' +
+      '.pz-glowfx{animation:pzglow 1.1s ease-out forwards}' +
+      '@media(prefers-reduced-motion:reduce){.pz-pulse,.pz-glowfx{animation:none}}' +
+      '.pz-reduced .pz-pulse,.pz-reduced .pz-glowfx{animation:none}';
+    document.head.appendChild(s);
+  }
+
+  /* ---------------------------------------------------------------- one clock
+     Every wait and every flight runs on one requestAnimationFrame clock with delta time
+     (clamped at 50 ms), and it stops while the page is hidden — a hidden tab changes nothing. */
+  function pzClock() {
+    var vt = 0, last = 0, raf = 0, dead = false, q = [], tw = [];
+    function frame(ts) {
+      raf = 0;
+      if (dead) return;
+      var dt = last ? Math.min(100, ts - last) : 16;
+      last = ts; vt += dt;
+      var i;
+      for (i = 0; i < tw.length;) {
+        var t = tw[i], p = Math.min(1, (vt - t.at) / t.dur);
+        if (p >= 0) t.fn(p);
+        if (p >= 1) { tw.splice(i, 1); if (t.end) t.end(); } else i++;
+      }
+      for (i = 0; i < q.length;) {
+        if (q[i].at <= vt) { var f = q.splice(i, 1)[0]; f.fn(); } else i++;
+      }
+      if (q.length || tw.length) kick(); else last = 0;
+    }
+    function kick() { if (!raf && !dead && document.visibilityState !== 'hidden') raf = requestAnimationFrame(frame); }
+    function onVis() {
+      if (document.visibilityState === 'hidden') { if (raf) cancelAnimationFrame(raf); raf = 0; last = 0; }
+      else kick();
+    }
+    document.addEventListener('visibilitychange', onVis);
+    return {
+      now: function () { return vt; },
+      wait: function (ms, fn) { q.push({ at: vt + ms, fn: fn }); kick(); },
+      tween: function (ms, fn, end, delay) { tw.push({ at: vt + (delay || 0), dur: Math.max(1, ms), fn: fn, end: end }); kick(); },
+      clear: function () { q = []; tw = []; },
+      busy: function () { return q.length + tw.length; },
+      kill: function () { dead = true; q = []; tw = []; if (raf) cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', onVis); }
+    };
+  }
+
+  /* ---------------------------------------------------------------- the board
+     Drawn by the app in SVG, in CSS pixels (the viewBox is the stage), so a 16 px badge is 16 px.
+     n pits a side; one persistent <use> per shell, so a shell is the same shell from the pit to
+     the hand to the store. */
+  var pzSeq = 0;
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function pzBoard(stage, n, total, cfg) {
+    var uid = 'pzb' + (++pzSeq), N = 2 * n;
+    /* two layers: the carved board, painted once per layout, and everything that moves above it
+       on its own composited layer — so a flying shell never repaints the wood */
+    var svgB = document.createElementNS(SVGNS, 'svg'), svg = document.createElementNS(SVGNS, 'svg');
+    svgB.setAttribute('class', 'pz-svg pz-svgb'); svgB.setAttribute('aria-hidden', 'true'); svgB.setAttribute('data-pz-board', '');
+    svg.setAttribute('class', 'pz-svg pz-svgd'); svg.setAttribute('aria-hidden', 'true');
+    var hits = el('div', 'pz-hits');
+    stage.appendChild(svgB); stage.appendChild(svg); stage.appendChild(hits);
+    var gBoard = document.createElementNS(SVGNS, 'g'), gUnder = document.createElementNS(SVGNS, 'g'),
+        gShell = document.createElementNS(SVGNS, 'g'), gOver = document.createElementNS(SVGNS, 'g'),
+        gBadge = document.createElementNS(SVGNS, 'g');
+    gShell.setAttribute('class', 'pz-shells');
+    svgB.appendChild(gBoard); svg.appendChild(gUnder); svg.appendChild(gShell); svg.appendChild(gOver); svg.appendChild(gBadge);
+    var L = null, pitsNow = [], storeNow = { you: 0, gattu: 0 };
+    var at = { pit: [], you: [], gattu: [], hand: [] };     /* shell ids by place */
+    for (var a0 = 0; a0 < N; a0++) at.pit.push([]);
+    var sh = [];                                             /* {node, x, y, rot, s, vis} */
+    var btns = [];
+    var labels = cfg.labels || { you: 'You', gattu: 'Gattu' };
+
+    function hash(k) { var x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+
+    function layout() {
+      var w = stage.clientWidth, h = stage.clientHeight;
+      if (!w || !h) return false;
+      var vert = w < h * 0.82 && w < 700, P = [], S = {}, cx, cy, i, bw, bh, bx, by, r;
+      if (!vert) {
+        var cols = n + 2 * 1.75 + 0.9;
+        cx = Math.min((w - 12) / cols, 1180 / cols);
+        cy = Math.min(cx * 1.28, (h - 12) / 2.9);
+        bw = cx * cols; bh = cy * 2.9; bx = (w - bw) / 2; by = (h - bh) / 2;
+        var x0 = bx + cx * (0.45 + 1.75 + 0.5);
+        for (i = 0; i < N; i++) {
+          var col = i < n ? i : N - 1 - i;
+          P.push({ x: x0 + col * cx, y: by + (i < n ? bh - cy * 0.95 : cy * 0.95) });
+        }
+        r = Math.min(cx * 0.43, cy * 0.4);
+        S.you = { x: bx + cx * (0.45 + 0.875), y: by + bh / 2 + cy * 0.12, rx: cx * 0.7, ry: cy * 0.86 };
+        S.gattu = { x: bx + bw - cx * (0.45 + 0.875), y: by + bh / 2, rx: S.you.rx, ry: S.you.ry };
+        L = { vert: false, P: P, S: S, rx: r, ry: r, bx: bx, by: by, bw: bw, bh: bh, cx: cx, cy: cy };
+      } else {
+        var rows = n + 2 * 1.6 + 0.9;
+        cy = (h - 10) / rows;
+        cx = Math.min((w - 12) / 2.9, cy * 1.75);
+        bw = cx * 2.9; bh = cy * rows; bx = (w - bw) / 2; by = (h - bh) / 2;
+        for (i = 0; i < N; i++) {
+          if (i < n) P.push({ x: bx + bw - cx * 0.95, y: by + bh - cy * (0.45 + 1.6 + 0.5) - i * cy });
+          else P.push({ x: bx + cx * 0.95, y: by + cy * (0.45 + 1.6 + 0.5) + (i - n) * cy });
+        }
+        var ry = cy * 0.42, rx = Math.min(cx * 0.42, ry * 1.4);
+        S.gattu = { x: bx + bw / 2, y: by + cy * (0.45 + 0.8), rx: Math.min(cx * 1.2, bw / 2 - cx * 0.25), ry: cy * 0.7 };
+        S.you = { x: bx + bw / 2, y: by + bh - cy * (0.45 + 0.8), rx: S.gattu.rx, ry: S.gattu.ry };
+        L = { vert: true, P: P, S: S, rx: rx, ry: ry, bx: bx, by: by, bw: bw, bh: bh, cx: cx, cy: cy };
+      }
+      L.w = w; L.h = h;
+      L.shell = Math.max(0.55, Math.min(1.25, Math.min(L.rx, L.ry) / 30));
+      svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+      svgB.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+      drawBoard(); placeButtons(); snapAll(); drawBadges();
+      return true;
     }
 
-    function onTap(e) {
-      var g = e.target.closest ? e.target.closest('[data-pit]') : null;
-      if (!g) return;
-      play(+g.getAttribute('data-pit'));
+    function drawBoard() {
+      var o = [], i, rnd = 7;
+      function rr() { rnd = (rnd * 16807) % 2147483647; return rnd / 2147483647; }
+      var B = L, rad = Math.min(B.cx, B.cy) * 0.42;
+      o.push('<defs>' +
+        '<linearGradient id="' + uid + 'w" x1="0" y1="0" x2="' + (B.vert ? 1 : 0.15) + '" y2="1">' +
+          '<stop offset="0" style="stop-color:var(--pz-w1)"/><stop offset=".55" style="stop-color:var(--pz-w2)"/>' +
+          '<stop offset="1" style="stop-color:var(--pz-w3)"/></linearGradient>' +
+        '<radialGradient id="' + uid + 'b" cx=".5" cy=".38" r=".7">' +
+          '<stop offset="0" style="stop-color:var(--pz-bowl1)"/><stop offset=".72" style="stop-color:var(--pz-bowl1)"/>' +
+          '<stop offset="1" style="stop-color:var(--pz-bowl2)"/></radialGradient>' +
+        '<radialGradient id="' + uid + 'l" cx=".5" cy="0" r="1">' +
+          '<stop offset="0" stop-color="#fff4d8" stop-opacity=".30"/><stop offset=".6" stop-color="#fff4d8" stop-opacity="0"/></radialGradient>' +
+        '<radialGradient id="' + uid + 'g" cx=".5" cy=".5" r=".5">' +
+          '<stop offset="0" stop-color="#ffd36b" stop-opacity=".85"/><stop offset="1" stop-color="#ffd36b" stop-opacity="0"/></radialGradient>' +
+        '<radialGradient id="' + uid + 'c" cx=".38" cy=".3" r=".8">' +
+          '<stop offset="0" stop-color="#fffdf6"/><stop offset=".55" stop-color="#f3e6c9"/><stop offset="1" stop-color="#cdb084"/></radialGradient>' +
+        '<filter id="' + uid + 'sh" x="-10%" y="-10%" width="120%" height="140%"><feGaussianBlur stdDeviation="' + (rad * 0.35).toFixed(1) + '"/></filter>' +
+        /* one cowrie, seen from above: the toothed slit, the gloss — drawn, not a photo */
+        '<g id="' + uid + 'cw">' +
+          '<ellipse cx=".8" cy="1.6" rx="9.6" ry="6.6" fill="#1a0c03" opacity=".38"/>' +
+          '<ellipse rx="9.2" ry="6.4" fill="url(#' + uid + 'c)" stroke="#8d6c42" stroke-width=".8"/>' +
+          '<path d="M-6.6 .6 Q0 -.9 6.6 .6" fill="none" stroke="#6a4a26" stroke-width="1.7" stroke-linecap="round"/>' +
+          '<path d="M-4.5 -.4v1.6M-2.2 -.8v1.7M0 -.95v1.8M2.2 -.8v1.7M4.5 -.4v1.6" stroke="#f8ecd2" stroke-width=".7" stroke-linecap="round"/>' +
+          '<ellipse cx="-2.6" cy="-3.2" rx="3.4" ry="1.3" fill="#fff" opacity=".75"/>' +
+        '</g>' +
+        '<g id="' + uid + 'hd">' +
+          '<path d="M-17 2 C-17 -6 -11 -9 -6 -9 L9 -9 C14 -9 17 -6 17 -1 C17 9 9 15 0 15 C-9 15 -17 10 -17 2Z" fill="#fff3dc" fill-opacity=".22" stroke="#fff3dc" stroke-opacity=".85" stroke-width="1.6"/>' +
+          '<path d="M-6 -9 C-6 -14 -1 -14 -1 -9 M-1 -9 C-1 -15 5 -15 5 -9 M5 -9 C5 -13 10 -13 10 -8 M-17 1 C-23 -2 -23 -9 -16 -8" fill="none" stroke="#fff3dc" stroke-opacity=".85" stroke-width="1.6" stroke-linecap="round"/>' +
+        '</g>' +
+        '</defs>');
+      /* the board: a soft shadow, the carved slab, grain, a bevel, light from above */
+      var R = Math.min(B.cx, B.cy) * 0.5;
+      o.push('<rect x="' + (B.bx + 4) + '" y="' + (B.by + 10) + '" width="' + B.bw + '" height="' + B.bh + '" rx="' + R + '" fill="#000" opacity=".55" filter="url(#' + uid + 'sh)"/>');
+      o.push('<rect x="' + B.bx + '" y="' + B.by + '" width="' + B.bw + '" height="' + B.bh + '" rx="' + R + '" fill="url(#' + uid + 'w)"/>');
+      for (i = 0; i < 22; i++) {
+        var a = rr(), wv = (rr() - 0.5) * Math.min(B.cx, B.cy) * 0.5, op = (0.08 + rr() * 0.14).toFixed(2);
+        if (!B.vert) {
+          var gy = B.by + 6 + a * (B.bh - 12);
+          o.push('<path d="M' + (B.bx + R * 0.4) + ' ' + gy.toFixed(1) + ' C' + (B.bx + B.bw * 0.3) + ' ' + (gy + wv).toFixed(1) + ' ' + (B.bx + B.bw * 0.7) + ' ' + (gy - wv).toFixed(1) + ' ' + (B.bx + B.bw - R * 0.4) + ' ' + gy.toFixed(1) + '" stroke="var(--pz-grain)" stroke-width="' + (0.6 + rr() * 1.6).toFixed(1) + '" fill="none" opacity="' + op + '"/>');
+        } else {
+          var gx = B.bx + 6 + a * (B.bw - 12);
+          o.push('<path d="M' + gx.toFixed(1) + ' ' + (B.by + R * 0.4) + ' C' + (gx + wv).toFixed(1) + ' ' + (B.by + B.bh * 0.3) + ' ' + (gx - wv).toFixed(1) + ' ' + (B.by + B.bh * 0.7) + ' ' + gx.toFixed(1) + ' ' + (B.by + B.bh - R * 0.4) + '" stroke="var(--pz-grain)" stroke-width="' + (0.6 + rr() * 1.6).toFixed(1) + '" fill="none" opacity="' + op + '"/>');
+        }
+      }
+      var ins = Math.min(B.cx, B.cy) * 0.16;
+      o.push('<rect x="' + (B.bx + ins) + '" y="' + (B.by + ins) + '" width="' + (B.bw - 2 * ins) + '" height="' + (B.bh - 2 * ins) + '" rx="' + (R * 0.75) + '" fill="none" stroke="#2a1405" stroke-opacity=".45" stroke-width="2"/>');
+      o.push('<rect x="' + (B.bx + ins + 1.5) + '" y="' + (B.by + ins + 1.5) + '" width="' + (B.bw - 2 * ins - 3) + '" height="' + (B.bh - 2 * ins - 3) + '" rx="' + (R * 0.72) + '" fill="none" stroke="#ffe2b0" stroke-opacity=".22" stroke-width="1.2"/>');
+      o.push('<rect x="' + (B.bx + 1) + '" y="' + (B.by + 1) + '" width="' + (B.bw - 2) + '" height="' + (B.bh - 2) + '" rx="' + R + '" fill="none" stroke="#ffe7c0" stroke-opacity=".35" stroke-width="1.5"/>');
+      /* the carved groove between the two sides, with a small lotus at its middle */
+      var mx = B.bx + B.bw / 2, my = B.by + B.bh / 2;
+      if (!B.vert) {
+        var gx0 = L.P[0].x - L.rx, gx1 = L.P[n - 1].x + L.rx;
+        o.push('<path d="M' + gx0 + ' ' + (my - 1.5) + 'H' + gx1 + '" stroke="#2a1405" stroke-opacity=".5" stroke-width="2"/><path d="M' + gx0 + ' ' + (my + 1) + 'H' + gx1 + '" stroke="#ffe2b0" stroke-opacity=".25" stroke-width="1.2"/>');
+      } else {
+        var gy0 = L.P[n].y - L.ry, gy1 = L.P[N - 1].y + L.ry;
+        o.push('<path d="M' + (mx - 1.5) + ' ' + gy0 + 'V' + gy1 + '" stroke="#2a1405" stroke-opacity=".5" stroke-width="2"/><path d="M' + (mx + 1) + ' ' + gy0 + 'V' + gy1 + '" stroke="#ffe2b0" stroke-opacity=".25" stroke-width="1.2"/>');
+      }
+      var lr = Math.min(B.cx, B.cy) * 0.17;
+      for (i = 0; i < 8; i++) {
+        var la = i * Math.PI / 4;
+        o.push('<ellipse cx="' + (mx + Math.cos(la) * lr * 0.55).toFixed(1) + '" cy="' + (my + Math.sin(la) * lr * 0.55).toFixed(1) + '" rx="' + (lr * 0.5).toFixed(1) + '" ry="' + (lr * 0.2).toFixed(1) + '" transform="rotate(' + (i * 45) + ' ' + (mx + Math.cos(la) * lr * 0.55).toFixed(1) + ' ' + (my + Math.sin(la) * lr * 0.55).toFixed(1) + ')" fill="#2a1405" fill-opacity=".28" stroke="#ffe2b0" stroke-opacity=".2"/>');
+      }
+      /* pits and stores: carved bowls, lit from above; your pits wear a brass rim */
+      function bowl(x, y, rx, ry, mine, big) {
+        return '<ellipse cx="' + x + '" cy="' + (y + 2.5) + '" rx="' + (rx + 3) + '" ry="' + (ry + 3) + '" fill="#ffe7c0" opacity=".28"/>' +
+          '<ellipse cx="' + x + '" cy="' + (y - 1.5) + '" rx="' + (rx + 3) + '" ry="' + (ry + 3) + '" fill="#2a1405" opacity=".55"/>' +
+          '<ellipse cx="' + x + '" cy="' + y + '" rx="' + rx + '" ry="' + ry + '" fill="url(#' + uid + 'b)"/>' +
+          '<ellipse cx="' + x + '" cy="' + (y + ry * 0.38) + '" rx="' + (rx * 0.72) + '" ry="' + (ry * 0.42) + '" fill="#ffcf8a" opacity="' + (big ? 0.1 : 0.13) + '"/>' +
+          (mine ? '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (rx + 2.2) + '" ry="' + (ry + 2.2) + '" fill="none" stroke="var(--pz-brass)" stroke-width="2.6" opacity=".9"/>' : '');
+      }
+      for (i = 0; i < N; i++) o.push(bowl(L.P[i].x, L.P[i].y, L.rx, L.ry, i < n, false));
+      o.push(bowl(L.S.you.x, L.S.you.y, L.S.you.rx, L.S.you.ry, false, true));
+      o.push(bowl(L.S.gattu.x, L.S.gattu.y, L.S.gattu.rx, L.S.gattu.ry, false, true));
+      o.push('<rect x="' + B.bx + '" y="' + B.by + '" width="' + B.bw + '" height="' + B.bh + '" rx="' + R + '" fill="url(#' + uid + 'l)" pointer-events="none"/>');
+      gBoard.innerHTML = o.join('');
+      /* the shells, made once */
+      if (!sh.length) {
+        for (var k = 0; k < total; k++) {
+          var u = document.createElementNS(SVGNS, 'use');
+          u.setAttribute('href', '#' + uid + 'cw');
+          u.style.display = 'none';
+          gShell.appendChild(u);
+          sh.push({ node: u, x: 0, y: 0, rot: Math.round(hash(k + 1) * 180), s: 1, vis: false, at: '' });
+        }
+      }
     }
+
+    function placeButtons() {
+      hits.innerHTML = ''; btns = [];
+      for (var i = 0; i < n; i++) {
+        var b = el('button', 'pz-pit');
+        b.type = 'button'; b.setAttribute('data-pit', String(i)); b.tabIndex = i === 0 ? 0 : -1;
+        var bw2 = Math.max(48, L.rx * 2 + 6), bh2 = Math.max(48, L.ry * 2 + 6);
+        b.style.left = (L.P[i].x - bw2 / 2) + 'px'; b.style.top = (L.P[i].y - bh2 / 2) + 'px';
+        b.style.width = bw2 + 'px'; b.style.height = bh2 + 'px';
+        hits.appendChild(b); btns.push(b);
+      }
+      if (cfg.onButtons) cfg.onButtons(btns);
+    }
+
+    /* where shell number k of a place rests: a sunflower packing, so a handful looks thrown in,
+       not laid on a grid; above 12 a heap (a second layer, the rest underneath) */
+    function slot(place, k, count) {
+      var c, rx, ry, cap, dense = false;
+      if (place === 'you' || place === 'gattu') { c = L.S[place]; rx = c.rx; ry = c.ry; cap = Math.max(total, 1); }
+      else { c = L.P[place]; rx = L.rx; ry = L.ry; cap = 12; dense = count > 12; }
+      var sc = L.shell;
+      if (place !== 'you' && place !== 'gattu') {
+        if (k >= 12) {
+          if (k >= 20) return { x: c.x, y: c.y, s: sc, vis: false };
+          var j = k - 12, a2 = j * 2.39996 + 0.7, r2 = 0.42 * Math.sqrt((j + 0.5) / 8);
+          return { x: c.x + Math.cos(a2) * r2 * rx * 0.8, y: c.y - ry * 0.12 + Math.sin(a2) * r2 * ry * 0.8, s: sc, vis: true };
+        }
+      }
+      var ang = k * 2.39996 + (typeof place === 'number' ? place * 0.9 : 0.3);
+      var rad = (dense ? 0.86 : 0.8) * Math.sqrt((k + 0.55) / (cap + 0.55));
+      if (place !== 'you' && place !== 'gattu' && count <= 3) rad *= 1.25;
+      return { x: c.x + Math.cos(ang) * rad * (rx - 7 * sc), y: c.y + Math.sin(ang) * rad * (ry - 5 * sc), s: sc, vis: true };
+    }
+    function put(id, x, y, s, vis, lift) {
+      var o = sh[id];
+      if (!o) return;
+      o.x = x; o.y = y; o.s = s;
+      if (o.vis !== vis) { o.vis = vis; o.node.style.display = vis ? '' : 'none'; }
+      o.node.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + (y - (lift || 0)).toFixed(1) + ') rotate(' + o.rot + ') scale(' + (s * (1 + (lift ? 0.12 : 0))).toFixed(3) + ')');
+    }
+    function placeOf(id) { return sh[id].at; }
+    function snapPlace(place) {
+      var list = place === 'hand' ? at.hand : (place === 'you' || place === 'gattu') ? at[place] : at.pit[place];
+      for (var k = 0; k < list.length; k++) {
+        if (place === 'hand') { var hp = handPos(); put(list[k], hp.x + ((k % 4) - 1.5) * 6 * L.shell, hp.y - Math.floor(k / 4) * 4 * L.shell, L.shell, k < 16, 0); }
+        else { var p = slot(place, k, list.length); put(list[k], p.x, p.y, p.s, p.vis); }
+        sh[list[k]].at = String(place);
+      }
+    }
+    function snapAll() {
+      if (!L) return;
+      for (var i = 0; i < N; i++) snapPlace(i);
+      snapPlace('you'); snapPlace('gattu'); snapPlace('hand');
+    }
+    /* put the shells where a state says, without animation */
+    function setState(pits, store) {
+      pitsNow = pits.slice(); storeNow = { you: store.you, gattu: store.gattu };
+      var id = 0, i, k;
+      at = { pit: [], you: [], gattu: [], hand: [] };
+      for (i = 0; i < N; i++) { at.pit.push([]); for (k = 0; k < pits[i]; k++) at.pit[i].push(id++); }
+      for (k = 0; k < store.you; k++) at.you.push(id++);
+      for (k = 0; k < store.gattu; k++) at.gattu.push(id++);
+      while (id < total) { at.hand.push(id); sh[id] && put(id, -50, -50, 0.01, false); id++; }
+      at.hand = [];
+      if (L) { snapAll(); drawBadges(); }
+    }
+
+    var hand = { x: 0, y: 0, on: false, who: 'you' };
+    function handPos() { return { x: hand.x, y: hand.y }; }
+    function handAt(i) {
+      var p = typeof i === 'number' ? L.P[i] : L.S[i];
+      return { x: p.x, y: p.y - (typeof i === 'number' ? L.ry : p.ry) * 0.95 - 8 };
+    }
+
+    function badge(x, y, txt, big, cls) {
+      var fs = big ? 18 : 16, wv = Math.max(fs * 1.6, String(txt).length * fs * 0.62 + 14), hv = fs + 10;
+      return '<g class="' + (cls || '') + '"><rect x="' + (x - wv / 2).toFixed(1) + '" y="' + (y - hv / 2).toFixed(1) + '" width="' + wv.toFixed(1) + '" height="' + hv + '" rx="' + (hv / 2) + '" fill="' + (big ? '#fff6e0' : 'var(--pz-badge)') + '" fill-opacity="' + (big ? 1 : 0.86) + '" stroke="' + (big ? '#7a4518' : 'rgba(255,230,190,.35)') + '" stroke-width="1"/>' +
+        '<text x="' + x.toFixed(1) + '" y="' + (y + fs * 0.36).toFixed(1) + '" text-anchor="middle" font-size="' + fs + '" font-weight="800" font-family="var(--body,system-ui)" fill="' + (big ? '#2a1606' : '#fff6e6') + '">' + txt + '</text></g>';
+    }
+    function countPos(i) {
+      var p = L.P[i];
+      if (!L.vert) return { x: p.x, y: i < n ? p.y + L.ry + 17 : p.y - L.ry - 17 };
+      return { x: i < n ? p.x + L.rx + 20 : p.x - L.rx - 20, y: p.y };
+    }
+    function drawBadges() {
+      if (!L) return;
+      var o = [], i;
+      for (i = 0; i < N; i++) {
+        var c = pitsNow[i] || 0, cp = countPos(i);
+        o.push('<g data-count="' + i + '">' + badge(cp.x, cp.y, c, c > 12) + '</g>');
+      }
+      ['gattu', 'you'].forEach(function (who) {
+        var s = L.S[who], y = L.vert ? (who === 'gattu' ? s.y - s.ry - 4 : s.y + s.ry + 4) : s.y - s.ry - 4;
+        if (L.vert) y = who === 'gattu' ? Math.max(s.y - s.ry + 2, L.by + 18) : Math.min(s.y + s.ry - 2, L.by + L.bh - 18);
+        if (!L.vert) y = s.y - s.ry - 22;
+        var fs = Math.round(Math.max(18, Math.min(24, L.cy * 0.22)));
+        var txt = labels[who] + '  ' + storeNow[who];
+        var room = L.vert ? s.rx * 2 : s.rx * 2 + 6;
+        if (txt.length * fs * 0.5 + 24 > room) fs = Math.max(13, Math.floor((room - 24) / (txt.length * 0.5)));
+        var wv = Math.min(txt.length * fs * 0.5 + 24, room + 10), hv = fs + 12;
+        o.push('<g data-store="' + who + '"><rect x="' + (s.x - wv / 2).toFixed(1) + '" y="' + (y - hv / 2).toFixed(1) + '" width="' + wv.toFixed(1) + '" height="' + hv + '" rx="' + hv / 2 + '" fill="' + (who === 'you' ? 'var(--pz-brass)' : '#2a1606') + '" stroke="' + (who === 'you' ? '#7a4518' : 'rgba(255,230,190,.45)') + '" stroke-width="1.2"/>' +
+          '<text x="' + s.x.toFixed(1) + '" y="' + (y + fs * 0.36).toFixed(1) + '" text-anchor="middle" font-family="var(--body,system-ui)" fill="' + (who === 'you' ? '#2a1606' : '#fff6e6') + '">' +
+          '<tspan font-size="' + Math.round(fs * 0.7) + '" font-weight="700">' + labels[who] + '</tspan>' +
+          '<tspan dx="8" font-size="' + fs + '" font-weight="900" data-score="' + who + '">' + storeNow[who] + '</tspan></text></g>');
+      });
+      gBadge.innerHTML = o.join('');
+    }
+
+    /* ---------------- ghost trail: where each shell will land, the last pit, the kasi */
+    function preview(res, opts) {
+      opts = opts || {};
+      var o = [], m = res.move, counts = pitsNow.slice(), seen = {}, i;
+      counts[m.pit] = 0;
+      for (i = 0; i < m.trail.length; i++) {
+        var p = m.trail[i], k = counts[p]++;
+        var sp = slot(p, Math.min(k, 11), Math.max(counts[p], 1));
+        o.push('<use href="#' + uid + 'cw" transform="translate(' + sp.x.toFixed(1) + ' ' + sp.y.toFixed(1) + ') rotate(' + ((i * 47) % 180) + ') scale(' + (L.shell * 0.95).toFixed(3) + ')" opacity=".5"/>');
+        if (m.trail.length <= 28 && !seen[p]) {
+          seen[p] = 1;
+          var q = L.P[p], ax = L.vert ? (p < n ? -1 : 1) : 0, ay = L.vert ? 0 : (p < n ? -1 : 1);
+          var nx = q.x + ax * (L.rx + 2), ny = q.y + ay * (L.ry + 2);
+          if (!L.vert) ny = q.y + (p < n ? -L.ry * 0.86 : L.ry * 0.86);
+          if (L.vert) nx = q.x + (p < n ? -L.rx * 0.86 : L.rx * 0.86);
+          o.push('<circle cx="' + nx.toFixed(1) + '" cy="' + ny.toFixed(1) + '" r="10" fill="' + (opts.gattu ? '#3c2a5a' : '#fff3d1') + '" stroke="' + (opts.gattu ? '#cbb8ff' : '#7a4518') + '" stroke-width="1"/>' +
+            '<text x="' + nx.toFixed(1) + '" y="' + (ny + 4).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="800" font-family="var(--body,system-ui)" fill="' + (opts.gattu ? '#fff' : '#2a1606') + '">' + (i + 1) + '</text>');
+        }
+      }
+      var lp = L.P[m.last];
+      o.push('<ellipse data-ghost-last="' + m.last + '" cx="' + lp.x + '" cy="' + lp.y + '" rx="' + (L.rx + 5) + '" ry="' + (L.ry + 5) + '" fill="none" stroke="' + (opts.gattu ? '#cbb8ff' : '#ffe9a8') + '" stroke-width="3.5"/>');
+      var np = L.P[m.next];
+      o.push('<ellipse cx="' + np.x + '" cy="' + np.y + '" rx="' + (L.rx + 3) + '" ry="' + (L.ry + 3) + '" fill="none" stroke="#fff3dc" stroke-opacity=".7" stroke-width="2" stroke-dasharray="5 5"/>');
+      if (m.capPit >= 0) {
+        var cp = L.P[m.capPit];
+        o.push('<ellipse cx="' + cp.x + '" cy="' + cp.y + '" rx="' + (L.rx + 10) + '" ry="' + (L.ry + 10) + '" fill="url(#' + uid + 'g)" class="pz-pulse"/>');
+        var tx = cp.x, ty = L.vert ? cp.y - L.ry - 16 : (m.capPit < n ? cp.y + L.ry + 40 : cp.y - L.ry - 40);
+        if (L.vert) tx = Math.max(L.bx + 70, Math.min(L.bx + L.bw - 70, cp.x));
+        o.push('<g data-ghost-cap="' + m.cap + '">' + badge(tx, ty, '+' + m.cap + ' — the kasi!', true) + '</g>');
+      }
+      gOver.innerHTML = o.join('');
+      gOver.setAttribute('data-preview', String(m.pit));
+    }
+    function clearPreview() { gOver.innerHTML = ''; gOver.removeAttribute('data-preview'); }
+
+    /* a numbered trail that stays still — the reduced-motion way to follow a move */
+    function numberedTrail(m) {
+      var o = [];
+      for (var i = 0; i < m.trail.length && i < 28; i++) {
+        var q = L.P[m.trail[i]], off = (i >= N ? 12 : 0);
+        o.push('<circle cx="' + (q.x + off) + '" cy="' + q.y + '" r="12" fill="#fff3d1" stroke="#7a4518"/>' +
+          '<text x="' + (q.x + off) + '" y="' + (q.y + 4.5) + '" text-anchor="middle" font-size="13" font-weight="800" fill="#2a1606">' + (i + 1) + '</text>');
+      }
+      gUnder.innerHTML = o.join('');
+    }
+
+    function arrowAt(i) {
+      var cp = countPos(i), x = cp.x, y, d;
+      if (!L.vert) { y = cp.y + 16; d = 'M' + x + ' ' + y + 'l-11 16h7v12h8v-12h7z'; }
+      else { x = cp.x + 16; y = cp.y; d = 'M' + x + ' ' + y + 'l16 -11v7h12v8h-12v7z'; }
+      return '<path class="pz-arrow" d="' + d + '" fill="#ffd36b" stroke="#2a1606" stroke-width="1.5" stroke-linejoin="round"/>';
+    }
+    function highlight(i, on) {
+      var g = gUnder.querySelector('[data-hl]');
+      if (g) g.remove();
+      if (i == null || i < 0 || !on) return;
+      var p = L.P[i];
+      gUnder.insertAdjacentHTML('beforeend', '<g data-hl><ellipse cx="' + p.x + '" cy="' + p.y + '" rx="' + (L.rx + 8) + '" ry="' + (L.ry + 8) + '" fill="url(#' + uid + 'g)" class="pz-pulse"/>' +
+        '<ellipse cx="' + p.x + '" cy="' + p.y + '" rx="' + (L.rx + 4) + '" ry="' + (L.ry + 4) + '" fill="none" stroke="#ffe9a8" stroke-width="3"/>' +
+        (on === 'arrow' ? arrowAt(i) : '') + '</g>');
+    }
+
+    function arcTo(id, x1, y1, s1, ms, delay, clock, lift, end) {
+      var o = sh[id], x0 = o.x, y0 = o.y, h = Math.max(18, Math.hypot(x1 - x0, y1 - y0) * 0.35);
+      clock.tween(ms, function (p) {
+        var e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        put(id, x0 + (x1 - x0) * e, y0 + (y1 - y0) * e - Math.sin(Math.PI * p) * h, o.s + (s1 - o.s) * e, true, lift ? 0 : 0);
+      }, end, delay);
+    }
+
+    /* ---------------- the move, played out: lift into the hand, one shell a pit, the kasi */
+    function play(res, clock, o, done) {
+      var m = res.move, step = o.fast ? 60 : 140, liftMs = o.fast ? 110 : 260;
+      var reduced = o.reduced, log = o.log || [];
+      clearPreview(); gUnder.innerHTML = '';
+      var from = at.pit[m.pit];
+      at.pit[m.pit] = [];
+      at.hand = from.slice();
+      if (reduced) {
+        /* no motion: the shells are simply where they go, and the path is numbered */
+        for (var t = 0; t < m.trail.length; t++) { at.pit[m.trail[t]].push(at.hand.shift()); log.push({ pit: m.trail[t], t: clock.now() }); }
+        pitsNow = m.sown.slice(); pitsNow[m.pit] = 0;
+        if (m.capPit >= 0) { pitsNow[m.capPit] = m.cap; }
+        numberedTrail(m);
+        snapAll(); drawBadges();
+        if (o.onDrop) o.onDrop(m.trail.length);
+        clock.wait(o.fast ? 250 : 650, function () { capture(res, clock, o, done); });
+        return;
+      }
+      var h0 = handAt(m.pit);
+      hand.x = h0.x; hand.y = h0.y; hand.on = true;
+      gUnder.innerHTML = '<use data-hand href="#' + uid + 'hd" transform="translate(' + h0.x.toFixed(1) + ' ' + (h0.y - 6).toFixed(1) + ') scale(' + L.shell.toFixed(2) + ')"/>';
+      var handNode = gUnder.querySelector('[data-hand]');
+      pitsNow[m.pit] = 0; drawBadges();
+      sfx('lift', 'tap');
+      from.forEach(function (id, k) {
+        arcTo(id, h0.x + ((k % 4) - 1.5) * 6 * L.shell, h0.y - Math.floor(k / 4) * 4 * L.shell, L.shell, liftMs, k * 12, clock);
+      });
+      var k = 0;
+      function moveHand(i2, ms) {
+        var a = handAt(i2), x0 = hand.x, y0 = hand.y;
+        clock.tween(ms, function (p) {
+          hand.x = x0 + (a.x - x0) * p; hand.y = y0 + (a.y - y0) * p;
+          if (handNode) handNode.setAttribute('transform', 'translate(' + hand.x.toFixed(1) + ' ' + (hand.y - 6).toFixed(1) + ') scale(' + L.shell.toFixed(2) + ')');
+          for (var j = 0; j < at.hand.length; j++) {
+            var sid = at.hand[j];
+            put(sid, hand.x + ((j % 4) - 1.5) * 6 * L.shell, hand.y - Math.floor(j / 4) * 4 * L.shell, L.shell, j < 16, 0);
+          }
+        });
+      }
+      function drop() {
+        if (k >= m.trail.length) {
+          hand.on = false;
+          clock.tween(160, function (p) { if (handNode) handNode.setAttribute('opacity', String(1 - p)); }, function () { gUnder.innerHTML = ''; });
+          clock.wait(o.fast ? 90 : 260, function () { capture(res, clock, o, done); });
+          return;
+        }
+        var pit = m.trail[k], id = at.hand.shift();
+        at.pit[pit].push(id);
+        var sp = slot(pit, at.pit[pit].length - 1, at.pit[pit].length);
+        arcTo(id, sp.x, sp.y, sp.s, step * 0.8, 0, clock, false, function () {
+          snapPlace(pit);
+        });
+        pitsNow[pit]++;
+        log.push({ pit: pit, t: clock.now() });
+        clock.wait(step * 0.8, function () { drawBadges(); sfx('tock', 'tap'); if (o.onDrop) o.onDrop(k); });
+        k++;
+        if (k < m.trail.length) moveHand(m.trail[k], step * 0.9);
+        clock.wait(step, drop);
+      }
+      clock.wait(liftMs + 40, function () { moveHand(m.trail[0], step * 0.6); clock.wait(step * 0.6, drop); });
+    }
+    function capture(res, clock, o, done) {
+      var m = res.move;
+      gUnder.innerHTML = '';
+      if (m.capPit < 0) return packUp(res, clock, o, done);
+      var ids = at.pit[m.capPit], who = m.who;
+      at.pit[m.capPit] = [];
+      var cp = L.P[m.capPit], nxp = L.P[m.next];
+      gOver.innerHTML = '<ellipse cx="' + nxp.x + '" cy="' + nxp.y + '" rx="' + (L.rx + 3) + '" ry="' + (L.ry + 3) + '" fill="none" stroke="#fff3dc" stroke-width="2.5" stroke-dasharray="5 5"/>' +
+        '<ellipse cx="' + cp.x + '" cy="' + cp.y + '" rx="' + (L.rx + 12) + '" ry="' + (L.ry + 12) + '" fill="url(#' + uid + 'g)"' + (o.reduced ? '' : ' class="pz-glowfx"') + '/>';
+      if (o.onCapture) o.onCapture(m);
+      var wait = o.reduced ? 300 : (o.fast ? 250 : 520);
+      clock.wait(wait, function () {
+        sfx('chhan', 'coin');
+        var base = at[who].length;
+        ids.forEach(function (id, j) {
+          at[who].push(id);
+          var sp = slot(who, base + j, base + ids.length);
+          if (o.reduced) put(id, sp.x, sp.y, sp.s, true);
+          else arcTo(id, sp.x, sp.y, sp.s, o.fast ? 300 : 560, j * (o.fast ? 18 : 40), clock);
+        });
+        pitsNow[m.capPit] = 0; storeNow[who] += m.cap; drawBadges();
+        var s = L.S[who];
+        gOver.innerHTML = '<ellipse cx="' + s.x + '" cy="' + s.y + '" rx="' + (s.rx + 16) + '" ry="' + (s.ry + 16) + '" fill="url(#' + uid + 'g)"' + (o.reduced ? ' opacity=".6"' : ' class="pz-glowfx"') + '/>';
+        clock.wait(o.reduced ? 500 : (o.fast ? 450 : 900 + ids.length * 40), function () { gOver.innerHTML = ''; packUp(res, clock, o, done); });
+      });
+    }
+    function packUp(res, clock, o, done) {
+      if (!res.packed) { finishMove(res); return done(); }
+      clock.wait(o.fast ? 200 : 500, function () {
+        sfx('chhan', 'coin');
+        for (var i = 0; i < N; i++) {
+          var who = i < n ? 'you' : 'gattu', ids = at.pit[i];
+          at.pit[i] = [];
+          ids.forEach(function (id, j) {
+            at[who].push(id);
+            var sp = slot(who, at[who].length - 1, at[who].length);
+            if (o.reduced) put(id, sp.x, sp.y, sp.s, true);
+            else arcTo(id, sp.x, sp.y, sp.s, 620, i * 50 + j * 20, clock);
+          });
+        }
+        clock.wait(o.reduced ? 200 : 1100, function () { finishMove(res); done(); });
+      });
+    }
+    function finishMove(res) {
+      pitsNow = res.pits.slice(); storeNow = { you: res.store.you, gattu: res.store.gattu };
+      snapAll(); drawBadges();
+    }
+
+    return {
+      layout: layout, setState: setState, preview: preview, clearPreview: clearPreview, play: play,
+      highlight: highlight, buttons: function () { return btns; }, L: function () { return L; },
+      pits: function () { return pitsNow.slice(); },
+      drawn: function (i) { var c = 0; at.pit[i].forEach(function (id) { if (sh[id].vis) c++; }); return c; },
+      labels: function (l) { labels = l; drawBadges(); },
+      destroy: function () { svgB.remove(); svg.remove(); hits.remove(); }
+    };
+  }
+
+  /* pit names a child (and a screen reader) can use: yours 1–7 from your left, Gattu's 1–7 from his */
+  function pzName(i, n) { return i < n ? 'your pit ' + (i + 1) : 'Gattu’s pit ' + (i - n + 1); }
+
+  function pallanguzhi(host, opts, done) {
+    pzCss();
+    opts = opts || {};
+    var n = 7, store = pzStore(), clock = pzClock();
+    var REDUCED = !!opts.reduced || !!opts.calm || calm();
+    var mem = store.get('pz.gattu', { tier: 0, run: [] });
+    var openIx = store.get('pz.open', 0) | 0;
+    var jaldi = !!store.get('pz.jaldi', false);
+    var coached = !!store.get('pz.coached', false);
+    var st, busy = false, over = false, armed = -1, focusPit = 0, moves = 0, ruleSaid = false, finished = false;
+    var tier = PZ.TIERS[Math.max(0, Math.min(PZ.TIERS.length - 1, mem.tier | 0))];
+    var drops = [];
+    var full = false;
+
+    var root = el('div', 'pz-root' + (REDUCED ? ' pz-reduced' : ''));
+    root.setAttribute('role', 'application');
+    root.setAttribute('aria-label', 'Pallanguzhi board');
+    root.innerHTML =
+      '<div class="pz-top">' +
+        '<button type="button" class="pz-b" data-pz="exit" aria-label="Pause and leave full screen">✕</button>' +
+        '<p class="pz-say" aria-live="polite"></p>' +
+        '<button type="button" class="pz-b" data-pz="jaldi" aria-pressed="' + jaldi + '" title="Sow fast">Jaldi</button>' +
+        '<button type="button" class="pz-b" data-pz="coach" aria-label="How to play">?</button>' +
+      '</div>' +
+      '<div class="pz-stage"></div>' +
+      '<p class="pz-sr" aria-live="polite"></p>' +
+      '<div class="pz-coach" hidden></div>' +
+      '<div class="pz-over" hidden></div>';
+    host.innerHTML = ''; host.appendChild(root);
+    var stageEl = root.querySelector('.pz-stage'), sayEl = root.querySelector('.pz-say'),
+        srEl = root.querySelector('.pz-sr'), overEl = root.querySelector('.pz-over'), coachEl = root.querySelector('.pz-coach');
+    var board = pzBoard(stageEl, n, 70, { labels: { you: 'You', gattu: 'Gattu · ' + tier.name }, onButtons: wire });
+
+    function say(t) { sayEl.textContent = t || ''; }
+    function sr(t) { srEl.textContent = t || ''; }
+
+    function newGame() {
+      st = PZ.fresh(PZ.OPENINGS[openIx % PZ.OPENINGS.length], 36);
+      store.set('pz.open', (openIx + 1) % PZ.OPENINGS.length);
+      busy = false; over = false; armed = -1; moves = 0;
+      overEl.hidden = true; overEl.innerHTML = '';
+      board.labels({ you: 'You', gattu: 'Gattu · ' + tier.name });
+      board.setState(st.pits, st.store);
+      say(''); refreshButtons();
+    }
+    function goFull(on) {
+      full = !!on;
+      root.classList.toggle('pz-full', full);
+      lockPage(full);
+      board.layout();
+      if (full) { var b = board.buttons()[focusPit]; if (b) { try { b.focus({ preventScroll: true }); } catch (e) {} } }
+    }
+    function canPlay(i) { return !over && !busy && st && st.turn === 'you' && i >= 0 && i < n && st.pits[i] > 0 && coachEl.hidden && overEl.hidden; }
+    function line(i) {
+      var c = st.pits[i];
+      if (!c) return 'Your pit ' + (i + 1) + ', empty.';
+      var r = PZ.apply(st, i);
+      return 'Pit ' + (i + 1) + ', ' + c + ' shell' + (c === 1 ? '' : 's') + ', lands in ' + pzName(r.move.last, n) +
+        (r.move.cap ? ', takes ' + r.move.cap : '') + '.';
+    }
+    function refreshButtons() {
+      board.buttons().forEach(function (b, i) {
+        b.tabIndex = i === focusPit ? 0 : -1;
+        b.setAttribute('aria-label', st ? line(i) : 'Pit ' + (i + 1));
+        b.setAttribute('aria-disabled', canPlay(i) ? 'false' : 'true');
+      });
+    }
+    function showPreview(i) {
+      if (!canPlay(i)) { cancel(); return; }
+      armed = i;
+      var r = PZ.apply(st, i);
+      board.preview(r);
+      var t = r.move.cap ? '+' + r.move.cap + ' — the kasi!' : 'Lands in ' + pzName(r.move.last, n) + '.';
+      if (tier.id === 'naya' && !r.over) {
+        var rep = PZ.bestReply(r);
+        if (rep.cap) t += ' …then Gattu can take ' + rep.cap + '.';
+      }
+      say(t + ' Tap again to sow.');
+      sr(line(i));
+    }
+    function cancel() {
+      if (armed < 0) return;
+      armed = -1; board.clearPreview();
+      if (!busy && !over) say('');
+    }
+    function commit(i) {
+      if (!canPlay(i)) return;
+      armed = -1; busy = true; moves++;
+      var r = PZ.apply(st, i);
+      say('');
+      runMove(r, function () { after(r); });
+    }
+    function runMove(r, then) {
+      board.play(r, clock, { fast: jaldi, reduced: REDUCED, log: drops,
+        onCapture: function (m) {
+          if (!ruleSaid) { ruleSaid = true; say('Empty pit after the last shell, so ' + (m.who === 'you' ? 'you take' : 'Gattu takes') + ' the pit beyond: the kasi. +' + m.cap); }
+          else say((m.who === 'you' ? '+' : 'Gattu +') + m.cap + ' — the kasi!');
+        } }, then);
+    }
+    function after(r) {
+      st = { pits: r.pits, store: r.store, turn: r.turn, over: r.over, target: r.target };
+      busy = false;
+      if (r.over) return end(r);
+      refreshButtons();
+      if (st.turn === 'gattu') gattu();
+      else if (!sayEl.textContent) say('Your turn.');
+    }
+    function gattu() {
+      busy = true; refreshButtons();
+      say('Gattu is thinking…');
+      clock.wait(REDUCED ? 200 : 450, function () {
+        var pit = PZ.choose(st, tier.depth);
+        if (pit < 0) { busy = false; return; }
+        var r = PZ.apply(st, pit);
+        /* his ghost trail first, slowly, so a child sees what a good move looks like */
+        board.preview(r, { gattu: true });
+        say('Gattu sows his pit ' + (pit - n + 1) + (r.move.cap ? ' — watch the kasi' : '') + '…');
+        sr('Gattu sows his pit ' + (pit - n + 1) + ', lands in ' + pzName(r.move.last, n) + (r.move.cap ? ', takes ' + r.move.cap : '') + '.');
+        clock.wait(jaldi ? 500 : 1100, function () {
+          runMove(r, function () {
+            if (!r.move.cap && !r.over) say('Your turn.');
+            after(r);
+          });
+        });
+      });
+    }
+    function end(r) {
+      over = true; refreshButtons();
+      var w = PZ.winner(st), res = w === 'you' ? 'win' : w === 'gattu' ? 'loss' : 'draw';
+      var was = tier;
+      mem = PZ.adapt(mem, res); store.set('pz.gattu', mem);
+      tier = PZ.TIERS[mem.tier];
+      var head = w === 'you' ? 'Your store is fuller — shabash!' : w === 'gattu' ? 'Gattu’s store is fuller this time' : 'Dead even!';
+      var note = tier !== was ? (tier.depth > was.depth ? 'Next game Gattu plays as ' + tier.name + ': he ' + tier.says + '.'
+        : 'Next game Gattu plays as ' + tier.name + '.') : 'Gattu played as ' + was.name + ': he ' + was.says + '.';
+      overEl.innerHTML = '<div class="pz-card" role="dialog" aria-label="Game over">' +
+        '<h3>' + head + '</h3>' +
+        '<p>You <b>' + st.store.you + '</b> · Gattu <b>' + st.store.gattu + '</b>' + (r.packed ? ' — a side ran out, so every shell went home to its own store.' : '.') + '</p>' +
+        '<p>' + note + '</p>' +
+        '<p class="pz-credit">Pallanguzhi, Tamil Nadu; played across South India as Ali Guli Mane (Karnataka), Vamana Guntalu (Andhra Pradesh) and Kuzhipara (Kerala). Ask your family what <i>you</i> call it.</p>' +
+        '<div class="pz-row"><button type="button" class="pz-go" data-pz="again">Play again</button>' +
+        '<button type="button" class="pz-go ghost" data-go="out">Finish</button></div></div>';
+      overEl.hidden = false;
+      say('');
+      clock.wait(80, function () { var b = overEl.querySelector('[data-pz="again"]'); if (b) try { b.focus({ preventScroll: true }); } catch (e) {} });
+    }
+    function bail() {
+      if (finished) return;
+      finished = true;
+      var w = st ? PZ.winner(st) : 'gattu';
+      lockPage(false);
+      clock.kill();
+      if (typeof done === 'function') done({ win: over && w === 'you', score: st ? st.store.you : 0, asked: 0, firstTryRight: 0,
+        level: opts.level || 1, levelNext: opts.level || 1 });
+    }
+    function pause() {
+      cancel();
+      goFull(false);
+      overEl.innerHTML = '<div class="pz-card" role="dialog" aria-label="Paused"><h3>Paused</h3>' +
+        '<p>The board waits exactly as you left it.</p>' +
+        '<div class="pz-row"><button type="button" class="pz-go" data-pz="resume">Resume</button>' +
+        '<button type="button" class="pz-go ghost" data-go="out">Finish</button></div></div>';
+      overEl.hidden = false;
+      clock.wait(60, function () { var b = overEl.querySelector('[data-pz="resume"]'); if (b) try { b.focus({ preventScroll: true }); } catch (e) {} });
+    }
+
+    /* ---------------- input: press-and-hold or hover previews, lift away cancels, tap again sows */
+    var press = null;
+    function wire(btns) {
+      btns.forEach(function (b, i) {
+        b.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && !press) showPreview(i); });
+        b.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && !press && armed === i) cancel(); });
+        b.addEventListener('pointerdown', function (e) {
+          e.preventDefault();
+          focusPit = i; refreshButtons();
+          try { b.focus({ preventScroll: true }); } catch (err) {}
+          if (!canPlay(i)) return;
+          press = { i: i, commit: armed === i, id: e.pointerId, mouse: e.pointerType === 'mouse' };
+          if (!press.commit) showPreview(i);
+        });
+        b.addEventListener('focus', function () { focusPit = i; });
+      });
+    }
+    function inside(b, e) {
+      var r = b.getBoundingClientRect();
+      return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    }
+    function onUp(e) {
+      if (!press || (press.id != null && e.pointerId !== press.id)) return;
+      var p = press; press = null;
+      var b = board.buttons()[p.i];
+      if (!b || !inside(b, e)) { cancel(); return; }       /* lifted away: nothing happens */
+      if (p.commit || p.mouse) commit(p.i);                 /* the second tap (or a click) sows */
+    }
+    function onCancel() { if (press) { press = null; cancel(); } }
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onCancel);
+
     function onKey(e) {
+      if (finished) return;
+      if (!host.isConnected) { teardown(); return; }
       var k = e.key;
-      if (k >= '1' && k <= '7') { play(+k - 1); e.preventDefault(); }
+      if (!coachEl.hidden) { coachKey(e); return; }
+      if (!overEl.hidden) return;
+      if (busy || over || !st) return;
+      var L = board.L(), prev = k === 'ArrowLeft' || (L && L.vert && k === 'ArrowDown'),
+          nextK = k === 'ArrowRight' || (L && L.vert && k === 'ArrowUp');
+      if (prev || nextK) {
+        e.preventDefault();
+        focusPit = (focusPit + (nextK ? 1 : n - 1)) % n;
+        refreshButtons();
+        var b = board.buttons()[focusPit];
+        if (b) try { b.focus({ preventScroll: true }); } catch (err) {}
+        if (armed >= 0) showPreview(focusPit);
+        else { board.highlight(focusPit, true); sr(line(focusPit)); }
+      } else if (k === ' ' || e.code === 'Space') { e.preventDefault(); showPreview(focusPit); }
+      else if (k === 'Enter') { e.preventDefault(); commit(focusPit); }
+      else if (k === 'Escape') { e.preventDefault(); cancel(); }
+      else if (k >= '1' && k <= '7') { e.preventDefault(); focusPit = +k - 1; refreshButtons(); showPreview(focusPit); }
     }
-    svg.addEventListener('click', onTap);
     document.addEventListener('keydown', onKey);
-    wrap.addEventListener('click', function (e) {
-      var t = e.target.closest ? e.target.closest('[data-go]') : null;
-      if (!t || t.getAttribute('data-go') !== 'start') return;
-      cover.hidden = true; started = true; draw();
-      armHint();
-      try { svg.focus({ preventScroll: true }); } catch (err) {}
+
+    root.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-pz],[data-go]') : null;
+      if (!t) return;
+      var a = t.getAttribute('data-pz');
+      if (t.getAttribute('data-go') === 'out') return bail();
+      if (a === 'exit') pause();
+      else if (a === 'resume') { overEl.hidden = true; goFull(true); }
+      else if (a === 'again') { newGame(); }
+      else if (a === 'jaldi') { jaldi = !jaldi; t.setAttribute('aria-pressed', String(jaldi)); store.set('pz.jaldi', jaldi); }
+      else if (a === 'coach') coach(0);
     });
-    draw(); hud2();
-    cover.innerHTML = '<div class="gy-card"><h3>Pallanguzhi</h3>' +
-      '<p>The shell-and-pit game of Tamil homes — sow, count, and pounce on the kasi.</p>' +
-      '<ol><li><b>Tap one of YOUR seven pits</b> (bottom row) — its shells sow anticlockwise, one per pit.</li>' +
-      '<li>If the pit <b>after</b> your last shell is empty, everything <b>beyond</b> it is yours — the <b>kasi</b>!</li>' +
-      '<li><b>Challenge:</b> fill your pouch to <b>' + TARGET + '</b> shells before Gattu does.</li></ol>' +
-      '<button type="button" class="gy-btn" data-go="start">Shuru — play!</button></div>';
-    cover.hidden = false;
-    timers.push(setTimeout(function () {
-      var b2 = cover.querySelector('.gy-btn');
-      try { b2.focus({ preventScroll: true }); } catch (e) {}
-    }, 60));
+
+    var rsT = 0;
+    function onResize() { clearTimeout(rsT); rsT = setTimeout(function () { if (!busy) board.layout(); else clock.wait(50, onResize); }, 120); }
+    W.addEventListener('resize', onResize);
+
+    /* ---------------- the coach: three moves on a tiny board (sow, a kasi, the round's end) */
+    var COACH = [
+      { you: [3, 1, 2], gattu: [2, 2, 2], st: { you: 0, gattu: 0 }, pit: 0,
+        say: '<b>Sow.</b> Tap the glowing pit. Its shells go round anticlockwise, one in each pit.' },
+      { you: [2, 1, 1], gattu: [1, 0, 4], st: { you: 0, gattu: 0 }, pit: 2,
+        say: '<b>The kasi.</b> If the pit after your last shell is empty, the pit beyond it is yours. Tap the glowing pit.' },
+      { you: [1, 0, 2], gattu: [0, 0, 0], st: { you: 5, gattu: 4 }, pit: 0,
+        say: '<b>Round end.</b> When a side has nothing to sow, every shell left goes to its own store. Tap the glowing pit.' }
+    ];
+    var cb = null, cstep = 0, cbusy = false, cclock = null;
+    function coach(step) {
+      cancel();
+      cstep = step || 0;
+      coachEl.innerHTML = '<div class="pz-coachcard" role="dialog" aria-label="How to play Pallanguzhi">' +
+        '<div class="pz-steps" aria-hidden="true"><i></i><i></i><i></i></div>' +
+        '<div class="pz-coachboard"></div><p class="pz-coachline" aria-live="polite"></p>' +
+        '<div class="pz-row"><button type="button" class="pz-go ghost" data-pc="skip">Skip</button>' +
+        '<button type="button" class="pz-go" data-pc="next" hidden>Next</button></div></div>';
+      coachEl.hidden = false;
+      if (cb) cb.destroy();
+      if (cclock) cclock.kill();
+      cclock = pzClock();
+      var stg = coachEl.querySelector('.pz-coachboard');
+      cb = pzBoard(stg, 3, 18, { labels: { you: 'You', gattu: 'Gattu' }, onButtons: function (bs) {
+        bs.forEach(function (b, i) {
+          b.addEventListener('click', function () { coachTap(i); });
+        });
+      } });
+      coachStep();
+    }
+    function coachStep() {
+      var c = COACH[cstep];
+      var ps = coachEl.querySelectorAll('.pz-steps i');
+      for (var i = 0; i < ps.length; i++) ps[i].className = i <= cstep ? 'on' : '';
+      cb.layout();
+      cb.setState(c.you.concat(c.gattu), c.st);
+      cb.highlight(c.pit, 'arrow');
+      cb.buttons().forEach(function (b, i) {
+        b.tabIndex = i === c.pit ? 0 : -1;
+        b.setAttribute('aria-label', i === c.pit ? 'Pit ' + (i + 1) + ', tap to sow' : 'Pit ' + (i + 1));
+      });
+      coachEl.querySelector('.pz-coachline').innerHTML = c.say;
+      coachEl.querySelector('[data-pc="next"]').hidden = true;
+      cbusy = false;
+      var b = cb.buttons()[c.pit];
+      if (b) try { b.focus({ preventScroll: true }); } catch (e) {}
+    }
+    function coachTap(i) {
+      var c = COACH[cstep];
+      if (cbusy || i !== c.pit) return;
+      cbusy = true;
+      cb.highlight(-1);
+      var s0 = { pits: c.you.concat(c.gattu), store: { you: c.st.you, gattu: c.st.gattu }, turn: 'you', over: false, target: 99 };
+      var r = PZ.apply(s0, i);
+      cb.play(r, cclock, { fast: false, reduced: REDUCED }, function () {
+        var line2 = cstep === 0 ? 'One shell in each pit, round the corner into Gattu’s side. That is sowing.'
+          : cstep === 1 ? 'The pit after your last shell was empty, so the <b>' + r.move.cap + '</b> beyond it went to your store.'
+          : 'Gattu’s side was empty, so the round ended and your shells went home to your store.';
+        coachEl.querySelector('.pz-coachline').innerHTML = line2;
+        var nx = coachEl.querySelector('[data-pc="next"]');
+        nx.hidden = false; nx.textContent = cstep < 2 ? 'Next' : 'Play';
+        try { nx.focus({ preventScroll: true }); } catch (e) {}
+      });
+    }
+    function coachEnd() {
+      coachEl.hidden = true; coachEl.innerHTML = '';
+      if (cb) { cb.destroy(); cb = null; }
+      if (cclock) { cclock.kill(); cclock = null; }
+      if (!coached) { coached = true; store.set('pz.coached', true); }
+      var b = board.buttons()[focusPit];
+      if (b) try { b.focus({ preventScroll: true }); } catch (e) {}
+    }
+    function coachKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); coachEnd(); }
+      else if ((e.key === 'Enter' || e.key === ' ') && !cbusy && e.target && !e.target.closest('button')) { e.preventDefault(); coachTap(COACH[cstep].pit); }
+    }
+    coachEl.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-pc]') : null;
+      if (!t) return;
+      var a = t.getAttribute('data-pc');
+      if (a === 'skip') coachEnd();
+      else if (a === 'next') { if (cstep < 2) { cstep++; coachStep(); } else coachEnd(); }
+    });
+
+    /* ---------------- boot: straight to the board, full-screen; the coach the first time only */
+    newGame();
+    goFull(true);
+    if (!coached) coach(0);
+
+    /* the checks' window into the real state — never read by the app */
+    host.__pz = { state: function () { return st; }, board: board, drops: drops, tier: function () { return tier.id; },
+      setState: function (s) { st = s; board.setState(s.pits, s.store); refreshButtons(); }, busy: function () { return busy || clock.busy() > 0; },
+      preview: function (i) { showPreview(i); }, commit: commit, mem: function () { return mem; } };
 
     function teardown() {
-      over = true;
-      timers.forEach(clearTimeout);
-      if (raf) cancelAnimationFrame(raf);
+      if (teardown.done) return;
+      teardown.done = true;
+      finished = true;
+      lockPage(false);
+      clock.kill(); if (cclock) cclock.kill();
+      clearTimeout(rsT);
       document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onCancel);
+      W.removeEventListener('resize', onResize);
+      try { delete host.__pz; } catch (e) {}
     }
     teardown.destroy = teardown;
     return teardown;
   }
-
 
   /* ============================================================ GILLI DANDA
      The oldest bat-and-ball in the gully: tip the gilli up with a tap on its
@@ -1483,24 +2266,23 @@
   }
 
   /* ================================================================== REGISTRY
-     Push, never replace: games.js owns the array. Patang is ARCHIVED — the
-     engine stays above for the day it earns its wind back, but the shelf no
-     longer offers it (the founder's verdict: useless as it stood). */
+     Push, never replace: games.js owns the array. ONE game from this file is on the shelf now.
+     ARCHIVED, unregistered, their engines kept above for the day one earns its card back
+     through one-in-one-out and the clock and touch checks (games spec §3.1):
+       kancha  — removed by the owner (8 Oct 2026): fun, but broken on phones, and it teaches
+                 nothing the app is for
+       gutte   — removed by the owner (8 Oct 2026): the controls decided it more than timing did
+       patang, gillidanda, pithoo — archived earlier (founder's verdict)
+     Pallanguzhi is heritage play (docs/32): teaches:false, it reports no answers and pays nothing;
+     the host says "played for fun". */
   W.IND_GAMES = W.IND_GAMES || [];
   W.IND_GAMES.push(
-    { id: 'kancha', name: 'Kancha', icon: 'star', minutes: 4,
-      blurb: 'A ring scratched in the dust, glass kancha glinting inside. Three rounds — the wide ring, the tight ring, the raja. Slide, pull back, flick: what leaves the ring is yours.',
-      tag: 'flick', c: '#7a5320', c2: '#33200b',
-      engine: kancha },
-    { id: 'pallanguzhi', name: 'Pallanguzhi', icon: 'star', minutes: 6,
-      blurb: 'The shell-and-pit game of Tamil homes — played across the south as Ali Guli Mane and Vamana Guntalu. Sow your shells round the board and fill your pouch. Families play many ways; this is one simple way.',
-      tag: 'board', c: '#8f6428', c2: '#3a250b',
-      engine: pallanguzhi },
-    /* gillidanda and pithoo are ARCHIVED (founder's verdict: bad) — the
-       engines stay above, unregistered, in case a better idea revives them */
-    { id: 'gutte', name: 'Gutte', icon: 'star', minutes: 4,
-      blurb: 'Five stones, one hand, four rungs: ekka, dukka, tikka, chauka. Toss the mother stone, snatch what the rung asks while she flies, and catch her before she lands.',
-      tag: 'timing', c: '#8f7f6a', c2: '#3d352a',
-      engine: gutte }
+    { id: 'pallanguzhi', name: 'Pallanguzhi', sub: 'sow the shells, take the kasi', icon: 'star', minutes: 6,
+      blurb: 'Pallanguzhi, Tamil Nadu \u2014 played across South India as Ali Guli Mane (Karnataka), Vamana Guntalu (Andhra Pradesh) and Kuzhipara (Kerala). Ask your family what you call it. Sow your shells round the board and fill your store; families play many ways, this is one simple way.',
+      credit: 'Pallanguzhi, Tamil Nadu; Ali Guli Mane (Karnataka), Vamana Guntalu (Andhra Pradesh), Kuzhipara (Kerala)',
+      tag: 'board', c: '#8f6428', c2: '#3a250b', teaches: false, review: false,
+      engine: pallanguzhi }
   );
+  /* the archived engines, reachable only by the checks that keep them honest — never the shelf */
+  W.IND_GAMES_ARCHIVE = { kancha: kancha, gutte: gutte, patang: patang, gillidanda: gillidanda, pithoo: pithoo };
 })();

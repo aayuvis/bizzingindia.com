@@ -1493,7 +1493,7 @@
     '.sab-modebtn b{font:800 15.5px/1.2 var(--display,Georgia,serif)}',
     '.sab-modebtn span{font:600 12.5px/1.35 var(--body,system-ui);opacity:.86}',
     '.sab-bandline{color:var(--muted);margin:2px 0 0!important}',
-    '.sab-card:has(.sab-camphead),.sab-card:has(.sab-beat),.sab-card:has(.sab-ropts){max-width:min(600px,92vw)}',
+    '.sab-card.w1{max-width:min(600px,92vw)}',
     '.sab-camphead{display:flex;gap:14px;align-items:center;margin:0 0 6px}',
     '.sab-camphead>div:first-child{margin:0!important;flex:none}',
     '.sab-camphead h3{margin:2px 0 6px}',
@@ -1529,7 +1529,7 @@
     '.sab-souv p{margin:4px 0!important}',
     '.sab-souvart{flex:none}',
     '.sab-coinline{color:var(--muted)}',
-    '.sab-card:has(.sab-lampmap){max-width:min(820px,95vw)}',
+    '.sab-card.w2{max-width:min(820px,95vw)}',
     '.sab-lampmap{display:grid;grid-template-columns:minmax(180px,1fr) minmax(230px,1.25fr);gap:14px;align-items:start;margin:8px 0}',
     '.sab-lampmap svg{width:100%;height:auto;max-height:56vh;display:block}',
     '.sab-lmland path{fill:color-mix(in srgb,var(--accent2) 15%,var(--card));stroke:color-mix(in srgb,var(--accent2) 15%,var(--card));stroke-width:2}',
@@ -7265,7 +7265,9 @@
       overlay = html;
       if (!html) { openPiece = null; openCall = null; }
       D.getElementById('sab-ovhost').innerHTML =
-        html ? '<div class="sab-over"><div class="sab-card" role="dialog" aria-modal="true">' + html + '</div></div>' : '';
+        html ? '<div class="sab-over"><div class="sab-card' +
+          (/sab-lampmap/.test(html) ? ' w2' : /sab-camphead|sab-beat|sab-ropts/.test(html) ? ' w1' : '') +
+          '" role="dialog" aria-modal="true">' + html + '</div></div>' : '';
       if (html) { var f = D.querySelector('#sab-ovhost .sab-btn'); if (f) f.focus({ preventScroll: true }); }
     }
 

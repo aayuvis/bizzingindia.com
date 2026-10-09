@@ -16,6 +16,10 @@
      saapsidi     the old link opens Ludo on its Saap-Sidi tab; the hub hides that entry; the
                   youngest band taps its own landing square, and a ladder's virtue is said aloud
                   with its meaning
+     pachisi      the bought way (§4.6.5): six cowries read off a sourced table (rule object with
+                  sources[]); only a grace — 6, 10, 25 — brings a token out and throws again; the
+                  how-to credits where it is played and names its sources; Space and a tap both
+                  throw; it reports and pays nothing; Ludo without it shows no cowries
      shots        desktop and phone, start screen and board, day and night — written to
                   /tmp/ludo-shots for a person to look at
 
@@ -306,6 +310,90 @@ check('saapsidi', 'the old link lands on Saap-Sidi; hidden from the hub; the you
   if (pos2 !== 26) throw new Error('keyboard counting landed on ' + pos2 + ', not 26');
 }, { clock: true, seed: 1 });
 
+/* PACHISI (games spec §4.6.5; CLAUDE.md coins rule): a second way to play this card, bought in the
+   Shop and switched in the title card (check-standard `modes` holds the buying and the switch). Here:
+   the rule is a data object with its sources, the throw is read off that table and nothing else, a
+   grace — and only a grace — brings a token out and throws again, the how-to names where the game is
+   from and who says so, keys and touch both throw, it pays nothing, and Ludo without it is untouched. */
+check('pachisi', 'six cowries by a sourced table; a grace brings a token out and throws again; the how-to credits and cites; keys and touch; pays nothing; Ludo untouched', async ({ p }) => {
+  const R = await p.evaluate(() => window.IND_GAMES_TEST.pachisi);
+  const TABLE = { 0: 25, 1: 10, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6 };
+  if (!R || R.shells !== 6 || JSON.stringify(R.throws) !== JSON.stringify(TABLE)) throw new Error('the throw table is not the sourced one: ' + JSON.stringify(R && R.throws));
+  if ((R.grace || []).slice().sort((a, b) => a - b).join() !== '6,10,25') throw new Error('the graces are not 6, 10 and 25: ' + JSON.stringify(R.grace));
+  if (!Array.isArray(R.sources) || R.sources.length < 2 || R.sources.some(s => !s.ref || !s.short || !/^https:\/\/[^ ]+\.[a-z]+\//.test(s.url || '')))
+    throw new Error('the rule does not carry its sources: ' + JSON.stringify(R.sources));
+  if (!/India/.test(R.where || '') || !R.badge || !/^\d{4}-\d\d-\d\d$/.test(R.checked || '') || !R.varies) throw new Error('the rule does not say where it is from, that it varies, or when it was checked');
+  /* Ludo, not bought: no cowries anywhere */
+  await p.evaluate(() => mount('ludo', { band: '8-10' }));
+  const free = await p.evaluate(() => ({ tab: document.querySelector('.lu-segb').textContent, cow: !!document.querySelector('.lu-cowtab, .lu-cow, .lu-src'), pc: document.getElementById('host').__ludo.pachisi }));
+  if (free.cow || free.pc || free.tab !== 'Ludo') throw new Error('Ludo without the mode shows cowries: ' + JSON.stringify(free));
+  /* the bought way: its how-to */
+  await p.evaluate(() => mount('ludo', { band: '8-10', skin: 'mode-ludo-pachisi' }));
+  const how = await p.evaluate(() => { const h = document.getElementById('host'); return {
+    tab: h.querySelector('.lu-segb').textContent, start: h.querySelector('.lu-start').textContent,
+    rows: [...h.querySelectorAll('.lu-cowtab tr')].map(tr => [...tr.querySelectorAll('td')].map(td => td.firstChild.textContent)),
+    graces: [...h.querySelectorAll('.lu-cowtab td.g')].map(td => td.firstChild.textContent),
+    src: (h.querySelector('.lu-src') || {}).textContent || '', text: h.querySelector('.lu-setup').textContent }; });
+  if (!/^Pachisi/.test(how.tab) || how.start !== 'Start Pachisi') throw new Error('the bought way does not say Pachisi: ' + how.tab + ' / ' + how.start);
+  if (how.rows.length !== 2 || how.rows[0].join() !== 'none,1,2,3,4,5,6' || how.rows[1].join() !== [0, 1, 2, 3, 4, 5, 6].map(n => R.throws[n]).join())
+    throw new Error('the table on screen is not the rule: ' + JSON.stringify(how.rows));
+  if (how.graces.sort().join() !== '10,25,6') throw new Error('the graces marked on screen: ' + how.graces.join());
+  const unnamed = R.sources.filter(s => how.src.indexOf(s.short) < 0);
+  if (unnamed.length) throw new Error('the how-to does not name its source: ' + unnamed[0].short);
+  if (!/across India/.test(how.text) || !/In many families/.test(how.text) || !/nothing here pays coins/.test(how.text) || !/board is Ludo/.test(how.text))
+    throw new Error('the how-to does not credit the place, say it varies, say it pays nothing, or say whose board it is');
+  /* a whole Jaldi game against Gattu: Space and a tap take turns throwing */
+  await click(p, '[data-go="len"][data-v="jaldi"]');
+  await click(p, '.lu-start');
+  let n = 0, keys = 0, taps = 0; const drawn = [];
+  await playOut(p, async s => {
+    if (s.phase === 'roll') {
+      if (n++ % 2) { await click(p, '.lu-cow'); taps++; }
+      else { await p.evaluate(() => document.activeElement && document.activeElement.blur()); await p.keyboard.press('Space'); keys++; }
+    } else if (s.phase === 'choose') {
+      /* the shells on screen are the throw that was counted */
+      drawn.push(await p.evaluate(() => ({ up: document.querySelectorAll('.lu-cow ellipse[fill="#f6ecd4"]').length, shells: document.querySelectorAll('.lu-cow svg').length, th: document.getElementById('host').__ludo.thrown })));
+      await p.keyboard.press('1');
+    }
+  }, null, 30 * 60 * 1000);
+  const L = await p.evaluate(() => { const L = document.getElementById('host').__ludo; return { view: L.view, log: L.log.slice(), pc: L.pachisi }; });
+  if (L.view !== 'over') throw new Error('a Pachisi game did not finish in 30 game minutes');
+  if (!keys || !taps) throw new Error(`throws by key ${keys}, by tap ${taps} — both must work`);
+  const throws = L.log.filter(x => !x.out), outs = L.log.filter(x => x.out);
+  if (throws.length < 10) throw new Error('only ' + throws.length + ' throws in a whole game');
+  for (const x of throws) {
+    if (x.faces.length !== 6 || x.up !== x.faces.filter(Boolean).length) throw new Error('a throw\'s count is not its shells: ' + JSON.stringify(x));
+    if (x.value !== TABLE[x.up]) throw new Error(`${x.up} mouths up moved ${x.value}, the table says ${TABLE[x.up]}`);
+  }
+  if (new Set(throws.map(x => x.value)).size < 4) throw new Error('a whole game threw only ' + [...new Set(throws.map(x => x.value))].join(','));
+  if (!outs.length || outs.some(o => R.grace.indexOf(o.value) < 0)) throw new Error('a token left the yard on a throw that is not a grace: ' + JSON.stringify(outs));
+  /* a grace throws again; anything else passes the turn (Jaldi has no other bonus) */
+  for (let i = 0; i < throws.length - 1; i++) {
+    const g = R.grace.indexOf(throws[i].value) >= 0, same = throws[i + 1].seat === throws[i].seat;
+    if (g !== same) throw new Error(`throw ${i}: ${throws[i].value} by seat ${throws[i].seat}, and the next was by seat ${throws[i + 1].seat}`);
+  }
+  if (!drawn.length || drawn.some(d => d.shells !== 6 || d.up !== d.th.up)) throw new Error('the shells drawn are not the throw: ' + JSON.stringify(drawn.find(d => d.shells !== 6 || d.up !== d.th.up)));
+  /* it pays nothing and reports nothing */
+  await click(p, '[data-go="out"]');
+  const r = await p.evaluate(() => ({ a: window.__answers.length, d: window.__done }));
+  if (r.a || !r.d || r.d.asked || r.d.firstTryRight) throw new Error('a Pachisi game reported or paid: ' + JSON.stringify(r));
+  /* the yard line with cowries: a grace, not a six */
+  await p.evaluate(() => mount('ludo', { band: '8-10', skin: 'mode-ludo-pachisi' }));
+  await click(p, '[data-go="len"][data-v="classic"]');
+  await click(p, '.lu-start');
+  let yard = '';
+  for (let k = 0; k < 80 && !yard; k++) {
+    const s = await st(p);
+    if (!s.bot && s.phase === 'roll') {
+      await click(p, '.lu-cow'); await p.clock.runFor(900);
+      const allIn = await p.evaluate(() => document.getElementById('host').__ludo.seats[0].T.every(x => x === -1));
+      const f = await feed(p);
+      if (allIn && /need/.test(f)) yard = f;
+    } else await p.clock.runFor(300);
+  }
+  if (!/^You threw \d+ \((none|\d) mouths? up\)\. You need a grace — 6, 10 or 25 — to bring a token out\.$/.test(yard)) throw new Error('the yard line with cowries was: "' + yard + '"');
+}, { clock: true, seed: 29 });
+
 check('shots', 'desktop and phone, start and board, day and night (written to /tmp/ludo-shots)', async ({ browser }) => {
   const out = '/tmp/ludo-shots'; fs.mkdirSync(out, { recursive: true });
   for (const [vp, tag] of [[DESK, 'desk'], [PHONE, 'phone']]) {
@@ -336,6 +424,22 @@ check('shots', 'desktop and phone, start and board, day and night (written to /t
       await click(p, '.lu-start');
       await p.waitForTimeout(400);
       await p.screenshot({ path: `${out}/${n}-saapsidi.png`, fullPage: true });
+      /* the bought way: its how-to, and the board with the cowries in hand */
+      await p.evaluate(() => mount('ludo', { band: '8-10', skin: 'mode-ludo-pachisi' }));
+      await click(p, '[data-go="mode"][data-v="ludo"]');   /* the card remembers Saap-Sidi from the shot above */
+      await p.waitForTimeout(300);
+      await p.screenshot({ path: `${out}/${n}-pachisi-setup.png`, fullPage: true });
+      await click(p, '.lu-start');
+      for (let k = 0; k < 400; k++) {
+        const s = await st(p);
+        if (s.phase === 'choose' && !s.bot) break;
+        if (!s.bot && s.phase === 'roll') await click(p, '.lu-cow');
+        await p.waitForTimeout(120);
+      }
+      await p.waitForTimeout(300);
+      await p.screenshot({ path: `${out}/${n}-pachisi-board.png`, fullPage: true });
+      const over2 = await p.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth);
+      if (over2 > 0) throw new Error(n + ': Pachisi is ' + over2 + 'px wider than the screen');
       await ctx.close();
     }
   }

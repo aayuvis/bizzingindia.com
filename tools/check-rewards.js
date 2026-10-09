@@ -59,10 +59,19 @@ check('luck', 'no game of luck or dexterity pays', async ({ p }) => {
   const m = src.match(/var TEACHES = \[([^\]]*)\]/);
   if (!m) throw new Error('there is no list of the games that teach');
   const teaches = m[1].match(/'([a-z0-9]+)'/g).map(s => s.slice(1, -1));
-  const luck = ['ludo', 'saapsidi', 'carrom', 'kancha', 'pallanguzhi', 'gutte', 'rangoli'];
+  /* Rangoli Rush left this list (games spec §1.2, §4.5): it is on TEACHES now, and pays only for a
+     level it reports cleared first time — never for points. The heritage games stay off it. */
+  const luck = ['ludo', 'saapsidi', 'carrom', 'kancha', 'pallanguzhi', 'gutte'];
   const bad = luck.filter(g => teaches.includes(g));
   if (bad.length) throw new Error('these pay coins and teach nothing: ' + bad.join(', '));
-  if (!/TEACHES\.indexOf\(g\.id\) >= 0\) \{ earn\('contest'/.test(src)) throw new Error('a finished game is not paid through the TEACHES list');
+  /* ONE PAY PATH (games spec §1.2, docs/32): a game pays `answer` for a first-try right its engine
+     reported, through the TEACHES gate — finishing pays nothing. This used to assert that a finished
+     teaching game paid `contest`; that is the payment the spec removed. tools/check-games.js holds
+     the behaviour (T1, T4); here the source must hold the gate and must not pay for finishing. */
+  if (!/function teachesGame\(g\)[\s\S]{0,200}TEACHES\.indexOf\(g\.id\) >= 0/.test(src)) throw new Error('a game is not paid through the TEACHES list');
+  if (!/function payAnswer\([\s\S]{0,120}teachesGame\(g\)[\s\S]{0,400}earn\('answer'/.test(src)) throw new Error('a reported right answer is not paid through the TEACHES gate');
+  const host = src.slice(src.indexOf('function mountGame('), src.indexOf('/* =============================================================== DISPATCH */'));
+  if (/coins? for finishing/.test(host) || (host.match(/earn\('contest'/g) || []).length > 1) throw new Error('a finished game is paid for finishing');
 });
 
 check('rank', 'rank moves on mastery, never on coins', async ({ p }) => {
@@ -171,6 +180,9 @@ check('migrate', 'the old sikke move into the family wallet 1:1, once', async ({
 check('gyanpati', 'the ladder quiz has no pot, and a miss is taught, not lost', async ({ p }) => {
   await p.evaluate(() => window.BI.go('game', 'gyanpati'));
   await p.waitForTimeout(900);
+  /* a game with levels opens on the host's level chip first (games spec §1.3): start it */
+  await p.evaluate(() => { const s = document.querySelector('#gamehost [data-gmh="start"]'); if (s) s.click(); });
+  await p.waitForTimeout(600);
   const r = await p.evaluate(async () => {
     const host = document.getElementById('gamehost');
     const txt0 = host.innerText;

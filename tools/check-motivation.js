@@ -5,8 +5,9 @@
 
      sfx       a right answer sounds right and a wrong one sounds wrong; the one mute silences both
      games     every game has a title card with a how-to that folds after three seconds and says
-               the keyboard works, and a "what you practised" line; Gyanpati, played to the end,
-               sounds every answer and the finish and moves on every answer
+               the keyboard works, and a "what you practised" line; a game played to the end
+               through the contract (docs/32) sounds every reported answer once, moves on every
+               one, counts only first-try rights, and ends on the host's finish card
      currency  no game's own end card names a coin it did not pay
      medals    finishing a story earns a medal and it is celebrated ONCE, with motion and a sound;
                self-reported deeds earn none; the shelf says how to earn the rest
@@ -88,10 +89,15 @@ check('sfx', 'right and wrong sound different, and the one mute silences both', 
   if (m.length) throw new Error('the mute is on and these still played: ' + JSON.stringify(m));
 });
 
-check('games', 'every game: a title card with a folding how-to; Gyanpati sounds and moves on every answer', async ({ p }) => {
+check('games', 'every game: a title card with a folding how-to; the host sounds and moves on every reported answer', async ({ p }) => {
+  /* the games load with their screen (docs/27): load them first, or there is nothing to walk */
+  await p.evaluate(() => window.IND_LOAD(['games']));
   const ids = await p.evaluate(() => (window.IND_GAMES || []).map(g => g.id));
+  if (ids.length < 10) throw new Error('only ' + ids.length + ' games registered');
   const frame = await p.evaluate(() => window.BI.gameFrame);
-  const missing = ids.filter(id => !frame[id] || !frame[id][0] || !frame[id][1]);
+  /* a registration may carry its own `how` and `practised` (docs/32) */
+  const own = await p.evaluate(() => Object.fromEntries((window.IND_GAMES || []).map(g => [g.id, [g.how || '', g.practised || '']])));
+  const missing = ids.filter(id => !((frame[id] && frame[id][0]) || own[id][0]) || !((frame[id] && frame[id][1]) || own[id][1]));
   if (missing.length) throw new Error('games with no how-to or no "what you practised": ' + missing.join(', '));
   for (const id of ids) {
     if (id === 'sabhyata') continue;          /* a full-screen game window with its own coach */
@@ -99,56 +105,53 @@ check('games', 'every game: a title card with a folding how-to; Gyanpati sounds 
     const t = await p.evaluate(() => { const e = document.getElementById('gftitle');
       return e ? { txt: e.textContent, folded: e.classList.contains('folded') } : null; });
     if (!t || !/keyboard/i.test(t.txt) || t.folded) throw new Error(id + ': no open title card with a how-to and the keys');
+    /* a game with levels opens on the host's level chip (games spec §1.3), the how-to open over it;
+       the three seconds start when play does */
+    await p.evaluate(() => { const s = document.querySelector('#gamehost [data-gmh="start"]'); if (s) s.click(); });
     await p.waitForTimeout(3200);
     const f = await p.evaluate(() => document.getElementById('gftitle').classList.contains('folded'));
     if (!f) throw new Error(id + ': the how-to did not fold after three seconds');
   }
-  /* Gyanpati to the end: a sound and a motion on every answer, the finish, and what was practised */
+  /* A GAME TO THE END, THROUGH THE CONTRACT (games spec §1.1, docs/32). The host used to count
+     answers by watching the page's classes, which gave "27 right" in a ten-question game and both
+     sounds on one miss (fix brief v4); it now reads only what an engine reports. So this is held
+     with an engine that reports — registered as Gyanpati, so its stall is on Play — and every
+     real engine's own reports are held by tools/check-games.js. A miss first, then six rights. */
+  await p.evaluate(() => {
+    window.IND_GAMES = window.IND_GAMES.filter(g => g.id !== 'gyanpati');
+    window.IND_GAMES.push({ id: 'gyanpati', name: 'Kaun Banega Gyanpati?', teaches: true, blurb: 'A test ladder.',
+      engine(host, opts, done) { window.__g = { opts, done }; host.innerHTML = '<p>ladder</p>'; } });
+  });
   await p.evaluate(() => window.BI.go('game', 'gyanpati')); await p.waitForTimeout(600);
   await clearPlayed(p);
   let motions = 0;
   await p.exposeFunction('__gfMotion', () => { motions++; });
   await p.evaluate(() => { const f = document.getElementById('gframe');
     new MutationObserver(() => { if (/gf-(yes|no)/.test(f.className)) window.__gfMotion(); }).observe(f, { attributes: true, attributeFilter: ['class'] }); });
-  /* the first answer is a miss on purpose: a miss reveals the right option, and the frame once
-     counted that reveal (and the "Shabaash" line under a right one) as rights of their own —
-     "27 right" at the end of a ten-question game (fix brief v4) */
-  let answers = 0;
-  for (let k = 0; k < 40; k++) {
-    if (await p.$('#gamehost [data-go="out"]')) break;
-    const did = await p.evaluate(miss => {
-      const host = document.getElementById('gamehost'), s = host.__qzState;
-      const aage = host.querySelector('[data-go="aage"], [data-go="next"]');
-      if (aage) { aage.click(); return 'next'; }
-      if (s && s.phase === 'ask') { const os = host.querySelectorAll('.qz-opt'), o = os[miss ? (s.answerIndex + 1) % os.length : s.answerIndex];
-        if (o) { o.click(); host.querySelector('[data-go="lock"]').click(); return 'ans'; } }
-      return 'wait';
-    }, answers === 0);
-    if (did === 'ans') answers++;
-    await p.waitForTimeout(did === 'wait' ? 400 : 250);
+  const answers = 7;
+  for (let k = 0; k < answers; k++) {
+    await p.evaluate(k => window.__g.opts.answer({ id: 'g' + k, right: k > 0, firstTry: true }), k);
+    await p.waitForTimeout(250);
   }
-  const end = await p.evaluate(() => ({ out: !!document.querySelector('#gamehost [data-go="out"]'),
-    practised: (document.querySelector('#gamehost .gf-practised') || {}).textContent || '' }));
+  const counter = await p.evaluate(() => (document.querySelector('#gframe .gf-rights') || {}).textContent || '');
   const pl = await played(p);
-  if (!end.out) throw new Error('Gyanpati did not reach its end card');
-  if (!/What you practised/.test(end.practised)) throw new Error('the end card does not say what was practised');
-  const rights = pl.filter(x => x === 'right').length;
-  if (rights < answers - 1) throw new Error(`${answers - 1} right answers, ${rights} right sounds`);
-  if (pl.indexOf('wrong') < 0) throw new Error('the miss made no sound');
-  const said = +((end.practised.match(/(\d+) right/) || [])[1] || 0);
-  if (said !== answers - 1) throw new Error(`${answers} answers, ${answers - 1} of them right, and the finish says ${said} right`);
-  if (pl.indexOf('win') < 0 && pl.indexOf('finish') < 0) throw new Error('the finish made no sound');
+  const rights = pl.filter(x => x === 'right').length, wrongs = pl.filter(x => x === 'wrong').length;
+  if (rights !== answers - 1) throw new Error(`${answers - 1} right answers, ${rights} right sounds`);
+  if (wrongs !== 1) throw new Error(`one miss, ${wrongs} wrong sounds`);
+  if (!new RegExp('^' + (answers - 1) + ' right this game$').test(counter.trim())) throw new Error(`${answers - 1} right, and the counter says "${counter}"`);
   if (motions < answers) throw new Error(`${answers} answers, ${motions} motions`);
-  /* THE FINISH STAYS (audit F4/G9): pressing the end card's button lands on the host's finish —
-     score, best, what was practised, Play again / Back to Play — and it is still there two
-     seconds later; it used to jump to the Mela after 0.9 s */
-  await p.evaluate(() => document.querySelector('#gamehost [data-go="out"]').click());
+  /* THE FINISH STAYS (audit F4/G9): the engine's done() lands on the host's finish — score, best,
+     what was practised, Play again / Back to Play — and it is still there two seconds later */
+  await clearPlayed(p);
+  await p.evaluate(n => window.__g.done({ win: true, score: n, asked: n + 1, firstTryRight: n }), answers - 1);
   await p.waitForTimeout(2200);
   const fin = await p.evaluate(() => { const f = document.querySelector('#gamehost .gf-finish');
     return { hash: location.hash, f: !!f, text: f ? f.innerText : '', again: !!(f && f.querySelector('[data-act="game"]')),
              back: f ? (f.querySelector('[data-act="go"]') || {}).getAttribute && f.querySelector('[data-act="go"]').getAttribute('data-v') : null }; });
   if (!/^#\/game/.test(fin.hash) || !fin.f) throw new Error(`the finish did not stay: ${fin.hash}, finish card ${fin.f}`);
   if (!/your best/.test(fin.text) || !/What you practised/.test(fin.text)) throw new Error('the finish card has no best or no "what you practised": ' + fin.text.slice(0, 120));
+  if (!new RegExp((answers - 1) + ' of ' + answers + ' right first time').test(fin.text)) throw new Error('the finish card does not say how many were right first time: ' + fin.text.slice(0, 160));
+  if ((await played(p)).indexOf('finish') < 0) throw new Error('six of seven right first time, and the finish made no sound');
   if (!fin.again || fin.back !== 'play') throw new Error('the finish card needs Play again and Back to Play');
   await p.evaluate(() => document.querySelector('#gamehost .gf-finish [data-v="play"]').click()); await p.waitForTimeout(500);
   const hub = await p.evaluate(() => ({ hash: location.hash, best: [...document.querySelectorAll('.gcover[data-id="gyanpati"] .mono')].map(e => e.textContent).join('') }));
@@ -167,16 +170,18 @@ check('hub', 'Play is the one painted hub: #/mela and #/khel are it, a game goes
     const rows = [...m.querySelectorAll('.gshelf')].map(g => { const hs = {}; [...g.children].forEach(c => { const r = c.getBoundingClientRect(), t = c.querySelector('.gbody .tiny');
       (hs[Math.round(r.top)] = hs[Math.round(r.top)] || []).push(t ? t.getBoundingClientRect().height : 0); }); return Object.values(hs); }).flat();
     return { hero: !!m.querySelector('.ghero'), stalls: m.querySelectorAll('.gcover[data-act="game"]').length,
-             corners: ['rishtey', 'gully', 'geet'].filter(v => m.querySelector('.gcover[data-v="' + v + '"]')).length,
+             corners: ['gully', 'geet'].filter(v => m.querySelector('.gcover[data-v="' + v + '"]')).length,
              uneven: rows.filter(r => r.length > 1 && Math.max(...r) - Math.min(...r) > 60).length,
              tab: (document.querySelector('[data-bz=tab][aria-current]') || {}).getAttribute ? document.querySelector('[data-bz=tab][aria-current]').getAttribute('data-v') : null }; }, h);
   await p.evaluate(() => window.IND_LOAD(['games'])); 
   const a = await look('#/play'), b = await look('#/mela'), c = await look('#/khel');
-  if (!a.hero || a.stalls < 13) throw new Error(`#/play is not the painted hub (hero ${a.hero}, ${a.stalls} stalls)`);
-  if (a.corners !== 3) throw new Error(`#/play is missing the family corners (${a.corners} of Rishtey, Gully, Geet)`);
+  /* ONE IN, ONE OUT (games spec §3.1, T16): thirteen cards at most — the hero and the stalls —
+     and the Rishtey quiz left the corners for Shabd's Parivaar pack; Gully and Geet stay */
+  if (!a.hero || a.stalls + 1 > 13 || a.stalls + 1 < 10) throw new Error(`#/play is not the painted hub of 10–13 cards (hero ${a.hero}, ${a.stalls} stalls)`);
+  if (a.corners !== 2) throw new Error(`#/play is missing the family corners (${a.corners} of Gully, Geet)`);
   if (a.uneven) throw new Error(`${a.uneven} rows of stalls have one blurb more than three lines taller than its neighbour — a hole under the short ones`);
   for (const [h, r] of [['#/mela', b], ['#/khel', c]]) if (r.stalls !== a.stalls || r.hero !== a.hero) throw new Error(h + ' is a different hub from #/play');
-  await p.evaluate(() => window.BI.go('game', 'statehunt')); await p.waitForTimeout(400);
+  await p.evaluate(() => window.BI.go('game', 'gyanpati')); await p.waitForTimeout(400);
   const back = await p.evaluate(() => (document.querySelector('#main .backlink') || {}).getAttribute && document.querySelector('#main .backlink').getAttribute('data-v'));
   if (back !== 'play') throw new Error('a game\'s back pill goes to ' + back + ', not Play');
 });

@@ -29,7 +29,7 @@
     saveHouse: function (h) { try { localStorage.setItem(this.HOUSE, JSON.stringify(h)); } catch (e) {} },
     kidKey: function (base, id) { id = id || this.house().active; return id === 'k1' ? base : base + '.' + id; },
     /* every key a child owns, so removing a child removes all of them */
-    KID_KEYS: ['bi_v1', 'india.sabhyata.v2', 'india.rangoli.lvl'],
+    KID_KEYS: ['bi_v1', 'india.sabhyata.v2', 'india.rangoli.lvl', 'india.gyanpati.v1'],
     kids: function () {
       var h = this.house(), self = this;
       return h.order.map(function (id) {
@@ -145,7 +145,7 @@
     restore: function (o) {
       if (!o || typeof o !== 'object') return false;
       if (o.kind === 'bizzing-india-household' && o.house && o.keys) {
-        var self = this, ok = /^(bi_v1|india\.sabhyata\.v2|india\.rangoli\.lvl)(\.k\d+)?$/;
+        var self = this, ok = /^(bi_v1|india\.sabhyata\.v2|india\.rangoli\.lvl|india\.gyanpati\.v1)(\.k\d+)?$/;
         this.house().order.forEach(function (id) { self.KID_KEYS.forEach(function (b) {
           try { localStorage.removeItem(self.kidKey(b, id)); } catch (e) {} }); });
         Object.keys(o.keys).forEach(function (k) { if (ok.test(k)) try { localStorage.setItem(k, o.keys[k]); } catch (e) {} });
@@ -1632,7 +1632,9 @@
     var started = Object.keys(S.lang || {}).filter(function (k) { return P[k] && (S.lang[k].correct || 0) > 0; }).length;
     var X = window.IND_INDEX || {};
     var courses = window.IND_PAATH ? (window.IND_PAATH.courses || []).length : (X.courses || []).length;
-    var games = (window.IND_GAMES || []).length || X.games || 0;
+    /* the cards Play shows (one in, one out, ≤ 13 — games spec §3.1), not every engine registered */
+    var games = (window.IND_GAMES || []).length ? playLineup().reduce(function (n, grp) { return n + grp.games.length; }, 0)
+                                                : Math.min(PLAY_MAX, X.games || 0);
     if (!Object.keys(P).length && X.packs) X.packs.forEach(function (r) { P[r[0]] = { name: { en: r[1] } }; });
     var vals = window.IND_NEETI ? window.IND_NEETI.values.length : 0;
     var W5 = [
@@ -4711,7 +4713,9 @@
     var byTier = R.terms.slice().sort(function (a, b) { return a.tier - b.tier; });
     var week = R.ask[new Date().getDay() % R.ask.length];
     return rfc + '<div class="card"><h1>Rishtey</h1><p>' + esc(R.intro) + '</p>' +
-      '<button class="btn" data-act="rishquiz">Build your family tree →</button></div>' +
+      /* the quiz that was here is Shabd's Parivaar pack now (games spec §3.1) — this page is the
+         words themselves, to hear and to take to the family */
+      '</div>' +
 
       '<div class="card tint notch"><div class="mono">Ask a grown-up this week</div>' +
       '<p style="font-family:var(--display);font-size:19px;margin:8px 0 0">' + esc(week) + '</p>' +
@@ -6430,30 +6434,74 @@
   /* ------------------------------------------------------------------ MELA */
   /* The fairground shelf, in the Bizzing Bee arcade idiom: a loud gradient
      cover per stall with a self-animating scene, a tag chip, the facts
-     underneath. New games carry their own cover data (tag/c/c2/scene) on the
-     registry entry; the founding four predate that contract and are dressed
-     here. Grouping is presentation, not data — a game the groups don't know
-     still shows up under More stalls, so nothing ever silently vanishes. */
+     underneath. New games carry their own cover data (tag/c/c2/scene/sub) on the
+     registry entry; the founding ones predate that contract and are dressed here. */
   var MELA_DRESS = {
-    rangoli:   { tag: 'Memory', c: '#E8458C', c2: '#B82C67' },
-    statehunt: { tag: 'Naksha', c: '#13A892', c2: '#0E8A78' },
-    festival:  { tag: 'Utsav',  c: '#E8A33D', c2: '#C8891B' },
-    jataka:    { tag: 'Katha',  c: '#7B52E0', c2: '#5E39C4' }
+    rangoli:     { tag: 'Memory', c: '#E8458C', c2: '#B82C67', sub: 'remember the pattern, draw it back' },
+    statehunt:   { tag: 'Naksha', c: '#13A892', c2: '#0E8A78', sub: 'which state is it?' },
+    festival:    { tag: 'Utsav',  c: '#E8A33D', c2: '#C8891B', sub: 'festivals through the year' },
+    jataka:      { tag: 'Katha',  c: '#7B52E0', c2: '#5E39C4', sub: 'find the lesson in the tale' },
+    sabhyata:    { sub: 'grow India’s first cities' },
+    gyanpati:    { sub: 'the quiz ladder, easy to hard' },
+    shabd:       { sub: 'words in your family’s language' },
+    ludo:        { sub: 'race four tokens home' },
+    carrom:      { sub: 'flick, aim and pocket' },
+    pallanguzhi: { sub: 'sow the shells, count ahead' }
   };
+  /* ONE IN, ONE OUT (games spec §3.1): at most 13 cards, in these groups. A slot [new, old] shows
+     the new engine once registered and released (no `review`, or tester mode), else the old one.
+     An engine in no slot is not on the shelf (Trivia Master, Saap-Sidi, Kancha, Gutte, the Rishtey
+     quiz) but stays routable — gameFor(). */
   var MELA_GROUPS = [
-    ['Aangan ke khel', 'From India’s own courtyard — these were being played centuries before there were screens to play them on.', ['saapsidi', 'ludo', 'carrom']],
-    ['Quiz shows', 'Ladders and lifelines — the hot seat is yours.', ['gyanpati', 'triviamaster']],
-    ['Drills in costume', 'Secretly practice. Openly a fair.', ['shabd', 'rangoli', 'statehunt', 'festival', 'jataka']]
+    ['Flagships', 'The two big ones: a civilisation to grow, and a story that sends you across India.', ['sabhyata', 'saga']],
+    ['Know', 'The one quiz — fifteen rungs, easy to hard, and a miss is taught.', ['gyanpati']],
+    ['Map · Time · Calendar', 'Where, when and in what order — played on the map, the river of time and the year.',
+      [['naksha', 'statehunt'], 'kaalnadi', ['panchang', 'festival']]],
+    ['Language', 'Words and letters in your family’s own language.', ['shabd', 'akshar']],
+    ['Story and art', 'Put a tale back together; remember a pattern and draw it back.', [['katha', 'jataka'], 'rangoli']],
+    ['Aangan ke khel', 'For fun, no coins — from India’s own courtyards, played for centuries before there were screens.',
+      ['ludo', 'carrom', 'pallanguzhi'], 'fun']
   ];
+  var PLAY_MAX = 13;
+  /* the games played for their own sake: they never pay, whatever a registration says */
+  var HERITAGE = ['ludo', 'saapsidi', 'carrom', 'pallanguzhi', 'kancha', 'gutte'];
+  /* WHERE AN OLD DOOR LEADS: a legacy id to its released replacement; an id not registered or not
+     released to its alias; else the hub. Nothing dead-ends. */
+  var GAME_NEXT = { statehunt: 'naksha', festival: 'panchang', jataka: 'katha' };
+  var GAME_ALIAS = { naksha: 'statehunt', statehunt: 'naksha', panchang: 'festival', festival: 'panchang',
+                     katha: 'jataka', jataka: 'katha', triviamaster: 'gyanpati', saapsidi: 'ludo' };
+  function released(g) { return !!g && (!g.review || tester()); }
+  function gameById(id) { return (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0] || null; }
+  /* the engine #/game/<id> opens; null = the hub */
+  function gameFor(id) {
+    var n = GAME_NEXT[id] ? gameById(GAME_NEXT[id]) : null;
+    if (released(n)) return n;
+    var g = gameById(id);
+    if (released(g)) return g;
+    var a = GAME_ALIAS[id] ? gameById(GAME_ALIAS[id]) : null;
+    return released(a) ? a : null;
+  }
+  /* the shelf as it stands: [{ head, note, fun, games: [g…] }], never more than PLAY_MAX games */
+  function playLineup() {
+    var n = 0;
+    return MELA_GROUPS.map(function (grp) {
+      var list = grp[2].map(function (slot) {
+        var ids = typeof slot === 'string' ? [slot] : slot;
+        /* a registration marked `hide` (an alias, a folded card) never takes a slot */
+        for (var i = 0; i < ids.length; i++) { var g = gameById(ids[i]); if (released(g) && !g.hide) return g; }
+        return null;
+      }).filter(function (g) { return g && n++ < PLAY_MAX; });
+      return { head: grp[0], note: grp[1], fun: grp[3] === 'fun', games: list };
+    }).filter(function (grp) { return grp.games.length; });
+  }
+  function gameSub(g) { return g.sub || (MELA_DRESS[g.id] || {}).sub || ''; }
   V.mela = function () {
     var G = window.IND_GAMES || [];
     if (!G.length) return '<div class="card"><h1>The Mela</h1><p>The games have not loaded.</p></div>';
-    var byId = {}, used = {};
-    G.forEach(function (g) { byId[g.id] = g; });
     function cover(g) {
       var d = MELA_DRESS[g.id] || {};
       var c = g.c || d.c || 'var(--accent)', c2 = g.c2 || d.c2 || c;
-      var tag = g.tag || d.tag || '';
+      var tag = g.tag || d.tag || '', sub = gameSub(g), fun = !teachesGame(g);
       return '<button class="gcover" data-act="game" data-id="' + g.id + '">' +
         /* A FULL-BLEED ILLUSTRATED COVER where one exists (game-art.js): the board, the
            dice, the letter rack, the wheel. Every stall used to be the same gradient with
@@ -6466,68 +6514,69 @@
             ? '<img class="gplate" src="art/games/' + g.id + '.webp" alt="" loading="lazy" decoding="async">' : '') +
           ((window.IND_GAME_ART && window.IND_GAME_ART[g.id]) || g.scene || icon(g.icon || 'star', 46)) +
           (tag ? '<span class="gtag">' + esc(tag) + '</span>' : '') + '</span>' +
+        /* each card carries its one-line English subtitle (games spec §3.3): the Hindi name is
+           house style, the subtitle keeps it open to every family */
         '<span class="gbody"><b>' + esc(g.name) + '</b>' +
+        (sub ? '<span class="gsub">' + esc(sub) + '</span>' : '') +
         '<span class="tiny muted">' + esc(g.blurb || '') + '</span>' +
         '<span class="mono">' + (g.minutes || 2) + ' min' +
+          (fun ? ' · for fun · no coins' : '') +
           (bestOf(g.id) != null ? ' · your best ' + bestOf(g.id) : '') + '</span></span></button>';
     }
     /* nomenclature rule: the tab's word is the pillar's name; the Mela keeps its
        proper name as the subtitle, the way the river does under Itihaas */
     var out = '<div class="phead"><h1>Play</h1>' +
       '<span class="mono">Khel · the Mela — the fairground</span>' +
-      '<p>Some stalls are as old as India, some are drills wearing a costume — every one ' +
+      '<p>Games where the subject is the game, and courtyard games played for fun — every one ' +
       'plays with fingers and with keys.</p></div>';
-    /* THE HERO STALL. Sabhyata is the fair's big wheel — it gets the top of the
-       page as a full-width living banner: the Kashi diorama with drifting mist,
-       a cart crossing, an explorer waiting, lamps breathing. One tap plays. */
-    if (byId.sabhyata) {
-      used.sabhyata = 1;
-      out += '<button class="ghero" data-act="game" data-id="sabhyata"' +
-        ' aria-label="Play Sabhyata — grow the first cities of India">' +
-        '<img class="gh-bg" src="art/sabhyata/dio/kashi.jpg" alt="">' +
-        '<span class="gh-mist m1"></span><span class="gh-mist m2"></span>' +
-        '<span class="gh-lamp l1"></span><span class="gh-lamp l2"></span><span class="gh-lamp l3"></span>' +
-        '<img class="gh-cart" src="art/sabhyata/sp/cart.png" alt="">' +
-        '<img class="gh-walk" src="art/sabhyata/sp/explorer.png" alt="">' +
-        '<span class="gh-body"><span class="gh-kicker">The hero game · Civilization</span>' +
-        '<b>Sabhyata</b>' +
-        '<span class="gh-blurb">Grow the first cities, light five thousand years of India lamp ' +
-        'by lamp — and hold back the Forgetting. Nothing is conquered here; everything is reached.</span>' +
-        '<span class="gh-cta">' + icon('play', 17) + ' Play — ' +
-        (byId.sabhyata.minutes || 12) + ' min</span></span></button>';
-    }
-    MELA_GROUPS.forEach(function (grp) {
-      var list = grp[2].map(function (id) { used[id] = 1; return byId[id]; }).filter(Boolean);
-      if (!list.length) return;
-      out += '<div class="shelfhead"><h3>' + grp[0] + '</h3>' +
-        '<p class="tiny">' + grp[1] + '</p></div>' +
-        '<div class="grid g3 gshelf">' + list.map(cover).join('') + '</div>';
+    playLineup().forEach(function (grp) {
+      var list = grp.games.slice();
+      out += '<div class="shelfhead"><h3>' + esc(grp.head) + '</h3>' +
+        '<p class="tiny">' + esc(grp.note) + '</p></div>';
+      /* THE HERO STALL. Sabhyata is the fair's big wheel — it gets the top of the
+         page as a full-width living banner: the Kashi diorama with drifting mist,
+         a cart crossing, an explorer waiting, lamps breathing. One tap plays. */
+      if (list[0] && list[0].id === 'sabhyata') {
+        var sab = list.shift();
+        out += '<button class="ghero" data-act="game" data-id="sabhyata"' +
+          ' aria-label="Play Sabhyata — grow the first cities of India">' +
+          '<img class="gh-bg" src="art/sabhyata/dio/kashi.jpg" alt="">' +
+          '<span class="gh-mist m1"></span><span class="gh-mist m2"></span>' +
+          '<span class="gh-lamp l1"></span><span class="gh-lamp l2"></span><span class="gh-lamp l3"></span>' +
+          '<img class="gh-cart" src="art/sabhyata/sp/cart.png" alt="">' +
+          '<img class="gh-walk" src="art/sabhyata/sp/explorer.png" alt="">' +
+          '<span class="gh-body"><span class="gh-kicker">The hero game · Civilization</span>' +
+          '<b>Sabhyata</b>' +
+          '<span class="gh-blurb">Grow the first cities, light five thousand years of India lamp ' +
+          'by lamp — and hold back the Forgetting. Nothing is conquered here; everything is reached.</span>' +
+          '<span class="gh-cta">' + icon('play', 17) + ' Play — ' +
+          (sab.minutes || 12) + ' min</span></span></button>';
+      }
+      if (list.length) out += '<div class="grid g3 gshelf' + (grp.fun ? ' gfun' : '') + '">' + list.map(cover).join('') + '</div>';
     });
-    var rest = G.filter(function (g) { return !used[g.id] && !g.hide; });
-    if (rest.length) out += '<div class="shelfhead"><h3>More stalls</h3><p class="tiny">Courtyard games, played with fingers and with keys.</p></div>' +
-      '<div class="grid g3 gshelf">' + rest.map(cover).join('') + '</div>';
-    /* the corners that are not games but are played: your family's words, the street, the songs */
+    /* the corners that are not games: the street, the songs (the Rishtey quiz is Shabd's
+       Parivaar pack now, games spec §3.1; the Rishtey page stays) */
     var corner = function (v, name, blurb, ic, c, c2, tag) {
       return '<button class="gcover" data-act="go" data-v="' + v + '">' +
         '<span class="gart" style="background:linear-gradient(135deg,' + c + ',' + c2 + ')">' + icon(ic, 46) +
         '<span class="gtag">' + esc(tag) + '</span></span>' +
         '<span class="gbody"><b>' + esc(name) + '</b><span class="tiny muted">' + esc(blurb) + '</span></span></button>';
     };
-    out += '<div class="shelfhead"><h3>From home</h3><p class="tiny">Not on a screen at all, mostly — words, games and songs to take to the family.</p></div>' +
-      '<div class="grid g3 gshelf">' +
-      corner('rishtey', 'Rishtey', 'Thirty exact words for your family, where English has one. Build your own tree.', 'parent', '#b4471f', '#e7842c', 'family') +
-      (window.IND_GULLY ? corner('gully', 'Gully', window.IND_GULLY.games.length + ' street games, with the rules — to take outside and actually play.', 'run', '#2f7a4d', '#7cb36a', 'outside') : '') +
-      (window.IND_GEET ? corner('geet', 'Geet', 'The rhymes and lullabies your parents knew by heart, with what the words mean.', 'sound', '#5b3fd6', '#9b7be8', 'songs') : '') +
-      '</div>';
+    var corners = (window.IND_GULLY ? corner('gully', 'Gully', window.IND_GULLY.games.length + ' street games, with the rules — to take outside and actually play.', 'run', '#2f7a4d', '#7cb36a', 'outside') : '') +
+      (window.IND_GEET ? corner('geet', 'Geet', 'The rhymes and lullabies your parents knew by heart, with what the words mean.', 'sound', '#5b3fd6', '#9b7be8', 'songs') : '');
+    if (corners) out += '<div class="shelfhead"><h3>From home</h3><p class="tiny">Not on a screen at all, mostly — games and songs to take to the family.</p></div>' +
+      '<div class="grid g3 gshelf">' + corners + '</div>';
     return out;
   };
   /* THE GAME FRAME (family standard §10; FIX-INDIA F3). Every game gets, from the host,
      the same five things whatever its engine does: a TITLE CARD with a three-second how-to
      (it folds to a title row and never covers the board), SOUND on every answer and at the
      finish, MOTION on every answer, a FINISH screen that says what was practised, and
-     keyboard as well as touch (the engines' own, said on the card). The engines share two
-     conventions the host reads: a status line toned `good` or `warm`, and an end card with
-     a [data-go="out"] button. Street and dice games say plainly that they are for fun. */
+     keyboard as well as touch (the engines' own, said on the card). The host reads nothing off
+     the page any more: an engine reports each answer through opts.answer and its end through
+     done() (docs/32, games spec §1.1). A registration may carry its own `how` and `practised`;
+     these are the lines for the games that predate that. Street and dice games say plainly that
+     they are for fun. */
   var GAME_FRAME = {
     rangoli:      ['Watch the pattern, then draw it back in colour before it blows away.',
                    'Pattern memory and symmetry — remember half, complete the whole.'],
@@ -6551,17 +6600,38 @@
                    'Angles and aim. Played for fun.'],
     gyanpati:     ['Fifteen questions, easy to hard. Pick an answer and lock it in.',
                    'What you know about India — and the ones you met for the first time today.'],
-    triviamaster: ['Ten questions from the topics you switch on. Answers in a row stack up.',
+    triviamaster: ['Ten questions from the topics you switch on.',
                    'Quick recall across maps, history, festivals, food and the epics.'],
     shabd:        ['Hear or read the word, then pick what it means.',
                    'Words in your family’s language, and what they mean.'],
     sabhyata:     ['Build, grow and learn — each era asks for one thing.',
-                   'How India’s first cities grew, era by era.']
+                   'How India’s first cities grew, era by era.'],
+    /* the cards coming in, one in for one out (games spec §3.1) — each engine may say it better
+       with its own `how` / `practised` */
+    naksha:       ['Read what to find, then tap it on the map of India.',
+                   'Where India’s states, capitals and rivers are — on the map itself.'],
+    panchang:     ['Turn the year and set each festival in its month.',
+                   'When festivals fall, and how one season has many names.'],
+    kaalnadi:     ['Set each card on the River of Time, earlier upstream, later down.',
+                   'Putting history in order, and how we know when.'],
+    akshar:       ['Hear the sound, then build the syllable from its letter and its sign.',
+                   'Reading and building syllables in your family’s script.'],
+    katha:        ['Read the tale, then put its pictures back in order.',
+                   'Following a story from its start to its end.'],
+    saga:         ['Follow Gattu and Mithu; each chapter is played as one of the games.',
+                   'Bringing back what the mist made a village forget, skill by skill.']
   };
+  /* a game's two lines: its own registration first, then the frame's */
+  function frameOf(g) {
+    var f = GAME_FRAME[g.id] || [];
+    return [g.how || f[0] || g.blurb || '', g.practised || f[1] || ''];
+  }
   V.game = function () {
-    var g = (window.IND_GAMES || []).filter(function (x) { return x.id === view.arg; })[0];
-    var f = GAME_FRAME[view.arg] || [g && g.blurb || '', ''];
-    return '<button class="backlink" data-act="go" data-v="play">' + icon('back', 18) + ' Play</button>' +
+    var g = gameFor(view.arg);
+    /* a hidden or retired id never dead-ends: with no engine to open, it is the hub */
+    if (!g && (window.IND_GAMES || []).length) return V.play();
+    var f = g ? frameOf(g) : ['', ''];
+    return '<button class="backlink gf-back" data-act="go" data-v="play">' + icon('back', 18) + ' Play</button>' +
       '<div class="card gframe" id="gframe">' +
       (g ? '<button class="gf-title" id="gftitle" aria-expanded="true" data-act="gfhow">' +
         '<span class="gf-ic">' + icon('game', 22) + '</span>' +
@@ -8178,7 +8248,8 @@
       });
     });
     (window.IND_AVATARS || []).forEach(function (a) { add(a.real ? 'Person' : 'Card', a.name, a.about || '', 'avcard', a.id); });
-    (window.IND_GAMES || []).forEach(function (g) { if (!g.hide) add('Game', g.name, (g.blurb || '').slice(0, 90), 'game', g.id); });
+    /* search finds the games Play offers — a retired or folded card is not found as a game */
+    playLineup().forEach(function (grp) { grp.games.forEach(function (g) { if (!g.hide) add('Game', g.name, (g.blurb || '').slice(0, 90), 'game', g.id); }); });
     ((window.IND_PAATH || {}).courses || []).forEach(function (c) { add('Course', c.title || c.name, c.tagline || c.sub || '', 'paath', c.id); });
     SIDX = out;
     return out;
@@ -9029,128 +9100,238 @@
     });
   }
 
-  /* the games that teach — every one scored on the learning decision (standard §10) */
-  var TEACHES = ['statehunt', 'festival', 'jataka', 'gyanpati', 'triviamaster', 'shabd', 'sabhyata'];
-  /* a game's best score, this child's (S.best[gameId]) — shown on its stall and at its finish */
-  function bestOf(id) { return S.best && typeof S.best[id] === 'number' ? S.best[id] : null; }
+  /* THE GAMES THAT TEACH (games spec §1.2): only these pay, only for a reported first-try right —
+     never for finishing, time or dice. Legacy ids stay until replaced; heritage games never pay. */
+  var TEACHES = ['gyanpati', 'shabd', 'naksha', 'panchang', 'kaalnadi', 'akshar', 'katha', 'sabhyata', 'saga', 'rangoli',
+                 /* legacy, until their replacements are released */ 'statehunt', 'festival', 'jataka'];
+  function teachesGame(g) {
+    return !!g && HERITAGE.indexOf(g.id) < 0 && g.teaches !== false && (g.teaches === true || TEACHES.indexOf(g.id) >= 0);
+  }
+  /* a game's best score, this child's (S.best[gameId]) — shown on its stall and at its finish.
+     The quizzes' scores became first-try rights with the contract (docs/32); a best kept in the old
+     points would tower over every new score, so those are dropped once (S.bestV). */
+  var BEST_V = 2, BEST_OLD = ['statehunt', 'festival', 'jataka', 'gyanpati', 'triviamaster', 'shabd'];
+  function bests() {
+    if (S.bestV !== BEST_V) {
+      if (S.best) BEST_OLD.forEach(function (k) { delete S.best[k]; });
+      S.bestV = BEST_V; if (S.started) save();
+    }
+    return S.best || {};
+  }
+  function bestOf(id) { var b = bests(); return typeof b[id] === 'number' ? b[id] : null; }
+  /* THE ONE PAY PATH (§1.2): S.gpay is today's record per child — items paid, the ladder paid */
+  var ROUND_CAP = 10;
+  function gpayToday() {
+    var d = today();
+    if (!S.gpay || S.gpay.day !== d) S.gpay = { day: d, ids: {}, contest: false };
+    return S.gpay;
+  }
+  /* a first-try right: 1 coin, at most ROUND_CAP a round, once per item per day */
+  function payAnswer(g, key, round) {
+    if (!teachesGame(g) || key == null || round.paid >= ROUND_CAP) return 0;
+    var P = gpayToday(), k = g.id + ':' + key;
+    if (P.ids[k]) return 0;
+    var n = earn('answer', g.name);
+    if (n > 0) { P.ids[k] = 1; round.paid++; round.coins += n; save(); }
+    return n;
+  }
+  /* THE LEVEL (games spec §1.3): per game, per child; the default is the last level played */
+  function gameBand() { var a = S.age || 8; return a <= 7 ? '4-7' : a <= 10 ? '8-10' : '11-12'; }
+  function levelsOf(g) { return teachesGame(g) && Array.isArray(g.levels) && g.levels.length === 5 ? g.levels : null; }
+  function lastLevel(id) { var l = S.lvl ? +S.lvl[id] : 0; return l >= 1 && l <= 5 ? Math.round(l) : 1; }
+  /* the finish card's "Try level N+1" starts the next round straight there */
+  var gameStartAt = null;
+  /* THE HOST (docs/32) owns the title, level chip, counter, answer sounds, pay and finish; the
+     engine owns its board and miss card, and reports through opts.answer and done() — nothing is
+     read off the page. */
   function mountGame(id) {
-    var g = (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0], host = $('#gamehost');
+    var g = gameFor(id), host = $('#gamehost');
     if (!g || !host) return;
-    var frame = $('#gframe'), title = $('#gftitle'), fr = GAME_FRAME[g.id] || ['', ''];
-    /* the how-to folds to a title row after three seconds (or the first tap on the board) */
-    var fold = function () { if (title) { title.classList.add('folded'); title.setAttribute('aria-expanded', 'false'); } };
-    var foldT = setTimeout(fold, 3000);
-    host.addEventListener('pointerdown', fold, { once: true });
-    /* sound and motion on every answer, and the finish says what was practised */
-    /* MOTION ON EVERY ANSWER, AND A COUNT THAT ONLY GOES UP (FIX-INDIA G6): a right answer
-       throws a little burst of sparks from the frame and adds to "N right this game" — a
-       progress count, never a streak that a miss can take away. */
-    var rights = 0;
+    var frame = $('#gframe'), title = $('#gftitle'), fr = frameOf(g), teach = teachesGame(g), lv = levelsOf(g);
+    /* the how-to folds three seconds into play or on the first tap — on the click, never the
+       press: a fold between press and release moved the board under the finger */
+    var foldT = 0;
+    var fold = function () { clearTimeout(foldT); if (title) { title.classList.add('folded'); title.setAttribute('aria-expanded', 'false'); } };
+    var offs = [function () { clearTimeout(foldT); }];
+    var on = function (el, ev, fn, o) { el.addEventListener(ev, fn, o); offs.push(function () { el.removeEventListener(ev, fn, o); }); };
+    var unhost = function () { while (offs.length) { try { offs.pop()(); } catch (e) {} } };
+    /* the bar under the how-to is the three seconds: held while the level is chosen, run with play */
+    var bar = title && title.querySelector('.gf-bar');
+    var foldSoon = function () {
+      clearTimeout(foldT); foldT = setTimeout(fold, 3000); on(host, 'click', fold, { once: true });
+      if (bar) { bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''; bar.style.visibility = ''; }
+    };
+    if (bar && lv) bar.style.visibility = 'hidden';
+    var reduced = !!dev.motion || !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    /* MOTION ON EVERY ANSWER (FIX-INDIA G6): a right answer throws a little burst of sparks from
+       the frame; a miss shakes the title row. Calm and reduced motion keep it still. */
     var burst = function (big) {
-      if (!frame || dev.calm || dev.motion) return;
+      if (!frame || dev.calm || reduced) return;
       var b = document.createElement('span'); b.className = 'gf-burst' + (big ? ' big' : ''); b.setAttribute('aria-hidden', 'true');
       b.innerHTML = new Array(big ? 19 : 9).join('<i></i>');
       frame.appendChild(b); setTimeout(function () { b.remove(); }, big ? 1400 : 800);
     };
-    var pulse = function (ok) {
-      if (window.IND_SFX) window.IND_SFX.play(ok ? 'right' : 'wrong');
+    var motion = function (ok) {
       if (!frame) return;
       frame.classList.remove('gf-yes', 'gf-no'); void frame.offsetWidth;
       frame.classList.add(ok ? 'gf-yes' : 'gf-no');
       setTimeout(function () { frame.classList.remove('gf-yes', 'gf-no'); }, 650);
-      if (ok) {
-        rights++; burst(false);
-        var rc = frame.querySelector('.gf-rights');
-        if (!rc && title) { title.insertAdjacentHTML('beforeend', '<span class="gf-rights" aria-live="polite"></span>'); rc = frame.querySelector('.gf-rights'); }
-        if (rc) rc.textContent = rights + ' right this game';
-      }
+      if (ok) burst(false);
     };
-    /* THE FINISH: what was practised, the child's own face and the peacock cheering (J6, I4) */
-    var ended = function (out) {
-      /* the engine's own "Back to the Mela" leads to the host's finish card now */
-      if (/Mela/.test(out.textContent || '')) out.textContent = 'Finish';
-      if (window.IND_SFX) window.IND_SFX.play('finish');
-      burst(true);
-      var row = out.parentNode;
-      if (fr[1] && row && row.parentNode && !row.parentNode.querySelector('.gf-practised'))
-        row.insertAdjacentHTML('beforebegin', '<div class="gf-practised"><span class="gf-faces">' +
-          wearer(56) + peacock('cheer', 56) + '</span>' +
-          '<p><b>What you practised:</b> ' + esc(fr[1]) + (rights ? ' · ' + rights + ' right' : '') + '</p></div>');
-    };
-    var TOK_OK = /(^|\s)(good|is-right)(\s|$)/, TOK_NO = /(^|\s)(warm|is-warm)(\s|$)/;
-    /* A GAME WITH ITS OWN VOICE IS NOT READ FOR ANSWERS. The good/warm convention is the quiz
-       engines': warm means "close, but wrong". Sabhyata uses warm for its GOOD news ("Dholavira
-       wakes!") and has its own sounds for every verb, so the frame played the wrong-answer
-       sound — and shook — on nearly every action in it. */
-    var OWN_VOICE = { sabhyata: 1 };
-    var listen = !OWN_VOICE[g.id];
-    /* ONE ANSWER IS ONE VERDICT (fix brief v4: "27 right" in a ten-question game). A quiz marks
-       several things at once — a miss shows the right option in green beside the child's own in
-       amber, and a hit greens the option *and* the line under it — so the frame reads a batch of
-       class changes as one answer, a miss outweighs the green it reveals, and a second verdict
-       inside a third of a second is the same answer still landing. */
-    var lastVerdict = 0;
-    var obs = window.MutationObserver ? new MutationObserver(function (muts) {
-      var yes = false, no = false, outs = [];
-      muts.forEach(function (m) {
-        if (m.type === 'attributes') {
-          if (!listen) return;
-          var c = typeof m.target.className === 'string' ? m.target.className : '', was = m.oldValue || '';
-          var fresh = c !== was || /feed/.test(c);
-          if (fresh && TOK_OK.test(c) && !(TOK_OK.test(was) && !/feed/.test(c))) yes = true;
-          else if (fresh && TOK_NO.test(c) && !(TOK_NO.test(was) && !/feed/.test(c))) no = true;
-        } else {
-          for (var i = 0; i < m.addedNodes.length; i++) {
-            var n = m.addedNodes[i];
-            if (n.nodeType !== 1) continue;
-            var out = (n.matches && n.matches('[data-go="out"]')) ? n : (n.querySelector && n.querySelector('[data-go="out"]'));
-            if (out) outs.push(out);
-          }
+    gameTeardown = unhost;
+    var at = gameStartAt && gameStartAt.id === g.id ? gameStartAt.level : 0;
+    gameStartAt = null;
+    if (lv && !at) chooseLevel(); else play(at || lastLevel(g.id));
+
+    /* THE LEVEL CHIP (games spec §1.3): before the board, the child picks 1–5, each saying what
+       it means in this game; by touch, or by the keys 1–5 and Enter */
+    function chooseLevel() {
+      var pick = lastLevel(g.id), sub = gameSub(g);
+      var paint = function () {
+        host.innerHTML = '<div class="gm-start">' +
+          '<h2 class="gm-name">' + esc(g.name) + '</h2>' + (sub ? '<p class="gm-sub">' + esc(sub) + '</p>' : '') +
+          '<div class="gm-lvls" role="radiogroup" aria-label="Choose your level">' + lv.map(function (m, i) {
+            var n = i + 1;
+            return '<button type="button" class="gm-lvl' + (n === pick ? ' on' : '') + '" role="radio" aria-checked="' + (n === pick) +
+              '" data-gmh="lvl" data-l="' + n + '" aria-label="Level ' + n + ': ' + esc(m) + '"><b>' + n + '</b><span>' + esc(m) + '</span></button>';
+          }).join('') + '</div>' +
+          '<p class="gm-means" aria-live="polite"><b>Level ' + pick + '</b> · ' + esc(lv[pick - 1]) + '</p>' +
+          '<button type="button" class="btn gm-go" data-gmh="start">Start level ' + pick + ' →</button>' +
+          '<p class="tiny muted gm-keys">Tap a level or press 1–5, then Start — or Enter.</p></div>';
+      };
+      var choose = function (n) {
+        if (!(n >= 1 && n <= 5) || n === pick) return;
+        pick = n; paint();
+        var c = host.querySelector('.gm-lvl[data-l="' + n + '"]'); if (c) c.focus({ preventScroll: true });
+      };
+      var go1 = function () { unhook(); play(pick); };
+      var click = function (e) {
+        var b = e.target.closest && e.target.closest('[data-gmh]'); if (!b) return;
+        var a = b.getAttribute('data-gmh');
+        if (a === 'lvl') choose(+b.getAttribute('data-l'));
+        else if (a === 'start') go1();
+      };
+      var key = function (e) {
+        if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || '')) return;
+        if (/^[1-5]$/.test(e.key)) { e.preventDefault(); choose(+e.key); }
+        else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); choose(Math.max(1, Math.min(5, pick + (e.key === 'ArrowRight' ? 1 : -1)))); }
+        else if (e.key === 'Enter') {
+          /* Enter on another control (the Back pill, a tab) is that control's */
+          var tg = e.target, mine = !tg || tg === document.body || tg === document.documentElement || host.contains(tg);
+          if (!mine) return;
+          e.preventDefault();
+          var c = e.target && e.target.closest && e.target.closest('.gm-lvl');
+          if (c) pick = +c.getAttribute('data-l') || pick;
+          go1();
         }
-      });
-      if ((yes || no) && Date.now() - lastVerdict > 330) { lastVerdict = Date.now(); pulse(!no); }
-      /* the last answer and the end card can land in one batch: count it before the card says how many */
-      outs.forEach(ended);
-    }) : null;
-    if (obs) obs.observe(host, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
-    var unframe = function () { clearTimeout(foldT); if (obs) obs.disconnect(); };
-    try {
-      var td = g.engine(host, { skin: (S.skin || {})[g.id] || null }, function (res) {
+      };
+      var unhook = function () { host.removeEventListener('click', click); document.removeEventListener('keydown', key); };
+      paint();
+      host.addEventListener('click', click); document.addEventListener('keydown', key);
+      offs.push(unhook);
+      if (window.scrollTo) window.scrollTo(0, 0);
+      var st = host.querySelector('.gm-go'); if (st) st.focus({ preventScroll: true });
+    }
+
+    function play(level) {
+      if (lv) { S.lvl = S.lvl || {}; S.lvl[g.id] = level; save(); }
+      host.innerHTML = '';
+      foldSoon();
+      var round = { asked: 0, right: 0, paid: 0, coins: 0, seen: {}, over: false };
+      var counter = function () {
+        var rc = frame && frame.querySelector('.gf-rights');
+        if (!rc && title) { title.insertAdjacentHTML('beforeend', '<span class="gf-rights" aria-live="polite"></span>'); rc = frame.querySelector('.gf-rights'); }
+        if (rc) rc.textContent = round.right + ' right this game';
+      };
+      /* ONE REPORT IS ONE ANSWER: one sound, one motion, the first-try count (only goes up, never
+         a run), one pay. A second report for the same item in a round is ignored. */
+      var answer = function (r) {
+        if (round.over || !r) return;
+        var key = r.id != null ? String(r.id) : null;
+        if (key != null) { if (round.seen[key]) return; round.seen[key] = 1; }
+        var ok = !!r.right, first = ok && r.firstTry !== false;
+        round.asked++;
+        if (first) round.right++;
+        if (window.IND_SFX) window.IND_SFX.play(ok ? 'right' : 'wrong');
+        motion(ok);
+        counter();
+        if (first) payAnswer(g, key, round);
+      };
+      var td = null, opened = false;
+      var killEngine = function () {
+        var t = td; td = null;
+        if (typeof t === 'function') { try { t(); } catch (e) {} } else if (t && t.destroy) { try { t.destroy(); } catch (e) {} }
+      };
+      offs.push(killEngine);
+      var done = function (res) {
+        if (round.over) return;
+        round.over = true;
         res = res || {};
-        /* ONLY A GAME THAT TEACHES PAYS, and it pays for finishing, not for winning
-           (standard §1, §10). Ludo, Saap-Sidi, carrom and the street games are played for
-           their own sake: no coins, because a dice roll is not something a child learned. */
-        var c0 = coins();
-        if (TEACHES.indexOf(g.id) >= 0) { earn('contest', g.name); markToday(); }
-        var paid = coins() - c0;   /* what the wallet actually took in — the lid may have held it */
+        /* GYANPATI'S LADDER (games spec §1.2): rung 10 or higher on first-try rights, with no
+           lifelines, is a contest won — 10 coins, once a day. Finishing alone pays nothing. */
+        if (g.id === 'gyanpati' && teach && +res.rung >= 10 && !res.lifelines) {
+          var P = gpayToday();
+          if (!P.contest) { var cn = earn('contest', 'the Gyanpati ladder'); if (cn > 0) { P.contest = true; round.coins += cn; save(); } }
+        }
+        if (teach && round.asked) markToday();
         lastDid('game', g.name, '', { id: g.id });
-        /* THE FINISH IS THE HOST'S (audit F4/G9, 3 Oct 2026). It used to jump back to the Mela
-           0.9 s after the engine said done — and the street games say done on the last move,
-           so they ended with no screen at all. Now every game ends here, and stays until the
-           child chooses: what they practised, their score and their best, and two doors. */
+        /* THE LEVEL RULE (owner): half or more right first time keeps the level, under half drops
+           it one (never below 1), four in five or more OFFERS the next — never forces it */
+        var ratio = round.asked ? round.right / round.asked : null, offer = 0, dropped = 0;
+        if (lv && round.asked) {
+          S.lvl = S.lvl || {};
+          if (ratio < 0.5 && level > 1) { dropped = level - 1; S.lvl[g.id] = dropped; }
+          else S.lvl[g.id] = level;
+          if (ratio >= 0.8 && level < 5) offer = level + 1;
+          save();
+        }
         var sc = typeof res.score === 'number' && res.score >= 0 ? Math.round(res.score) : null;
         var was = bestOf(g.id), isBest = sc != null && (was == null || sc > was);
         if (isBest) { S.best = S.best || {}; S.best[g.id] = sc; save(); }
-        gameTeardown = function () { unframe(); };
-        if (typeof td === 'function') { try { td(); } catch (e) {} } else if (td && td.destroy) { try { td.destroy(); } catch (e) {} }
+        if (opened) killEngine();
         if (!host.isConnected) return;
-        host.innerHTML = '<div class="gf-finish" role="status">' +
-          '<span class="gf-faces">' + wearer(64) + peacock('cheer', 64) + '</span>' +
-          '<h2>' + (res.win ? 'Shabash — you did it!' : 'Well played!') + '</h2>' +
-          (sc != null ? '<p class="gf-score"><b>' + sc + '</b> this time · your best <b>' + Math.max(sc, was || 0) + '</b>' +
-            (isBest && was != null ? ' <span class="badge aaj">a new best</span>' : '') + '</p>' : '') +
-          (fr[1] ? '<p><b>What you practised:</b> ' + esc(fr[1]) + (rights ? ' · ' + rights + ' right' : '') + '</p>' : '') +
-          (paid ? '<p class="tiny">' + icon('coin', 14) + ' +' + paid + ' coins for finishing</p>' : '') +
-          '<div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px">' +
-            '<button class="btn" data-act="game" data-id="' + esc(g.id) + '" id="gfagain">Play again</button>' +
-            '<button class="btn ghost" data-act="go" data-v="play">Back to Play</button></div></div>';
-        var ag = $('#gfagain'); if (ag) ag.focus({ preventScroll: true });
-      });
-      gameTeardown = function () {
-        unframe();
-        if (typeof td === 'function') td(); else if (td && td.destroy) td.destroy();
+        finish({ res: res, round: round, ratio: ratio, level: level, offer: offer, dropped: dropped, sc: sc, was: was, isBest: isBest });
       };
-    } catch (e) { unframe(); host.innerHTML = errorState('This game could not open. Try again in a moment.', 'game', id); }
+      try {
+        td = g.engine(host, { skin: (S.skin || {})[g.id] || null, level: lv ? level : (level || 1), band: gameBand(),
+                              scope: null, answer: answer, calm: !!dev.calm, reduced: reduced }, done);
+        opened = true;
+        if (round.over) killEngine();          /* an engine that said done before it returned */
+      } catch (e) { unhost(); host.innerHTML = errorState('This game could not open. Try again in a moment.', 'game', id); }
+    }
+
+    /* THE FINISH (games spec §1.7): stays until the child chooses. "Shabash" only for 80% right
+       first time (or a win with no questions); 0 of N never celebrates; it says only what it saw. */
+    function finish(o) {
+      var round = o.round, asked = round.asked;
+      var cheer = asked ? o.ratio >= 0.8 : (!teach && !!o.res.win);
+      var head = asked ? (cheer ? 'Shabash — you did it!' : round.right ? 'Good practice — try again?' : 'Not this time — try again?')
+                       : (cheer ? 'Shabash — you did it!' : 'Well played!');
+      fold();
+      if (cheer) { if (window.IND_SFX) window.IND_SFX.play('finish'); burst(true); }
+      host.innerHTML = '<div class="gf-finish" role="status">' +
+        '<span class="gf-faces">' + wearer(64) + peacock(cheer ? 'cheer' : 'think', 64) + '</span>' +
+        '<h2>' + head + '</h2>' +
+        (asked ? '<p class="gf-tally"><b>' + round.right + '</b> of <b>' + asked + '</b> right first time</p>' : '') +
+        (o.sc != null ? '<p class="gf-score"><b>' + o.sc + '</b> this time · your best <b>' + Math.max(o.sc, o.was || 0) + '</b>' +
+          (o.isBest && o.was != null ? ' <span class="badge aaj">a new best</span>' : '') + '</p>' : '') +
+        (fr[1] ? '<p><b>What you practised:</b> ' + esc(fr[1]) + '</p>' : '') +
+        (teach
+          ? (round.coins ? '<p class="tiny">' + icon('coin', 14) + ' +' + round.coins + ' coins for what you knew first time</p>' : '')
+          : '<p class="tiny gf-fun">Played for fun — no coins</p>') +
+        (lv && asked ? '<p class="tiny gf-lvl">' + (o.dropped
+            ? 'Next time: level ' + o.dropped + ' — a step back to build on.'
+            : 'Level ' + o.level + ' · ' + esc(lv[o.level - 1])) + '</p>' : '') +
+        '<div class="gf-acts">' +
+          (o.offer ? '<button class="btn gm-up" data-gmh="up" data-l="' + o.offer + '">Try level ' + o.offer + '? ' +
+            '<small>' + esc(lv[o.offer - 1]) + '</small></button>' : '') +
+          '<button class="btn' + (o.offer ? ' ghost' : '') + '" data-act="game" data-id="' + esc(g.id) + '" id="gfagain">Play again</button>' +
+          '<button class="btn ghost" data-act="go" data-v="play">Back to Play</button></div></div>';
+      var up = host.querySelector('[data-gmh="up"]');
+      if (up) on(up, 'click', function () { gameStartAt = { id: g.id, level: +up.getAttribute('data-l') }; go('game', g.id); });
+      if (window.scrollTo) window.scrollTo(0, 0);
+      var ag = up || $('#gfagain'); if (ag) ag.focus({ preventScroll: true });
+    }
   }
 
   /* =============================================================== DISPATCH */
@@ -9457,7 +9638,12 @@
     if (a === 'rishpick') {
       var pick = t.getAttribute('data-id');
       rish.picked = pick;
-      if (pick === window.IND_RISHTEY.tree[rish.i].answer) { rish.right++; earn('answer', 'rishtey'); }
+      /* an old link still opens the quiz; a term pays once a day, so it cannot be farmed (§1.2) */
+      if (pick === window.IND_RISHTEY.tree[rish.i].answer) {
+        rish.right++;
+        var RP = gpayToday(), rk = 'rishtey:' + pick;
+        if (!RP.ids[rk] && earn('answer', 'rishtey') > 0) { RP.ids[rk] = 1; save(); }
+      }
       return render();
     }
     if (a === 'rishnext') { rish.i++; rish.picked = null; return render(); }
@@ -10288,11 +10474,8 @@
       checkGrowth(true);
       if (view.name === 'home' && (level() !== before || !(S.resume && (S.resume.paath || {}).step))) render();
     });
-    window.addEventListener('ind-reward', function (e) {
-      var d = (e && e.detail) || {};
-      var n = Math.round(+d.n || 0);
-      /* a game's mid-run reward is one right answer's worth, whatever it asked for */
-      if (n > 0) { earn('answer', d.why || 'well played'); markToday(); }
-    });
+    /* `ind-reward` (a game's mid-run grant — an age turned, a monument raised) no longer pays:
+       there is ONE pay path, a first-try right reported through opts.answer (games spec §1.2,
+       docs/32). A new age or a monument is not something a child answered. */
   }
 })();

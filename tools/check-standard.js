@@ -126,6 +126,9 @@ check('passcodes', 'no pass code in client code, and nothing redeems', async ({ 
 
 check('rangoli', 'Rangoli Rush never counts more dots placed than the pattern has', async ({ p }) => {
   await go(p, 'game', 'rangoli'); await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(800);
+  /* a game with levels opens on the host's level chip first (games spec §1.3): start it */
+  await p.evaluate(() => { const s = document.querySelector('#gamehost [data-gmh="start"]'); if (s) s.click(); });
+  await p.waitForTimeout(300);
   await p.evaluate(() => { const b = document.querySelector('#gamehost [data-go="ready"]'); if (b) b.click(); });
   await p.waitForTimeout(400);
   const n = await p.evaluate(() => document.querySelectorAll('#gamehost .mela-dot').length);
@@ -140,17 +143,21 @@ check('rangoli', 'Rangoli Rush never counts more dots placed than the pattern ha
   if (!/extra/.test(t)) throw new Error('too many dots, and the counter does not say so: "' + t + '"');
 });
 
-check('mela', 'Festival Frenzy is on the Play grid; Pallanguzhi and Gutte have covers of their own', async ({ p }) => {
+/* The calendar slot: Festival Frenzy until Panchang is released, then Panchang (one in, one out,
+   games spec §3.1). Gutte left Play (owner, 8 Oct 2026; its engine is archived), so only
+   Pallanguzhi's cover is held here — and Gutte being gone is held by check-games `lineup`. */
+check('mela', 'the festival calendar is on the Play grid; Pallanguzhi has a cover of its own; Gutte is gone', async ({ p }) => {
   await go(p, 'khel'); await p.evaluate(() => window.BI.ready()); await p.waitForTimeout(400);
   const r = await p.evaluate(() => ({
-    festival: !!document.querySelector('#main .gcover[data-id="festival"]'),
-    art: ['pallanguzhi', 'gutte'].map(id => {
+    festival: !!document.querySelector('#main .gcover[data-id="festival"], #main .gcover[data-id="panchang"]'),
+    gutte: !!document.querySelector('#main .gcover[data-id="gutte"]'),
+    art: ['pallanguzhi'].map(id => {
       const c = document.querySelector('#main .gcover[data-id="' + id + '"] .gart');
       return c ? c.classList.contains('art') && !!c.querySelector('svg.gcart') : false;
     }) }));
-  if (!r.festival) throw new Error('Festival Frenzy is not on the Play grid');
+  if (!r.festival) throw new Error('neither Festival Frenzy nor Panchang is on the Play grid');
   if (!r.art[0]) throw new Error('Pallanguzhi still has a placeholder tile');
-  if (!r.art[1]) throw new Error('Gutte still has a placeholder tile');
+  if (r.gutte) throw new Error('Gutte is still on the Play grid — the owner removed it');
 });
 
 /* ------------------------------------------------------------------ scripts (§9) */

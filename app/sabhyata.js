@@ -1598,7 +1598,8 @@
       'background:rgba(36,22,14,.92);color:#f8f0e1;border:1px solid #d4a650;border-radius:11px;padding:6px 10px;' +
       'font:700 12px/1.35 var(--body,system-ui);white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.3)}',
     /* ================= the city: holding bar, compass, reach line, View, bigger targets ================= */
-    '.sab-holdbar{position:absolute;left:50%;top:118px;transform:translateX(-50%);z-index:11;display:flex;align-items:center;gap:10px;' +
+    /* at the foot of the board, by the thumb — the heart and the best spot are usually up top */
+    '.sab-holdbar{position:absolute;left:50%;top:auto;bottom:84px;transform:translateX(-50%);z-index:11;display:flex;align-items:center;gap:10px;' +
       'max-width:calc(100% - 24px);padding:7px 8px 7px 10px;border-radius:16px;background:var(--teak,rgba(40,26,18,.94));' +
       'border:1px solid var(--brass,#d4a650);color:var(--hud-tx,#f8f0e1);box-shadow:var(--hud-lift,0 8px 24px rgba(0,0,0,.3))}',
     '.sab-holdbar img{width:40px;height:40px;object-fit:contain;flex:none}',
@@ -1614,7 +1615,7 @@
       'background:rgba(255,255,255,.08);color:var(--hud-tx,#fff);font:800 13px/1 var(--body,system-ui);cursor:pointer;white-space:nowrap}',
     '.sab-hbtn:hover{border-color:var(--brass,#d4a650)}',
     '.sab-hbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}',
-    '.sab-scene.tight .sab-holdbar{top:104px;left:8px;right:60px;transform:none;max-width:none;flex-wrap:wrap;gap:6px}',
+    '.sab-scene.tight .sab-holdbar{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 178px);left:8px;right:8px;transform:none;max-width:none;flex-wrap:wrap;gap:6px}',
     '.sab-scene.tight .sab-holdbar .hb{flex:1 1 140px}',
     '.sab-scene.tight .sab-holdbar img{width:32px;height:32px}',
     '.sab-compass{position:absolute;left:10px;top:112px;z-index:7;width:56px;height:56px;pointer-events:none;' +
@@ -1670,9 +1671,9 @@
     '.sab-scene.shelfup .sab-cityturn{top:70px;bottom:auto}',
     '.sab-scene.shelfup .sab-cityrep{bottom:auto;top:calc(100% + 8px)}',
     '.sab-scene.tight.shelfup .sab-cityturn{top:8px;right:8px;left:auto;bottom:auto;transform:none}',
-    '.sab-scene.shelfup .sab-holdbar{top:184px}',
+    '.sab-scene.shelfup .sab-holdbar{bottom:auto;top:184px}',
     '.sab-scene.shelfup .sab-npgoal{top:128px}',
-    '.sab-scene.tight.shelfup .sab-holdbar{top:120px}',
+    '.sab-scene.tight.shelfup .sab-holdbar{bottom:auto;top:120px}',
     /* the piece card's ledger: its own work, then each neighbour with its reason */
     '.sab-pledger{display:grid;gap:4px;margin:6px 0 10px;padding:9px 12px;border-radius:12px;background:color-mix(in srgb,var(--good,#3a8) 9%,var(--card))}',
     '.sab-pledger div{display:flex;gap:9px;align-items:baseline}',
@@ -1705,7 +1706,12 @@
     '.sab-glowc{fill:rgba(255,222,120,.26);stroke:rgba(255,214,100,.85);stroke-width:1.3}',
     '.sab-glowbest{fill:rgba(255,200,60,.55);stroke:#fff3c4;stroke-width:2.6;animation:sabbest 1.6s ease-in-out infinite alternate}',
     '@keyframes sabbest{from{fill-opacity:.55}to{fill-opacity:.95}}',
-    '.sab-besttag rect{fill:rgba(40,24,14,.92);stroke:#ecc977;stroke-width:1.5}',
+    '.sab-bestpin{position:absolute;z-index:30;transform:translate(-50%,-100%);min-height:44px;padding:0 14px;border-radius:999px;' +
+      'border:2px solid #ecc977;background:rgba(40,24,14,.94);color:#fff3c4;font:900 14px/1 var(--body,system-ui);cursor:pointer;white-space:nowrap;' +
+      'box-shadow:0 6px 18px rgba(0,0,0,.35);animation:sabpin 1.4s ease-in-out infinite alternate}',
+    '.sab-bestpin::after{content:"";position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);border:7px solid transparent;border-top-color:#ecc977;border-bottom:0}',
+    '@keyframes sabpin{from{transform:translate(-50%,-100%)}to{transform:translate(-50%,-112%)}}',
+    '.sab-bestpin:focus-visible{outline:3px solid #fff3c4;outline-offset:2px}',
     '.sab-besttag text{font:900 13px/1 var(--body,system-ui);fill:#fff3c4;text-anchor:middle}',
     '.sab-holdbar .pv .best{color:#ffe08a;font-weight:800}',
     '.sab-hbtn.best{background:linear-gradient(180deg,#d4552f,#a8341c);border-color:#ecc977;color:#fff}',
@@ -1727,7 +1733,7 @@
       '.sab-mistdrift ellipse,.sab-diya,.sab-swirl,.sab-ringfx,.sab-walker,.sab-bird,' +
       '.sab-plot.rise img,.sab-moor,.sab-station img,.sab-herostand img,.sab-cbadge,.sab-scafbtn.can img,.sab-trespot .glint,' +
       '.sab-smoke,.sab-cross,.sab-plot .pbell,.sab-yatri.walking img,.sab-stand,' +
-      '.sab-greens polygon,.sab-raksha,.sab-thread line,.sab-reachline.grow path,.sab-glowbest,.sab-kwalk{animation:none}' +
+      '.sab-greens polygon,.sab-raksha,.sab-thread line,.sab-reachline.grow path,.sab-glowbest,.sab-kwalk,.sab-bestpin{animation:none}' +
       '.sab-trespot .glint{opacity:.55}.sab-cam{transition:none}.sab-tray,.sab-wrap.gm .sab-tray{animation:none}}'   /* still findable when nothing may move */
   ].join('\n');
 
@@ -2158,6 +2164,14 @@
             return A(gd.title + ' comes in ' + left + ' turns — the realm needs ' + gneed.water + ' wells or tanks. Dig one in ' + nameOf(wc) + '.', 'city', wc.id,
               { label: 'Go in', short: 'a well in ' + nameOf(wc) + ' · ' + left + ' turns' });
           }
+        }
+        /* the goal asks for more grain than the stores can hold: the lid has to rise first */
+        if (gneed.grain && gneed.grain > storeCap() && sysOn('buildings')) {
+          if (sysOn('vidya') && !G.tech.plough) return A('The stores hold ' + storeCap() + ' 🌾 and ' + gd.title.toLowerCase() + ' needs ' + gneed.grain +
+            ' — learn the Plough in Vidya, and a granary can be built.', 'vidya', null, { label: 'Open Vidya', short: 'a granary · ' + left + ' turns' });
+          var gcity = SITES.filter(function (x) { return onMap(x) && awake(x.id) && !isHer(x.id) && kitOn(x.id) && !G.sites[x.id].bld.granary; })[0];
+          if (gcity) return A('The stores hold ' + storeCap() + ' 🌾 and the goal needs ' + gneed.grain + ' — build a granary or store in ' + nameOf(gcity) + '.',
+            city === gcity.id ? 'shelf' : 'city', gcity.id, { label: city === gcity.id ? 'Open Workshops' : 'Go in', short: 'a granary · ' + left + ' turns', tab: 'work' });
         }
         if (gneed.guard && ghave.guard < gneed.guard && sysOn('jobs')) {
           var gc0 = SITES.filter(function (x) { return onMap(x) && awake(x.id) && !isHer(x.id) && jobOpen(x.id, 'rakshak'); })[0];
@@ -3829,15 +3843,23 @@
                 [c.x + vx.x + vy.x, c.y + vx.y + vy.y], [c.x - vx.x + vy.x, c.y - vx.y + vy.y]]
           .map(function (pt) { return pt[0].toFixed(1) + ',' + pt[1].toFixed(1); }).join(' ');
       };
-      var out = gl.cells.map(function (c) { return '<polygon class="sab-glowc" points="' + poly(c[0], c[1]) + '"/>'; }).join('');
+      var out = gl.cells.map(function (c) { return '<polygon class="sab-glowc" points="' + poly(c[0], c[1]) + '"/>'; }).join(''), top = '';
       if (gl.best) {
         var bc = cellPx(id, gl.best.x, gl.best.y);
         var y0 = {}; ['anna', 'kala', 'katha', 'watch'].forEach(function (k) { y0[k] = ((gl.best.pv && gl.best.pv.base[k]) || 0) + ((gl.best.pv && gl.best.pv.bonus[k]) || 0); });
-        out += '<polygon class="sab-glowbest" points="' + poly(gl.best.x, gl.best.y) + '"/>' +
-          '<g class="sab-besttag" transform="translate(' + bc.x.toFixed(1) + ' ' + (bc.y - 30).toFixed(1) + ')">' +
-          '<rect x="-46" y="-15" width="92" height="24" rx="12"/><text y="2">★ ' + esc(yieldStr(y0) || 'best') + '</text></g>';
+        out += '<polygon class="sab-glowbest" points="' + poly(gl.best.x, gl.best.y) + '"/>';
+        void bc; void y0; void top;
       }
       return '<svg class="sab-glow" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' + out + '</svg>';
+    }
+    /* THE BEST SPOT'S NAME, as a pin over everything — a tall building never hides it, and a
+       tap on it places the piece there */
+    function bestPinHTML(id, w, h) {
+      var gl = glowFor(id); if (!gl || !gl.best || !w) return '';
+      var bc = cellPx(id, gl.best.x, gl.best.y), y0 = {};
+      ['anna', 'kala', 'katha', 'watch'].forEach(function (k) { y0[k] = ((gl.best.pv && gl.best.pv.base[k]) || 0) + ((gl.best.pv && gl.best.pv.bonus[k]) || 0); });
+      return '<button class="sab-bestpin" data-sab-act="kitbest" style="left:' + (bc.x / w * 100).toFixed(2) + '%;top:' + ((bc.y - 8) / h * 100).toFixed(2) + '%"' +
+        ' aria-label="The best spot for it: ' + esc(yieldStr(y0) || 'a good place') + ' every year — place it here">★ ' + esc(yieldStr(y0) || 'best') + '</button>';
     }
     /* place the held piece on a cell, through the one tap path */
     function placeAt(cx, cy) {
@@ -4094,7 +4116,7 @@
       return '<div class="sab-hero sab-kitboard"><div class="sab-kitinner" id="sab-kitinner"' +
         ' data-z="' + (G.kitZ || 1) + '" style="width:' + r.w + 'px;height:' + r.h +
         'px">' + r.html + reachOutline(id, r.w, r.h) + (hold ? glowSVG(id, r.w, r.h) : '') + kitCrowd(id) + '</div>' +
-        (pins ? '<div class="sab-kitpins">' + pins + '</div>' : '') + '</div>';
+        (pins || hold ? '<div class="sab-kitpins">' + (pins || '') + (hold ? bestPinHTML(id, r.w, r.h) : '') + '</div>' : '') + '</div>';
     }
 
     /* THE PRAJA STAND ON THE WORK THEY DO.
@@ -7307,6 +7329,7 @@
         av = { x: 50, y: 84 };   /* you arrive at the city gate, street-side */
         if (walkTimer) { clearTimeout(walkTimer); walkTimer = null; }
         touch(sel); paintCity(); return; }
+      if (name === 'village') { var vr0 = foundVillage(sel); if (vr0) say('A village waits — ' + vr0 + '.', ''); return; }
       if (name === 'explore' && !q.zzz) {
         var hid = hiddenSites();
         if (!hid.length) return say('There is nothing left unfound in this age.', '');

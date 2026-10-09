@@ -2609,7 +2609,7 @@ check('city-room', 'a level-1 city has room for at least 8 pieces, and the held 
       const t = document.querySelector('[data-sab-act="kitpick"][data-p="hs-har-mud"]'); if (t) t.click();
       setTimeout(() => {
         const cells = document.querySelectorAll('.sab-glow .sab-glowc').length, best = !!document.querySelector('.sab-glow .sab-glowbest');
-        const tag = (document.querySelector('.sab-besttag text') || {}).textContent || '';
+        const tag = (document.querySelector('.sab-bestpin') || {}).textContent || '';
         const n0 = window.__SABG().sites.dholavira.kit.length;
         const pb = document.querySelector('[data-sab-act="kitbest"]'); if (pb) pb.click();
         setTimeout(() => res({ cells, best, tag, placed: window.__SABG().sites.dholavira.kit.length - n0 }), 200);

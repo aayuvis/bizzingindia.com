@@ -548,7 +548,8 @@
         /* the whole course, numbered in its order; the card says where the tapped state comes */
         var k = Object.keys(found).length, at = it.accept.indexOf(c);
         it.accept.forEach(function (x, i) { if (EL[x]) { EL[x].classList.remove('nk-tgt'); EL[x].classList.add('nk-ok'); } setMark(x, 'ok', i + 1); });
-        var lead = k === 0 ? 'The ' + esc(it.river.name) + ' starts in <b>' + esc(name(it.accept[0])) + '</b>'
+        /* a river that rises abroad (the Brahmaputra, the Sutlej) ENTERS India in its first state */
+        var lead = k === 0 ? 'The ' + esc(it.river.name) + (it.river.start === 'enters' ? ' enters India in <b>' : ' starts in <b>') + esc(name(it.accept[0])) + '</b>'
           : 'After ' + esc(name(it.accept[k - 1])) + ' the ' + esc(it.river.name) + ' reaches <b>' + esc(name(it.accept[k])) + '</b>';
         placeCard();
         fb.innerHTML = '<div class="gm-miss" role="status"><b>Not quite.</b> <span class="gm-ans">' + lead + ' — ' + esc(name(c)) + ' comes ' + ordinal(at + 1) +

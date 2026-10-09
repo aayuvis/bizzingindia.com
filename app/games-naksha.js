@@ -739,6 +739,11 @@
     svg.addEventListener('pointermove', pm);
     svg.addEventListener('pointerup', pu);
     svg.addEventListener('pointercancel', pc);
+    /* NO GHOST CLICK. A tap on the map is answered on pointerup; the browser then sends the same
+       touch as a mouse click a moment later — and a miss card drawn under the finger took it as
+       a press of Aage, so on a phone the miss never held. The map needs no clicks: drop them. */
+    function te(e) { if (e.cancelable) e.preventDefault(); }
+    svg.addEventListener('touchend', te, { passive: false });
     svg.addEventListener('wheel', wheel, { passive: false });
     host.addEventListener('click', click);
     D.addEventListener('keydown', key);
@@ -752,6 +757,7 @@
       D.removeEventListener('visibilitychange', onVis);
       W.removeEventListener('resize', fit);
       host.removeEventListener('click', click);
+      svg.removeEventListener('touchend', te);
       if (ro) ro.disconnect();
     }
 

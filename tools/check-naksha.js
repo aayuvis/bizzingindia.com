@@ -34,7 +34,8 @@
                 no new prompt for 3 s; a tap off the river is not an answer; Enter is Aage
      L5keys     a whole rivers round with the arrows and Enter alone
      L5touch    a whole rivers round on a touch phone (390 × 844), every tap a touch, Aage above
-                the tab bar
+                the tab bar; and a touch that misses holds — the browser's own click after the
+                touch must not land on the miss card drawn under the finger and press Aage
 
    Each check was watched to fail by breaking the thing it holds — see the end of this file.
    Run:  CHROME=/opt/pw-browsers/chromium NODE_PATH=…/node_modules node tools/check-naksha.js [--only N2] [--shots DIR]
@@ -570,9 +571,19 @@ check('L5touch', 'a whole rivers round on a touch phone; Aage above the tab bar'
   const ctx = await browser.newContext({ viewport: PHONE, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
   const p = await ctx.newPage();
   try {
-    await boot(p, base); await mount(p, { level: 5 });
-    await p.waitForTimeout(300);
+    await boot(p, base);
     const touch = async c => { const pt = await p.evaluate(c => window.__pt(c), c); await p.touchscreen.tap(pt.x, pt.y); await p.waitForTimeout(60); };
+    /* the ghost click: the browser sends a touch on as a click too, and a miss card drawn under the
+       finger once took it as a press of Aage — the Krishna's last state sits where the card's Aage
+       lands, so touching it first must leave the miss card holding */
+    await mount(p, { level: 5, scope: { mode: 'rivers', set: ['krishna'] } });
+    const q0 = await p.evaluate(() => document.querySelector('.nk-q').innerText);
+    await touch('AP');
+    await p.waitForTimeout(800);
+    const g = await p.evaluate(() => ({ miss: !!document.querySelector('#gamehost .gm-miss'), q: document.querySelector('.nk-q').innerText, done: !!window.__rec.done }));
+    if (!g.miss || g.q !== q0 || g.done) throw new Error('a touch that missed did not hold: the miss card took the touch’s own click as Aage (' + JSON.stringify(g) + ')');
+    await mount(p, { level: 5 });
+    await p.waitForTimeout(300);
     let first = true;
     for (let i = 0; i < 12 && !(await rec(p)).done; i++) {
       if (first) {
@@ -584,7 +595,10 @@ check('L5touch', 'a whole rivers round on a touch phone; Aage above the tab bar'
           const a = document.querySelector('#gamehost .gm-aage'), b = a && a.getBoundingClientRect();
           return { barTop, b: b && { t: b.top, bo: b.bottom, w: b.width, h: b.height }, over: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth };
         });
-        if (!m.b) throw new Error('no Aage after a miss on the phone');
+        if (!m.b) throw new Error('no Aage after a miss on the phone — touched ' + want[want.length - 1] + ' of ' + want.join(' ') + ' at ' +
+          JSON.stringify(await p.evaluate(c => window.__pt(c), want[want.length - 1])) + '; ' +
+          await p.evaluate(() => document.querySelector('.nk-q').innerText + ' / ' + document.querySelector('.nk-clue').innerText + ' / ' + innerHeight + ' / ' +
+            JSON.stringify(document.querySelector('.nk-map').getBoundingClientRect())));
         if (m.b.t < 0 || m.b.bo > m.barTop + 0.5) throw new Error(`Aage is off-screen or under the tab bar (${Math.round(m.b.t)}–${Math.round(m.b.bo)}, bar ${Math.round(m.barTop)})`);
         if (m.b.w < 44 || m.b.h < 44) throw new Error('Aage is under 44 px');
         if (m.over > 0) throw new Error('the page is ' + m.over + 'px wider than the phone');
@@ -646,9 +660,11 @@ check('copy', 'no streak copy in the engine', async () => {
      L5miss    the source line dropped — "names no source"; the river's miss moving on by itself
                — "the miss did not hold"
      L5keys    keyboard taps ignored at L5 — "keyboard rivers round: null"
-     L5touch   the miss card padded below the fold — "Aage is off-screen or under the tab bar"
+     L5touch   the miss card padded below the fold — "Aage is off-screen or under the tab bar";
+               the map's touchend guard removed — "the miss card took the touch's own click as Aage"
      N2 (L5)   a found river state's stroke thickened — "L5: a boundary changed mid-round"
    Caught real faults while the game was built: phone (the map ran under the tab bar before the
    stage fitted itself to the screen), N2 (an L2 round of one item — the capital filter dropped
    every capital as "leaking" its own name), L5 (the zoom column stood on Arunachal Pradesh's
-   middle and swallowed the Brahmaputra's first tap). */
+   middle and swallowed the Brahmaputra's first tap), L5touch (on a phone the touch's own click
+   pressed Aage on a miss card drawn under the finger, so a miss there never held — every level). */

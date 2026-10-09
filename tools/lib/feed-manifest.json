@@ -1,8 +1,8 @@
 {
- "total": 6308,
- "cut": 6326,
+ "total": 6305,
+ "cut": 6323,
  "nearDropped": 18,
- "withFacts": 6224,
+ "withFacts": 6221,
  "byLevel": {
   "Shishya": 1339,
   "Vidyarthi": 866,
@@ -12,7 +12,7 @@
   "Vidwan": 301,
   "Acharya": 336,
   "Rishi": 214,
-  "any": 1633
+  "any": 1630
  },
  "byKind": {
   "story": 336,
@@ -56,7 +56,7 @@
   "foodq": 36,
   "capital": 31,
   "feature": 399,
-  "game": 13,
+  "game": 10,
   "gully": 28,
   "gullyhow": 28,
   "gullyname": 127,
@@ -171,7 +171,7 @@
   ],
   [
    "any-5",
-   133
+   130
   ]
  ]
 }

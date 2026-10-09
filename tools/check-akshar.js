@@ -276,6 +276,7 @@ check('touch', 'an L3 round by tapping tiles; a vowel sign dragged onto its cons
   if (!d || d.firstTryRight !== d.asked || d.asked < 4) throw new Error('the tapped L3 round: ' + JSON.stringify(d));
   await mount(p, { level: 2 }, 'hi'); await start(p);
   const it = await item(p);
+  await p.$eval('.ak-show', e => e.scrollIntoView({ block: 'center' }));
   const a = await (await p.$(`[data-tile="${it.pick}"]`)).boundingBox(), b = await (await p.$('.ak-show')).boundingBox();
   await p.mouse.move(a.x + a.width / 2, a.y + a.height / 2); await p.mouse.down();
   await p.mouse.move(a.x + 30, a.y - 20, { steps: 4 }); await p.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 8 }); await p.mouse.up();

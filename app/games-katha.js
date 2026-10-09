@@ -169,7 +169,7 @@
       if (!hit) return;
       var word = hit[0];
       var label = /^[A-Z]/.test(word) && sc.who.indexOf('pt_') ? word : 'The ' + word.toLowerCase();
-      out.push({ story: s, who: sc.who, label: label, line: m[2].trim() });
+      out.push({ story: s, who: sc.who, label: label, line: m[2].trim().replace(/[,;:]$/, '') });
     });
     return out;
   }

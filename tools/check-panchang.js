@@ -2,7 +2,8 @@
 /* Bizzing India — Panchang, the festival-year wheel (games spec §4.4, §8 T12; docs/32).
 
      register   the IND_GAMES entry is docs/32's — and review: true (the year's windows and the
-                Kyon? lines go to the named reviewer; tester mode until signed, spec §7)
+                Kyon? lines go to the named reviewer, spec §7), opened to every child by the owner
+                before review (9 Oct 2026) with `open` — the host's page says so (check-games owner-open)
      P2         every festival the game shows is a data-utsav.js entry, and the window it marks
                 right is exactly that entry's months[] — nothing typed. REPORTS what is blocked:
                 data-utsav carries no sources[] and no dated year
@@ -95,12 +96,13 @@ const rec = p => p.evaluate(() => window.__rec);
 const aage = p => p.evaluate(() => { const b = document.querySelector('#gamehost .gm-aage'); if (b) b.click(); });
 function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
-check('register', 'the IND_GAMES entry is docs/32’s, review: true', async ({ p }) => {
+check('register', 'the IND_GAMES entry is docs/32’s, review: true, opened by the owner (9 Oct 2026)', async ({ p }) => {
   const g = await p.evaluate(() => { const g = window.IND_GAMES.filter(x => x.id === 'panchang')[0]; return g && Object.assign({}, g, { engine: typeof g.engine }); });
   if (!g) throw new Error('panchang is not registered');
   const bad = [];
   if (g.name !== 'Panchang') bad.push('name'); if (g.sub !== 'turn the festival year') bad.push('sub');
   if (g.teaches !== true) bad.push('teaches'); if (g.review !== true) bad.push('review (the spec sends it to the reviewer)');
+  if (!g.open || g.open.by !== 'owner' || g.open.to !== 'everyone' || !g.open.on || !g.open.why) bad.push('open (the owner\'s decision, recorded)');
   if (!Array.isArray(g.levels) || g.levels.length !== 5) bad.push('levels'); if (g.engine !== 'function') bad.push('engine');
   if (bad.length) throw new Error('wrong fields: ' + bad.join(', '));
 });
@@ -343,7 +345,16 @@ check('night', 'the prompt, the card and the miss card read at ≥ 4.5:1, day an
     const cs = await p.evaluate(() => {
       const g = (s, prop) => { const e = document.querySelector(s); return e ? getComputedStyle(e)[prop] : null; };
       return [[g('.pc-q', 'color'), g('.pc-ask', 'backgroundColor')], [g('.pc-fname', 'color'), g('.pc-card', 'backgroundColor')],
-        [g('.pc-fb .gm-ans', 'color'), g('.pc-fb .gm-miss', 'backgroundColor')], [g('.pc-ml', 'fill'), g('.pc-m', 'fill')]];
+        [g('.pc-fb .gm-ans', 'color'), g('.pc-fb .gm-miss', 'backgroundColor')]]
+        /* every month's label on its own segment, in the state the miss left it (lit window, the
+           wrong month, plain) — not just January's: a lit window anywhere must stay readable */
+        .concat([...document.querySelectorAll('.pc-m')].map(m => {
+          /* a translucent segment is seen over the rim: measure the colour on screen, not the raw fill */
+          const c = s => (s.match(/[\d.]+/g) || []).map(Number), cs = getComputedStyle(m), op = +cs.fillOpacity;
+          const f = c(cs.fill), r = c(getComputedStyle(document.querySelector('.pc-rim')).fill);
+          const seen = f.slice(0, 3).map((v, i) => Math.round(v * op + r[i] * (1 - op)));
+          return [getComputedStyle(m.nextElementSibling).fill, 'rgb(' + seen.join(', ') + ')'];
+        }));
     });
     for (const [fg, bg] of cs) {
       if (!fg || !bg) throw new Error('missing element for contrast');
@@ -369,8 +380,12 @@ check('clock', 'a right answer’s beat does not run while the tab is hidden', a
   const c1 = await p.evaluate(() => window.__card().id);
   await p.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => false }); document.dispatchEvent(new Event('visibilitychange')); });
   if (c1 !== c0) throw new Error('the game moved on while the tab was hidden');
-  await p.waitForTimeout(2800);
-  if ((await p.evaluate(() => window.__card().id)) === c0 && !(await rec(p)).done) throw new Error('the game did not move on once the tab came back');
+  /* the beat resumes once visible: poll for it (a loaded machine runs frames late), never a fixed sleep */
+  for (let t = 0; t < 50; t++) {
+    if ((await p.evaluate(() => window.__card().id)) !== c0 || (await rec(p)).done) return;
+    await p.waitForTimeout(200);
+  }
+  throw new Error('the game did not move on once the tab came back');
 });
 
 check('copy', 'no streak copy in the engine', async () => {

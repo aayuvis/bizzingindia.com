@@ -11,7 +11,8 @@
                canvas, every other script says so and opens nothing
      tongue    A5 the family's tongue is the chosen chip; Hindi is never the default when another
                tongue is set; a tongue with no letters in the app chooses nothing
-     gate      every script but Devanagari opens only in tester mode, inside the engine
+     gate      every script opens to every child (owner, 9 Oct 2026); each but Devanagari says on
+               its chip and its intro that no native reader has checked it
      leak      the target is never on screen while it is being built (L2 syllable, L3 word)
      miss      a wrong first answer holds with the miss card until Aage; Enter is Aage
      keys      an L1 round and an L3 round by keyboard alone
@@ -205,19 +206,26 @@ check('tongue', 'A5: the family tongue is chosen; Hindi never the default when a
   if (!(await p.$eval('[data-ak="start"]', b => b.disabled))) throw new Error('a tongue with no letters in the app started a round in some other script');
 });
 
-check('gate', 'every script but Devanagari opens only in tester mode', async ({ p }) => {
+check('gate', 'every script opens to every child (owner, 9 Oct 2026); each but Devanagari says no native reader has checked it', async ({ p }) => {
   await p.evaluate(() => window.IND_STORE.saveDevice('tester', false));
   try {
     await mount(p, { level: 1 }, 'ta');
-    const r = await p.evaluate(() => ({ dis: document.querySelector('[data-ak="start"]').disabled, lock: !!document.querySelector('[data-pack="ta"] .ak-lock'), hi: !!document.querySelector('[data-pack="hi"] .ak-lock') }));
-    if (!r.dis || !r.lock || r.hi) throw new Error('outside tester mode: ' + JSON.stringify(r));
-    await p.click('[data-ak="start"]', { force: true }); await p.waitForTimeout(150);
-    if (await p.$('[data-opt]')) throw new Error('a Tamil round started outside tester mode');
+    const r = await p.evaluate(() => ({ dis: document.querySelector('[data-ak="start"]').disabled,
+      lock: ((document.querySelector('[data-pack="ta"] .ak-lock') || {}).textContent || ''),
+      hi: !!document.querySelector('[data-pack="hi"] .ak-lock'),
+      note: ((document.querySelector('.ak-unchecked') || {}).textContent || '') }));
+    if (r.dis || r.hi) throw new Error('outside tester mode: ' + JSON.stringify(r));
+    if (!/not yet checked/.test(r.lock) || !/Not yet checked by a native reader/.test(r.note) || !/Tamil/.test(r.note)) throw new Error('Tamil opened without saying it is unchecked: ' + JSON.stringify(r));
+    await p.click('[data-ak="start"]'); await p.waitForTimeout(200);
+    if (!(await p.$('[data-opt]'))) throw new Error('a Tamil round did not start outside tester mode');
+    await mount(p, { level: 1 }, 'hi');
+    if (await p.$('.ak-unchecked')) throw new Error('Devanagari, which is released, carries the unchecked note');
     await start(p, 'hi');
     if (!(await p.$('[data-opt]'))) throw new Error('Devanagari did not open outside tester mode');
   } finally { await p.evaluate(() => window.IND_STORE.saveDevice('tester', true)); }
   await mount(p, { level: 1 }, 'ta');
   if (await p.$eval('[data-ak="start"]', b => b.disabled)) throw new Error('Tamil stays shut in tester mode');
+  if (await p.$('.ak-unchecked')) throw new Error('tester mode shows the children\'s note');
 });
 
 check('leak', 'the target is never on screen while it is being built', async ({ p }) => {

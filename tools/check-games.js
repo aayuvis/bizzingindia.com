@@ -18,7 +18,8 @@
      caps      ≤ 10 coins a round, an item pays once a day and again the next day; Gyanpati's
                rung 10+ without lifelines pays `contest` once a day, never with a lifeline
      level     T7: the chip (touch and keys 1–5, Enter), default = last level played; 40% drops
-               one, 60% keeps, 85% OFFERS the next (never forces it); never below 1
+               one, 60% keeps, 85% OFFERS the next (never forces it); never below 1; an unscored
+               round keeps the level and says it was not scored
      lineup    T16: Play shows ≤ 13 game cards in the spec's groups, none of Trivia Master,
                Saap-Sidi, Kancha, Gutte or the Rishtey quiz; each card has its subtitle; heritage
                cards say "for fun · no coins"; one in, one out (a replacement in review waits,
@@ -141,6 +142,17 @@ check('tap', 'a tap on the board in the first three seconds lands — the how-to
     folded: document.getElementById('gftitle').classList.contains('folded') }));
   if (!/^1 right this game$/.test(r.c.trim())) throw new Error('a tap on the board in the first seconds was lost: "' + r.c + '"');
   if (!r.folded) throw new Error('the first tap on the board did not fold the how-to');
+  /* the three seconds run out while a finger is down: the fold waits for the release, so the
+     press still lands where it began */
+  await open(p, 'fakenl');
+  const box = await (await p.$('#gamehost .fk-tap')).boundingBox();
+  await p.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await p.mouse.down(); await p.waitForTimeout(3400); await p.mouse.up();
+  await p.waitForTimeout(150);
+  const h = await p.evaluate(() => ({ c: (document.querySelector('#gframe .gf-rights') || {}).textContent || '',
+    folded: document.getElementById('gftitle').classList.contains('folded') }));
+  if (!/^1 right this game$/.test(h.c.trim())) throw new Error('a press held across the three seconds was lost: "' + h.c + '"');
+  if (!h.folded) throw new Error('the how-to never folded after a held press');
 });
 
 check('sound', 'one report is one sound, and nothing else plays while answering', async ({ p }) => {
@@ -280,6 +292,15 @@ check('level', 'the chip by touch and keys; 40% drops one, 60% keeps, 85% offers
   await open(p, 'fakeq'); await start(p);
   await report(p, 'fakeq', R(5, false)); await finish(p, 'fakeq', {});
   if ((await p.evaluate(() => window.BI.S.lvl.fakeq)) !== 1) throw new Error('a level dropped below 1');
+  /* an unscored round (Panchang's explore modes: done({asked:0, unscored:true})) keeps the level,
+     offers nothing, and says it was not scored */
+  await p.evaluate(() => { window.BI.S.lvl.fakeq = 4; });
+  await open(p, 'fakeq'); await start(p);
+  await finish(p, 'fakeq', { asked: 0, unscored: true });
+  const un = await p.evaluate(() => ({ l: window.BI.S.lvl.fakeq, up: !!document.querySelector('#gamehost [data-gmh="up"]'),
+    t: (document.querySelector('#gamehost .gf-finish') || {}).innerText || '' }));
+  if (un.l !== 4 || un.up) throw new Error(`an unscored round moved the level to ${un.l} (offer ${un.up})`);
+  if (!/not scored/.test(un.t) || /Shabash/.test(un.t)) throw new Error('an unscored round does not say so: ' + un.t.slice(0, 160));
 });
 
 check('lineup', 'Play: ≤ 13 cards in groups, none retired, each with a subtitle; one in, one out; no dead ends', async ({ p }) => {

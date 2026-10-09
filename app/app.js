@@ -9152,11 +9152,18 @@
     var frame = $('#gframe'), title = $('#gftitle'), fr = frameOf(g), teach = teachesGame(g), lv = levelsOf(g);
     /* the how-to folds three seconds into play or on the first tap — on the click, never the
        press: a fold between press and release moved the board under the finger */
-    var foldT = 0;
-    var fold = function () { clearTimeout(foldT); if (title) { title.classList.add('folded'); title.setAttribute('aria-expanded', 'false'); } };
+    var foldT = 0, pressing = false, held = false;
+    var fold = function () {
+      clearTimeout(foldT);
+      if (pressing) { held = true; return; }     /* never while a finger is down: after its click */
+      if (title) { title.classList.add('folded'); title.setAttribute('aria-expanded', 'false'); }
+    };
     var offs = [function () { clearTimeout(foldT); }];
     var on = function (el, ev, fn, o) { el.addEventListener(ev, fn, o); offs.push(function () { el.removeEventListener(ev, fn, o); }); };
     var unhost = function () { while (offs.length) { try { offs.pop()(); } catch (e) {} } };
+    var lift = function () { pressing = false; if (held) { held = false; setTimeout(fold, 0); } };
+    on(document, 'pointerdown', function () { pressing = true; }, true);
+    on(document, 'pointerup', lift, true); on(document, 'pointercancel', lift, true);
     /* the bar under the how-to is the three seconds: held while the level is chosen, run with play */
     var bar = title && title.querySelector('.gf-bar');
     var foldSoon = function () {
@@ -9280,7 +9287,7 @@
         /* THE LEVEL RULE (owner): half or more right first time keeps the level, under half drops
            it one (never below 1), four in five or more OFFERS the next — never forces it */
         var ratio = round.asked ? round.right / round.asked : null, offer = 0, dropped = 0;
-        if (lv && round.asked) {
+        if (lv && round.asked && !res.unscored) {
           S.lvl = S.lvl || {};
           if (ratio < 0.5 && level > 1) { dropped = level - 1; S.lvl[g.id] = dropped; }
           else S.lvl[g.id] = level;
@@ -9321,7 +9328,8 @@
         (teach
           ? (round.coins ? '<p class="tiny">' + icon('coin', 14) + ' +' + round.coins + ' coins for what you knew first time</p>' : '')
           : '<p class="tiny gf-fun">Played for fun — no coins</p>') +
-        (lv && asked ? '<p class="tiny gf-lvl">' + (o.dropped
+        (o.res.unscored ? '<p class="tiny gf-unscored">This round is for exploring — it was not scored, and your level stays.</p>' : '') +
+        (lv && asked && !o.res.unscored ? '<p class="tiny gf-lvl">' + (o.dropped
             ? 'Next time: level ' + o.dropped + ' — a step back to build on.'
             : 'Level ' + o.level + ' · ' + esc(lv[o.level - 1])) + '</p>' : '') +
         '<div class="gf-acts">' +

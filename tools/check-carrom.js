@@ -304,7 +304,7 @@ const OUT = process.env.SHOTS ? process.env.SHOTS.replace(/\/?$/, '/') : os.tmpd
   const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
   let pass = 0, fail = 0;
   for (const c of CHECKS) {
-    if (only && c.id !== only) continue;
+    if (only && only.split(",").indexOf(c.id) < 0) continue;
     const ctx = await browser.newContext({ viewport: c.vp || DESK, serviceWorkers: 'block', hasTouch: !!c.touch });
     const p = await ctx.newPage();
     const errs = []; p.on('pageerror', e => errs.push(e.message));

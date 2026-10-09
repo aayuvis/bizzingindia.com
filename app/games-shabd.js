@@ -26,13 +26,16 @@
                      dealt as Suno, where no text of it appears.
 
    House rules, same as games.js: keyboard AND touch always; reduced
-   motion respected; no lives, no shaming — a wrong tap shows the right
-   pairing warmly and moves on (the SRS in Bhasha is the drill; this is
-   the fair). Every native word carries a lang attribute so app.css
-   :lang() sets it in its real face, and Urdu runs right-to-left.
+   motion respected; no lives, no shaming — a wrong first answer holds on
+   the miss card (the right pairing, warmly) until Aage, and goes back
+   into the child's Bhasha review queue (games spec §4.2). Every native
+   word carries a lang attribute so app.css :lang() sets it in its real
+   face, and Urdu runs right-to-left. Parivaar, the family words, deals
+   from the Rishtey data in the family's language.
 
-   Contract: pushes one entry into window.IND_GAMES after games.js, plus
-   the cover fields (tag / c / c2 / scene). Plain script, no modules. */
+   Contract (docs/32): pushes one entry into window.IND_GAMES after
+   games.js, plus the cover fields (tag / c / c2 / scene); reports every
+   word through opts.answer and the round through done(). Plain script. */
 
 (function () {
   'use strict';
@@ -79,6 +82,16 @@
     '.sh-opt.is-right{background:var(--surface2);border-color:var(--good)}',
     '.sh-opt.is-right .sh-num{background:var(--good);border-color:var(--good);color:var(--bg2)}',
     '.sh-opt.is-off{opacity:.45}',
+    '.sh-opt.is-warm{border-style:dashed;border-color:var(--accent2)}',
+    '.sh-small{font-size:13px;color:var(--muted)}',
+    /* THE MISS CARD (docs/32) */
+    '.sh-wrap .gm-miss{margin-top:12px;background:var(--surface2);border:1px solid var(--line);border-left:4px solid var(--accent2);border-radius:var(--radius-lg);padding:var(--space-lg);font-size:15.5px;line-height:1.7;text-align:center}',
+    '.sh-wrap .gm-ans{font-weight:600}',
+    '.sh-wrap .gm-teach{margin:6px 0 10px}',
+    '.sh-chip:disabled{opacity:.45;cursor:default}',
+    /* the phone: the start, Next and Aage row sits above the tab bar, never under it (games spec §4.2.4) */
+    '@media(max-width:720px){.sh-dock{position:sticky;bottom:calc(74px + env(safe-area-inset-bottom));z-index:6;background:var(--bg2);border-radius:var(--radius-lg);padding:4px 0}',
+    '.sh-dock .sh-row{margin-top:4px}}',
 
     '.sh-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}',
     '.sh-btn{cursor:pointer;min-height:46px;padding:11px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:var(--bg2);font:700 15px var(--body,inherit)}',
@@ -174,7 +187,6 @@
 
   /* Praise, never scolding. */
   var CHEERS = ['Shabaash!', 'Bahut khoob!', 'Ekdum sahi!', 'Very good!', 'Kya baat!'];
-  var STREAK3 = 'Wah! Three in a row!';
 
   /* ==================================================================
      PACKS — which languages this stall can deal from
@@ -227,6 +239,8 @@
   function sayEntry(entry, pack) {
     if (!entry) return;
     hushAudio();
+    /* the one mute holds here too: a muted app starts no audio at all (games spec §1.5, T9) */
+    try { if (W.IND_AUDIO && W.IND_AUDIO.state && W.IND_AUDIO.state.muted) return; } catch (e) {}
     function tts() {
       try {
         if (W.speechSynthesis && W.SpeechSynthesisUtterance) {
@@ -245,6 +259,12 @@
       var a = new W.Audio('voice/' + key + '.mp3?v=' + (W.IND_BUILD || '1'));
       audioEl = a;
       a.onerror = tts;
+      /* the music steps back while the word is said (ducking, as the app's own voice does) */
+      if (W.IND_AUDIO && W.IND_AUDIO.duck) {
+        W.IND_AUDIO.duck(true);
+        var undk = function () { try { W.IND_AUDIO.duck(false); } catch (e) {} };
+        a.addEventListener('ended', undk); a.addEventListener('pause', undk); a.addEventListener('error', undk);
+      }
       var p = a.play();
       if (p && p.catch) p.catch(function () { /* autoplay gate — the replay button is the recovery */ });
     } catch (e) { tts(); }
@@ -319,31 +339,122 @@
     return picks;
   }
 
-  function buildRound(pack) {
-    var lex = [], L = pack.lexicon || [], i, w;
+  /* ==================================================================
+     THE BHASHA REVIEW QUEUE (games spec §4.2.1)
+     The child's own Leitner cards live in BI.S.lang[pack].srs, moved only by
+     IND_SRS.review. Shabd reads what is due or has slipped there, deals
+     about half the round from it, and writes a miss back — so "you will meet
+     it again" is a fact: the word is in Bhasha's "Words that slipped" deck
+     once its gap is over. A right answer moves a card only when the card was
+     already due (a later day); same-day practice never counts as learning.
+     Without the app around it (a standalone load), nothing is read or
+     written, and the claim is not made.
+     ================================================================== */
+
+  var DAY_MS = 24 * 3600 * 1000;
+  function bhashaLive() {
+    return !!(W.BI && W.BI.S && W.BI.S.lang && W.IND_SRS && W.IND_SRS.review && W.IND_STORE && W.IND_STORE.saveProfile);
+  }
+  function langRec(packId, make) {
+    if (!bhashaLive()) return null;
+    var L = W.BI.S.lang, rec = L[packId];
+    if (!rec && make) rec = L[packId] = { asked: 0, correct: 0, srs: {}, stages: {}, window: [] };
+    if (rec && !rec.srs) rec.srs = {};
+    return rec || null;
+  }
+  /* due words for this pack, as lexicon rows: slipped-and-ready first, then real reviews due */
+  function dueWords(pack, lex, now) {
+    var rec = langRec(pack.id, false), out = [], seen = {}, byWord = {}, i;
+    if (!rec) return out;
+    for (i = 0; i < lex.length; i++) byWord[lex[i].word] = lex[i];
+    function add(key) {
+      var w = String(key).indexOf('word:') === 0 ? key.slice(5) : null;
+      if (w && byWord[w] && !seen[w]) { seen[w] = 1; out.push(byWord[w]); }
+    }
+    try {
+      if (W.IND_BHASHA && W.IND_BHASHA.slipped) {
+        var sl = W.IND_BHASHA.slipped(pack.id, rec, now);
+        for (i = 0; i < sl.length; i++) if (sl[i].ready) add(sl[i].key);
+      }
+      var cards = [], k;
+      for (k in rec.srs) if (rec.srs.hasOwnProperty(k) && k.indexOf('word:') === 0 && W.IND_SRS.box(rec.srs[k]) >= 1) cards.push(rec.srs[k]);
+      var due = W.IND_SRS.due(cards, now);
+      for (i = 0; i < due.length; i++) add(due[i].key);
+    } catch (e) {}
+    return out;
+  }
+  /* the write-back; returns true when the card really went into the queue */
+  function writeBack(packId, word, right, now) {
+    var rec = langRec(packId, !right);
+    if (!rec) return false;
+    var key = 'word:' + word, card = rec.srs[key];
+    if (right) {
+      /* credit only a card that was waiting for today: a later-day check, Bhasha's own rule */
+      if (!card || typeof card.due !== 'number' || card.due > now) return false;
+      if (card.last && Math.floor(card.last / DAY_MS) === Math.floor(now / DAY_MS)) return false;
+    } else if (!card) card = rec.srs[key] = { key: key };
+    try {
+      W.IND_SRS.review(card, !!right, now);
+      W.IND_STORE.saveProfile(W.BI.S);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* ==================================================================
+     ROUND BUILDING — ten questions dealt from one lexicon
+     ================================================================== */
+
+  /* what each level means in Shabd (docs/32): how far into the word chest, and which ways */
+  var LEVELS = [
+    'everyday words: read them and hear them',
+    'the first 150 words, three ways',
+    'the first 300 words, three ways',
+    'the whole word chest, three ways',
+    'the whole chest: find the word, and Suno'
+  ];
+  var REACH = [60, 150, 300, 100000, 100000];
+  var MODES = [
+    ['a', 'c', 'a', 'c', 'a', 'c', 'a', 'c', 'a', 'c'],
+    ['a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c', 'a'],
+    ['a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c', 'a'],
+    ['a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c', 'b'],
+    ['b', 'c', 'b', 'c', 'a', 'b', 'c', 'b', 'c', 'b']
+  ];
+
+  function buildRound(pack, level) {
+    var lex = [], L = pack.lexicon || [], i, w, now = Date.now();
     for (i = 0; i < L.length; i++) {
       w = L[i];
       if (w && w.word && w.roman && w.en) lex.push(w);
     }
     if (lex.length < 8) return null;
+    level = level || 3;
 
-    /* Difficulty ramps inside the round: the first half deals from the
-       first 150 rows — the everyday ramp the lexicons are ordered by —
-       and the back half deals from anywhere. */
-    var ramp = lex.slice(0, Math.min(150, lex.length));
-    var targets = [], used = {};
-    function grab(pool) {
+    /* About half the round is the child's own due and slipped words (any reach);
+       the rest is new at the chosen level — the lexicons are ordered by the
+       everyday ramp, so the level is how far into it a round reaches. */
+    var reach = lex.slice(0, Math.min(REACH[level - 1], lex.length));
+    var rec = langRec(pack.id, false), srs = (rec && rec.srs) || {};
+    var targets = [], used = {}, fromReview = {};
+    var due = dueWords(pack, lex, now);
+    for (i = 0; i < due.length && targets.length < 5; i++) {
+      if (!used[due[i].word]) { used[due[i].word] = 1; fromReview[due[i].word] = 1; targets.push(due[i]); }
+    }
+    function grab(pool, unseenOnly) {
       var bag = shuffle(pool), k;
-      for (k = 0; k < bag.length; k++) if (!used[bag[k].word]) { used[bag[k].word] = 1; return bag[k]; }
+      for (k = 0; k < bag.length; k++) {
+        if (used[bag[k].word]) continue;
+        if (unseenOnly && srs['word:' + bag[k].word]) continue;
+        used[bag[k].word] = 1; return bag[k];
+      }
       return null;
     }
-    for (i = 0; i < 5; i++) { w = grab(ramp); if (w) targets.push(w); }
-    while (targets.length < 10) { w = grab(lex); if (!w) break; targets.push(w); }
+    while (targets.length < 10) { w = grab(reach, true) || grab(reach, false) || grab(lex, false); if (!w) break; targets.push(w); }
 
-    /* 4 : 3 : 3 across the three modes, shuffled, then the loanword fix-up:
+    /* the level's mix of the three ways, shuffled, then the loanword fix-up:
        a leaking target trades places with a Suno target that does not need
        the shelter, or simply becomes Suno when nobody can trade. */
-    var modes = shuffle(['a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c', 'a']).slice(0, targets.length);
+    var modes = shuffle(MODES[level - 1]).slice(0, targets.length);
     for (i = 0; i < targets.length; i++) {
       if (modes[i] !== 'c' && textLeaks(targets[i])) {
         var swapped = false;
@@ -362,29 +473,108 @@
       var opts = shuffle([t].concat(distractorsFor(modes[i], t, lex)));
       var answer = 0;
       for (var k = 0; k < opts.length; k++) if (opts[k].word === t.word) answer = k;
-      qs.push({ mode: modes[i], target: t, options: opts, answer: answer });
+      qs.push({ kind: 'word', id: pack.id + ':' + t.word, mode: modes[i], target: t, options: opts, answer: answer,
+                review: !!fromReview[t.word] });
     }
     return qs;
   }
 
   /* ==================================================================
+     Parivaar — the family words (games spec §4.2.2), from the Rishtey
+     data (data-rishtey.js). Its family-tree slots and its options are
+     shuffled; each word plays its own clip where the pack has one.
+     The words differ by language and by family — Nani, Ammamma, Didima —
+     so the pack follows the language chosen and says "in many families";
+     it never says one word is the only one. Items are the term ids, so
+     the host's once-per-id-per-day rule caps what replaying can pay.
+     ================================================================== */
+
+  var PV_LANGS = ['hi', 'pa', 'ta', 'bn', 'gu', 'te'];
+  /* the Rishtey data's own words for a term in a language: Hindi/Urdu from `hi`,
+     the others from `also` ("ਦਾਦਾ dada" → script, roman) */
+  function pvWord(term, lang) {
+    if (!term) return null;
+    if (lang === 'hi') return term.hi ? { word: term.hi, roman: term.roman } : null;
+    var a = term.also && term.also[lang];
+    if (!a) return null;
+    var m = String(a).match(/^(.*?)\s+([A-Za-z][A-Za-z '\-]*)$/);
+    return m ? { word: m[1], roman: m[2] } : null;
+  }
+  function pvTerms() { return (W.IND_RISHTEY && W.IND_RISHTEY.terms) || []; }
+  function pvTerm(id) { var t = pvTerms(); for (var i = 0; i < t.length; i++) if (t[i].id === id) return t[i]; return null; }
+  function pvAvailable(lang) {
+    if (PV_LANGS.indexOf(lang) < 0 || !W.IND_RISHTEY) return false;
+    return pvSlots(lang, 3).length >= 4;
+  }
+  function pvSlots(lang, level) {
+    var tree = (W.IND_RISHTEY && W.IND_RISHTEY.tree) || [], out = [], i, t;
+    for (i = 0; i < tree.length; i++) {
+      t = pvTerm(tree[i].answer);
+      if (!t || !pvWord(t, lang)) continue;
+      if (level === 1 && t.tier > 1) continue;
+      out.push({ slot: tree[i].slot, term: t });
+    }
+    return out;
+  }
+  function buildParivaar(pack, level) {
+    var lang = pack.id, slots = shuffle(pvSlots(lang, level || 3)).slice(0, 10);
+    if (slots.length < 4) return null;
+    var lex = pack.lexicon || [], byWord = {}, i, k;
+    for (i = 0; i < lex.length; i++) byWord[lex[i].word] = lex[i];
+    var all = pvTerms(), qs = [];
+    for (i = 0; i < slots.length; i++) {
+      var t = slots[i].term, w = pvWord(t, lang);
+      var same = [], other = [], seen = {};
+      seen[w.word] = 1;
+      for (k = 0; k < all.length; k++) {
+        var o = all[k], ow = pvWord(o, lang);
+        if (o.id === t.id || !ow || seen[ow.word]) continue;
+        (o.gen === t.gen ? same : other).push({ term: o, w: ow });
+      }
+      var picks = shuffle(same).concat(shuffle(other)), ds = [];
+      for (k = 0; k < picks.length && ds.length < 3; k++) {
+        if (seen[picks[k].w.word]) continue;
+        seen[picks[k].w.word] = 1; ds.push(picks[k]);
+      }
+      if (ds.length < 3) continue;
+      var opts = shuffle([{ term: t, w: w }].concat(ds)).map(function (x) {
+        var lx = byWord[x.w.word];
+        return { word: x.w.word, roman: x.w.roman, en: x.term.en, id: x.term.id, audio: lx ? lx.audio : null };
+      });
+      var answer = 0;
+      for (k = 0; k < opts.length; k++) if (opts[k].id === t.id) answer = k;
+      qs.push({ kind: 'parivaar', id: t.id, mode: 'p', slot: slots[i].slot, term: t,
+                target: opts[answer], options: opts, answer: answer });
+    }
+    return qs.length >= 4 ? qs : null;
+  }
+
+  /* ==================================================================
      THE ENGINE
+     It reports to the host (docs/32): one answer() per word at its first
+     attempt, and done({win, score, asked, firstTryRight, level, levelNext}).
+     The host plays the right/wrong sounds; this file only says the words.
      ================================================================== */
 
   function shabd(host, opts, done) {
+    opts = opts || {};
     injectCSS();
     var sc = scope();
     var finished = false;
+    var level = parseInt(opts.level, 10); if (!(level >= 1 && level <= 5)) level = 3;
 
     /* Verify seam (tools smoke test drives the round through this). It
        holds the answer index — which the DOM never does; the on-screen
        rule is the one that matters, and this object paints no pixels. */
-    var ST = { phase: 'intro', pack: null, i: 0, total: 0, mode: null, answer: -1, locked: false, score: 0 };
+    var ST = { phase: 'intro', pack: null, kind: 'words', i: 0, total: 0, mode: null, answer: -1, id: null,
+               locked: false, score: 0, asked: 0, wroteBack: 0, result: null };
     host.__shState = ST;
 
-    var PK = null, QS = null, score = 0, streak = 0;
+    var PK = null, QS = null, score = 0, asked = 0, wrote = 0, result = null;
     var tonguePid = tonguePackId();
+    var scopeKind = opts.scope && opts.scope.mode === 'parivaar' ? 'parivaar' : null;
     var selPack = tonguePid || 'hi';
+    var kind = scopeKind || 'words';
 
     host.innerHTML =
       '<div class="sh-wrap">' +
@@ -424,14 +614,16 @@
     /* ------------------------------------------------------- INTRO ---- */
 
     function renderIntro() {
-      ST.phase = 'intro'; ST.pack = selPack;
+      ST.phase = 'intro'; ST.pack = selPack; ST.kind = kind;
       var ids = packIds(), chips = '', i, p;
       for (i = 0; i < ids.length; i++) {
         p = packOf(ids[i]);
-        chips += '<button type="button" class="sh-chip' + (ids[i] === selPack ? ' on' : '') + '" data-go="pick" data-id="' + esc(ids[i]) + '">' +
+        chips += '<button type="button" class="sh-chip' + (ids[i] === selPack ? ' on' : '') + '" data-go="pick" data-id="' + esc(ids[i]) + '" aria-pressed="' + (ids[i] === selPack) + '">' +
           '<span lang="' + esc(packLang(p)) + '"' + packDirAttr(p) + '>' + esc(packNative(p)) + '</span>' +
           '<span class="sh-chip-en">' + esc(packEn(p)) + '</span></button>';
       }
+      var pvOk = pvAvailable(selPack), sp = packOf(selPack);
+      if (kind === 'parivaar' && !pvOk) kind = 'words';
       stage.innerHTML =
         '<div class="sh-prompt">' +
           '<span class="sh-pkick">Ten words · three ways to meet them</span>' +
@@ -441,7 +633,17 @@
         (tonguePid
           ? '<p class="sh-lead">Your family&rsquo;s language leads.</p>'
           : '<p class="sh-lead">Every pack is the same game — pick the one your family speaks, or try a new one.</p>') +
-        '<div class="sh-row"><button type="button" class="sh-btn" data-go="start">Let&rsquo;s play</button></div>' +
+        '<div class="sh-chips" role="group" aria-label="What to play">' +
+          '<button type="button" class="sh-chip' + (kind === 'words' ? ' on' : '') + '" data-go="kind" data-kind="words" aria-pressed="' + (kind === 'words') + '">Words</button>' +
+          '<button type="button" class="sh-chip' + (kind === 'parivaar' ? ' on' : '') + '" data-go="kind" data-kind="parivaar" aria-pressed="' + (kind === 'parivaar') + '"' + (pvOk ? '' : ' disabled') + '>' +
+            'Parivaar <span class="sh-chip-en">family words</span></button>' +
+        '</div>' +
+        (pvOk ? '' : '<p class="sh-lead">Parivaar is not in ' + esc(sp ? packEn(sp) : selPack) + ' yet — ask your family what they call everyone.</p>') +
+        /* the Rishtey data says its non-Hindi words still want a native speaker's check: say so */
+        (pvOk && kind === 'parivaar' && selPack !== 'hi'
+          ? '<p class="sh-lead">These ' + esc(packEn(sp)) + ' family words have not been checked by a ' + esc(packEn(sp)) +
+            ' speaker yet, and in many families the words are different &mdash; ask yours what they say.</p>' : '') +
+        '<div class="sh-dock"><div class="sh-row"><button type="button" class="sh-btn" data-go="start">Let&rsquo;s play</button></div></div>' +
         '<p class="sh-hint">Tap an answer &mdash; or press 1&ndash;4 (A&ndash;D work too), then Enter for the next word. In Suno, R plays the word again.</p>';
       sc.later(function () { focusSoft(stage.querySelector('[data-go="start"]')); }, 60);
     }
@@ -449,12 +651,13 @@
     /* ---------------------------------------------------- QUESTIONS --- */
 
     function start() {
-      PK = packOf(selPack) || packOf('hi');
+      PK = packOf(selPack) || packOf(tonguePid) || packOf(packIds()[0]);
       if (!PK) { renderNoPacks(); return; }
-      QS = buildRound(PK);
+      QS = kind === 'parivaar' ? buildParivaar(PK, level) : buildRound(PK, level);
       if (!QS) { renderNoPacks(); return; }
-      score = 0; streak = 0;
-      ST.score = 0; ST.total = QS.length; ST.pack = PK.id;
+      score = 0; asked = 0; wrote = 0; result = null;
+      ST.score = 0; ST.asked = 0; ST.total = QS.length; ST.pack = PK.id; ST.kind = kind; ST.result = null;
+      ST.review = QS.filter(function (q) { return q.review; }).map(function (q) { return q.target.word; });
       renderQ(0);
     }
 
@@ -470,24 +673,30 @@
     function soundLabel(txt) {
       return (W.IND_ICON ? W.IND_ICON('sound', 18) + ' ' : '') + txt;
     }
+    function familiesOf() { return PK.id === 'hi' ? 'Hindi- and Urdu-speaking' : packEn(PK) + '-speaking'; }
 
     function renderQ(i) {
       if (sc.dead) return;
       var q = QS[i];
       if (!q) return renderDone();
-      ST.phase = 'q'; ST.i = i; ST.mode = q.mode; ST.answer = q.answer; ST.locked = false;
+      ST.phase = 'q'; ST.i = i; ST.mode = q.mode; ST.answer = q.answer; ST.id = q.id; ST.locked = false;
       markPips(i);
       say('');
 
-      var kick = 'Word ' + (i + 1) + ' of ' + QS.length + ' · ' +
-        (q.mode === 'a' ? 'Read it' : q.mode === 'b' ? 'Find the word' : 'Suno — listen');
+      var kick = q.kind === 'parivaar'
+        ? 'Family word ' + (i + 1) + ' of ' + QS.length + ' · in many ' + familiesOf() + ' families'
+        : 'Word ' + (i + 1) + ' of ' + QS.length + ' · ' +
+          (q.mode === 'a' ? 'Read it' : q.mode === 'b' ? 'Find the word' : 'Suno — listen') + (q.review ? ' · from your review' : '');
 
       /* THE PROMPT. Mode by mode, this block is the leak surface:
            a — the word and its roman; its meaning is nowhere.
            b — the meaning; the word, its roman and its SOUND are nowhere.
-           c — nothing of the word at all, only the replay button. */
+           c — nothing of the word at all, only the replay button.
+           p — the place in the family tree, in English; no word, no sound. */
       var prompt = '<div class="sh-prompt"><span class="sh-pkick">' + esc(kick) + '</span>';
-      if (q.mode === 'a') {
+      if (q.mode === 'p') {
+        prompt += '<h3 class="sh-q">What do you call</h3><div class="sh-meaning">' + esc(q.slot) + '?</div>';
+      } else if (q.mode === 'a') {
         prompt += '<div class="sh-big">' + wordSpan(q.target, '') + '</div>' +
           '<div class="sh-roman">' + esc(q.target.roman) + '</div>' +
           '<h3 class="sh-q">What does it mean?</h3>' +
@@ -510,7 +719,7 @@
           '<span class="sh-num" aria-hidden="true">' + (k + 1) + '</span><span class="sh-opt-t">';
         if (q.mode === 'a') {
           optsH += esc(o.en);
-        } else if (q.mode === 'b') {
+        } else if (q.mode === 'b' || q.mode === 'p') {
           optsH += wordSpan(o, 'sh-opt-word') + '<span class="sh-opt-s">' + esc(o.roman) + '</span>';
         } else {
           optsH += wordSpan(o, 'sh-opt-word');
@@ -520,12 +729,12 @@
       optsH += '</div>';
 
       stage.innerHTML = prompt + optsH +
-        '<p class="sh-hint">Tap an answer &mdash; or press 1&ndash;4 (A&ndash;D work too), then Enter for the next word. In Suno, R plays the word again.</p>' +
+        '<p class="sh-hint">Tap an answer &mdash; or press 1&ndash;4 (A&ndash;D work too), then Enter for the next word.' + (q.mode === 'c' ? ' R plays the word again.' : '') + '</p>' +
         '<div class="sh-teach-slot"></div>';
 
-      /* Warm audio on show — modes a and c only. In meaning→word the clip
-         IS the answer, so mode b stays silent until lock-in. */
-      if (q.mode !== 'b') sc.later(function () { sayEntry(q.target, PK); }, 150);
+      /* Warm audio on show — modes a and c only. In meaning→word and in the
+         family tree the clip IS the answer, so they stay silent until lock-in. */
+      if (q.mode === 'a' || q.mode === 'c') sc.later(function () { sayEntry(q.target, PK); }, 150);
 
       sc.later(function () { focusSoft(stage.querySelector('.sh-opt')); }, 60);
     }
@@ -533,48 +742,64 @@
     function replayAudio() {
       var q = QS && QS[ST.i];
       if (!q) return;
-      if (q.mode === 'b' && !ST.locked) return;   /* the leak rule, enforced twice */
+      if ((q.mode === 'b' || q.mode === 'p') && !ST.locked) return;   /* the leak rule, enforced twice */
       sayEntry(q.target, PK);
     }
 
+    /* ONE VERDICT PER WORD, at its first and only attempt */
     function choose(n) {
       if (ST.phase !== 'q' || ST.locked) return;
       var q = QS[ST.i], els = optionEls();
       if (!q || !els[n]) return;
       ST.locked = true;
-      var right = n === q.answer, k;
+      var right = n === q.answer, k, now = Date.now();
       for (k = 0; k < els.length; k++) {
         els[k].disabled = true;
         if (k === q.answer) els[k].classList.add('is-right');
-        else els[k].classList.add('is-off');
+        else if (k === n) els[k].classList.add('is-warm');
       }
-      if (right) {
-        score++; streak++; ST.score = score;
-        say(streak > 0 && streak % 3 === 0 ? STREAK3 : one(CHEERS), 'good');
-      } else {
-        streak = 0;
-        say('Not this time — here it is.', 'warm');
+      asked++; ST.asked = asked;
+      if (right) { score++; ST.score = score; }
+      var queued = false;
+      if (q.kind === 'word') queued = writeBack(PK.id, q.target.word, right, now);
+      if (queued && !right) { wrote++; ST.wroteBack = wrote; }
+      if (typeof opts.answer === 'function') {
+        try {
+          opts.answer({ id: q.id, right: right, firstTry: true, objective: null,
+                        skill: q.kind === 'parivaar' ? 'shabd.parivaar' : 'shabd.' + ({ a: 'read', b: 'find', c: 'suno' })[q.mode] });
+        } catch (e) {}
       }
-      /* The reward beat: the right word says its own name. In mode b this
-         is the FIRST time the clip plays, by design. */
-      if (q.mode !== 'a') sc.later(function () { sayEntry(q.target, PK); }, 150);
+      /* The reward beat: the right word says its own name. In meaning→word and
+         Parivaar this is the FIRST time the clip plays, by design. */
+      if (q.mode !== 'a' && (q.kind === 'word' || q.target.audio)) sc.later(function () { sayEntry(q.target, PK); }, 150);
 
       var last = ST.i >= QS.length - 1;
       var slot = stage.querySelector('.sh-teach-slot');
+      var pair = wordSpan(q.target, '') + ' &middot; ' + esc(q.target.roman) + ' &mdash; &ldquo;' + esc(q.target.en) + '&rdquo;';
       if (slot) {
-        slot.innerHTML =
-          '<div class="sh-teach">' +
-            (right ? '' : 'It was ') + wordSpan(q.target, '') + ' &middot; ' + esc(q.target.roman) +
-            ' &mdash; &ldquo;' + esc(q.target.en) + '&rdquo;' +
-            (right ? '' : '. You will meet it again.') +
-          '</div>' +
-          '<div class="sh-row"><button type="button" class="sh-btn" data-go="next">' +
-            (last ? 'See how I did' : 'Next word') + '</button></div>';
+        if (right) {
+          say(one(CHEERS), 'good');
+          slot.innerHTML = '<div class="sh-teach">' + pair +
+              (q.kind === 'parivaar' && q.term.note ? '<br><span class="sh-small">' + esc(q.term.note) + '</span>' : '') + '</div>' +
+            '<div class="sh-dock"><div class="sh-row"><button type="button" class="sh-btn" data-go="next">' +
+              (last ? 'See how I did' : 'Next word') + '</button></div></div>';
+        } else {
+          /* THE MISS CARD (docs/32): it holds until Aage */
+          say('', '');
+          var teach = q.kind === 'parivaar'
+            ? (q.term.note ? q.term.note + ' ' : '') + 'In many families the word is different — ask yours what they say.'
+            : (queued ? 'It goes into your Bhasha review — you will meet it again in Words that slipped.'
+                      : 'Read it once more, and say it out loud.');
+          slot.innerHTML =
+            '<div class="gm-miss" role="status"><b>Not quite.</b> <span class="gm-ans">' + pair + '</span>' +
+              '<p class="gm-teach">' + esc(teach) + '</p>' +
+              '<button type="button" class="sh-btn gm-aage" data-gm="aage">Aage &rarr;</button></div>';
+        }
         /* the teach line uses a bare span; give the word its size */
-        var tw = slot.querySelector('.sh-teach span[lang]');
+        var tw = slot.querySelector('span[lang]');
         if (tw) tw.style.fontSize = '1.25em';
       }
-      sc.later(function () { focusSoft(stage.querySelector('[data-go="next"]')); }, 60);
+      sc.later(function () { focusSoft(stage.querySelector('[data-go="next"], [data-gm="aage"]')); }, 60);
     }
 
     function next() {
@@ -589,50 +814,52 @@
       ST.phase = 'done'; ST.score = score;
       markPips(QS.length, true);
       say('');
-      var kauris = 1 + Math.floor(score / 3);
+      var ratio = asked ? score / asked : 0;
+      result = { win: asked > 0 && ratio >= 0.5, score: score, asked: asked, firstTryRight: score, level: level,
+                 levelNext: ratio >= 0.8 ? Math.min(5, level + 1) : ratio < 0.5 ? Math.max(1, level - 1) : level };
+      ST.result = result;
+      var pv = QS[0] && QS[0].kind === 'parivaar';
       stage.innerHTML =
         '<div class="sh-done">' +
-          '<h3>' + esc(score >= 7 ? one(CHEERS) : 'Well played!') + '</h3>' +
-          '<p>You matched <b>' + score + ' of ' + QS.length + '</b> words in ' +
-            '<span lang="' + esc(packLang(PK)) + '"' + packDirAttr(PK) + '>' + esc(packNative(PK)) + '</span>' +
-            ' — every word you met today is one the mist gets back a little less of.</p>' +
-          '<div class="sh-tally">' +
-            '<span class="sh-chipstat"><b>' + score + '</b> / ' + QS.length + '</span>' +
-          '</div>' +
-          '<div class="sh-row">' +
-            '<button type="button" class="sh-btn" data-go="out">Back to the Mela</button>' +
-            '<button type="button" class="sh-btn ghost" data-go="again">Play again</button>' +
-          '</div>' +
+          '<h3>' + esc(ratio >= 0.8 ? one(CHEERS) : ratio >= 0.5 ? 'Well played!' : 'Every word, met.') + '</h3>' +
+          '<p>You knew <b>' + score + ' of ' + QS.length + '</b> on the first try, in ' +
+            '<span lang="' + esc(packLang(PK)) + '"' + packDirAttr(PK) + '>' + esc(packNative(PK)) + '</span>.</p>' +
+          (pv ? '<p>Use one of these words on your next family call.</p>'
+              : wrote ? '<p>' + wrote + (wrote === 1 ? ' word goes' : ' words go') + ' into your Bhasha review, to meet again in a day or two.</p>' : '') +
+          '<div class="sh-dock"><div class="sh-row">' +
+            '<button type="button" class="sh-btn" data-go="out">Finish</button>' +
+          '</div></div>' +
         '</div>';
       sc.later(function () { focusSoft(stage.querySelector('[data-go="out"]')); }, 60);
     }
 
     function bail() {
-      if (finished) return;
+      if (finished || !result) return;
       finished = true;
       hushAudio();
       sc.kill();
-      if (typeof done === 'function') {
-        done({ win: score >= 7, score: score, kauris: 1 + Math.floor(score / 3) });
-      }
+      host.__shDone = result;
+      if (typeof done === 'function') done(result);
     }
 
     /* ----------------------------------------------------- CONTROLS --- */
-    /* Touch/mouse and keyboard land on the same three verbs: choose,
-       replay, next. Neither input is the "real" one. */
+    /* Touch/mouse and keyboard land on the same verbs: choose, replay, next.
+       Neither input is the "real" one. */
 
     sc.on(stage, 'click', function (e) {
       var t = e.target;
       var opt = t.closest ? t.closest('.sh-opt') : null;
       if (opt) { choose(parseInt(opt.getAttribute('data-i'), 10)); return; }
+      var gm = t.closest ? t.closest('[data-gm="aage"]') : null;
+      if (gm) { next(); return; }
       var go = t.closest ? t.closest('[data-go]') : null;
-      if (!go) return;
+      if (!go || go.disabled) return;
       var what = go.getAttribute('data-go');
       if (what === 'pick') { selPack = go.getAttribute('data-id'); renderIntro(); }
+      else if (what === 'kind') { kind = go.getAttribute('data-kind') === 'parivaar' ? 'parivaar' : 'words'; renderIntro(); }
       else if (what === 'start') { start(); }
       else if (what === 'replay') { replayAudio(); }
       else if (what === 'next') { next(); }
-      else if (what === 'again') { start(); }
       else if (what === 'out') { bail(); }
     });
 
@@ -665,7 +892,8 @@
       }
     });
 
-    renderIntro();
+    if (scopeKind && pvAvailable(selPack)) start();
+    else renderIntro();
 
     var teardown = function () {
       finished = true;   /* torn down without done() — never call it late */
@@ -711,10 +939,13 @@
   W.IND_GAMES.push({
     id: 'shabd',
     name: 'Shabd Challenge',
+    sub: 'words in your family’s language',
     icon: 'script',
     minutes: 3,
-    blurb: 'Ten words from your family’s language — read them, hear them, match them. Nine packs, one game.',
+    blurb: 'Ten words from your family’s language — read them, hear them, match them. Nine packs, one game, and Parivaar: the family words.',
     tag: 'Words',
+    teaches: true,
+    levels: LEVELS,
     c: '#8b3fd6',
     c2: '#ef7d3a',
     scene: SCENE,

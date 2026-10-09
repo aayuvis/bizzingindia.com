@@ -3773,7 +3773,7 @@
 
     /* BIGGER CITIES. Reach was 7 · 10 · 14 over three levels; a level-1 city now has room for
        a real first quarter, and two more levels carry it to the edge of its land. */
-    var REACH = { 1: 9, 2: 12, 3: 15, 4: 18, 5: 22 };
+    var REACH = { 1: 10, 2: 13, 3: 16, 4: 19, 5: 23 };
     /* PROSPERITY: what has been built fills the meter, and a full meter makes the next growth
        free — building is how a city earns its size, not only grain */
     var PROS = [0, 4, 8, 13, 19, 26];

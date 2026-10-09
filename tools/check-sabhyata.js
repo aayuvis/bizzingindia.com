@@ -2589,14 +2589,17 @@ check('city-room', 'a level-1 city has room for at least 8 pieces, and the held 
     const G = window.__SABG(), D = window.__SABDO, q = G.sites.dholavira, keep = q.kit;
     G.res.anna = G.res.kala = 9999; q.lv = 1; q.kit = [];
     let n = 0;
+    /* measured with the bead workshop, the biggest everyday piece of the age, not a 1x1 hut */
     for (const [x, y] of D.legal('dholavira')) {
-      if (D.canPlace('dholavira', 'hs-har-mud', x, y)) continue;
-      q.kit.push({ p: 'hs-har-mud', x, y }); n++;
+      if (D.canPlace('dholavira', 'bd-har-bead', x, y)) continue;
+      q.kit.push({ p: 'bd-har-bead', x, y }); n++;
     }
     q.kit = keep;
-    return n;
+    return { n, cells: D.legal('dholavira').length, was: 89 };
   });
-  if (r < 8) throw new Error(`a level-1 Dholavira has room for ${r} homes — the owner asked for 8–10 at least`);
+  /* "the cities are too small": at reach 7 a level-1 Dholavira had 89 buildable cells */
+  if (r.cells < 115) throw new Error(`a level-1 Dholavira has ${r.cells} buildable cells — no bigger than before the owner's note (${r.was})`);
+  if (r.n < 8) throw new Error(`a level-1 Dholavira has room for ${r.n} workshops — the owner asked for 8–10 pieces at least`);
   await p.evaluate(() => { const G = window.__SABG(); G.res.anna = 500; G.res.kala = 500; G.sites.dholavira.kit = []; });
   await openCity(p, 'dholavira');
   const g = await p.evaluate(() => new Promise(res => {
@@ -2628,6 +2631,7 @@ check('village', 'a grown city founds a village on open land: a dot and a road o
     D.act('dholavira', 'village');                       /* level 1: not yet */
     const early = (G.villages || []).length - before;
     q.lv = 2; D.paint();
+    const y0b = D.yieldLedger('dholavira').y;      /* the yield at level 2, before the village */
     const sel = () => { const g = document.getElementById('sab-dholavira'); ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(t => g.dispatchEvent(new MouseEvent(t, { bubbles: true }))); };
     sel();
     const tile = document.querySelector('#sab-sheet [data-sab-act="village"]');
@@ -2640,7 +2644,8 @@ check('village', 'a grown city founds a village on open land: a dot and a road o
     const border = [...svg.querySelectorAll('*')].filter(el => /border|boundar|territor|claim/i.test((el.getAttribute('class') || '') + ' ' + (el.id || ''))).length;
     const shapes = [...document.querySelectorAll('#sab-villages *')].filter(el => /^(polygon|rect|polyline)$/i.test(el.tagName)).length;
     const terr = [...svg.querySelectorAll('.sab-terr')].map(el => getComputedStyle(el).stroke + '|' + getComputedStyle(el).fill);
-    return { early, tile: !!tile, v, gain: (y1.anna - y0.anna) + (y1.kala - y0.kala), drawn, road, border, shapes, terrKinds: new Set(terr).size };
+    void y0;
+    return { early, tile: !!tile, v, gain: (y1.anna - y0b.anna) + (y1.kala - y0b.kala), drawn, road, border, shapes, terrKinds: new Set(terr).size };
   });
   if (r.early) throw new Error('a level-1 city founded a village');
   if (!r.tile) throw new Error('a level-2 city offers no "Found a village" in its sheet');

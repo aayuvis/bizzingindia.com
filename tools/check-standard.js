@@ -483,8 +483,10 @@ check('modes', 'a bonus mode costs its printed price, is chosen in the game, and
   const games = await p.evaluate(async () => { if (window.IND_LOAD) await window.IND_LOAD(['games']); return (window.IND_GAMES || []).map(g => g.id); });
   if (!X.find(x => x.id === 'mode-gyanpati-hard') || X.filter(x => x.game === 'rangoli').length < 2) throw new Error('the hard ladder and the Rangoli themes are not on sale: ' + JSON.stringify(X));
   for (const x of X) if (!games.includes(x.game) || !(x.price > 0)) throw new Error(x.id + ' has no game or no printed price');
+  /* a game with levels opens on the host's level chip (games spec §1.3): its Start mounts the engine */
+  const startHost = async () => { await p.evaluate(() => { const s = document.querySelector('#gamehost [data-gmh="start"]'); if (s) s.click(); }); await p.waitForTimeout(500); };
   /* before buying: the free way, the classic ladder, and no picker */
-  await go(p, 'game', 'gyanpati'); await p.waitForTimeout(500);
+  await go(p, 'game', 'gyanpati'); await p.waitForTimeout(500); await startHost();
   const free = await p.evaluate(() => ({ ways: !!document.querySelector('.gf-ways'), st: (document.getElementById('gamehost') || {}).__qzState }));
   if (free.ways) throw new Error('a picker of ways shows before anything is opened');
   if (!free.st || free.st.ladder !== 'classic' || free.st.bands.slice(0, 5).some(b => b !== 'easy')) throw new Error('the free ladder is not the classic one: ' + JSON.stringify(free.st && free.st.bands));
@@ -496,22 +498,22 @@ check('modes', 'a bonus mode costs its printed price, is chosen in the game, and
   const price = X.find(x => x.id === 'mode-gyanpati-hard').price;
   if (bal0 - bal1 !== price) throw new Error(`the hard ladder cost ${bal0 - bal1}, its price is ${price}`);
   /* in the game: the picker, and the hard ladder when chosen */
-  await go(p, 'game', 'gyanpati'); await p.waitForTimeout(500);
+  await go(p, 'game', 'gyanpati'); await p.waitForTimeout(500); await startHost();
   const pick = await p.evaluate(() => [...document.querySelectorAll('.gf-ways [data-act="gameway"]')].map(b => b.getAttribute('data-id')));
   if (pick.length !== 2 || pick[0] !== '' || pick[1] !== 'mode-gyanpati-hard') throw new Error('the game does not offer the free way and the hard ladder: ' + JSON.stringify(pick));
-  await p.evaluate(() => document.querySelector('.gf-ways [data-id="mode-gyanpati-hard"]').click()); await p.waitForTimeout(600);
+  await p.evaluate(() => document.querySelector('.gf-ways [data-id="mode-gyanpati-hard"]').click()); await p.waitForTimeout(600); await startHost();
   const hard = await p.evaluate(() => (document.getElementById('gamehost') || {}).__qzState);
   if (!hard || hard.ladder !== 'hard' || hard.bands.includes('easy') || hard.bands.filter(b => b === 'hard').length < 10)
     throw new Error('the hard ladder is not hard: ' + JSON.stringify(hard && hard.bands));
   /* and back to the free way, one tap */
-  await p.evaluate(() => document.querySelector('.gf-ways [data-id=""]').click()); await p.waitForTimeout(600);
+  await p.evaluate(() => document.querySelector('.gf-ways [data-id=""]').click()); await p.waitForTimeout(600); await startHost();
   const back = await p.evaluate(() => (document.getElementById('gamehost') || {}).__qzState);
   if (!back || back.ladder !== 'classic') throw new Error('the classic ladder did not come back');
   /* a Rangoli theme changes the chalk and the ground, and nothing else is needed to play */
   await go(p, 'shop', 'extras');
   await p.evaluate(() => document.querySelector('#main [data-act="buyextra"][data-id="theme-rangoli-kolam"]').click()); await p.waitForTimeout(300);
   await go(p, 'game', 'rangoli'); await p.waitForTimeout(400);
-  await p.evaluate(() => document.querySelector('.gf-ways [data-id="theme-rangoli-kolam"]').click()); await p.waitForTimeout(600);
+  await p.evaluate(() => document.querySelector('.gf-ways [data-id="theme-rangoli-kolam"]').click()); await p.waitForTimeout(600); await startHost();
   const rg = await p.evaluate(() => { const w = document.querySelector('#gamehost .mela-wrap'); const cs = w && getComputedStyle(w);
     return { on: w && w.getAttribute('data-theme-rg'), c1: cs && cs.getPropertyValue('--rg1').trim(), ground: cs && cs.getPropertyValue('--rg-ground').trim() }; });
   if (rg.on !== 'theme-rangoli-kolam' || !rg.c1 || !rg.ground) throw new Error('the kolam theme did not reach the board: ' + JSON.stringify(rg));

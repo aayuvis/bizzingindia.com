@@ -437,13 +437,10 @@ check('copy', 'no streak copy in the engine', async () => {
   process.exit(fail ? 1 : 0);
 })();
 
-/* PROVED BY BREAKING (each was watched to fail first):
-     N5        a pair deleted from app/data-naksha.js
-     N3        J&K's d trimmed by one point in the engine before drawing
-     N2        `.nk-st.nk-ok` given a stroke; and a stroke transition on .nk-st
-     N1        the bot always tapping the answer
-     N4        Lakshadweep left out of the keyboard order
-     holds     the miss card auto-advancing like a right answer
-     leak      the capital dot drawn before the tap
-     phone     the feedback card placed under the map instead of over it
-     clock     the beat counted with Date.now() instead of the paused rAF delta */
+/* PROVED BY BREAKING (each watched to fail, then restored):
+     N2        a stroke added to `.nk-st.nk-ok` — "a boundary changed mid-round"
+     leak      the capital dot drawn before the tap — "the capital dot shows before the tap"
+     N5        Uttar Pradesh dropped from Madhya Pradesh's neighbours in data-naksha.js
+   Caught real faults while the game was built: phone (the map ran under the tab bar before the
+   stage fitted itself to the screen), N2 (an L2 round of one item — the capital filter dropped
+   every capital as "leaking" its own name). */

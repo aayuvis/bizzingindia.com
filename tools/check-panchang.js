@@ -132,9 +132,13 @@ check('P2', 'every festival shown is data-utsav’s, and the window marked right
 });
 
 check('P1', 'a random placer scores under 15% at L1, and every round’s own odds are under 15%', async ({ p }) => {
+  /* The hard guarantee is each round's own odds (its windows over twelve), asserted below for
+     every round. The played total is a second look, made reproducible: the bot AND the deck are
+     seeded, so a pass here is the same pass every run rather than a lucky draw. */
   const R = rng(4242);
+  await p.evaluate(() => { let s = 77; Math.random = () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; });
   let asked = 0, right = 0, worst = 0;
-  for (let round = 0; round < 20; round++) {
+  for (let round = 0; round < 40; round++) {
     await mount(p, { level: 1 });
     for (let i = 0; i < 12 && !(await rec(p)).done; i++) {
       const m = Math.floor(R() * 12);
@@ -401,3 +405,9 @@ check('copy', 'no streak copy in the engine', async () => {
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();
+
+/* PROVED BY BREAKING (each watched to fail, then restored):
+     P1        a round of two-month windows only, no one-month cards — "a random placer's odds are 16.7%"
+     holds     the miss card moving on by itself like a right answer — "the miss did not hold"
+   Caught real faults while the game was built: phone (Aage under the tab bar), P4 (Mera saal's
+   chips one height for one-line names and another for two). */

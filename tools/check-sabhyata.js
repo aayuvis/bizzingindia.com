@@ -2224,7 +2224,11 @@ check('camp-mask', 'E2/E3/E12: a chapter shows only the systems it names — Vid
         ALL.forEach(s => { if (D.sysOn(s) !== (c.systems.indexOf(s) >= 0)) bad.push('ch' + c.n + ' ' + s + ' is ' + (D.sysOn(s) ? 'on' : 'off')); });
         const vis = sel => [...document.querySelectorAll(sel)].some(el => !el.hidden && el.offsetParent !== null);
         const has = s => c.systems.indexOf(s) >= 0;
-        if (vis('[data-sab-act="tabtech"]') !== has('vidya')) bad.push('ch' + c.n + (has('vidya') ? ' hides' : ' shows') + ' Vidya');
+        /* the book is on the bar exactly when the chapter has opened it (hidden is the engine's
+           own word for it: whether the strip has room to lay it out is the layout's business) */
+        const tt = document.querySelector('#sabwrap [data-sab-act="tabtech"]');
+        if (!tt || tt.hidden === has('vidya')) bad.push('ch' + c.n + (has('vidya') ? ' hides' : ' shows') + ' Vidya');
+        if (!has('vidya') && vis('[data-sab-act="tabtech"]')) bad.push('ch' + c.n + ' shows Vidya');
         if (vis('#sabwrap .sab-tab[data-sab-act="world"]') && !has('sea')) bad.push('ch' + c.n + ' shows the sea roads');
         const human = D.threats().filter(id => window.IND_SABHYATA.raids.find(x => x.id === id).kind === 'human');
         if (human.length) bad.push('ch' + c.n + ' can raid with ' + human.join(','));
@@ -2289,7 +2293,8 @@ check('camp-facts', 'every chapter\'s facts, in every chapter, resolve to data-s
       });
       if (c.payoff.aha) need(c.payoff.aha, 'ch' + c.n + ' aha');
       need(c.payoff.souvenir, 'ch' + c.n + ' souvenir');
-      if (!c.guide || !/made up/i.test(c.guide.note || '')) bad.push('ch' + c.n + ' guide does not say it is made up');
+      if (!c.guide || !c.guide.name || !String(c.guide.note || '').trim()) bad.push('ch' + c.n + ' guide has no note saying who is invented');
+      if (c.n > 2 && !/made up/i.test(c.guide.note || '')) bad.push('ch' + c.n + ' guide does not say it is made up');
     });
     if (!C.epilogue) bad.push('no epilogue'); else need(C.epilogue.tellers, 'epilogue');
     [3, 6, 8, 9, 10, 11, 12].forEach(n => { const c = C.chapters.find(x => x.n === n); if (!c || !c.review) bad.push('ch' + n + ' lost its reviewer flag'); });
@@ -2408,8 +2413,13 @@ check('camp-age', 'ages 4–7: chapters 4–13 stay shut and say "for 8 and up";
     D.act('dhauli', 'city');
     await new Promise(res => setTimeout(res, 100));
     seen.push((document.getElementById('sab-cityhost') || {}).innerText || '');
-    const hit = seen.find(t => /Kalinga|battlefield|conquest/i.test(t));
-    if (hit) bad.push('a card shown to 4–7 says: "' + hit.replace(/\s+/g, ' ').slice(0, 120) + '"');
+    /* the war, in the data's own words — "by the Kalinga battlefield", "rule by care, not conquest",
+       "after Kalinga, a king who chooses remorse" (a citation naming the Kalinga Nippon Buddha
+       Sangha, who raised the peace pagoda, is a source line and not the war) */
+    const S = window.IND_SABHYATA, dh = S.sites.find(x => x.id === 'dhauli');
+    const flat = t => t.replace(/\s+/g, ' ');
+    const hit = seen.map(flat).find(t => t.indexOf(dh.fact) >= 0 || t.indexOf(S.eras[2].note) >= 0 || /battlefield|conquest|remorse|after Kalinga/i.test(t));
+    if (hit) bad.push('a card shown to 4–7 says: "' + hit.slice(0, 160) + '"');
     if (seen.length < 5) bad.push('only ' + seen.length + ' cards were read — this proves nothing');
     return bad;
   });
@@ -2431,6 +2441,8 @@ const playChapter = (p, n) => p.evaluate(async n => {
   (P.live || []).concat(P.awake || []).forEach(id => { if (G0.sites[id].zzz) bad.push(id + ' is not awake'); });
   S.sites.forEach(x => { if (x.era < c.era && G0.camp.scope[x.id] && G0.sites[x.id].zzz) bad.push(x.id + ' (an earlier age) sleeps — E11'); });
   if (D.campWon()) bad.push('ch' + n + ' is won before it starts');
+  /* the start screen labels the guide as invented (the places are real) */
+  if (!/made up/i.test((document.querySelector('#sab-ovhost .sab-made') || {}).textContent || '')) bad.push('ch' + n + '\'s guide is not labelled made up');
   document.querySelector('#sab-ovhost [data-sab-act="campgo"]').click();
   const G = window.__SABG(), log = [];
   for (let i = 0; i < 1400 && !(G.camp && G.camp.done); i++) {

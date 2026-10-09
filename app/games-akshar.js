@@ -644,5 +644,4 @@
   coverCSS();
   W.IND_GAME_ART = W.IND_GAME_ART || {};
   W.IND_GAME_ART.akshar = coverHTML();
-  REG.cover = { scripts: COVER_KA.map(function (k) { return k[0]; }) };   /* for check-akshar `cover` */
 })();

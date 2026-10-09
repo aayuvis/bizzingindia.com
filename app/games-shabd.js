@@ -804,6 +804,10 @@
       score = 0; asked = 0; wrote = 0; result = null;
       ST.score = 0; ST.asked = 0; ST.total = QS.length; ST.pack = PK.id; ST.kind = kind; ST.result = null;
       ST.review = QS.filter(function (q) { return q.review; }).map(function (q) { return q.target.word; });
+      /* the round's paintings are fetched now, so no picture arrives after the word is heard */
+      QS.forEach(function (q) {
+        if (q.pic) q.options.forEach(function (o) { var pp = picOf(o); if (pp && pp.kind === 'img' && W.Image) { try { new W.Image().src = pp.src; } catch (e) {} } });
+      });
       renderQ(0);
     }
 

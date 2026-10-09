@@ -220,9 +220,10 @@ check('gate', 'G5: unsigned, so tester mode only — without ?tester=1 no Play c
   if (!(await p.$('#main [data-id="saga"]'))) throw new Error('the Play hub does not offer the saga in tester mode');
   /* the card opens the saga map inside the game frame, and its places are routes */
   await p.click('#main [data-id="saga"]'); await p.waitForTimeout(600);
-  /* the host's how-to folds on the first pointerdown and the board jumps up under the finger:
-     let it fold first (3 s), so the tap lands on the place it was aimed at */
-  await p.waitForTimeout(3300);
+  /* a teaching card with levels opens on the host's level chip (games spec §1.3): Start it. The
+     host no longer folds its how-to under a finger (it waits for the release), so the tap on a
+     place lands where it was aimed without waiting for the fold. */
+  if (await p.$('#gamehost [data-gmh="start"]')) { await p.click('#gamehost [data-gmh="start"]'); await p.waitForTimeout(600); }
   const inhost = await p.evaluate(() => ({ map: !!document.querySelector('#gamehost .sg-map'), links: [...document.querySelectorAll('#gamehost .sg-pin[href]')].map(a => a.getAttribute('href')) }));
   if (!inhost.map || inhost.links.indexOf('#/saga/1') < 0) throw new Error('the Play card does not open the saga map: ' + JSON.stringify(inhost));
   await p.click('#gamehost .sg-pin[href="#/saga/1"]'); await p.waitForTimeout(500);

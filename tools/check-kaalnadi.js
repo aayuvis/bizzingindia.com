@@ -307,7 +307,18 @@ check('gate', 'review: true — outside tester mode the engine shows the reviewe
   const reg = await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'kaalnadi'); return { review: g.review, teaches: g.teaches, levels: g.levels.length, sub: typeof g.sub }; });
   if (reg.review !== true || reg.teaches !== true || reg.levels !== 5 || reg.sub !== 'string') throw new Error('registry entry: ' + JSON.stringify(reg));
   await p.evaluate(() => window.IND_STORE.saveDevice('tester', false));
-  await mount(p, { level: 1 });
+  /* two gates. The host's (docs/32, games spec §7): outside tester mode #/game/kaalnadi never opens
+     an engine in review — it is the Play hub. Then the engine's own, mounted directly. */
+  await p.evaluate(() => window.BI.go('game', 'kaalnadi')); await p.waitForTimeout(500);
+  const hg = await p.evaluate(() => ({ frame: !!document.getElementById('gamehost'), hub: !!document.querySelector('#main .gcover') }));
+  if (hg.frame || !hg.hub) throw new Error('outside tester mode the host opened Kaal Nadi: ' + JSON.stringify(hg));
+  await p.evaluate(() => {
+    const h = document.createElement('div'); h.id = 'gamehost'; document.getElementById('main').appendChild(h);
+    window.__ans = []; window.__done = null;
+    const g = window.IND_GAMES.find(x => x.id === 'kaalnadi');
+    window.__td = g.engine(h, { level: 1, band: '8-10', scope: null, calm: false, reduced: false, answer: r => window.__ans.push(r) }, r => { window.__done = r; });
+  });
+  await p.waitForSelector('.kn', { timeout: 20000 }); await p.waitForTimeout(150);
   const w = await p.evaluate(() => ({ wait: !!document.querySelector('.kn-wait'), card: !!document.querySelector('.kn-card') }));
   await p.evaluate(() => window.IND_STORE.saveDevice('tester', true));
   if (!w.wait || w.card) throw new Error('outside tester mode the card set showed: ' + JSON.stringify(w));

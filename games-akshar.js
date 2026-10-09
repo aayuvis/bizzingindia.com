@@ -123,8 +123,12 @@
   }
   function scriptOf(p) { return p && W.IND_SCRIPTS ? W.IND_SCRIPTS[p.script] : null; }
   function isDeva(p) { return !!(p && /^devanagari/.test(p.script)); }
-  /* released: Devanagari. Everything else waits for a native reader (tester mode only). */
-  function open(p) { return isDeva(p) || tester(); }
+  /* released: Devanagari. Everything else waited for a native reader (tester mode only) until the
+     owner opened every script before review (9 Oct 2026) — the publisher's decision, never a sign-off.
+     Each other script then says on screen that no native reader has checked it yet. */
+  var OWNER_OPEN = { to: 'everyone', by: 'owner', on: '2026-10-09' };
+  function ownerOpen() { return !!(OWNER_OPEN && OWNER_OPEN.by); }
+  function open(p) { return isDeva(p) || tester() || ownerOpen(); }
   function rtl(p) { var s = scriptOf(p); return !!(s && s.direction === 'rtl'); }
   /* likhna.js draws its guide in the Devanagari face only — that is the whole of the stroke
      data this app has, so tracing exists for Devanagari and for nothing else (A4) */
@@ -290,7 +294,7 @@
       var chips = ps.map(function (p) {
         return '<button type="button" class="ak-chip' + (p.id === selId ? ' on' : '') + '" data-pack="' + esc(p.id) + '" aria-pressed="' + (p.id === selId) + '">' +
           textEl(p, (p.name && p.name.native) || p.id, 'ak-cn') + '<span>' + esc((p.name && p.name.en) || p.id) + '</span>' +
-          (open(p) ? '' : '<span class="ak-lock">· with its reader</span>') + '</button>';
+          (!open(p) ? '<span class="ak-lock">· with its reader</span>' : isDeva(p) ? '' : '<span class="ak-lock">· not yet checked</span>') + '</button>';
       }).join('');
       var note = '';
       if (tp.set && !tp.pack) note = 'Your family\'s language does not have its letters in the app yet. Pick any script to play — or ask your family which one they read.';
@@ -301,6 +305,10 @@
       board.innerHTML = '<p class="ak-q">Which letters shall we play with?<small>' + (tp.pack ? 'Your family\'s language is chosen.' : 'Choose the script your family reads.') + '</small></p>' +
         '<div class="ak-chips" role="group" aria-label="Scripts">' + chips + '</div>' +
         (note ? '<p class="ak-note" role="status">' + note + '</p>' : '') +
+        /* the owner opened every script before its native reader (9 Oct 2026): it says so, every time */
+        (cur && open(cur) && !isDeva(cur) && !tester() ? '<p class="ak-note ak-unchecked" role="note"><b>Not yet checked by a native reader.</b> ' +
+          'These ' + esc(cur.name.en) + ' letters and sounds come from the app\'s own letter pack, but nobody who reads ' + esc(cur.name.en) +
+          ' as their own script has checked them yet. The family who made this app opened them anyway — ask a grown-up who reads it.</p>' : '') +
         '<div class="ak-act">' + (level === 5 && cur && open(cur) && !canTrace(cur) ? '<button class="ak-btn ghost" data-ak="lvl4">Play Jodakshar</button>' : '') +
         '<button class="ak-btn" data-ak="start"' + (can ? '' : ' disabled') + '>Shuru karo</button></div>';
     }

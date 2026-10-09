@@ -3243,6 +3243,9 @@ html { overscroll-behavior-x: none; }
   background: linear-gradient(160deg, #3b1d6e, #8b5cf6); color: #fde68a; position: relative; }
 .xart.xmode b { position: absolute; bottom: 8px; right: 10px; font: 800 14px/1 var(--display); color: #fff; }
 .gf-ways { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 2px; }
+.gf-unchecked { margin: 10px 0 2px; padding: 8px 12px; border-radius: var(--radius-md); border: 1px dashed var(--line2);
+  background: var(--card2); color: var(--text2); font-size: 13px; line-height: 1.5; }
+.gf-unchecked b { color: var(--text); }
 /* a child's reading of a verse: first, larger, and labelled as a computer's unchecked draft */
 .gt-kid { margin: 0 0 14px; }
 .gt-kidtxt { font-size: 1.12em; line-height: 1.6; margin: 0 0 8px; color: var(--text); }

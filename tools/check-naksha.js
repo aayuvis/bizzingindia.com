@@ -343,6 +343,9 @@ check('touch', 'on a touch phone a tap answers; zoom buttons zoom and no border 
     await p.touchscreen.tap(pt.x, pt.y); await p.waitForTimeout(80);
     const r = await rec(p);
     if (r.answers.length !== 1 || !r.answers[0].right) throw new Error('a touch tap on ' + want + ' did not answer it: ' + JSON.stringify(r.answers));
+    /* the right answer's card may sit over the zoom row on a phone (it goes to the top when the
+       answer is in the south); wait — polling, not sleeping — for the next prompt, then zoom */
+    await p.waitForFunction(() => !document.querySelector('#gamehost .nk-fb').children.length, null, { timeout: 15000 });
     const s0 = await p.evaluate(() => window.__snap()), vb0 = await p.evaluate(() => document.querySelector('.nk-map').getAttribute('viewBox'));
     const zb = await p.$('.nk-zb[data-nk="zin"]'); const bb = await zb.boundingBox();
     await p.touchscreen.tap(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.waitForTimeout(80);

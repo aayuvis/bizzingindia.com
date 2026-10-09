@@ -139,6 +139,18 @@
     '@keyframes arc-nudge{0%,100%{box-shadow:0 4px 10px rgba(30,20,70,.20),inset 0 2px 3px rgba(255,255,255,.9),inset 0 -4px 7px rgba(120,85,25,.18),0 0 0 0 var(--accent-soft)}',
       '50%{box-shadow:0 4px 10px rgba(30,20,70,.20),inset 0 2px 3px rgba(255,255,255,.9),inset 0 -4px 7px rgba(120,85,25,.18),0 0 0 7px var(--accent-soft)}}',
 
+    /* -------- Pachisi: six cowries in place of the die (a tray of shells, tapped or Space) -------- */
+    '.arc-die.lu-cow{width:auto;min-width:112px;height:58px;padding:4px 8px;display:grid;grid-template-columns:repeat(3,22px);grid-auto-rows:24px;gap:2px 8px;justify-content:center;align-content:center;',
+      'background:radial-gradient(120% 120% at 50% 30%,#a13a2a 0%,#7a1f1a 70%);border-color:#4a120e;border-radius:16px}',
+    '.lu-cw{display:block;width:18px;height:23px;margin:auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}',
+    '.lu-cowtab{border-collapse:collapse;margin:6px auto 2px;font:700 13px/1.3 var(--body,inherit);color:var(--text)}',
+    '.lu-cowtab caption{font:600 12.5px/1.4 var(--body,inherit);color:var(--text2);padding-bottom:4px}',
+    '.lu-cowtab th{font:800 11px var(--body,inherit);text-align:left;color:var(--muted);padding:3px 6px 3px 0;white-space:nowrap}',
+    '.lu-cowtab td{min-width:30px;text-align:center;padding:4px 3px;border:1px solid var(--line2);background:var(--card)}',
+    '.lu-cowtab td.g{background:var(--accent-soft)}',
+    '.lu-cowtab td small{display:block;font:600 9.5px var(--body,inherit);color:var(--text2)}',
+    '.lu-src{margin:6px 0 0;font-size:11.5px;line-height:1.45;color:var(--muted);text-align:center}',
+
     /* -------- Saap-Sidi board -------- */
     '.arc-sswrap{position:relative;width:100%;max-width:480px;margin:0 auto;border-radius:12px;box-shadow:var(--shadow-lg,0 12px 40px rgba(30,20,70,.12))}',
     '.arc-sswrap svg{display:block;width:100%;height:auto;border-radius:12px}',
@@ -467,6 +479,102 @@
   function dieEnable(ref, on) {
     var b = ref.stage.querySelector('.arc-die');
     if (b) { b.disabled = !on; b.classList.toggle('ready', !!on); }
+  }
+
+  /* ==================================================================
+     PACHISI — the cowrie throw (games spec §4.6.5), a bonus way to play
+     Ludo's card: bought at its printed price in the Shop
+     (economy.js 'mode-ludo-pachisi'), switched on and off in the game's
+     own title card, and played for fun like the rest of the card — no
+     coins, no counter. Cowries are luck, and luck is never a reward.
+
+     THE RULE IS SOURCED, NOT REMEMBERED (docs/05 §6). Six cowrie shells
+     are thrown and the shells that land mouth up are counted; the count
+     is looked up in the table below. 6, 10 and 25 are "graces": a grace
+     may bring a token out of the yard, and the thrower throws again. The
+     table and the grace are as the sources give them; the sources also
+     say the number of shells (five, six or seven) and the counts differ
+     across India, which the start screen says too. What is NOT claimed:
+     the board is Ludo's cross, not the cloth Pachisi board, and here a
+     throw bigger than the steps left still takes a token home — the
+     cowries cannot make a 1, so the exact-number rule would strand a
+     token one step short. Both are said on the start screen.
+
+     Read through web search results on 9 Oct 2026 (the pages agree with
+     each other; Culin's 1898 catalogue could not be opened from here).
+     ================================================================== */
+  var PACHISI = {
+    id: 'ludo.pachisi.cowries',
+    badge: 'aaj',                      /* how the game is played: a rule, as it is told */
+    shells: 6,
+    /* mouths up → the move */
+    throws: { 0: 25, 1: 10, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6 },
+    grace: [6, 10, 25],
+    name: 'Pachisi',
+    meaning: 'from pachis, twenty-five — the highest throw',
+    where: 'India and the wider subcontinent, under many names — pachisi, chaupar, chausar',
+    varies: 'Five, six or seven cowries, and what each throw counts, differ from place to place and family to family.',
+    sources: [
+      { type: 'institution', short: 'Penn Museum, Expedition (1964)', ref: 'Penn Museum, Expedition Magazine (1964), “The Indian Games of Pachisi, Chaupar, and Chausar”: played with cowries — five, six or seven — and named from pachis, twenty-five',
+        url: 'https://www.penn.museum/sites/expedition/the-indian-games-of-pachisi-chaupar-and-chausar/' },
+      { type: 'secondary', short: 'F. W. Pritchett, Columbia University', ref: 'Frances W. Pritchett, Columbia University, glossary entry “pachisi”: the six-cowrie throws (none up 25, one up 10, two to six up count as they fall; 25, 10 and 6 throw again), and that the game differs across India',
+        url: 'https://www.columbia.edu/itc/mealac/pritchett/00glossarydata/terms/pachisi/pachisi.html' },
+      { type: 'secondary', short: 'Masters Traditional Games', ref: 'Masters Traditional Games, “The Rules of Pachisi & Chaupur”: the six-cowrie table, with 6, 10 and 25 as graces',
+        url: 'https://www.mastersofgames.com/rules/pachisi-rules.htm' },
+      { type: 'secondary', short: 'Wikipedia, “Pachisi”', ref: 'Wikipedia, “Pachisi”: the same table; a grace brings a piece in and the turn repeats',
+        url: 'https://en.wikipedia.org/wiki/Pachisi' }
+    ],
+    age_gate: 4,
+    checked: '2026-10-09'
+  };
+  /* each shell falls mouth up or mouth down at even odds here (a real shell need not) */
+  function throwCowries() {
+    var f = [], up = 0, i;
+    for (i = 0; i < PACHISI.shells; i++) { f.push(Math.random() < 0.5); if (f[i]) up++; }
+    return { faces: f, up: up, value: PACHISI.throws[up], grace: PACHISI.grace.indexOf(PACHISI.throws[up]) >= 0 };
+  }
+  function upWords(n) { return (n === 0 ? 'none' : String(n)) + (n === 1 ? ' mouth up' : ' mouths up'); }
+  /* one cowrie, drawn: mouth up shows the toothed slit; mouth down shows the humped back */
+  function cowrieSVG(up) {
+    return '<svg class="lu-cw" viewBox="0 0 20 26" aria-hidden="true" focusable="false">' +
+      (up
+        ? '<ellipse cx="10" cy="13" rx="8.4" ry="11.4" fill="#f6ecd4" stroke="#8a6a3a" stroke-width="1.2"/>' +
+          '<path d="M10 3.6q-1.6 9.4 0 18.8" fill="none" stroke="#4a2e12" stroke-width="1.8" stroke-linecap="round"/>' +
+          '<path d="M7.6 7h1.6M7.3 10.2h1.8M7.2 13.4h1.9M7.3 16.6h1.8M7.6 19.8h1.6M10.8 7h1.6M10.9 10.2h1.8M11 13.4h1.9M10.9 16.6h1.8M10.8 19.8h1.6" stroke="#8a6a3a" stroke-width=".9" stroke-linecap="round"/>'
+        : '<ellipse cx="10" cy="13" rx="8.4" ry="11.4" fill="#d6b27a" stroke="#7a5426" stroke-width="1.2"/>' +
+          '<ellipse cx="8.2" cy="10" rx="3.6" ry="5.2" fill="#f1ddb4" opacity=".75"/>' +
+          '<circle cx="12.4" cy="16.4" r="1.3" fill="#a77b42" opacity=".6"/>') +
+      '</svg>';
+  }
+  function cowriesHTML(faces) {
+    var s = '', i;
+    for (i = 0; i < PACHISI.shells; i++) s += cowrieSVG(faces ? faces[i] : i % 2 === 0);
+    return s;
+  }
+  function cowBtnHTML() {
+    return '<button type="button" class="arc-die lu-cow ready" data-go="roll" aria-label="Throw the six cowries">' + cowriesHTML(null) + '</button>';
+  }
+  function cowShow(ref, faces) {
+    var b = ref.stage.querySelector('.lu-cow');
+    if (b) b.innerHTML = cowriesHTML(faces);
+  }
+  /* a shake of the shells, then they settle as they fell; still under reduced motion */
+  function cowRoll(sc, ref, RM, th, then) {
+    var b = ref.stage.querySelector('.lu-cow');
+    if (RM || !b) { cowShow(ref, th.faces); sc.later(then, 60); return; }
+    b.classList.remove('ready'); b.classList.add('roll');
+    for (var i = 1; i <= 4; i++) (function (k) { sc.later(function () { cowShow(ref, throwCowries().faces); }, k * 85); })(i);
+    sc.later(function () { cowShow(ref, th.faces); }, 430);
+    sc.later(function () { if (b) b.classList.remove('roll'); then(); }, 560);
+  }
+  /* the throw table, as the start screen shows it */
+  function cowTableHTML() {
+    var order = [0, 1, 2, 3, 4, 5, 6];
+    return '<table class="lu-cowtab"><caption>Six cowries: count the ones that land mouth up</caption>' +
+      '<tr><th scope="row">Mouths up</th>' + order.map(function (n) { return '<td>' + (n === 0 ? 'none' : n) + '</td>'; }).join('') + '</tr>' +
+      '<tr><th scope="row">Move</th>' + order.map(function (n) {
+        var v = PACHISI.throws[n], g = PACHISI.grace.indexOf(v) >= 0;
+        return '<td' + (g ? ' class="g"' : '') + '>' + v + (g ? '<small>grace</small>' : '') + '</td>'; }).join('') + '</tr></table>';
   }
 
   /* ==================================================================
@@ -852,16 +960,17 @@
     } catch (e) {}
   }
 
-  function luBoardSVG(seats) {
+  function luBoardSVG(seats, cloth) {
     var uid = 'lu' + Math.floor(Math.random() * 1e6);
     var used = {}, i, c, q;
     for (i = 0; i < seats.length; i++) used[seats[i].q] = seats[i];
-    var s = '<svg class="lu-svg" viewBox="-0.7 -0.7 16.4 16.4" role="img" aria-label="Ludo board">';
+    var s = '<svg class="lu-svg" viewBox="-0.7 -0.7 16.4 16.4" role="img" aria-label="' + (cloth ? 'The race board, played with cowries' : 'Ludo board') + '">';
     s += '<defs><clipPath id="' + uid + '"><circle r="0.36"/></clipPath>' +
       '<radialGradient id="' + uid + 'g" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#fffaf0"/><stop offset="1" stop-color="#f3e4c4"/></radialGradient></defs>';
     /* a painted wooden board: walnut frame, gold pinstripe, cream field */
-    s += '<rect x="-0.7" y="-0.7" width="16.4" height="16.4" rx="0.9" fill="#6e3f1f"/>';
-    s += '<rect x="-0.42" y="-0.42" width="15.84" height="15.84" rx="0.6" fill="none" stroke="#e6b95c" stroke-width="0.07"/>';
+    /* with cowries, the frame is a madder-red cloth with a running stitch, as Pachisi boards are cloth */
+    s += '<rect x="-0.7" y="-0.7" width="16.4" height="16.4" rx="0.9" fill="' + (cloth ? '#7a1f1a' : '#6e3f1f') + '"/>';
+    s += '<rect x="-0.42" y="-0.42" width="15.84" height="15.84" rx="0.6" fill="none" stroke="#e6b95c" stroke-width="0.07"' + (cloth ? ' stroke-dasharray="0.22 0.14"' : '') + '/>';
     s += '<rect x="-0.25" y="-0.25" width="15.5" height="15.5" rx="0.4" fill="url(#' + uid + 'g)"/>';
     for (i = 0; i < L_RING.length; i++) {
       c = L_RING[i];
@@ -950,6 +1059,21 @@
     var view = 'setup';              /* setup | play | over */
     var phase = 'idle';              /* roll | busy | choose | count */
     var cur = 0, die = 0, sixes = 0, moves = [], sel = 0, finished = false, winner = -1;
+    /* PACHISI: the bought way to play the race board, from the title card (opts.skin). Saap-Sidi keeps its die. */
+    var pc = opts.skin === 'mode-ludo-pachisi', thrown = null, tlog = [];   /* tlog: every throw and every token out, for the check */
+    function cow() { return pc && mode === 'ludo'; }
+    /* a token leaves the yard on a six — or, with cowries, on a grace (6, 10 or 25) */
+    function enters(v) { return cow() ? PACHISI.grace.indexOf(v) >= 0 : v === 6; }
+    /* can a token d steps behind reach this cell in one throw? */
+    function reach(d) {
+      if (d <= 0) return false;
+      if (!cow()) return d <= 6;
+      for (var n in PACHISI.throws) if (PACHISI.throws.hasOwnProperty(n) && PACHISI.throws[n] === d) return true;
+      return false;
+    }
+    function exact() { return LEN.exact && !cow(); }
+    function rolled(v) { return cow() && thrown ? 'threw ' + v + ' (' + upWords(thrown.up) + ')' : 'rolled ' + v; }
+    function bigName() { return cow() ? 'Pachisi' : 'Ludo'; }
     var pend = [], moving = {}, countMiss = 0, countAt = 0, cursorSq = 0;
 
     /* a beat that never changes the game while the page is hidden (games contract: clock) */
@@ -984,7 +1108,7 @@
     function setupHTML() {
       var h = '<div class="lu-setup">';
       h += '<div class="lu-seg" role="tablist" aria-label="Which board">' +
-        '<button type="button" role="tab" class="lu-segb' + (mode === 'ludo' ? ' on' : '') + '" aria-selected="' + (mode === 'ludo') + '" data-go="mode" data-v="ludo">Ludo</button>' +
+        '<button type="button" role="tab" class="lu-segb' + (mode === 'ludo' ? ' on' : '') + '" aria-selected="' + (mode === 'ludo') + '" data-go="mode" data-v="ludo">' + (pc ? 'Pachisi <small>six cowries</small>' : 'Ludo') + '</button>' +
         '<button type="button" role="tab" class="lu-segb' + (mode === 'saapsidi' ? ' on' : '') + '" aria-selected="' + (mode === 'saapsidi') + '" data-go="mode" data-v="saapsidi">Saap-Sidi <small>Gyan Chaupar</small></button>' +
       '</div>';
       if (mode === 'ludo') {
@@ -994,7 +1118,7 @@
           h += '<button type="button" class="lu-len' + (lenId === id ? ' on' : '') + '" data-go="len" data-v="' + id + '" aria-pressed="' + (lenId === id) + '">' +
             '<b>' + L.name + (L.en ? ' <small>' + L.en + '</small>' : '') + '</b><span>' + L.n + ' tokens · ' + L.mins + '</span></button>';
         });
-        h += '</div><p class="lu-note">' + esc(LU_LEN[lenId].note) + '</p>';
+        h += '</div><p class="lu-note">' + esc(pc ? LU_LEN[lenId].note.replace(/,? and a third six is lost/, '').replace('; the last step home needs the exact number', '').replace(/; any big enough roll takes a token home/, '').replace('rolls again', 'throws again') : LU_LEN[lenId].note) + '</p>';
       } else {
         h += '<p class="lu-note">Race to square 100, where the diya is lit. Every ladder is a virtue and every snake a slip — each one is said aloud with what it means.' +
           (young ? ' You count your own way: tap the square you land on.' : '') + '</p>';
@@ -1019,18 +1143,28 @@
         });
         h += '</div><p class="lu-note">He moves a tier after two games running go one way — up when the family wins both, down when he does.</p>';
       }
-      h += '<div class="arc-row"><button type="button" class="arc-btn lu-start" data-go="start">Start ' + (mode === 'ludo' ? 'Ludo' : 'Saap-Sidi') + '</button></div>';
+      h += '<div class="arc-row"><button type="button" class="arc-btn lu-start" data-go="start">Start ' + (mode === 'ludo' ? bigName() : 'Saap-Sidi') + '</button></div>';
+      if (cow()) return h + pachisiHow() + '</div>';
       h += '<p class="arc-hint">' + (mode === 'ludo'
         ? 'Ludo is <b>Pachisi</b> in a British suit — families across India were racing tokens round the cross-and-circle board long before the boxed version.'
         : 'Saap-Sidi began as <b>Gyan Chaupar</b> — Moksha Patam — where the ladders were virtues and the snakes were slips. “Snakes and Ladders” is the export.') +
         ' Played for fun: nothing here pays coins.</p>';
       return h + '</div>';
     }
+    /* the how-to for the cowries: where the game is from, the table, the grace, that it differs, and the sources */
+    function pachisiHow() {
+      return '<p class="arc-hint"><b>Pachisi</b> — ' + esc(PACHISI.meaning) + ' — is played across ' + esc(PACHISI.where) + '.</p>' +
+        cowTableHTML() +
+        '<p class="arc-hint">A <b>grace</b> — 6, 10 or 25 — can bring a token out of its yard, and you throw again. ' + esc(PACHISI.varies) +
+          ' In many families it is counted differently — ask yours.</p>' +
+        '<p class="arc-hint">The throw is Pachisi’s; the board is Ludo’s cross, and here a throw bigger than the steps left still takes a token home. Played for fun: nothing here pays coins.</p>' +
+        '<p class="lu-src">Sources: ' + PACHISI.sources.map(function (x) { return esc(x.short); }).join(' · ') + '</p>';
+    }
     function showSetup() {
       view = 'setup'; phase = 'idle';
       ref.wrap.classList.remove('playing');
       var top = ref.wrap.querySelector('.arc-top b');
-      if (top) top.textContent = mode === 'ludo' ? 'Ludo' : 'Saap-Sidi';
+      if (top) top.textContent = mode === 'ludo' ? bigName() : 'Saap-Sidi';
       ref.stage.innerHTML = setupHTML();
       ref.wrap.style.setProperty('--lu-bar', bottomBarH() + 'px');
       ref.say('');
@@ -1106,7 +1240,7 @@
       });
     }
     function actionHTML() {
-      return '<div class="lu-act">' + dieBtnHTML() + '<p class="lu-feed" role="status" aria-live="polite"></p></div>' +
+      return '<div class="lu-act">' + (cow() ? cowBtnHTML() : dieBtnHTML()) + '<p class="lu-feed" role="status" aria-live="polite"></p></div>' +
         '<div class="lu-choices" role="group" aria-label="Your moves"></div>';
     }
     function say(msg, tone) {
@@ -1145,7 +1279,7 @@
         say(seats[cur].name + '’s turn…', 'calm');
         beat(roll, RM ? 250 : 650);
       } else {
-        say(nmTurn(cur) + ' turn — roll the die (Space or tap).');
+        say(nmTurn(cur) + (cow() ? ' turn — throw the cowries (Space or tap).' : ' turn — roll the die (Space or tap).'));
         sc.later(function () { focusSoft(ref.stage.querySelector('.arc-die')); }, 40);
       }
     }
@@ -1153,8 +1287,15 @@
       if (view !== 'play' || phase !== 'roll') return;
       phase = 'busy';
       dieEnable(ref, false);
-      die = rollDie();
       sfx('die');
+      if (cow()) {
+        thrown = throwCowries(); die = thrown.value;
+        tlog.push({ seat: cur, up: thrown.up, value: thrown.value, faces: thrown.faces.slice() });
+        cowRoll(sc, ref, RM, thrown, function () { if (view === 'play') luAfterRoll(); });
+        return;
+      }
+      thrown = null;
+      die = rollDie();
       dieRoll(sc, ref, RM, die, function () { if (view === 'play') (mode === 'ludo' ? luAfterRoll : ssAfterRoll)(); });
     }
 
@@ -1169,7 +1310,7 @@
         if (j === i) return;
         var d = (ridx - LU_START[se.q] + 52) % 52;
         se.T.forEach(function (op) {
-          if (op >= 0 && op <= 50 && d > op && d - op <= 6) n++;
+          if (op >= 0 && op <= 50 && d > op && reach(d - op)) n++;
           else if (op === -1 && d === 0) n++;
         });
       });
@@ -1189,9 +1330,9 @@
       for (var t = 0; t < T.length; t++) {
         var p = T[t], to;
         if (p === L_HOME_P) continue;
-        if (p === -1) { if (v === 6) m.push({ t: t, from: -1, to: 0 }); continue; }
+        if (p === -1) { if (enters(v)) m.push({ t: t, from: -1, to: 0 }); continue; }
         to = p + v;
-        if (to > L_HOME_P) { if (LEN.exact) continue; to = L_HOME_P; }
+        if (to > L_HOME_P) { if (exact()) continue; to = L_HOME_P; }
         m.push({ t: t, from: p, to: to });
       }
       /* two tokens on one cell move alike: offer the choice once */
@@ -1225,7 +1366,7 @@
       seats.forEach(function (se, j) {
         if (j === i || nm) return;
         var d = (ridx - LU_START[se.q] + 52) % 52;
-        se.T.forEach(function (op) { if (!nm && ((op >= 0 && op <= 50 && d > op && d - op <= 6) || (op === -1 && d === 0))) nm = se.name; });
+        se.T.forEach(function (op) { if (!nm && ((op >= 0 && op <= 50 && d > op && reach(d - op)) || (op === -1 && d === 0))) nm = se.name; });
       });
       return nm;
     }
@@ -1243,9 +1384,9 @@
       return best;
     }
     function luAfterRoll() {
-      if (die === 6) sixes++;
+      if (die === 6 && !cow()) sixes++;
       var se = seats[cur];
-      if (LEN.bonus && die === 6 && sixes >= 3) {
+      if (LEN.bonus && !cow() && die === 6 && sixes >= 3) {
         say('A third six — ' + (you(cur) ? 'your' : se.name + '’s') + ' turn passes.', 'calm');
         beat(nextTurn, 1100);
         return;
@@ -1254,27 +1395,28 @@
       if (!moves.length) {
         var allIn = true;
         se.T.forEach(function (p) { if (p >= 0 && p < L_HOME_P) allIn = false; });
-        if (allIn) say(isBot(cur) ? se.name + ' rolled ' + die + ' — he needs a 6 to bring a token out.'
-                                  : (you(cur) ? 'You need a 6 to bring a token out.' : se.name + ', you need a 6 to bring a token out.'), 'calm');
-        else say(nmDo(cur) + ' rolled ' + die + ' — no token can move: the last steps home need the exact number.', 'calm');
+        var need = cow() ? 'a grace — 6, 10 or 25 —' : 'a 6';
+        if (allIn) say(isBot(cur) ? se.name + ' ' + rolled(die) + ' — he needs ' + need + ' to bring a token out.'
+                                  : (cow() ? nmDo(cur) + ' ' + rolled(die) + '. ' : '') + (you(cur) ? 'You need ' + need + ' to bring a token out.' : se.name + ', you need ' + need + ' to bring a token out.'), 'calm');
+        else say(nmDo(cur) + ' ' + rolled(die) + ' — no token can move: the last steps home need the exact number.', 'calm');
         beat(nextTurn, 1250);
         return;
       }
       if (moves.length === 1) {
-        say(nmDo(cur) + ' rolled ' + die + ' — one move, and it makes itself.');
+        say(nmDo(cur) + ' ' + rolled(die) + ' — one move, and it makes itself.');
         markMoves([moves[0]]);
         beat(function () { doMove(moves[0]); }, isBot(cur) ? 500 : 750);
         return;
       }
       if (isBot(cur)) {
         var pick = botPick(cur, moves);
-        say(se.name + ' rolled ' + die + ' — ' + pick.label + '.', 'calm');
+        say(se.name + ' ' + rolled(die) + ' — ' + pick.label + '.', 'calm');
         beat(function () { doMove(pick); }, 600);
         return;
       }
       phase = 'choose'; sel = 0;
       renderChoices(); markMoves(moves); paintToks();
-      say(nmDo(cur) + ' rolled ' + die + ' — choose a move: tap it, or 1–' + moves.length + '.');
+      say(nmDo(cur) + ' ' + rolled(die) + ' — choose a move: tap it, or 1–' + moves.length + '.');
       refit();
       sc.later(function () { focusSoft(ref.stage.querySelector('.lu-choice')); }, 40);
     }
@@ -1346,6 +1488,7 @@
       if (view !== 'play') return;
       phase = 'busy'; renderChoices();
       var se = seats[cur], i = cur, t = mv.t, el = tokEl(i, t);
+      if (mv.from === -1 && cow()) tlog.push({ seat: i, out: true, value: die });
       var path = [], s;
       if (mv.from === -1) path = [0];
       else for (s = mv.from + 1; s <= mv.to; s++) path.push(s);
@@ -1383,13 +1526,13 @@
       if (caught.length) { sfx('capture'); say(nmDo(i) + ' caught ' + seats[caught[0][0]].name + '! The token rides back to its yard.', 'lift'); }
       else if (p === L_HOME_P) { sfx('home'); say(nmDo(i) + ' brought a token home!', 'lift'); }
       if (homeOf(i) === se.T.length) { beat(function () { gameOver(i); }, 900); return; }
-      var again = (die === 6 && sixes < 3) || (LEN.bonus && (caught.length > 0 || p === L_HOME_P));
+      var again = (cow() ? enters(die) : die === 6 && sixes < 3) || (LEN.bonus && (caught.length > 0 || p === L_HOME_P));
       var wait = caught.length || p === L_HOME_P ? 1000 : 380;
       if (again) {
         beat(function () {
           if (view !== 'play') return;
           if (die !== 6) sixes = 0;
-          say(nmDo(i) + (die === 6 ? ' rolled a six — roll again!' : ' rolls again!'), 'lift');
+          say(nmDo(i) + (cow() ? (enters(die) ? ' threw a grace — throw again!' : ' throws again!') : die === 6 ? ' rolled a six — roll again!' : ' rolls again!'), 'lift');
           phase = 'roll'; moves = []; renderChoices(); paintToks();
           dieEnable(ref, !isBot(cur));
           if (isBot(cur)) beat(roll, RM ? 250 : 600);
@@ -1570,9 +1713,9 @@
       view = 'play'; cur = 0; die = 0; sixes = 0; moves = []; winner = -1;
       ref.wrap.classList.add('playing');
       var top = ref.wrap.querySelector('.arc-top b');
-      if (top) top.textContent = mode === 'ludo' ? 'Ludo · ' + LEN.name : 'Saap-Sidi';
+      if (top) top.textContent = mode === 'ludo' ? bigName() + ' · ' + LEN.name : 'Saap-Sidi';
       if (mode === 'ludo') {
-        ref.stage.innerHTML = chipsHTML() + '<div class="lu-board">' + luBoardSVG(seats) + '</div>' + actionHTML();
+        ref.stage.innerHTML = chipsHTML() + '<div class="lu-board">' + luBoardSVG(seats, cow()) + '</div>' + actionHTML();
         paintToks();
       } else {
         ref.stage.innerHTML = chipsHTML() +
@@ -1682,7 +1825,7 @@
     sc.later(function () { focusSoft(ref.stage.querySelector('.lu-start')); }, 60);
     /* test handle: the state a browser check reads, never shown */
     host.__ludo = { get phase() { return phase; }, get view() { return view; }, get cur() { return cur; }, get moves() { return moves; },
-      get seats() { return seats; }, get tier() { return tier; } };
+      get seats() { return seats; }, get tier() { return tier; }, get pachisi() { return cow(); }, get thrown() { return thrown; }, get die() { return die; }, get log() { return tlog; } };
     return teardownOf(sc, function () { finished = true; try { if (W.speechSynthesis) W.speechSynthesis.cancel(); } catch (e) {} });
   }
 
@@ -1727,6 +1870,7 @@
   /* for tools/check-ludo.js: the real rule, not a copy */
   W.IND_GAMES_TEST = W.IND_GAMES_TEST || {};
   W.IND_GAMES_TEST.ludoAdapt = luAdapt;
+  W.IND_GAMES_TEST.pachisi = PACHISI;
 
   W.IND_GAMES.push(
     { id: 'ludo', name: 'Ludo', sub: 'the family race board, with Saap-Sidi inside', icon: 'game', minutes: 10, tag: 'Race',

@@ -3275,12 +3275,13 @@ html { overscroll-behavior-x: none; }
 .gframe .gf-ways .pill { min-height: 44px; }
 .gframe .gf-title { min-height: 48px; }
 .backlink.gf-back { min-height: 44px; }
-/* THE MISS CARD (docs/32): "Not quite" in words, the right answer, its one teach, and Aage */
-.gm-miss { margin: 12px 0 0; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--accent2);
-  background: color-mix(in srgb, var(--accent2) 10%, var(--card)); color: var(--text); text-align: left; }
-.gm-miss b:first-child { font-size: 17px; }
-.gm-ans { font-weight: 800; }
-.gm-teach { margin: 6px 0 10px; font-size: 15px; line-height: 1.5; }
+/* THE MISS CARD (docs/32): "Not quite" in words, the right answer, its one teach, and Aage.
+   A fallback only — :where() gives it no weight, so an engine's own palette always wins, and it
+   sets no text colour (an engine on a light board at night keeps its dark ink). */
+:where(.gm-miss) { margin: 12px 0 0; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--accent2); text-align: left; }
+:where(.gm-miss) > b:first-child { font-size: 17px; }
+:where(.gm-ans) { font-weight: 800; }
+:where(.gm-teach) { margin: 6px 0 10px; font-size: 15px; line-height: 1.5; }
 .gm-aage { min-height: 48px; min-width: 140px; }
 @media (max-width: 720px) {
   .gm-lvls { gap: 6px; }

@@ -618,12 +618,14 @@
     'radial-gradient(70% 80% at 10% 100%,rgba(122,46,22,.55),transparent 70%),radial-gradient(50% 60% at 60% 110%,rgba(200,96,40,.5),transparent 70%),',
     'linear-gradient(160deg,#c4683a 0%,#a8502b 45%,#7d3a1e 100%)}',
     /* the slate: dark green-black, a chalk-dusted face, a wooden frame with its joints */
-    '.akc-slate{position:absolute;left:10px;top:9px;bottom:9px;width:min(76%,290px);box-sizing:border-box;padding:7px 9px;border-radius:7px;',
-    'display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;align-items:center;justify-items:center;',
+    /* two rows of four that sit side by side on a wide card and stack on a narrow one — never seven and one */
+    '.akc-slate{position:absolute;left:10px;top:9px;bottom:9px;width:min(78%,440px);box-sizing:border-box;padding:7px 9px;border-radius:7px;',
+    'display:flex;flex-wrap:wrap;align-content:center;justify-content:center;',
     'font-size:23px;font-weight:600;color:#f3efe2;',
     'background:radial-gradient(40% 50% at 30% 35%,rgba(243,239,226,.10),transparent 70%),radial-gradient(45% 45% at 75% 70%,rgba(243,239,226,.07),transparent 70%),linear-gradient(170deg,#2b3a35 0%,#1f2a26 100%);',
     'box-shadow:inset 0 0 0 5px #9a6a3c,inset 0 0 0 6px #6f4524,inset 0 0 0 7px rgba(0,0,0,.25),0 4px 10px rgba(40,15,5,.45)}',
     /* chalk: a soft edge of dust round each letter, never a spacing change */
+    '.akc-row{flex:1 1 180px;display:flex;justify-content:space-around;align-items:center;height:40px}',
     '.akc-l{display:block;text-shadow:0 0 1px rgba(243,239,226,.55),0 0 6px rgba(243,239,226,.18);letter-spacing:normal}',
     '.akc-chalk{position:absolute;right:16px;bottom:16px;width:30px;height:9px;border-radius:3px;background:linear-gradient(180deg,#fbf8ef,#e3dccb);',
     'transform:rotate(-24deg);box-shadow:0 2px 3px rgba(40,15,5,.45)}',
@@ -637,8 +639,10 @@
   function coverHTML() {
     return '<span class="akc" role="img" aria-label="The letter ka, written in eight scripts on a slate">' +
       '<span class="akc-dust"></span><span class="akc-chalk"></span>' +
-      '<span class="akc-slate">' + COVER_KA.map(function (k) {
-        return '<span class="akc-l" lang="' + k[0] + '"' + (k[0] === 'ur' ? ' dir="rtl"' : '') + '>' + k[1] + '</span>';
+      '<span class="akc-slate">' + [COVER_KA.slice(0, 4), COVER_KA.slice(4)].map(function (row) {
+        return '<span class="akc-row">' + row.map(function (k) {
+          return '<span class="akc-l" lang="' + k[0] + '"' + (k[0] === 'ur' ? ' dir="rtl"' : '') + '>' + k[1] + '</span>';
+        }).join('') + '</span>';
       }).join('') + '</span></span>';
   }
   coverCSS();

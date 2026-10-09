@@ -367,7 +367,28 @@
      CHOICE BOARD — the shared quiz machine
      Used by statehunt, festival and jataka. Full keyboard support:
      Tab / arrows to move, Enter or Space to choose, 1–4 as shortcuts.
+
+     It reports to the host (docs/32, games spec §1.1): one answer() per
+     item at its first attempt, and done({win, score, asked, firstTryRight,
+     level, levelNext}). A wrong first answer HOLDS on the miss card —
+     "Not quite.", the right answer, its teach — until Aage (§1.4). There
+     is no elimination: nothing is greyed out one guess at a time.
      ================================================================== */
+
+  var QZ_CSS = [
+    '.mela-wrap .gm-miss{margin-top:12px;background:var(--surface2);border:1px solid var(--line);border-left:4px solid var(--accent2);border-radius:var(--radius-lg);padding:var(--space-lg);font-size:15.5px;line-height:1.6}',
+    '.mela-wrap .gm-ans{font-weight:700}',
+    '.mela-wrap .gm-teach{margin:6px 0 10px}',
+    '.mela-opt.is-warm{border-style:dashed;border-color:var(--accent2)}',
+    '@media(max-width:720px){.mela-wrap .mela-teachbox:not(:empty){position:sticky;bottom:calc(74px + env(safe-area-inset-bottom));z-index:6;background:var(--bg2);border-radius:var(--radius-lg)}}'
+  ].join('');
+  function injectQuizCSS() {
+    if (!D || D.getElementById('mela-quiz-css')) return;
+    var s = D.createElement('style');
+    s.id = 'mela-quiz-css';
+    s.appendChild(D.createTextNode(QZ_CSS));
+    (D.head || D.documentElement).appendChild(s);
+  }
 
   function optionsHTML(opts, twoUp) {
     var h = '<div class="mela-opts' + (twoUp ? ' two' : '') + '" role="group" aria-label="Choose an answer">';
@@ -381,21 +402,29 @@
     return h + '</div>';
   }
 
+  function quizLevel(opts) { var l = parseInt(opts && opts.level, 10); return l >= 1 && l <= 5 ? l : 3; }
+  function scopeSet(opts) { return (opts && opts.scope && opts.scope.set && opts.scope.set.length) ? opts.scope.set.map(String) : null; }
+
   /* quizGame(host, spec, done)
      spec = {
-       title, kicker, count,
+       title, kicker, count, level, answer (the host's report fn),
        build()      -> [round]  (fresh each play)
-       round = { artHTML, kicker, question, taleHTML, options:[{t,s}], answer:int,
-                 teachHTML, speakText }
+       round = { id, skill, artHTML, kicker, question, taleHTML, options:[{t,s}], answer:int,
+                 teachHTML, teachText, speakText }
        hint         -> string shown under the options
      } */
   function quizGame(host, spec, done) {
     var sc = scope();
-    var ref = shell(host, spec.title, spec.kicker, spec.count);
+    injectQuizCSS();
     var rounds = spec.build();
-    var idx = 0, firstTry = 0, score = 0, kauris = 0, finished = false, plays = 1;
-    var current = null, tried = false;
+    var ref = shell(host, spec.title, spec.kicker, rounds.length);
+    var idx = 0, firstTryRight = 0, asked = 0, finished = false, result = null;
+    var current = null, phase = 'ask';
 
+    function hook() {
+      host.__melaState = { phase: phase, idx: idx, total: rounds.length, id: current ? current.id : null,
+                           answer: current ? current.answer : -1, asked: asked, firstTryRight: firstTryRight, result: result };
+    }
     function optionEls() {
       return ref.stage ? ref.stage.querySelectorAll('.mela-opt') : [];
     }
@@ -410,43 +439,59 @@
       focusSoft(live[next]);
     }
 
+    /* ONE VERDICT PER ITEM, at its first and only attempt */
     function choose(btn) {
-      if (!btn || btn.disabled || !current) return;
-      var i = parseInt(btn.getAttribute('data-i'), 10);
-      if (i === current.answer) {
-        var els = optionEls();
-        for (var k = 0; k < els.length; k++) { els[k].disabled = true; if (k !== i) els[k].classList.add('is-off'); }
-        btn.classList.add('is-right');
-        btn.classList.remove('is-off');
-        if (!tried) { firstTry++; score += 100; kauris += 2; }
-        else { score += 45; kauris += 1; }
-        ref.say(one(CHEERS), 'good');
-        reveal();
-      } else {
-        tried = true;
-        btn.disabled = true;
-        btn.classList.add('is-off');
-        ref.say(one(NUDGES), 'warm');
-        sc.later(function () { moveFocus(1); }, 40);
+      if (phase !== 'ask' || !btn || btn.disabled || !current) return;
+      var i = parseInt(btn.getAttribute('data-i'), 10), right = i === current.answer;
+      var els = optionEls();
+      for (var k = 0; k < els.length; k++) {
+        els[k].disabled = true;
+        if (k === current.answer) els[k].classList.add('is-right');
+        else if (k === i) els[k].classList.add('is-warm');
       }
+      asked++;
+      if (right) firstTryRight++;
+      if (typeof spec.answer === 'function') {
+        try { spec.answer({ id: current.id, right: right, firstTry: true, skill: current.skill, objective: null }); } catch (e) {}
+      }
+      phase = right ? 'told' : 'miss';
+      if (right) ref.say(one(CHEERS), 'good');
+      else ref.say('', '');
+      reveal(right, i);
+      hook();
     }
 
-    function reveal() {
+    function reveal(right) {
       var box = ref.stage.querySelector('.mela-teachbox');
       if (!box) return;
       var last = idx >= rounds.length - 1;
-      box.innerHTML =
-        '<div class="mela-teach">' + current.teachHTML + '</div>' +
-        '<div class="mela-row"><button type="button" class="mela-btn" data-go="next">' +
-          (last ? 'See how I did' : 'Next') + '</button></div>';
-      var b = box.querySelector('[data-go="next"]');
+      if (right) {
+        box.innerHTML =
+          '<div class="mela-teach">' + current.teachHTML + '</div>' +
+          '<div class="mela-row"><button type="button" class="mela-btn" data-go="next">' +
+            (last ? 'See how I did' : 'Next') + '</button></div>';
+      } else {
+        /* THE MISS CARD (docs/32): it holds — nothing new renders until Aage */
+        box.innerHTML =
+          '<div class="gm-miss" role="status"><b>Not quite.</b> <span class="gm-ans">' + esc(current.options[current.answer].t) + '</span>' +
+            '<p class="gm-teach">' + esc(current.teachText) + '</p>' +
+            '<button type="button" class="mela-btn gm-aage" data-gm="aage">Aage →</button></div>' +
+          (current.teachHTML && /mela-mini/.test(current.teachHTML) ? '<div class="mela-teach">' + current.teachHTML + '</div>' : '');
+      }
+      var b = box.querySelector('[data-go="next"], [data-gm="aage"]');
       sc.later(function () { focusSoft(b); }, 60);
+    }
+
+    function advance() {
+      if (phase !== 'told' && phase !== 'miss') return;
+      idx++;
+      render();
     }
 
     function render() {
       if (sc.dead) return;
       current = rounds[idx];
-      tried = false;
+      phase = 'ask';
       ref.mark(idx);
       if (!current) return finish();
       ref.say('');
@@ -459,8 +504,9 @@
           ? '<div class="mela-row"><button type="button" class="mela-btn ghost" data-go="say">' +
             (W.IND_ICON ? W.IND_ICON('sound', 18) : '') + ' Read it to me</button></div>' : '') +
         optionsHTML(current.options, spec.twoUp) +
-        '<p class="mela-hint">' + esc(spec.hint || 'Tap an answer — or use the arrow keys and press Enter. Number keys work too.') + '</p>' +
+        '<p class="mela-hint">' + esc(spec.hint || 'Tap an answer — or use the arrow keys and press Enter. Number keys 1–4 work too.') + '</p>' +
         '<div class="mela-teachbox"></div>';
+      hook();
       sc.later(function () {
         var first = ref.stage.querySelector('.mela-opt');
         if (first) focusSoft(first);
@@ -468,53 +514,47 @@
     }
 
     function finish() {
-      if (finished) return;
-      var perfectish = firstTry;
-      ref.mark(rounds.length, 'end');
+      if (finished || phase === 'end') return;
+      phase = 'end';
+      var n = rounds.length, ratio = asked ? firstTryRight / asked : 0, lv = spec.level || 3;
+      result = { win: asked > 0 && ratio >= 0.5, score: firstTryRight, asked: asked, firstTryRight: firstTryRight,
+                 level: lv, levelNext: ratio >= 0.8 ? Math.min(5, lv + 1) : ratio < 0.5 ? Math.max(1, lv - 1) : lv };
+      ref.mark(n, 'end');
       ref.say('');
+      /* the headline is read from the score: no "Shabaash" on a round that went the other way (§1.7) */
       ref.stage.innerHTML =
         '<div class="mela-done">' +
-          '<div class="mela-art">' + mascotHTML(firstTry >= Math.ceil(rounds.length / 2) ? 'wow' : 'happy', 104) + '</div>' +
-          '<h3>' + esc(one(CHEERS)) + '</h3>' +
-          '<p>You got <b>' + perfectish + ' of ' + rounds.length + '</b> right on the very first try — and you finished every single one.</p>' +
-          '<div class="mela-tally">' +
-            '<span class="mela-chip"><b>' + score + '</b> points</span>' +
-          '</div>' +
+          '<div class="mela-art">' + mascotHTML(ratio >= 0.5 ? 'wow' : 'happy', 104) + '</div>' +
+          '<h3>' + esc(ratio >= 0.8 ? one(CHEERS) : ratio >= 0.5 ? 'Well played!' : 'Every one of them taught.') + '</h3>' +
+          '<p>You knew <b>' + firstTryRight + ' of ' + n + '</b> on the first try.</p>' +
           '<div class="mela-row">' +
-            '<button type="button" class="mela-btn" data-go="out">Back to the Mela</button>' +
-            '<button type="button" class="mela-btn ghost" data-go="again">Play again</button>' +
+            '<button type="button" class="mela-btn" data-go="out">Finish</button>' +
           '</div>' +
         '</div>';
+      hook();
       sc.later(function () { focusSoft(ref.stage.querySelector('[data-go="out"]')); }, 60);
     }
 
-    function replay() {
-      rounds = spec.build();
-      idx = 0; current = null; plays++;
-      var pipHTML = '';
-      for (var i = 0; i < rounds.length; i++) pipHTML += '<span class="mela-pip"></span>';
-      if (ref.pips) ref.pips.innerHTML = pipHTML;
-      render();
-    }
-
-    function bail(win) {
-      if (finished) return;
+    function bail() {
+      if (finished || !result) return;
       finished = true;
+      host.__melaDone = result;
       sc.kill();
-      if (typeof done === 'function') done({ win: !!win, score: score, kauris: kauris });
+      if (typeof done === 'function') done(result);
     }
 
     sc.on(ref.stage, 'click', function (e) {
       var t = e.target;
       var opt = t.closest ? t.closest('.mela-opt') : null;
       if (opt) { choose(opt); return; }
+      var gm = t.closest ? t.closest('[data-gm="aage"]') : null;
+      if (gm) { advance(); return; }
       var go = t.closest ? t.closest('[data-go]') : null;
       if (!go) return;
       var what = go.getAttribute('data-go');
-      if (what === 'next') { idx++; render(); }
+      if (what === 'next') advance();
       else if (what === 'say') { if (current) speak(current.speakText); }
-      else if (what === 'again') { replay(); }
-      else if (what === 'out') { bail(true); }
+      else if (what === 'out') bail();
     });
 
     sc.on(D, 'keydown', function (e) {
@@ -522,9 +562,15 @@
       if (detached(host)) { sc.kill(); return; }
       var tag = (e.target && e.target.tagName || '').toLowerCase();
       if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+      if (e.key === 'Enter' && (phase === 'told' || phase === 'miss')) {
+        /* a focused button fires its own click on Enter — stay out of its way */
+        if (e.target && e.target.tagName === 'BUTTON' && host.contains(e.target)) return;
+        e.preventDefault(); advance(); return;
+      }
+      if (phase !== 'ask') return;
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); moveFocus(1); return; }
       if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); moveFocus(-1); return; }
-      if (/^[1-9]$/.test(e.key)) {
+      if (/^[1-4]$/.test(e.key)) {
         var els = optionEls(), n = parseInt(e.key, 10) - 1;
         if (els[n] && !els[n].disabled) { e.preventDefault(); choose(els[n]); }
       }
@@ -1670,17 +1716,28 @@
       '<path class="hit" d="' + M.paths[code] + '"/></svg>';
   }
 
+  /* what each level means here (docs/32): how many stops, and how many are capitals */
+  var SH_LEVELS = ['four stops, mostly capitals', 'six stops, capitals and clues', 'six stops, mostly clues',
+                   'eight stops, clues', 'ten stops, clues from every state'];
+  var SH_COUNT = [4, 6, 6, 8, 10], SH_CAP = [0.8, 0.5, 0.3, 0.15, 0.1];
+
   function statehunt(host, opts, done) {
+    opts = opts || {};
+    var level = quizLevel(opts), only = scopeSet(opts);
     var pool = stateData();
-    var COUNT = Math.min(6, pool.length);
+    if (only) { var sp = pool.filter(function (x) { return only.indexOf(x.code) >= 0 || only.indexOf(x.name) >= 0; }); if (sp.length) pool = sp; }
+    var COUNT = Math.min(SH_COUNT[level - 1], pool.length);
+    var wantKind = opts.scope && opts.scope.mode;
 
     function build() {
       var picks = pickN(pool, COUNT), rounds = [], i;
+      var all = stateData();
       for (i = 0; i < picks.length; i++) {
         var s = picks[i];
-        var kind = (s.capQ && Math.random() < 0.45) ? 'capital' : 'clue';
+        var kind = wantKind === 'capital' && s.capQ ? 'capital' : wantKind === 'clue' ? 'clue'
+          : (s.capQ && Math.random() < SH_CAP[level - 1]) ? 'capital' : 'clue';
         var others = [], j;
-        for (j = 0; j < pool.length; j++) if (pool[j].name !== s.name) others.push(pool[j]);
+        for (j = 0; j < all.length; j++) if (all[j].name !== s.name) others.push(all[j]);
         var distract = pickN(others, 3);
         var options = shuffle([s].concat(distract));
         var answer = 0, k;
@@ -1693,6 +1750,8 @@
         var clue = s.clues[ci];
         var other = s.clues.length > 1 ? s.clues[(ci + 1) % s.clues.length] : clue;
         rounds.push({
+          id: s.code, skill: 'statehunt.' + kind,
+          teachText: s.name + ' — its capital is ' + s.capital + '. ' + (kind === 'capital' ? clue : other),
           artHTML: stateShape(s.code),
           kicker: 'Stop ' + (i + 1) + ' of ' + picks.length,
           question: kind === 'capital'
@@ -1713,7 +1772,7 @@
     return quizGame(host, {
       title: 'State Hunt',
       kicker: 'Mela · a yatra across India',
-      count: COUNT,
+      count: COUNT, level: level, answer: opts.answer,
       twoUp: true,
       hint: 'Tap a state — or use the arrow keys and Enter. Number keys 1–4 work too.',
       build: build
@@ -1811,17 +1870,26 @@
     return false;
   }
 
+  var FE_LEVELS = ['six festivals: when they come', 'eight festivals: when, and why', 'eight festivals: when, why and where',
+                   'ten festivals: when, why and where', 'all twelve festivals'];
+  var FE_COUNT = [6, 8, 8, 10, 12];
+
   function festival(host, opts, done) {
-    var COUNT = 8;
+    opts = opts || {};
+    var level = quizLevel(opts), only = scopeSet(opts);
+    var src = FESTIVALS;
+    if (only) { var fp = FESTIVALS.filter(function (x) { return only.indexOf(x.id) >= 0; }); if (fp.length) src = fp; }
+    var COUNT = Math.min(FE_COUNT[level - 1], src.length);
+    var kinds = level === 1 ? ['when'] : level === 2 ? ['when', 'why'] : ['when', 'why', 'where'];
+    if (opts.scope && /^(when|why|where)$/.test(opts.scope.mode || '')) kinds = [opts.scope.mode];
 
     function build() {
-      var picks = pickN(FESTIVALS, COUNT), rounds = [], i, j;
+      var picks = pickN(src, COUNT), rounds = [], i, j;
       for (i = 0; i < picks.length; i++) {
         var f = picks[i];
         /* rotate the question kind so a run covers when / where / why */
-        var kinds = ['when', 'why', 'where'];
         var kind = kinds[i % kinds.length];
-        if (kind === 'where' && !f.whereQ) kind = (i % 2) ? 'when' : 'why';
+        if (kind === 'where' && !f.whereQ) kind = kinds.length > 1 ? ((i % 2) ? 'when' : 'why') : 'when';
 
         var optList = [], answer = 0, q = '', speakText = '';
 
@@ -1870,6 +1938,8 @@
            none rather than a borrowed symbol that means nothing. */
         var art = f.avatar ? avatarHTML(f.avatar, 88) : (f.motif ? motifHTML(f.motif) : '');
         rounds.push({
+          id: f.id + '.' + kind, skill: 'festival.' + kind,
+          teachText: f.name + ' · ' + f.when + '. ' + f.where + '. ' + f.teach,
           artHTML: art,
           kicker: 'Festival ' + (i + 1) + ' of ' + picks.length,
           question: q,
@@ -1887,7 +1957,7 @@
     return quizGame(host, {
       title: 'Festival Frenzy',
       kicker: 'Mela · a year of festivals',
-      count: COUNT,
+      count: COUNT, level: level, answer: opts.answer,
       twoUp: false,
       hint: 'Tap your answer — or use the arrow keys and Enter. Number keys work too.',
       build: build
@@ -1936,11 +2006,18 @@
       others: ['Lions are afraid of farmers', 'Barley is the best food for a donkey'] }
   ];
 
+  var JA_LEVELS = ['three tales', 'four tales', 'six tales', 'seven tales', 'all eight tales'];
+  var JA_COUNT = [3, 4, 6, 7, 8];
+
   function jataka(host, opts, done) {
-    var COUNT = 6;
+    opts = opts || {};
+    var level = quizLevel(opts), only = scopeSet(opts);
+    var src = JATAKAS;
+    if (only) { var jp = JATAKAS.filter(function (x) { return only.indexOf(x.id) >= 0; }); if (jp.length) src = jp; }
+    var COUNT = Math.min(JA_COUNT[level - 1], src.length);
 
     function build() {
-      var picks = pickN(JATAKAS, COUNT), rounds = [], i, j;
+      var picks = pickN(src, COUNT), rounds = [], i, j;
       for (i = 0; i < picks.length; i++) {
         var f = picks[i];
         var choices = shuffle([f.moral].concat(f.others));
@@ -1951,6 +2028,8 @@
           if (choices[j] === f.moral) answer = j;
         }
         rounds.push({
+          id: f.id, skill: 'jataka.moral',
+          teachText: f.title + ': ' + f.moral + '. Jataka tales are told in the Buddhist tradition as stories of the Buddha’s earlier lives.',
           artHTML: avatarHTML(f.avatar, 92),
           kicker: 'Tale ' + (i + 1) + ' of ' + picks.length + ' · ' + f.title,
           question: 'What is this story telling us?',
@@ -1969,7 +2048,7 @@
     return quizGame(host, {
       title: 'Jataka Jump',
       kicker: 'Mela · hear the tale, find the lesson',
-      count: COUNT,
+      count: COUNT, level: level, answer: opts.answer,
       twoUp: false,
       hint: 'Read it, or have it read to you. Then tap a lesson — arrow keys and Enter work too.',
       build: build
@@ -1984,16 +2063,19 @@
     { id: 'rangoli', name: 'Rangoli Rush', icon: 'star', minutes: 4,
       blurb: 'A hundred thresholds. The rangoli flashes, then blows away — draw it back in colour. Every fourth level is a twist from a pool of ten: kolam loops, petal rain, diya raat, mehndi mirrors, toran threads, chakra wheels, genda counting, bindi pairs, tabla taal, rangoli repair. The ladder remembers your place.',
       engine: rangoli },
-    { id: 'statehunt', name: 'State Hunt', icon: 'map', minutes: 4,
-      blurb: 'A capital, a fort, a rhino, a mountain. Which state is it? Six stops on a yatra across India.',
+    { id: 'statehunt', name: 'State Hunt', sub: 'which state is it?', icon: 'map', minutes: 4,
+      blurb: 'A capital, a fort, a rhino, a mountain. Which state is it? Stops on a yatra across India.',
+      teaches: true, levels: SH_LEVELS,
       engine: statehunt },
     /* ON the Mela shelf AND on the festival pages (FIX-INDIA §1: it was missing from the
        Play grid, reachable only from Utsav) */
-    { id: 'festival', name: 'Festival Frenzy', icon: 'lamp', minutes: 4,
+    { id: 'festival', name: 'Festival Frenzy', sub: 'a year of festivals', icon: 'lamp', minutes: 4,
       blurb: 'Twelve festivals, one year. Match each one to its month, its home state and the reason people keep it.',
+      teaches: true, levels: FE_LEVELS,
       engine: festival },
-    { id: 'jataka', name: 'Jataka Jump', icon: 'book', minutes: 3,
+    { id: 'jataka', name: 'Jataka Jump', sub: 'hear the tale, find the lesson', icon: 'book', minutes: 3,
       blurb: 'Very short animal fables from the Jataka tales. Hear the story, then find the lesson hiding in it.',
+      teaches: true, levels: JA_LEVELS,
       engine: jataka }
   ];
 

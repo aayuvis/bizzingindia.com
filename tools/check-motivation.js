@@ -120,6 +120,8 @@ check('games', 'every game: a title card with a folding how-to; Gyanpati sounds 
       const host = document.getElementById('gamehost'), s = host.__qzState;
       const aage = host.querySelector('[data-go="aage"], [data-go="next"]');
       if (aage) { aage.click(); return 'next'; }
+      /* games spec §4.1: the climb starts from Gyanpati's category picker (Trivia Master folded in) */
+      if (s && s.phase === 'setup') { host.querySelector('[data-go="start"]').click(); return 'wait'; }
       if (s && s.phase === 'ask') { const os = host.querySelectorAll('.qz-opt'), o = os[miss ? (s.answerIndex + 1) % os.length : s.answerIndex];
         if (o) { o.click(); host.querySelector('[data-go="lock"]').click(); return 'ans'; } }
       return 'wait';

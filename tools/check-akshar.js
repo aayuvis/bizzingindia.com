@@ -18,6 +18,10 @@
      touch     an L3 round by tapping tiles; a vowel sign dragged onto its consonant (L2)
      levels    L1–L4 play to done() with a perfect bot; L5 judges a trace once, never an empty one
      phone     390×844: nothing off the side, Check above the tab bar, targets ≥ 44px
+     cover     the Play cover is drawn in code (no key for a painted plate here): the letter ka in
+               every script the game holds, as real text in its own face, one node and its lang
+               each, never letter-spaced, line-height ≥ 1.7, ~1.1× the Latin, none larger or first
+               or central; its text measured on pixels day and night
      shots     desktop and phone, day and night (AK_SHOTS)
 
    Each was watched to fail by breaking the thing it holds (see the commit).
@@ -325,6 +329,73 @@ check('phone', '390×844: nothing off the side, Check above the tab bar, targets
       return out;
     });
     if (r.length) throw new Error('L' + L + ': ' + r.slice(0, 3).join(' · '));
+  }
+}, { vp: PHONE });
+
+/* THE COVER (games spec §5.0: a slate and chalk). Drawn in code — no picture has letters painted
+   into it; the letters are TEXT, the letter ka in every script the game holds, each in its own
+   face, each one text node with its own lang, never letter-spaced, line-height ≥ 1.7, set ~10–15%
+   above the Latin around it — and no script larger, earlier or more central than another. Then
+   its text is measured on pixels, day and night, the way check-contrast measures every page. */
+const COVER_FACE = { hi: /^Mukta( (Light|Regular|Medium|SemiBold|Bold|ExtraBold))?$/, pa: /^Mukta Mahee/, ta: /^Mukta Malar/, gu: /^Mukta Vaani/, bn: /^Noto Sans Bengali/,
+  te: /^Noto Sans Telugu/, kn: /^Noto Sans Kannada/, ur: /^Noto Nastaliq Urdu/, ml: /^Noto Sans Malayalam/, or: /^Noto Sans Oriya/ };
+check('cover', 'the Play cover: ≥ 3 scripts as real text in their own faces, none privileged, never letter-spaced; contrast day and night', async ({ p, ctx }) => {
+  const { measureView } = require('./lib/contrast');
+  await p.evaluate(() => window.BI.go('khel')); await p.waitForSelector('.gcover[data-id="akshar"]', { timeout: 20000 });
+  await p.evaluate(() => document.querySelector('.gcover[data-id="akshar"]').scrollIntoView({ block: 'center' }));
+  await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(600);
+  const c = await p.evaluate(() => {
+    const g = document.querySelector('.gcover[data-id="akshar"] .gart'), slate = g && g.querySelector('.akc-slate');
+    if (!g || !slate) return null;
+    const base = parseFloat(getComputedStyle(slate).fontSize);
+    const ls = [...g.querySelectorAll('[lang]')].map(el => { const cs = getComputedStyle(el), r = el.getBoundingClientRect();
+      return { lang: el.getAttribute('lang'), dir: el.getAttribute('dir'), nodes: el.childNodes.length, text: el.textContent, ls: cs.letterSpacing,
+        lh: parseFloat(cs.lineHeight) / parseFloat(cs.fontSize), scale: parseFloat(cs.fontSize) / base, cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width, hidden: !!el.closest('[aria-hidden="true"], svg') }; });
+    const sr = slate.getBoundingClientRect();
+    return { art: g.classList.contains('art'), imgs: g.querySelectorAll('img, image, canvas').length, role: g.querySelector('.akc').getAttribute('role'),
+      label: g.querySelector('.akc').getAttribute('aria-label') || '', ls, slate: { cx: sr.left + sr.width / 2, cy: sr.top + sr.height / 2 } };
+  });
+  if (!c) throw new Error('Akshar has no drawn cover on Play');
+  if (!c.art || c.imgs) throw new Error('the cover is not drawn in the page (' + c.imgs + ' pictures in it)');
+  const langs = new Set(c.ls.map(l => l.lang));
+  if (langs.size < 3) throw new Error('the cover sets ' + langs.size + ' scripts: ' + [...langs].join(','));
+  for (const l of c.ls) {
+    if (l.nodes !== 1 || !l.text.trim()) throw new Error(`the ${l.lang} letter is not one text node`);
+    if (l.ls !== 'normal' && parseFloat(l.ls) !== 0) throw new Error(`the ${l.lang} letter is letter-spaced: ${l.ls}`);
+    if (l.lh < 1.69) throw new Error(`the ${l.lang} letter has line-height ${l.lh.toFixed(2)}`);
+    if (l.scale < 1.05 || l.scale > 1.2) throw new Error(`the ${l.lang} letter is set at ${l.scale.toFixed(2)}× the Latin size, not ~1.10–1.15`);
+    if (l.hidden) throw new Error(`the ${l.lang} letter is hidden from the contrast measure`);
+    if (l.lang === 'ur' && l.dir !== 'rtl') throw new Error('the Urdu letter does not run right to left');
+  }
+  /* no script privileged: one base size for all, Devanagari neither first nor at the centre */
+  const sc = c.ls.map(l => l.scale), spread = Math.max(...sc) / Math.min(...sc);
+  if (spread > 1.06) throw new Error('one script is set larger than another: ' + c.ls.map(l => l.lang + ' ' + l.scale.toFixed(2)).join(', '));
+  if (c.ls[0].lang === 'hi') throw new Error('Devanagari leads the cover');
+  const dist = l => Math.hypot(l.cx - c.slate.cx, l.cy - c.slate.cy), near = c.ls.slice().sort((a, b) => dist(a) - dist(b));
+  if (near[0].lang === 'hi' && dist(near[1]) - dist(near[0]) > 6) throw new Error('Devanagari sits alone at the centre of the slate');
+  if (c.role !== 'img' || !/scripts/.test(c.label)) throw new Error('the cover does not say what it is to a screen reader: ' + c.role + ' "' + c.label + '"');
+  /* each letter in its own face, as the browser actually drew it */
+  const cdp = await ctx.newCDPSession(p); await cdp.send('DOM.enable'); await cdp.send('CSS.enable');
+  const { root } = await cdp.send('DOM.getDocument', { depth: -1 });
+  const { nodeIds } = await cdp.send('DOM.querySelectorAll', { nodeId: root.nodeId, selector: '.gcover[data-id="akshar"] .gart [lang]' });
+  for (const n of nodeIds) {
+    const { attributes } = await cdp.send('DOM.getAttributes', { nodeId: n });
+    const lang = attributes[attributes.indexOf('lang') + 1];
+    const r = await cdp.send('CSS.getPlatformFontsForNode', { nodeId: n });
+    if (!COVER_FACE[lang] || !r.fonts.length || r.fonts.some(f => !COVER_FACE[lang].test(f.familyName))) throw new Error(`the ${lang} letter is drawn in ${r.fonts.map(f => f.familyName).join(', ') || 'nothing'}`);
+  }
+  /* contrast on pixels, day and night — every text in the card, the letters and the tag included */
+  for (const night of [false, true]) {
+    await p.evaluate(night => {
+      const isNight = document.documentElement.getAttribute('data-mode') === 'night';
+      if (night !== isNight) document.querySelector('[data-bz=theme]').click();
+      window.BI.go('khel');
+    }, night);
+    await p.waitForSelector('.gcover[data-id="akshar"] .akc-slate', { timeout: 20000 });
+    await p.evaluate(() => document.querySelector('.gcover[data-id="akshar"]').scrollIntoView({ block: 'center' })); await p.waitForTimeout(500);
+    const m = await measureView(p, '.gcover[data-id="akshar"] .gart *');
+    if (m.checked < c.ls.length) throw new Error(`${night ? 'night' : 'day'}: only ${m.checked} texts measured on the cover, it holds ${c.ls.length} letters`);
+    if (m.fails.length) throw new Error(`${night ? 'night' : 'day'}: "${m.fails[0].t}" ${m.fails[0].ratio}:1 (needs ${m.fails[0].need})`);
   }
 }, { vp: PHONE });
 

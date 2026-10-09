@@ -280,7 +280,7 @@
       '<span class="kc-step kc-count" aria-live="polite"></span></div><div class="kc-board"></div></div>';
     var root = host.querySelector('.kc'), board = root.querySelector('.kc-board'), stepEl = root.querySelector('.kc-count');
 
-    if (REG.review && !tester() && !opts.preview) {
+    if (REG.review && !(REG.open && REG.open.by) && !tester() && !opts.preview) {
       board.innerHTML = '<div class="kc-wait" role="status"><h3 class="kc-mode">The tales are with their reviewer</h3>' +
         '<p class="kc-hint" style="font-size:15px">Which stories may be cut into panels is a reviewer\'s call, and it has not been made yet. Read the tales in Stories meanwhile.</p>' +
         '<div class="kc-act"><button class="kc-btn" data-kc="leave">Back</button></div></div>';
@@ -522,6 +522,9 @@
     blurb: 'Panchatantra, Jataka, Tenali and Birbal — put the panels in order, guess what happens next, and pick the lesson.',
     icon: 'book', minutes: 4, tag: 'Kahani', c: '#a5262c', c2: '#e2a93b',
     teaches: true, review: true,
+    /* OPENED BY THE OWNER BEFORE REVIEW (9 Oct 2026): still unsigned, open to every child */
+    open: { to: 'everyone', by: 'owner', on: '2026-10-09', who: 'a reviewer of the tales',
+      why: 'Owner, 9 Oct 2026: \u201copen them all to everyone now, like the gita\u201d \u2014 the publisher\u2019s decision, never a reviewer\u2019s sign-off.' },
     levels: ['three pictures in order', 'a tale in order', 'what happens next', 'who said it', 'the lesson'],
     engine: needs(['content', 'voice'], function () { return !!(W.IND_STORIES && W.IND_NEETI_STORIES && W.IND_KATHA_CHAIN); }, engine)
   };

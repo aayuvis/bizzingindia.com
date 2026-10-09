@@ -517,6 +517,33 @@ check('modes', 'a bonus mode costs its printed price, is chosen in the game, and
   const rg = await p.evaluate(() => { const w = document.querySelector('#gamehost .mela-wrap'); const cs = w && getComputedStyle(w);
     return { on: w && w.getAttribute('data-theme-rg'), c1: cs && cs.getPropertyValue('--rg1').trim(), ground: cs && cs.getPropertyValue('--rg-ground').trim() }; });
   if (rg.on !== 'theme-rangoli-kolam' || !rg.c1 || !rg.ground) throw new Error('the kolam theme did not reach the board: ' + JSON.stringify(rg));
+  /* Pachisi: a heritage game's second way. Before it is bought Ludo has no picker and no cowries;
+     it costs its printed price; Ludo's own title card then switches it on and off, one tap each way */
+  const lud = () => p.evaluate(() => { const h = document.getElementById('gamehost'), L = h && h.__ludo;
+    return { ways: [...document.querySelectorAll('.gf-ways [data-act="gameway"]')].map(b => b.getAttribute('data-id')),
+      pc: !!(L && L.pachisi), cow: !!document.querySelector('#gamehost .lu-cowtab'), tab: ((document.querySelector('#gamehost .lu-segb') || {}).textContent || '') }; });
+  const ludoLudo = async () => { await p.evaluate(() => { const b = document.querySelector('#gamehost [data-go="mode"][data-v="ludo"]'); if (b) b.click(); }); await p.waitForTimeout(200); };
+  await go(p, 'game', 'ludo'); await p.waitForTimeout(500); await ludoLudo();
+  const l0 = await lud();
+  if (l0.ways.length || l0.pc || l0.cow || l0.tab !== 'Ludo') throw new Error('Ludo shows Pachisi before it is bought: ' + JSON.stringify(l0));
+  const pb0 = await p.evaluate(who => window.IND_WALLET.balance(who), who);
+  await go(p, 'shop', 'extras');
+  await p.evaluate(() => document.querySelector('#main [data-act="buyextra"][data-id="mode-ludo-pachisi"]').click()); await p.waitForTimeout(300);
+  const pb1 = await p.evaluate(who => window.IND_WALLET.balance(who), who);
+  const pprice = X.find(x => x.id === 'mode-ludo-pachisi').price;
+  if (pb0 - pb1 !== pprice) throw new Error(`Pachisi cost ${pb0 - pb1}, its printed price is ${pprice}`);
+  await go(p, 'game', 'ludo'); await p.waitForTimeout(500); await ludoLudo();
+  /* bought is chosen, as every extra is; then the title card switches it off and on again */
+  const l1 = await lud();
+  if (l1.ways.join() !== ',mode-ludo-pachisi' || !l1.pc || !l1.cow || !/^Pachisi/.test(l1.tab)) throw new Error('Ludo\'s title card does not offer the classic way and Pachisi, Pachisi on: ' + JSON.stringify(l1));
+  await p.evaluate(() => document.querySelector('.gf-ways [data-id=""]').click()); await p.waitForTimeout(600); await ludoLudo();
+  const l2 = await lud();
+  if (l2.pc || l2.cow || l2.tab !== 'Ludo') throw new Error('the classic way did not come back from the title card: ' + JSON.stringify(l2));
+  await p.evaluate(() => document.querySelector('.gf-ways [data-id="mode-ludo-pachisi"]').click()); await p.waitForTimeout(600); await ludoLudo();
+  const l3 = await lud();
+  if (!l3.pc || !l3.cow || !/^Pachisi/.test(l3.tab)) throw new Error('choosing Pachisi in the title card did not bring the cowries: ' + JSON.stringify(l3));
+  const ludoReg = await p.evaluate(() => window.IND_GAMES.find(g => g.id === 'ludo').teaches);
+  if (ludoReg !== false) throw new Error('Ludo teaches, so its cowries could pay');
 });
 
 /* ------------------------------------------------------------------ search (C4) */

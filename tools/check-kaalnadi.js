@@ -19,7 +19,8 @@
                 once per item, never with a contested id
      phone      at 390×844 nothing a child must tap is off the side of the screen, the action
                 row is in view, and targets are ≥ 44px
-     gate       review: true — outside tester mode the engine shows the reviewer's wait, never a card
+     gate       review: true, opened by the owner (9 Oct 2026): every child plays, the page says no
+                historian has checked it; take `open` away and the reviewer's wait returns
      shots      desktop and phone, day and night (written to KN_SHOTS, default the scratch dir)
 
    Each was watched to fail by breaking the thing it holds (see the commit).
@@ -303,25 +304,37 @@ check('phone', 'at 390×844: nothing to tap off the side, the action row in view
   }
 }, { vp: PHONE });
 
-check('gate', 'review: true — outside tester mode the engine shows the reviewer\'s wait, never a card', async ({ p }) => {
-  const reg = await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'kaalnadi'); return { review: g.review, teaches: g.teaches, levels: g.levels.length, sub: typeof g.sub }; });
+check('gate', 'review: true and owner-opened (9 Oct 2026) — every child plays it, its page says no reviewer has checked it; without `open` the wait returns', async ({ p }) => {
+  const reg = await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'kaalnadi'); return { review: g.review, open: g.open, teaches: g.teaches, levels: g.levels.length, sub: typeof g.sub }; });
   if (reg.review !== true || reg.teaches !== true || reg.levels !== 5 || reg.sub !== 'string') throw new Error('registry entry: ' + JSON.stringify(reg));
+  /* the owner's decision is recorded as `open`, never as a sign-off: review stays true */
+  if (!reg.open || reg.open.by !== 'owner' || reg.open.to !== 'everyone' || !reg.open.on || !reg.open.why) throw new Error('no owner `open` record: ' + JSON.stringify(reg.open));
   await p.evaluate(() => window.IND_STORE.saveDevice('tester', false));
-  /* two gates. The host's (docs/32, games spec §7): outside tester mode #/game/kaalnadi never opens
-     an engine in review — it is the Play hub. Then the engine's own, mounted directly. */
-  await p.evaluate(() => window.BI.go('game', 'kaalnadi')); await p.waitForTimeout(500);
-  const hg = await p.evaluate(() => ({ frame: !!document.getElementById('gamehost'), hub: !!document.querySelector('#main .gcover') }));
-  if (hg.frame || !hg.hub) throw new Error('outside tester mode the host opened Kaal Nadi: ' + JSON.stringify(hg));
-  await p.evaluate(() => {
-    const h = document.createElement('div'); h.id = 'gamehost'; document.getElementById('main').appendChild(h);
-    window.__ans = []; window.__done = null;
-    const g = window.IND_GAMES.find(x => x.id === 'kaalnadi');
-    window.__td = g.engine(h, { level: 1, band: '8-10', scope: null, calm: false, reduced: false, answer: r => window.__ans.push(r) }, r => { window.__done = r; });
-  });
-  await p.waitForSelector('.kn', { timeout: 20000 }); await p.waitForTimeout(150);
-  const w = await p.evaluate(() => ({ wait: !!document.querySelector('.kn-wait'), card: !!document.querySelector('.kn-card') }));
-  await p.evaluate(() => window.IND_STORE.saveDevice('tester', true));
-  if (!w.wait || w.card) throw new Error('outside tester mode the card set showed: ' + JSON.stringify(w));
+  try {
+    /* the host's gate: outside tester mode #/game/kaalnadi opens its frame, with the note */
+    await p.evaluate(() => window.BI.go('game', 'kaalnadi')); await p.waitForTimeout(500);
+    const hg = await p.evaluate(() => ({ frame: !!document.getElementById('gamehost'), note: (document.querySelector('#gframe .gf-unchecked') || {}).textContent || '' }));
+    if (!hg.frame) throw new Error('outside tester mode the host did not open Kaal Nadi');
+    if (!/Not yet checked/.test(hg.note) || !/historian/.test(hg.note)) throw new Error('the game page does not say no historian has checked it: ' + JSON.stringify(hg.note));
+    /* the engine's own gate, mounted directly: cards are dealt */
+    const mountK = () => p.evaluate(() => {
+      document.querySelectorAll('#gamehost').forEach(x => x.remove());
+      const h = document.createElement('div'); h.id = 'gamehost'; document.getElementById('main').appendChild(h);
+      window.__ans = []; window.__done = null;
+      const g = window.IND_GAMES.find(x => x.id === 'kaalnadi');
+      window.__td = g.engine(h, { level: 1, band: '8-10', scope: null, calm: false, reduced: false, answer: r => window.__ans.push(r) }, r => { window.__done = r; });
+    });
+    await mountK();
+    await p.waitForSelector('.kn', { timeout: 20000 }); await p.waitForTimeout(150);
+    const w = await p.evaluate(() => ({ wait: !!document.querySelector('.kn-wait'), card: !!document.querySelector('.kn-card') }));
+    if (w.wait || !w.card) throw new Error('owner-opened, but outside tester mode the card set did not show: ' + JSON.stringify(w));
+    /* and the gate itself still works: take `open` away and the reviewer's wait returns */
+    await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'kaalnadi'); window.__open = g.open; delete g.open; if (typeof window.__td === 'function') window.__td(); });
+    await mountK(); await p.waitForSelector('.kn', { timeout: 20000 }); await p.waitForTimeout(150);
+    const w2 = await p.evaluate(() => ({ wait: !!document.querySelector('.kn-wait'), card: !!document.querySelector('.kn-card') }));
+    await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'kaalnadi'); g.open = window.__open; if (typeof window.__td === 'function') window.__td(); });
+    if (!w2.wait || w2.card) throw new Error('without the owner\'s `open`, an unsigned card set still showed: ' + JSON.stringify(w2));
+  } finally { await p.evaluate(() => window.IND_STORE.saveDevice('tester', true)); }
 });
 
 check('shots', 'desktop and phone, day and night', async ({ p }) => {

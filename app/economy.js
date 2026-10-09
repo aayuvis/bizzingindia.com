@@ -56,6 +56,9 @@
        a board. A theme names the tradition its colours come from. */
     { id: 'mode-gyanpati-hard', kind: 'mode', game: 'gyanpati', name: 'Gyanpati: the hard ladder', price: 150,
       note: 'Five middle rungs, then ten hard ones. The classic ladder stays as it is.' },
+    /* a heritage game's second way: it costs coins once and, like Ludo itself, pays none back */
+    { id: 'mode-ludo-pachisi', kind: 'mode', game: 'ludo', name: 'Ludo: Pachisi with cowries', price: 120,
+      note: 'Six cowrie shells in place of the die, counted the way Pachisi counts them — a game played across India and the subcontinent. Ludo stays as it is. Played for fun: it pays no coins.' },
     { id: 'theme-rangoli-kolam', kind: 'theme', game: 'rangoli', name: 'Rangoli in kolam colours', price: 80,
       note: 'Rice-flour white, turmeric and kumkum on a red-earth doorstep — as kolam is drawn in Tamil Nadu.' },
     { id: 'theme-rangoli-diwali', kind: 'theme', game: 'rangoli', name: 'Rangoli on a Diwali night', price: 80,

@@ -15,7 +15,8 @@
      touch      an L2 round by tapping two panels to swap; a panel dragged onto another
      levels     every level plays to done() with a perfect bot, one answer() per item
      phone      390×844: nothing off the side, Lock karo above the tab bar, targets ≥ 44px
-     gate       review: true — outside tester mode the engine shows the reviewer's wait
+     gate       review: true, opened by the owner (9 Oct 2026): every child plays, the page says so;
+                take `open` away and the reviewer's wait returns
      shots      desktop and phone, day and night (KC_SHOTS)
 
    Each was watched to fail by breaking the thing it holds (see the commit).
@@ -296,14 +297,24 @@ check('phone', '390×844: nothing off the side, Lock karo above the tab bar, tar
   }
 }, { vp: PHONE });
 
-check('gate', 'review: true — outside tester mode the engine shows the reviewer\'s wait', async ({ p }) => {
-  const reg = await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'katha'); return { review: g.review, teaches: g.teaches, levels: g.levels.length, sub: typeof g.sub }; });
+check('gate', 'review: true and owner-opened (9 Oct 2026) — every child plays it, its page says so; without `open` the wait returns', async ({ p }) => {
+  const reg = await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'katha'); return { review: g.review, open: g.open, teaches: g.teaches, levels: g.levels.length, sub: typeof g.sub }; });
   if (reg.review !== true || reg.teaches !== true || reg.levels !== 5 || reg.sub !== 'string') throw new Error('registry: ' + JSON.stringify(reg));
+  if (!reg.open || reg.open.by !== 'owner' || reg.open.to !== 'everyone' || !reg.open.on || !reg.open.why) throw new Error('no owner `open` record: ' + JSON.stringify(reg.open));
   await p.evaluate(() => window.IND_STORE.saveDevice('tester', false));
-  await mount(p, { level: 2 });
-  const w = await p.evaluate(() => ({ wait: !!document.querySelector('.kc-wait'), panel: !!document.querySelector('.kc-panel') }));
-  await p.evaluate(() => window.IND_STORE.saveDevice('tester', true));
-  if (!w.wait || w.panel) throw new Error('outside tester mode a tale was dealt: ' + JSON.stringify(w));
+  try {
+    await p.evaluate(() => window.BI.go('game', 'katha')); await p.waitForTimeout(500);
+    const hg = await p.evaluate(() => ({ frame: !!document.getElementById('gamehost'), note: (document.querySelector('#gframe .gf-unchecked') || {}).textContent || '' }));
+    if (!hg.frame || !/Not yet checked/.test(hg.note)) throw new Error('outside tester mode the host did not open Katha Chain with its note: ' + JSON.stringify(hg));
+    await mount(p, { level: 2 });
+    const w = await p.evaluate(() => ({ wait: !!document.querySelector('.kc-wait'), panel: !!document.querySelector('.kc-panel') }));
+    if (w.wait || !w.panel) throw new Error('owner-opened, but outside tester mode no tale was dealt: ' + JSON.stringify(w));
+    await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'katha'); window.__open = g.open; delete g.open; });
+    await mount(p, { level: 2 });
+    const w2 = await p.evaluate(() => ({ wait: !!document.querySelector('.kc-wait'), panel: !!document.querySelector('.kc-panel') }));
+    await p.evaluate(() => { const g = window.IND_GAMES.find(x => x.id === 'katha'); g.open = window.__open; });
+    if (!w2.wait || w2.panel) throw new Error('without the owner\'s `open`, an unsigned tale was dealt: ' + JSON.stringify(w2));
+  } finally { await p.evaluate(() => window.IND_STORE.saveDevice('tester', true)); }
 });
 
 check('shots', 'desktop and phone, day and night', async ({ p }) => {

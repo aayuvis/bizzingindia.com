@@ -6491,7 +6491,17 @@
   var GAME_NEXT = { statehunt: 'naksha', festival: 'panchang', jataka: 'katha' };
   var GAME_ALIAS = { naksha: 'statehunt', statehunt: 'naksha', panchang: 'festival', festival: 'panchang',
                      katha: 'jataka', jataka: 'katha', triviamaster: 'gyanpati', saapsidi: 'ludo' };
-  function released(g) { return !!g && (!g.review || tester()); }
+  /* OPENED BY THE OWNER BEFORE REVIEW (9 Oct 2026, "open them all to everyone now, like the gita"):
+     a registration may carry `open: { to: 'everyone', by: 'owner', on, why }` beside review: true —
+     the publisher's decision, never a sign-off. It plays for every child, and its page says so. */
+  function ownerOpen(g) { return !!(g && g.review && g.open && g.open.by === 'owner'); }
+  function released(g) { return !!g && (!g.review || tester() || ownerOpen(g)); }
+  function uncheckedNote(g) {
+    if (!ownerOpen(g)) return '';
+    return '<p class="gf-unchecked" role="note"><b>Not yet checked by its reviewer.</b> Everything in this game comes from the ' +
+      'app\u2019s own sourced pages, and nothing is written from memory \u2014 but ' + esc(g.open.who || 'the person who checks what this app tells children') +
+      ' has not checked it yet. The family who made this app opened it anyway. Ask a grown-up if anything seems wrong.</p>';
+  }
   function gameById(id) { return (window.IND_GAMES || []).filter(function (x) { return x.id === id; })[0] || null; }
   /* the engine #/game/<id> opens; null = the hub */
   function gameFor(id) {
@@ -6659,6 +6669,7 @@
         '<span class="gf-txt"><b>' + esc(g.name) + '</b><span class="gf-how">' + esc(f[0]) + '</span>' +
         '<span class="gf-keys tiny muted">Tap to play — or use the keyboard: Tab, the arrows and Enter.</span></span>' +
         '<i class="gf-bar" aria-hidden="true"></i></button>' : '') +
+      uncheckedNote(g) +
       gameWays(g) +
       '<div id="gamehost"></div></div>';
   };
@@ -8129,6 +8140,15 @@
       var d = ''; [[24, 24, 1], [40, 24, 2], [56, 24, 1], [24, 40, 3], [40, 40, 2], [56, 40, 3], [24, 56, 1], [40, 56, 2], [56, 56, 1]].forEach(function (q) {
         d += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="6" fill="' + T[q[2]] + '"/>'; });
       return '<svg class="xart" viewBox="0 0 80 80" aria-hidden="true"><rect x="4" y="4" width="72" height="72" rx="14" fill="' + T[0] + '"/>' + d + '</svg>';
+    }
+    /* Pachisi's cowries: three fallen mouth up, three on their backs, on a madder-red cloth */
+    if (x.kind === 'mode' && x.game === 'ludo') {
+      var cw = ''; [[22, 30, 1], [40, 26, 0], [58, 30, 1], [22, 54, 0], [40, 50, 1], [58, 54, 0]].forEach(function (q) {
+        cw += '<ellipse cx="' + q[0] + '" cy="' + q[1] + '" rx="7" ry="9.5" fill="' + (q[2] ? '#f6ecd4' : '#d6b27a') + '" stroke="#5a3a18" stroke-width="1.2"/>' +
+          (q[2] ? '<path d="M' + q[0] + ' ' + (q[1] - 7.5) + 'q-1.4 7.5 0 15" fill="none" stroke="#4a2e12" stroke-width="1.6" stroke-linecap="round"/>'
+                : '<ellipse cx="' + (q[0] - 1.5) + '" cy="' + (q[1] - 2.5) + '" rx="3" ry="4.2" fill="#f1ddb4" opacity=".75"/>'); });
+      return '<svg class="xart" viewBox="0 0 80 80" aria-hidden="true"><rect x="4" y="4" width="72" height="72" rx="14" fill="#7a1f1a"/>' +
+        '<rect x="9" y="9" width="62" height="62" rx="10" fill="none" stroke="#e6b95c" stroke-width="1.2" stroke-dasharray="3 2"/>' + cw + '</svg>';
     }
     if (x.kind === 'mode') return '<span class="xart xmode" aria-hidden="true">' + icon('star', 40) + '<b>15</b></span>';
     return '<span class="xart framed fr-' + esc(x.id) + '">' + art(S.buddy, 64) + '</span>';

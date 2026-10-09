@@ -30,10 +30,13 @@
    EDITORIAL (binding, docs/05): faiths from the inside; every festival card is the same size,
    the same colours and the same type, and the order is shuffled — no festival is first,
    biggest or brightest by default. Never "the biggest festival". "In many families…", and
-   "ask your family". Entries the data flags needs_review appear only in tester mode.
+   "ask your family". Entries the data flags needs_review appear only in tester mode — or, as on
+   the Utsav pages, to everyone once the owner has opened the game.
 
    The game registers review: true — the year's windows and the Kyon? lines go to the named
-   reviewer first (games spec §7), so it opens in tester mode only until signed.
+   reviewer first (games spec §7), so it opened in tester mode only until signed; the owner opened
+   it to every child before review on 9 Oct 2026 (`open`, never a sign-off), and the host's page
+   says no reviewer has checked it.
 
    Contract (docs/32): engine(host, opts, done); opts.answer() once per item at the first
    attempt; the host plays right/wrong. A miss HOLDS with the miss card until Aage. */
@@ -64,6 +67,8 @@
     '.pc-m.pc-focus{fill:var(--accent);fill-opacity:.28}',
     '.pc-m.pc-win{fill:var(--accent2);fill-opacity:.62}',
     '.pc-m.pc-no{fill:var(--mist);fill-opacity:1}',
+    /* a lit window keeps its month readable, day and night: dark ink on the warm wash */
+    '.pc-m.pc-win+.pc-ml{fill:#24170a}',
     '.pc-ml{fill:var(--text);font:700 15px var(--body);text-anchor:middle;pointer-events:none}',
     '.pc-mk{fill:var(--text);font:800 13px var(--body);text-anchor:middle;pointer-events:none}',
     '.pc-hub{fill:var(--ground);stroke:var(--line2);stroke-width:2}',
@@ -234,9 +239,11 @@
     if (scope && typeof scope.mode === 'number') mode = MODES[Math.max(1, Math.min(5, scope.mode)) - 1];
     var only = scope && scope.set && scope.set.length ? scope.set : null;
 
-    /* every festival the game may show: a window from data, reviewed or in tester mode */
+    /* every festival the game may show: a window from data, reviewed or in tester mode — or every
+       one, as the Utsav pages already show them, once the owner has opened the game (9 Oct 2026) */
+    var opened = (W.IND_GAMES || []).some(function (g) { return g && g.id === 'panchang' && g.open && g.open.by === 'owner'; });
     var FEST = ((U && U.festivals) || []).filter(function (f) {
-      return f && f.id && f.name && windowOf(f).length && (!f.needs_review || tester) && (!only || only.indexOf(f.id) >= 0);
+      return f && f.id && f.name && windowOf(f).length && (!f.needs_review || tester || opened) && (!only || only.indexOf(f.id) >= 0);
     });
     var BY = {}; FEST.forEach(function (f) { BY[f.id] = f; });
 
@@ -784,6 +791,9 @@
     teaches: true,
     levels: ['when: the month', 'harvest and new year', 'the moon’s drift', 'what families do', 'my year (never marked)'],
     review: true,
+    /* OPENED BY THE OWNER BEFORE REVIEW (9 Oct 2026): still unsigned, open to every child */
+    open: { to: 'everyone', by: 'owner', on: '2026-10-09', who: 'a reviewer from each festival\u2019s own tradition',
+      why: 'Owner, 9 Oct 2026: \u201copen them all to everyone now, like the gita\u201d \u2014 the publisher\u2019s decision, never a reviewer\u2019s sign-off.' },
     c: '#c2563a',
     c2: '#e9a13b',
     engine: panchang

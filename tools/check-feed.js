@@ -92,7 +92,7 @@ check('count', 'at least 100 cards at every rank and 300 with no level; ids uniq
   if (stray.length) throw new Error(stray.length + ' bodies have no index row: ' + stray[0]);
   console.log('         ' + ITEMS.length + ' cards — ' + RANKS.map((r, n) => r + ' ' + per[n]).join(' · ') + ' · no level ' + any);
 });
-const LEVELED = /^(story|hook|moment|moral|storyword|storyplace|night|nighthook|nightmoment|wonder|era|erakid|erabig|erawonder|found|moment-era|today|figure|word|wordq|letter|matra|sentence|talk|conjunct)$/;
+const LEVELED = /^(story|hook|moment|moral|storyword|storyplace|night|nighthook|nightmoment|wonder|era|erakid|erabig|erawonder|found|moment-era|today|figure|word|wordq|letter|matra|sentence|talk|conjunct|scene|nightcard|example|exampleq)$/;
 check('levels', 'every level is a rank; a card behind a rung is never above the rank that rung implies', () => {
   const bad = ITEMS.filter(it => it.level != null && !(Number.isInteger(it.level) && it.level >= 0 && it.level < RANKS.length));
   if (bad.length) throw new Error(bad[0].id + ' has level ' + bad[0].level);
@@ -170,15 +170,18 @@ function resolve(it) {
     const f = C.IND_UTSAV.festivals.filter(x => x.id === p[1])[0];
     if (!f || f.needs_review) throw new Error(it.id + ': no festival, or held for review');
     wantBadge(f.badge || 'aaj');
-    if (it.play) { if (right() !== stateName(f.states[0])) throw new Error(it.id + ': the right answer is not where it is kept'); }
-    else has(at(f, p.slice(2)), it.body, 'the festival');
+    if (it.play && p[2] === 'words') { const w = f.words[+p[3]]; if (!w || it.text !== w.term || right() !== w.en) throw new Error(it.id + ': not the festival\'s own word and meaning'); }
+    else if (it.play) { if (right() !== stateName(f.states[0])) throw new Error(it.id + ': the right answer is not where it is kept'); }
+    else { has(at(f, p.slice(2)), it.body, 'the festival'); if (p[2] === 'words' && it.text !== f.words[+p[3]].term) throw new Error(it.id + ': not the festival\'s own word'); }
   } else if (kind === 'geo') {
     const g = C.IND_GEO.states[p[1]]; if (!g) throw new Error(it.id + ': no place ' + p[1]);
     if (p[2] === 'capital') { has(it.play.q, g.capital, 'the question'); if (right() !== g.name) throw new Error(it.id + ': wrong answer keyed'); }
     else has(g[p[2]], it.body, 'the place');
   } else if (kind === 'state') {
     const s = C.IND_STATES[p[1]]; if (!s) throw new Error(it.id + ': no state ' + p[1]);
-    if (p[4] === 'dish') { has(it.play.q, at(s, p.slice(2)), 'the question'); if (right() !== stateName(p[1])) throw new Error(it.id + ': wrong answer keyed'); }
+    if (p[2] === 'symbols') { if (!it.play || right() !== (s.symbols || {})[p[3]]) throw new Error(it.id + ': the right answer is not the state\'s own symbol');
+      if ((s.unsure || []).some(u => /symbol/i.test(u) || new RegExp('\\b' + p[3] + '\\b', 'i').test(u))) throw new Error(it.id + ': the state\'s own notes doubt this symbol'); }
+    else if (p[4] === 'dish') { has(it.play.q, at(s, p.slice(2)), 'the question'); if (right() !== stateName(p[1])) throw new Error(it.id + ': wrong answer keyed'); }
     else has(at(s, p.slice(2)), it.body, 'the state\'s facts');
   } else if (kind === 'bhugol') {
     const f = C.IND_BHUGOL.features.filter(x => x.id === p[1])[0]; if (!f) throw new Error(it.id + ': no feature ' + p[1]);
@@ -197,7 +200,22 @@ function resolve(it) {
     if (!t || t.en !== it.body || t.hi !== it.text) throw new Error(it.id + ': not the family word as Rishtey holds it');
   } else if (kind === 'value') {
     const v = C.IND_NEETI.values.filter(x => x.id === p[1])[0];
-    if (!v || v.kid !== it.body || v.term !== it.text) throw new Error(it.id + ': not the value as Neeti holds it');
+    if (!v || v[p[2] === 'doit' ? 'doit' : 'kid'] !== it.body || v.term !== it.text) throw new Error(it.id + ': not the value as Neeti holds it');
+  } else if (kind === 'gita') {
+    /* the whole Gita: open only as its own pages are — signed, or opened by the owner before review */
+    const R = C.IND_GITA.review || {};
+    if (!(R.status === 'reviewed' || (R.open && R.open.by))) throw new Error(it.id + ': the Gita is not open');
+    const v = (C.IND_GITA_V[p[1]] || []).filter(x => String(x.v) === p[2])[0];
+    if (!v || (p[3] !== 'en' && p[3] !== 'en2')) throw new Error(it.id + ': no verse ' + it.src);
+    has(v[p[3]], it.body, 'the verse\'s published translation');
+    if (it.text && it.text !== v.sa) throw new Error(it.id + ': the Sanskrit is not the verse\'s');
+    if (it.source !== C.IND_GITA.source || it.bands.indexOf('4-7') >= 0 || it.bands.indexOf('8-9') >= 0) throw new Error(it.id + ': the Gita is 10 and up, with its source');
+    wantBadge('aaj');
+  } else if (kind === 'sent') {
+    const x = ((C.IND_BHASHA_SENTENCES || {})[p[1]] || {})[p.slice(2).join(':')];
+    if (!x || it.text !== x.s) throw new Error(it.id + ': not the sentence bank\'s own sentence');
+    if (it.play) { if (right() !== x.en) throw new Error(it.id + ': the right answer is not the sentence\'s meaning'); }
+    else if (it.body !== x.en || it.roman !== x.roman) throw new Error(it.id + ': the meaning is not the bank\'s');
   } else throw new Error(it.id + ': a src of a kind nothing resolves: ' + it.src);
   if (it.play) {
     if (new Set(it.play.opts).size !== it.play.opts.length) throw new Error(it.id + ': two options are the same');
@@ -273,7 +291,8 @@ const FRONT_DOOR = /^#\/(nani|rishtey|map|stories|bhasha|utsav|itihaas|mela|khel
 /* a card about one thing inside a list must name it in its route */
 const IN_A_LIST = { verse: 1, versemeaning: 1, versewhy: 1, letter: 1, matra: 1, sentence: 1, talk: 1, conjunct: 1, ask: 1, family: 1,
   feature: 1, trivia: 1, see: 1, food: 1, found: 1, 'moment-era': 1, today: 1, figure: 1, festdo: 1, festways: 1, moment: 1,
-  night: 1, nighthook: 1, nightmoment: 1, wonder: 1 };
+  night: 1, nighthook: 1, nightmoment: 1, wonder: 1, scene: 1, nightcard: 1, festbig: 1, festask: 1, festword: 1, festwordq: 1,
+  gullyrule: 1, gullyway: 1, gullysafe: 1, gullyword: 1, symbolq: 1 };
 check('specific', 'no card\'s door is a tool\'s front door; a thing inside a list is named in its route', () => {
   const bad = [];
   for (const it of ITEMS) {

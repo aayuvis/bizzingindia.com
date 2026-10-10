@@ -55,7 +55,7 @@ at most a quarter review from ranks passed ("To keep: from Shishya", what slippe
 peeks at the next rank ("Coming up on Khoji"), and at most a quarter with no level. Nothing beyond the
 next rank ever appears. A child who climbs gets a different feed (`check-feed climb`).
 
-## The cards: 6,308
+## The cards: 13,669 (doubled, owner 10 Oct 2026: "look for additional content and double the feed cards")
 
 Every card carries `src`, the address of the words it quotes, and `tools/check-feed.js resolves`
 finds them in that object on every run. Change a story, verse or fact and the check fails until
@@ -63,32 +63,34 @@ finds them in that object on every run. Change a story, verse or fact and the ch
 
 | rank | cards |
 |---|---|
-| Shishya | 1,339 |
-| Vidyarthi | 866 |
-| Sadhak | 918 |
-| Khoji | 386 |
-| Pandit | 315 |
-| Vidwan | 301 |
-| Acharya | 336 |
-| Rishi | 214 |
-| no level | 1,633 |
+| Shishya | 1,871 |
+| Vidyarthi | 1,243 |
+| Sadhak | 3,781 |
+| Khoji | 672 |
+| Pandit | 602 |
+| Vidwan | 579 |
+| Acharya | 586 |
+| Rishi | 340 |
+| no level | 3,995 |
 
 Each object gives several honest **angles**, each its own `kind` with its own `src`:
 
 | object | angles (kind: n) |
 |---|---|
-| a story (336 not held) | its opening (story 336) · its hook (hook 336) · the moment its middle turns on (moment 336) · the moral it states (moral 336) · a question on a Hindi word it teaches (storyword 486, one per word) · a question on the place it lights (storyplace 322) |
-| its cast | an invented character's own line (cast, with the epic cast: 23) · a real person's first achievement, only from a story that is not 🪔 Katha (person 35). Never a deity |
-| an epic night (57) | its opening (night 57) · its hook (nighthook 57) · its middle (nightmoment 57) · what it asks you to wonder about (wonder 57) |
+| a story (336 not held) | its opening (story 336) · its hook (hook 336) · the moment its middle turns on (moment 336) · **every other scene but its last**, which is the story's own ending and stays for the reading (scene 1,761) · the moral it states (moral 336) · a question on a Hindi word it teaches (storyword 486, one per word) · a question on the place it lights (storyplace 322) |
+| the faces on the cards | an invented character's own line, and every epic figure's line (cast 53 — an epic figure only where it has a card of its own, which is where the door opens) · **every** achievement of a real person on the cards (person 153) · the fact each card carries (avfact 100). Never a deity (`sacred`) |
+| an epic night (57) | its opening (night 57) · its hook (nighthook 57) · its middle (nightmoment 57) · **every other card but its last** (nightcard 515) · what it asks you to wonder about (wonder 57) |
+| the whole Gita (700, 10 and up) | each verse in Sanskrit with Besant's 1922 English (gita 700) · Swarupananda's 1909 translation of it (gita2 671 — 29 were 80% Besant's words). Opened by the owner before the Sanskrit review (4 Oct 2026), as its pages are; each card opens on the verse's page, which says so above the verse. Never the computer-drafted reading, which is flagged. No "who says it?" question: Besant names the speaker inside the verse, and the answer would mostly be Krishna |
 | an era (11 with sources, not held, under 11+) | its hook (era 11) · what a child is told (erakid 11) · what a bigger child is told (erabig 11) · what nobody knows yet (erawonder 11) · each thing found (found 34) · each dated moment (moment-era 63) · each "still there today" (today 33) · each figure (figure 37) |
-| a language (9 packs, every rung) | words (word 826: in a pack of more than forty, only a word the corpus also has **in a sentence**, which the card carries — v4 found 2,840 bare glosses; 319 remain, from the small packs) · a question on each first-rung word (wordq 491) · letters (letter 406) · vowel signs (matra 89) · Hindi sentences (sentence 102) and conversation lines (talk 70) · joined letters (conjunct 42) |
+| a language (9 packs, every rung) | words (word 826: in a pack of more than forty, only a word the corpus also has **in a sentence**, which the card carries — v4 found 2,840 bare glosses; 319 remain, from the small packs) · a question on **every** word the path holds, at its rung's rank (wordq 2,201 — never one whose answer names what its question names, "What does this Tamil word mean?" → "Tamil…"; the question, not the gloss, is how a word comes back) · each Hindi word's example sentence, as a card (example 506) and as a question on its meaning (exampleq 507) · letters (letter 406) · vowel signs (matra 89) · Hindi sentences (sentence 102) and conversation lines (talk 70) · joined letters (conjunct 42) |
 | a verse (34 not flagged) | the verse in its own script (verse 34) · its meaning (versemeaning 34) · why carry it (versewhy 34) |
 | a place (36) | its map fact (place 36) · every trivia line (trivia 144) · every place to see (see 178) · every food (food 171) · every feature on the map (feature 399) · a capital question (capital 31: never where the capital's name is inside the place's own, which answered itself — Chandigarh, New Delhi, Puducherry; `check-feed selfanswer`) · a food question, for a dish one state alone claims (foodq 36) |
-| a festival (27 not held) | what it is (festival 27) · every thing to do at home (festdo 118) · every "in many families" line (festways 78) · where it is kept (festwhere 27) |
-| games | the Mela games' how-to (game 13) · each street game, how it starts and its other names (gully 28 · gullyhow 28 · gullyname 127) |
-| the family | questions to ask Nani and Dada (ask 52) · family words (family 26) · the values (value 12) |
+| a festival (27 not held) | what it is (festival 27) · the fuller telling, 8 and up (festbig 27) · every thing to do at home (festdo 118) · every "in many families" line (festways 78) · the question to take to your family (festask 27) · its own words in their own script, and a question on each (festword 81 · festwordq 77) · where it is kept (festwhere 27) |
+| a place's symbols | a question on each state symbol, only where the state's own `unsure` notes raise no doubt about its symbols (symbolq 104) |
+| games | the Mela games' how-to (game 11) · each street game, how it starts and its other names (gully 28 · gullyhow 28 · gullyname 127) · each of its rules (gullyrule 185), its other ways (gullyway 56), how to keep it safe (gullysafe 59) and the words you shout (gullyword 117) |
+| the family | questions to ask Nani and Dada (ask 52) · family words (family 26) · the values (value 12) and each one's "do it today" (valuedo 12) |
 
-**A picture where the corpus has one.** 2,487 of the 6,308 cards (39%; v4 measured 5%) carry a
+**A picture where the corpus has one.** 4,241 of the 13,669 cards (31%; v4 measured 5%) carry a
 painting: a story's card its own painting at plate size (`art/story/sm`), an epic night's card its
 cover (`art/epic/sm`, `tools/gen-plate-thumbs.py`). No picture is drawn for the feed.
 
@@ -145,6 +147,9 @@ Held back on purpose:
 - anything gated 11+;
 - flagged verses;
 - the Dharma pillar and the songs (both awaiting reviewers), and the Gita course;
+- the 2,820 Hindi reading passages (story scenes told in Hindi): every one is a draft until a named
+  Hindi pedagogue signs its story (data-bhasha-hi-passages.js) — the largest pool left, held until then;
+- Sabhyata's data (the whole file is `needs_review`), and a story's or night's last scene (its ending);
 - a state's `myth` field, which names deities and stays on the state page, where it is framed, and
   its `people` field, which is unsourced there;
 - deities as cast cards (avatar-cards `sacred`), and real people from a 🪔 Katha story.

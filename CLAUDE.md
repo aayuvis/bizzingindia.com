@@ -79,10 +79,12 @@ The short version:
   six tabs Home · India · Paathshala · Bhasha · Play · My Feed (owner, 2 Oct 2026: My Feed last); everything else lives in ☰. `checkShell`
   must return [] (check-standard `shell`). `bizzing.activity` gets
   active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
-- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts 6,306 cards
-  from the corpus — several honest angles per object, each with a `src` that must resolve, nothing
-  needs_review or gated 11+, no two ≥ 80% the same words, no question whose words hold its answer —
-  on the Gurukul rank as the level (≥ 100 per rank, 214–1,339 today) plus 1,631 with no level (a game card only for what Play shows). ONE
+- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts 13,669 cards
+  (doubled, owner 10 Oct 2026) from the corpus — several honest angles per object, each with a `src`
+  that must resolve, nothing needs_review or gated 11+ (the owner-opened Gita, 10+, is the exception, as
+  its pages are), no two ≥ 80% the same words, no question whose words hold its answer, never a story's
+  or night's last scene — on the Gurukul rank as the level (≥ 100 per rank, 340–3,781 today) plus 3,995
+  with no level (a game card only for what Play shows). ONE
   engine: the family's `family/bizzing-feed.js` (byte for byte, via `bridge.js`); `app/feed.js` only
   adapts India's signals to it, and asks it again until no object has more than two cards a session. A card's facts are read from corpus paths, never typed, and its door opens on that very
   thing — `#/<view>/<arg>|<focus>` puts a card for it first — never a tool's front door. About twenty a session, mostly at the child's rank, then a finished card; lazy

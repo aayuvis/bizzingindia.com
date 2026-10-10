@@ -27,9 +27,17 @@
      and          the Mela games, the street games (what it is, how it starts, its other names),
                   the questions for Nani, the family words, the values
 
+   MORE (owner, 10 Oct 2026: "double the feed cards"): every scene of a story and every card of an
+   epic night but the last (the ending stays for the reading); the whole Gita for 10 and up, in two
+   published translations (owner-opened, as its pages are); a question on every word of every rung;
+   each Hindi word's example sentence, as a card and a question; a festival's fuller telling, its
+   "ask your family", its own words; a street game's rules, ways, safety and words; a question on each
+   state symbol its notes do not doubt; every line a non-sacred face card holds; each value's "do it".
+
    HELD BACK, and why:
      - anything needs_review (stories, festivals, the colonial, freedom and recent eras, the
        Neeti deck) and anything gated 11+, which is where the sensitive history lives;
+     - the Hindi reading passages: drafts until a named Hindi pedagogue signs each story;
      - verses flagged unsure or needs_original; a state's `myth` and `people` fields (kept on
        the state page, where they are framed); the Dharma pillar and the songs, which are
        awaiting reviewers; sacred figures as cast cards; the Gita course (needsReview).
@@ -83,8 +91,13 @@ const leaks = it => it.play && !/^geo:.*:capital$/.test(it.src) &&
    route the screen of THAT thing: the verse inside its collection, the letter inside the chart,
          the sentence on its rung, the dish on its state's page — never the tool's front door.
    land  what that screen must show first (check-feed \`lands\` opens every route and looks). */
+/* and never a question whose right answer NAMES something its own question names — "What does this
+   Tamil word mean?" → "Tamil — the language this pack is for" (check-feed \`selfanswer\`, the same rule) */
+const NAMES_OF = t => String(t).split(/[^A-Za-z\u0900-\u0DFF]+/).filter(w => w.length >= 3 && (/^[A-Z]/.test(w) || /[\u0900-\u0DFF]/.test(w)));
+const selfAnswers = it => it.play && NAMES_OF(it.play.opts[it.play.a]).some(w => NAMES_OF(it.play.q).map(x => x.toLowerCase()).indexOf(w.toLowerCase()) >= 0 &&
+  !/^(What|Which|Where|Who|The|This|These|Hindi|India|Indian)$/.test(w));
 const add = it => {
-  if ((it.body !== undefined && !String(it.body).trim()) || leaks(it)) return null;
+  if ((it.body !== undefined && !String(it.body).trim()) || leaks(it) || selfAnswers(it)) return null;
   if (it.fx) {
     const out = [], proof = [];
     it.fx.forEach(spec => { const f = fill(C, spec); if (f) { out.push(f); proof.push(spec); } });
@@ -329,10 +342,12 @@ Object.keys(C.IND_PACKS).forEach(id => {
       }
     });
   });
-  /* a question on each word met on the first rung, three meanings from the same pack */
+  /* a question on each word the path holds, three meanings from the same pack */
   const pool = [...new Set(words.map(([w]) => w.en).filter(en => en.length < 40))];
+  /* every rung, not only the first (owner, 10 Oct 2026: "double the feed cards"): a question is the
+     honest way to meet a word again — a bare gloss is not, so the glosses stay capped above */
   words.forEach(([w, st], i) => {
-    if (rungOf(st) !== 0 || w.en.length >= 40) return;
+    if (w.en.length >= 40) return;
     const wr = wrongs(w.en, pool.filter(en => en.toLowerCase() !== String(w.roman).toLowerCase()), i);
     if (!wr || w.en.toLowerCase() === String(w.roman).toLowerCase()) return;
     add(at(st, { id: 'pw-' + id + '-' + i, kind: 'wordq', key: id + '|word:' + w.word, src: 'word:' + id + ':' + w.word,
@@ -463,6 +478,180 @@ C.IND_NEETI.values.forEach(v => {
   add({ id: 'nv-' + v.id, kind: 'value', badge: 'aaj', bands: bandsFor(4), level: null, topics: ['value:' + v.id], src: 'value:' + v.id + ':kid',
     route: '#/value/' + v.id, title: v.roman + ' · ' + v.en, text: v.term, lang: 'hi', body: v.kid, art: null, cta: 'Open ' + v.roman, why: 'A value to try today',
     land: v.term, fx: [['Do it today', '{0}', ['IND_NEETI/values/[id=' + v.id + ']/doit']]] });
+});
+
+/* ---------------------------------------------------------------- MORE ANGLES (owner, 10 Oct 2026: "look for
+   additional content and double the feed cards"). Every one is still a thing the app already shows,
+   quoted, with a src that resolves and a door that opens on it. */
+
+/* every scene of a story, not only its opening and its middle — never its last, which is the
+   story's own ending and stays for the reading */
+okStories.forEach((s, si) => {
+  const n = s.scenes.length, mid = n >= 5 ? Math.floor(n / 2) : -1;
+  const places = (s.place || []).map(p => String(p).replace('IN-', ''));
+  for (let i = 1; i < n - 1; i++) {
+    if (i === mid || !String(s.scenes[i].text || '').trim()) continue;
+    add({ id: 'ss-' + s.id + '-' + i, kind: 'scene', badge: s.badge, bands: bandsFor(4), level: levelAt('story:' + s.id, si, okStories.length),
+      topics: ['story:' + s.id, 'coll:' + s.collection].concat(places.map(p => 'place:' + p)), story: s.id,
+      src: 'story:' + s.id + ':scenes:' + i + ':text', title: s.title + ' · ' + (i + 1) + ' of ' + n, body: clip(s.scenes[i].text),
+      art: storySm(s.id), route: '#/story/' + s.id + '|s' + i, cta: 'Read from here', why: 'A moment from ' + s.title,
+      land: first(String(s.scenes[i].text).replace(/\*/g, '')),
+      fx: [['From', '{0}', [COLL_KEY[s.collection] + '/[id=' + s.collection + ']/name']], ['Read', '{0} min', ['stories/[id=' + s.id + ']/minutes']]] });
+  }
+});
+/* every card of an epic night, the same way: never its first (that is the night card), its middle
+   (the night's moment) or its last */
+[C.IND_EPIC_RAMAYANA, C.IND_EPIC_MAHABHARATA].forEach(E => {
+  const EK = Object.keys(C).filter(k => C[k] === E)[0];
+  E.episodes.forEach((ep, ei) => {
+    if (!ep.cards || !ep.cards[0] || ep.needs_review) return;
+    const gate = Math.max(E.age_gate || 4, ep.gate || 0);
+    if (gate >= 11) return;
+    const n = ep.cards.length, mid = n >= 4 ? Math.floor(n / 2) : -1;
+    for (let i = 1; i < n - 1; i++) {
+      if (i === mid || !String(ep.cards[i].text || '').trim()) continue;
+      add({ id: 'en-' + E.id + '-' + ep.n + '-' + i, kind: 'nightcard', badge: E.badge || 'katha', bands: bandsFor(gate),
+        level: levelAt('epic:' + E.id + ':' + ep.n, ei, E.episodes.length), topics: ['epic:' + E.id], route: '#/epic/' + E.id + '|' + ep.n,
+        act: { a: 'episode', id: E.id, n: ep.n }, src: 'epic:' + E.id + ':episodes:' + ei + ':cards:' + i + ':text',
+        title: E.title + ' · ' + ep.title, body: clip(ep.cards[i].text), art: null, cta: 'Hear this night', why: E.title + ', night ' + ep.n, land: ep.title,
+        fx: [['Epic', '{0}', [EK + '/title']], ['Night', '{0} of {1}', [EK + '/episodes/[n=' + ep.n + ']/n', EK + '/episodes|len']]] });
+    }
+  });
+});
+
+/* THE WHOLE GITA, verse by verse (10 and up, as its pages are). The owner opened it to every child
+   before the Sanskrit review (4 Oct 2026, review.json `open`): its verse page says so above every
+   verse, and that page is where each card opens. The Sanskrit and the two published translations
+   only — never the computer-drafted reading, which is flagged. */
+const GITA_OPEN = (C.IND_GITA.review || {}).status === 'reviewed' || !!(((C.IND_GITA.review || {}).open || {}).by);
+if (GITA_OPEN) Object.keys(C.IND_GITA_V).sort((a, b) => a - b).forEach(cn => {
+  const ch = C.IND_GITA.chapters.filter(x => String(x.n) === String(cn))[0] || {};
+  C.IND_GITA_V[cn].forEach(v => {
+    if (!v.sa || !v.en) return;
+    const ref = cn + '.' + v.v, vp = 'IND_GITA_V/' + cn + '/[v=' + v.v + ']/';
+    const base = { badge: 'aaj', bands: bandsFor(10), level: null, topics: ['verse:gita'], route: '#/gitav/' + ref, art: null,
+      source: C.IND_GITA.source, cta: 'Open this verse', why: 'The Bhagavad Gita, chapter ' + cn + (ch.title ? ' — ' + ch.title : ''), land: ref,
+      fx: [['Chapter', '{0}', ['IND_GITA/chapters/[n=' + cn + ']/title']], ['Verse', '{0} of {1}', [vp + 'v', 'IND_GITA/chapters/[n=' + cn + ']/verses']]] };
+    add(Object.assign({}, base, { id: 'gv-' + cn + '-' + v.v, kind: 'gita', src: 'gita:' + cn + ':' + v.v + ':en', title: 'Bhagavad Gita ' + ref,
+      text: v.sa, lang: 'sa', roman: v.iast, body: clip(v.en) }));
+    if (v.en2) add(Object.assign({}, base, { id: 'g2-' + cn + '-' + v.v, kind: 'gita2', src: 'gita:' + cn + ':' + v.v + ':en2',
+      title: 'Gita ' + ref + ', in another translation', body: clip(v.en2) }));
+  });
+});
+
+/* a Hindi word in its own example sentence — the bank the word cards already quote as a fact —
+   as a card, and as a question on what it means */
+(() => {
+  const SB = (C.IND_BHASHA_SENTENCES || {}).hi || {}, hp = C.IND_PACKS.hi;
+  if (!hp) return;
+  const rungOfWord = {};
+  (hp.stages || []).forEach((st, r) => (st.items || []).forEach(x => { if (typeof x === 'string' && rungOfWord[x] == null) rungOfWord[x] = r; }));
+  const ens = [...new Set(Object.keys(SB).map(k => SB[k].en).filter(Boolean))];
+  Object.keys(SB).forEach((w, i) => {
+    const x = SB[w], r = rungOfWord[w];
+    if (!x || !x.s || !x.en || r == null) return;
+    const st = hp.stages[r], base = { badge: 'aaj', bands: bandsFor(6), level: levelOf(r), unlock: r ? { lang: 'hi', rung: r } : null,
+      topics: ['lang:hi'], lang: 'hi', art: null, route: '#/wordcard/' + encodeURIComponent('hi:' + w), land: w, cta: 'Open the word card',
+      fx: [['The word', '{0} — {1}', ['IND_PACKS/hi/lexicon/[word=' + w + ']/word', 'IND_PACKS/hi/lexicon/[word=' + w + ']/en']],
+           ['On the path', '{0} — {1}', ['IND_PACKS/hi/stages/[id=' + st.id + ']/name', 'IND_PACKS/hi/stages/[id=' + st.id + ']/en']]] };
+    add(Object.assign({}, base, { id: 'hx-' + i, kind: 'example', src: 'sent:hi:' + w, title: 'Hindi, in a sentence', text: x.s, roman: x.roman,
+      body: x.en, why: 'A sentence a child says at home' }));
+    const wr = wrongs(x.en, ens, i + 11);
+    if (wr) add(Object.assign({}, base, { id: 'hq-' + i, kind: 'exampleq', src: 'sent:hi:' + w, title: 'What does it mean?', text: x.s,
+      play: { q: 'What does this Hindi sentence mean?', opts: [x.en, wr[0], wr[1]], a: 0, after: x.s + ' — “' + x.en + '”' },
+      why: 'A sentence to try in Hindi' }));
+  });
+})();
+
+/* a festival's own words, its fuller telling for a bigger child, and the question it asks you to
+   take to your family */
+const SCRIPT_LANG = [[0x0900, 'hi'], [0x0980, 'bn'], [0x0A00, 'pa'], [0x0A80, 'gu'], [0x0B00, 'or'], [0x0B80, 'ta'], [0x0C00, 'te'],
+  [0x0C80, 'kn'], [0x0D00, 'ml'], [0x0600, 'ur']];
+const langOfText = t => { const c = String(t || '').codePointAt(0) || 0; const m = SCRIPT_LANG.filter(([b]) => c >= b && c < b + 0x80)[0]; return m ? m[1] : null; };
+const FWORDS = [].concat(...FEST.map(f => (f.words || []).map(w => w.en))).filter(Boolean);
+FEST.forEach((f, fi) => {
+  const topics = ['festival:' + f.id, 'faith:' + f.faith].concat((f.states || []).map(s => 'place:' + s));
+  const fp = 'IND_UTSAV/festivals/[id=' + f.id + ']/';
+  const base = { badge: f.badge || 'aaj', bands: bandsFor(4), level: null, topics, art: null, cta: 'Open ' + f.name,
+    fx: [['When', '{0}', [fp + 'months']], ['Kept in', '{0}', [fp + 'states|names']]] };
+  if (f.big) add(Object.assign({}, base, { id: 'fb-' + f.id, kind: 'festbig', bands: bandsFor(8), src: 'festival:' + f.id + ':big', title: f.name + ' — more',
+    body: clip(f.big), why: 'More about ' + f.name, route: '#/festival/' + f.id + '|big', land: first(f.big) }));
+  if (typeof f.ask === 'string' && f.ask.trim()) add(Object.assign({}, base, { id: 'fa-' + f.id, kind: 'festask', src: 'festival:' + f.id + ':ask',
+    title: 'Ask your family about ' + f.name, body: f.ask, why: 'Every family keeps it its own way', route: '#/festival/' + f.id + '|ask', land: first(f.ask) }));
+  (f.words || []).forEach((w, i) => {
+    if (!w.term || !w.en) return;
+    const wb = Object.assign({}, base, { route: '#/festival/' + f.id + '|words:' + i, land: w.term, lang: langOfText(w.term) });
+    add(Object.assign({}, wb, { id: 'fw-' + f.id + '-' + i, kind: 'festword', src: 'festival:' + f.id + ':words:' + i + ':en', title: 'A word from ' + f.name,
+      text: w.term, roman: w.roman, body: w.en, why: 'A festival word, in its own script' }));
+    const wr = wrongs(w.en, FWORDS.filter(x => x.toLowerCase() !== String(w.roman).toLowerCase()), fi * 5 + i);
+    if (wr && w.en.toLowerCase() !== String(w.roman).toLowerCase()) add(Object.assign({}, wb, { id: 'fq-' + f.id + '-' + i, kind: 'festwordq', topics: ['festival:' + f.id],
+      src: 'festival:' + f.id + ':words:' + i + ':en', title: 'A festival word', text: w.term, roman: w.roman,
+      play: { q: 'What does this word mean at ' + f.name + '?', opts: [w.en, wr[0], wr[1]], a: 0, after: w.term + ' (' + w.roman + '): ' + w.en + '.' },
+      why: 'A festival question' }));
+  });
+});
+
+/* a street game's rules, one at a time; its other ways; how to keep it safe; its own words */
+C.IND_GULLY.games.filter(gm => !gm.needs_review && gm.kid).forEach(gm => {
+  const gp = 'IND_GULLY/games/[id=' + gm.id + ']/';
+  const base = { badge: C.IND_GULLY.badge || 'aaj', bands: bandsFor(parseInt(gm.age, 10) || 4), level: null, topics: ['gully:' + gm.id], art: null,
+    cta: 'How to play', fx: [['Players', '{0}', [gp + 'players']], ['Played in', '{0}', [gp + 'region']]] };
+  const one = (field, kind, title, why) => (gm[field] || []).forEach((t, i) => typeof t === 'string' && t.trim() && add(Object.assign({}, base, {
+    id: 'g' + field[0] + '-' + gm.id + '-' + i, kind, src: 'gully:' + gm.id + ':' + field + ':' + i, title, body: clip(t, 300), why,
+    route: '#/gullygame/' + gm.id + '|' + field + ':' + i, land: first(t) })));
+  one('rules', 'gullyrule', gm.name + ' · a rule', 'How ' + gm.name + ' is played');
+  one('variants', 'gullyway', gm.name + ' · another way', 'Every street plays it a little differently');
+  one('safe', 'gullysafe', gm.name + ' · play it safe', 'So everyone gets home happy');
+  (gm.words || []).forEach((w, i) => w.term && w.en && add(Object.assign({}, base, { id: 'gw-' + gm.id + '-' + i, kind: 'gullyword',
+    src: 'gully:' + gm.id + ':words:' + i + ':en', title: 'A word from ' + gm.name, text: w.term, roman: w.roman, lang: langOfText(w.term), body: w.en,
+    why: 'What you shout in ' + gm.name, route: '#/gullygame/' + gm.id + '|words:' + i, land: w.term })));
+});
+
+/* a state's symbols, as a question — only where the state's own notes raise no doubt about them */
+const SYM_KEYS = Object.keys(C.IND_STATES).reduce((a, c) => a.concat(Object.keys((C.IND_STATES[c] || {}).symbols || {})), []).filter((k, i, a) => a.indexOf(k) === i);
+SYM_KEYS.forEach(k => {
+  const ok = Object.keys(C.IND_STATES).filter(c => C.IND_GEO.states[c] && ((C.IND_STATES[c].symbols || {})[k]) &&
+    !(C.IND_STATES[c].unsure || []).some(u => /symbol/i.test(u) || new RegExp('\\b' + k + '\\b', 'i').test(u)));
+  const vals = ok.map(c => C.IND_STATES[c].symbols[k]);
+  ok.forEach((c, ci) => {
+    const v = C.IND_STATES[c].symbols[k], wr = wrongs(v, vals.filter(x => x !== v), ci + k.length);
+    if (!wr) return;
+    add({ id: 'sy-' + c + '-' + k, kind: 'symbolq', badge: 'aaj', bands: bandsFor(6), level: null, topics: ['map'], src: 'state:' + c + ':symbols:' + k,
+      route: '#/state/' + c + '|symbols:' + k, title: stateName(c) + '’s ' + k, art: null, cta: 'Open ' + stateName(c), land: v,
+      play: { q: 'Which of these is ' + stateName(c) + '’s state ' + k + '?', opts: [v, wr[0], wr[1]], a: 0, after: stateName(c) + '’s state ' + k + ': ' + v + '.' },
+      why: 'A map question', fx: [['Capital', '{0}', ['IND_STATES/' + c + '/capital']]] });
+  });
+});
+
+/* the faces on the cards: every line a non-sacred card holds that no story or night has used yet —
+   a character's tale, every achievement of a real person, and the fact each card carries */
+const USED_SRC = new Set(items.map(it => it.src));
+Object.keys(C.IND_AVATAR_NAMES).sort().forEach(id => {
+  const c = C.IND_AV_CARD(id);
+  if (!c || c.sacred || c.kind === 'sacred') return;
+  const real = c.kind === 'real';
+  const base = { bands: bandsFor(4), level: null, topics: ['avatar:' + id], art: null, route: '#/avcard/' + id, cta: 'Open their card', land: c.name };
+  const put = (src, o) => { if (USED_SRC.has(src)) return; USED_SRC.add(src); add(Object.assign({}, base, { src }, o)); };
+  if (c.kind === 'character' && c.lore) put('avatar:' + id + ':lore', { id: 'al-' + id, kind: 'cast', badge: 'katha', title: c.name, body: c.lore, why: 'Someone from the stories' });
+  if (real) (c.achievements || []).forEach((a, i) => a && put('avatar:' + id + ':achievements:' + i, { id: 'aa-' + id + '-' + i, kind: 'person', badge: 'itihaas',
+    title: c.name, body: a, why: 'What the record shows' }));
+  if (c.fact) put('avatar:' + id + ':fact', { id: 'af-' + id, kind: 'avfact', badge: real ? 'itihaas' : 'aaj', title: c.name + ' — did you know?', body: c.fact,
+    why: 'From ' + c.name + '’s card' });
+});
+Object.keys(C.IND_EPIC_CAST).sort().forEach(id => {
+  const E = C.IND_EPIC_CAST[id], a = C.IND_AV_CARD(id);
+  /* only a figure with a card of its own: the card is where the door opens */
+  if (!E || !E.desc || !a || a.sacred || a.kind === 'sacred' || CAST_SEEN[id]) return;
+  CAST_SEEN[id] = 1;
+  add({ id: 'ac-' + id, kind: 'cast', badge: 'katha', bands: bandsFor(4), level: null, topics: ['epic:' + E.of], src: 'cast:' + id + ':desc', title: E.name,
+    body: E.desc, art: null, route: '#/avcard/' + id, cta: 'Open their card', why: 'Someone from the ' + (E.of === 'ramayana' ? 'Ramayana' : 'Mahabharata'), land: E.name });
+});
+/* a value's "do it today" — the small thing the value page asks of you */
+C.IND_NEETI.values.forEach(v => {
+  if (!v.doit || !v.term) return;
+  add({ id: 'nd-' + v.id, kind: 'valuedo', badge: 'aaj', bands: bandsFor(4), level: null, topics: ['value:' + v.id], src: 'value:' + v.id + ':doit',
+    route: '#/value/' + v.id, title: 'Try it today · ' + v.roman, text: v.term, lang: 'hi', body: v.doit, art: null, cta: 'Open ' + v.roman,
+    why: 'A value to try today', land: v.term });
 });
 
 /* ---------------------------------------------------------------- ids, near-duplicates */

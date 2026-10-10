@@ -332,7 +332,7 @@
      collection"). #/verses/kural|kural-7 is the Kural with verse 7 first; #/chart/hi|क is the
      chart opened on क; #/nani/q.morning-first is that question to ask. The focus is split off
      HERE, once, so view.arg keeps meaning exactly what it always meant to every other line. */
-  var FOCUS_VIEWS = { verses: 1, chart: 1, pack: 1, state: 1, era: 1, festival: 1, story: 1, nani: 1, rishtey: 1, epic: 1 };
+  var FOCUS_VIEWS = { verses: 1, chart: 1, pack: 1, state: 1, era: 1, festival: 1, story: 1, nani: 1, rishtey: 1, epic: 1, gullygame: 1 };
   var FOCUS_ONLY = { nani: 1, rishtey: 1 };      /* screens with no argument of their own */
   function mkView(n, a) {
     var v = { name: n, arg: a };
@@ -1438,7 +1438,7 @@
   }
   var BADGE_WORD = { katha: ['🪔', 'Katha'], itihaas: ['📜', 'Itihaas'], aaj: ['🧭', 'Aaj'] };
   /* a card whose script is a line, not a letter, is set smaller (family.css .fd-card.fd-line) */
-  var FEED_LINE = { verse: 1, festival: 1, gully: 1, sentence: 1, talk: 1, ask: 1, value: 1, family: 1 };
+  var FEED_LINE = { verse: 1, festival: 1, gully: 1, sentence: 1, talk: 1, ask: 1, value: 1, family: 1, gita: 1, example: 1, exampleq: 1, valuedo: 1 };
   /* THE THING YOU CAME FOR, FIRST. A screen opened on one of its things leads with it, in a
      card that says where it came from; the rest of the screen is still all there below. */
   function focusCard(kick, title, inner) {
@@ -2741,6 +2741,7 @@
       var sf = String(view.focus).split(':'), sk = sf[0], si = +sf[1];
       if (sk === 'trivia' && (X.trivia || [])[si]) sfc = focusCard(focusKick() + ' · ' + s.name, null, '<p>' + esc(X.trivia[si]) + '</p>');
       if (sk === 'places' && (X.places || [])[si]) sfc = focusCard(focusKick() + ' · a place to see', X.places[si].name, '<p>' + esc(X.places[si].what) + '</p>');
+      if (sk === 'symbols' && (X.symbols || {})[sf[1]]) sfc = focusCard(focusKick() + ' · ' + s.name + '’s state ' + sf[1], X.symbols[sf[1]], '');
       if (sk === 'food' && (X.food || [])[si]) sfc = focusCard(focusKick() + ' · from ' + s.name + '’s kitchen', X.food[si].dish, '<p>' + esc(X.food[si].what) + '</p>');
       if (sk === 'feature') {
         var BH = window.IND_BHUGOL, bf = BH && BH.features.filter(function (x) { return x.id === sf.slice(1).join(':'); })[0];
@@ -3509,6 +3510,9 @@
       var ff = String(view.focus).split(':'), fi = +ff[1];
       if (ff[0] === 'do' && (f.do || [])[fi]) ffc = focusCard(focusKick() + ' · something to do for ' + f.name, null, '<p>' + esc(f.do[fi]) + '</p>');
       if (ff[0] === 'variations' && (f.variations || [])[fi]) ffc = focusCard(focusKick() + ' · ' + f.name + ', in many families', null, '<p>' + esc(f.variations[fi]) + '</p>');
+      if ((ff[0] === 'big' || ff[0] === 'ask') && f[ff[0]]) ffc = focusCard(focusKick() + ' · ' + f.name, null, '<p>' + esc(f[ff[0]]) + '</p>');
+      var fw = ff[0] === 'words' && (f.words || [])[fi];
+      if (fw) ffc = focusCard(focusKick() + ' · a word from ' + f.name, fw.term, '<p>' + esc(fw.roman) + ' — ' + esc(fw.en) + '</p>');
     }
     return '<button class="backlink" data-act="go" data-v="utsav">' + icon('back', 18) + ' Utsav</button>' + ffc +
       '<div class="card">' +
@@ -3583,7 +3587,10 @@
     var G = window.IND_GULLY, g = gullyById(id);
     if (!g) return errorState('That page is not here. It may have moved — Home always has the way in.');
     var adapt = (G.adapt || []).filter(function (a) { return a.gameId === id; })[0];
-    return '<button class="backlink" data-act="go" data-v="gully">' + icon('back', 18) + ' Gully</button>' +
+    var gf = view.name === 'gullygame' && view.focus ? String(view.focus).split(':') : [], gx = gf[0] && (g[gf[0]] || [])[+gf[1]], gfc = '';
+    if (gx) gfc = typeof gx === 'string' ? focusCard(focusKick() + ' · ' + g.name, null, '<p>' + esc(gx) + '</p>') :
+      focusCard(focusKick() + ' · ' + g.name, gx.term, '<p>' + esc(gx.roman) + ' — ' + esc(gx.en) + '</p>');
+    return '<button class="backlink" data-act="go" data-v="gully">' + icon('back', 18) + ' Gully</button>' + gfc +
       '<div class="card">' +
         '<h1 style="margin-bottom:2px">' + esc(g.name) +
           (g.script ? ' <span class="fscript">' + esc(g.script) + '</span>' : '') + '</h1>' +

@@ -79,11 +79,12 @@ The short version:
   six tabs Home · India · Paathshala · Bhasha · Play · My Feed (owner, 2 Oct 2026: My Feed last); everything else lives in ☰. `checkShell`
   must return [] (check-standard `shell`). `bizzing.activity` gets
   active minutes and milestones, never from the demo. `tools/check-family.js` holds it.
-- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts 13,669 cards
+- **My Feed ends, and nothing in it is typed** (docs/30): `tools/build-feed.js` cuts 16,093 cards
   (doubled, owner 10 Oct 2026) from the corpus — several honest angles per object, each with a `src`
-  that must resolve, nothing needs_review or gated 11+ (the owner-opened Gita, 10+, is the exception, as
-  its pages are), no two ≥ 80% the same words, no question whose words hold its answer, never a story's
-  or night's last scene — on the Gurukul rank as the level (≥ 100 per rank, 340–3,781 today) plus 3,995
+  that must resolve, nothing needs_review or gated 11+ (the owner-opened Gita, 10+, and the owner-opened
+  Hindi passages — behind Hindi's reading rung — are the exceptions, as their pages are), no two ≥ 80% the
+  same words, no question whose words hold its answer, never a story's or night's last scene — on the
+  Gurukul rank as the level (≥ 100 per rank, 340–3,781 today) plus 3,995
   with no level (a game card only for what Play shows). ONE
   engine: the family's `family/bizzing-feed.js` (byte for byte, via `bridge.js`); `app/feed.js` only
   adapts India's signals to it, and asks it again until no object has more than two cards a session. A card's facts are read from corpus paths, never typed, and its door opens on that very
@@ -147,6 +148,10 @@ The short version:
   once it is lit (`check-home frontier`).
   Known geometry gaps to fix before launch (Telangana, Ladakh, Lakshadweep) are listed in
   [docs/07-tech-architecture.md](docs/07-tech-architecture.md#7-the-living-map-technically).
+- **Every Hindi telling is a draft until a named Hindi pedagogue signs its story** — the owner opened
+  them before that review (10 Oct 2026, "like the gita": `IND_BHASHA_PASSAGES_REVIEW.open`, written by
+  `tools/story-hindi.js --passages`, never a sign-off), so every screen that shows one — the story reader,
+  an epic card, Bhasha's reading rung — carries `HI_NOTE`: "Hindi telling — not yet checked by a Hindi teacher."
 - **Devanagari is set correctly or not at all** — real Devanagari face (Mukta / Noto Sans
   Devanagari), unbroken shirorekha, ~10–15% larger than Latin, line-height ≥ 1.7, never
   letter-spaced, never faked with a Latin "Sanskrit-look" font, never decorative squiggle.

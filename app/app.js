@@ -3099,9 +3099,10 @@
     if (!st) return errorState('That story is not here. It may have moved, or the link was cut short.');
     /* a card that quoted the middle opens there — once per arrival, even if this story was
        already open, and never again on the same visit (Next must still move on) */
-    if (view.name === 'story' && view.focus && /^s\d+$/.test(view.focus) && !view.focusDone) {
+    if (view.name === 'story' && view.focus && /^[sh]\d+$/.test(view.focus) && !view.focusDone) {
       view.focusDone = true;
       play.story = st; play.i = Math.min(+view.focus.slice(1), st.scenes.length - 1); play.answered = false; play.from = null;
+      play.hiOnce = view.focus[0] === 'h' ? st.id : null;     /* a Hindi passage's card: its Hindi, this visit */
     }
     if (!play.story || play.story.id !== id) {
       /* Continue opens a story at the scene the child left it, never back at the start */
@@ -3116,7 +3117,7 @@
        been translated — a story with no Hindi simply reads as it always did,
        which is why the toggle can be global while the content arrives one
        story at a time. */
-    var hi = (S.hindi && sc.hi) ? sc.hi : null;
+    var hi = ((S.hindi || play.hiOnce === st.id) && sc.hi) ? sc.hi : null;
     var sayKey = storyClip(st, play.i);
 
     return '<div class="reader' + (hi ? ' twoup' : '') + (sc.ask ? ' asks' : '') + '">' +
@@ -3136,10 +3137,10 @@
 
       /* Bubble when somebody is talking, plain panel when the storyteller is. */
       '<div class="speech' + (hasDialogue(sc.text) ? ' bubble' : '') + '"' +
-        (view.name === 'story' && view.focus === 's' + play.i ? ' data-focus="1"' : '') + '>' +
+        (view.name === 'story' && (view.focus === 's' + play.i || view.focus === 'h' + play.i) ? ' data-focus="1"' : '') + '>' +
       (teller ? '<span class="who">' + (img ? '<span class="whoface">' + mascot('mithu', 'talk', 30) + '</span>' : '') + 'Mithu</span>'
               : (cast[0] && avatarName(cast[0]) ? '<span class="who">' + (img ? '<span class="whoface">' + art(cast[0], 30) + '</span>' : '') + esc(avatarName(cast[0])) + '</span>' : '')) +
-      (hi ? '<p class="sdeva" lang="hi">' + esc(hi) + '</p>' : '') +
+      (hi ? '<p class="sdeva" lang="hi">' + esc(hi) + '</p>' + HI_NOTE : '') +
       '<p class="sen">' + esc(sc.text).replace(/\*(.+?)\*/g, '<i>$1</i>') + '</p></div>' +
 
       (sc.ask ? '<div class="rfoot">' + V.ask(sc.ask) + '</div>' :
@@ -4138,6 +4139,9 @@
     return hasVoice(base + '-hi') ? base + '-hi' : base;
   }
   function hasVoice(k) { return !!(window.IND_VOICE && window.IND_VOICE.indexOf(k) >= 0); }
+  /* EVERY HINDI TELLING IS A DRAFT until a named Hindi teacher signs it; the owner opened them anyway
+     (10 Oct 2026, like the Gita), so wherever one shows, it says so */
+  var HI_NOTE = '<p class="tiny muted hinote">Hindi telling \u2014 not yet checked by a Hindi teacher.</p>';
 
   V.episode = function () {
     var e = epicById(deck.epic);
@@ -4246,7 +4250,7 @@
          every other telling: Devanagari above, English below, and the voice follows. */
       '<div class="speech' + (hasDialogue(c.text) ? ' bubble' : '') + '" style="margin-top:14px">' +
         (speakerLabel ? '<span class="who">' + esc(speakerLabel) + '</span>' : '') +
-        (cardHi ? '<p class="sdeva" lang="hi">' + esc(cardHi) + '</p>' : '') +
+        (cardHi ? '<p class="sdeva" lang="hi">' + esc(cardHi) + '</p>' + HI_NOTE : '') +
         '<p class="sen">' + esc(c.text).replace(/\*(.+?)\*/g, '<i>$1</i>') + '</p>' +
       '</div>' +
 
@@ -6379,7 +6383,7 @@
            Hindi in the same voice the child heard in the story. Offer it, but
            only when a clip really exists: the twelve authored passages have
            none, and a dead button teaches a child not to trust buttons. */
-        lead = '<div class="passage deva">' + esc(q.hi) + '</div>' +
+        lead = '<div class="passage deva">' + esc(q.hi) + '</div>' + (/^passage:story:/.test(q.itemKey || '') ? HI_NOTE : '') +
           (q.audio ? '<button class="btn ghost sm" style="margin:8px 0 2px" data-act="say" data-k="' +
             esc(q.audio) + '" data-l="hi-IN">' + icon('sound', 16) + ' Hear it read</button>' : '');
         subFor = null;

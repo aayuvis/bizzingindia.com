@@ -55,7 +55,7 @@ at most a quarter review from ranks passed ("To keep: from Shishya", what slippe
 peeks at the next rank ("Coming up on Khoji"), and at most a quarter with no level. Nothing beyond the
 next rank ever appears. A child who climbs gets a different feed (`check-feed climb`).
 
-## The cards: 13,669 (doubled, owner 10 Oct 2026: "look for additional content and double the feed cards")
+## The cards: 16,093 (doubled, owner 10 Oct 2026: "look for additional content and double the feed cards"; then the Hindi passages, "like the gita")
 
 Every card carries `src`, the address of the words it quotes, and `tools/check-feed.js resolves`
 finds them in that object on every run. Change a story, verse or fact and the check fails until
@@ -66,7 +66,7 @@ finds them in that object on every run. Change a story, verse or fact and the ch
 | Shishya | 1,871 |
 | Vidyarthi | 1,243 |
 | Sadhak | 3,781 |
-| Khoji | 672 |
+| Khoji | 3,096 |
 | Pandit | 602 |
 | Vidwan | 579 |
 | Acharya | 586 |
@@ -85,12 +85,13 @@ Each object gives several honest **angles**, each its own `kind` with its own `s
 | a language (9 packs, every rung) | words (word 826: in a pack of more than forty, only a word the corpus also has **in a sentence**, which the card carries — v4 found 2,840 bare glosses; 319 remain, from the small packs) · a question on **every** word the path holds, at its rung's rank (wordq 2,201 — never one whose answer names what its question names, "What does this Tamil word mean?" → "Tamil…"; the question, not the gloss, is how a word comes back) · each Hindi word's example sentence, as a card (example 506) and as a question on its meaning (exampleq 507) · letters (letter 406) · vowel signs (matra 89) · Hindi sentences (sentence 102) and conversation lines (talk 70) · joined letters (conjunct 42) |
 | a verse (34 not flagged) | the verse in its own script (verse 34) · its meaning (versemeaning 34) · why carry it (versewhy 34) |
 | a place (36) | its map fact (place 36) · every trivia line (trivia 144) · every place to see (see 178) · every food (food 171) · every feature on the map (feature 399) · a capital question (capital 31: never where the capital's name is inside the place's own, which answered itself — Chandigarh, New Delhi, Puducherry; `check-feed selfanswer`) · a food question, for a dish one state alone claims (foodq 36) |
+| a story's Hindi telling (owner-opened, 10 Oct 2026) | each scene's Hindi telling with its English (passage 2,424 — of 2,820: 61 are from held stories and 335 are a story's last scene). Drafts until a named Hindi pedagogue signs each story; the owner opened them before that review, "like the gita" (`IND_BHASHA_PASSAGES_REVIEW.open`, written by `tools/story-hindi.js --passages`, never a sign-off). Behind Hindi's reading rung (Padhna), as in the app — a passage follows a child into the language, never ahead of them — so a child not learning Hindi never meets one. Each opens its own scene with the Hindi showing (`#/story/<id>\|h<n>`), and every screen that shows a Hindi telling — the story reader, an epic card, Bhasha's reading rung — says "Hindi telling — not yet checked by a Hindi teacher." |
 | a festival (27 not held) | what it is (festival 27) · the fuller telling, 8 and up (festbig 27) · every thing to do at home (festdo 118) · every "in many families" line (festways 78) · the question to take to your family (festask 27) · its own words in their own script, and a question on each (festword 81 · festwordq 77) · where it is kept (festwhere 27) |
 | a place's symbols | a question on each state symbol, only where the state's own `unsure` notes raise no doubt about its symbols (symbolq 104) |
 | games | the Mela games' how-to (game 11) · each street game, how it starts and its other names (gully 28 · gullyhow 28 · gullyname 127) · each of its rules (gullyrule 185), its other ways (gullyway 56), how to keep it safe (gullysafe 59) and the words you shout (gullyword 117) |
 | the family | questions to ask Nani and Dada (ask 52) · family words (family 26) · the values (value 12) and each one's "do it today" (valuedo 12) |
 
-**A picture where the corpus has one.** 4,241 of the 13,669 cards (31%; v4 measured 5%) carry a
+**A picture where the corpus has one.** 6,665 of the 16,093 cards (41%; v4 measured 5%) carry a
 painting: a story's card its own painting at plate size (`art/story/sm`), an epic night's card its
 cover (`art/epic/sm`, `tools/gen-plate-thumbs.py`). No picture is drawn for the feed.
 
@@ -147,8 +148,6 @@ Held back on purpose:
 - anything gated 11+;
 - flagged verses;
 - the Dharma pillar and the songs (both awaiting reviewers), and the Gita course;
-- the 2,820 Hindi reading passages (story scenes told in Hindi): every one is a draft until a named
-  Hindi pedagogue signs its story (data-bhasha-hi-passages.js) — the largest pool left, held until then;
 - Sabhyata's data (the whole file is `needs_review`), and a story's or night's last scene (its ending);
 - a state's `myth` field, which names deities and stays on the state page, where it is framed, and
   its `people` field, which is unsourced there;

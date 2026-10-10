@@ -32,12 +32,12 @@
    published translations (owner-opened, as its pages are); a question on every word of every rung;
    each Hindi word's example sentence, as a card and a question; a festival's fuller telling, its
    "ask your family", its own words; a street game's rules, ways, safety and words; a question on each
-   state symbol its notes do not doubt; every line a non-sacred face card holds; each value's "do it".
+   state symbol its notes do not doubt; every line a non-sacred face card holds; each value's "do it";
+   and (owner, 10 Oct 2026, "like the gita") each story scene's Hindi telling, behind Hindi's reading rung.
 
    HELD BACK, and why:
      - anything needs_review (stories, festivals, the colonial, freedom and recent eras, the
        Neeti deck) and anything gated 11+, which is where the sensitive history lives;
-     - the Hindi reading passages: drafts until a named Hindi pedagogue signs each story;
      - verses flagged unsure or needs_original; a state's `myth` and `people` fields (kept on
        the state page, where they are framed); the Dharma pillar and the songs, which are
        awaiting reviewers; sacred figures as cast cards; the Gita course (needsReview).
@@ -653,6 +653,30 @@ C.IND_NEETI.values.forEach(v => {
     route: '#/value/' + v.id, title: 'Try it today · ' + v.roman, text: v.term, lang: 'hi', body: v.doit, art: null, cta: 'Open ' + v.roman,
     why: 'A value to try today', land: v.term });
 });
+
+/* THE HINDI PASSAGES — each story scene's Hindi telling, the passages Bhasha's reading rung serves.
+   Drafts until a named Hindi pedagogue signs each story; the owner opened them before that review
+   (10 Oct 2026, "open the hindi passages too, like the gita" — IND_BHASHA_PASSAGES_REVIEW.open, never a
+   sign-off). Behind Hindi's reading rung, as in the app: a passage follows a child into the language,
+   never ahead of them. Its door opens the very scene with its Hindi showing, under the note that no
+   Hindi teacher has checked it. Never a held story, never a story's last scene. */
+const PR = C.IND_BHASHA_PASSAGES_REVIEW || {};
+if (PR.status === 'reviewed' || ((PR.open || {}).by)) (() => {
+  const hp = C.IND_PACKS.hi, r6 = (hp.stages || []).findIndex(st => (st.types || []).indexOf('readPassage') >= 0);
+  if (r6 < 0) return;
+  const st6 = hp.stages[r6], sBy = {};
+  okStories.forEach(st => { sBy[st.id] = st; });
+  ((C.IND_BHASHA_PASSAGES || {}).hi || []).forEach(ps => {
+    const m = /^story:(.+):(\d+)$/.exec(ps.id), st = m && sBy[m[1]], i = m ? +m[2] : -1;
+    if (!st || i >= st.scenes.length - 1 || st.scenes[i].hi !== ps.hi || !ps.en) return;
+    add({ id: 'hp-' + st.id + '-' + i, kind: 'passage', badge: st.badge, bands: bandsFor(6), level: levelOf(r6), unlock: r6 ? { lang: 'hi', rung: r6 } : null,
+      topics: ['story:' + st.id, 'lang:hi'], story: st.id, src: 'passage:hi:' + ps.id, title: 'Read it in Hindi · ' + st.title,
+      text: ps.hi, lang: 'hi', body: ps.en, art: storySm(st.id), route: '#/story/' + st.id + '|h' + i, cta: 'Read it in Hindi',
+      why: 'A story you can read in Hindi', land: first(ps.hi),
+      fx: [['From', '{0}', [COLL_KEY[st.collection] + '/[id=' + st.collection + ']/name']],
+           ['On the path', '{0} — {1}', ['IND_PACKS/hi/stages/[id=' + st6.id + ']/name', 'IND_PACKS/hi/stages/[id=' + st6.id + ']/en']]] });
+  });
+})();
 
 /* ---------------------------------------------------------------- ids, near-duplicates */
 const seenId = {};

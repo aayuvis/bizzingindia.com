@@ -11,8 +11,14 @@
    ready for it. Never edit it by hand; re-run the generator.
 
    Every line here is a DRAFT until a named Hindi pedagogue signs the story it
-   came from (docs/05 §6). */
+   came from (docs/05 §6).
 
+   OPENED BY THE OWNER BEFORE REVIEW (10 Oct 2026, "open the hindi passages too, like
+   the gita"): the publisher's decision, recorded as `open` — never a sign-off. Every
+   screen that shows a Hindi telling says no Hindi teacher has checked it yet, and My
+   Feed carries these passages because of this record (tools/build-feed.js). */
+
+window.IND_BHASHA_PASSAGES_REVIEW = {"status":"needs_review","by":null,"on":null,"open":{"to":"everyone","by":"owner","on":"2026-10-10","why":"Owner, 10 Oct 2026: “open the hindi passages too, like the gita” — the publisher’s decision, never a sign-off."}};
 window.IND_BHASHA_PASSAGES = window.IND_BHASHA_PASSAGES || {};
 window.IND_BHASHA_PASSAGES.hi = [
  {

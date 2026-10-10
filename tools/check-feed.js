@@ -92,7 +92,7 @@ check('count', 'at least 100 cards at every rank and 300 with no level; ids uniq
   if (stray.length) throw new Error(stray.length + ' bodies have no index row: ' + stray[0]);
   console.log('         ' + ITEMS.length + ' cards — ' + RANKS.map((r, n) => r + ' ' + per[n]).join(' · ') + ' · no level ' + any);
 });
-const LEVELED = /^(story|hook|moment|moral|storyword|storyplace|night|nighthook|nightmoment|wonder|era|erakid|erabig|erawonder|found|moment-era|today|figure|word|wordq|letter|matra|sentence|talk|conjunct|scene|nightcard|example|exampleq)$/;
+const LEVELED = /^(story|hook|moment|moral|storyword|storyplace|night|nighthook|nightmoment|wonder|era|erakid|erabig|erawonder|found|moment-era|today|figure|word|wordq|letter|matra|sentence|talk|conjunct|scene|nightcard|example|exampleq|passage)$/;
 check('levels', 'every level is a rank; a card behind a rung is never above the rank that rung implies', () => {
   const bad = ITEMS.filter(it => it.level != null && !(Number.isInteger(it.level) && it.level >= 0 && it.level < RANKS.length));
   if (bad.length) throw new Error(bad[0].id + ' has level ' + bad[0].level);
@@ -211,6 +211,17 @@ function resolve(it) {
     if (it.text && it.text !== v.sa) throw new Error(it.id + ': the Sanskrit is not the verse\'s');
     if (it.source !== C.IND_GITA.source || it.bands.indexOf('4-7') >= 0 || it.bands.indexOf('8-9') >= 0) throw new Error(it.id + ': the Gita is 10 and up, with its source');
     wantBadge('aaj');
+  } else if (kind === 'passage') {
+    /* a story's Hindi telling: open only as the owner opened them (or once signed), never from a held
+       story or its last scene, and the very text the reader shows under its note */
+    const R = C.IND_BHASHA_PASSAGES_REVIEW || {};
+    if (!(R.status === 'reviewed' || (R.open && R.open.by))) throw new Error(it.id + ': the Hindi passages are not open');
+    const ps = ((C.IND_BHASHA_PASSAGES || {})[p[1]] || []).filter(x => x.id === p.slice(2).join(':'))[0];
+    if (!ps || it.text !== ps.hi || it.body !== ps.en) throw new Error(it.id + ': not the passage as the bank holds it');
+    const m = /^story:(.+):(\d+)$/.exec(ps.id), st = m && storyBy[m[1]];
+    if (!st || st.needs_review || +m[2] >= st.scenes.length - 1 || st.scenes[+m[2]].hi !== ps.hi) throw new Error(it.id + ': a held story, its ending, or not the scene the reader shows');
+    if (it.route !== '#/story/' + st.id + '|h' + m[2]) throw new Error(it.id + ': does not open its own scene in Hindi');
+    wantBadge(st.badge);
   } else if (kind === 'sent') {
     const x = ((C.IND_BHASHA_SENTENCES || {})[p[1]] || {})[p.slice(2).join(':')];
     if (!x || it.text !== x.s) throw new Error(it.id + ': not the sentence bank\'s own sentence');
@@ -292,7 +303,7 @@ const FRONT_DOOR = /^#\/(nani|rishtey|map|stories|bhasha|utsav|itihaas|mela|khel
 const IN_A_LIST = { verse: 1, versemeaning: 1, versewhy: 1, letter: 1, matra: 1, sentence: 1, talk: 1, conjunct: 1, ask: 1, family: 1,
   feature: 1, trivia: 1, see: 1, food: 1, found: 1, 'moment-era': 1, today: 1, figure: 1, festdo: 1, festways: 1, moment: 1,
   night: 1, nighthook: 1, nightmoment: 1, wonder: 1, scene: 1, nightcard: 1, festbig: 1, festask: 1, festword: 1, festwordq: 1,
-  gullyrule: 1, gullyway: 1, gullysafe: 1, gullyword: 1, symbolq: 1 };
+  gullyrule: 1, gullyway: 1, gullysafe: 1, gullyword: 1, symbolq: 1, passage: 1 };
 check('specific', 'no card\'s door is a tool\'s front door; a thing inside a list is named in its route', () => {
   const bad = [];
   for (const it of ITEMS) {
@@ -593,6 +604,26 @@ check('lands', 'every card opens the screen of that very thing, with that thing 
     bad.push(...res);
   }
   if (bad.length) throw new Error(bad.length + ' of ' + routes.length + ' routes do not land on their thing: ' + bad.slice(0, 4).join(' · '));
+});
+
+/* THE HINDI PASSAGES, LIKE THE GITA (owner, 10 Oct 2026). A passage card opens its own scene with the
+   Hindi showing — even for a child who has not switched Hindi on — and the screen says no Hindi
+   teacher has checked it; reading the story normally afterwards keeps the child's own setting. */
+check('hinote', 'a Hindi passage opens its scene in Hindi, under "not yet checked by a Hindi teacher"; the record is the owner\'s', async ({ p }) => {
+  const R = C.IND_BHASHA_PASSAGES_REVIEW || {};
+  if (!R.open || R.open.by !== 'owner' || R.status === 'reviewed' || R.by) throw new Error('the passages carry no owner record, or one dressed as a sign-off: ' + JSON.stringify(R));
+  const ps = ITEMS.filter(it => it.kind === 'passage');
+  if (ps.length < 1000) throw new Error('only ' + ps.length + ' Hindi passages on the feed');
+  await p.evaluate(() => window.IND_LOAD(window.IND_GROUPS()));
+  const it = ps[Math.floor(ps.length / 2)];
+  const r = await p.evaluate(async x => {
+    window.BI.S.hindi = false;
+    location.hash = x.route; await new Promise(ok => setTimeout(ok, 0)); if (window.BI.ready) await window.BI.ready();
+    const fc = document.querySelector('#main [data-focus]');
+    return { hi: !!(fc && fc.querySelector('[lang="hi"]') && fc.innerText.indexOf(x.text.slice(0, 20)) >= 0), note: !!(fc && /not yet checked by a Hindi teacher/.test(fc.innerText)) };
+  }, { route: it.route, text: it.text });
+  if (!r.hi) throw new Error(it.route + ' does not show its Hindi with Hindi switched off');
+  if (!r.note) throw new Error(it.route + ' shows a Hindi telling without saying it is unchecked');
 });
 
 /* WHOLE ON A PHONE. A child sent from a card to the moment a story turns on landed on one clipped

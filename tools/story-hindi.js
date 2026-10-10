@@ -205,6 +205,10 @@ function clips(col) {
        scene whose English is a bare fragment ("ANOTHER LION? Take me to him.")
        makes an unfair question. Scenes shorter than a clause are skipped.
 */
+/* the owner's record (10 Oct 2026): status stays needs_review until a named Hindi pedagogue signs */
+const PASSAGES_REVIEW = { status: 'needs_review', by: null, on: null,
+  open: { to: 'everyone', by: 'owner', on: '2026-10-10',
+    why: 'Owner, 10 Oct 2026: \u201copen the hindi passages too, like the gita\u201d \u2014 the publisher\u2019s decision, never a sign-off.' } };
 function buildPassages() {
   const W = {};
   const ctx = vm.createContext({ window: W, console, Date, Math, JSON, Object, Array, String, Number });
@@ -257,8 +261,14 @@ function buildPassages() {
    ready for it. Never edit it by hand; re-run the generator.
 
    Every line here is a DRAFT until a named Hindi pedagogue signs the story it
-   came from (docs/05 §6). */
+   came from (docs/05 §6).
 
+   OPENED BY THE OWNER BEFORE REVIEW (10 Oct 2026, "open the hindi passages too, like
+   the gita"): the publisher's decision, recorded as \`open\` — never a sign-off. Every
+   screen that shows a Hindi telling says no Hindi teacher has checked it yet, and My
+   Feed carries these passages because of this record (tools/build-feed.js). */
+
+window.IND_BHASHA_PASSAGES_REVIEW = ${JSON.stringify(PASSAGES_REVIEW)};
 window.IND_BHASHA_PASSAGES = window.IND_BHASHA_PASSAGES || {};
 window.IND_BHASHA_PASSAGES.hi = ${JSON.stringify(out, null, 1)};
 `;

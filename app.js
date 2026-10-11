@@ -7345,7 +7345,7 @@
       /* THE CHILD'S OWN THINGS, each with its own screen now (standard §1, §8): the
          Collection of 96, the Shop with its three shelves, and the worlds */
       '<div class="grid g3 mydoors">' +
-        '<button class="tile" data-act="go" data-v="collection">' + icon('cards', 26) + '<b>Collection</b>' +
+        '<button class="tile" data-act="go" data-v="collection" data-arg="avatars">' + icon('cards', 26) + '<b>Collection</b>' +
           '<span class="tiny muted">' + collectionCount() + ' of 96 met</span></button>' +
         '<button class="tile" data-act="go" data-v="shop">' + icon('bag', 26) + '<b>Shop</b>' +
           '<span class="tiny muted">Avatars · Worlds · Extras</span></button>' +
@@ -8007,7 +8007,7 @@
     }).join('') + '</div>';
   }
   V.collection = function (tab) {
-    tab = COLL_TABS.indexOf(tab) >= 0 ? tab : 'avatars';
+    tab = COLL_TABS.indexOf(tab) >= 0 ? tab : 'medals';      /* Bee's opens on Medals (owner, 11 Oct 2026) */
     var E = window.IND_ECONOMY, got = S.medals || {}, WL = worldList();
     var nMed = MEDALS.filter(function (m) { return got[m.id]; }).length;
     var nWorld = WL.filter(function (w) { return !E || E.worldOpen(S, w.id); }).length;
@@ -8145,7 +8145,7 @@
         '<div class="setrow"><span><b>Name</b><small>Grown-ups can change it — it is how every Bizzing app knows your coins.</small></span>' +
           '<input class="setname" value="' + esc(S.name || '') + '" readonly aria-label="Your name"></div>' +
         '<div class="setrow"><span><b>Avatar</b><small>' + esc(avatarName(S.buddy) || '') + '</small></span>' +
-          '<button class="btn sm ghost" data-act="go" data-v="collection">' + art(S.buddy, 28) + ' Choose</button></div>' +
+          '<button class="btn sm ghost" data-act="go" data-v="collection" data-arg="avatars">' + art(S.buddy, 28) + ' Choose</button></div>' +
         '<div class="setrow"><span><b>Who is playing</b></span><button class="btn sm ghost" data-act="kidmenu">Switch child</button></div>' +
         /* the family's language moved here from ☰ when My Feed took its row (owner, 2 Oct 2026) */
         '<div class="setrow"><span><b>Family language</b><small>' + esc(tongue() ? tongue().en : 'Tell us once, and everything leans your way.') + '</small></span>' +
@@ -8523,8 +8523,9 @@
      "Add a child", which is a grown-up's job and goes through the PIN. */
   /* THE FAMILY'S MENU (owner, 3 Oct 2026, from Bee's): the children first, each a big row
      with their own face and a tick on the one playing; then a rule; then three plain lines —
-     My page (avatar, badges, collection), Settings, and Add a child, which says it is for
-     grown-ups because it goes through the PIN. No heading, no icons on the lines: it is a
+     Collections (straight to the page, on Medals, as Bee's — owner, 11 Oct 2026), My progress (the
+     child's own page), Settings, and Add a child, which says it is for grown-ups because it goes
+     through the PIN. No heading, no icons on the lines: it is a
      list a child reads in one look. The face is the top bar's own, so the two never differ. */
   function faceOf(buddy, size) {
     var A = (window.IND_AVATAR_BY_ID || {})[buddy];
@@ -8545,7 +8546,8 @@
           '<b>' + esc(k.name || 'Not set up yet') + '</b>' + (k.active ? TICK : '') + '</button>';
       }).join('') +
       '<hr>' +
-      '<button class="km-row" role="menuitem" data-act="go" data-v="me"><span>My page — avatar, badges, collection</span></button>' +
+      '<button class="km-row" role="menuitem" data-act="go" data-v="collection" data-arg="medals"><span>Collections</span></button>' +
+      '<button class="km-row" role="menuitem" data-act="go" data-v="me"><span>My progress</span></button>' +
       '<button class="km-row" role="menuitem" data-act="go" data-v="settings"><span>Settings</span></button>' +
       '<button class="km-row" role="menuitem" data-act="addkid"><span>+ Add a child</span><i>grown-ups</i></button>' +
       '</div>';

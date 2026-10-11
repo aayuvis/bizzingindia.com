@@ -34,8 +34,10 @@ stories, coins and map, or "Start again" wiped them. Now:
 - **Recorded voices** carry the child's id and each child sees only their own.
 - **The avatar opens the family's menu** (owner, 3 Oct 2026, from Bee's): every child as a big
   row with their own face — the top bar's face, never a different one — and a tick on the one
-  playing; a rule; then exactly *My page — avatar, badges, collection*, *Settings*, and
-  *+ Add a child* marked *grown-ups*. Tapping the child already playing just closes it.
+  playing; a rule; then exactly *Collections* (straight to the Collection page, opening on Medals as
+  Bee's does — owner, 11 Oct 2026), *My progress* (the child's own page: rank, places, stories, medals,
+  the journey), *Settings*, and *+ Add a child* marked *grown-ups*. Tapping the child already playing
+  just closes it.
 - **Switching reloads the page.** A story half told, a quiz, a course's record and a Sabhyata
   city all live in memory; a reload is the only switch that cannot carry one child's state into
   another's.
@@ -83,7 +85,7 @@ saved — the exact thing `migrate()` was written to refuse. It no longer stamps
 | check | holds | broken to prove it |
 |---|---|---|
 | `topbar` | 56px, one row, ⬡ · name · theme · 🔒 · avatar in that order, at 1280 and 390; the page no wider than the 390px phone; ⬡ hidden in a drill | the theme button moved after 🔒 |
-| `kidmenu` | on a desk and from a real tap on a phone: child · child · rule · three lines, in that order; the tick only on the child playing; the playing child's face is the top bar's; My page → `#/me`, Settings → `#/settings`, each closing the menu; tapping the child playing closes without a reload | the Settings line removed; a tick on every child; a face that is not the child's |
+| `kidmenu` | on a desk and from a real tap on a phone: child · child · rule · four lines, in that order; the tick only on the child playing; the playing child's face is the top bar's; Collections → `#/collection/medals`, My progress → `#/me`, Settings → `#/settings`, each closing the menu; tapping the child playing closes without a reload | the Settings line removed; a tick on every child; a face that is not the child's |
 | `shelf` | the Collection draws all 96 faces at once from their 192px copies (`tools/gen-av-thumbs.py`), at night, without a scroll; every copy present and no older than its portrait | lazy 512px portraits (47 of 96 blank) |
 | `household` | Ravi starts with none of Asha's stories, coins, places or Sabhyata; same name refused; switching back finds Asha exactly as left; removing Ravi leaves no `.k2` key and Asha whole | `kidKey()` ignoring the child |
 | `activity` | whole active minutes for the child playing, none for idle time past the grace, a `stop` and a `world` milestone from a finished story | `trackActivity` never started |

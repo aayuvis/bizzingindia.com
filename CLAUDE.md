@@ -240,7 +240,8 @@ claim about how it marked a thing matches what it actually did.
   byte for byte; `family/bridge.js` hands them to the classic scripts. Avatars are the family's
   96 = 12 × 8 at 2/3/2/1 (`avatar-catalogue.js`, validated in `check-standard`); worlds 1–2 are
   free and the rest open with the family plan or 240 coins. **The Collection is Bee's** (owner, 5 Oct
-  2026): one page, three tabs — Medals · Avatars · Worlds with their counts (☰ Medals is its tab) —
+  2026): one page, three tabs — Medals · Avatars · Worlds with their counts, opening on Medals (☰ Medals is
+  its tab; the avatar menu's *Collections* line goes straight to it, *My progress* to `#/me` — 11 Oct 2026) —
   each pack naming its world, every card carrying exactly one thing to do (Wear · Wearing · its printed
   price · or the reason it is locked), and Print my cards for the child's own. **Mor, the peacock on the
   app icon, is a free avatar** — the first Common of pack 1, as Bizzy Bee is Bee's; the Royal Elephant

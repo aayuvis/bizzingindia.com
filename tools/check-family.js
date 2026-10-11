@@ -131,9 +131,10 @@ check('household', 'two children never mix, switching back finds the first as le
 
 /* "Ensure clicking the top-right icon of the kid's avatar opens options like this" (owner,
    3 Oct, with Bee's menu): the children as big rows with their own faces and a tick on the one
-   playing, a rule, then exactly My page — avatar, badges, collection · Settings · + Add a child
-   (grown-ups). Read off the live menu on a desk and from a real tap on a phone. */
-check('kidmenu', 'the avatar opens the family\'s menu: each child with a face and a tick, then My page, Settings, Add a child', async ({ p, ctx, base }) => {
+   playing, a rule, then exactly Collections · My progress · Settings · + Add a child (grown-ups)
+   — Collections straight to the Collection page, on Medals, as Bee's (owner, 11 Oct 2026). Read off
+   the live menu on a desk and from a real tap on a phone. */
+check('kidmenu', 'the avatar opens the family\'s menu: each child with a face and a tick, then Collections, My progress, Settings, Add a child', async ({ p, ctx, base }) => {
   const seed = async (pg) => {
     await pg.evaluate(() => { const h = window.BI.Store.house(); if (h.order.indexOf('k2') < 0) { h.order.push('k2'); h.next = 3; window.BI.Store.saveHouse(h); }
       localStorage.setItem('bi_v1.k2', JSON.stringify({ schemaVersion: 3, name: 'Kabir', buddy: 'rocket', started: '2026-09-01', own: { avatars: [], worlds: [] }, lit: {}, read: {}, lang: {} })); });
@@ -144,18 +145,18 @@ check('kidmenu', 'the avatar opens the family\'s menu: each child with a face an
     const top = document.querySelector('[data-bz=kid] img'), r = m.getBoundingClientRect();
     return { kids: [...m.querySelectorAll('[data-act="switchkid"]')].map(b => ({ name: b.innerText.trim(), on: b.getAttribute('aria-checked') === 'true',
                tick: !!b.querySelector('.km-tick'), img: b.querySelector('img') ? b.querySelector('img').getAttribute('src') : '' })),
-             lines: [...m.querySelectorAll('.km-row')].map(b => [b.innerText.replace(/\s+/g, ' ').trim(), b.getAttribute('data-act'), b.getAttribute('data-v')]),
+             lines: [...m.querySelectorAll('.km-row')].map(b => [b.innerText.replace(/\s+/g, ' ').trim(), b.getAttribute('data-act'), b.getAttribute('data-v'), b.getAttribute('data-arg')]),
              order: [...m.children].map(e => e.tagName === 'HR' ? 'rule' : e.classList.contains('km-kid') ? 'child' : 'line').join(' '),
              top: top ? top.getAttribute('src') : '', fits: r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight };
   });
   const judge = (r, where) => {
     if (!r) throw new Error(where + ': the avatar opened nothing');
-    if (r.order !== 'child child rule line line line') throw new Error(where + ': the menu reads ' + r.order);
+    if (r.order !== 'child child rule line line line line') throw new Error(where + ': the menu reads ' + r.order);
     const on = r.kids.filter(k => k.on);
     if (on.length !== 1 || !on[0].tick || r.kids.some(k => !k.on && k.tick)) throw new Error(where + ': the tick is not on the one child playing — ' + JSON.stringify(r.kids));
     if (on[0].img !== r.top) throw new Error(where + `: the menu shows ${on[0].img} for the child the top bar shows as ${r.top}`);
     if (!/Kabir/.test(r.kids[1].name) || !/rocket/.test(r.kids[1].img)) throw new Error(where + ': the second child is not there with their own face');
-    const want = [['My page — avatar, badges, collection', 'go', 'me'], ['Settings', 'go', 'settings'], ['+ Add a child grown-ups', 'addkid', null]];
+    const want = [['Collections', 'go', 'collection', 'medals'], ['My progress', 'go', 'me', null], ['Settings', 'go', 'settings', null], ['+ Add a child grown-ups', 'addkid', null, null]];
     if (JSON.stringify(r.lines) !== JSON.stringify(want)) throw new Error(where + ': the lines are ' + JSON.stringify(r.lines));
     if (!r.fits) throw new Error(where + ': the menu runs off the screen');
   };
@@ -163,7 +164,7 @@ check('kidmenu', 'the avatar opens the family\'s menu: each child with a face an
   await tap(p, '[data-bz=kid]');
   judge(await read(p), 'desk');
   /* every line goes where it says, and the menu closes behind it */
-  for (const [v, h] of [['me', '#/me'], ['settings', '#/settings']]) {
+  for (const [v, h] of [['collection', '#/collection/medals'], ['me', '#/me'], ['settings', '#/settings']]) {
     if (!(await p.$('#kidmenu'))) await tap(p, '[data-bz=kid]');
     await p.evaluate(v => document.querySelector('#kidmenu [data-v="' + v + '"]').click(), v);
     await p.waitForTimeout(500);
@@ -201,7 +202,7 @@ check('shelf', 'the Collection draws all 96 faces at once, from their small copi
      side by side). The promise is "without a scroll": a face that waits for a scroll never
      arrives however long this waits, so waiting until every face has finished — or 12 s,
      on a machine with other work — holds the same promise without timing a busy disk. */
-  await p.evaluate(() => window.BI.go('collection'));
+  await p.evaluate(() => window.BI.go('collection', 'avatars'));
   await p.waitForFunction(() => { const im = [...document.querySelectorAll('#main .bz-av-art img')];
     return im.length >= 90 && im.every(i => i.complete); }, null, { timeout: 12000, polling: 200 }).catch(() => {});
   const r = await p.evaluate(() => {
@@ -232,12 +233,16 @@ check('collection', 'Bee\'s Collection: three tabs with counts, 12 packs × 8 na
     return { tabs, packs, over, total: A.length, owned: A.filter(a => E.avatarOpen(S, a.id)).length };
   });
   /* coins enough for one rare, so a card can be bought, and one card that cannot */
-  await p.evaluate(() => window.BI.go('collection'));
+  /* Bee's Collection opens on Medals (owner, 11 Oct 2026); the cards are one tab along */
+  await p.evaluate(() => window.BI.go('collection')); await p.waitForTimeout(250);
+  const opens = await p.evaluate(() => [...document.querySelectorAll('#main .bz-colltab')].map(t => t.classList.contains('on') || t.getAttribute('aria-selected') === 'true'));
+  if (!opens[0] || opens[1] || opens[2]) throw new Error('the Collection does not open on Medals: ' + JSON.stringify(opens));
+  await p.evaluate(() => window.BI.go('collection', 'avatars'));
   await p.waitForSelector('#main .bz-pack');
   let r = await look();
   const want = [/^Medals · \d+\/\d+$/, new RegExp('^Avatars · ' + r.owned + '/' + r.total + '$'), /^Worlds · \d+\/15$/];
   if (r.tabs.length !== 3 || !r.tabs.every((t, i) => want[i].test(t.t))) throw new Error('tabs: ' + JSON.stringify(r.tabs));
-  if (!r.tabs[1].on) throw new Error('the Collection does not open on Avatars');
+  if (!r.tabs[1].on) throw new Error('#/collection/avatars does not open on Avatars');
   if (r.packs.length !== 12) throw new Error(r.packs.length + ' packs');
   const bad = [];
   r.packs.forEach(pk => {
